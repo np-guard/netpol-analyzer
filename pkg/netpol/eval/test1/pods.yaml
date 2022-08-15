@@ -1,0 +1,1808 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: effd3acf577331e0f9d95d362e95a44e21683de97ccfcea7396a44d9766fc647
+      cni.projectcalico.org/podIP: 10.244.120.79/32
+      cni.projectcalico.org/podIPs: 10.244.120.79/32
+    creationTimestamp: "2022-08-01T17:05:22Z"
+    generateName: adservice-77d5cd745d-
+    labels:
+      app: adservice
+      pod-template-hash: 77d5cd745d
+    name: adservice-77d5cd745d-t8mx4
+    namespace: default
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: adservice-77d5cd745d
+      uid: de20939b-c550-4dea-943d-57140c16d9e4
+    resourceVersion: "1632"
+    uid: 4c85f10a-15b3-4a57-bd57-c3f05240068c
+  spec:
+    containers:
+    - env:
+      - name: PORT
+        value: "9555"
+      - name: DISABLE_STATS
+        value: "1"
+      - name: DISABLE_TRACING
+        value: "1"
+      image: gcr.io/google-samples/microservices-demo/adservice:v0.3.8
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:9555
+        failureThreshold: 3
+        initialDelaySeconds: 20
+        periodSeconds: 15
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: server
+      ports:
+      - containerPort: 9555
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:9555
+        failureThreshold: 3
+        initialDelaySeconds: 20
+        periodSeconds: 15
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 300m
+          memory: 300Mi
+        requests:
+          cpu: 200m
+          memory: 180Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-zllxm
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 5
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-zllxm
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:23Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:07:53Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:07:53Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:23Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://449f0d743d4ec95befedcac0e715a1a83256bb9ec902eea5faac6a6c03ef11b8
+      image: gcr.io/google-samples/microservices-demo/adservice:v0.3.8
+      imageID: docker-pullable://gcr.io/google-samples/microservices-demo/adservice@sha256:082d0915701a3953fc801387e61d89bc7341cd3a8b2891dfea2252502fd7b459
+      lastState: {}
+      name: server
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-08-01T17:07:00Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.79
+    podIPs:
+    - ip: 10.244.120.79
+    qosClass: Burstable
+    startTime: "2022-08-01T17:05:23Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: a43535937c0b6933b5ba3a807b326519b1d7f7aad4581f94aeaaad97761ea9e0
+      cni.projectcalico.org/podIP: 10.244.120.78/32
+      cni.projectcalico.org/podIPs: 10.244.120.78/32
+    creationTimestamp: "2022-08-01T17:05:20Z"
+    generateName: cartservice-74f56fd4b-
+    labels:
+      app: cartservice
+      pod-template-hash: 74f56fd4b
+    name: cartservice-74f56fd4b-8fjzp
+    namespace: default
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: cartservice-74f56fd4b
+      uid: 7854c23f-c24c-42d3-bba8-ce5c9d3a202e
+    resourceVersion: "1582"
+    uid: bfb12dd1-0b19-496f-9de0-e74873425085
+  spec:
+    containers:
+    - env:
+      - name: REDIS_ADDR
+        value: redis-cart:6379
+      image: gcr.io/google-samples/microservices-demo/cartservice:v0.3.8
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:7070
+          - -rpc-timeout=5s
+        failureThreshold: 3
+        initialDelaySeconds: 15
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: server
+      ports:
+      - containerPort: 7070
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:7070
+          - -rpc-timeout=5s
+        failureThreshold: 3
+        initialDelaySeconds: 15
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 300m
+          memory: 128Mi
+        requests:
+          cpu: 200m
+          memory: 64Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-dc9fr
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 5
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-dc9fr
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:21Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:07:21Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:07:21Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:20Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://ac80daf3233fda2f46b8b27e265b6b37ee337aa16d48813ffa35abe02609946b
+      image: gcr.io/google-samples/microservices-demo/cartservice:v0.3.8
+      imageID: docker-pullable://gcr.io/google-samples/microservices-demo/cartservice@sha256:067a5a70229b1a1d8587cbabf6c7e3870f4ab42c1a66f27c266bdd6823c0a508
+      lastState: {}
+      name: server
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-08-01T17:06:43Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.78
+    podIPs:
+    - ip: 10.244.120.78
+    qosClass: Burstable
+    startTime: "2022-08-01T17:05:21Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: f38262cd85359e2e1b0ee6edf58a4500104b961f7f112389dec41a13e5e4e3bf
+      cni.projectcalico.org/podIP: 10.244.120.70/32
+      cni.projectcalico.org/podIPs: 10.244.120.70/32
+    creationTimestamp: "2022-08-01T17:05:20Z"
+    generateName: checkoutservice-69c8ff664b-
+    labels:
+      app: checkoutservice
+      pod-template-hash: 69c8ff664b
+    name: checkoutservice-69c8ff664b-x5bhp
+    namespace: default
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: checkoutservice-69c8ff664b
+      uid: fb089119-b66d-4e85-8c46-bbde8df74001
+    resourceVersion: "1339"
+    uid: 0ae19180-a590-4b25-bf87-a325ecb4fca1
+  spec:
+    containers:
+    - env:
+      - name: PORT
+        value: "5050"
+      - name: PRODUCT_CATALOG_SERVICE_ADDR
+        value: productcatalogservice:3550
+      - name: SHIPPING_SERVICE_ADDR
+        value: shippingservice:50051
+      - name: PAYMENT_SERVICE_ADDR
+        value: paymentservice:50051
+      - name: EMAIL_SERVICE_ADDR
+        value: emailservice:5000
+      - name: CURRENCY_SERVICE_ADDR
+        value: currencyservice:7000
+      - name: CART_SERVICE_ADDR
+        value: cartservice:7070
+      - name: DISABLE_STATS
+        value: "1"
+      - name: DISABLE_TRACING
+        value: "1"
+      - name: DISABLE_PROFILER
+        value: "1"
+      image: gcr.io/google-samples/microservices-demo/checkoutservice:v0.3.8
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:5050
+        failureThreshold: 3
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: server
+      ports:
+      - containerPort: 5050
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:5050
+        failureThreshold: 3
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-4ck7c
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-4ck7c
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:20Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:38Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:38Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:20Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://0c0a30b803bd2f9ee36150e3e6329c250e3f817752897bb34b428324ed8f141b
+      image: gcr.io/google-samples/microservices-demo/checkoutservice:v0.3.8
+      imageID: docker-pullable://gcr.io/google-samples/microservices-demo/checkoutservice@sha256:7216e104ab9b3e054bfb7c186dc372165753cc3cb26063776de750f7952c5735
+      lastState: {}
+      name: server
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-08-01T17:05:37Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.70
+    podIPs:
+    - ip: 10.244.120.70
+    qosClass: Burstable
+    startTime: "2022-08-01T17:05:20Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: f2c8a9b59a25ace25085034c8f1b3d7318da5000899ee0f15ec586e9411bc796
+      cni.projectcalico.org/podIP: 10.244.120.76/32
+      cni.projectcalico.org/podIPs: 10.244.120.76/32
+    creationTimestamp: "2022-08-01T17:05:21Z"
+    generateName: currencyservice-77654bbbdd-
+    labels:
+      app: currencyservice
+      pod-template-hash: 77654bbbdd
+    name: currencyservice-77654bbbdd-kq4xj
+    namespace: default
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: currencyservice-77654bbbdd
+      uid: f16bfa8b-c329-466b-a3d1-e8db830a86f2
+    resourceVersion: "1481"
+    uid: 74effb20-09dc-40b5-b215-fdf2ad08c316
+  spec:
+    containers:
+    - env:
+      - name: PORT
+        value: "7000"
+      - name: DISABLE_TRACING
+        value: "1"
+      - name: DISABLE_PROFILER
+        value: "1"
+      - name: DISABLE_DEBUGGER
+        value: "1"
+      image: gcr.io/google-samples/microservices-demo/currencyservice:v0.3.8
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:7000
+        failureThreshold: 3
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: server
+      ports:
+      - containerPort: 7000
+        name: grpc
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:7000
+        failureThreshold: 3
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-zc5p2
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 5
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-zc5p2
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:21Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:06:34Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:06:34Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:21Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://a5e93219d8f7dfa7789df9a11a95cb208167b7acdc4389a3034915a82ea92929
+      image: gcr.io/google-samples/microservices-demo/currencyservice:v0.3.8
+      imageID: docker-pullable://gcr.io/google-samples/microservices-demo/currencyservice@sha256:afaa0553d4d668b7584e0b26866e3f528fbdf56bf6eb279d74f5e63fde274deb
+      lastState: {}
+      name: server
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-08-01T17:06:32Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.76
+    podIPs:
+    - ip: 10.244.120.76
+    qosClass: Burstable
+    startTime: "2022-08-01T17:05:21Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: 8bfb0a54e6e304e08ef569c9d490c01bc23e4c391760fcd1cb77079cc804e77f
+      cni.projectcalico.org/podIP: 10.244.120.71/32
+      cni.projectcalico.org/podIPs: 10.244.120.71/32
+    creationTimestamp: "2022-08-01T17:05:20Z"
+    generateName: emailservice-54c7c5d9d-
+    labels:
+      app: emailservice
+      pod-template-hash: 54c7c5d9d
+    name: emailservice-54c7c5d9d-vp27n
+    namespace: default
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: emailservice-54c7c5d9d
+      uid: f435a2cf-cc21-403c-a536-656056411ad3
+    resourceVersion: "1366"
+    uid: 59e0e232-d7c4-4e00-8649-1f83cc850f3d
+  spec:
+    containers:
+    - env:
+      - name: PORT
+        value: "8080"
+      - name: DISABLE_TRACING
+        value: "1"
+      - name: DISABLE_PROFILER
+        value: "1"
+      image: gcr.io/google-samples/microservices-demo/emailservice:v0.3.8
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:8080
+        failureThreshold: 3
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: server
+      ports:
+      - containerPort: 8080
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:8080
+        failureThreshold: 3
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-w68bw
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 5
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-w68bw
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:20Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:55Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:55Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:20Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://4535a848bee5aa317e6fd7f1b7079f6402fab81531f8739abed760903fa95b15
+      image: gcr.io/google-samples/microservices-demo/emailservice:v0.3.8
+      imageID: docker-pullable://gcr.io/google-samples/microservices-demo/emailservice@sha256:1bad40dfbc560d6bc594bda3077f789d2b57651bc93846ec0e01253915cbab79
+      lastState: {}
+      name: server
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-08-01T17:05:52Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.71
+    podIPs:
+    - ip: 10.244.120.71
+    qosClass: Burstable
+    startTime: "2022-08-01T17:05:20Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: fb1e1d1c79e8b2fa7079548718e9a1a0151caf8da49c1582087627af3d11984e
+      cni.projectcalico.org/podIP: 10.244.120.73/32
+      cni.projectcalico.org/podIPs: 10.244.120.73/32
+      sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    creationTimestamp: "2022-08-01T17:05:20Z"
+    generateName: frontend-99684f7f8-
+    labels:
+      app: frontend
+      pod-template-hash: 99684f7f8
+    name: frontend-99684f7f8-l7mqq
+    namespace: default
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: frontend-99684f7f8
+      uid: 52f94d04-e81b-4374-8b98-e5c6f386ab7a
+    resourceVersion: "1454"
+    uid: 5b39c8cb-6644-47b3-90c3-3361de248d2d
+  spec:
+    containers:
+    - env:
+      - name: PORT
+        value: "8080"
+      - name: PRODUCT_CATALOG_SERVICE_ADDR
+        value: productcatalogservice:3550
+      - name: CURRENCY_SERVICE_ADDR
+        value: currencyservice:7000
+      - name: CART_SERVICE_ADDR
+        value: cartservice:7070
+      - name: RECOMMENDATION_SERVICE_ADDR
+        value: recommendationservice:8080
+      - name: SHIPPING_SERVICE_ADDR
+        value: shippingservice:50051
+      - name: CHECKOUT_SERVICE_ADDR
+        value: checkoutservice:5050
+      - name: AD_SERVICE_ADDR
+        value: adservice:9555
+      - name: DISABLE_TRACING
+        value: "1"
+      - name: DISABLE_PROFILER
+        value: "1"
+      image: gcr.io/google-samples/microservices-demo/frontend:v0.3.8
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          httpHeaders:
+          - name: Cookie
+            value: shop_session-id=x-liveness-probe
+          path: /_healthz
+          port: 8080
+          scheme: HTTP
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: server
+      ports:
+      - containerPort: 8080
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          httpHeaders:
+          - name: Cookie
+            value: shop_session-id=x-readiness-probe
+          path: /_healthz
+          port: 8080
+          scheme: HTTP
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-gc422
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-gc422
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:20Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:06:30Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:06:30Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:20Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://108bf64050b3e8c1ad48e02a9d114961094570abcee8ba6faf432e422c78bbb6
+      image: gcr.io/google-samples/microservices-demo/frontend:v0.3.8
+      imageID: docker-pullable://gcr.io/google-samples/microservices-demo/frontend@sha256:594df8b199451706d73ac23c6ac7c0c1a0f274eeebc575e46b94c28ebed8fc5c
+      lastState: {}
+      name: server
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-08-01T17:06:11Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.73
+    podIPs:
+    - ip: 10.244.120.73
+    qosClass: Burstable
+    startTime: "2022-08-01T17:05:20Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: c532a5848320d2a6df656aa251c26ce3bd7621ff3904a6fa6e993183a5b5d2e1
+      cni.projectcalico.org/podIP: 10.244.120.77/32
+      cni.projectcalico.org/podIPs: 10.244.120.77/32
+      sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    creationTimestamp: "2022-08-01T17:05:21Z"
+    generateName: loadgenerator-555fbdc87d-
+    labels:
+      app: loadgenerator
+      pod-template-hash: 555fbdc87d
+    name: loadgenerator-555fbdc87d-cgxv8
+    namespace: default
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: loadgenerator-555fbdc87d
+      uid: ab49fc78-419f-40e8-883e-44a1629a28a5
+    resourceVersion: "1623"
+    uid: 5f5a5d24-b59f-4f2e-9f17-2334a4c21ff7
+  spec:
+    containers:
+    - env:
+      - name: FRONTEND_ADDR
+        value: frontend:80
+      - name: USERS
+        value: "10"
+      image: gcr.io/google-samples/microservices-demo/loadgenerator:v0.3.8
+      imagePullPolicy: IfNotPresent
+      name: main
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 300m
+          memory: 256Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-fw5rm
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    initContainers:
+    - command:
+      - /bin/sh
+      - -exc
+      - |
+        echo "Init container pinging frontend: ${FRONTEND_ADDR}..."
+        STATUSCODE=$(wget --server-response http://${FRONTEND_ADDR} 2>&1 | awk '/^  HTTP/{print $2}')
+        if test $STATUSCODE -ne 200; then
+            echo "Error: Could not reach frontend - Status code: ${STATUSCODE}"
+            exit 1
+        fi
+      env:
+      - name: FRONTEND_ADDR
+        value: frontend:80
+      image: busybox:latest
+      imagePullPolicy: Always
+      name: frontend-check
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-fw5rm
+        readOnly: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 5
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-fw5rm
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:07:33Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:07:46Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:07:46Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:21Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://0219b20175e5323f889d6d030539a2e32f4caf2ede98b383207b9d62a6a77330
+      image: gcr.io/google-samples/microservices-demo/loadgenerator:v0.3.8
+      imageID: docker-pullable://gcr.io/google-samples/microservices-demo/loadgenerator@sha256:0aad89672490397a7a1cee8222734f0d42afd31f186d240c4e9c5c5b11de216f
+      lastState: {}
+      name: main
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-08-01T17:07:46Z"
+    hostIP: 192.168.49.2
+    initContainerStatuses:
+    - containerID: docker://f105c577b2b8e8ae993f307b30f6b6e2ba3d4a5e1eb3b23cf5ec2e48a6416d23
+      image: busybox:latest
+      imageID: docker-pullable://busybox@sha256:53ce9dbb39d7b1f422c137ae9fb81259816c23f556d622a39736ede882579b5d
+      lastState: {}
+      name: frontend-check
+      ready: true
+      restartCount: 2
+      state:
+        terminated:
+          containerID: docker://f105c577b2b8e8ae993f307b30f6b6e2ba3d4a5e1eb3b23cf5ec2e48a6416d23
+          exitCode: 0
+          finishedAt: "2022-08-01T17:07:32Z"
+          reason: Completed
+          startedAt: "2022-08-01T17:07:30Z"
+    phase: Running
+    podIP: 10.244.120.77
+    podIPs:
+    - ip: 10.244.120.77
+    qosClass: Burstable
+    startTime: "2022-08-01T17:05:21Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: d05922f61b3544177eebb335a55f32e9f4b534ee07ff7e42bb0c9b9b3a9f938f
+      cni.projectcalico.org/podIP: 10.244.120.75/32
+      cni.projectcalico.org/podIPs: 10.244.120.75/32
+    creationTimestamp: "2022-08-01T17:05:20Z"
+    generateName: paymentservice-bbcbdc6b6-
+    labels:
+      app: paymentservice
+      pod-template-hash: bbcbdc6b6
+    name: paymentservice-bbcbdc6b6-87j92
+    namespace: default
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: paymentservice-bbcbdc6b6
+      uid: ddbe5258-93c6-49ed-9f78-36b8daac0491
+    resourceVersion: "1447"
+    uid: 225c9240-2e94-48ab-bd20-70f27c3ecf92
+  spec:
+    containers:
+    - env:
+      - name: PORT
+        value: "50051"
+      - name: DISABLE_TRACING
+        value: "1"
+      - name: DISABLE_PROFILER
+        value: "1"
+      - name: DISABLE_DEBUGGER
+        value: "1"
+      image: gcr.io/google-samples/microservices-demo/paymentservice:v0.3.8
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:50051
+        failureThreshold: 3
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: server
+      ports:
+      - containerPort: 50051
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:50051
+        failureThreshold: 3
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-hhmsr
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 5
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-hhmsr
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:20Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:06:28Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:06:28Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:20Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://243e2d510b3f6d0bb60d21cfe46cd330d3cd1e8dd1712da96355f3c527bab17c
+      image: gcr.io/google-samples/microservices-demo/paymentservice:v0.3.8
+      imageID: docker-pullable://gcr.io/google-samples/microservices-demo/paymentservice@sha256:f03002678b5935d070e408e6f1241c063ec52a10fe6a9dc5d06b8d701707858d
+      lastState: {}
+      name: server
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-08-01T17:06:26Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.75
+    podIPs:
+    - ip: 10.244.120.75
+    qosClass: Burstable
+    startTime: "2022-08-01T17:05:20Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: 9da2911ebe971b7f58c649156bc55f9e2e68addc8337fa8d92f7b98ae6dc31b1
+      cni.projectcalico.org/podIP: 10.244.120.74/32
+      cni.projectcalico.org/podIPs: 10.244.120.74/32
+    creationTimestamp: "2022-08-01T17:05:20Z"
+    generateName: productcatalogservice-68765d49b6-
+    labels:
+      app: productcatalogservice
+      pod-template-hash: 68765d49b6
+    name: productcatalogservice-68765d49b6-dkxzk
+    namespace: default
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: productcatalogservice-68765d49b6
+      uid: e474e129-0afe-4097-992d-fec8cfb82d3e
+    resourceVersion: "1417"
+    uid: d1acb697-c6d6-48ca-b73e-86b5ef90a11e
+  spec:
+    containers:
+    - env:
+      - name: PORT
+        value: "3550"
+      - name: DISABLE_STATS
+        value: "1"
+      - name: DISABLE_TRACING
+        value: "1"
+      - name: DISABLE_PROFILER
+        value: "1"
+      image: gcr.io/google-samples/microservices-demo/productcatalogservice:v0.3.8
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:3550
+        failureThreshold: 3
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: server
+      ports:
+      - containerPort: 3550
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:3550
+        failureThreshold: 3
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-cv4rc
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 5
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-cv4rc
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:20Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:06:15Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:06:15Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:20Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://ac8feb673a7044ff1f42bb8f9d873d2351d6f5fd3f978d817d68c40cfb35b5fd
+      image: gcr.io/google-samples/microservices-demo/productcatalogservice:v0.3.8
+      imageID: docker-pullable://gcr.io/google-samples/microservices-demo/productcatalogservice@sha256:ccf5daa361e1776cf3ebb89331c1bc48f8296dffb26e27c469bc9ba96547bcfa
+      lastState: {}
+      name: server
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-08-01T17:06:14Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.74
+    podIPs:
+    - ip: 10.244.120.74
+    qosClass: Burstable
+    startTime: "2022-08-01T17:05:20Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: d7730fd5147c621967aa73e63b4b07658145e85112e138e668bfc3333a6b0dee
+      cni.projectcalico.org/podIP: 10.244.120.72/32
+      cni.projectcalico.org/podIPs: 10.244.120.72/32
+    creationTimestamp: "2022-08-01T17:05:20Z"
+    generateName: recommendationservice-5f8c456796-
+    labels:
+      app: recommendationservice
+      pod-template-hash: 5f8c456796
+    name: recommendationservice-5f8c456796-b594r
+    namespace: default
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: recommendationservice-5f8c456796
+      uid: 362c41f6-e254-4d58-967f-ba3377dba268
+    resourceVersion: "1412"
+    uid: 36329eae-3292-4988-b527-dacc5b014da9
+  spec:
+    containers:
+    - env:
+      - name: PORT
+        value: "8080"
+      - name: PRODUCT_CATALOG_SERVICE_ADDR
+        value: productcatalogservice:3550
+      - name: DISABLE_TRACING
+        value: "1"
+      - name: DISABLE_PROFILER
+        value: "1"
+      - name: DISABLE_DEBUGGER
+        value: "1"
+      image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.3.8
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:8080
+        failureThreshold: 3
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: server
+      ports:
+      - containerPort: 8080
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:8080
+        failureThreshold: 3
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 450Mi
+        requests:
+          cpu: 100m
+          memory: 220Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-jjrtc
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 5
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-jjrtc
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:20Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:06:15Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:06:15Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:20Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://cc2e954ecbb26d53303f4754dfed60b9233ed51d5969bdb5b5aae2d9217aa02c
+      image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.3.8
+      imageID: docker-pullable://gcr.io/google-samples/microservices-demo/recommendationservice@sha256:93f3a9a8f0e23ab19ccdda3ed35d8574d1d914245e18649d71be7e7cf833cebd
+      lastState: {}
+      name: server
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-08-01T17:06:07Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.72
+    podIPs:
+    - ip: 10.244.120.72
+    qosClass: Burstable
+    startTime: "2022-08-01T17:05:20Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: 03e100f38a718a7cf6ca7adb8fb0061024c883938b3c6a6be64956e59e9c07a4
+      cni.projectcalico.org/podIP: 10.244.120.80/32
+      cni.projectcalico.org/podIPs: 10.244.120.80/32
+    creationTimestamp: "2022-08-01T17:05:22Z"
+    generateName: redis-cart-78746d49dc-
+    labels:
+      app: redis-cart
+      pod-template-hash: 78746d49dc
+    name: redis-cart-78746d49dc-5hk5z
+    namespace: default
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: redis-cart-78746d49dc
+      uid: 456d9060-c23e-4598-a88c-aa1e3d9713d6
+    resourceVersion: "1544"
+    uid: 6b793a2d-4b8d-4ff9-a9e1-fefd1014a934
+  spec:
+    containers:
+    - image: redis:alpine
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        failureThreshold: 3
+        periodSeconds: 5
+        successThreshold: 1
+        tcpSocket:
+          port: 6379
+        timeoutSeconds: 1
+      name: redis
+      ports:
+      - containerPort: 6379
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        periodSeconds: 5
+        successThreshold: 1
+        tcpSocket:
+          port: 6379
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 125m
+          memory: 256Mi
+        requests:
+          cpu: 70m
+          memory: 200Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /data
+        name: redis-data
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-mn5cj
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - emptyDir: {}
+      name: redis-data
+    - name: kube-api-access-mn5cj
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:22Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:07:06Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:07:06Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:22Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://740f05603cbc9ad088a791471781c7bbed137d777970ed687cfabc8f8656f1ed
+      image: redis:alpine
+      imageID: docker-pullable://redis@sha256:f23b1e963e2122ce4de6c40ffd105b60ccfa62bf0134585d3109f5caf691b5b3
+      lastState: {}
+      name: redis
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-08-01T17:07:06Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.80
+    podIPs:
+    - ip: 10.244.120.80
+    qosClass: Burstable
+    startTime: "2022-08-01T17:05:22Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: b5d9093f58c46c5f00b0da28243f23ac70479cec8109d1c241f5a6b7d715d24d
+      cni.projectcalico.org/podIP: 10.244.120.81/32
+      cni.projectcalico.org/podIPs: 10.244.120.81/32
+    creationTimestamp: "2022-08-01T17:05:21Z"
+    generateName: shippingservice-5bd985c46d-
+    labels:
+      app: shippingservice
+      pod-template-hash: 5bd985c46d
+    name: shippingservice-5bd985c46d-mbb8l
+    namespace: default
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: shippingservice-5bd985c46d
+      uid: 31e2fe0a-0813-4ee7-93f0-8d589428f0ab
+    resourceVersion: "1558"
+    uid: 62890256-a6c3-47df-9ce2-4ceae3aea7c2
+  spec:
+    containers:
+    - env:
+      - name: PORT
+        value: "50051"
+      - name: DISABLE_STATS
+        value: "1"
+      - name: DISABLE_TRACING
+        value: "1"
+      - name: DISABLE_PROFILER
+        value: "1"
+      image: gcr.io/google-samples/microservices-demo/shippingservice:v0.3.8
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:50051
+        failureThreshold: 3
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: server
+      ports:
+      - containerPort: 50051
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - /bin/grpc_health_probe
+          - -addr=:50051
+        failureThreshold: 3
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-zp2ql
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-zp2ql
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:22Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:07:11Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:07:11Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-08-01T17:05:21Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://df72aa663253a47e94bcb61c0116660f2863450cd5dc219ccba6b12551a100fb
+      image: gcr.io/google-samples/microservices-demo/shippingservice:v0.3.8
+      imageID: docker-pullable://gcr.io/google-samples/microservices-demo/shippingservice@sha256:533fd929a756fca6a6238d1ccd6b460121239c7acf35417f602c4921da838224
+      lastState: {}
+      name: server
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-08-01T17:07:10Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.81
+    podIPs:
+    - ip: 10.244.120.81
+    qosClass: Burstable
+    startTime: "2022-08-01T17:05:22Z"
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
