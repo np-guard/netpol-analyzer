@@ -17,8 +17,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
 var (
