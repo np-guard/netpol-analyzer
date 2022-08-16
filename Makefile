@@ -13,14 +13,13 @@ fmt:
 lint:
 	@echo -- $@ --
 	CGO_ENABLED=0 go vet ./...
-	golangci-lint run
+	# golangci-lint run
 
 precommit: mod fmt lint
 
 build:
 	@echo -- $@ --
-	go build -o ./bin/netpolicy cmd/netpolicy/main.go
-	#CGO_ENABLED=0 go build -o $(EXE) cmd/netpolicy
+	CGO_ENABLED=0 go build -o ./bin/$(EXE) ./cmd/netpolicy
 
 test:
 	@echo -- $@ --
