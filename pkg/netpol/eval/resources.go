@@ -1,10 +1,11 @@
 package eval
 
 import (
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 )
 
 //var netpols = []*k8s.NetworkPolicy{}
