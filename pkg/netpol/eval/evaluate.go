@@ -49,7 +49,8 @@ or egress destinations.
 namespaceSelector and podSelector: A single to/from entry that specifies both namespaceSelector and podSelector
 selects particular Pods within particular namespaces.
 
-ipBlock: This selects particular IP CIDR ranges to allow as ingress sources or egress destinations. These should be cluster-external IPs, since Pod IPs are ephemeral and unpredictable.
+ipBlock: This selects particular IP CIDR ranges to allow as ingress sources or egress destinations.
+These should be cluster-external IPs, since Pod IPs are ephemeral and unpredictable.
 
 Cluster ingress and egress mechanisms often require rewriting the source or destination
 IP of packets. In cases where this happens, it is not defined whether this happens before

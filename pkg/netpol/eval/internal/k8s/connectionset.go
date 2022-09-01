@@ -3,7 +3,9 @@
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//     http://www.apache.org/licenses/LICENSE-2.0
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +23,7 @@ import (
 
 type ConnectionSet struct {
 	AllowAll         bool
-	AllowedProtocols map[v1.Protocol]*PortSet //map from protocol name to set of allowed ports
+	AllowedProtocols map[v1.Protocol]*PortSet // map from protocol name to set of allowed ports
 }
 
 func MakeConnectionSet(all bool) ConnectionSet {
@@ -69,10 +71,8 @@ func (conn *ConnectionSet) isAllConnectionsWithoutAllowAll() bool {
 		ports, ok := conn.AllowedProtocols[protocol]
 		if !ok {
 			return false
-		} else {
-			if !ports.IsAll() {
-				return false
-			}
+		} else if !ports.IsAll() {
+			return false
 		}
 	}
 
@@ -114,10 +114,9 @@ func (conn *ConnectionSet) Contains(port, protocol string) bool {
 	if err != nil {
 		return false
 	}
-	//strings.ToUpper(protocol)
 	for allowedProtocol, allowedPorts := range conn.AllowedProtocols {
-		if strings.ToUpper(protocol) == string(allowedProtocol) {
-			return allowedPorts.Contains((int64)(intPort))
+		if strings.EqualFold(protocol, string(allowedProtocol)) {
+			return allowedPorts.Contains(int64(intPort))
 		}
 	}
 	return false
@@ -131,12 +130,11 @@ func (conn *ConnectionSet) ContainedIn(other ConnectionSet) bool {
 		return false
 	}
 	for protocol, ports := range conn.AllowedProtocols {
-
-		other_ports, ok := other.AllowedProtocols[protocol]
+		otherPorts, ok := other.AllowedProtocols[protocol]
 		if !ok {
 			return false
 		}
-		if !ports.ContainedIn(*other_ports) {
+		if !ports.ContainedIn(*otherPorts) {
 			return false
 		}
 	}
@@ -166,7 +164,7 @@ func (conn *ConnectionSet) String() string {
 		resStrings = append(resStrings, string(protocol)+" "+ports.String())
 	}
 	sort.Strings(resStrings)
-	return strings.Join(resStrings[:], ",")
+	return strings.Join(resStrings, ",")
 }
 
 func (conn *ConnectionSet) Equal(other ConnectionSet) bool {

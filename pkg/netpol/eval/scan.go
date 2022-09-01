@@ -2,10 +2,8 @@ package eval
 
 import (
 	"bytes"
-	"crypto/md5"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -45,6 +43,8 @@ const (
 	list                  string = "List"
 )
 
+const yamlParseBufferSize = 200
+
 type deployObject struct {
 	GroupKind     string
 	RuntimeObject []byte
@@ -52,7 +52,6 @@ type deployObject struct {
 
 type parsedK8sObjects struct {
 	ManifestFilepath string
-	ManifestFilehash string
 	DeployObjects    []deployObject
 }
 
@@ -63,7 +62,7 @@ func FilesToObjectsList(path string) ([]K8sObject, error) {
 		for _, o := range obj.DeployObjects {
 			kind := o.GroupKind
 			fmt.Printf("%v", kind)
-			if kind == "Pod" || kind == "NetworkPolicy" || kind == "Namespace" || kind == "List" {
+			if kind == pod || kind == networkpolicy || kind == namespace || kind == list {
 				res1, err := ScanK8sDeployObject(kind, o.RuntimeObject)
 				if err == nil {
 					res = append(res, res1...)
@@ -73,59 +72,50 @@ func FilesToObjectsList(path string) ([]K8sObject, error) {
 			}
 		}
 	}
-
 	return res, nil
-
 }
 
-//getK8sDeploymentResources :
+// getK8sDeploymentResources :
 func getK8sDeploymentResources(repoDir *string) []parsedK8sObjects {
 	manifestFiles := searchDeploymentManifests(repoDir)
 	if len(manifestFiles) == 0 {
-		//zap.S().Info("no deployment manifest found")
 		return nil
 	}
 	parsedObjs := []parsedK8sObjects{}
 	for _, mfp := range manifestFiles {
-		if filebuf, err := ioutil.ReadFile(mfp); err == nil {
-			p := parsedK8sObjects{}
-			p.ManifestFilepath = mfp
-			if pathSplit := strings.Split(mfp, *repoDir); len(pathSplit) > 1 {
-				p.ManifestFilepath = pathSplit[1]
-			}
-			p.ManifestFilehash = fmt.Sprintf("%x", md5.Sum(filebuf))
-			p.DeployObjects = parseK8sYaml(filebuf)
-			parsedObjs = append(parsedObjs, p)
+		filebuf, err := os.ReadFile(mfp)
+		if err != nil {
+			continue
 		}
+		p := parsedK8sObjects{}
+		p.ManifestFilepath = mfp
+		if pathSplit := strings.Split(mfp, *repoDir); len(pathSplit) > 1 {
+			p.ManifestFilepath = pathSplit[1]
+		}
+		p.DeployObjects = parseK8sYaml(filebuf)
+		parsedObjs = append(parsedObjs, p)
 	}
 	return parsedObjs
 }
 
-//searchDeploymentManifests :
+// searchDeploymentManifests :
 func searchDeploymentManifests(repoDir *string) []string {
 	yamls := []string{}
-	filepath.Walk(*repoDir, func(path string, f os.FileInfo, _ error) error {
-		if f != nil {
-			if !f.IsDir() {
-				r, err := regexp.MatchString(".yaml", f.Name())
-				if err == nil && r {
-					yamls = append(yamls, path)
-				}
+	err := filepath.WalkDir(*repoDir, func(path string, f os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if f != nil && !f.IsDir() {
+			r, err := regexp.MatchString(`^.*\.y(a)?ml$`, f.Name())
+			if err == nil && r {
+				yamls = append(yamls, path)
 			}
 		}
 		return nil
 	})
-	filepath.Walk(*repoDir, func(path string, f os.FileInfo, _ error) error {
-		if f != nil {
-			if !f.IsDir() {
-				r, err := regexp.MatchString(".yml", f.Name())
-				if err == nil && r {
-					yamls = append(yamls, path)
-				}
-			}
-		}
-		return nil
-	})
+	if err != nil {
+		fmt.Printf("Error: Error in searching for manifests: %v", err)
+	}
 	return yamls
 }
 
@@ -137,23 +127,22 @@ func ParseListNew(objDataBuf []byte) []K8sObject {
 	}
 	podsList := v1.PodList{}
 	nsList := v1.NamespaceList{}
-	err := yaml.NewYAMLOrJSONDecoder(r, 200).Decode(&podsList)
-	if err == nil && len(podsList.Items) > 0 && podsList.Items[0].TypeMeta.Kind == "Pod" {
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&podsList)
+	if err == nil && len(podsList.Items) > 0 && podsList.Items[0].TypeMeta.Kind == pod {
 		for i := range podsList.Items {
-			res = append(res, K8sObject{pod: &podsList.Items[i], kind: "Pod"})
+			res = append(res, K8sObject{pod: &podsList.Items[i], kind: pod})
 		}
 		return res
 	}
 	r = bytes.NewReader(objDataBuf)
-	err = yaml.NewYAMLOrJSONDecoder(r, 200).Decode(&nsList)
-	if err == nil && len(nsList.Items) > 0 && nsList.Items[0].TypeMeta.Kind == "Namespace" {
+	err = yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&nsList)
+	if err == nil && len(nsList.Items) > 0 && nsList.Items[0].TypeMeta.Kind == namespace {
 		for i := range nsList.Items {
-			res = append(res, K8sObject{namespace: &nsList.Items[i], kind: "Namespace"})
+			res = append(res, K8sObject{namespace: &nsList.Items[i], kind: namespace})
 		}
 		return res
 	}
 	return res
-
 }
 
 func ParseList(r io.Reader) *v1.PodList {
@@ -161,7 +150,7 @@ func ParseList(r io.Reader) *v1.PodList {
 		return nil
 	}
 	rc := v1.PodList{}
-	err := yaml.NewYAMLOrJSONDecoder(r, 200).Decode(&rc)
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
 	if err != nil {
 		return nil
 	}
@@ -174,7 +163,7 @@ func ParsePod(r io.Reader) *v1.Pod {
 		return nil
 	}
 	rc := v1.Pod{}
-	err := yaml.NewYAMLOrJSONDecoder(r, 200).Decode(&rc)
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
 	if err != nil {
 		return nil
 	}
@@ -186,7 +175,7 @@ func ParseNamespace(r io.Reader) *v1.Namespace {
 		return nil
 	}
 	rc := v1.Namespace{}
-	err := yaml.NewYAMLOrJSONDecoder(r, 200).Decode(&rc)
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
 	if err != nil {
 		return nil
 	}
@@ -198,7 +187,7 @@ func ParseNetworkPolicy(r io.Reader) *netv1.NetworkPolicy {
 		return nil
 	}
 	rc := netv1.NetworkPolicy{}
-	err := yaml.NewYAMLOrJSONDecoder(r, 200).Decode(&rc)
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
 	if err != nil {
 		return nil
 	}
@@ -211,7 +200,7 @@ func ParseDeployment(r io.Reader) *appsv1.Deployment {
 		return nil
 	}
 	rc := appsv1.Deployment{}
-	err := yaml.NewYAMLOrJSONDecoder(r, 100).Decode(&rc)
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
 	if err != nil {
 		return nil
 	}
@@ -224,7 +213,7 @@ func ParseReplicaSet(r io.Reader) *appsv1.ReplicaSet {
 		return nil
 	}
 	rc := appsv1.ReplicaSet{}
-	err := yaml.NewYAMLOrJSONDecoder(r, 200).Decode(&rc)
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
 	if err != nil {
 		return nil
 	}
@@ -237,11 +226,10 @@ func ParseReplicationController(r io.Reader) *v1.ReplicationController {
 		return nil
 	}
 	rc := v1.ReplicationController{}
-	err := yaml.NewYAMLOrJSONDecoder(r, 200).Decode(&rc)
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
 	if err != nil {
 		return nil
 	}
-
 	return &rc
 }
 
@@ -251,11 +239,10 @@ func ParseDaemonSet(r io.Reader) *appsv1.DaemonSet {
 		return nil
 	}
 	rc := appsv1.DaemonSet{}
-	err := yaml.NewYAMLOrJSONDecoder(r, 200).Decode(&rc)
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
 	if err != nil {
 		return nil
 	}
-
 	return &rc
 }
 
@@ -265,11 +252,10 @@ func ParseStatefulSet(r io.Reader) *appsv1.StatefulSet {
 		return nil
 	}
 	rc := appsv1.StatefulSet{}
-	err := yaml.NewYAMLOrJSONDecoder(r, 200).Decode(&rc)
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
 	if err != nil {
 		return nil
 	}
-
 	return &rc
 }
 
@@ -279,11 +265,10 @@ func ParseJob(r io.Reader) *batchv1.Job {
 		return nil
 	}
 	rc := batchv1.Job{}
-	err := yaml.NewYAMLOrJSONDecoder(r, 200).Decode(&rc)
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
 	if err != nil {
 		return nil
 	}
-
 	return &rc
 }
 
@@ -293,49 +278,36 @@ func ParseService(r io.Reader) *v1.Service {
 		return nil
 	}
 	rc := v1.Service{}
-	err := yaml.NewYAMLOrJSONDecoder(r, 200).Decode(&rc)
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
 	if err != nil {
 		return nil
 	}
 	return &rc
 }
 
-//ScanK8sDeployObject :
+// ScanK8sDeployObject :
 func ScanK8sDeployObject(kind string, objDataBuf []byte) ([]K8sObject, error) {
-
 	res := []K8sObject{}
 
 	switch kind {
 	case "Pod":
 		obj := ParsePod(bytes.NewReader(objDataBuf))
-		//res.pod = obj
-		//res.kind = kind
 		res = append(res, K8sObject{pod: obj, kind: kind})
 	case "ReplicaSet":
 		obj := ParseReplicaSet(bytes.NewReader(objDataBuf))
-		//res.replicaset = obj
-		//res.kind = kind
 		res = append(res, K8sObject{replicaset: obj, kind: kind})
 	case "NetworkPolicy":
 		obj := ParseNetworkPolicy(bytes.NewReader(objDataBuf))
-		//res.networkpolicy = obj
-		//res.kind = kind
 		res = append(res, K8sObject{networkpolicy: obj, kind: kind})
 	case "Namespace":
 		obj := ParseNamespace(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{namespace: obj, kind: kind})
-		//res.namespace = obj
-		//res.kind = kind
 	case "List":
 		obj := ParseListNew(objDataBuf)
 		res = obj
-		//fmt.Printf("%v", obj)
-		//res.kind = kind
-
 	default:
 		return res, fmt.Errorf("unsupported object type: `%s`", kind)
 	}
-
 	return res, nil
 }
 
@@ -348,13 +320,9 @@ func splitByYamlDocuments(data []byte) []string {
 			if err == io.EOF {
 				break
 			}
-			//zap.S().Warn(err) // document decode failed
 		}
 		if len(doc) > 0 {
 			out, _ := yamlv3.Marshal(doc)
-			//if err != nil {
-			//	zap.S().Warn(err) // document marshal failed
-			//}
 			documents = append(documents, string(out))
 		}
 	}
@@ -364,9 +332,8 @@ func splitByYamlDocuments(data []byte) []string {
 func parseK8sYaml(fileR []byte) []deployObject {
 	dObjs := []deployObject{}
 	acceptedK8sTypes := regexp.MustCompile(fmt.Sprintf("(%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s)",
-		pod, replicaSet, replicationController, deployment, daemonset, statefulset, job, cronJob, service, configmap, networkpolicy, namespace, list))
-	//fileAsString := string(fileR[:])
-	//sepYamlfiles := regexp.MustCompile("---\\s").Split(fileAsString, -1)
+		pod, replicaSet, replicationController, deployment, daemonset, statefulset, job, cronJob,
+		service, configmap, networkpolicy, namespace, list))
 	sepYamlfiles := splitByYamlDocuments(fileR)
 	for _, f := range sepYamlfiles {
 		if f == "\n" || f == "" {
@@ -379,7 +346,6 @@ func parseK8sYaml(fileR []byte) []deployObject {
 			continue
 		}
 		if !acceptedK8sTypes.MatchString(groupVersionKind.Kind) {
-			//zap.S().Infof("Skipping object with type: %s", groupVersionKind.Kind)
 			fmt.Printf("Skipping object with type: %v", groupVersionKind.Kind)
 		} else {
 			d := deployObject{}
