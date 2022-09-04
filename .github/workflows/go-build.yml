@@ -1,0 +1,30 @@
+name: Go
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+    - name: Set up Go
+      uses: actions/setup-go@84cbf8094393cdc5fe1fe1671ff2647332956b1a
+      with:
+        go-version: 1.17
+
+    - name: Build
+      env:
+        CGO_ENABLED: 0
+        GOOS: linux      
+      run: go build --tags static_all -v -o ./bin/netpolicy cmd/netpolicy/main.go
+
+    #- name: Test
+    #  run: go test -v ./pkg/controller

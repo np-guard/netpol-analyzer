@@ -2,7 +2,6 @@ package eval
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
@@ -204,18 +203,21 @@ func AllowAllTo(namespace string, toLabels map[string]string) *netv1.NetworkPoli
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: api-allow-5000
+
+	name: api-allow-5000
+
 spec:
-  podSelector:
-    matchLabels:
-      app: apiserver
-  ingress:
-  - ports:
-    - port: 5000
-    from:
-    - podSelector:
-        matchLabels:
-          role: monitoring
+
+	podSelector:
+	  matchLabels:
+	    app: apiserver
+	ingress:
+	- ports:
+	  - port: 5000
+	  from:
+	  - podSelector:
+	      matchLabels:
+	        role: monitoring
 */
 func AllowSpecificPortTo(namespace string, fromLabels, targetLabels map[string]string, targetPort int) *netv1.NetworkPolicy {
 	portRef := intstr.FromInt(targetPort)
@@ -262,7 +264,7 @@ spec:
   - from:
     - namespaceSelector: {}
 */
-func AllowAllTo_Version2(namespace string, targetLabels map[string]string) *netv1.NetworkPolicy {
+func AllowAllToVersion2(namespace string, targetLabels map[string]string) *netv1.NetworkPolicy {
 	return &netv1.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("allow-all-to-version2-%s", LabelString(targetLabels)),
@@ -306,7 +308,9 @@ spec:
           matchLabels:
             type: monitoring
 */
-func AllowFromDifferentNamespaceWithLabelsTo(namespace string, fromLabels, namespaceLabels, toLabels map[string]string) *netv1.NetworkPolicy {
+func AllowFromDifferentNamespaceWithLabelsTo(
+	namespace string,
+	fromLabels, namespaceLabels, toLabels map[string]string) *netv1.NetworkPolicy {
 	return &netv1.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("allow-from-namespace-with-labels-%s-to-%s", LabelString(fromLabels), LabelString(toLabels)),
@@ -373,16 +377,19 @@ func AllowAllWithinNamespace(namespace string) *netv1.NetworkPolicy {
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  Namespace: secondary
-  name: web-allow-all-namespaces
+
+	Namespace: secondary
+	name: web-allow-all-namespaces
+
 spec:
-  podSelector:
-    matchLabels:
-      app: web
-  ingress:
-  - from:
+
+	podSelector:
+	  matchLabels:
+	    app: web
+	ingress:
+	- from:
 */
-func AllowAllTo_Version3(namespace string, targetLabels map[string]string) *netv1.NetworkPolicy {
+func AllowAllToVersion3(namespace string, targetLabels map[string]string) *netv1.NetworkPolicy {
 	return &netv1.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("allow-all-to-version3-%s", LabelString(targetLabels)),
@@ -400,7 +407,7 @@ func AllowAllTo_Version3(namespace string, targetLabels map[string]string) *netv
 	}
 }
 
-func AllowAllTo_Version4(namespace string, toLabels map[string]string) *netv1.NetworkPolicy {
+func AllowAllToVersion4(namespace string, toLabels map[string]string) *netv1.NetworkPolicy {
 	return &netv1.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("allow-all-to-version4-%s", LabelString(toLabels)),
@@ -462,7 +469,7 @@ spec:
           matchLabels:
             app: bookstore
 */
-func AllowFromTo(namespace string, fromLabels map[string]string, toLabels map[string]string) *netv1.NetworkPolicy {
+func AllowFromTo(namespace string, fromLabels, toLabels map[string]string) *netv1.NetworkPolicy {
 	return &netv1.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("allow-from-%s-to-%s", LabelString(fromLabels), LabelString(toLabels)),
@@ -533,7 +540,7 @@ spec:
         matchLabels:
           purpose: production
 */
-func AllowFromNamespaceTo(namespace string, namespaceLabels map[string]string, toLabels map[string]string) *netv1.NetworkPolicy {
+func AllowFromNamespaceTo(namespace string, namespaceLabels, toLabels map[string]string) *netv1.NetworkPolicy {
 	return &netv1.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("allow-from-namespace-to-%s", LabelString(toLabels)),
@@ -591,20 +598,23 @@ func AllowNoEgressFromLabels(namespace string, targetLabels map[string]string) *
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: foo-deny-egress
+
+	name: foo-deny-egress
+
 spec:
-  podSelector:
-    matchLabels:
-      app: foo
-  policyTypes:
-  - Egress
-  egress:
-  # allow DNS resolution
-  - ports:
-    - port: 53
-      protocol: UDP
-    - port: 53
-      protocol: TCP
+
+	podSelector:
+	  matchLabels:
+	    app: foo
+	policyTypes:
+	- Egress
+	egress:
+	# allow DNS resolution
+	- ports:
+	  - port: 53
+	    protocol: UDP
+	  - port: 53
+	    protocol: TCP
 */
 func AllowEgressOnPort(namespace string, targetLabels map[string]string, port int) *netv1.NetworkPolicy {
 	tcp := v1.ProtocolTCP
@@ -731,14 +741,17 @@ func AllowNothingToEmptyIngress(namespace string, targetLabels map[string]string
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-nothing
+
+	name: allow-nothing
+
 spec:
-  podSelector:
-    matchLabels:
-      app: foo
-  policyTypes:
-  - Egress
-  - Ingress
+
+	podSelector:
+	  matchLabels:
+	    app: foo
+	policyTypes:
+	- Egress
+	- Ingress
 */
 func AllowNoIngressNorEgress(namespace string, targetLabels map[string]string) *netv1.NetworkPolicy {
 	return &netv1.NetworkPolicy{
@@ -805,10 +818,10 @@ func AllowFromMultipleTo(namespace string, fromLabels []map[string]string, targe
 	}
 }
 
-func AllowFromMultipleIpBlockTo(namespace string, fromIpBlocks map[string]string, targetLabels map[string]string) *netv1.NetworkPolicy {
+func AllowFromMultipleIPBlockTo(namespace string, fromIPBlocks, targetLabels map[string]string) *netv1.NetworkPolicy {
 	var froms []netv1.NetworkPolicyPeer
-	for ip, excludedIp := range fromIpBlocks {
-		netpolPeer := netv1.NetworkPolicyPeer{IPBlock: &netv1.IPBlock{CIDR: ip, Except: []string{excludedIp}}}
+	for ip, excludedIP := range fromIPBlocks {
+		netpolPeer := netv1.NetworkPolicyPeer{IPBlock: &netv1.IPBlock{CIDR: ip, Except: []string{excludedIP}}}
 		froms = append(froms, netpolPeer)
 	}
 	return &netv1.NetworkPolicy{
@@ -923,13 +936,16 @@ type TestEntry struct {
 	policies    []*netv1.NetworkPolicy
 }
 
-func initTest(test TestEntry, t *testing.T) {
+func initTest(test *TestEntry, t *testing.T) {
 	if len(test.nsList) > 0 || len(test.podsList) > 0 || len(test.policies) > 0 {
-		SetResources(test.policies, test.podsList, test.nsList)
+		err := SetResources(test.policies, test.podsList, test.nsList)
+		if err != nil {
+			t.Fatalf("error init test: %v", err)
+		}
 	}
 }
 
-func checkTestEntry(test TestEntry, t *testing.T) {
+func checkTestEntry(test *TestEntry, t *testing.T) {
 	res, err := CheckIfAllowed(test.src, test.dst, test.protocol, test.port)
 	if err != nil {
 		t.Fatalf("test %v: expected err to be nil, but got %v", test.name, err)
@@ -939,7 +955,7 @@ func checkTestEntry(test TestEntry, t *testing.T) {
 	}
 }
 
-func checkTestAllConnectionsEntry(test TestEntry, t *testing.T) {
+func checkTestAllConnectionsEntry(test *TestEntry, t *testing.T) {
 	res, err := AllAllowedConnections(test.src, test.dst)
 	if err != nil {
 		t.Fatalf("test %v: expected err to be nil, but got %v", test.name, err)
@@ -955,15 +971,14 @@ func TestBasic(t *testing.T) {
 
 	if err != nil {
 		t.Fatalf("error getting netpol object")
-
 	}
 	policies = append(policies, netpol)
 
 	podsList := []*v1.Pod{}
 	podsYamlList := []string{podB, podC}
 	for _, podYaml := range podsYamlList {
-		podObj, err := podFromYaml(podYaml)
-		if err != nil {
+		podObj, err1 := podFromYaml(podYaml)
+		if err1 != nil {
 			t.Fatalf("error getting pod object")
 		}
 		podsList = append(podsList, podObj)
@@ -972,22 +987,25 @@ func TestBasic(t *testing.T) {
 	nsList := []*v1.Namespace{}
 	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "default", Labels: map[string]string{"a": "b"}}})
 
-	SetResources(policies, podsList, nsList)
-
-	testList := []TestEntry{}
-	testList = append(testList, TestEntry{name: "t1", src: "default/b", dst: "192.168.242.0", protocol: "tcp", port: "80", res: true, allConnsRes: "TCP 80,UDP 53"})
-	testList = append(testList, TestEntry{name: "t2", src: "default/b", dst: "192.169.0.0", protocol: "tcp", port: "80", res: false, allConnsRes: "UDP 53"})
-	testList = append(testList, TestEntry{name: "t3", src: "default/b", dst: "default/c", protocol: "tcp", port: "80", res: true, allConnsRes: "TCP 80,UDP 53"})
-	testList = append(testList, TestEntry{name: "t4", src: "default/b", dst: "default/c", protocol: "tcp", port: "81", res: false, allConnsRes: "TCP 80,UDP 53"})
-
-	for _, test := range testList {
-		checkTestEntry(test, t)
-		checkTestAllConnectionsEntry(test, t)
+	err = SetResources(policies, podsList, nsList)
+	if err != nil {
+		t.Fatalf("error SetResources: %v", err)
 	}
 
+	testList := []TestEntry{
+		{name: "t1", src: "default/b", dst: "192.168.242.0", protocol: "tcp", port: "80", res: true, allConnsRes: "TCP 80,UDP 53"},
+		{name: "t2", src: "default/b", dst: "192.169.0.0", protocol: "tcp", port: "80", res: false, allConnsRes: "UDP 53"},
+		{name: "t3", src: "default/b", dst: "default/c", protocol: "tcp", port: "80", res: true, allConnsRes: "TCP 80,UDP 53"},
+		{name: "t4", src: "default/b", dst: "default/c", protocol: "tcp", port: "81", res: false, allConnsRes: "TCP 80,UDP 53"},
+	}
+
+	for i := range testList {
+		checkTestEntry(&testList[i], t)
+		checkTestAllConnectionsEntry(&testList[i], t)
+	}
 }
 
-func addNewPod(namespace string, name string, labels map[string]string) (*v1.Pod, error) {
+func addNewPod(namespace, name string, labels map[string]string) (*v1.Pod, error) {
 	basicPodYaml := podB
 	podObj, err := podFromYaml(basicPodYaml)
 	if err != nil {
@@ -999,25 +1017,35 @@ func addNewPod(namespace string, name string, labels map[string]string) (*v1.Pod
 	return podObj, nil
 }
 
-func writeRes(res string, fileName string) {
-	os.Create(fileName)
+func writeRes(res, fileName string) {
+	_, err := os.Create(fileName)
+	if err != nil {
+		fmt.Printf("error creating file: %v", err)
+		return
+	}
 	b := []byte(res)
-	ioutil.WriteFile(fileName, b, 0644)
+	err = os.WriteFile(fileName, b, 0600)
+	if err != nil {
+		fmt.Printf("error WriteFile: %v", err)
+	}
 }
 
+//
+//gocyclo:ignore
 func TestGeneralPerformance(t *testing.T) {
 	currentDir, _ := os.Getwd()
 	path := filepath.Join(currentDir, "test1")
-	//list of connections to test with, for CheckIfAllowed / CheckIfAllowedNew
-	connectionsListForTest := []TestEntry{}
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "5050"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "3550"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "50051"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "7070"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "8080"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "9555"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "7000"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "udp", port: "7000"})
+	// list of connections to test with, for CheckIfAllowed / CheckIfAllowedNew
+	connectionsListForTest := []TestEntry{
+		{protocol: "tcp", port: "5050"},
+		{protocol: "tcp", port: "3550"},
+		{protocol: "tcp", port: "50051"},
+		{protocol: "tcp", port: "7070"},
+		{protocol: "tcp", port: "8080"},
+		{protocol: "tcp", port: "9555"},
+		{protocol: "tcp", port: "7000"},
+		{protocol: "udp", port: "7000"},
+	}
 
 	// TODO: consider adding caching of non-captured pods when building the network config
 	functionNames := []string{"CheckIfAllowed", "CheckIfAllowedNew", "AllAllowedConnections"}
@@ -1063,40 +1091,39 @@ func TestGeneralPerformance(t *testing.T) {
 									}
 								}
 							}
-
 						}
 					}
 				}
 				elapsed := time.Since(start)
 				loopsCounterPerFunction[functionName] = loopsCounter
-				runtimes = append(runtimes, elapsed) //len is experimentsRepetition , each entry is runtime for loopsCounter iterations
+				runtimes = append(runtimes, elapsed) // len is experimentsRepetition , each entry is runtime for loopsCounter iterations
 			}
-			//add a test result line here
-			runtime_values := ""
-			len_values := 0
-			sum_runtime := (time.Duration)(0)
-			for _, runtim := range runtimes {
-				if (float64)(runtim) > (float64)(0.000000000001) {
-					sum_runtime += runtim
-					runtime_values += fmt.Sprintf("%v,", runtim)
-					len_values++
+			// add a test result line here
+			runtimeValues := ""
+			lenValues := 0
+			sumRuntime := time.Duration(0)
+			for _, runtime := range runtimes {
+				if float64(runtime) > float64(0.000000000001) {
+					sumRuntime += runtime
+					runtimeValues += fmt.Sprintf("%v,", runtime)
+					lenValues++
 				}
 			}
 
-			avg_runtime := (time.Duration)(0)
-			if len_values > 0 {
-				avg_runtime = sum_runtime / (time.Duration)(len_values)
+			avgRuntime := time.Duration(0)
+			if lenValues > 0 {
+				avgRuntime = sumRuntime / time.Duration(lenValues)
 			}
 
-			//evaluate performance: number of calls per 1 second
-			val := (int64)(avg_runtime) //runtime in nanoseconds
-			numcallsPerSec := ((int64)(loopsCounterPerFunction[functionName]) * 1000000000) / val
+			// evaluate performance: number of calls per 1 second
+			val := int64(avgRuntime) // runtime in nanoseconds
+			numcallsPerSec := (int64(loopsCounterPerFunction[functionName]) * 1000000000) / val
 			fmt.Printf("%v", numcallsPerSec)
-			allResStr += fmt.Sprintf("runtime values: %v\n", runtime_values)
-			allResStr += fmt.Sprintf("function name: %v, netoplLimit: %v, average runtime is %v for %v iterations, numcallsPerSec: %v\n", functionName, i, avg_runtime, loopsCounterPerFunction[functionName], numcallsPerSec)
+			allResStr += fmt.Sprintf("runtime values: %v\n", runtimeValues)
+			allResStr += fmt.Sprintf("function name: %v, netoplLimit: %v, average runtime is %v for %v iterations, numcallsPerSec: %v\n",
+				functionName, i, avgRuntime, loopsCounterPerFunction[functionName], numcallsPerSec)
 			allResStrPerFunc[functionName] += fmt.Sprintf("%v, %v\n", i, numcallsPerSec)
 			allResPerFuncAndNetpolLimit[i][functionName] = fmt.Sprintf("%v", numcallsPerSec)
-
 		}
 
 		ClearResources()
@@ -1123,15 +1150,16 @@ func TestFromFiles2(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error from SetResourcesFromDir")
 	}
-	connectionsListForTest := []TestEntry{}
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "5050"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "3550"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "50051"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "7070"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "8080"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "9555"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "tcp", port: "7000"})
-	connectionsListForTest = append(connectionsListForTest, TestEntry{protocol: "udp", port: "7000"})
+	connectionsListForTest := []TestEntry{
+		{protocol: "tcp", port: "5050"},
+		{protocol: "tcp", port: "3550"},
+		{protocol: "tcp", port: "50051"},
+		{protocol: "tcp", port: "7070"},
+		{protocol: "tcp", port: "8080"},
+		{protocol: "tcp", port: "9555"},
+		{protocol: "tcp", port: "7000"},
+		{protocol: "udp", port: "7000"},
+	}
 
 	runtimes := []time.Duration{}
 	experiments := 10
@@ -1153,10 +1181,9 @@ func TestFromFiles2(t *testing.T) {
 							t.Fatalf("error from CheckIfAllowed")
 						}
 					}
-					//resStr := fmt.Sprintf("%v, %v, %v, %v, %v\n", podName1, podName2, conn.protocol, conn.port, res)
-					//allResStr += resStr
+					/*// resStr := fmt.Sprintf("%v, %v, %v, %v, %v\n", podName1, podName2, conn.protocol, conn.port, res)
+					// allResStr += resStr*/
 				}
-
 			}
 		}
 		elapsed := time.Since(start)
@@ -1165,9 +1192,8 @@ func TestFromFiles2(t *testing.T) {
 	for i, runtime := range runtimes {
 		allResStr += fmt.Sprintf("%v, %s\n", i, runtime)
 	}
-	//allResStr += fmt.Sprintf("total runtime: %s\n", elapsed)
+	/*// allResStr += fmt.Sprintf("total runtime: %s\n", elapsed)*/
 	writeRes(allResStr, "test_check_if_allowed_func.txt")
-
 }
 
 func TestFromFiles(t *testing.T) {
@@ -1187,24 +1213,23 @@ func TestFromFiles(t *testing.T) {
 	allResStr := ""
 	for i := 0; i < experiments; i++ {
 		start := time.Now()
-		//allResStr := ""
+		/*// allResStr := ""*/
 		for podName1 := range podsMap {
 			for podName2 := range podsMap {
 				_, err := AllAllowedConnections(podName1, podName2)
 				if err != nil {
 					t.Fatalf("error from AllAllowedConnections")
 				}
-				//resStr := fmt.Sprintf("%v, %v, %v,  time: %s\n", podName1, podName2, res.String(), elapsed)
-				//resStr := fmt.Sprintf("%v, %v, %v\n", podName1, podName2, res.String())
-				//writeRes(resStr)
-				//allResStr += resStr
-				//fmt.Printf("%v, %v, %v", podName1, podName2, res.String())
+				/*// resStr := fmt.Sprintf("%v, %v, %v,  time: %s\n", podName1, podName2, res.String(), elapsed)
+				// resStr := fmt.Sprintf("%v, %v, %v\n", podName1, podName2, res.String())
+				// writeRes(resStr)
+				// allResStr += resStr
+				// fmt.Printf("%v, %v, %v", podName1, podName2, res.String())*/
 			}
 		}
 		elapsed := time.Since(start)
 		runtimes = append(runtimes, elapsed)
 	}
-
 	for i, runtime := range runtimes {
 		allResStr += fmt.Sprintf("%v, %s\n", i, runtime)
 	}
@@ -1213,24 +1238,26 @@ func TestFromFiles(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	var AllExamples = map[string][]*netv1.NetworkPolicy{
-		"AllowNothingTo":                          {AllowNothingTo("default", map[string]string{"app": "web"})},
-		"AllowAllTo":                              {AllowAllTo("default", map[string]string{"app": "web"})},
-		"AllowSpecificPortTo":                     {AllowSpecificPortTo("default", label("role", "monitoring"), label("app", "apiserver"), 5000)},
-		"AllowAllTo_Version2":                     {AllowAllTo_Version2("default", label("app", "web"))},
-		"AllowFromDifferentNamespaceWithLabelsTo": {AllowFromDifferentNamespaceWithLabelsTo("default", label("type", "monitoring"), label("team", "operations"), label("app", "web"))},
-		"AllowAllWithinNamespace":                 {AllowAllWithinNamespace("default")},
-		"AllowAllTo_Version3":                     {AllowAllTo_Version3("default", label("app", "web"))},
-		"AllowAllTo_Version4":                     {AllowAllTo_Version4("default", label("app", "web"))},
-		"AllowNothingToAnything":                  {AllowNothingToAnything("default")},
-		"AllowFromTo":                             {AllowFromTo("default", map[string]string{"app": "apiserver"}, map[string]string{"app": "web"})},
-		"AllowFromAnywhere":                       {AllowFromAnywhere("default", label("app", "web"))},
-		"AllowFromNamespaceTo":                    {AllowFromNamespaceTo("default", label("team", "operations"), label("app", "web"))},
-		"AllowNoEgressFromLabels":                 {AllowNoEgressFromLabels("default", label("app", "web"))},
-		"AllowEgressOnPort":                       {AllowEgressOnPort("default", label("app", "web"), 53)},
-		"AllowNoEgressFromNamespace":              {AllowNoEgressFromNamespace("default")},
-		"AllowEgressToAllNamespacesOnPort":        {AllowEgressToAllNamespacesOnPort("default", label("app", "web"), 53)},
-		"AllowNothingToEmptyIngress":              {AllowNothingToEmptyIngress("default", label("app", "web"))},
-		"AllowNoIngressNorEgress":                 {AllowNoIngressNorEgress("default", label("app", "web"))},
+		"AllowNothingTo":      {AllowNothingTo("default", map[string]string{"app": "web"})},
+		"AllowAllTo":          {AllowAllTo("default", map[string]string{"app": "web"})},
+		"AllowSpecificPortTo": {AllowSpecificPortTo("default", label("role", "monitoring"), label("app", "apiserver"), 5000)},
+		"AllowAllTo_Version2": {AllowAllToVersion2("default", label("app", "web"))},
+		"AllowFromDifferentNamespaceWithLabelsTo": {AllowFromDifferentNamespaceWithLabelsTo("default",
+			label("type", "monitoring"), label("team", "operations"), label("app", "web"))},
+		"AllowAllWithinNamespace": {AllowAllWithinNamespace("default")},
+		"AllowAllTo_Version3":     {AllowAllToVersion3("default", label("app", "web"))},
+		"AllowAllTo_Version4":     {AllowAllToVersion4("default", label("app", "web"))},
+		"AllowNothingToAnything":  {AllowNothingToAnything("default")},
+		"AllowFromTo": {AllowFromTo("default", map[string]string{"app": "apiserver"},
+			map[string]string{"app": "web"})},
+		"AllowFromAnywhere":                {AllowFromAnywhere("default", label("app", "web"))},
+		"AllowFromNamespaceTo":             {AllowFromNamespaceTo("default", label("team", "operations"), label("app", "web"))},
+		"AllowNoEgressFromLabels":          {AllowNoEgressFromLabels("default", label("app", "web"))},
+		"AllowEgressOnPort":                {AllowEgressOnPort("default", label("app", "web"), 53)},
+		"AllowNoEgressFromNamespace":       {AllowNoEgressFromNamespace("default")},
+		"AllowEgressToAllNamespacesOnPort": {AllowEgressToAllNamespacesOnPort("default", label("app", "web"), 53)},
+		"AllowNothingToEmptyIngress":       {AllowNothingToEmptyIngress("default", label("app", "web"))},
+		"AllowNoIngressNorEgress":          {AllowNoIngressNorEgress("default", label("app", "web"))},
 		"AllowFromMultipleTo": {AllowFromMultipleTo(
 			"default",
 			[]map[string]string{
@@ -1239,9 +1266,11 @@ func TestNew(t *testing.T) {
 				{"app": "inventory", "role": "web"},
 			},
 			map[string]string{"app": "bookstore", "role": "db"})},
-		"AccidentalAnd":              {AccidentalAnd("default", label("app", "web"), label("team", "operations"), label("type", "monitoring"))},
-		"AccidentalOr":               {AccidentalOr("default", label("app", "web"), label("team", "operations"), label("role", "search"))},
-		"AllowFromMultipleIpBlockTo": {AllowFromMultipleIpBlockTo("default", map[string]string{"172.17.0.0/16": "172.17.0.0/24", "10.0.0.0/16": "10.0.0.0/24"}, label("app", "web"))},
+		"AccidentalAnd": {AccidentalAnd("default", label("app", "web"), label("team", "operations"), label("type", "monitoring"))},
+		"AccidentalOr":  {AccidentalOr("default", label("app", "web"), label("team", "operations"), label("role", "search"))},
+		"AllowFromMultipleIpBlockTo": {AllowFromMultipleIPBlockTo("default",
+			map[string]string{"172.17.0.0/16": "172.17.0.0/24", "10.0.0.0/16": "10.0.0.0/24"},
+			label("app", "web"))},
 	}
 
 	podsList := []*v1.Pod{}
@@ -1253,7 +1282,7 @@ func TestNew(t *testing.T) {
 		}
 		podsList = append(podsList, podObj)
 	}
-	//additional pods added here
+	// additional pods added here
 	podE, err := addNewPod("default", "e", map[string]string{"app": "bookstore", "role": "search"})
 	if err != nil {
 		t.Fatalf("error getting pod object")
@@ -1270,77 +1299,141 @@ func TestNew(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error getting pod object")
 	}
-	podsList = append(podsList, []*v1.Pod{podE, podF, podG, podH}...)
+	podJ, err := addNewPod("operations", "j", map[string]string{"app": "bookstore1", "role": "db1"})
+	if err != nil {
+		t.Fatalf("error getting pod object")
+	}
+	podsList = append(podsList, []*v1.Pod{podE, podF, podG, podH, podJ}...)
 
-	nsList := []*v1.Namespace{}
-	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "default", Labels: map[string]string{"a": "b"}}})
-	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "operations", Labels: map[string]string{"team": "operations"}}})
-
-	testList := []TestEntry{}
-	testList = append(testList, TestEntry{name: "t1", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingTo"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t2", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllTo"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t3", nsList: nsList, podsList: podsList, policies: append(AllExamples["AllowNothingTo"], AllExamples["AllowAllTo"]...), src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t4", nsList: nsList, podsList: podsList, policies: AllExamples["AllowSpecificPortTo"], src: "default/b", dst: "default/c", protocol: "tcp", port: "5000", res: true, allConnsRes: "TCP 5000"})
-	testList = append(testList, TestEntry{name: "t5", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllTo_Version2"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t6", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromDifferentNamespaceWithLabelsTo"], src: "operations/d", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t7", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromDifferentNamespaceWithLabelsTo"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t8", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllWithinNamespace"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t9", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllWithinNamespace"], src: "default/b", dst: "default/c", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t10", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllWithinNamespace"], src: "operations/d", dst: "default/c", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t11", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllTo_Version3"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t12", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllTo_Version3"], src: "operations/d", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t13", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllTo_Version4"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t14", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllTo_Version4"], src: "operations/d", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t15", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingToAnything"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t16", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingToAnything"], src: "default/b", dst: "default/c", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t17", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingToAnything"], src: "operations/d", dst: "default/c", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t18", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingToAnything"], src: "default/b", dst: "operations/d", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t19", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromTo"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t20", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromTo"], src: "operations/d", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t21", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromAnywhere"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t22", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromAnywhere"], src: "192.168.242.0", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t23", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromAnywhere"], src: "operations/d", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t24", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromNamespaceTo"], src: "operations/d", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t25", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromNamespaceTo"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t26", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoEgressFromLabels"], src: "default/b", dst: "default/c", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t27", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoEgressFromLabels"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t28", nsList: nsList, podsList: podsList, policies: AllExamples["AllowEgressOnPort"], src: "default/b", dst: "default/c", protocol: "tcp", port: "53", res: true, allConnsRes: "TCP 53,UDP 53"})
-	testList = append(testList, TestEntry{name: "t29", nsList: nsList, podsList: podsList, policies: AllExamples["AllowEgressOnPort"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t30", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoEgressFromNamespace"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t31", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoEgressFromNamespace"], src: "default/b", dst: "default/c", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t32", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoEgressFromNamespace"], src: "operations/d", dst: "default/c", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t33", nsList: nsList, podsList: podsList, policies: AllExamples["AllowEgressToAllNamespacesOnPort"], src: "default/b", dst: "default/c", protocol: "tcp", port: "53", res: true, allConnsRes: "TCP 53,UDP 53"})
-	testList = append(testList, TestEntry{name: "t34", nsList: nsList, podsList: podsList, policies: AllExamples["AllowEgressToAllNamespacesOnPort"], src: "default/b", dst: "operations/d", protocol: "tcp", port: "53", res: true, allConnsRes: "TCP 53,UDP 53"})
-	testList = append(testList, TestEntry{name: "t35", nsList: nsList, podsList: podsList, policies: AllExamples["AllowEgressToAllNamespacesOnPort"], src: "default/b", dst: "192.168.242.0", protocol: "tcp", port: "53", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t36", nsList: nsList, podsList: podsList, policies: AllExamples["AllowEgressToAllNamespacesOnPort"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t37", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingToEmptyIngress"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t38", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingToEmptyIngress"], src: "default/b", dst: "default/c", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t39", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoIngressNorEgress"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t40", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoIngressNorEgress"], src: "default/b", dst: "default/c", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t41", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoIngressNorEgress"], src: "default/c", dst: "operations/d", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t42", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoIngressNorEgress"], src: "operations/d", dst: "default/c", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t43", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleTo"], src: "default/e", dst: "default/h", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t44", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleTo"], src: "default/f", dst: "default/h", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t45", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleTo"], src: "default/g", dst: "default/h", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t46", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleTo"], src: "default/c", dst: "default/h", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t47", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleTo"], src: "default/b", dst: "default/h", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t48", nsList: nsList, podsList: podsList, policies: AllExamples["AccidentalAnd"], src: "operations/d", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t49", nsList: nsList, podsList: podsList, policies: AllExamples["AccidentalAnd"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t50", nsList: nsList, podsList: podsList, policies: AllExamples["AccidentalOr"], src: "operations/d", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t51", nsList: nsList, podsList: podsList, policies: AllExamples["AccidentalOr"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t52", nsList: nsList, podsList: podsList, policies: AllExamples["AccidentalOr"], src: "default/e", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t53", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleIpBlockTo"], src: "172.17.1.0", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t54", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleIpBlockTo"], src: "10.0.1.0", dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"})
-	testList = append(testList, TestEntry{name: "t55", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleIpBlockTo"], src: "172.17.0.0", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t56", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleIpBlockTo"], src: "10.0.0.0", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t57", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleIpBlockTo"], src: "11.0.0.0", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-	testList = append(testList, TestEntry{name: "t58", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleIpBlockTo"], src: "default/c", dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"})
-
-	for _, test := range testList {
-		initTest(test, t)
-		checkTestEntry(test, t)
-		checkTestAllConnectionsEntry(test, t)
-		ClearResources()
+	nsList := []*v1.Namespace{
+		{ObjectMeta: metav1.ObjectMeta{Name: "default", Labels: map[string]string{"a": "b"}}},
+		{ObjectMeta: metav1.ObjectMeta{Name: "operations", Labels: map[string]string{"team": "operations"}}},
 	}
 
+	testList := []TestEntry{
+		{name: "t1", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingTo"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t2", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllTo"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t3", nsList: nsList, podsList: podsList, policies: append(AllExamples["AllowNothingTo"],
+			AllExamples["AllowAllTo"]...), src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t4", nsList: nsList, podsList: podsList, policies: AllExamples["AllowSpecificPortTo"], src: "default/b",
+			dst: "default/c", protocol: "tcp", port: "5000", res: true, allConnsRes: "TCP 5000"},
+		{name: "t5", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllTo_Version2"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t6", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromDifferentNamespaceWithLabelsTo"], src: "operations/d",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t7", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromDifferentNamespaceWithLabelsTo"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t8", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllWithinNamespace"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t9", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllWithinNamespace"], src: "default/b",
+			dst: "default/c", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t10", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllWithinNamespace"], src: "operations/d",
+			dst: "default/c", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t11", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllTo_Version3"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t12", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllTo_Version3"], src: "operations/d",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t13", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllTo_Version4"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t14", nsList: nsList, podsList: podsList, policies: AllExamples["AllowAllTo_Version4"], src: "operations/d",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t15", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingToAnything"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t16", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingToAnything"], src: "default/b",
+			dst: "default/c", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t17", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingToAnything"], src: "operations/d",
+			dst: "default/c", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t18", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingToAnything"], src: "default/b",
+			dst: "operations/d", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t19", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromTo"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t20", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromTo"], src: "operations/d",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t21", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromAnywhere"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t22", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromAnywhere"], src: "192.168.242.0",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t23", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromAnywhere"], src: "operations/d",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t24", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromNamespaceTo"], src: "operations/d",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t25", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromNamespaceTo"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t26", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoEgressFromLabels"], src: "default/b",
+			dst: "default/c", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t27", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoEgressFromLabels"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t28", nsList: nsList, podsList: podsList, policies: AllExamples["AllowEgressOnPort"], src: "default/b",
+			dst: "default/c", protocol: "tcp", port: "53", res: true, allConnsRes: "TCP 53,UDP 53"},
+		{name: "t29", nsList: nsList, podsList: podsList, policies: AllExamples["AllowEgressOnPort"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t30", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoEgressFromNamespace"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t31", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoEgressFromNamespace"], src: "default/b",
+			dst: "default/c", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t32", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoEgressFromNamespace"], src: "operations/d",
+			dst: "default/c", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t33", nsList: nsList, podsList: podsList, policies: AllExamples["AllowEgressToAllNamespacesOnPort"], src: "default/b",
+			dst: "default/c", protocol: "tcp", port: "53", res: true, allConnsRes: "TCP 53,UDP 53"},
+		{name: "t34", nsList: nsList, podsList: podsList, policies: AllExamples["AllowEgressToAllNamespacesOnPort"], src: "default/b",
+			dst: "operations/d", protocol: "tcp", port: "53", res: true, allConnsRes: "TCP 53,UDP 53"},
+		{name: "t35", nsList: nsList, podsList: podsList, policies: AllExamples["AllowEgressToAllNamespacesOnPort"], src: "default/b",
+			dst: "192.168.242.0", protocol: "tcp", port: "53", res: false, allConnsRes: "No Connections"},
+		{name: "t36", nsList: nsList, podsList: podsList, policies: AllExamples["AllowEgressToAllNamespacesOnPort"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t37", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingToEmptyIngress"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t38", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNothingToEmptyIngress"], src: "default/b",
+			dst: "default/c", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t39", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoIngressNorEgress"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t40", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoIngressNorEgress"], src: "default/b",
+			dst: "default/c", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t41", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoIngressNorEgress"], src: "default/c",
+			dst: "operations/d", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t42", nsList: nsList, podsList: podsList, policies: AllExamples["AllowNoIngressNorEgress"], src: "operations/d",
+			dst: "default/c", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t43", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleTo"], src: "default/e",
+			dst: "default/h", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t44", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleTo"], src: "default/f",
+			dst: "default/h", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t45", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleTo"], src: "default/g",
+			dst: "default/h", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t46", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleTo"], src: "default/c",
+			dst: "default/h", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t47", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleTo"], src: "default/b",
+			dst: "default/h", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t48", nsList: nsList, podsList: podsList, policies: AllExamples["AccidentalAnd"], src: "operations/d",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t49", nsList: nsList, podsList: podsList, policies: AllExamples["AccidentalAnd"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t50", nsList: nsList, podsList: podsList, policies: AllExamples["AccidentalOr"], src: "operations/d",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t51", nsList: nsList, podsList: podsList, policies: AllExamples["AccidentalOr"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t52", nsList: nsList, podsList: podsList, policies: AllExamples["AccidentalOr"], src: "default/e",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t53", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleIpBlockTo"], src: "172.17.1.0",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t54", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleIpBlockTo"], src: "10.0.1.0",
+			dst: "default/b", protocol: "tcp", port: "80", res: true, allConnsRes: "All Connections"},
+		{name: "t55", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleIpBlockTo"], src: "172.17.0.0",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t56", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleIpBlockTo"], src: "10.0.0.0",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t57", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleIpBlockTo"], src: "11.0.0.0",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+		{name: "t58", nsList: nsList, podsList: podsList, policies: AllExamples["AllowFromMultipleIpBlockTo"], src: "default/c",
+			dst: "default/b", protocol: "tcp", port: "80", res: false, allConnsRes: "No Connections"},
+	}
+
+	for i := range testList {
+		initTest(&testList[i], t)
+		checkTestEntry(&testList[i], t)
+		checkTestAllConnectionsEntry(&testList[i], t)
+		ClearResources()
+	}
 }

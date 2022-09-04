@@ -6,6 +6,11 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
+const (
+	minPort int64 = 1
+	maxPort int64 = 65535
+)
+
 type PortSet struct {
 	Ports              CanonicalIntervalSet
 	NamedPorts         map[string]bool
@@ -14,14 +19,15 @@ type PortSet struct {
 
 func MakePortSet(all bool) PortSet {
 	if all {
-		portsInterval := Interval{Start: 1, End: 65535}
+		portsInterval := Interval{Start: minPort, End: maxPort}
 		return PortSet{Ports: CanonicalIntervalSet{IntervalSet: []Interval{portsInterval}}}
 	}
 	return PortSet{}
 }
 
 func (p *PortSet) Equal(other PortSet) bool {
-	return p.Ports.Equal(other.Ports) && reflect.DeepEqual(p.NamedPorts, other.NamedPorts) && reflect.DeepEqual(p.ExcludedNamedPorts, other.ExcludedNamedPorts)
+	return p.Ports.Equal(other.Ports) && reflect.DeepEqual(p.NamedPorts, other.NamedPorts) &&
+		reflect.DeepEqual(p.ExcludedNamedPorts, other.ExcludedNamedPorts)
 }
 
 func (p *PortSet) IsEmpty() bool {

@@ -79,7 +79,7 @@ var (
 )
 
 func TestNetworkPolicyPortAnalysis(t *testing.T) {
-	//tested function: func ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) ConnectionSet
+	// tested function: func ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) ConnectionSet
 	dst := Peer{PeerType: PodType, Pod: &Pod{Name: "A", Namespace: "default"}}
 	dst.Pod.Ports = []v1.ContainerPort{{Name: PortHello.StrVal, ContainerPort: 22}}
 	var AllowNamedPortOnProtocol = netv1.NetworkPolicyPort{
@@ -91,7 +91,6 @@ func TestNetworkPolicyPortAnalysis(t *testing.T) {
 	if res.String() != expectedConnStr {
 		t.Fatalf("mismatch on ruleConnections result: expected %v, got %v", expectedConnStr, res.String())
 	}
-
 }
 
 /*

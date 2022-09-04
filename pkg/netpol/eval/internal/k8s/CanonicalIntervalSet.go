@@ -10,7 +10,6 @@ type Interval struct {
 }
 
 func (i *Interval) String() string {
-	//return "[" + strconv.Itoa(i.Start) + "-" + strconv.Itoa(i.End) + "]"
 	return fmt.Sprintf("[%v-%v]", i.Start, i.End)
 }
 
@@ -54,7 +53,7 @@ func max(a, b int64) int64 {
 	return b
 }
 
-//returns a list with up to 2 intervals
+// returns a list with up to 2 intervals
 func (i *Interval) subtract(other Interval) []Interval {
 	if !i.overlaps(other) {
 		return []Interval{*i}
@@ -79,11 +78,10 @@ func (i *Interval) intersection(other Interval) []Interval {
 		return []Interval{}
 	}
 	return []Interval{{Start: maxStart, End: minEnd}}
-
 }
 
 type CanonicalIntervalSet struct {
-	IntervalSet []Interval //sorted list of non-overlapping intervals
+	IntervalSet []Interval // sorted list of non-overlapping intervals
 }
 
 func (c *CanonicalIntervalSet) IsEmpty() bool {
@@ -100,7 +98,6 @@ func (c *CanonicalIntervalSet) Equal(other CanonicalIntervalSet) bool {
 		}
 	}
 	return true
-
 }
 
 func (c *CanonicalIntervalSet) findIntervalLeft(interval Interval) int {
@@ -165,6 +162,8 @@ func insert(array []Interval, element Interval, i int) []Interval {
 	return append(array[:i], append([]Interval{element}, array[i:]...)...)
 }
 
+//
+//gocyclo:ignore
 func (c *CanonicalIntervalSet) AddInterval(intervalToAdd Interval) {
 	if c.IsEmpty() {
 		c.IntervalSet = append(c.IntervalSet, intervalToAdd)
@@ -173,47 +172,46 @@ func (c *CanonicalIntervalSet) AddInterval(intervalToAdd Interval) {
 	left := c.findIntervalLeft(intervalToAdd)
 	right := c.findIntervalRight(intervalToAdd)
 
-	//interval_to_add has no overlapping/touching intervals between left to right
+	// interval_to_add has no overlapping/touching intervals between left to right
 	if left >= 0 && right >= 0 && right-left == 1 {
 		c.IntervalSet = insert(c.IntervalSet, intervalToAdd, left+1)
 		return
 	}
 
-	//interval_to_add has no overlapping/touching intervals and is smaller than first interval
+	// interval_to_add has no overlapping/touching intervals and is smaller than first interval
 	if left == -1 && right == 0 {
 		c.IntervalSet = insert(c.IntervalSet, intervalToAdd, 0)
 		return
 	}
 
-	//interval_to_add has no overlapping/touching intervals and is greater than last interval
+	// interval_to_add has no overlapping/touching intervals and is greater than last interval
 	if right == -1 && left == len(c.IntervalSet)-1 {
 		c.IntervalSet = append(c.IntervalSet, intervalToAdd)
 		return
 	}
 
-	//update left/right indexes to be the first potential overlapping/touching intervals from left/right
+	// update left/right indexes to be the first potential overlapping/touching intervals from left/right
 	left += 1
 	if right >= 0 {
 		right -= 1
 	} else {
 		right = len(c.IntervalSet) - 1
 	}
-	//check which of left/right is overlapping/touching interval_to_add
-	left_overlaps := c.IntervalSet[left].overlaps(intervalToAdd) || c.IntervalSet[left].touches(intervalToAdd)
-	right_overlaps := c.IntervalSet[right].overlaps(intervalToAdd) || c.IntervalSet[right].touches(intervalToAdd)
-	new_interval_Start := intervalToAdd.Start
-	if left_overlaps && c.IntervalSet[left].Start < new_interval_Start {
-		new_interval_Start = c.IntervalSet[left].Start
+	// check which of left/right is overlapping/touching interval_to_add
+	leftOverlaps := c.IntervalSet[left].overlaps(intervalToAdd) || c.IntervalSet[left].touches(intervalToAdd)
+	rightOverlaps := c.IntervalSet[right].overlaps(intervalToAdd) || c.IntervalSet[right].touches(intervalToAdd)
+	newIntervalStart := intervalToAdd.Start
+	if leftOverlaps && c.IntervalSet[left].Start < newIntervalStart {
+		newIntervalStart = c.IntervalSet[left].Start
 	}
-	new_interval_End := intervalToAdd.End
-	if right_overlaps && c.IntervalSet[right].End > new_interval_End {
-		new_interval_End = c.IntervalSet[right].End
+	newIntervalEnd := intervalToAdd.End
+	if rightOverlaps && c.IntervalSet[right].End > newIntervalEnd {
+		newIntervalEnd = c.IntervalSet[right].End
 	}
-	newInterval := Interval{Start: new_interval_Start, End: new_interval_End}
+	newInterval := Interval{Start: newIntervalStart, End: newIntervalEnd}
 	tmp := c.IntervalSet[right+1:]
 	c.IntervalSet = append(c.IntervalSet[:left], newInterval)
 	c.IntervalSet = append(c.IntervalSet, tmp...)
-
 }
 
 func (c *CanonicalIntervalSet) AddHole(hole Interval) {
@@ -224,15 +222,19 @@ func (c *CanonicalIntervalSet) AddHole(hole Interval) {
 	c.IntervalSet = newIntervalSet
 }
 
+func getNumAsStr(num int64) string {
+	return fmt.Sprintf("%v", num)
+}
+
 func (c *CanonicalIntervalSet) String() string {
 	if c.IsEmpty() {
 		return "Empty"
 	}
 	res := ""
 	for _, interval := range c.IntervalSet {
-		res += fmt.Sprintf("%v", interval.Start) //strconv.Itoa(interval.Start)
+		res += getNumAsStr(interval.Start)
 		if interval.Start != interval.End {
-			res += "-" + fmt.Sprintf("%v", interval.End) //strconv.Itoa(interval.End)
+			res += "-" + getNumAsStr(interval.End)
 		}
 		res += ","
 	}
