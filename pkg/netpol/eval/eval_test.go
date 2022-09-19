@@ -15,6 +15,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/yaml"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
 const (
@@ -1030,6 +1032,49 @@ func writeRes(res, fileName string) {
 	}
 }
 
+func getResourcesFromDir(path string) ([]*netv1.NetworkPolicy, []*v1.Pod, []*v1.Namespace, error) {
+	objectsList, err := scan.FilesToObjectsList(path)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	var netpols = []*netv1.NetworkPolicy{}
+	var pods = []*v1.Pod{}
+	var ns = []*v1.Namespace{}
+	for _, obj := range objectsList {
+		if obj.Kind == "Pod" {
+			pods = append(pods, obj.Pod)
+		} else if obj.Kind == "Namespace" {
+			ns = append(ns, obj.Namespace)
+		} else if obj.Kind == "NetworkPolicy" {
+			netpols = append(netpols, obj.Networkpolicy)
+		}
+	}
+	return netpols, pods, ns, nil
+}
+
+func setResourcesFromDir(path string, netpolLimit ...int) error {
+	objectsList, err := scan.FilesToObjectsList(path)
+	if err != nil {
+		return err
+	}
+	var netpols = []*netv1.NetworkPolicy{}
+	var pods = []*v1.Pod{}
+	var ns = []*v1.Namespace{}
+	for _, obj := range objectsList {
+		if obj.Kind == "Pod" {
+			pods = append(pods, obj.Pod)
+		} else if obj.Kind == "Namespace" {
+			ns = append(ns, obj.Namespace)
+		} else if obj.Kind == "NetworkPolicy" {
+			netpols = append(netpols, obj.Networkpolicy)
+		}
+	}
+	if len(netpolLimit) > 0 {
+		netpols = netpols[:netpolLimit[0]]
+	}
+	return SetResources(netpols, pods, ns)
+}
+
 //
 //gocyclo:ignore
 func TestGeneralPerformance(t *testing.T) {
@@ -1056,7 +1101,7 @@ func TestGeneralPerformance(t *testing.T) {
 	allResStrPerFunc := map[string]string{"CheckIfAllowed": "", "CheckIfAllowedNew": "", "AllAllowedConnections": ""}
 	allResPerFuncAndNetpolLimit := map[int]map[string]string{}
 	for i := netoplLimitMin; i <= netoplLimitMax; i++ {
-		err := SetResourcesFromDir(path, i)
+		err := setResourcesFromDir(path, i)
 		if err != nil {
 			t.Fatalf("error from SetResourcesFromDir")
 		}
@@ -1146,7 +1191,7 @@ func TestGeneralPerformance(t *testing.T) {
 func TestFromFiles2(t *testing.T) {
 	currentDir, _ := os.Getwd()
 	path := filepath.Join(currentDir, "test1")
-	err := SetResourcesFromDir(path)
+	err := setResourcesFromDir(path)
 	if err != nil {
 		t.Fatalf("error from SetResourcesFromDir")
 	}
@@ -1199,7 +1244,7 @@ func TestFromFiles2(t *testing.T) {
 func TestFromFiles(t *testing.T) {
 	currentDir, _ := os.Getwd()
 	path := filepath.Join(currentDir, "test1")
-	err := SetResourcesFromDir(path)
+	err := setResourcesFromDir(path)
 	if err != nil {
 		t.Fatalf("error from SetResourcesFromDir")
 	}
@@ -1435,5 +1480,47 @@ func TestNew(t *testing.T) {
 		checkTestEntry(&testList[i], t)
 		checkTestAllConnectionsEntry(&testList[i], t)
 		ClearResources()
+	}
+}
+
+// canonical Pod name
+func namespacedName(pod *v1.Pod) string {
+	return pod.Namespace + "/" + pod.Name
+}
+
+func connectivityMap(podsList []*v1.Pod, nsList []*v1.Namespace, netpolList []*netv1.NetworkPolicy) ([]string, error) {
+	report := []string{}
+	err := SetResources(netpolList, podsList, nsList)
+	if err != nil {
+		return report, err
+	}
+	for i := range podsList {
+		for j := range podsList {
+			src := namespacedName(podsList[i])
+			dst := namespacedName(podsList[j])
+			allowedConnections, err := AllAllowedConnections(src, dst)
+			if err == nil {
+				reportLine := fmt.Sprintf("src: %v, dest: %v, allowed conns: %v", src, dst, allowedConnections.String())
+				report = append(report, reportLine)
+			}
+		}
+	}
+	return report, nil
+}
+
+func TestConnectivityMap(t *testing.T) {
+	currentDir, _ := os.Getwd()
+	path := filepath.Join(currentDir, "test1")
+	netpols, pods, ns, err := getResourcesFromDir(path)
+	if err != nil {
+		return
+	}
+	res, err := connectivityMap(pods, ns, netpols)
+	if err != nil {
+		fmt.Printf("%v", err)
+		return
+	}
+	for i := range res {
+		fmt.Printf("%v", res[i])
 	}
 }

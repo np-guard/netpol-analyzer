@@ -4,19 +4,23 @@ import (
 	"fmt"
 )
 
+// Interval is an integer interval from Start to End
 type Interval struct {
 	Start int64
 	End   int64
 }
 
+// String returns a String representation of Interval object
 func (i *Interval) String() string {
 	return fmt.Sprintf("[%v-%v]", i.Start, i.End)
 }
 
+// Equal returns true if current Interval obj is equal to the input Interval
 func (i *Interval) Equal(x Interval) bool {
 	return i.Start == x.Start && i.End == x.End
 }
 
+// Lt returns true if current Interval obj is less than the input Interval
 func (i *Interval) Lt(x Interval) bool {
 	return i.Start < x.Start || (i.Start == x.Start && i.End < x.End)
 }
@@ -80,14 +84,17 @@ func (i *Interval) intersection(other Interval) []Interval {
 	return []Interval{{Start: maxStart, End: minEnd}}
 }
 
+// CanonicalIntervalSet is a canonical representation of a set of Interval objects
 type CanonicalIntervalSet struct {
 	IntervalSet []Interval // sorted list of non-overlapping intervals
 }
 
+// IsEmpty returns true if the  CanonicalIntervalSet is empty
 func (c *CanonicalIntervalSet) IsEmpty() bool {
 	return len(c.IntervalSet) == 0
 }
 
+// Equal returns true if the CanonicalIntervalSet equals the input CanonicalIntervalSet
 func (c *CanonicalIntervalSet) Equal(other CanonicalIntervalSet) bool {
 	if len(c.IntervalSet) != len(other.IntervalSet) {
 		return false
@@ -162,6 +169,7 @@ func insert(array []Interval, element Interval, i int) []Interval {
 	return append(array[:i], append([]Interval{element}, array[i:]...)...)
 }
 
+// AddInterval updates the current CanonicalIntervalSet with a new Interval to add
 //
 //gocyclo:ignore
 func (c *CanonicalIntervalSet) AddInterval(intervalToAdd Interval) {
@@ -214,6 +222,7 @@ func (c *CanonicalIntervalSet) AddInterval(intervalToAdd Interval) {
 	c.IntervalSet = append(c.IntervalSet, tmp...)
 }
 
+// AddHole updates the current CanonicalIntervalSet object by removing the input Interval from the set
 func (c *CanonicalIntervalSet) AddHole(hole Interval) {
 	newIntervalSet := []Interval{}
 	for _, interval := range c.IntervalSet {
@@ -226,6 +235,7 @@ func getNumAsStr(num int64) string {
 	return fmt.Sprintf("%v", num)
 }
 
+// String returns a string represetnation of the current CanonicalIntervalSet object
 func (c *CanonicalIntervalSet) String() string {
 	if c.IsEmpty() {
 		return "Empty"
@@ -241,22 +251,25 @@ func (c *CanonicalIntervalSet) String() string {
 	return res[:len(res)-1]
 }
 
+// Union updates the CanonicalIntervalSet object with the union result of the input CanonicalIntervalSet
 func (c *CanonicalIntervalSet) Union(other CanonicalIntervalSet) {
 	for _, interval := range other.IntervalSet {
 		c.AddInterval(interval)
 	}
 }
 
+// Copy returns a new copy of the CanonicalIntervalSet object
 func (c *CanonicalIntervalSet) Copy() CanonicalIntervalSet {
 	return CanonicalIntervalSet{IntervalSet: append([]Interval(nil), c.IntervalSet...)}
 }
 
-func Union(a, b CanonicalIntervalSet) CanonicalIntervalSet {
+/*func Union(a, b CanonicalIntervalSet) CanonicalIntervalSet {
 	res := a.Copy()
 	res.Union(b)
 	return res
-}
+}*/
 
+// ContainedIn returns true of the current CanonicalIntervalSet is contained in the input CanonicalIntervalSet
 func (c *CanonicalIntervalSet) ContainedIn(other CanonicalIntervalSet) bool {
 	if len(c.IntervalSet) == 1 && len(other.IntervalSet) == 1 {
 		return c.IntervalSet[0].isSubset(other.IntervalSet[0])
@@ -273,6 +286,7 @@ func (c *CanonicalIntervalSet) ContainedIn(other CanonicalIntervalSet) bool {
 	return true
 }
 
+// Intersection updates current CanonicalIntervalSet with intersection result of input CanonicalIntervalSet
 func (c *CanonicalIntervalSet) Intersection(other CanonicalIntervalSet) {
 	newIntervalSet := []Interval{}
 	for _, interval := range c.IntervalSet {
@@ -283,6 +297,7 @@ func (c *CanonicalIntervalSet) Intersection(other CanonicalIntervalSet) {
 	c.IntervalSet = newIntervalSet
 }
 
+// Overlaps returns true if current CanonicalIntervalSet overlaps with input CanonicalIntervalSet
 func (c *CanonicalIntervalSet) Overlaps(other *CanonicalIntervalSet) bool {
 	for _, selfInterval := range c.IntervalSet {
 		for _, otherInterval := range other.IntervalSet {
@@ -294,6 +309,7 @@ func (c *CanonicalIntervalSet) Overlaps(other *CanonicalIntervalSet) bool {
 	return false
 }
 
+// Subtraction updates current CanonicalIntervalSet with subtraction result of input CanonicalIntervalSet
 func (c *CanonicalIntervalSet) Subtraction(other CanonicalIntervalSet) {
 	for _, i := range other.IntervalSet {
 		c.AddHole(i)

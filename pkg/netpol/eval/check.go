@@ -97,9 +97,9 @@ func allowedXgressConnection(src, dst k8s.Peer, isIngress bool, protocol, port s
 	return false, nil
 }
 
-// AllallowedXgressConnections returns the set of allowed connections from src to dst on given
+// allallowedXgressConnections returns the set of allowed connections from src to dst on given
 // direction(ingress/egress), by network policies rules
-func AllallowedXgressConnections(src, dst k8s.Peer, isIngress bool) k8s.ConnectionSet {
+func allallowedXgressConnections(src, dst k8s.Peer, isIngress bool) k8s.ConnectionSet {
 	// relevant policies: policies that capture dst if isIngress, else policies that capture src
 	var netpols []*k8s.NetworkPolicy
 	if isIngress {
@@ -142,7 +142,7 @@ func isPeerNodeIP(peer1, peer2 k8s.Peer) bool {
 
 func getPeer(p string) (k8s.Peer, error) {
 	if strings.Contains(p, separator) { // pod name
-		podObj := GetPod(p)
+		podObj := getPod(p)
 		if podObj != nil {
 			res := k8s.Peer{PeerType: k8s.PodType, Pod: podObj}
 			namespaceStr := podObj.Namespace
@@ -197,6 +197,7 @@ func CheckIfAllowed(src, dst, protocol, port string) (bool, error) {
 	return ingressRes, nil
 }
 
+// CheckIfAllowedNew: (connection-set based computation) returns true  if the given input connection is allowed by network policies
 func CheckIfAllowedNew(src, dst, protocol, port string) (bool, error) {
 	allowedConns, err := AllAllowedConnections(src, dst)
 	if err != nil {
@@ -205,6 +206,7 @@ func CheckIfAllowedNew(src, dst, protocol, port string) (bool, error) {
 	return allowedConns.Contains(port, protocol), nil
 }
 
+// AllAllowedConnections: returns the ConnectionSet of allowed connections from src to dst
 func AllAllowedConnections(src, dst string) (k8s.ConnectionSet, error) {
 	res := k8s.ConnectionSet{}
 	srcPeer, err := getPeer(src)
@@ -220,11 +222,11 @@ func AllAllowedConnections(src, dst string) (k8s.ConnectionSet, error) {
 		return k8s.MakeConnectionSet(true), nil
 	}
 	// egress
-	res = AllallowedXgressConnections(srcPeer, dstPeer, false)
+	res = allallowedXgressConnections(srcPeer, dstPeer, false)
 	if res.IsEmpty() {
 		return res, nil
 	}
 	// ingress
-	res.Intersection(AllallowedXgressConnections(srcPeer, dstPeer, true))
+	res.Intersection(allallowedXgressConnections(srcPeer, dstPeer, true))
 	return res, nil
 }
