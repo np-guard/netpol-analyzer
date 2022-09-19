@@ -21,7 +21,7 @@ import (
 
 const defaultPortsListSize = 8
 
-// Pod encapsulated k8s Pod fields that are relevant for evaluating network policies
+// Pod encapsulats k8s Pod fields that are relevant for evaluating network policies
 type Pod struct {
 	Name      string
 	Namespace string

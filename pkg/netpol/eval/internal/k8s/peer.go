@@ -13,6 +13,7 @@
 // limitations under the License.
 package k8s
 
+// PeerType is a type to indicate the type of a Peer object (Pod or IP address)
 type PeerType int
 
 const (
@@ -20,8 +21,9 @@ const (
 	Iptype
 )
 
+// Peer represents a k8s pod or an ip address
 type Peer struct {
-	PeerType  PeerType // pod or ip
+	PeerType  PeerType // PodType or Iptype
 	IP        string
 	Pod       *Pod
 	Namespace *Namespace

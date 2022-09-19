@@ -14,36 +14,15 @@ var namspacesMap = map[string]*k8s.Namespace{}     // map from ns name to ns obj
 var podsMap = map[string]*k8s.Pod{}                // map from pod name to pod object
 var netpolsMap = map[string][]*k8s.NetworkPolicy{} // map from netpol's namespace to netpol object
 
-func GetPod(p string) *k8s.Pod {
+// getPod: returns a Pod object corresponding to the input pod name
+func getPod(p string) *k8s.Pod {
 	if pod, ok := podsMap[p]; ok {
 		return pod
 	}
 	return nil
 }
 
-func SetResourcesFromDir(path string, netpolLimit ...int) error {
-	objectsList, err := FilesToObjectsList(path)
-	if err != nil {
-		return err
-	}
-	var netpols = []*netv1.NetworkPolicy{}
-	var pods = []*corev1.Pod{}
-	var ns = []*corev1.Namespace{}
-	for _, obj := range objectsList {
-		if obj.kind == "Pod" {
-			pods = append(pods, obj.pod)
-		} else if obj.kind == namespace {
-			ns = append(ns, obj.namespace)
-		} else if obj.kind == networkpolicy {
-			netpols = append(netpols, obj.networkpolicy)
-		}
-	}
-	if len(netpolLimit) > 0 {
-		netpols = netpols[:netpolLimit[0]]
-	}
-	return SetResources(netpols, pods, ns)
-}
-
+// SetResources: updates the set of all relevant k8s resources
 func SetResources(npList []*netv1.NetworkPolicy, podList []*corev1.Pod, nsList []*corev1.Namespace) error {
 	for i := range npList {
 		netpolNamespace := npList[i].ObjectMeta.Namespace
@@ -79,6 +58,7 @@ func SetResources(npList []*netv1.NetworkPolicy, podList []*corev1.Pod, nsList [
 	return nil
 }
 
+// ClearResources: deletes all current k8s resources
 func ClearResources() {
 	pods = []*k8s.Pod{}
 	namespaces = []*k8s.Namespace{}

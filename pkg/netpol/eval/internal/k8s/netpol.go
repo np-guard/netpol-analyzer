@@ -26,9 +26,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-const portBase = 10
-const portBits = 32
-
 // NetworkPolicy is an alias for k8s network policy object
 // @todo is there a preprocessed form of the object that would make more sense?
 //
@@ -40,6 +37,9 @@ type NetworkPolicy netv1.NetworkPolicy
 
 // @todo need a network policy collection type along with convenience methods?
 // 	if so, also consider concurrent access (or declare not goroutine safe?)
+
+const portBase = 10
+const portBits = 32
 
 func getProtocolStr(p *v1.Protocol) string {
 	if p == nil { // If not specified, this field defaults to TCP.
@@ -254,6 +254,7 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 	return false, nil
 }
 
+// GetEgressAllowedConns returns the set of allowed connetions from any captured pod to the destination peer
 func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) ConnectionSet {
 	res := MakeConnectionSet(false)
 	for _, rule := range np.Spec.Egress {
@@ -272,6 +273,7 @@ func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) ConnectionSet {
 	return res
 }
 
+// GetIngressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer
 func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) ConnectionSet {
 	res := MakeConnectionSet(false)
 	for _, rule := range np.Spec.Ingress {
@@ -303,6 +305,7 @@ func rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPolicyPeer) []*IPBlock
 	return res
 }
 
+// GetReferencedIPBlocks: return list of IPBlock objects referenced in the current network policy
 func (np *NetworkPolicy) GetReferencedIPBlocks() []*IPBlock {
 	res := []*IPBlock{}
 	for _, rule := range np.Spec.Ingress {
