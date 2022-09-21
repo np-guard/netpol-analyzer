@@ -18,5 +18,5 @@ bin/
 # test coverage file
 *.coverprofile
 
-# vscode settings directory (remove comment below to share settings via git)
+# IDE settings
 .vscode/
