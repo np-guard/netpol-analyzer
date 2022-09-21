@@ -16,7 +16,6 @@ package k8s
 
 import (
 	"flag"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -75,7 +74,7 @@ func PodNamespace() (string, error) {
 	if ns := os.Getenv("POD_NAMESPACE"); ns != "" {
 		return ns, nil
 	}
-	if data, err := ioutil.ReadFile(nsFile); err == nil {
+	if data, err := os.ReadFile(nsFile); err == nil {
 		if ns := strings.TrimSpace(string(data)); len(ns) > 0 {
 			return ns, nil
 		}

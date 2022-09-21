@@ -43,7 +43,6 @@ func TestAddInterval(t *testing.T) {
 	if !b.Equal(a) {
 		t.Fatalf("error")
 	}
-
 }
 
 func TestPortSet(t *testing.T) {
@@ -51,7 +50,6 @@ func TestPortSet(t *testing.T) {
 	t.Logf("res: %v\n", a1.Ports.String())
 	a2 := MakePortSet(true)
 	t.Logf("res: %v\n", a2.Ports.String())
-
 }
 
 func TestIntervalUnion(t *testing.T) {
@@ -66,7 +64,6 @@ func TestIntervalUnion(t *testing.T) {
 	if !c.Equal(a) {
 		t.Fatalf("error")
 	}
-
 }
 
 func TestConnectionSet(t *testing.T) {
@@ -84,5 +81,4 @@ func TestConnectionSet(t *testing.T) {
 	if aStr != bStr {
 		t.Fatalf("error")
 	}
-
 }
