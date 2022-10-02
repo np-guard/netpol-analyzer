@@ -11,12 +11,27 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package main
+package cmd
 
 import (
-	"github.com/np-guard/netpol-analyzer/cmd/netpolicy/cmd"
+	"fmt"
+
+	"github.com/spf13/cobra"
 )
 
-func main() {
-	cmd.Execute()
+// listCmd represents the list command
+var listCmd = &cobra.Command{
+	Use:   "list",
+	Short: "Lists all allowed connections",
+	Long: `Lists all allowed connections based on the workloads and network policies
+defined`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("list called")
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(listCmd)
+	// define any flags and configuration settings.
+	// Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
 }

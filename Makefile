@@ -1,5 +1,5 @@
 REPOSITORY := github.com/np-guard/netpol-analyzer
-EXE:=k8snetpol
+EXE:=k8snetpolicy
 
 mod: go.mod
 	@echo -- $@ --
