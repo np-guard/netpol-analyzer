@@ -30,8 +30,8 @@ defined`,
 	},
 }
 
+// define any flags and configuration settings.
+// Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
 func init() {
 	rootCmd.AddCommand(listCmd)
-	// define any flags and configuration settings.
-	// Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
 }
