@@ -16,23 +16,31 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
+// @etail: use k8s.io/cli-runtime/pkg/genericclioptions to load kube config.
+// 		Currently adds many options flags, so wait until cobra supports something
+// 		like NamedFlagSet's.
+
 var (
+	help bool
+	// evaluated connection information
 	protocol      = "tcp"
 	sourcePod     = types.NamespacedName{Namespace: "default"}
 	targetPod     = types.NamespacedName{Namespace: "default"}
 	srcExternalIP string
 	dstExternalIP string
 	port          string
-	help          bool
-
-	// @todo enable kubeconfig overrides, possibly via k8s.io/cli-runtime
+	// cluster access information
+	kubecontext string
+	kubeconfig  string
 )
 
 // evaluateCmd represents the evaluate command
@@ -41,6 +49,7 @@ var evaluateCmd = &cobra.Command{
 	Short:   "Evaluate if a specific connection allowed",
 	Aliases: []string{"eval", "check", "allow"},
 
+	// @etail: can this check be done in an Args function?
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		if targetPod.Name == "" && dstExternalIP == "" {
 			return errors.New("no destination defined, target-pod and namespace or external IP required")
@@ -83,13 +92,24 @@ var evaluateCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(evaluateCmd)
 
-	evaluateCmd.Flags().StringVarP(&sourcePod.Name, "source-pod", "", sourcePod.Name, "source pod name, required")
-	evaluateCmd.Flags().StringVarP(&sourcePod.Namespace, "source-namespace", "n", sourcePod.Namespace, "source pod namespace")
-	evaluateCmd.Flags().StringVarP(&targetPod.Name, "destination-pod", "", targetPod.Name, "destination pod name")
-	evaluateCmd.Flags().StringVarP(&targetPod.Namespace, "destination-namespace", "", targetPod.Namespace, "destination pod namespace")
-	evaluateCmd.Flags().StringVarP(&srcExternalIP, "source-ip", "s", srcExternalIP, "source (external) IP")
-	evaluateCmd.Flags().StringVarP(&dstExternalIP, "destination-ip", "d", dstExternalIP, "destination (external) IP")
-	evaluateCmd.Flags().StringVarP(&port, "destination-port", "p", port, "destination port (name or number)")
-	evaluateCmd.Flags().StringVarP(&protocol, "protocol", "", protocol, "protocol in use (tcp, udp, sctp)")
+	// command line flags
 	evaluateCmd.Flags().BoolVarP(&help, "help", "h", false, "display help")
+	// connection level flags
+	evaluateCmd.Flags().StringVarP(&sourcePod.Name, "source-pod", "s", sourcePod.Name, "Source pod name, required")
+	evaluateCmd.Flags().StringVarP(&sourcePod.Namespace, "source-namespace", "n", sourcePod.Namespace, "Source pod namespace")
+	evaluateCmd.Flags().StringVarP(&targetPod.Name, "destination-pod", "d", targetPod.Name, "Destination pod name")
+	evaluateCmd.Flags().StringVarP(&targetPod.Namespace, "destination-namespace", "", targetPod.Namespace, "Destination pod namespace")
+	evaluateCmd.Flags().StringVarP(&srcExternalIP, "source-ip", "", srcExternalIP, "Source (external) IP address")
+	evaluateCmd.Flags().StringVarP(&dstExternalIP, "destination-ip", "", dstExternalIP, "Destination (external) IP address")
+	evaluateCmd.Flags().StringVarP(&port, "destination-port", "p", port, "Destination port (name or number)")
+	evaluateCmd.Flags().StringVarP(&protocol, "protocol", "", protocol, "Protocol in use (tcp, udp, sctp)")
+	// cluster access flags
+	config := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
+	if config == "" {
+		config = clientcmd.RecommendedHomeFile
+	}
+	evaluateCmd.Flags().StringVarP(&kubeconfig, clientcmd.RecommendedConfigPathFlag, "k", config,
+		"Path and file to use for kubeconfig when evaluating connections in a live cluster")
+	evaluateCmd.Flags().StringVarP(&kubecontext, clientcmd.FlagContext, "c", "",
+		"Kubernetes context to use when evaluating connections in a live cluster")
 }
