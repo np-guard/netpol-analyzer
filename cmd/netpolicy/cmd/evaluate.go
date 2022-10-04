@@ -35,7 +35,6 @@ import (
 // 		like NamedFlagSet's.
 
 var (
-	help bool
 	// evaluated connection information
 	protocol       = "tcp"
 	sourcePod      = types.NamespacedName{Namespace: "default"}
@@ -113,9 +112,9 @@ var evaluateCmd = &cobra.Command{
 		namespaces := []*corev1.Namespace{}
 		nsNames := []string{sourcePod.Namespace, destinationPod.Namespace} // @etail: ok if same?
 		for _, ns := range nsNames {
-			n, err := clientset.CoreV1().Namespaces().Get(context.TODO(), ns, metav1.GetOptions{})
-			if err != nil {
-				return err
+			n, apierr := clientset.CoreV1().Namespaces().Get(context.TODO(), ns, metav1.GetOptions{})
+			if apierr != nil {
+				return apierr
 			}
 			namespaces = append(namespaces, n)
 		}
@@ -123,21 +122,21 @@ var evaluateCmd = &cobra.Command{
 		pods := []*corev1.Pod{}
 		podNames := []types.NamespacedName{sourcePod, destinationPod}
 		for _, pod := range podNames {
-			p, err := clientset.CoreV1().Pods(pod.Namespace).Get(context.TODO(), pod.Name, metav1.GetOptions{})
-			if err != nil {
-				return err
+			p, apierr := clientset.CoreV1().Pods(pod.Namespace).Get(context.TODO(), pod.Name, metav1.GetOptions{})
+			if apierr != nil {
+				return apierr
 			}
 			pods = append(pods, p)
 		}
 
 		policies := []*netv1.NetworkPolicy{}
 		for _, ns := range nsNames {
-			npList, err := clientset.NetworkingV1().NetworkPolicies(ns).List(context.TODO(), metav1.ListOptions{})
-			if err != nil {
-				return err
+			npList, apierr := clientset.NetworkingV1().NetworkPolicies(ns).List(context.TODO(), metav1.ListOptions{})
+			if apierr != nil {
+				return apierr
 			}
-			for _, np := range npList.Items {
-				policies = append(policies, &np)
+			for i := range npList.Items {
+				policies = append(policies, &npList.Items[i])
 			}
 		}
 
@@ -160,12 +159,18 @@ func init() {
 	rootCmd.AddCommand(evaluateCmd)
 
 	// connection definition
-	evaluateCmd.Flags().StringVarP(&sourcePod.Name, "source-pod", "s", sourcePod.Name, "Source pod name, required")
-	evaluateCmd.Flags().StringVarP(&sourcePod.Namespace, "source-namespace", "n", sourcePod.Namespace, "Source pod namespace")
-	evaluateCmd.Flags().StringVarP(&destinationPod.Name, "destination-pod", "d", destinationPod.Name, "Destination pod name")
-	evaluateCmd.Flags().StringVarP(&destinationPod.Namespace, "destination-namespace", "", destinationPod.Namespace, "Destination pod namespace")
-	evaluateCmd.Flags().StringVarP(&srcExternalIP, "source-ip", "", srcExternalIP, "Source (external) IP address")
-	evaluateCmd.Flags().StringVarP(&dstExternalIP, "destination-ip", "", dstExternalIP, "Destination (external) IP address")
+	evaluateCmd.Flags().StringVarP(&sourcePod.Name, "source-pod", "s",
+		sourcePod.Name, "Source pod name, required")
+	evaluateCmd.Flags().StringVarP(&sourcePod.Namespace, "source-namespace", "n",
+		sourcePod.Namespace, "Source pod namespace")
+	evaluateCmd.Flags().StringVarP(&destinationPod.Name, "destination-pod", "d",
+		destinationPod.Name, "Destination pod name")
+	evaluateCmd.Flags().StringVarP(&destinationPod.Namespace, "destination-namespace", "",
+		destinationPod.Namespace, "Destination pod namespace")
+	evaluateCmd.Flags().StringVarP(&srcExternalIP, "source-ip", "",
+		srcExternalIP, "Source (external) IP address")
+	evaluateCmd.Flags().StringVarP(&dstExternalIP, "destination-ip", "",
+		dstExternalIP, "Destination (external) IP address")
 	evaluateCmd.Flags().StringVarP(&port, "destination-port", "p", port, "Destination port (name or number)")
 	evaluateCmd.Flags().StringVarP(&protocol, "protocol", "", protocol, "Protocol in use (tcp, udp, sctp)")
 	// cluster access
