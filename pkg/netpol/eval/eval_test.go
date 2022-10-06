@@ -1079,7 +1079,7 @@ func setResourcesFromDir(path string, netpolLimit ...int) error {
 //gocyclo:ignore
 func TestGeneralPerformance(t *testing.T) {
 	currentDir, _ := os.Getwd()
-	path := filepath.Join(currentDir, "test1")
+	path := filepath.Join(currentDir, "testdata")
 	// list of connections to test with, for CheckIfAllowed / CheckIfAllowedNew
 	connectionsListForTest := []TestEntry{
 		{protocol: "tcp", port: "5050"},
@@ -1190,7 +1190,7 @@ func TestGeneralPerformance(t *testing.T) {
 
 func TestFromFiles2(t *testing.T) {
 	currentDir, _ := os.Getwd()
-	path := filepath.Join(currentDir, "test1")
+	path := filepath.Join(currentDir, "testdata")
 	err := setResourcesFromDir(path)
 	if err != nil {
 		t.Fatalf("error from SetResourcesFromDir")
@@ -1243,7 +1243,7 @@ func TestFromFiles2(t *testing.T) {
 
 func TestFromFiles(t *testing.T) {
 	currentDir, _ := os.Getwd()
-	path := filepath.Join(currentDir, "test1")
+	path := filepath.Join(currentDir, "testdata")
 	err := setResourcesFromDir(path)
 	if err != nil {
 		t.Fatalf("error from SetResourcesFromDir")
@@ -1510,7 +1510,7 @@ func connectivityMap(podsList []*v1.Pod, nsList []*v1.Namespace, netpolList []*n
 
 func TestConnectivityMap(t *testing.T) {
 	currentDir, _ := os.Getwd()
-	path := filepath.Join(currentDir, "test1")
+	path := filepath.Join(currentDir, "testdata")
 	netpols, pods, ns, err := getResourcesFromDir(path)
 	if err != nil {
 		return
