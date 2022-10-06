@@ -26,6 +26,7 @@ var listCmd = &cobra.Command{
 	Long: `Lists all allowed connections based on the workloads and network policies
 defined`,
 	Run: func(cmd *cobra.Command, args []string) {
+		// @adisos - need to complete or remove this command from the CLI
 		fmt.Println("list called")
 	},
 }
