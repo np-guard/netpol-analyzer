@@ -140,11 +140,13 @@ var evaluateCmd = &cobra.Command{
 			}
 		}
 
-		if eval.SetResources(policies, pods, namespaces) != nil {
+		pe := eval.NewPolicyEngine()
+
+		if pe.SetResources(policies, pods, namespaces) != nil {
 			return err
 		}
 
-		allowed, err := eval.CheckIfAllowed(source, destination, protocol, port)
+		allowed, err := pe.CheckIfAllowed(source, destination, protocol, port)
 		if err != nil {
 			return err
 		}
