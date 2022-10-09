@@ -32,36 +32,22 @@ func NewPolicyEngine() *PolicyEngine {
 }
 
 // SetResources: updates the set of all relevant k8s resources
-func (pe *PolicyEngine) SetResources(npList []*netv1.NetworkPolicy, podList []*corev1.Pod, nsList []*corev1.Namespace) error {
-	for i := range npList {
-		netpolNamespace := npList[i].ObjectMeta.Namespace
-		if netpolNamespace == "" {
-			netpolNamespace = defaultNamespace
-			npList[i].ObjectMeta.Namespace = defaultNamespace
-		}
-		if _, ok := pe.netpolsMap[netpolNamespace]; !ok {
-			pe.netpolsMap[netpolNamespace] = []*k8s.NetworkPolicy{(*k8s.NetworkPolicy)(npList[i])}
-		} else {
-			pe.netpolsMap[netpolNamespace] = append(pe.netpolsMap[netpolNamespace], (*k8s.NetworkPolicy)(npList[i]))
-		}
-	}
-	for i := range podList {
-		podObj, err := k8s.PodFromCoreObject(podList[i])
-		if err != nil {
+func (pe *PolicyEngine) SetResources(policies []*netv1.NetworkPolicy, pods []*corev1.Pod,
+	namespaces []*corev1.Namespace) error {
+	for i := range namespaces {
+		if err := pe.upsertNamespace(namespaces[i]); err != nil {
 			return err
 		}
-		pe.pods = append(pe.pods, podObj)
-		podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
-		pe.podsMap[podStr.String()] = podObj
 	}
-
-	for i := range nsList {
-		nsObj, err := k8s.NamespaceFromCoreObject(nsList[i])
-		if err != nil {
+	for i := range policies {
+		if err := pe.upsertNetworkPolicy(policies[i]); err != nil {
 			return err
 		}
-		pe.namespaces = append(pe.namespaces, nsObj)
-		pe.namspacesMap[nsObj.Name] = nsObj
+	}
+	for i := range pods {
+		if err := pe.upsertPod(pods[i]); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -74,4 +60,39 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.namspacesMap = map[string]*k8s.Namespace{}
 	pe.podsMap = map[string]*k8s.Pod{}
 	pe.netpolsMap = map[string][]*k8s.NetworkPolicy{}
+}
+
+func (pe *PolicyEngine) upsertNamespace(ns *corev1.Namespace) error {
+	nsObj, err := k8s.NamespaceFromCoreObject(ns)
+	if err != nil {
+		return err
+	}
+	pe.namespaces = append(pe.namespaces, nsObj)
+	pe.namspacesMap[nsObj.Name] = nsObj
+	return nil
+}
+
+func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
+	podObj, err := k8s.PodFromCoreObject(pod)
+	if err != nil {
+		return err
+	}
+	pe.pods = append(pe.pods, podObj)
+	podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
+	pe.podsMap[podStr.String()] = podObj
+	return nil
+}
+
+func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
+	netpolNamespace := np.ObjectMeta.Namespace
+	if netpolNamespace == "" {
+		netpolNamespace = defaultNamespace
+		np.ObjectMeta.Namespace = defaultNamespace
+	}
+	if _, ok := pe.netpolsMap[netpolNamespace]; !ok {
+		pe.netpolsMap[netpolNamespace] = []*k8s.NetworkPolicy{(*k8s.NetworkPolicy)(np)}
+	} else {
+		pe.netpolsMap[netpolNamespace] = append(pe.netpolsMap[netpolNamespace], (*k8s.NetworkPolicy)(np))
+	}
+	return nil
 }
