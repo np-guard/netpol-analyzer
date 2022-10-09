@@ -1,8 +1,12 @@
 package eval
 
 import (
+	"fmt"
+
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
@@ -16,6 +20,22 @@ type (
 		podsMap      map[string]*k8s.Pod             // map from pod name to pod object
 		netpolsMap   map[string][]*k8s.NetworkPolicy // map from netpol's namespace to netpol object
 	}
+
+	// NotificationTarget defines an interface for updating the state needed for network policy
+	// decisions
+	NotificationTarget interface {
+		// UpsertObject inserts (or updates) an object to the policy engine's view of the world
+		UpsertObject(obj runtime.Object) error
+		// DeleteObject removes an object from the policy engine's view of the world
+		DeleteObject(obj runtime.Object) error
+	}
+)
+
+var (
+	// TODO: should we be looking at TypeMeta.APIVersion as well?
+	namespaceType     = (corev1.Namespace{}).TypeMeta.Kind
+	podType           = (corev1.Pod{}).TypeMeta.Kind
+	networkPolicyType = (netv1.NetworkPolicy{}).TypeMeta.Kind
 )
 
 // NewPolicyEngine returns a new PolicyEngine with an empty initial state
@@ -28,6 +48,11 @@ func NewPolicyEngine() *PolicyEngine {
 }
 
 // SetResources: updates the set of all relevant k8s resources
+// This function *may* be used as convenience to set the initial policy engine state from a
+// set of resources (e.g., retrieved via List from a cluster).
+//
+// Deprecated: this function simply calls UpsertObject on the PolicyEngine.
+// Calling the UpsertObject should be preferred in new code.
 func (pe *PolicyEngine) SetResources(policies []*netv1.NetworkPolicy, pods []*corev1.Pod,
 	namespaces []*corev1.Namespace) error {
 	for i := range namespaces {
@@ -47,6 +72,51 @@ func (pe *PolicyEngine) SetResources(policies []*netv1.NetworkPolicy, pods []*co
 	}
 
 	return nil
+}
+
+// UpsertObject updates (an existing) or inserts (a new) object in the PolicyEngine's
+// view of the world
+func (pe *PolicyEngine) UpsertObject(obj runtime.Object) error {
+	switch obj.GetObjectKind().GroupVersionKind().Kind {
+	case namespaceType:
+		if ns, converted := obj.(*corev1.Namespace); converted {
+			return pe.upsertNamespace(ns)
+		}
+	case podType:
+		if pod, converted := obj.(*corev1.Pod); converted {
+			return pe.upsertPod(pod)
+		}
+	case networkPolicyType:
+		if policy, converted := obj.(*netv1.NetworkPolicy); converted {
+			return pe.upsertNetworkPolicy(policy)
+		}
+	default: // ignore other object types
+		return nil
+	}
+	gvk := obj.GetObjectKind().GroupVersionKind()
+	return fmt.Errorf("failed to convert %s as %s", gvk.String(), gvk.Kind)
+}
+
+// DeleteObject removes an object from the PolicyEngine's view of the world
+func (pe *PolicyEngine) DeleteObject(obj runtime.Object) error {
+	switch obj.GetObjectKind().GroupVersionKind().Kind {
+	case namespaceType:
+		if ns, converted := obj.(*corev1.Namespace); converted {
+			return pe.deleteNamespace(ns)
+		}
+	case podType:
+		if pod, converted := obj.(*corev1.Pod); converted {
+			return pe.deletePod(pod)
+		}
+	case networkPolicyType:
+		if policy, converted := obj.(*netv1.NetworkPolicy); converted {
+			return pe.deleteNetworkPolicy(policy)
+		}
+	default: // ignore other object types
+		return nil
+	}
+	gvk := obj.GetObjectKind().GroupVersionKind()
+	return fmt.Errorf("failed to convert %s as %s", gvk.String(), gvk.Kind)
 }
 
 // ClearResources: deletes all current k8s resources
@@ -78,13 +148,28 @@ func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
 func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 	netpolNamespace := np.ObjectMeta.Namespace
 	if netpolNamespace == "" {
-		netpolNamespace = defaultNamespace
-		np.ObjectMeta.Namespace = defaultNamespace
+		netpolNamespace = metav1.NamespaceDefault
+		np.ObjectMeta.Namespace = netpolNamespace
 	}
 	if _, ok := pe.netpolsMap[netpolNamespace]; !ok {
 		pe.netpolsMap[netpolNamespace] = []*k8s.NetworkPolicy{(*k8s.NetworkPolicy)(np)}
 	} else {
 		pe.netpolsMap[netpolNamespace] = append(pe.netpolsMap[netpolNamespace], (*k8s.NetworkPolicy)(np))
 	}
+	return nil
+}
+
+func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
+	delete(pe.namspacesMap, ns.Name)
+	return nil
+}
+
+func (pe *PolicyEngine) deletePod(p *corev1.Pod) error {
+	delete(pe.podsMap, types.NamespacedName{Namespace: p.Namespace, Name: p.Name}.String())
+	return nil
+}
+
+func (pe *PolicyEngine) deleteNetworkPolicy(np *netv1.NetworkPolicy) error {
+	delete(pe.netpolsMap, np.Namespace)
 	return nil
 }
