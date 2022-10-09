@@ -8,32 +8,41 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 )
 
-var pods = []*k8s.Pod{}
-var namespaces = []*k8s.Namespace{}
-var namspacesMap = map[string]*k8s.Namespace{}     // map from ns name to ns object
-var podsMap = map[string]*k8s.Pod{}                // map from pod name to pod object
-var netpolsMap = map[string][]*k8s.NetworkPolicy{} // map from netpol's namespace to netpol object
-
-// getPod: returns a Pod object corresponding to the input pod name
-func getPod(p string) *k8s.Pod {
-	if pod, ok := podsMap[p]; ok {
-		return pod
+type (
+	// PolicyEngine encapsulates the current "world view" (e.g., workloads, policies)
+	// and allows querying it for allowed or denied connections.
+	PolicyEngine struct {
+		pods         []*k8s.Pod
+		namespaces   []*k8s.Namespace
+		namspacesMap map[string]*k8s.Namespace       // map from ns name to ns object
+		podsMap      map[string]*k8s.Pod             // map from pod name to pod object
+		netpolsMap   map[string][]*k8s.NetworkPolicy // map from netpol's namespace to netpol object
 	}
-	return nil
+)
+
+// NewPolicyEngine returns a new PolicyEngine with an empty initial state
+func NewPolicyEngine() *PolicyEngine {
+	return &PolicyEngine{
+		pods:         []*k8s.Pod{},
+		namespaces:   []*k8s.Namespace{},
+		namspacesMap: make(map[string]*k8s.Namespace),
+		podsMap:      make(map[string]*k8s.Pod),
+		netpolsMap:   make(map[string][]*k8s.NetworkPolicy),
+	}
 }
 
 // SetResources: updates the set of all relevant k8s resources
-func SetResources(npList []*netv1.NetworkPolicy, podList []*corev1.Pod, nsList []*corev1.Namespace) error {
+func (pe *PolicyEngine) SetResources(npList []*netv1.NetworkPolicy, podList []*corev1.Pod, nsList []*corev1.Namespace) error {
 	for i := range npList {
 		netpolNamespace := npList[i].ObjectMeta.Namespace
 		if netpolNamespace == "" {
 			netpolNamespace = defaultNamespace
 			npList[i].ObjectMeta.Namespace = defaultNamespace
 		}
-		if _, ok := netpolsMap[netpolNamespace]; !ok {
-			netpolsMap[netpolNamespace] = []*k8s.NetworkPolicy{(*k8s.NetworkPolicy)(npList[i])}
+		if _, ok := pe.netpolsMap[netpolNamespace]; !ok {
+			pe.netpolsMap[netpolNamespace] = []*k8s.NetworkPolicy{(*k8s.NetworkPolicy)(npList[i])}
 		} else {
-			netpolsMap[netpolNamespace] = append(netpolsMap[netpolNamespace], (*k8s.NetworkPolicy)(npList[i]))
+			pe.netpolsMap[netpolNamespace] = append(pe.netpolsMap[netpolNamespace], (*k8s.NetworkPolicy)(npList[i]))
 		}
 	}
 	for i := range podList {
@@ -41,9 +50,9 @@ func SetResources(npList []*netv1.NetworkPolicy, podList []*corev1.Pod, nsList [
 		if err != nil {
 			return err
 		}
-		pods = append(pods, podObj)
+		pe.pods = append(pe.pods, podObj)
 		podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
-		podsMap[podStr.String()] = podObj
+		pe.podsMap[podStr.String()] = podObj
 	}
 
 	for i := range nsList {
@@ -51,22 +60,18 @@ func SetResources(npList []*netv1.NetworkPolicy, podList []*corev1.Pod, nsList [
 		if err != nil {
 			return err
 		}
-		namespaces = append(namespaces, nsObj)
-		namspacesMap[nsObj.Name] = nsObj
+		pe.namespaces = append(pe.namespaces, nsObj)
+		pe.namspacesMap[nsObj.Name] = nsObj
 	}
 
 	return nil
 }
 
 // ClearResources: deletes all current k8s resources
-func ClearResources() {
-	pods = []*k8s.Pod{}
-	namespaces = []*k8s.Namespace{}
-	namspacesMap = map[string]*k8s.Namespace{} // map from ns name to ns object
-	podsMap = map[string]*k8s.Pod{}            // map from pod name to pod object
-	netpolsMap = map[string][]*k8s.NetworkPolicy{}
-}
-
-func GetReferencedIPBlocks() {
-
+func (pe *PolicyEngine) ClearResources() {
+	pe.pods = []*k8s.Pod{}
+	pe.namespaces = []*k8s.Namespace{}
+	pe.namspacesMap = map[string]*k8s.Namespace{}
+	pe.podsMap = map[string]*k8s.Pod{}
+	pe.netpolsMap = map[string][]*k8s.NetworkPolicy{}
 }

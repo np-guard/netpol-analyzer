@@ -20,3 +20,6 @@ bin/
 
 # IDE settings
 .vscode/
+
+# connectivity maps generated in tests
+pkg/netpol/eval/*.txt

@@ -938,17 +938,20 @@ type TestEntry struct {
 	policies    []*netv1.NetworkPolicy
 }
 
-func initTest(test *TestEntry, t *testing.T) {
+func initTest(test *TestEntry, t *testing.T) (*PolicyEngine, error) {
+	pe := NewPolicyEngine()
 	if len(test.nsList) > 0 || len(test.podsList) > 0 || len(test.policies) > 0 {
-		err := SetResources(test.policies, test.podsList, test.nsList)
+		err := pe.SetResources(test.policies, test.podsList, test.nsList)
 		if err != nil {
 			t.Fatalf("error init test: %v", err)
+			return nil, err
 		}
 	}
+	return pe, nil
 }
 
-func checkTestEntry(test *TestEntry, t *testing.T) {
-	res, err := CheckIfAllowed(test.src, test.dst, test.protocol, test.port)
+func checkTestEntry(test *TestEntry, t *testing.T, pe *PolicyEngine) {
+	res, err := pe.CheckIfAllowed(test.src, test.dst, test.protocol, test.port)
 	if err != nil {
 		t.Fatalf("test %v: expected err to be nil, but got %v", test.name, err)
 	}
@@ -957,8 +960,8 @@ func checkTestEntry(test *TestEntry, t *testing.T) {
 	}
 }
 
-func checkTestAllConnectionsEntry(test *TestEntry, t *testing.T) {
-	res, err := AllAllowedConnections(test.src, test.dst)
+func checkTestAllConnectionsEntry(test *TestEntry, t *testing.T, pe *PolicyEngine) {
+	res, err := pe.AllAllowedConnections(test.src, test.dst)
 	if err != nil {
 		t.Fatalf("test %v: expected err to be nil, but got %v", test.name, err)
 	}
@@ -989,7 +992,8 @@ func TestBasic(t *testing.T) {
 	nsList := []*v1.Namespace{}
 	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "default", Labels: map[string]string{"a": "b"}}})
 
-	err = SetResources(policies, podsList, nsList)
+	pe := NewPolicyEngine()
+	err = pe.SetResources(policies, podsList, nsList)
 	if err != nil {
 		t.Fatalf("error SetResources: %v", err)
 	}
@@ -1002,8 +1006,8 @@ func TestBasic(t *testing.T) {
 	}
 
 	for i := range testList {
-		checkTestEntry(&testList[i], t)
-		checkTestAllConnectionsEntry(&testList[i], t)
+		checkTestEntry(&testList[i], t, pe)
+		checkTestAllConnectionsEntry(&testList[i], t, pe)
 	}
 }
 
@@ -1052,7 +1056,7 @@ func getResourcesFromDir(path string) ([]*netv1.NetworkPolicy, []*v1.Pod, []*v1.
 	return netpols, pods, ns, nil
 }
 
-func setResourcesFromDir(path string, netpolLimit ...int) error {
+func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) error {
 	objectsList, err := scan.FilesToObjectsList(path)
 	if err != nil {
 		return err
@@ -1072,7 +1076,7 @@ func setResourcesFromDir(path string, netpolLimit ...int) error {
 	if len(netpolLimit) > 0 {
 		netpols = netpols[:netpolLimit[0]]
 	}
-	return SetResources(netpols, pods, ns)
+	return pe.SetResources(netpols, pods, ns)
 }
 
 //
@@ -1101,7 +1105,9 @@ func TestGeneralPerformance(t *testing.T) {
 	allResStrPerFunc := map[string]string{"CheckIfAllowed": "", "CheckIfAllowedNew": "", "AllAllowedConnections": ""}
 	allResPerFuncAndNetpolLimit := map[int]map[string]string{}
 	for i := netoplLimitMin; i <= netoplLimitMax; i++ {
-		err := setResourcesFromDir(path, i)
+		pe := NewPolicyEngine()
+
+		err := setResourcesFromDir(pe, path, i)
 		if err != nil {
 			t.Fatalf("error from SetResourcesFromDir")
 		}
@@ -1112,10 +1118,10 @@ func TestGeneralPerformance(t *testing.T) {
 			for j := 0; j < experimentsRepetition; j++ {
 				start := time.Now()
 				loopsCounter := 0
-				for podName1 := range podsMap {
-					for podName2 := range podsMap {
+				for podName1 := range pe.podsMap {
+					for podName2 := range pe.podsMap {
 						if functionName == "AllAllowedConnections" {
-							_, err := AllAllowedConnections(podName1, podName2)
+							_, err := pe.AllAllowedConnections(podName1, podName2)
 							loopsCounter++
 							if err != nil {
 								t.Fatalf("error from AllAllowedConnections")
@@ -1123,13 +1129,13 @@ func TestGeneralPerformance(t *testing.T) {
 						} else {
 							for _, conn := range connectionsListForTest {
 								if functionName == "CheckIfAllowed" {
-									_, err := CheckIfAllowed(podName1, podName2, conn.protocol, conn.port)
+									_, err := pe.CheckIfAllowed(podName1, podName2, conn.protocol, conn.port)
 									loopsCounter++
 									if err != nil {
 										t.Fatalf("error from CheckIfAllowed")
 									}
 								} else {
-									_, err := CheckIfAllowedNew(podName1, podName2, conn.protocol, conn.port)
+									_, err := pe.CheckIfAllowedNew(podName1, podName2, conn.protocol, conn.port)
 									loopsCounter++
 									if err != nil {
 										t.Fatalf("error from CheckIfAllowed")
@@ -1171,7 +1177,7 @@ func TestGeneralPerformance(t *testing.T) {
 			allResPerFuncAndNetpolLimit[i][functionName] = fmt.Sprintf("%v", numcallsPerSec)
 		}
 
-		ClearResources()
+		pe.ClearResources()
 	}
 	writeRes(allResStr, "test_all.txt")
 	for funcName, res := range allResStrPerFunc {
@@ -1191,7 +1197,8 @@ func TestGeneralPerformance(t *testing.T) {
 func TestFromFiles2(t *testing.T) {
 	currentDir, _ := os.Getwd()
 	path := filepath.Join(currentDir, "testdata")
-	err := setResourcesFromDir(path)
+	pe := NewPolicyEngine()
+	err := setResourcesFromDir(pe, path)
 	if err != nil {
 		t.Fatalf("error from SetResourcesFromDir")
 	}
@@ -1212,16 +1219,16 @@ func TestFromFiles2(t *testing.T) {
 	allResStr := ""
 	for i := 0; i < experiments; i++ {
 		start := time.Now()
-		for podName1 := range podsMap {
-			for podName2 := range podsMap {
+		for podName1 := range pe.podsMap {
+			for podName2 := range pe.podsMap {
 				for _, conn := range connectionsListForTest {
 					if i < 5 {
-						_, err := CheckIfAllowed(podName1, podName2, conn.protocol, conn.port)
+						_, err := pe.CheckIfAllowed(podName1, podName2, conn.protocol, conn.port)
 						if err != nil {
 							t.Fatalf("error from CheckIfAllowed")
 						}
 					} else {
-						_, err := CheckIfAllowedNew(podName1, podName2, conn.protocol, conn.port)
+						_, err := pe.CheckIfAllowedNew(podName1, podName2, conn.protocol, conn.port)
 						if err != nil {
 							t.Fatalf("error from CheckIfAllowed")
 						}
@@ -1244,11 +1251,12 @@ func TestFromFiles2(t *testing.T) {
 func TestFromFiles(t *testing.T) {
 	currentDir, _ := os.Getwd()
 	path := filepath.Join(currentDir, "testdata")
-	err := setResourcesFromDir(path)
+	pe := NewPolicyEngine()
+	err := setResourcesFromDir(pe, path)
 	if err != nil {
 		t.Fatalf("error from SetResourcesFromDir")
 	}
-	res, err := AllAllowedConnections("default/frontend-99684f7f8-l7mqq", "default/adservice-77d5cd745d-t8mx4")
+	res, err := pe.AllAllowedConnections("default/frontend-99684f7f8-l7mqq", "default/adservice-77d5cd745d-t8mx4")
 	if err != nil {
 		t.Fatalf("error from AllAllowedConnectionst")
 	}
@@ -1259,9 +1267,9 @@ func TestFromFiles(t *testing.T) {
 	for i := 0; i < experiments; i++ {
 		start := time.Now()
 		/*// allResStr := ""*/
-		for podName1 := range podsMap {
-			for podName2 := range podsMap {
-				_, err := AllAllowedConnections(podName1, podName2)
+		for podName1 := range pe.podsMap {
+			for podName2 := range pe.podsMap {
+				_, err := pe.AllAllowedConnections(podName1, podName2)
 				if err != nil {
 					t.Fatalf("error from AllAllowedConnections")
 				}
@@ -1476,10 +1484,13 @@ func TestNew(t *testing.T) {
 	}
 
 	for i := range testList {
-		initTest(&testList[i], t)
-		checkTestEntry(&testList[i], t)
-		checkTestAllConnectionsEntry(&testList[i], t)
-		ClearResources()
+		pe, err := initTest(&testList[i], t)
+		if err != nil {
+			t.Fatal(err)
+		}
+		checkTestEntry(&testList[i], t, pe)
+		checkTestAllConnectionsEntry(&testList[i], t, pe)
+		pe.ClearResources()
 	}
 }
 
@@ -1488,9 +1499,9 @@ func namespacedName(pod *v1.Pod) string {
 	return pod.Namespace + "/" + pod.Name
 }
 
-func connectivityMap(podsList []*v1.Pod, nsList []*v1.Namespace, netpolList []*netv1.NetworkPolicy) ([]string, error) {
+func connectivityMap(pe *PolicyEngine, podsList []*v1.Pod, nsList []*v1.Namespace, netpolList []*netv1.NetworkPolicy) ([]string, error) {
 	report := []string{}
-	err := SetResources(netpolList, podsList, nsList)
+	err := pe.SetResources(netpolList, podsList, nsList)
 	if err != nil {
 		return report, err
 	}
@@ -1498,7 +1509,7 @@ func connectivityMap(podsList []*v1.Pod, nsList []*v1.Namespace, netpolList []*n
 		for j := range podsList {
 			src := namespacedName(podsList[i])
 			dst := namespacedName(podsList[j])
-			allowedConnections, err := AllAllowedConnections(src, dst)
+			allowedConnections, err := pe.AllAllowedConnections(src, dst)
 			if err == nil {
 				reportLine := fmt.Sprintf("src: %v, dest: %v, allowed conns: %v", src, dst, allowedConnections.String())
 				report = append(report, reportLine)
@@ -1515,7 +1526,8 @@ func TestConnectivityMap(t *testing.T) {
 	if err != nil {
 		return
 	}
-	res, err := connectivityMap(pods, ns, netpols)
+	pe := NewPolicyEngine()
+	res, err := connectivityMap(pe, pods, ns, netpols)
 	if err != nil {
 		fmt.Printf("%v", err)
 		return
