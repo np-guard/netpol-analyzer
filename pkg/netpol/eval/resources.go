@@ -67,27 +67,27 @@ func (pe *PolicyEngine) SetResources(policies []*netv1.NetworkPolicy, pods []*co
 
 // UpsertObject updates (an existing) or inserts (a new) object in the PolicyEngine's
 // view of the world
-func (pe *PolicyEngine) UpsertObject(obj runtime.Object) error {
-	switch obj.(type) {
+func (pe *PolicyEngine) UpsertObject(rtobj runtime.Object) error {
+	switch obj := rtobj.(type) {
 	case *corev1.Namespace:
-		return pe.upsertNamespace(obj.(*corev1.Namespace))
+		return pe.upsertNamespace(obj)
 	case *corev1.Pod:
-		return pe.upsertPod(obj.(*corev1.Pod))
+		return pe.upsertPod(obj)
 	case *netv1.NetworkPolicy:
-		return pe.upsertNetworkPolicy(obj.(*netv1.NetworkPolicy))
+		return pe.upsertNetworkPolicy(obj)
 	}
 	return nil
 }
 
 // DeleteObject removes an object from the PolicyEngine's view of the world
-func (pe *PolicyEngine) DeleteObject(obj runtime.Object) error {
-	switch obj.(type) {
+func (pe *PolicyEngine) DeleteObject(rtobj runtime.Object) error {
+	switch obj := rtobj.(type) {
 	case *corev1.Namespace:
-		return pe.deleteNamespace(obj.(*corev1.Namespace))
+		return pe.deleteNamespace(obj)
 	case *corev1.Pod:
-		return pe.deletePod(obj.(*corev1.Pod))
+		return pe.deletePod(obj)
 	case *netv1.NetworkPolicy:
-		return pe.deleteNetworkPolicy(obj.(*netv1.NetworkPolicy))
+		return pe.deleteNetworkPolicy(obj)
 	}
 	return nil
 }
