@@ -114,7 +114,9 @@ var evaluateCmd = &cobra.Command{
 			if apierr != nil {
 				return apierr
 			}
-			pe.UpsertObject(ns)
+			if err = pe.UpsertObject(ns); err != nil {
+				return err
+			}
 		}
 
 		podNames := []types.NamespacedName{sourcePod, destinationPod}
@@ -123,7 +125,9 @@ var evaluateCmd = &cobra.Command{
 			if apierr != nil {
 				return apierr
 			}
-			pe.UpsertObject(pod)
+			if err = pe.UpsertObject(pod); err != nil {
+				return err
+			}
 		}
 
 		for _, ns := range nsNames {
@@ -132,7 +136,9 @@ var evaluateCmd = &cobra.Command{
 				return apierr
 			}
 			for i := range npList.Items {
-				pe.UpsertObject(&npList.Items[i])
+				if err = pe.UpsertObject(&npList.Items[i]); err != nil {
+					return err
+				}
 			}
 		}
 
