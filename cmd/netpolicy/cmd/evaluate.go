@@ -20,8 +20,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	corev1 "k8s.io/api/core/v1"
-	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
@@ -30,7 +28,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
-// @etail: use k8s.io/cli-runtime/pkg/genericclioptions to load kube config.
+// TODO: consider using k8s.io/cli-runtime/pkg/genericclioptions to load kube config.
 // 		Currently adds many options flags, so wait until cobra supports something
 // 		like NamedFlagSet's.
 
@@ -51,9 +49,9 @@ var (
 var evaluateCmd = &cobra.Command{
 	Use:     "evaluate",
 	Short:   "Evaluate if a specific connection allowed",
-	Aliases: []string{"eval", "check", "allow"}, // @etail - close on fewer, consider changing command name?
+	Aliases: []string{"eval", "check", "allow"}, // TODO: close on fewer, consider changing command name?
 
-	// @etail: can this check be done in an Args function (e.g., incl. built-in's such as MinArgs(3))?
+	// TODO: can this check be done in an Args function (e.g., incl. built-in's such as MinArgs(3))?
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		if sourcePod.Name == "" && srcExternalIP == "" {
 			return errors.New("no source defined, source pod and namespace or external IP required")
@@ -89,7 +87,8 @@ var evaluateCmd = &cobra.Command{
 			source = sourcePod.String()
 		}
 
-		// @etail: add explicit logs to indicate progress (loading config, listing namespaces, ...)
+		// TODO: add explicit logs to indicate progress (loading config, listing namespaces, ...)
+		// TODO: use errors.Wrap for clearer error return?
 
 		// create a k8s client with the correct config and context
 		loadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig}
@@ -107,43 +106,34 @@ var evaluateCmd = &cobra.Command{
 			return err
 		}
 
-		// @etail: use errors.Wrap for clearer error return?
+		pe := eval.NewPolicyEngine()
 
-		namespaces := []*corev1.Namespace{}
-		nsNames := []string{sourcePod.Namespace, destinationPod.Namespace} // @etail: ok if same?
-		for _, ns := range nsNames {
-			n, apierr := clientset.CoreV1().Namespaces().Get(context.TODO(), ns, metav1.GetOptions{})
+		nsNames := []string{sourcePod.Namespace, destinationPod.Namespace}
+		for _, name := range nsNames {
+			ns, apierr := clientset.CoreV1().Namespaces().Get(context.TODO(), name, metav1.GetOptions{})
 			if apierr != nil {
 				return apierr
 			}
-			namespaces = append(namespaces, n)
+			pe.UpsertObject(ns)
 		}
 
-		pods := []*corev1.Pod{}
 		podNames := []types.NamespacedName{sourcePod, destinationPod}
-		for _, pod := range podNames {
-			p, apierr := clientset.CoreV1().Pods(pod.Namespace).Get(context.TODO(), pod.Name, metav1.GetOptions{})
+		for _, name := range podNames {
+			pod, apierr := clientset.CoreV1().Pods(name.Namespace).Get(context.TODO(), name.Name, metav1.GetOptions{})
 			if apierr != nil {
 				return apierr
 			}
-			pods = append(pods, p)
+			pe.UpsertObject(pod)
 		}
 
-		policies := []*netv1.NetworkPolicy{}
 		for _, ns := range nsNames {
 			npList, apierr := clientset.NetworkingV1().NetworkPolicies(ns).List(context.TODO(), metav1.ListOptions{})
 			if apierr != nil {
 				return apierr
 			}
 			for i := range npList.Items {
-				policies = append(policies, &npList.Items[i])
+				pe.UpsertObject(&npList.Items[i])
 			}
-		}
-
-		pe := eval.NewPolicyEngine()
-
-		if pe.SetResources(policies, pods, namespaces) != nil {
-			return err
 		}
 
 		allowed, err := pe.CheckIfAllowed(source, destination, protocol, port)

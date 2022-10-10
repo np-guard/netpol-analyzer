@@ -1,8 +1,6 @@
 package eval
 
 import (
-	"fmt"
-
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,13 +27,6 @@ type (
 		// DeleteObject removes an object from the policy engine's view of the world
 		DeleteObject(obj runtime.Object) error
 	}
-)
-
-var (
-	// TODO: should we be looking at TypeMeta.APIVersion as well?
-	namespaceType     = (corev1.Namespace{}).TypeMeta.Kind
-	podType           = (corev1.Pod{}).TypeMeta.Kind
-	networkPolicyType = (netv1.NetworkPolicy{}).TypeMeta.Kind
 )
 
 // NewPolicyEngine returns a new PolicyEngine with an empty initial state
@@ -77,46 +68,28 @@ func (pe *PolicyEngine) SetResources(policies []*netv1.NetworkPolicy, pods []*co
 // UpsertObject updates (an existing) or inserts (a new) object in the PolicyEngine's
 // view of the world
 func (pe *PolicyEngine) UpsertObject(obj runtime.Object) error {
-	switch obj.GetObjectKind().GroupVersionKind().Kind {
-	case namespaceType:
-		if ns, converted := obj.(*corev1.Namespace); converted {
-			return pe.upsertNamespace(ns)
-		}
-	case podType:
-		if pod, converted := obj.(*corev1.Pod); converted {
-			return pe.upsertPod(pod)
-		}
-	case networkPolicyType:
-		if policy, converted := obj.(*netv1.NetworkPolicy); converted {
-			return pe.upsertNetworkPolicy(policy)
-		}
-	default: // ignore other object types
-		return nil
+	switch obj.(type) {
+	case *corev1.Namespace:
+		return pe.upsertNamespace(obj.(*corev1.Namespace))
+	case *corev1.Pod:
+		return pe.upsertPod(obj.(*corev1.Pod))
+	case *netv1.NetworkPolicy:
+		return pe.upsertNetworkPolicy(obj.(*netv1.NetworkPolicy))
 	}
-	gvk := obj.GetObjectKind().GroupVersionKind()
-	return fmt.Errorf("failed to convert %s as %s", gvk.String(), gvk.Kind)
+	return nil
 }
 
 // DeleteObject removes an object from the PolicyEngine's view of the world
 func (pe *PolicyEngine) DeleteObject(obj runtime.Object) error {
-	switch obj.GetObjectKind().GroupVersionKind().Kind {
-	case namespaceType:
-		if ns, converted := obj.(*corev1.Namespace); converted {
-			return pe.deleteNamespace(ns)
-		}
-	case podType:
-		if pod, converted := obj.(*corev1.Pod); converted {
-			return pe.deletePod(pod)
-		}
-	case networkPolicyType:
-		if policy, converted := obj.(*netv1.NetworkPolicy); converted {
-			return pe.deleteNetworkPolicy(policy)
-		}
-	default: // ignore other object types
-		return nil
+	switch obj.(type) {
+	case *corev1.Namespace:
+		return pe.deleteNamespace(obj.(*corev1.Namespace))
+	case *corev1.Pod:
+		return pe.deletePod(obj.(*corev1.Pod))
+	case *netv1.NetworkPolicy:
+		return pe.deleteNetworkPolicy(obj.(*netv1.NetworkPolicy))
 	}
-	gvk := obj.GetObjectKind().GroupVersionKind()
-	return fmt.Errorf("failed to convert %s as %s", gvk.String(), gvk.Kind)
+	return nil
 }
 
 // ClearResources: deletes all current k8s resources
