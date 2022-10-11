@@ -143,6 +143,16 @@ func (pe *PolicyEngine) deletePod(p *corev1.Pod) error {
 }
 
 func (pe *PolicyEngine) deleteNetworkPolicy(np *netv1.NetworkPolicy) error {
-	delete(pe.netpolsMap, np.Namespace)
+	if policies, ok := pe.netpolsMap[np.Namespace]; ok {
+		for i, current := range policies {
+			if current.Name == np.Name {
+				//revive:disable:add-constant
+				// replace found element by last element and them truncate the slice shorter by one
+				policies[i] = policies[len(policies)-1]
+				pe.netpolsMap[np.Namespace] = policies[:len(policies)-1]
+				//revive:enable:add-constant
+			}
+		}
+	}
 	return nil
 }
