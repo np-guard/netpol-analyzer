@@ -13,7 +13,7 @@ fmt:
 lint:
 	@echo -- $@ --
 	CGO_ENABLED=0 go vet ./...
-	# golangci-lint run
+	golangci-lint run --new
 
 precommit: mod fmt lint
 

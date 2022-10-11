@@ -15,6 +15,7 @@ package eval
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	netv1 "k8s.io/api/networking/v1"
@@ -228,7 +229,7 @@ func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 			res.Namespace = nsObj
 			return res, nil
 		}
-		return k8s.Peer{}, errors.New("could not find peer")
+		return k8s.Peer{}, fmt.Errorf("could not find peer %s", p)
 	}
 	// assuming p is an ip address
 	return k8s.Peer{PeerType: k8s.Iptype, IP: p}, nil

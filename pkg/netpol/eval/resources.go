@@ -3,6 +3,8 @@ package eval
 import (
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
@@ -12,19 +14,24 @@ type (
 	// PolicyEngine encapsulates the current "world view" (e.g., workloads, policies)
 	// and allows querying it for allowed or denied connections.
 	PolicyEngine struct {
-		pods         []*k8s.Pod
-		namespaces   []*k8s.Namespace
 		namspacesMap map[string]*k8s.Namespace       // map from ns name to ns object
 		podsMap      map[string]*k8s.Pod             // map from pod name to pod object
 		netpolsMap   map[string][]*k8s.NetworkPolicy // map from netpol's namespace to netpol object
+	}
+
+	// NotificationTarget defines an interface for updating the state needed for network policy
+	// decisions
+	NotificationTarget interface {
+		// UpsertObject inserts (or updates) an object to the policy engine's view of the world
+		UpsertObject(obj runtime.Object) error
+		// DeleteObject removes an object from the policy engine's view of the world
+		DeleteObject(obj runtime.Object) error
 	}
 )
 
 // NewPolicyEngine returns a new PolicyEngine with an empty initial state
 func NewPolicyEngine() *PolicyEngine {
 	return &PolicyEngine{
-		pods:         []*k8s.Pod{},
-		namespaces:   []*k8s.Namespace{},
 		namspacesMap: make(map[string]*k8s.Namespace),
 		podsMap:      make(map[string]*k8s.Pod),
 		netpolsMap:   make(map[string][]*k8s.NetworkPolicy),
@@ -32,46 +39,120 @@ func NewPolicyEngine() *PolicyEngine {
 }
 
 // SetResources: updates the set of all relevant k8s resources
-func (pe *PolicyEngine) SetResources(npList []*netv1.NetworkPolicy, podList []*corev1.Pod, nsList []*corev1.Namespace) error {
-	for i := range npList {
-		netpolNamespace := npList[i].ObjectMeta.Namespace
-		if netpolNamespace == "" {
-			netpolNamespace = defaultNamespace
-			npList[i].ObjectMeta.Namespace = defaultNamespace
-		}
-		if _, ok := pe.netpolsMap[netpolNamespace]; !ok {
-			pe.netpolsMap[netpolNamespace] = []*k8s.NetworkPolicy{(*k8s.NetworkPolicy)(npList[i])}
-		} else {
-			pe.netpolsMap[netpolNamespace] = append(pe.netpolsMap[netpolNamespace], (*k8s.NetworkPolicy)(npList[i]))
-		}
-	}
-	for i := range podList {
-		podObj, err := k8s.PodFromCoreObject(podList[i])
-		if err != nil {
+// This function *may* be used as convenience to set the initial policy engine state from a
+// set of resources (e.g., retrieved via List from a cluster).
+//
+// Deprecated: this function simply calls UpsertObject on the PolicyEngine.
+// Calling the UpsertObject should be preferred in new code.
+func (pe *PolicyEngine) SetResources(policies []*netv1.NetworkPolicy, pods []*corev1.Pod,
+	namespaces []*corev1.Namespace) error {
+	for i := range namespaces {
+		if err := pe.upsertNamespace(namespaces[i]); err != nil {
 			return err
 		}
-		pe.pods = append(pe.pods, podObj)
-		podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
-		pe.podsMap[podStr.String()] = podObj
 	}
-
-	for i := range nsList {
-		nsObj, err := k8s.NamespaceFromCoreObject(nsList[i])
-		if err != nil {
+	for i := range policies {
+		if err := pe.upsertNetworkPolicy(policies[i]); err != nil {
 			return err
 		}
-		pe.namespaces = append(pe.namespaces, nsObj)
-		pe.namspacesMap[nsObj.Name] = nsObj
+	}
+	for i := range pods {
+		if err := pe.upsertPod(pods[i]); err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
+// UpsertObject updates (an existing) or inserts (a new) object in the PolicyEngine's
+// view of the world
+func (pe *PolicyEngine) UpsertObject(rtobj runtime.Object) error {
+	switch obj := rtobj.(type) {
+	case *corev1.Namespace:
+		return pe.upsertNamespace(obj)
+	case *corev1.Pod:
+		return pe.upsertPod(obj)
+	case *netv1.NetworkPolicy:
+		return pe.upsertNetworkPolicy(obj)
+	}
+	return nil
+}
+
+// DeleteObject removes an object from the PolicyEngine's view of the world
+func (pe *PolicyEngine) DeleteObject(rtobj runtime.Object) error {
+	switch obj := rtobj.(type) {
+	case *corev1.Namespace:
+		return pe.deleteNamespace(obj)
+	case *corev1.Pod:
+		return pe.deletePod(obj)
+	case *netv1.NetworkPolicy:
+		return pe.deleteNetworkPolicy(obj)
+	}
+	return nil
+}
+
 // ClearResources: deletes all current k8s resources
 func (pe *PolicyEngine) ClearResources() {
-	pe.pods = []*k8s.Pod{}
-	pe.namespaces = []*k8s.Namespace{}
 	pe.namspacesMap = map[string]*k8s.Namespace{}
 	pe.podsMap = map[string]*k8s.Pod{}
 	pe.netpolsMap = map[string][]*k8s.NetworkPolicy{}
+}
+
+func (pe *PolicyEngine) upsertNamespace(ns *corev1.Namespace) error {
+	nsObj, err := k8s.NamespaceFromCoreObject(ns)
+	if err != nil {
+		return err
+	}
+	pe.namspacesMap[nsObj.Name] = nsObj
+	return nil
+}
+
+func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
+	podObj, err := k8s.PodFromCoreObject(pod)
+	if err != nil {
+		return err
+	}
+	podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
+	pe.podsMap[podStr.String()] = podObj
+	return nil
+}
+
+func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
+	netpolNamespace := np.ObjectMeta.Namespace
+	if netpolNamespace == "" {
+		netpolNamespace = metav1.NamespaceDefault
+		np.ObjectMeta.Namespace = netpolNamespace
+	}
+	if _, ok := pe.netpolsMap[netpolNamespace]; !ok {
+		pe.netpolsMap[netpolNamespace] = []*k8s.NetworkPolicy{(*k8s.NetworkPolicy)(np)}
+	} else {
+		pe.netpolsMap[netpolNamespace] = append(pe.netpolsMap[netpolNamespace], (*k8s.NetworkPolicy)(np))
+	}
+	return nil
+}
+
+func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
+	delete(pe.namspacesMap, ns.Name)
+	return nil
+}
+
+func (pe *PolicyEngine) deletePod(p *corev1.Pod) error {
+	delete(pe.podsMap, types.NamespacedName{Namespace: p.Namespace, Name: p.Name}.String())
+	return nil
+}
+
+func (pe *PolicyEngine) deleteNetworkPolicy(np *netv1.NetworkPolicy) error {
+	if policies, ok := pe.netpolsMap[np.Namespace]; ok {
+		for i, current := range policies {
+			if current.Name == np.Name {
+				//revive:disable:add-constant
+				// replace found element by last element and them truncate the slice shorter by one
+				policies[i] = policies[len(policies)-1]
+				pe.netpolsMap[np.Namespace] = policies[:len(policies)-1]
+				//revive:enable:add-constant
+			}
+		}
+	}
+	return nil
 }
