@@ -156,3 +156,8 @@ func (pe *PolicyEngine) deleteNetworkPolicy(np *netv1.NetworkPolicy) error {
 	}
 	return nil
 }
+
+// GetPodsMap: return map of pods within PolicyEngine
+func (pe *PolicyEngine) GetPodsMap() map[string]*k8s.Pod {
+	return pe.podsMap
+}
