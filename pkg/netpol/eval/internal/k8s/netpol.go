@@ -57,7 +57,7 @@ func convertNamedPort(namedPort string, pod *Pod) (int32, error) {
 	return 0, errors.New("no matching named port")
 }
 
-func getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (int32, int32, error) {
+func getPortsRange(port *intstr.IntOrString, endPort *int32, dst *Peer) (int32, int32, error) {
 	var start, end int32
 	if port.Type == intstr.String {
 		if dst.PeerType != PodType || dst.Pod == nil {
@@ -79,7 +79,7 @@ func getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (int32, i
 	return start, end, nil
 }
 
-func ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) ConnectionSet {
+func ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst *Peer) ConnectionSet {
 	if len(rulePorts) == 0 {
 		return MakeConnectionSet(true) // If this field is empty or missing, this rule matches all ports (traffic not restricted by port)
 	}
@@ -104,7 +104,7 @@ func ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) ConnectionSe
 }
 
 // ruleConnsContain returns true if the given protocol and port are contained in connections allowed by rulePorts
-func ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, protocol, port string, dst Peer) (bool, error) {
+func ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, protocol, port string, dst *Peer) (bool, error) {
 	if len(rulePorts) == 0 {
 		return true, nil // If this field is empty or missing, this rule matches all ports (traffic not restricted by port)
 	}
@@ -133,7 +133,7 @@ func ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, protocol, port string
 // ruleSelectsPeer returns true if the given peer is in the set of peers selected by rulePeers
 //
 //gocyclo:ignore
-func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, peer Peer) (bool, error) {
+func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, peer *Peer) (bool, error) {
 	if len(rulePeers) == 0 {
 		return true, nil // If this field is empty or missing, this rule matches all destinations
 	}
@@ -149,7 +149,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			peerMatchesPodSelector := false
 			peerMatchesNamespaceSelector := false
 			if rulePeers[i].NamespaceSelector == nil {
-				peerMatchesNamespaceSelector = (np.ObjectMeta.Namespace == peer.Pod.Namespace)
+				peerMatchesNamespaceSelector = (np.ObjectMeta.Namespace == peer.GetPeerNamespace())
 			} else {
 				selector, err := metav1.LabelSelectorAsSelector(rulePeers[i].NamespaceSelector)
 				if err != nil {
@@ -168,7 +168,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 				if err != nil {
 					return false, err
 				}
-				peerMatchesPodSelector = selector.Matches(labels.Set(peer.Pod.Labels))
+				peerMatchesPodSelector = selector.Matches(labels.Set(peer.getPeerLabels()))
 			}
 			if peerMatchesPodSelector {
 				return true, nil //  matching both pod selector and ns_selector here
@@ -206,7 +206,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 }
 
 // GetIngressAllowedConns returns true  if the given connections from src to any of the pods captured by the policy is allowed
-func (np *NetworkPolicy) IngressAllowedConn(src Peer, protocol, port string, dst Peer) (bool, error) {
+func (np *NetworkPolicy) IngressAllowedConn(src *Peer, protocol, port string, dst *Peer) (bool, error) {
 	// iterate list of rules: []NetworkPolicyIngressRule
 	for i := range np.Spec.Ingress {
 		rulePeers := np.Spec.Ingress[i].From
@@ -231,7 +231,7 @@ func (np *NetworkPolicy) IngressAllowedConn(src Peer, protocol, port string, dst
 }
 
 // GetEgressAllowedConns returns true if the given connection to dst from any of the pods captured by the policy is allowed
-func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (bool, error) {
+func (np *NetworkPolicy) EgressAllowedConn(dst *Peer, protocol, port string) (bool, error) {
 	for i := range np.Spec.Egress {
 		rulePeers := np.Spec.Egress[i].To
 		rulePorts := np.Spec.Egress[i].Ports
@@ -255,7 +255,7 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 }
 
 // GetEgressAllowedConns returns the set of allowed connetions from any captured pod to the destination peer
-func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) ConnectionSet {
+func (np *NetworkPolicy) GetEgressAllowedConns(dst *Peer) ConnectionSet {
 	res := MakeConnectionSet(false)
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
@@ -274,7 +274,7 @@ func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) ConnectionSet {
 }
 
 // GetIngressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer
-func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) ConnectionSet {
+func (np *NetworkPolicy) GetIngressAllowedConns(src, dst *Peer) ConnectionSet {
 	res := MakeConnectionSet(false)
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
@@ -335,9 +335,12 @@ func (np *NetworkPolicy) policyAffectsDirection(direction netv1.PolicyType) bool
 }
 
 // Selects returns true if the network policy's Spec.PodSelector selects the Pod and if the required direction is in the policy types
-func (np *NetworkPolicy) Selects(p *Pod, direction netv1.PolicyType) (bool, error) {
+func (np *NetworkPolicy) Selects(peer *Peer, direction netv1.PolicyType) (bool, error) {
+	if peer.PeerType == Iptype {
+		return false, errors.New("NetworkPolicy cannot select an ip address")
+	}
 	//  @todo check namespace matching here? -> namespace should match
-	if p.Namespace != np.Namespace {
+	if peer.GetPeerNamespace() != np.Namespace {
 		return false, nil
 	}
 
@@ -354,5 +357,5 @@ func (np *NetworkPolicy) Selects(p *Pod, direction netv1.PolicyType) (bool, erro
 	if err != nil {
 		return false, err
 	}
-	return selector.Matches(labels.Set(p.Labels)), nil
+	return selector.Matches(labels.Set(peer.getPeerLabels())), nil
 }

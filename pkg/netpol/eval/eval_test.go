@@ -1,6 +1,8 @@
 package eval
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,12 +12,14 @@ import (
 	"strings"
 	"testing"
 
+	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/yaml"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
@@ -941,7 +945,11 @@ type TestEntry struct {
 func initTest(test *TestEntry, t *testing.T) (*PolicyEngine, error) {
 	pe := NewPolicyEngine()
 	if len(test.nsList) > 0 || len(test.podsList) > 0 || len(test.policies) > 0 {
-		err := pe.SetResources(test.policies, test.podsList, test.nsList)
+		r := &Resources{podList: test.podsList,
+			nsList: test.nsList,
+			npList: test.policies,
+		}
+		err := pe.SetResources(r)
 		if err != nil {
 			t.Fatalf("error init test: %v", err)
 			return nil, err
@@ -991,9 +999,13 @@ func TestBasic(t *testing.T) {
 
 	nsList := []*v1.Namespace{}
 	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "default", Labels: map[string]string{"a": "b"}}})
+	r := &Resources{podList: podsList,
+		nsList: nsList,
+		npList: policies,
+	}
 
 	pe := NewPolicyEngine()
-	err = pe.SetResources(policies, podsList, nsList)
+	err = pe.SetResources(r)
 	if err != nil {
 		t.Fatalf("error SetResources: %v", err)
 	}
@@ -1036,24 +1048,24 @@ func writeRes(res, fileName string) {
 	}
 }
 
-func getResourcesFromDir(path string) ([]*netv1.NetworkPolicy, []*v1.Pod, []*v1.Namespace, error) {
+func getResourcesFromDir(path string) (*Resources, error) {
 	objectsList, err := scan.FilesToObjectsList(path)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, err
 	}
-	var netpols = []*netv1.NetworkPolicy{}
-	var pods = []*v1.Pod{}
-	var ns = []*v1.Namespace{}
+	res := &Resources{}
 	for _, obj := range objectsList {
 		if obj.Kind == "Pod" {
-			pods = append(pods, obj.Pod)
+			res.podList = append(res.podList, obj.Pod)
 		} else if obj.Kind == "Namespace" {
-			ns = append(ns, obj.Namespace)
+			res.nsList = append(res.nsList, obj.Namespace)
 		} else if obj.Kind == "NetworkPolicy" {
-			netpols = append(netpols, obj.Networkpolicy)
+			res.npList = append(res.npList, obj.Networkpolicy)
+		} else if obj.Kind == "ReplicaSet" {
+			res.replicaSetList = append(res.replicaSetList, obj.Replicaset)
 		}
 	}
-	return netpols, pods, ns, nil
+	return res, nil
 }
 
 func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) error {
@@ -1076,14 +1088,18 @@ func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) erro
 	if len(netpolLimit) > 0 {
 		netpols = netpols[:netpolLimit[0]]
 	}
-	return pe.SetResources(netpols, pods, ns)
+	r := &Resources{podList: pods,
+		nsList: ns,
+		npList: netpols,
+	}
+	return pe.SetResources(r)
 }
 
 //
 //gocyclo:ignore
 func TestGeneralPerformance(t *testing.T) {
 	currentDir, _ := os.Getwd()
-	path := filepath.Join(currentDir, "testdata")
+	path := filepath.Join(currentDir, "testdata", "onlineboutique")
 	// list of connections to test with, for CheckIfAllowed / CheckIfAllowedNew
 	connectionsListForTest := []TestEntry{
 		{protocol: "tcp", port: "5050"},
@@ -1169,7 +1185,6 @@ func TestGeneralPerformance(t *testing.T) {
 			// evaluate performance: number of calls per 1 second
 			val := int64(avgRuntime) // runtime in nanoseconds
 			numcallsPerSec := (int64(loopsCounterPerFunction[functionName]) * 1000000000) / val
-			fmt.Printf("%v", numcallsPerSec)
 			allResStr += fmt.Sprintf("runtime values: %v\n", runtimeValues)
 			allResStr += fmt.Sprintf("function name: %v, netoplLimit: %v, average runtime is %v for %v iterations, numcallsPerSec: %v\n",
 				functionName, i, avgRuntime, loopsCounterPerFunction[functionName], numcallsPerSec)
@@ -1196,7 +1211,7 @@ func TestGeneralPerformance(t *testing.T) {
 
 func TestFromFiles2(t *testing.T) {
 	currentDir, _ := os.Getwd()
-	path := filepath.Join(currentDir, "testdata")
+	path := filepath.Join(currentDir, "testdata", "onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
@@ -1233,8 +1248,6 @@ func TestFromFiles2(t *testing.T) {
 							t.Fatalf("error from CheckIfAllowed")
 						}
 					}
-					/*// resStr := fmt.Sprintf("%v, %v, %v, %v, %v\n", podName1, podName2, conn.protocol, conn.port, res)
-					// allResStr += resStr*/
 				}
 			}
 		}
@@ -1244,40 +1257,32 @@ func TestFromFiles2(t *testing.T) {
 	for i, runtime := range runtimes {
 		allResStr += fmt.Sprintf("%v, %s\n", i, runtime)
 	}
-	/*// allResStr += fmt.Sprintf("total runtime: %s\n", elapsed)*/
 	writeRes(allResStr, "test_check_if_allowed_func.txt")
 }
 
 func TestFromFiles(t *testing.T) {
 	currentDir, _ := os.Getwd()
-	path := filepath.Join(currentDir, "testdata")
+	path := filepath.Join(currentDir, "testdata", "onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
 		t.Fatalf("error from SetResourcesFromDir")
 	}
-	res, err := pe.AllAllowedConnections("default/frontend-99684f7f8-l7mqq", "default/adservice-77d5cd745d-t8mx4")
+	_, err = pe.AllAllowedConnections("default/frontend-99684f7f8-l7mqq", "default/adservice-77d5cd745d-t8mx4")
 	if err != nil {
 		t.Fatalf("error from AllAllowedConnectionst")
 	}
-	fmt.Printf("%v", res)
 	runtimes := []time.Duration{}
 	experiments := 10
 	allResStr := ""
 	for i := 0; i < experiments; i++ {
 		start := time.Now()
-		/*// allResStr := ""*/
 		for podName1 := range pe.podsMap {
 			for podName2 := range pe.podsMap {
 				_, err := pe.AllAllowedConnections(podName1, podName2)
 				if err != nil {
 					t.Fatalf("error from AllAllowedConnections")
 				}
-				/*// resStr := fmt.Sprintf("%v, %v, %v,  time: %s\n", podName1, podName2, res.String(), elapsed)
-				// resStr := fmt.Sprintf("%v, %v, %v\n", podName1, podName2, res.String())
-				// writeRes(resStr)
-				// allResStr += resStr
-				// fmt.Printf("%v, %v, %v", podName1, podName2, res.String())*/
 			}
 		}
 		elapsed := time.Since(start)
@@ -1494,45 +1499,240 @@ func TestNew(t *testing.T) {
 	}
 }
 
-// canonical Pod name
-func namespacedName(pod *v1.Pod) string {
-	return pod.Namespace + "/" + pod.Name
+// canonical resource name - to be used in connectivity map test output
+func namespacedName(resource interface{}) string {
+	switch resource := resource.(type) {
+	case *appsv1.ReplicaSet:
+		return resource.Namespace + "/" + resource.Name
+	case *v1.Pod:
+		return resource.Namespace + "/" + resource.Name
+	default:
+		return ""
+	}
 }
 
-func connectivityMap(pe *PolicyEngine, podsList []*v1.Pod, nsList []*v1.Namespace, netpolList []*netv1.NetworkPolicy) ([]string, error) {
+func simpleConfigurableConnectivityMapTest(
+	resourcesKind string,
+	pe *PolicyEngine,
+	r *Resources,
+	allConnections bool,
+	protocol,
+	port string) ([]string, error) {
 	report := []string{}
-	err := pe.SetResources(netpolList, podsList, nsList)
+	err := pe.SetResources(r)
 	if err != nil {
 		return report, err
 	}
-	for i := range podsList {
-		for j := range podsList {
-			src := namespacedName(podsList[i])
-			dst := namespacedName(podsList[j])
-			allowedConnections, err := pe.AllAllowedConnections(src, dst)
+	numResources := 0
+	if resourcesKind == "Pod" {
+		numResources = len(r.podList)
+	} else if resourcesKind == "ReplicaSet" {
+		numResources = len(r.replicaSetList)
+	} else {
+		return report, fmt.Errorf("unexpected resourcesKind: %v", resourcesKind)
+	}
+	for i := 0; i < numResources; i++ {
+		for j := 0; j < numResources; j++ {
+			var srcObj, dstObj interface{}
+			if resourcesKind == "Pod" {
+				srcObj = r.podList[i]
+				dstObj = r.podList[j]
+			} else { // replicaset
+				srcObj = r.replicaSetList[i]
+				dstObj = r.replicaSetList[j]
+			}
+			src := namespacedName(srcObj)
+			dst := namespacedName(dstObj)
+			var allowedConnectionsStr string
+			var err error
+			if allConnections {
+				var allowedConnections k8s.ConnectionSet
+				allowedConnections, err = pe.AllAllowedConnections(src, dst)
+				allowedConnectionsStr = allowedConnections.String()
+			} else {
+				var allowedConnections bool
+				allowedConnections, err = pe.CheckIfAllowed(src, dst, protocol, port)
+				allowedConnectionsStr = fmt.Sprintf("%v", allowedConnections)
+			}
 			if err == nil {
-				reportLine := fmt.Sprintf("src: %v, dest: %v, allowed conns: %v", src, dst, allowedConnections.String())
+				reportLine := fmt.Sprintf("src: %v, dest: %v, allowed conns: %v\n", src, dst, allowedConnectionsStr)
 				report = append(report, reportLine)
 			}
 		}
 	}
+
+	sort.Strings(report)
 	return report, nil
 }
 
-func TestConnectivityMap(t *testing.T) {
+type ConnectionsMapTestEntry struct {
+	resourcesDir          string
+	resourceKindUnderTest string
+	expectedOutputFile    string
+	actualOutputFile      string
+	expectedCacheHits     int
+	checkCacheHits        bool
+	allConnections        bool
+	port                  string
+	protocol              string
+}
+
+func TestConnectionsMapExamples(t *testing.T) {
 	currentDir, _ := os.Getwd()
-	path := filepath.Join(currentDir, "testdata")
-	netpols, pods, ns, err := getResourcesFromDir(path)
+	tests := []*ConnectionsMapTestEntry{
+		// tests with AllAllowedConnections -----------------------------------------------------------------------
+		{resourcesDir: filepath.Join(currentDir, "testdata", "onlineboutique"),
+			resourceKindUnderTest: "Pod",
+			expectedOutputFile:    filepath.Join("testdata", "onlineboutique", "connections_map_output.txt"),
+			actualOutputFile:      "connections_map_output.txt",
+			// expectedCacheHits:     0, // no pod replicas on this example,
+			checkCacheHits: false, // currently not relevant for "all connections" computation( only for bool result is connecion allowed )
+			allConnections: true,
+		},
+
+		{resourcesDir: filepath.Join(currentDir, "testdata", "onlineboutique"),
+			resourceKindUnderTest: "ReplicaSet",
+			expectedOutputFile:    filepath.Join("testdata", "onlineboutique", "connections_map_output_workloads.txt"),
+			actualOutputFile:      "connections_map_output_workloads.txt",
+			checkCacheHits:        false, // not relevant for input workload resources(ReplicaSet)
+			allConnections:        true,
+		},
+
+		// tests with IsConnectionAllowed -----------------------------------------------------------------------------
+		{resourcesDir: filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas"),
+			resourceKindUnderTest: "Pod",
+			expectedOutputFile:    filepath.Join("testdata", "onlineboutique_with_replicas", "connections_map_with_replicas_output.txt"),
+			actualOutputFile:      "connections_map_with_replicas_output.txt",
+			checkCacheHits:        true,
+			allConnections:        false,
+			port:                  "80",
+			protocol:              "TCP",
+			expectedCacheHits:     49, // loadgenerator pod has 3 replicas
+		},
+
+		{resourcesDir: filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas_and_variants"),
+			resourceKindUnderTest: "Pod",
+			expectedOutputFile: filepath.Join("testdata", "onlineboutique_with_replicas_and_variants",
+				"connections_map_with_replicas_and_variants_output.txt"),
+			actualOutputFile:  "connections_map_with_replicas_and_variants_output.txt",
+			checkCacheHits:    true,
+			allConnections:    false,
+			port:              "80",
+			protocol:          "TCP",
+			expectedCacheHits: 25, // loadgenerator pod has 3 replicas but one with variant on labels
+		},
+
+		{resourcesDir: filepath.Join(currentDir, "testdata", "onlineboutique"),
+			resourceKindUnderTest: "Pod",
+			expectedOutputFile:    filepath.Join("testdata", "onlineboutique", "connections_map_output_bool.txt"),
+			actualOutputFile:      "connections_map_output_bool.txt",
+			expectedCacheHits:     0, // no pod replicas on this example,
+			checkCacheHits:        true,
+			allConnections:        false,
+		},
+	}
+	for _, test := range tests {
+		r, err := getResourcesFromDir(test.resourcesDir)
+		if err != nil {
+			t.Fatal(err)
+		}
+		pe := NewPolicyEngine()
+		res, err := simpleConfigurableConnectivityMapTest(test.resourceKindUnderTest, pe, r, test.allConnections, test.protocol, test.port)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if test.checkCacheHits && test.expectedCacheHits != pe.cacheHitsCount {
+			t.Fatalf("mismatch mismatch on expected num of cache hits: expected %v, got %v", test.expectedCacheHits, pe.cacheHitsCount)
+		}
+
+		comparisonRes, err := testConnectivityMapOutput(res, test.actualOutputFile, test.expectedOutputFile)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !comparisonRes {
+			t.Fatalf("mismatch for expected output on connections map test")
+		}
+	}
+}
+
+func readLines(path string) ([]string, error) {
+	file, err := os.Open(path)
 	if err != nil {
-		return
+		return nil, err
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	return lines, scanner.Err()
+}
+
+func compareFiles(expectedFile, actualFile string) (bool, error) {
+	expectedLines, err1 := readLines(expectedFile)
+	actualLines, err2 := readLines(actualFile)
+	if err1 != nil || err2 != nil {
+		return false, errors.New("error reading lines from file")
+	}
+	if len(expectedLines) != len(actualLines) {
+		fmt.Printf("Files line count is different: expected(%s): %d, actual(%s): %d",
+			expectedFile, len(expectedLines), actualFile, len(actualLines))
+		return false, nil
+	}
+
+	for i := 0; i < len(expectedLines); i++ {
+		lineExpected := expectedLines[i]
+		lineActual := actualLines[i]
+		if lineExpected != lineActual && !strings.Contains(lineExpected, "\"filepath\"") {
+			fmt.Printf("Gap in line %d: expected(%s): %s, actual(%s): %s", i, expectedFile, lineExpected, actualFile, lineActual)
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
+func testConnectivityMapOutput(res []string, actualFileName, expectedFileName string) (bool, error) {
+	outputRes := ""
+	for i := range res {
+		outputRes += res[i]
+		writeRes(outputRes, actualFileName)
+	}
+	comparisonRes, err := compareFiles(expectedFileName, actualFileName)
+	return comparisonRes, err
+}
+
+func TestDeletePod(t *testing.T) {
+	currentDir, _ := os.Getwd()
+	path := filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas")
+	r, err := getResourcesFromDir(path)
+	if err != nil {
+		t.Fatal(err)
 	}
 	pe := NewPolicyEngine()
-	res, err := connectivityMap(pe, pods, ns, netpols)
+	err = pe.SetResources(r)
 	if err != nil {
-		fmt.Printf("%v", err)
-		return
+		t.Fatal(err)
 	}
-	for i := range res {
-		fmt.Printf("%v", res[i])
+	podsMapLen := len(pe.podsMap)
+	podToWorkloadOwnerKeyLen := len(pe.podToWorkloadOwnerKey)
+	podOwnersMapLen := len(pe.podOwnersMap)
+	for _, pod := range r.podList {
+		if strings.HasPrefix(pod.Name, "loadgenerator") {
+			err = pe.DeleteObject(pod)
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	if len(pe.podsMap) != podsMapLen-3 {
+		t.Fatalf("unexpected podsMap: %v instead of %v", len(pe.podsMap), podsMapLen-3)
+	}
+	if len(pe.podToWorkloadOwnerKey) != podToWorkloadOwnerKeyLen-3 {
+		t.Fatalf("unexpected podsMap: %v instead of %v", len(pe.podToWorkloadOwnerKey), podToWorkloadOwnerKeyLen-3)
+	}
+	if len(pe.podOwnersMap) != podOwnersMapLen-1 {
+		t.Fatalf("unexpected podsMap: %v instead of %v", len(pe.podOwnersMap), podOwnersMapLen-3)
 	}
 }

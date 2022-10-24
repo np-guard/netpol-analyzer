@@ -86,7 +86,7 @@ func TestNetworkPolicyPortAnalysis(t *testing.T) {
 		Protocol: &UDP,
 		Port:     &PortHello,
 	}
-	res := ruleConnections([]netv1.NetworkPolicyPort{AllowNamedPortOnProtocol}, dst)
+	res := ruleConnections([]netv1.NetworkPolicyPort{AllowNamedPortOnProtocol}, &dst)
 	expectedConnStr := "UDP 22"
 	if res.String() != expectedConnStr {
 		t.Fatalf("mismatch on ruleConnections result: expected %v, got %v", expectedConnStr, res.String())

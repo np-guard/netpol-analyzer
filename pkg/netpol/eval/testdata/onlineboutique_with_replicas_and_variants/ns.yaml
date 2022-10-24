@@ -1,0 +1,81 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2022-10-19T07:59:56Z"
+    labels:
+      kubernetes.io/metadata.name: default
+    name: default
+    resourceVersion: "206"
+    uid: 3295a935-16d5-4164-91f7-9aac530de01a
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Namespace","metadata":{"annotations":{},"labels":{"app.kubernetes.io/instance":"ingress-nginx","app.kubernetes.io/name":"ingress-nginx"},"name":"ingress-nginx"}}
+    creationTimestamp: "2022-10-19T08:00:03Z"
+    labels:
+      app.kubernetes.io/instance: ingress-nginx
+      app.kubernetes.io/name: ingress-nginx
+      kubernetes.io/metadata.name: ingress-nginx
+    name: ingress-nginx
+    resourceVersion: "344"
+    uid: c5f3a8ec-7e17-4134-919c-b2980ef936e9
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2022-10-19T07:59:54Z"
+    labels:
+      kubernetes.io/metadata.name: kube-node-lease
+    name: kube-node-lease
+    resourceVersion: "52"
+    uid: a9524ba5-de6e-4aac-a040-55ce4d3971bc
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2022-10-19T07:59:54Z"
+    labels:
+      kubernetes.io/metadata.name: kube-public
+    name: kube-public
+    resourceVersion: "48"
+    uid: b4532aa0-e422-4df1-b444-1d02cdf73dde
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2022-10-19T07:59:54Z"
+    labels:
+      kubernetes.io/metadata.name: kube-system
+    name: kube-system
+    resourceVersion: "36"
+    uid: 9a9f959e-3b72-4c3d-9bea-a948e9c241d5
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

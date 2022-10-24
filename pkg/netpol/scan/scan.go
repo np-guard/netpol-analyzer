@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -34,8 +35,7 @@ func FilesToObjectsList(path string) ([]K8sObject, error) {
 	for _, obj := range parsedObjects {
 		for _, o := range obj.deployObjects {
 			kind := o.groupKind
-			fmt.Printf("%v", kind)
-			if kind == pod || kind == networkpolicy || kind == namespace || kind == list {
+			if kind == pod || kind == networkpolicy || kind == namespace || kind == list || kind == replicaSet {
 				res1, err := scanK8sDeployObject(kind, o.runtimeObject)
 				if err == nil {
 					res = append(res, res1...)
@@ -100,7 +100,7 @@ func getK8sDeploymentResources(repoDir *string) []parsedK8sObjects {
 
 func searchDeploymentManifests(repoDir *string) []string {
 	yamls := []string{}
-	err := filepath.WalkDir(*repoDir, func(path string, f os.DirEntry, err error) error {
+	funcVal := fs.WalkDirFunc(func(path string, f os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -112,6 +112,7 @@ func searchDeploymentManifests(repoDir *string) []string {
 		}
 		return nil
 	})
+	err := filepath.WalkDir(*repoDir, funcVal)
 	if err != nil {
 		fmt.Printf("Error: Error in searching for manifests: %v", err)
 	}
@@ -126,14 +127,18 @@ func parseList(objDataBuf []byte) []K8sObject {
 	}
 	podsList := v1.PodList{}
 	nsList := v1.NamespaceList{}
+	replicasetList := appsv1.ReplicaSetList{}
+
+	// try as pods list
 	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&podsList)
-	// currently supporting list of pods or namespaces
 	if err == nil && len(podsList.Items) > 0 && podsList.Items[0].TypeMeta.Kind == pod {
 		for i := range podsList.Items {
 			res = append(res, K8sObject{Pod: &podsList.Items[i], Kind: pod})
 		}
 		return res
 	}
+
+	// try as namespaces list
 	r = bytes.NewReader(objDataBuf)
 	err = yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&nsList)
 	if err == nil && len(nsList.Items) > 0 && nsList.Items[0].TypeMeta.Kind == namespace {
@@ -142,6 +147,18 @@ func parseList(objDataBuf []byte) []K8sObject {
 		}
 		return res
 	}
+
+	// try as replicaset list
+	r = bytes.NewReader(objDataBuf)
+	err = yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&replicasetList)
+	if err == nil && len(replicasetList.Items) > 0 && replicasetList.Items[0].TypeMeta.Kind == replicaSet {
+		for i := range replicasetList.Items {
+			res = append(res, K8sObject{Replicaset: &replicasetList.Items[i], Kind: replicaSet})
+		}
+		return res
+	}
+
+	// empty res here
 	return res
 }
 
