@@ -16,21 +16,12 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
-)
-
-var (
-	// resources dir information
-	dirPath string
 )
 
 // listCmd represents the list command
@@ -39,78 +30,69 @@ var listCmd = &cobra.Command{
 	Short: "Lists all allowed connections",
 	Long: `Lists all allowed connections based on the workloads and network policies
 defined`,
+	Example: `  # Get list of allowed connections from resources dir path
+  k8snetpolicy list --dirpath ./resources_dir/ 
+  
+  # Get list of allowed connections from live k8s cluster
+  k8snetpolicy list -k ./kube/config`,
+
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		pe := eval.NewPolicyEngine()
 
-		// get resources from dir
-		if len(dirPath) > 0 {
+		if dirPath != "" {
+			// get all resources from dir
 			objectsList, err := scan.FilesToObjectsList(dirPath)
 			if err != nil {
 				return err
 			}
 			for _, obj := range objectsList {
-				if obj.Kind == "Pod" {
+				if obj.Kind == scan.Pod {
 					err = pe.UpsertObject(obj.Pod)
-				} else if obj.Kind == "Namespace" {
+				} else if obj.Kind == scan.Namespace {
 					err = pe.UpsertObject(obj.Namespace)
-				} else if obj.Kind == "NetworkPolicy" {
+				} else if obj.Kind == scan.Networkpolicy {
 					err = pe.UpsertObject(obj.Networkpolicy)
 				}
 				if err != nil {
 					return err
 				}
 			}
-
 		} else {
-			// TODO: avoid code duplication here
-			// create a k8s client with the correct config and context
-			loadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig}
-			overrides := &clientcmd.ConfigOverrides{}
-			if kubecontext != "" {
-				overrides.CurrentContext = kubecontext
-			}
+			var err error
+			// get all resources from k8s cluster
 
-			k8sconf, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, overrides).ClientConfig()
-			if err != nil {
-				return err
+			// get all namespaces
+			nsList, apierr := clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+			if apierr != nil {
+				return apierr
 			}
-			clientset, err := kubernetes.NewForConfig(k8sconf)
-			if err != nil {
-				return err
-			}
-
-			nsNames := []string{sourcePod.Namespace, destinationPod.Namespace}
-			for _, name := range nsNames {
-				ns, apierr := clientset.CoreV1().Namespaces().Get(context.TODO(), name, metav1.GetOptions{})
-				if apierr != nil {
-					return apierr
-				}
+			for i := range nsList.Items {
+				ns := &nsList.Items[i]
 				if err = pe.UpsertObject(ns); err != nil {
 					return err
 				}
 			}
 
-			podNames := []types.NamespacedName{sourcePod, destinationPod}
-			for _, name := range podNames {
-				pod, apierr := clientset.CoreV1().Pods(name.Namespace).Get(context.TODO(), name.Name, metav1.GetOptions{})
-				if apierr != nil {
-					return apierr
-				}
-				if err = pe.UpsertObject(pod); err != nil {
+			// get all pods
+			podList, apierr := clientset.CoreV1().Pods(metav1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
+			if apierr != nil {
+				return apierr
+			}
+			for i := range podList.Items {
+				if err = pe.UpsertObject(&podList.Items[i]); err != nil {
 					return err
 				}
 			}
 
-			for _, ns := range nsNames {
-				npList, apierr := clientset.NetworkingV1().NetworkPolicies(ns).List(context.TODO(), metav1.ListOptions{})
-				if apierr != nil {
-					return apierr
-				}
-				for i := range npList.Items {
-					if err = pe.UpsertObject(&npList.Items[i]); err != nil {
-						return err
-					}
+			// get all netpols
+			npList, apierr := clientset.NetworkingV1().NetworkPolicies(metav1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
+			if apierr != nil {
+				return apierr
+			}
+			for i := range npList.Items {
+				if err = pe.UpsertObject(&npList.Items[i]); err != nil {
+					return err
 				}
 			}
 		}
@@ -135,16 +117,4 @@ defined`,
 // Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
 func init() {
 	rootCmd.AddCommand(listCmd)
-	listCmd.Flags().StringVarP(&dirPath, "dirpath", "",
-		dirPath, "resources dir path")
-
-	// cluster access
-	config := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
-	if config == "" {
-		config = clientcmd.RecommendedHomeFile
-	}
-	listCmd.Flags().StringVarP(&kubeconfig, clientcmd.RecommendedConfigPathFlag, "k", config,
-		"Path and file to use for kubeconfig when evaluating connections in a live cluster")
-	listCmd.Flags().StringVarP(&kubecontext, clientcmd.FlagContext, "c", "",
-		"Kubernetes context to use when evaluating connections in a live cluster")
 }
