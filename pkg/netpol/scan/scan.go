@@ -34,7 +34,6 @@ func FilesToObjectsList(path string) ([]K8sObject, error) {
 	for _, obj := range parsedObjects {
 		for _, o := range obj.deployObjects {
 			kind := o.groupKind
-			fmt.Printf("%v", kind)
 			if kind == pod || kind == networkpolicy || kind == namespace || kind == list {
 				res1, err := scanK8sDeployObject(kind, o.runtimeObject)
 				if err == nil {
