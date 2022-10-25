@@ -124,6 +124,9 @@ func getPodOwnerName(p *corev1.Pod) string {
 // GetPodOwnerKey: get owner key in the form of "owner-ns/owner-name/variant"
 func GetPodOwnerKey(p *corev1.Pod) string {
 	ownerName := getPodOwnerName(p)
+	if ownerName == "" {
+		return ""
+	}
 	ownerNs := p.Namespace
 	variant := variantFromLabelsMap(p.Labels)
 	return ownerNs + separator + ownerName + separator + variant

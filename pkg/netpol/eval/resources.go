@@ -162,15 +162,20 @@ func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
 	// check if pod has an owner workload or not
 	// if not - create a workload owner for this pod
 	hasOwner, podOwnerKey := pe.podHasWorkloadOwner(pod)
+	if podOwnerKey == "" {
+		// pod has no owner
+		return nil
+	}
 	if !hasOwner {
+		// create a workload owner for this pod
 		podOwnerWorkload, err := k8s.WorkloadFromPodObject(pod)
 		if err == nil && podOwnerWorkload != nil { // pod has owner
 			pe.podOwnersMap[podOwnerKey] = podOwnerWorkload
 		}
-	} else { // increase counter of owned pods
+	} else { // increase counter of owned pods for existing workload object
 		pe.podOwnersMap[podOwnerKey].CountOwnedPods += 1
 	}
-	// associate pod with existing workload owner object
+	// associate pod with existing/new workload owner object
 	pe.podToWorkloadOwnerKey[podStr.String()] = podOwnerKey
 	return nil
 }
