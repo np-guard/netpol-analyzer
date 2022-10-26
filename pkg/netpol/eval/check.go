@@ -100,9 +100,9 @@ func (pe *PolicyEngine) getPod(p string) *k8s.Pod {
 	return nil
 }
 
-// getNetworkPolicies returns a list of netpols on the input namespace
-func (pe *PolicyEngine) getNetworkPolicies(namespace string) []*k8s.NetworkPolicy {
-	res := []*k8s.NetworkPolicy{}
+// getNetworkPolicies returns a map of netpols from the input namespace
+func (pe *PolicyEngine) getNetworkPolicies(namespace string) map[string]*k8s.NetworkPolicy {
+	res := map[string]*k8s.NetworkPolicy{}
 	netpols, ok := pe.netpolsMap[namespace]
 	if ok {
 		res = netpols
