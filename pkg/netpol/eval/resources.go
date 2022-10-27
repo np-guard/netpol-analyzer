@@ -125,10 +125,9 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		np.ObjectMeta.Namespace = netpolNamespace
 	}
 	if _, ok := pe.netpolsMap[netpolNamespace]; !ok {
-		pe.netpolsMap[netpolNamespace] = map[string]*k8s.NetworkPolicy{np.Name: (*k8s.NetworkPolicy)(np)}
-	} else {
-		pe.netpolsMap[netpolNamespace][np.Name] = (*k8s.NetworkPolicy)(np)
+		pe.netpolsMap[netpolNamespace] = map[string]*k8s.NetworkPolicy{}
 	}
+	pe.netpolsMap[netpolNamespace][np.Name] = (*k8s.NetworkPolicy)(np)
 	return nil
 }
 

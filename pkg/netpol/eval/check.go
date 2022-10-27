@@ -97,20 +97,10 @@ func (pe *PolicyEngine) getPod(p string) *k8s.Pod {
 	return nil
 }
 
-// getNetworkPolicies returns a map of netpols from the input namespace
-func (pe *PolicyEngine) getNetworkPolicies(namespace string) map[string]*k8s.NetworkPolicy {
-	res := map[string]*k8s.NetworkPolicy{}
-	netpols, ok := pe.netpolsMap[namespace]
-	if ok {
-		res = netpols
-	}
-	return res
-}
-
 // TODO: consider caching: for each pod and direction, test set of policies that are selecting it
 // getPoliciesSelectingPod returns a list of policies that select the input pod on the required direction (ingress/egress)
 func (pe *PolicyEngine) getPoliciesSelectingPod(p *k8s.Pod, direction netv1.PolicyType) []*k8s.NetworkPolicy {
-	netpols := pe.getNetworkPolicies(p.Namespace)
+	netpols := pe.netpolsMap[p.Namespace]
 	res := []*k8s.NetworkPolicy{}
 	for _, policy := range netpols {
 		selects, err := policy.Selects(p, direction)
