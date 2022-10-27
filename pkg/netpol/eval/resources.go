@@ -14,9 +14,9 @@ type (
 	// PolicyEngine encapsulates the current "world view" (e.g., workloads, policies)
 	// and allows querying it for allowed or denied connections.
 	PolicyEngine struct {
-		namspacesMap map[string]*k8s.Namespace       // map from ns name to ns object
-		podsMap      map[string]*k8s.Pod             // map from pod name to pod object
-		netpolsMap   map[string][]*k8s.NetworkPolicy // map from netpol's namespace to netpol object
+		namspacesMap map[string]*k8s.Namespace                // map from ns name to ns object
+		podsMap      map[string]*k8s.Pod                      // map from pod name to pod object
+		netpolsMap   map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -34,7 +34,7 @@ func NewPolicyEngine() *PolicyEngine {
 	return &PolicyEngine{
 		namspacesMap: make(map[string]*k8s.Namespace),
 		podsMap:      make(map[string]*k8s.Pod),
-		netpolsMap:   make(map[string][]*k8s.NetworkPolicy),
+		netpolsMap:   make(map[string]map[string]*k8s.NetworkPolicy),
 	}
 }
 
@@ -96,7 +96,7 @@ func (pe *PolicyEngine) DeleteObject(rtobj runtime.Object) error {
 func (pe *PolicyEngine) ClearResources() {
 	pe.namspacesMap = map[string]*k8s.Namespace{}
 	pe.podsMap = map[string]*k8s.Pod{}
-	pe.netpolsMap = map[string][]*k8s.NetworkPolicy{}
+	pe.netpolsMap = map[string]map[string]*k8s.NetworkPolicy{}
 }
 
 func (pe *PolicyEngine) upsertNamespace(ns *corev1.Namespace) error {
@@ -125,10 +125,9 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		np.ObjectMeta.Namespace = netpolNamespace
 	}
 	if _, ok := pe.netpolsMap[netpolNamespace]; !ok {
-		pe.netpolsMap[netpolNamespace] = []*k8s.NetworkPolicy{(*k8s.NetworkPolicy)(np)}
-	} else {
-		pe.netpolsMap[netpolNamespace] = append(pe.netpolsMap[netpolNamespace], (*k8s.NetworkPolicy)(np))
+		pe.netpolsMap[netpolNamespace] = map[string]*k8s.NetworkPolicy{}
 	}
+	pe.netpolsMap[netpolNamespace][np.Name] = (*k8s.NetworkPolicy)(np)
 	return nil
 }
 
@@ -143,15 +142,10 @@ func (pe *PolicyEngine) deletePod(p *corev1.Pod) error {
 }
 
 func (pe *PolicyEngine) deleteNetworkPolicy(np *netv1.NetworkPolicy) error {
-	if policies, ok := pe.netpolsMap[np.Namespace]; ok {
-		for i, current := range policies {
-			if current.Name == np.Name {
-				//revive:disable:add-constant
-				// replace found element by last element and them truncate the slice shorter by one
-				policies[i] = policies[len(policies)-1]
-				pe.netpolsMap[np.Namespace] = policies[:len(policies)-1]
-				//revive:enable:add-constant
-			}
+	if policiesMap, ok := pe.netpolsMap[np.Namespace]; ok {
+		delete(policiesMap, np.Name)
+		if len(policiesMap) == 0 {
+			delete(pe.netpolsMap, np.Namespace)
 		}
 	}
 	return nil
