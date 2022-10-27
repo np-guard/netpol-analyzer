@@ -163,7 +163,7 @@ func parseList(objDataBuf []byte) []K8sObject {
 	// currently supporting list of pods or namespaces
 	if err == nil && len(podsList.Items) > 0 && podsList.Items[0].TypeMeta.Kind == Pod {
 		for i := range podsList.Items {
-			if podsList.Items[i].Namespace == "" {
+			if podsList.Items[i].Namespace == metav1.NamespaceNone {
 				podsList.Items[i].Namespace = metav1.NamespaceDefault
 			}
 			res = append(res, K8sObject{Pod: &podsList.Items[i], Kind: Pod})
@@ -190,7 +190,7 @@ func parsePod(r io.Reader) *v1.Pod {
 	if err != nil {
 		return nil
 	}
-	if rc.Namespace == "" {
+	if rc.Namespace == metav1.NamespaceNone {
 		rc.Namespace = metav1.NamespaceDefault
 	}
 	return &rc
@@ -217,7 +217,7 @@ func parseNetworkPolicy(r io.Reader) *netv1.NetworkPolicy {
 	if err != nil {
 		return nil
 	}
-	if rc.Namespace == "" {
+	if rc.Namespace == metav1.NamespaceNone {
 		rc.Namespace = metav1.NamespaceDefault
 	}
 	return &rc
@@ -232,7 +232,7 @@ func parseReplicaSet(r io.Reader) *appsv1.ReplicaSet {
 	if err != nil {
 		return nil
 	}
-	if rc.Namespace == "" {
+	if rc.Namespace == metav1.NamespaceNone {
 		rc.Namespace = metav1.NamespaceDefault
 	}
 	return &rc
