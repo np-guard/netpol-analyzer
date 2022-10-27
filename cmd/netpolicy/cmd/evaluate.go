@@ -17,15 +17,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
 // TODO: consider using k8s.io/cli-runtime/pkg/genericclioptions to load kube config.
@@ -40,9 +38,6 @@ var (
 	srcExternalIP  string
 	dstExternalIP  string
 	port           string
-	// cluster access information
-	kubecontext string
-	kubeconfig  string
 )
 
 // evaluateCmd represents the evaluate command
@@ -50,9 +45,22 @@ var evaluateCmd = &cobra.Command{
 	Use:     "evaluate",
 	Short:   "Evaluate if a specific connection allowed",
 	Aliases: []string{"eval", "check", "allow"}, // TODO: close on fewer, consider changing command name?
+	Example: `  # Evaluate if a specific connection is allowed on given resources from dir path
+  k8snetpolicy eval --dirpath ./resources_dir/ -s default/pod-1 -d default/pod-2 -p 80
+  
+  # Evaluate if a specific connection is allowed on a live k8s cluster
+  k8snetpolicy eval -k ./kube/config -s default/pod-1 -d default/pod-2 -p 80`,
 
 	// TODO: can this check be done in an Args function (e.g., incl. built-in's such as MinArgs(3))?
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		// Call parent pre-run
+		if rootCmd.PersistentPreRunE != nil {
+			if err := rootCmd.PersistentPreRunE(cmd, args); err != nil {
+				return err
+			}
+		}
+
+		// Validate flags values
 		if sourcePod.Name == "" && srcExternalIP == "" {
 			return errors.New("no source defined, source pod and namespace or external IP required")
 		} else if sourcePod.Name != "" && srcExternalIP != "" {
@@ -77,67 +85,76 @@ var evaluateCmd = &cobra.Command{
 	},
 
 	RunE: func(cmd *cobra.Command, args []string) error {
+		nsNames := []string{}
+		podNames := []types.NamespacedName{}
+
 		destination := dstExternalIP
 		if destination == "" {
 			destination = destinationPod.String()
+			nsNames = append(nsNames, destinationPod.Namespace)
+			podNames = append(podNames, destinationPod)
 		}
 
 		source := srcExternalIP
 		if source == "" {
 			source = sourcePod.String()
-		}
-
-		// TODO: add explicit logs to indicate progress (loading config, listing namespaces, ...)
-		// TODO: use errors.Wrap for clearer error return?
-
-		// create a k8s client with the correct config and context
-		loadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig}
-		overrides := &clientcmd.ConfigOverrides{}
-		if kubecontext != "" {
-			overrides.CurrentContext = kubecontext
-		}
-
-		k8sconf, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, overrides).ClientConfig()
-		if err != nil {
-			return err
-		}
-		clientset, err := kubernetes.NewForConfig(k8sconf)
-		if err != nil {
-			return err
+			nsNames = append(nsNames, sourcePod.Namespace)
+			podNames = append(podNames, sourcePod)
 		}
 
 		pe := eval.NewPolicyEngine()
 
-		nsNames := []string{sourcePod.Namespace, destinationPod.Namespace}
-		for _, name := range nsNames {
-			ns, apierr := clientset.CoreV1().Namespaces().Get(context.TODO(), name, metav1.GetOptions{})
-			if apierr != nil {
-				return apierr
-			}
-			if err = pe.UpsertObject(ns); err != nil {
+		if dirPath != "" {
+			// get relevant resources from dir path
+			objectsList, err := scan.FilesToObjectsListFiltered(dirPath, podNames)
+			if err != nil {
 				return err
 			}
-		}
-
-		podNames := []types.NamespacedName{sourcePod, destinationPod}
-		for _, name := range podNames {
-			pod, apierr := clientset.CoreV1().Pods(name.Namespace).Get(context.TODO(), name.Name, metav1.GetOptions{})
-			if apierr != nil {
-				return apierr
-			}
-			if err = pe.UpsertObject(pod); err != nil {
-				return err
-			}
-		}
-
-		for _, ns := range nsNames {
-			npList, apierr := clientset.NetworkingV1().NetworkPolicies(ns).List(context.TODO(), metav1.ListOptions{})
-			if apierr != nil {
-				return apierr
-			}
-			for i := range npList.Items {
-				if err = pe.UpsertObject(&npList.Items[i]); err != nil {
+			for _, obj := range objectsList {
+				if obj.Kind == scan.Pod {
+					err = pe.UpsertObject(obj.Pod)
+				} else if obj.Kind == scan.Namespace {
+					err = pe.UpsertObject(obj.Namespace)
+				} else if obj.Kind == scan.Networkpolicy {
+					err = pe.UpsertObject(obj.Networkpolicy)
+				}
+				if err != nil {
 					return err
+				}
+			}
+
+		} else {
+			// get relevant resources from k8s live cluster
+			var err error
+			for _, name := range nsNames {
+				ns, apierr := clientset.CoreV1().Namespaces().Get(context.TODO(), name, metav1.GetOptions{})
+				if apierr != nil {
+					return apierr
+				}
+				if err = pe.UpsertObject(ns); err != nil {
+					return err
+				}
+			}
+
+			for _, name := range podNames {
+				pod, apierr := clientset.CoreV1().Pods(name.Namespace).Get(context.TODO(), name.Name, metav1.GetOptions{})
+				if apierr != nil {
+					return apierr
+				}
+				if err = pe.UpsertObject(pod); err != nil {
+					return err
+				}
+			}
+
+			for _, ns := range nsNames {
+				npList, apierr := clientset.NetworkingV1().NetworkPolicies(ns).List(context.TODO(), metav1.ListOptions{})
+				if apierr != nil {
+					return apierr
+				}
+				for i := range npList.Items {
+					if err = pe.UpsertObject(&npList.Items[i]); err != nil {
+						return err
+					}
 				}
 			}
 		}
@@ -171,13 +188,4 @@ func init() {
 		dstExternalIP, "Destination (external) IP address")
 	evaluateCmd.Flags().StringVarP(&port, "destination-port", "p", port, "Destination port (name or number)")
 	evaluateCmd.Flags().StringVarP(&protocol, "protocol", "", protocol, "Protocol in use (tcp, udp, sctp)")
-	// cluster access
-	config := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
-	if config == "" {
-		config = clientcmd.RecommendedHomeFile
-	}
-	evaluateCmd.Flags().StringVarP(&kubeconfig, clientcmd.RecommendedConfigPathFlag, "k", config,
-		"Path and file to use for kubeconfig when evaluating connections in a live cluster")
-	evaluateCmd.Flags().StringVarP(&kubecontext, clientcmd.FlagContext, "c", "",
-		"Kubernetes context to use when evaluating connections in a live cluster")
 }

@@ -206,7 +206,7 @@ func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 		if podObj != nil {
 			res := k8s.Peer{PeerType: k8s.PodType, Pod: podObj}
 			namespaceStr := podObj.Namespace
-			if namespaceStr == "" {
+			if namespaceStr == metav1.NamespaceNone {
 				namespaceStr = metav1.NamespaceDefault
 			}
 			nsObj, ok := pe.namspacesMap[namespaceStr]

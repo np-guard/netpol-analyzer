@@ -14,6 +14,8 @@ import (
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/kubernetes/scheme"
 )
@@ -27,6 +29,38 @@ type K8sObject struct {
 	Replicaset    *appsv1.ReplicaSet
 }
 
+// FilesToObjectsListFiltered returns only K8sObjects from dir path if they match input pods namespaces (for non pod resources)
+// and full input pods names for pod resources
+func FilesToObjectsListFiltered(path string, podNames []types.NamespacedName) ([]K8sObject, error) {
+	allObjects, err := FilesToObjectsList(path)
+	if err != nil {
+		return nil, err
+	}
+	podNamesMap := map[string]bool{}
+	nsMap := map[string]bool{}
+	for i := range podNames {
+		podNamesMap[podNames[i].String()] = true
+		nsMap[podNames[i].Namespace] = true
+	}
+	res := []K8sObject{}
+	for _, obj := range allObjects {
+		if obj.Kind == Namespace {
+			if _, ok := nsMap[obj.Namespace.Name]; ok {
+				res = append(res, obj)
+			}
+		} else if obj.Kind == Networkpolicy {
+			if _, ok := nsMap[obj.Networkpolicy.Namespace]; ok {
+				res = append(res, obj)
+			}
+		} else if obj.Kind == Pod {
+			if _, ok := podNamesMap[types.NamespacedName{Name: obj.Pod.Name, Namespace: obj.Pod.Namespace}.String()]; ok {
+				res = append(res, obj)
+			}
+		}
+	}
+	return res, nil
+}
+
 // FilesToObjectsList returns a list of K8sObject parsed from yaml files in the input dir path
 func FilesToObjectsList(path string) ([]K8sObject, error) {
 	res := []K8sObject{}
@@ -34,7 +68,7 @@ func FilesToObjectsList(path string) ([]K8sObject, error) {
 	for _, obj := range parsedObjects {
 		for _, o := range obj.deployObjects {
 			kind := o.groupKind
-			if kind == pod || kind == networkpolicy || kind == namespace || kind == list {
+			if kind == Pod || kind == Networkpolicy || kind == Namespace || kind == List {
 				res1, err := scanK8sDeployObject(kind, o.runtimeObject)
 				if err == nil {
 					res = append(res, res1...)
@@ -48,19 +82,19 @@ func FilesToObjectsList(path string) ([]K8sObject, error) {
 }
 
 const (
-	pod                   string = "Pod"
-	replicaSet            string = "ReplicaSet"
-	replicationController string = "ReplicationController"
-	deployment            string = "Deployment"
-	statefulset           string = "StatefulSet"
-	daemonset             string = "DaemonSet"
-	job                   string = "Job"
-	cronJob               string = "CronJob"
-	service               string = "Service"
-	configmap             string = "ConfigMap"
-	networkpolicy         string = "NetworkPolicy"
-	namespace             string = "Namespace"
-	list                  string = "List"
+	Pod                   string = "Pod"
+	ReplicaSet            string = "ReplicaSet"
+	ReplicationController string = "ReplicationController"
+	Deployment            string = "Deployment"
+	Statefulset           string = "StatefulSet"
+	Daemonset             string = "DaemonSet"
+	Job                   string = "Job"
+	CronJob               string = "CronJob"
+	Service               string = "Service"
+	Configmap             string = "ConfigMap"
+	Networkpolicy         string = "NetworkPolicy"
+	Namespace             string = "Namespace"
+	List                  string = "List"
 )
 
 const yamlParseBufferSize = 200
@@ -127,17 +161,20 @@ func parseList(objDataBuf []byte) []K8sObject {
 	nsList := v1.NamespaceList{}
 	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&podsList)
 	// currently supporting list of pods or namespaces
-	if err == nil && len(podsList.Items) > 0 && podsList.Items[0].TypeMeta.Kind == pod {
+	if err == nil && len(podsList.Items) > 0 && podsList.Items[0].TypeMeta.Kind == Pod {
 		for i := range podsList.Items {
-			res = append(res, K8sObject{Pod: &podsList.Items[i], Kind: pod})
+			if podsList.Items[i].Namespace == metav1.NamespaceNone {
+				podsList.Items[i].Namespace = metav1.NamespaceDefault
+			}
+			res = append(res, K8sObject{Pod: &podsList.Items[i], Kind: Pod})
 		}
 		return res
 	}
 	r = bytes.NewReader(objDataBuf)
 	err = yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&nsList)
-	if err == nil && len(nsList.Items) > 0 && nsList.Items[0].TypeMeta.Kind == namespace {
+	if err == nil && len(nsList.Items) > 0 && nsList.Items[0].TypeMeta.Kind == Namespace {
 		for i := range nsList.Items {
-			res = append(res, K8sObject{Namespace: &nsList.Items[i], Kind: namespace})
+			res = append(res, K8sObject{Namespace: &nsList.Items[i], Kind: Namespace})
 		}
 		return res
 	}
@@ -152,6 +189,9 @@ func parsePod(r io.Reader) *v1.Pod {
 	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
 	if err != nil {
 		return nil
+	}
+	if rc.Namespace == metav1.NamespaceNone {
+		rc.Namespace = metav1.NamespaceDefault
 	}
 	return &rc
 }
@@ -177,6 +217,9 @@ func parseNetworkPolicy(r io.Reader) *netv1.NetworkPolicy {
 	if err != nil {
 		return nil
 	}
+	if rc.Namespace == metav1.NamespaceNone {
+		rc.Namespace = metav1.NamespaceDefault
+	}
 	return &rc
 }
 
@@ -188,6 +231,9 @@ func parseReplicaSet(r io.Reader) *appsv1.ReplicaSet {
 	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
 	if err != nil {
 		return nil
+	}
+	if rc.Namespace == metav1.NamespaceNone {
+		rc.Namespace = metav1.NamespaceDefault
 	}
 	return &rc
 }
@@ -238,8 +284,8 @@ func splitByYamlDocuments(data []byte) []string {
 func parseK8sYaml(fileR []byte) []deployObject {
 	dObjs := []deployObject{}
 	acceptedK8sTypes := regexp.MustCompile(fmt.Sprintf("(%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s)",
-		pod, replicaSet, replicationController, deployment, daemonset, statefulset, job, cronJob,
-		service, configmap, networkpolicy, namespace, list))
+		Pod, ReplicaSet, ReplicationController, Deployment, Daemonset, Statefulset, Job, CronJob,
+		Service, Configmap, Networkpolicy, Namespace, List))
 	sepYamlfiles := splitByYamlDocuments(fileR)
 	for _, f := range sepYamlfiles {
 		if f == "\n" || f == "" {
