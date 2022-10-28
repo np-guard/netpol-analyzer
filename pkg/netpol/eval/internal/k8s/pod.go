@@ -14,9 +14,13 @@
 package k8s
 
 import (
+	"crypto/sha1" //nolint:gosec
+	"encoding/hex"
 	"errors"
+	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 const defaultPortsListSize = 8
@@ -29,6 +33,15 @@ type Pod struct {
 	IPs       []corev1.PodIP
 	Ports     []corev1.ContainerPort
 	HostIP    string
+	Owner     Owner
+}
+
+// Owner encapsulates pod owner workload info
+type Owner struct {
+	Kind       string
+	Name       string
+	APIVersion string
+	Variant    string // indicate the label set applied
 }
 
 // @todo need a Pod collection type along with convenience methods?
@@ -37,7 +50,7 @@ type Pod struct {
 // PodFromCoreObject creates a PodRef by extracting relevant fields from the k8s Pod
 func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 	if p.Status.HostIP == "" || len(p.Status.PodIPs) == 0 { // not scheduled nor assigned IP addresses - ignore
-		return nil, errors.New("no worker node or IP assigned for" + namespacedName(p))
+		return nil, errors.New("no worker node or IP assigned for pod: " + namespacedName(p))
 	}
 
 	pr := &Pod{
@@ -47,6 +60,7 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		IPs:       make([]corev1.PodIP, len(p.Status.PodIPs)),
 		Ports:     make([]corev1.ContainerPort, 0, defaultPortsListSize),
 		HostIP:    p.Status.HostIP,
+		Owner:     Owner{},
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -59,10 +73,28 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		pr.Ports = append(pr.Ports, p.Spec.Containers[i].Ports...)
 	}
 
+	for refIndex := range p.ObjectMeta.OwnerReferences {
+		ownerRef := p.ObjectMeta.OwnerReferences[refIndex]
+		if *ownerRef.Controller {
+			pr.Owner.Name = ownerRef.Name
+			pr.Owner.Kind = ownerRef.Kind
+			pr.Owner.APIVersion = ownerRef.APIVersion
+			pr.Owner.Variant = variantFromLabelsMap(p.Labels)
+			break
+		}
+	}
 	return pr, nil
 }
 
 // canonical Pod name
 func namespacedName(pod *corev1.Pod) string {
-	return pod.Namespace + "/" + pod.Name
+	return types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}.String()
+}
+
+func variantFromLabelsMap(labels map[string]string) string {
+	s := fmt.Sprintf("%v", labels)
+	h := sha1.New() //nolint:gosec
+	h.Write([]byte(s))
+	sha1Hash := hex.EncodeToString(h.Sum(nil))
+	return sha1Hash
 }
