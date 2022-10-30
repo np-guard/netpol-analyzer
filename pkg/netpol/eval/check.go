@@ -36,8 +36,13 @@ func (pe *PolicyEngine) CheckIfAllowed(src, dst, protocol, port string) (bool, e
 		return false, err
 	}
 	// cases where any connection is always allowed
-	if srcPeer == dstPeer || isPeerNodeIP(srcPeer, dstPeer) || isPeerNodeIP(dstPeer, srcPeer) {
+	if isPodToItself(&srcPeer, &dstPeer) || isPeerNodeIP(srcPeer, dstPeer) || isPeerNodeIP(dstPeer, srcPeer) {
 		return true, nil
+	}
+
+	hasResult, res := pe.cache.hasConnectionResult(&srcPeer, &dstPeer, protocol, port)
+	if hasResult {
+		return res, nil
 	}
 
 	egressRes, err := pe.allowedXgressConnection(srcPeer, dstPeer, false, protocol, port)
@@ -45,12 +50,14 @@ func (pe *PolicyEngine) CheckIfAllowed(src, dst, protocol, port string) (bool, e
 		return false, err
 	}
 	if !egressRes {
+		pe.cache.addConnectionResult(&srcPeer, &dstPeer, protocol, port, false)
 		return false, nil
 	}
 	ingressRes, err := pe.allowedXgressConnection(srcPeer, dstPeer, true, protocol, port)
 	if err != nil {
 		return false, err
 	}
+	pe.cache.addConnectionResult(&srcPeer, &dstPeer, protocol, port, ingressRes)
 	return ingressRes, nil
 }
 
@@ -76,7 +83,7 @@ func (pe *PolicyEngine) AllAllowedConnections(src, dst string) (k8s.ConnectionSe
 		return res, err
 	}
 	// cases where any connection is always allowed
-	if srcPeer == dstPeer || isPeerNodeIP(srcPeer, dstPeer) || isPeerNodeIP(dstPeer, srcPeer) {
+	if isPodToItself(&srcPeer, &dstPeer) || isPeerNodeIP(srcPeer, dstPeer) || isPeerNodeIP(dstPeer, srcPeer) {
 		return k8s.MakeConnectionSet(true), nil
 	}
 	// egress
@@ -198,6 +205,11 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 // isPeerNodeIP returns true if peer1 is an IP address of a node and peer2 is a pod on that node
 func isPeerNodeIP(peer1, peer2 k8s.Peer) bool {
 	return peer2.PeerType == k8s.PodType && peer1.PeerType == k8s.Iptype && peer2.Pod.HostIP == peer1.IP
+}
+
+func isPodToItself(peer1, peer2 *k8s.Peer) bool {
+	return peer1.PeerType == k8s.PodType && peer2.PeerType == k8s.PodType &&
+		peer1.Pod.Name == peer2.Pod.Name && peer1.Pod.Namespace == peer2.Pod.Namespace
 }
 
 func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
