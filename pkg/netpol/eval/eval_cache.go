@@ -28,15 +28,15 @@ const (
 	writeOnlyFileMode = 0644
 )
 
-type EvalCache struct {
+type evalCache struct {
 	cacheByWorkloads map[string]bool // map keys: "src/dst/protocol/port" as workloads (including variant per workload)
 	cacheHitsCount   int             // for testing
 	debug            bool
 }
 
-// NewEvalCache returns a new EvalCache with an empty initial state
-func NewEvalCache() *EvalCache {
-	return &EvalCache{
+// newEvalCache returns a new EvalCache with an empty initial state
+func newEvalCache() *evalCache {
+	return &evalCache{
 		cacheByWorkloads: map[string]bool{},
 		debug:            true,
 	}
@@ -46,7 +46,7 @@ func getPodOwnerKey(p *k8s.Pod) string {
 	return strings.Join([]string{p.Namespace, p.Owner.Name, p.Owner.Variant}, string(types.Separator))
 }
 
-func (ec *EvalCache) keyPerConnection(src, dst *k8s.Peer, protocol, port string) string {
+func (ec *evalCache) keyPerConnection(src, dst *k8s.Peer, protocol, port string) string {
 	if src.PeerType == k8s.PodType && dst.PeerType == k8s.PodType {
 		if src.Pod.Owner.Name != "" && dst.Pod.Owner.Name != "" {
 			srcKey := getPodOwnerKey(src.Pod)
@@ -57,7 +57,7 @@ func (ec *EvalCache) keyPerConnection(src, dst *k8s.Peer, protocol, port string)
 	return ""
 }
 
-func (ec *EvalCache) hasConnectionResult(src, dst *k8s.Peer, protocol, port string) (bool, bool) {
+func (ec *evalCache) hasConnectionResult(src, dst *k8s.Peer, protocol, port string) (bool, bool) {
 	connectionKey := ec.keyPerConnection(src, dst, protocol, port)
 	if connectionKey == "" {
 		return false, false
@@ -77,7 +77,7 @@ func (ec *EvalCache) hasConnectionResult(src, dst *k8s.Peer, protocol, port stri
 	return false, false
 }
 
-func (ec *EvalCache) addConnectionResult(src, dst *k8s.Peer, protocol, port string, res bool) {
+func (ec *evalCache) addConnectionResult(src, dst *k8s.Peer, protocol, port string, res bool) {
 	connectionKey := ec.keyPerConnection(src, dst, protocol, port)
 	if connectionKey == "" {
 		return

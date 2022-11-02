@@ -18,7 +18,7 @@ type (
 		podsMap      map[string]*k8s.Pod                      // map from pod name to pod object
 		netpolsMap   map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
 
-		cache *EvalCache
+		cache *evalCache
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -37,7 +37,7 @@ func NewPolicyEngine() *PolicyEngine {
 		namspacesMap: make(map[string]*k8s.Namespace),
 		podsMap:      make(map[string]*k8s.Pod),
 		netpolsMap:   make(map[string]map[string]*k8s.NetworkPolicy),
-		cache:        NewEvalCache(),
+		cache:        newEvalCache(),
 	}
 }
 
@@ -100,7 +100,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.namspacesMap = map[string]*k8s.Namespace{}
 	pe.podsMap = map[string]*k8s.Pod{}
 	pe.netpolsMap = map[string]map[string]*k8s.NetworkPolicy{}
-	pe.cache = NewEvalCache()
+	pe.cache = newEvalCache()
 }
 
 func (pe *PolicyEngine) upsertNamespace(ns *corev1.Namespace) error {
