@@ -92,5 +92,5 @@ func namespacedName(pod *corev1.Pod) string {
 }
 
 func variantFromLabelsMap(labels map[string]string) string {
-	return hex.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%v", labels))))
+	return hex.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%v", labels)))) //nolint:gosec
 }
