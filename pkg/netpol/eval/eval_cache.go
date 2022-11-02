@@ -18,8 +18,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 )
 
 const (
