@@ -17,6 +17,8 @@ type (
 		namspacesMap map[string]*k8s.Namespace                // map from ns name to ns object
 		podsMap      map[string]*k8s.Pod                      // map from pod name to pod object
 		netpolsMap   map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
+
+		cache *evalCache
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -35,6 +37,7 @@ func NewPolicyEngine() *PolicyEngine {
 		namspacesMap: make(map[string]*k8s.Namespace),
 		podsMap:      make(map[string]*k8s.Pod),
 		netpolsMap:   make(map[string]map[string]*k8s.NetworkPolicy),
+		cache:        newEvalCache(),
 	}
 }
 
@@ -97,6 +100,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.namspacesMap = map[string]*k8s.Namespace{}
 	pe.podsMap = map[string]*k8s.Pod{}
 	pe.netpolsMap = map[string]map[string]*k8s.NetworkPolicy{}
+	pe.cache = newEvalCache()
 }
 
 func (pe *PolicyEngine) upsertNamespace(ns *corev1.Namespace) error {
@@ -138,6 +142,7 @@ func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
 
 func (pe *PolicyEngine) deletePod(p *corev1.Pod) error {
 	delete(pe.podsMap, types.NamespacedName{Namespace: p.Namespace, Name: p.Name}.String())
+	// TODO: delete relevant workload entries from cache if all pods per owner are deleted
 	return nil
 }
 
