@@ -1522,20 +1522,18 @@ func TestConnectivityMap(t *testing.T) {
 }
 */
 
-type ConnectionsMapTestEntry struct {
-	resourcesDir       string
-	expectedOutputFile string
-	actualOutputFile   string
-	expectedCacheHits  int
-	checkCacheHits     bool
-	allConnections     bool
-	port               string
-	protocol           string
-}
-
 func TestConnectionsMapExamples(t *testing.T) {
 	currentDir, _ := os.Getwd()
-	tests := []*ConnectionsMapTestEntry{
+	tests := []struct {
+		resourcesDir       string
+		expectedOutputFile string
+		actualOutputFile   string
+		expectedCacheHits  int
+		checkCacheHits     bool
+		allConnections     bool
+		port               string
+		protocol           string
+	}{
 		// tests with AllAllowedConnections -----------------------------------------------------------------------
 		{resourcesDir: filepath.Join(currentDir, "testdata", "onlineboutique"),
 			expectedOutputFile: filepath.Join("testdata", "onlineboutique", "connections_map_output.txt"),
