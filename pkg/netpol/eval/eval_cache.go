@@ -27,7 +27,9 @@ import (
 const (
 	cacheHitsLog      = "cacheHitsLog.txt"
 	writeOnlyFileMode = 0644
-	cacheSize         = 500
+	defaultCacheSize  = 500
+	minCacheSize      = 10
+	maxCacheSize      = 10000
 )
 
 type evalCache struct {
@@ -37,7 +39,16 @@ type evalCache struct {
 }
 
 // newEvalCache returns a new EvalCache with an empty initial state
-func newEvalCache() *evalCache {
+// Only the first value in size will be used to set the cache size.
+func newEvalCache(size ...int) *evalCache {
+	cacheSize := defaultCacheSize
+	if len(size) > 0 {
+		if size[0] >= minCacheSize && size[0] <= maxCacheSize {
+			cacheSize = size[0]
+		} else {
+			fmt.Printf("Warning: newEvalCache requested cached size is not within supported range. Using default cache size instead.")
+		}
+	}
 	cache, err := lru.New(cacheSize)
 	if err != nil {
 		cache = nil // disable caching on error
