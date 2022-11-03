@@ -2,6 +2,7 @@ package eval
 
 import (
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -15,6 +16,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/yaml"
 
@@ -1522,6 +1524,37 @@ func TestConnectivityMap(t *testing.T) {
 }
 */
 
+func computeExpectedCacheHits(pe *PolicyEngine) (int, error) {
+	allPodsCount := len(pe.podsMap)
+	podOwnersMap := map[string]int{}
+
+	// count how many pods with common owner and same variant
+	for _, pod := range pe.podsMap {
+		podOwnerStr := strings.Join([]string{pod.Owner.Name, pod.Owner.Variant}, string(types.Separator))
+		podOwnersMap[podOwnerStr] += 1
+	}
+	res := 0
+	countSets := 0
+	for _, lenMultiplePodsPerDistinctOwner := range podOwnersMap {
+		if lenMultiplePodsPerDistinctOwner == 1 {
+			continue
+		}
+		countSets += 1
+		// currently asuming only one set of pods with common owner workload to simplify computation
+		if countSets > 1 {
+			return 0, errors.New("unsuppoted config for cache hits computation")
+		}
+		x := allPodsCount
+		y := lenMultiplePodsPerDistinctOwner
+		// computation: per each pod of such set, starting the second one, count all its pairs with pods without such owner
+		// additionally, add for each pod of such set, all its pairs with other pods with such owner, and remove only the first
+		// one that should be cached initially
+		cacheHits := (y-1)*2*(x-y) + y*(y-1) - 1
+		res += cacheHits
+	}
+	return res, nil
+}
+
 func TestConnectionsMapExamples(t *testing.T) {
 	currentDir, _ := os.Getwd()
 	tests := []struct {
@@ -1552,9 +1585,9 @@ func TestConnectionsMapExamples(t *testing.T) {
 			resourcesDir:       filepath.Join(currentDir, "testdata", "onlineboutique"),
 			expectedOutputFile: filepath.Join("testdata", "onlineboutique", "connections_map_output_bool.txt"),
 			actualOutputFile:   "connections_map_output_bool.txt",
-			expectedCacheHits:  0, // no pod replicas on this example,
-			checkCacheHits:     true,
-			allConnections:     false,
+			//expectedCacheHits:  0, // no pod replicas on this example,
+			checkCacheHits: true,
+			allConnections: false,
 		},
 
 		{
@@ -1566,7 +1599,7 @@ func TestConnectionsMapExamples(t *testing.T) {
 			allConnections:     false,
 			port:               "80",
 			protocol:           "TCP",
-			expectedCacheHits:  49, // loadgenerator pod has 3 replicas
+			//expectedCacheHits:  49, // loadgenerator pod has 3 replicas
 		},
 
 		{
@@ -1574,17 +1607,23 @@ func TestConnectionsMapExamples(t *testing.T) {
 			resourcesDir: filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas_and_variants"),
 			expectedOutputFile: filepath.Join("testdata", "onlineboutique_with_replicas_and_variants",
 				"connections_map_with_replicas_and_variants_output.txt"),
-			actualOutputFile:  "connections_map_with_replicas_and_variants_output.txt",
-			checkCacheHits:    true,
-			allConnections:    false,
-			port:              "80",
-			protocol:          "TCP",
-			expectedCacheHits: 25, // loadgenerator pod has 3 replicas but one with variant on labels
+			actualOutputFile: "connections_map_with_replicas_and_variants_output.txt",
+			checkCacheHits:   true,
+			allConnections:   false,
+			port:             "80",
+			protocol:         "TCP",
+			//expectedCacheHits: 25, // loadgenerator pod has 3 replicas but one with variant on labels
 		},
 	}
 	for _, test := range tests {
 		pe := NewPolicyEngine()
+		var err error
 		if err := setResourcesFromDir(pe, test.resourcesDir); err != nil {
+			t.Fatal(err)
+		}
+
+		test.expectedCacheHits, err = computeExpectedCacheHits(pe)
+		if err != nil {
 			t.Fatal(err)
 		}
 
