@@ -38,17 +38,20 @@ type evalCache struct {
 	cache          *lru.Cache
 }
 
-// newEvalCache returns a new EvalCache with an empty initial state
-// Only the first value in size will be used to set the cache size.
-func newEvalCache(size ...int) *evalCache {
+// newEvalCache returns a new EvalCache with an empty initial state, of default size
+func newEvalCache() *evalCache {
+	return newEvalCacheWithSize(defaultCacheSize)
+}
+
+// newEvalCacheWithSize returns a new EvalCache with an empty initial state
+func newEvalCacheWithSize(size int) *evalCache {
 	cacheSize := defaultCacheSize
-	if len(size) > 0 {
-		if size[0] >= minCacheSize && size[0] <= maxCacheSize {
-			cacheSize = size[0]
-		} else {
-			fmt.Printf("Warning: newEvalCache requested cached size is not within supported range. Using default cache size instead.")
-		}
+	if size >= minCacheSize && size <= maxCacheSize {
+		cacheSize = size
+	} else {
+		fmt.Printf("Warning: newEvalCache requested cached size is not within supported range. Using default cache size instead.")
 	}
+
 	cache, err := lru.New(cacheSize)
 	if err != nil {
 		cache = nil // disable caching on error
