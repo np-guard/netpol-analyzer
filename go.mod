@@ -3,6 +3,7 @@ module github.com/np-guard/netpol-analyzer
 go 1.18
 
 require (
+	github.com/hashicorp/golang-lru v0.5.4
 	github.com/spf13/cobra v1.5.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	k8s.io/api v0.24.2

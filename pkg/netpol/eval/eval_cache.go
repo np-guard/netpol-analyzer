@@ -18,6 +18,7 @@ import (
 	"os"
 	"strings"
 
+	lru "github.com/hashicorp/golang-lru"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
@@ -26,19 +27,41 @@ import (
 const (
 	cacheHitsLog      = "cacheHitsLog.txt"
 	writeOnlyFileMode = 0644
+	defaultCacheSize  = 500
+	minCacheSize      = 10
+	maxCacheSize      = 10000
 )
 
 type evalCache struct {
-	cacheByWorkloads map[string]bool // map keys: "src/dst/protocol/port" as workloads (including variant per workload)
-	cacheHitsCount   int             // for testing
-	debug            bool
+	cacheHitsCount int // for testing
+	debug          bool
+	cache          *lru.Cache
 }
 
-// newEvalCache returns a new EvalCache with an empty initial state
+// newEvalCache returns a new EvalCache with an empty initial state, of default size
 func newEvalCache() *evalCache {
+	return newEvalCacheWithSize(defaultCacheSize)
+}
+
+// newEvalCacheWithSize returns a new EvalCache with an empty initial state
+func newEvalCacheWithSize(size int) *evalCache {
+	cacheSize := defaultCacheSize
+	if size >= minCacheSize && size <= maxCacheSize {
+		cacheSize = size
+	} else {
+		fmt.Printf("Warning: newEvalCache requested cached size is not within supported range. Using default cache size instead.")
+	}
+
+	cache, err := lru.New(cacheSize)
+	if err != nil {
+		cache = nil // disable caching on error
+	}
+	// for debugging
+	os.Remove(cacheHitsLog)
+
 	return &evalCache{
-		cacheByWorkloads: map[string]bool{},
-		debug:            true,
+		cache: cache,
+		debug: true,
 	}
 }
 
@@ -46,6 +69,8 @@ func getPodOwnerKey(p *k8s.Pod) string {
 	return strings.Join([]string{p.Namespace, p.Owner.Name, p.Owner.Variant}, string(types.Separator))
 }
 
+// TODO: currently supporting only connections between two pods with owners for caching
+// keyPerConnection: return string value of key per input connection
 func (ec *evalCache) keyPerConnection(src, dst *k8s.Peer, protocol, port string) string {
 	if src.PeerType == k8s.PodType && dst.PeerType == k8s.PodType {
 		if src.Pod.Owner.Name != "" && dst.Pod.Owner.Name != "" {
@@ -58,11 +83,14 @@ func (ec *evalCache) keyPerConnection(src, dst *k8s.Peer, protocol, port string)
 }
 
 func (ec *evalCache) hasConnectionResult(src, dst *k8s.Peer, protocol, port string) (bool, bool) {
+	if ec.cache == nil {
+		return false, false
+	}
 	connectionKey := ec.keyPerConnection(src, dst, protocol, port)
 	if connectionKey == "" {
 		return false, false
 	}
-	if res, ok := ec.cacheByWorkloads[connectionKey]; ok {
+	if res, ok := ec.cache.Get(connectionKey); ok {
 		if ec.debug {
 			ec.cacheHitsCount += 1
 			f, _ := os.OpenFile(cacheHitsLog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, writeOnlyFileMode)
@@ -72,15 +100,18 @@ func (ec *evalCache) hasConnectionResult(src, dst *k8s.Peer, protocol, port stri
 				fmt.Printf("error WriteString: %v", err)
 			}
 		}
-		return true, res
+		return true, res.(bool)
 	}
 	return false, false
 }
 
 func (ec *evalCache) addConnectionResult(src, dst *k8s.Peer, protocol, port string, res bool) {
+	if ec.cache == nil {
+		return
+	}
 	connectionKey := ec.keyPerConnection(src, dst, protocol, port)
 	if connectionKey == "" {
 		return
 	}
-	ec.cacheByWorkloads[connectionKey] = res
+	ec.cache.Add(connectionKey, res)
 }
