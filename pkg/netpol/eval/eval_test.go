@@ -1,9 +1,9 @@
 package eval
 
 import (
-	"bufio"
-	"errors"
+	"crypto/sha256"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"time"
@@ -1525,6 +1525,7 @@ func TestConnectivityMap(t *testing.T) {
 func TestConnectionsMapExamples(t *testing.T) {
 	currentDir, _ := os.Getwd()
 	tests := []struct {
+		testName           string
 		resourcesDir       string
 		expectedOutputFile string
 		actualOutputFile   string
@@ -1535,7 +1536,9 @@ func TestConnectionsMapExamples(t *testing.T) {
 		protocol           string
 	}{
 		// tests with AllAllowedConnections -----------------------------------------------------------------------
-		{resourcesDir: filepath.Join(currentDir, "testdata", "onlineboutique"),
+		{
+			testName:           "onlineboutique_all_allowed_connections",
+			resourcesDir:       filepath.Join(currentDir, "testdata", "onlineboutique"),
 			expectedOutputFile: filepath.Join("testdata", "onlineboutique", "connections_map_output.txt"),
 			actualOutputFile:   "connections_map_output.txt",
 			// expectedCacheHits:     0, // no pod replicas on this example,
@@ -1544,7 +1547,9 @@ func TestConnectionsMapExamples(t *testing.T) {
 		},
 
 		// tests with IsConnectionAllowed -----------------------------------------------------------------------------
-		{resourcesDir: filepath.Join(currentDir, "testdata", "onlineboutique"),
+		{
+			testName:           "onlineboutique_bool_connectivity_results",
+			resourcesDir:       filepath.Join(currentDir, "testdata", "onlineboutique"),
 			expectedOutputFile: filepath.Join("testdata", "onlineboutique", "connections_map_output_bool.txt"),
 			actualOutputFile:   "connections_map_output_bool.txt",
 			expectedCacheHits:  0, // no pod replicas on this example,
@@ -1552,7 +1557,9 @@ func TestConnectionsMapExamples(t *testing.T) {
 			allConnections:     false,
 		},
 
-		{resourcesDir: filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas"),
+		{
+			testName:           "onlineboutique_with_replicas_bool_connectivity_results",
+			resourcesDir:       filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas"),
 			expectedOutputFile: filepath.Join("testdata", "onlineboutique_with_replicas", "connections_map_with_replicas_output.txt"),
 			actualOutputFile:   "connections_map_with_replicas_output.txt",
 			checkCacheHits:     true,
@@ -1562,7 +1569,9 @@ func TestConnectionsMapExamples(t *testing.T) {
 			expectedCacheHits:  49, // loadgenerator pod has 3 replicas
 		},
 
-		{resourcesDir: filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas_and_variants"),
+		{
+			testName:     "onlineboutique_with_replicas_and_variants_bool_connectivity_results",
+			resourcesDir: filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas_and_variants"),
 			expectedOutputFile: filepath.Join("testdata", "onlineboutique_with_replicas_and_variants",
 				"connections_map_with_replicas_and_variants_output.txt"),
 			actualOutputFile:  "connections_map_with_replicas_and_variants_output.txt",
@@ -1584,7 +1593,7 @@ func TestConnectionsMapExamples(t *testing.T) {
 			t.Fatal(err)
 		}
 		if test.checkCacheHits && test.expectedCacheHits != pe.cache.cacheHitsCount {
-			t.Fatalf("mismatch on expected num of cache hits: expected %v, got %v", test.expectedCacheHits, pe.cache.cacheHitsCount)
+			t.Fatalf("Test %v: mismatch on expected num of cache hits: expected %v, got %v", test.testName, test.expectedCacheHits, pe.cache.cacheHitsCount)
 		}
 
 		comparisonRes, err := testConnectivityMapOutput(res, test.actualOutputFile, test.expectedOutputFile)
@@ -1592,10 +1601,27 @@ func TestConnectionsMapExamples(t *testing.T) {
 			t.Fatal(err)
 		}
 		if !comparisonRes {
-			t.Fatalf("mismatch for expected output on connections map test: expected output at %v, actual output at %v",
-				test.expectedOutputFile, test.actualOutputFile)
+			t.Fatalf("Test %v:mismatch for expected output on connections map test: expected output at %v, actual output at %v",
+				test.testName, test.expectedOutputFile, test.actualOutputFile)
 		}
 	}
+}
+
+func connectionsString(pe *PolicyEngine, srcPod, dstPod, protocol, port string, allConnections bool) (string, error) {
+	var allowedConnectionsStr string
+	var err error
+	if allConnections {
+		var allowedConnections k8s.ConnectionSet
+		allowedConnections, err = pe.AllAllowedConnections(srcPod, dstPod)
+		if err == nil {
+			allowedConnectionsStr = allowedConnections.String()
+		}
+	} else {
+		var allowedConnections bool
+		allowedConnections, err = pe.CheckIfAllowed(srcPod, dstPod, protocol, port)
+		allowedConnectionsStr = fmt.Sprintf("%v", allowedConnections)
+	}
+	return allowedConnectionsStr, err
 }
 
 func simpleConfigurableConnectivityMapTest(
@@ -1606,17 +1632,7 @@ func simpleConfigurableConnectivityMapTest(
 	report := []string{}
 	for srcPod := range pe.podsMap {
 		for dstPod := range pe.podsMap {
-			var allowedConnectionsStr string
-			var err error
-			if allConnections {
-				var allowedConnections k8s.ConnectionSet
-				allowedConnections, err = pe.AllAllowedConnections(srcPod, dstPod)
-				allowedConnectionsStr = allowedConnections.String()
-			} else {
-				var allowedConnections bool
-				allowedConnections, err = pe.CheckIfAllowed(srcPod, dstPod, protocol, port)
-				allowedConnectionsStr = fmt.Sprintf("%v", allowedConnections)
-			}
+			allowedConnectionsStr, err := connectionsString(pe, srcPod, dstPod, protocol, port, allConnections)
 			if err == nil {
 				reportLine := fmt.Sprintf("src: %v, dest: %v, allowed conns: %v\n", srcPod, dstPod, allowedConnectionsStr)
 				report = append(report, reportLine)
@@ -1629,50 +1645,38 @@ func simpleConfigurableConnectivityMapTest(
 	return report, nil
 }
 
-func readLines(path string) ([]string, error) {
-	file, err := os.Open(path)
+func getFileHashValue(path string) (string, error) {
+	f, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	defer file.Close()
+	defer f.Close()
 
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	return lines, scanner.Err()
-}
-
-func compareFiles(expectedFile, actualFile string) (bool, error) {
-	expectedLines, err1 := readLines(expectedFile)
-	actualLines, err2 := readLines(actualFile)
-	if err1 != nil || err2 != nil {
-		return false, errors.New("error reading lines from file")
-	}
-	if len(expectedLines) != len(actualLines) {
-		fmt.Printf("Files line count is different: expected(%s): %d, actual(%s): %d",
-			expectedFile, len(expectedLines), actualFile, len(actualLines))
-		return false, nil
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", err
 	}
 
-	for i := 0; i < len(expectedLines); i++ {
-		lineExpected := expectedLines[i]
-		lineActual := actualLines[i]
-		if lineExpected != lineActual && !strings.Contains(lineExpected, "\"filepath\"") {
-			fmt.Printf("Gap in line %d: expected(%s): %s, actual(%s): %s", i, expectedFile, lineExpected, actualFile, lineActual)
-			return false, nil
-		}
-	}
-	return true, nil
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
 func testConnectivityMapOutput(res []string, actualFileName, expectedFileName string) (bool, error) {
+	// create actual output file
 	outputRes := ""
 	for i := range res {
 		outputRes += res[i]
 		writeRes(outputRes, actualFileName)
 	}
-	comparisonRes, err := compareFiles(expectedFileName, actualFileName)
-	return comparisonRes, err
+
+	// compare output files by hash values
+	expectedOutputFileValue, expectedErr := getFileHashValue(expectedFileName)
+	actualOutputFileValue, actualErr := getFileHashValue(actualFileName)
+	if expectedErr != nil {
+		return false, expectedErr
+	}
+	if actualErr != nil {
+		return false, actualErr
+	}
+	comparisonRes := expectedOutputFileValue == actualOutputFileValue
+	return comparisonRes, nil
 }
