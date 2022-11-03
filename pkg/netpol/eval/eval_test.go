@@ -1530,7 +1530,7 @@ func computeExpectedCacheHits(pe *PolicyEngine) (int, error) {
 
 	// count how many pods with common owner and same variant
 	for _, pod := range pe.podsMap {
-		podOwnerStr := strings.Join([]string{pod.Owner.Name, pod.Owner.Variant}, string(types.Separator))
+		podOwnerStr := pod.Owner.Name + string(types.Separator) + pod.Owner.Variant
 		podOwnersMap[podOwnerStr] += 1
 	}
 	res := 0
@@ -1618,7 +1618,7 @@ func TestConnectionsMapExamples(t *testing.T) {
 	for _, test := range tests {
 		pe := NewPolicyEngine()
 		var err error
-		if err := setResourcesFromDir(pe, test.resourcesDir); err != nil {
+		if err = setResourcesFromDir(pe, test.resourcesDir); err != nil {
 			t.Fatal(err)
 		}
 
@@ -1632,7 +1632,8 @@ func TestConnectionsMapExamples(t *testing.T) {
 			t.Fatal(err)
 		}
 		if test.checkCacheHits && test.expectedCacheHits != pe.cache.cacheHitsCount {
-			t.Fatalf("Test %v: mismatch on expected num of cache hits: expected %v, got %v", test.testName, test.expectedCacheHits, pe.cache.cacheHitsCount)
+			t.Fatalf("Test %v: mismatch on expected num of cache hits: expected %v, got %v",
+				test.testName, test.expectedCacheHits, pe.cache.cacheHitsCount)
 		}
 
 		comparisonRes, err := testConnectivityMapOutput(res, test.actualOutputFile, test.expectedOutputFile)
