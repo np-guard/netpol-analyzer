@@ -36,6 +36,7 @@ type evalCache struct {
 	cacheHitsCount int // for testing
 	debug          bool
 	cache          *lru.Cache
+	ownerToPods    map[string]map[string]bool // map from owner key to its associated pods map
 }
 
 // newEvalCache returns a new EvalCache with an empty initial state, of default size
@@ -60,8 +61,9 @@ func newEvalCacheWithSize(size int) *evalCache {
 	os.Remove(cacheHitsLog)
 
 	return &evalCache{
-		cache: cache,
-		debug: true,
+		cache:       cache,
+		debug:       true,
+		ownerToPods: map[string]map[string]bool{},
 	}
 }
 
@@ -114,4 +116,45 @@ func (ec *evalCache) addConnectionResult(src, dst *k8s.Peer, protocol, port stri
 		return
 	}
 	ec.cache.Add(connectionKey, res)
+}
+
+func (ec *evalCache) clear() {
+	if ec.cache == nil {
+		return
+	}
+	ec.cache.Purge()
+	ec.ownerToPods = map[string]map[string]bool{}
+}
+
+func (ec *evalCache) addPod(p *k8s.Pod, podName string) {
+	podKey := getPodOwnerKey(p)
+	if _, ok := ec.ownerToPods[podKey]; !ok {
+		ec.ownerToPods[podKey] = map[string]bool{}
+	}
+	ec.ownerToPods[podKey][podName] = true
+}
+
+func (ec *evalCache) deletePod(p *k8s.Pod, podName string) {
+	podKey := getPodOwnerKey(p)
+	if _, ok := ec.ownerToPods[podKey]; ok {
+		// delete pod from its associated owner at ownerToPods map
+		delete(ec.ownerToPods[podKey], podName)
+	}
+	// check if no pods are left for this owner
+	if len(ec.ownerToPods[podKey]) == 0 {
+		// delete cache entries with this pod owner
+		ec.deleteWorkloadFromCache(podKey)
+		// delete owner from ownerToPods map
+		delete(ec.ownerToPods, podKey)
+	}
+}
+
+// deleteWorkloadFromCache: delete cache keys containing the wokrload key string in a cached connection
+func (ec *evalCache) deleteWorkloadFromCache(key string) {
+	cacheKeys := ec.cache.Keys()
+	for _, cacheKey := range cacheKeys {
+		if strings.Contains(cacheKey.(string), key) {
+			ec.cache.Remove(cacheKey)
+		}
+	}
 }

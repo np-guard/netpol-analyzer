@@ -1555,6 +1555,40 @@ func computeExpectedCacheHits(pe *PolicyEngine) (int, error) {
 	return res, nil
 }
 
+func TestCacheWithPodDeletion(t *testing.T) {
+	currentDir, _ := os.Getwd()
+	pe := NewPolicyEngine()
+	var err error
+	if err = setResourcesFromDir(pe, filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas")); err != nil {
+		t.Fatal(err)
+	}
+	_, err = simpleConfigurableConnectivityMapTest(pe, false, "tcp", "80")
+	if err != nil {
+		t.Fatal(err)
+	}
+	countLoadGeneratorDeletion := 0
+	cacheKeysCount := len(pe.cache.cache.Keys())
+	// delete some pods, until its owner has no pods
+	for podName, podObj := range pe.podsMap {
+		if strings.Contains(podName, "loadgenerator") {
+			v1Pod := &v1.Pod{}
+			v1Pod.Name = podObj.Name
+			v1Pod.Namespace = podObj.Namespace
+			if err = pe.deletePod(v1Pod); err != nil {
+				t.Fatal(err)
+			}
+			countLoadGeneratorDeletion += 1
+		}
+		// check that relevant cache entries are deleted.
+		cacheKeysCountAfterDelete := len(pe.cache.cache.Keys())
+		if countLoadGeneratorDeletion < 3 && cacheKeysCountAfterDelete != cacheKeysCount {
+			t.Fatalf("unexepcted cacheKeysCountAfterDelete : %v before deleting all loadgenerator pods", cacheKeysCountAfterDelete)
+		} else if countLoadGeneratorDeletion == 3 && cacheKeysCountAfterDelete >= cacheKeysCount {
+			t.Fatalf("unexepcted cacheKeysCountAfterDelete : %v after deleting all loadgenerator pods", cacheKeysCountAfterDelete)
+		}
+	}
+}
+
 func TestConnectionsMapExamples(t *testing.T) {
 	currentDir, _ := os.Getwd()
 	tests := []struct {
