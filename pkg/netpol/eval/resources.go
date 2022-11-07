@@ -97,9 +97,9 @@ func (pe *PolicyEngine) DeleteObject(rtobj runtime.Object) error {
 
 // ClearResources: deletes all current k8s resources
 func (pe *PolicyEngine) ClearResources() {
-	pe.namspacesMap = map[string]*k8s.Namespace{}
-	pe.podsMap = map[string]*k8s.Pod{}
-	pe.netpolsMap = map[string]map[string]*k8s.NetworkPolicy{}
+	pe.namspacesMap = make(map[string]*k8s.Namespace)
+	pe.podsMap = make(map[string]*k8s.Pod)
+	pe.netpolsMap = make(map[string]map[string]*k8s.NetworkPolicy)
 	pe.cache = newEvalCache()
 }
 
@@ -119,6 +119,8 @@ func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
 	}
 	podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
 	pe.podsMap[podStr.String()] = podObj
+	// update cache with new pod associated to to its owner
+	pe.cache.addPod(podObj, podStr.String())
 	return nil
 }
 
@@ -129,9 +131,12 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		np.ObjectMeta.Namespace = netpolNamespace
 	}
 	if _, ok := pe.netpolsMap[netpolNamespace]; !ok {
-		pe.netpolsMap[netpolNamespace] = map[string]*k8s.NetworkPolicy{}
+		pe.netpolsMap[netpolNamespace] = make(map[string]*k8s.NetworkPolicy)
 	}
 	pe.netpolsMap[netpolNamespace][np.Name] = (*k8s.NetworkPolicy)(np)
+
+	// clear the cache on netpols changes
+	pe.cache.clear()
 	return nil
 }
 
@@ -141,8 +146,14 @@ func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
 }
 
 func (pe *PolicyEngine) deletePod(p *corev1.Pod) error {
-	delete(pe.podsMap, types.NamespacedName{Namespace: p.Namespace, Name: p.Name}.String())
-	// TODO: delete relevant workload entries from cache if all pods per owner are deleted
+	podName := types.NamespacedName{Namespace: p.Namespace, Name: p.Name}.String()
+
+	if podObj, ok := pe.podsMap[podName]; ok {
+		// delete relevant workload entries from cache if all pods per owner are deleted
+		pe.cache.deletePod(podObj, podName)
+	}
+
+	delete(pe.podsMap, podName)
 	return nil
 }
 
@@ -153,6 +164,9 @@ func (pe *PolicyEngine) deleteNetworkPolicy(np *netv1.NetworkPolicy) error {
 			delete(pe.netpolsMap, np.Namespace)
 		}
 	}
+
+	// clear the cache on netpols changes
+	pe.cache.clear()
 	return nil
 }
 
