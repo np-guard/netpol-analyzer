@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
 // ListConnectionsFromDir returns connections map from dir path resources
@@ -38,7 +39,6 @@ func ListConnectionsFromDir(dirPath string) (string, error) {
 func ListConnectionsFromK8sCluster(clientset *kubernetes.Clientset) (string, error) {
 	pe := eval.NewPolicyEngine()
 
-	var err error
 	// get all resources from k8s cluster
 
 	// get all namespaces
@@ -48,7 +48,7 @@ func ListConnectionsFromK8sCluster(clientset *kubernetes.Clientset) (string, err
 	}
 	for i := range nsList.Items {
 		ns := &nsList.Items[i]
-		if err = pe.UpsertObject(ns); err != nil {
+		if err := pe.UpsertObject(ns); err != nil {
 			return "", err
 		}
 	}
@@ -59,7 +59,7 @@ func ListConnectionsFromK8sCluster(clientset *kubernetes.Clientset) (string, err
 		return "", apierr
 	}
 	for i := range podList.Items {
-		if err = pe.UpsertObject(&podList.Items[i]); err != nil {
+		if err := pe.UpsertObject(&podList.Items[i]); err != nil {
 			return "", err
 		}
 	}
@@ -70,7 +70,7 @@ func ListConnectionsFromK8sCluster(clientset *kubernetes.Clientset) (string, err
 		return "", apierr
 	}
 	for i := range npList.Items {
-		if err = pe.UpsertObject(&npList.Items[i]); err != nil {
+		if err := pe.UpsertObject(&npList.Items[i]); err != nil {
 			return "", err
 		}
 	}
