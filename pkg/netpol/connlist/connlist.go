@@ -1,4 +1,4 @@
-package list
+package connlist
 
 import (
 	"context"
@@ -11,8 +11,8 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
-// ListConnectionsFromDir returns connections map from dir path resources
-func ListConnectionsFromDir(dirPath string) (string, error) {
+// FromDir returns connections map from dir path resources
+func FromDir(dirPath string) (string, error) {
 	pe := eval.NewPolicyEngine()
 	// get all resources from dir
 	objectsList, err := scan.FilesToObjectsList(dirPath)
@@ -35,8 +35,8 @@ func ListConnectionsFromDir(dirPath string) (string, error) {
 	return getConnectionsMapOutput(pe)
 }
 
-// ListConnectionsFromK8sCluster returns connections map from k8s cluster resources
-func ListConnectionsFromK8sCluster(clientset *kubernetes.Clientset) (string, error) {
+// FromK8sCluster returns connections map from k8s cluster resources
+func FromK8sCluster(clientset *kubernetes.Clientset) (string, error) {
 	pe := eval.NewPolicyEngine()
 
 	// get all resources from k8s cluster

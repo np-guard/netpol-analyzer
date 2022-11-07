@@ -18,7 +18,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/list"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 )
 
 // listCmd represents the list command
@@ -39,9 +39,9 @@ defined`,
 		var err error
 
 		if dirPath != "" {
-			res, err = list.ListConnectionsFromDir(dirPath)
+			res, err = connlist.FromDir(dirPath)
 		} else {
-			res, err = list.ListConnectionsFromK8sCluster(clientset)
+			res, err = connlist.FromK8sCluster(clientset)
 		}
 		if err != nil {
 			return err
