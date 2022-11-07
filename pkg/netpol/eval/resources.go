@@ -97,9 +97,9 @@ func (pe *PolicyEngine) DeleteObject(rtobj runtime.Object) error {
 
 // ClearResources: deletes all current k8s resources
 func (pe *PolicyEngine) ClearResources() {
-	pe.namspacesMap = map[string]*k8s.Namespace{}
-	pe.podsMap = map[string]*k8s.Pod{}
-	pe.netpolsMap = map[string]map[string]*k8s.NetworkPolicy{}
+	pe.namspacesMap = make(map[string]*k8s.Namespace)
+	pe.podsMap = make(map[string]*k8s.Pod)
+	pe.netpolsMap = make(map[string]map[string]*k8s.NetworkPolicy)
 	pe.cache = newEvalCache()
 }
 
@@ -131,7 +131,7 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		np.ObjectMeta.Namespace = netpolNamespace
 	}
 	if _, ok := pe.netpolsMap[netpolNamespace]; !ok {
-		pe.netpolsMap[netpolNamespace] = map[string]*k8s.NetworkPolicy{}
+		pe.netpolsMap[netpolNamespace] = make(map[string]*k8s.NetworkPolicy)
 	}
 	pe.netpolsMap[netpolNamespace][np.Name] = (*k8s.NetworkPolicy)(np)
 
