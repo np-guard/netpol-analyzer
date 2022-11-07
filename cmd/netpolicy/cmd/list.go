@@ -14,14 +14,11 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/list"
 )
 
 // listCmd represents the list command
@@ -38,76 +35,18 @@ defined`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		pe := eval.NewPolicyEngine()
+		var res string
+		var err error
 
 		if dirPath != "" {
-			// get all resources from dir
-			objectsList, err := scan.FilesToObjectsList(dirPath)
-			if err != nil {
-				return err
-			}
-			for _, obj := range objectsList {
-				if obj.Kind == scan.Pod {
-					err = pe.UpsertObject(obj.Pod)
-				} else if obj.Kind == scan.Namespace {
-					err = pe.UpsertObject(obj.Namespace)
-				} else if obj.Kind == scan.Networkpolicy {
-					err = pe.UpsertObject(obj.Networkpolicy)
-				}
-				if err != nil {
-					return err
-				}
-			}
+			res, err = list.ListConnectionsFromDir(dirPath)
 		} else {
-			var err error
-			// get all resources from k8s cluster
-
-			// get all namespaces
-			nsList, apierr := clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
-			if apierr != nil {
-				return apierr
-			}
-			for i := range nsList.Items {
-				ns := &nsList.Items[i]
-				if err = pe.UpsertObject(ns); err != nil {
-					return err
-				}
-			}
-
-			// get all pods
-			podList, apierr := clientset.CoreV1().Pods(metav1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
-			if apierr != nil {
-				return apierr
-			}
-			for i := range podList.Items {
-				if err = pe.UpsertObject(&podList.Items[i]); err != nil {
-					return err
-				}
-			}
-
-			// get all netpols
-			npList, apierr := clientset.NetworkingV1().NetworkPolicies(metav1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
-			if apierr != nil {
-				return apierr
-			}
-			for i := range npList.Items {
-				if err = pe.UpsertObject(&npList.Items[i]); err != nil {
-					return err
-				}
-			}
+			res, err = list.ListConnectionsFromK8sCluster(clientset)
 		}
-
-		// get connections map output
-		// TODO: consider workloads as well
-		podsMap := pe.GetPodsMap()
-		for srcPod := range podsMap {
-			for dstPod := range podsMap {
-				allowedConnections, err := pe.AllAllowedConnections(srcPod, dstPod)
-				if err == nil {
-					fmt.Printf("%v => %v : %v\n", srcPod, dstPod, allowedConnections.String())
-				}
-			}
+		if err != nil {
+			return err
 		}
+		fmt.Printf("%v", res)
 
 		return nil
 	},
