@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -122,12 +123,20 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]PeersConnection, error) {
 
 // return a string represntation for a PeersConnection object
 func (pc *PeersConnection) String() string {
-	connStrings := []string{}
-	for protocol, ports := range pc.ProtocolsAndPorts {
-		connStrings = append(connStrings, string(protocol)+" "+ports)
+	var connStr string
+	if pc.AllProtocolsAndPorts {
+		connStr = "All Connections"
+	} else if len(pc.ProtocolsAndPorts) == 0 {
+		connStr = "No Connections"
+	} else {
+		connStrings := []string{}
+		for protocol, ports := range pc.ProtocolsAndPorts {
+			connStrings = append(connStrings, string(protocol)+" "+ports)
+		}
+		sort.Strings(connStrings)
+		connStr = strings.Join(connStrings, ",")
 	}
-	sort.Strings(connStrings)
-	return fmt.Sprintf("%v => %v : %v\n", pc.Src, pc.Dst, connStrings)
+	return fmt.Sprintf("%v => %v : %v\n", pc.Src, pc.Dst, connStr)
 }
 
 // get string of connections from list of PeersConnection objects
