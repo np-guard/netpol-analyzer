@@ -35,7 +35,7 @@ defined`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		var conns []connlist.PeersConnection
+		var conns []connlist.Peer2PeerConnection
 		var err error
 
 		if dirPath != "" {
