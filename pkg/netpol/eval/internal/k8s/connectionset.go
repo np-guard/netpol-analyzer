@@ -35,6 +35,24 @@ func MakeConnectionSet(all bool) ConnectionSet {
 	return ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}}
 }
 
+// GetProtocolsAndPortsMap returns a map from allowed protocol to list of allowed ports ranges.
+// Each port range is a list numbers of size 2, where the first number is the start port, and
+// the second number is the end port. (where end port >= start port).
+func (conn *ConnectionSet) GetProtocolsAndPortsMap() map[v1.Protocol][][]int64 {
+	res := map[v1.Protocol][][]int64{}
+	for protocol, portSet := range conn.AllowedProtocols {
+		res[protocol] = [][]int64{}
+		// TODO: consider leave the slice of ports empty if portSet covers the full range
+		for i := range portSet.Ports.IntervalSet {
+			startPort := portSet.Ports.IntervalSet[i].Start
+			endPort := portSet.Ports.IntervalSet[i].End
+			portRange := []int64{startPort, endPort}
+			res[protocol] = append(res[protocol], portRange)
+		}
+	}
+	return res
+}
+
 // Intersection updates ConnectionSet object to be the intersection result with other ConnectionSet
 func (conn *ConnectionSet) Intersection(other ConnectionSet) {
 	if other.AllowAll {

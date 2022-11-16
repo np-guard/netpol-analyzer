@@ -35,18 +35,18 @@ defined`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		var res string
+		var conns []connlist.Peer2PeerConnection
 		var err error
 
 		if dirPath != "" {
-			res, err = connlist.FromDir(dirPath)
+			conns, err = connlist.FromDir(dirPath)
 		} else {
-			res, err = connlist.FromK8sCluster(clientset)
+			conns, err = connlist.FromK8sCluster(clientset)
 		}
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%v", res)
+		fmt.Printf("%v", connlist.ConnectionsListToString(conns))
 
 		return nil
 	},
