@@ -42,6 +42,7 @@ func (conn *ConnectionSet) GetProtocolsAndPortsMap() map[v1.Protocol][][]int64 {
 	res := map[v1.Protocol][][]int64{}
 	for protocol, portSet := range conn.AllowedProtocols {
 		res[protocol] = [][]int64{}
+		// TODO: consider leave the slice of ports empty if portSet covers the full range
 		for i := range portSet.Ports.IntervalSet {
 			startPort := portSet.Ports.IntervalSet[i].Start
 			endPort := portSet.Ports.IntervalSet[i].End

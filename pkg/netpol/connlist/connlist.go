@@ -117,34 +117,33 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 	for srcPod := range podsMap {
 		for dstPod := range podsMap {
 			allowedConnections, err := pe.AllAllowedConnections(srcPod, dstPod)
+			if err != nil {
+				return nil, err
+			}
 			// skip empty connections
 			if allowedConnections.IsEmpty() {
 				continue
 			}
-			if err == nil {
-				connection := Peer2PeerConnection{
-					Src:                  srcPod,
-					Dst:                  dstPod,
-					AllProtocolsAndPorts: allowedConnections.AllowAll,
-					ProtocolsAndPorts:    map[v1.Protocol][]Port{},
-				}
-				protocolsMap := allowedConnections.GetProtocolsAndPortsMap()
-				// convert each port range (list) to connlist.Port
-				for protocol, ports := range protocolsMap {
-					connection.ProtocolsAndPorts[protocol] = []Port{}
-					for i := range ports {
-						startPort, endPort := ports[i][0], ports[i][1]
-						port := Port{Port: &startPort}
-						if endPort > startPort {
-							port.EndPort = &endPort
-						}
-						connection.ProtocolsAndPorts[protocol] = append(connection.ProtocolsAndPorts[protocol], port)
-					}
-				}
-				res = append(res, connection)
-			} else {
-				return nil, err
+			connection := Peer2PeerConnection{
+				Src:                  srcPod,
+				Dst:                  dstPod,
+				AllProtocolsAndPorts: allowedConnections.AllowAll,
+				ProtocolsAndPorts:    map[v1.Protocol][]Port{},
 			}
+			protocolsMap := allowedConnections.GetProtocolsAndPortsMap()
+			// convert each port range (list) to connlist.Port
+			for protocol, ports := range protocolsMap {
+				connection.ProtocolsAndPorts[protocol] = []Port{}
+				for i := range ports {
+					startPort, endPort := ports[i][0], ports[i][1]
+					port := Port{Port: &startPort}
+					if endPort > startPort {
+						port.EndPort = &endPort
+					}
+					connection.ProtocolsAndPorts[protocol] = append(connection.ProtocolsAndPorts[protocol], port)
+				}
+			}
+			res = append(res, connection)
 		}
 	}
 	return res, nil
@@ -165,14 +164,14 @@ func (pc *Peer2PeerConnection) String() string {
 		sort.Strings(connStrings)
 		connStr = strings.Join(connStrings, separator)
 	}
-	return fmt.Sprintf("%v => %v : %v\n", pc.Src, pc.Dst, connStr)
+	return fmt.Sprintf("%v => %v : %v", pc.Src, pc.Dst, connStr)
 }
 
 // get string of connections from list of Peer2PeerConnection objects
 func ConnectionsListToString(conns []Peer2PeerConnection) string {
 	res := ""
 	for i := range conns {
-		res += conns[i].String()
+		res += conns[i].String() + "\n"
 	}
 	return res
 }
