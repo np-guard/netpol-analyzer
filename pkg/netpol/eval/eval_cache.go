@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 
 	lru "github.com/hashicorp/golang-lru"
 	"k8s.io/apimachinery/pkg/types"
@@ -33,10 +34,11 @@ const (
 )
 
 type evalCache struct {
-	cacheHitsCount int // for testing
+	sync.RWMutex                                  // protects only ownerToPods; lru.Cache is goroutine safe, debug-only fields are ignored
+	ownerToPods    map[string]map[string]struct{} // map from owner key to its associated pods map
+	cacheHitsCount int                            // for testing
 	debug          bool
 	cache          *lru.Cache
-	ownerToPods    map[string]map[string]struct{} // map from owner key to its associated pods map
 }
 
 // newEvalCache returns a new EvalCache with an empty initial state, of default size
@@ -123,11 +125,17 @@ func (ec *evalCache) clear() {
 		return
 	}
 	ec.cache.Purge()
+
+	ec.Lock()
+	defer ec.Unlock()
 	ec.ownerToPods = make(map[string]map[string]struct{})
 }
 
 func (ec *evalCache) addPod(p *k8s.Pod, podName string) {
 	podKey := getPodOwnerKey(p)
+
+	ec.Lock()
+	defer ec.Unlock()
 	if _, ok := ec.ownerToPods[podKey]; !ok {
 		ec.ownerToPods[podKey] = make(map[string]struct{})
 	}
@@ -136,6 +144,9 @@ func (ec *evalCache) addPod(p *k8s.Pod, podName string) {
 
 func (ec *evalCache) deletePod(p *k8s.Pod, podName string) {
 	podKey := getPodOwnerKey(p)
+
+	ec.Lock()
+	defer ec.Unlock()
 	if _, ok := ec.ownerToPods[podKey]; ok {
 		// delete pod from its associated owner at ownerToPods map
 		delete(ec.ownerToPods[podKey], podName)
@@ -149,7 +160,7 @@ func (ec *evalCache) deletePod(p *k8s.Pod, podName string) {
 	}
 }
 
-// deleteWorkload: delete cache keys containing the wokrload key string in a cached connection
+// deleteWorkload: delete cache keys containing the workload key string in a cached connection
 func (ec *evalCache) deleteWorkload(key string) {
 	cacheKeys := ec.cache.Keys()
 	for _, cacheKey := range cacheKeys {
