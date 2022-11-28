@@ -113,10 +113,15 @@ func FromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, err
 // getConnectionsList returns connections list from PolicyEngine object
 func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 	res := []Peer2PeerConnection{}
-	podsMap := pe.GetPodsMap()
-	for srcPod := range podsMap {
-		for dstPod := range podsMap {
-			allowedConnections, err := pe.AllAllowedConnections(srcPod, dstPod)
+	peerList := pe.GetPeersList() // pods and ip blocks
+	for i := range peerList {
+		for j := range peerList {
+			srcPeer := peerList[i]
+			dstPeer := peerList[j]
+			if eval.IsPeerIPType(srcPeer) && eval.IsPeerIPType(dstPeer) {
+				continue
+			}
+			allowedConnections, err := pe.AllAllowedConnectionsBetweenPeers(srcPeer, dstPeer)
 			if err != nil {
 				return nil, err
 			}
@@ -125,8 +130,8 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 				continue
 			}
 			connection := Peer2PeerConnection{
-				Src:                  srcPod,
-				Dst:                  dstPod,
+				Src:                  srcPeer.String(),
+				Dst:                  dstPeer.String(),
 				AllProtocolsAndPorts: allowedConnections.AllowAll,
 				ProtocolsAndPorts:    map[v1.Protocol][]Port{},
 			}
@@ -169,11 +174,12 @@ func (pc *Peer2PeerConnection) String() string {
 
 // get string of connections from list of Peer2PeerConnection objects
 func ConnectionsListToString(conns []Peer2PeerConnection) string {
-	res := ""
+	connLines := []string{}
 	for i := range conns {
-		res += conns[i].String() + "\n"
+		connLines = append(connLines, conns[i].String())
 	}
-	return res
+	sort.Strings(connLines)
+	return strings.Join(connLines, "\n")
 }
 
 // return a string representation for a Port object

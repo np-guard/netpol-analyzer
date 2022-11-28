@@ -6,6 +6,7 @@ import (
 	"net"
 	"sort"
 	"strconv"
+	"strings"
 	// "inet.af/netaddr"
 )
 
@@ -23,15 +24,25 @@ type IPBlock struct {
 	ipRange CanonicalIntervalSet
 }
 
-// ToIPRanges returns a string if the ip ranges in the current IPBlock object
+// ToIPRanges returns a string of the ip ranges in the current IPBlock object
 func (b *IPBlock) ToIPRanges() string {
-	res := ""
+	IPRanges := []string{}
 	for index := range b.ipRange.IntervalSet {
 		startIP := InttoIP4(b.ipRange.IntervalSet[index].Start)
 		endIP := InttoIP4(b.ipRange.IntervalSet[index].End)
-		res += fmt.Sprintf("%v-%v,", startIP, endIP)
+		IPRanges = append(IPRanges, rangeIPstr(startIP, endIP))
 	}
-	return res
+	return strings.Join(IPRanges, ",")
+}
+
+// IsIPAddress returns true if IPBlock object is a range of exactly one ip address from input
+func (b *IPBlock) IsIPAddress(IPAddress string) bool {
+	ipRanges := b.ToIPRanges()
+	return ipRanges == rangeIPstr(IPAddress, IPAddress)
+}
+
+func rangeIPstr(start, end string) string {
+	return fmt.Sprintf("%v-%v", start, end)
 }
 
 // Copy returns a new copy of IPBlock object
@@ -70,8 +81,6 @@ func InttoIP4(ipInt int64) string {
 	return b0 + "." + b1 + "." + b2 + "." + b3
 }
 
-// TODO: support allowed_connections considering an ipBlock (cidr), not only ip address
-// TODO: generate tests for disjoint ip blocks (unit tests, and per netpols)
 // DisjointIPBlocks returns an IPBlock of disjoint ip ranges from 2 input IPBlock objects
 func DisjointIPBlocks(set1, set2 []*IPBlock) []*IPBlock {
 	ipbList := []*IPBlock{}
@@ -99,6 +108,7 @@ func DisjointIPBlocks(set1, set2 []*IPBlock) []*IPBlock {
 	return res
 }
 
+// addIntervalToList is used for computation of DisjointIPBlocks
 func addIntervalToList(ipbNew *IPBlock, ipbList []*IPBlock) []*IPBlock {
 	toAdd := []*IPBlock{}
 	for idx, ipb := range ipbList {
@@ -137,6 +147,11 @@ func NewIPBlock(cidr string, exceptions []string) (*IPBlock, error) {
 		res.ipRange.AddHole(*intervalHole)
 	}
 	return &res, nil
+}
+
+// NewIPBlockFromIPAddress returns an IPBlock object from input ip address str
+func NewIPBlockFromIPAddress(IPAddress string) (*IPBlock, error) {
+	return NewIPBlock(IPAddress+"/32", []string{})
 }
 
 func cidrToIPRange(cidr string) (int64, int64, error) {

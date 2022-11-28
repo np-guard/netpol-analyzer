@@ -174,3 +174,38 @@ func (pe *PolicyEngine) deleteNetworkPolicy(np *netv1.NetworkPolicy) error {
 func (pe *PolicyEngine) GetPodsMap() map[string]*k8s.Pod {
 	return pe.podsMap
 }
+
+// GetPeersList returns a slice of peers from all PolicyEngine resources
+func (pe *PolicyEngine) GetPeersList() []*k8s.Peer {
+	ipBlocks := pe.GetDisjointIPBlocks()
+	res := []*k8s.Peer{}
+	//TODO: should support IpBlock type in Peer instead of string , for input ip address
+	for i := range ipBlocks {
+		res = append(res, &k8s.Peer{IPBlock: ipBlocks[i], PeerType: k8s.IPBlockType})
+	}
+	for podStr := range pe.podsMap {
+		if podPeer, err := pe.getPeer(podStr); err == nil {
+			res = append(res, &podPeer)
+		}
+	}
+	return res
+}
+
+// GetDisjointIPBlocks returns a slice of disjoint ip-blocks from all netpols reources
+func (pe *PolicyEngine) GetDisjointIPBlocks() []*k8s.IPBlock {
+	var ipbList []*k8s.IPBlock
+	for _, nsMap := range pe.netpolsMap {
+		for _, policy := range nsMap {
+			policyIPBlocksList := policy.GetReferencedIPBlocks()
+			ipbList = append(ipbList, policyIPBlocksList...)
+		}
+	}
+	newAll, _ := k8s.NewIPBlock("0.0.0.0/0", []string{})
+	disjointRes := k8s.DisjointIPBlocks(ipbList, []*k8s.IPBlock{newAll})
+	return disjointRes
+}
+
+// IsPeerIPType retunrs true for an input peer if it is an IP type
+func IsPeerIPType(peer *k8s.Peer) bool {
+	return k8s.IsIPType(peer.PeerType)
+}
