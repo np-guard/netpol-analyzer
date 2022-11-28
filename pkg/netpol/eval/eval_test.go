@@ -1067,7 +1067,6 @@ func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) erro
 //
 //gocyclo:ignore
 func TestGeneralPerformance(t *testing.T) {
-	//currentDir, _ := os.Getwd()
 	path := filepath.Join(getTestsDir(), "onlineboutique")
 	// list of connections to test with, for CheckIfAllowed / CheckIfAllowedNew
 	connectionsListForTest := []TestEntry{
@@ -1180,7 +1179,6 @@ func TestGeneralPerformance(t *testing.T) {
 }
 
 func TestFromFiles2(t *testing.T) {
-	//currentDir, _ := os.Getwd()
 	path := filepath.Join(getTestsDir(), "onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
@@ -1234,7 +1232,6 @@ func TestFromFiles2(t *testing.T) {
 }
 
 func TestFromFiles(t *testing.T) {
-	//currentDir, _ := os.Getwd()
 	path := filepath.Join(getTestsDir(), "onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
@@ -1556,10 +1553,8 @@ func computeExpectedCacheHits(pe *PolicyEngine) (int, error) {
 }
 
 func TestCacheWithPodDeletion(t *testing.T) {
-	//currentDir, _ := os.Getwd()
 	pe := NewPolicyEngine()
 	var err error
-	//filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas")
 	testDir := filepath.Join(getTestsDir(), "onlineboutique_with_replicas")
 	if err = setResourcesFromDir(pe, testDir); err != nil {
 		t.Fatal(err)
@@ -1592,7 +1587,6 @@ func TestCacheWithPodDeletion(t *testing.T) {
 }
 
 func TestConnectionsMapExamples(t *testing.T) {
-	//currentDir, _ := os.Getwd()
 	testsDir := getTestsDir()
 
 	tests := []struct {
@@ -1760,7 +1754,6 @@ func testConnectivityMapOutput(res []string, actualFileName, expectedFileName st
 }
 
 func TestDisjointIpBlocks(t *testing.T) {
-	//currentDir, _ := os.Getwd()
 	path := filepath.Join(getTestsDir(), "ipblockstest")
 	pe := NewPolicyEngine()
 	if err := setResourcesFromDir(pe, path); err != nil {
@@ -1775,7 +1768,16 @@ func TestDisjointIpBlocks(t *testing.T) {
 	sort.Strings(ipStrList)
 	res := fmt.Sprintf("%v", ipStrList)
 	fmt.Printf("ipStrList: %v\n", res)
-	expectedOutput := "[0.0.0.0-9.255.255.255 10.0.0.0-10.255.255.255 11.0.0.0-172.20.255.255 172.21.0.0-172.21.255.255 172.22.0.0-172.29.255.255 172.30.0.0-172.30.255.255 172.31.0.0-255.255.255.255]"
+	ipAddressesExpected := []string{
+		"0.0.0.0-9.255.255.255",
+		"10.0.0.0-10.255.255.255",
+		"11.0.0.0-172.20.255.255",
+		"172.21.0.0-172.21.255.255",
+		"172.22.0.0-172.29.255.255",
+		"172.30.0.0-172.30.255.255",
+		"172.31.0.0-255.255.255.255",
+	}
+	expectedOutput := fmt.Sprintf("%v", ipAddressesExpected)
 	if res != expectedOutput {
 		t.Fatalf("unexpected output for GetDisjointIPBlocks")
 	}

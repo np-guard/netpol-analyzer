@@ -167,7 +167,6 @@ func parseNamespaceList(objDataBuf []byte) []K8sObject {
 		}
 	}
 	return res
-
 }
 
 func parsePodList(objDataBuf []byte) []K8sObject {
