@@ -39,9 +39,9 @@ func IsIPType(inputType PeerType) bool {
 
 func (p *Peer) String() string {
 	if p.PeerType == PodType {
-		//pod type
+		// pod type
 		return types.NamespacedName{Name: p.Pod.Name, Namespace: p.Pod.Namespace}.String()
 	}
-	//IPBlockType
+	// IPBlockType
 	return p.IPBlock.ToIPRanges()
 }

@@ -36,9 +36,9 @@ func (b *IPBlock) ToIPRanges() string {
 }
 
 // IsIPAddress returns true if IPBlock object is a range of exactly one ip address from input
-func (b *IPBlock) IsIPAddress(IPAddress string) bool {
+func (b *IPBlock) IsIPAddress(ipAddress string) bool {
 	ipRanges := b.ToIPRanges()
-	return ipRanges == rangeIPstr(IPAddress, IPAddress)
+	return ipRanges == rangeIPstr(ipAddress, ipAddress)
 }
 
 func rangeIPstr(start, end string) string {
@@ -150,8 +150,8 @@ func NewIPBlock(cidr string, exceptions []string) (*IPBlock, error) {
 }
 
 // NewIPBlockFromIPAddress returns an IPBlock object from input ip address str
-func NewIPBlockFromIPAddress(IPAddress string) (*IPBlock, error) {
-	return NewIPBlock(IPAddress+"/32", []string{})
+func NewIPBlockFromIPAddress(ipAddress string) (*IPBlock, error) {
+	return NewIPBlock(ipAddress+"/32", []string{})
 }
 
 func cidrToIPRange(cidr string) (int64, int64, error) {
