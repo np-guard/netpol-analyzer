@@ -1,0 +1,110 @@
+kind: NamespaceList
+apiVersion: v1
+metadata:
+  selfLink: /api/v1/namespaces
+  resourceVersion: '2996488'
+items:
+- metadata:
+    name: default
+    selfLink: /api/v1/namespaces/default
+    uid: 7a9b0f05-2134-11e8-a8d4-32799206ac60
+    resourceVersion: '11'
+    creationTimestamp: '2018-03-06T11:49:51Z'
+    labels:
+      unique-label: defaultNameSpace
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- metadata:
+    name: dlaas
+    selfLink: /api/v1/namespaces/dlaas
+    uid: 7a9b0f05-2134-11e8-a8d4-32799206ac64
+    resourceVersion: '11'
+    creationTimestamp: '2018-03-06T11:49:51Z'
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- metadata:
+    name: watson-url-fetcher
+    selfLink: /api/v1/namespaces/watson-url-fetcher
+    uid: 7a9b0f05-2134-11e8-a8d4-32799206ac6e
+    resourceVersion: '11'
+    creationTimestamp: '2018-03-06T11:49:51Z'
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- metadata:
+    name: ibm-cert-store
+    selfLink: /api/v1/namespaces/ibm-cert-store
+    uid: d8a5cf7f-2134-11e8-a8d4-32799206ac60
+    resourceVersion: '210'
+    creationTimestamp: '2018-03-06T11:52:29Z'
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- metadata:
+    name: ibm-system
+    selfLink: /api/v1/namespaces/ibm-system
+    uid: 893e408d-2134-11e8-a8d4-32799206ac60
+    resourceVersion: '137'
+    creationTimestamp: '2018-03-06T11:50:15Z'
+    labels:
+      unique-label: ibm-systemNameSpace
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- metadata:
+    name: kube-public
+    selfLink: /api/v1/namespaces/kube-public
+    uid: 7aa1e31a-2134-11e8-a8d4-32799206ac60
+    resourceVersion: '23'
+    creationTimestamp: '2018-03-06T11:49:51Z'
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- metadata:
+    name: kube-system
+    selfLink: /api/v1/namespaces/kube-system
+    uid: 7aa14693-2134-11e8-a8d4-32799206ac60
+    resourceVersion: '127'
+    creationTimestamp: '2018-03-06T11:49:51Z'
+    labels:
+      unique-label: kubeSystemNameSpace
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: '{"apiVersion":"v1","kind":"Namespace","metadata":{"annotations":{},"name":"kube-system","namespace":""}}
+
+        '
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- metadata:
+    name: kube-system-dummy-to-ignore
+    selfLink: /api/v1/namespaces/kube-system-dummy-to-ignore
+    uid: 7aa14693-2134-11e8-a8d4-32799206ac6f
+    resourceVersion: '127'
+    creationTimestamp: '2018-03-06T11:49:51Z'
+    labels:
+      unique-label: dummy
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: '{"apiVersion":"v1","kind":"Namespace","metadata":{"annotations":{},"name":"kube-system","namespace":""}}
+
+        '
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active

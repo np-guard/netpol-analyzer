@@ -68,7 +68,7 @@ func FilesToObjectsList(path string) ([]K8sObject, error) {
 	for _, obj := range parsedObjects {
 		for _, o := range obj.deployObjects {
 			kind := o.groupKind
-			if kind == Pod || kind == Networkpolicy || kind == Namespace || kind == List {
+			if kind == Pod || kind == Networkpolicy || kind == Namespace || kind == List || kind == PodList || kind == NamespaceList {
 				res1, err := scanK8sDeployObject(kind, o.runtimeObject)
 				if err == nil {
 					res = append(res, res1...)
@@ -95,6 +95,8 @@ const (
 	Networkpolicy         string = "NetworkPolicy"
 	Namespace             string = "Namespace"
 	List                  string = "List"
+	NamespaceList         string = "NamespaceList"
+	PodList               string = "PodList"
 )
 
 const yamlParseBufferSize = 200
@@ -149,6 +151,42 @@ func searchDeploymentManifests(repoDir *string) []string {
 		fmt.Printf("Error: Error in searching for manifests: %v", err)
 	}
 	return yamls
+}
+
+func parseNamespaceList(objDataBuf []byte) []K8sObject {
+	r := bytes.NewReader(objDataBuf)
+	res := []K8sObject{}
+	if r == nil {
+		return res
+	}
+	nsList := v1.NamespaceList{}
+	if err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&nsList); err == nil {
+		for i := range nsList.Items {
+			nsList.Items[i].Kind = Namespace
+			res = append(res, K8sObject{Namespace: &nsList.Items[i], Kind: Namespace})
+		}
+	}
+	return res
+
+}
+
+func parsePodList(objDataBuf []byte) []K8sObject {
+	r := bytes.NewReader(objDataBuf)
+	res := []K8sObject{}
+	if r == nil {
+		return res
+	}
+	podsList := v1.PodList{}
+	if err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&podsList); err == nil {
+		for i := range podsList.Items {
+			if podsList.Items[i].Namespace == metav1.NamespaceNone {
+				podsList.Items[i].Namespace = metav1.NamespaceDefault
+			}
+			podsList.Items[i].Kind = Pod
+			res = append(res, K8sObject{Pod: &podsList.Items[i], Kind: Pod})
+		}
+	}
+	return res
 }
 
 func parseList(objDataBuf []byte) []K8sObject {
@@ -242,20 +280,26 @@ func scanK8sDeployObject(kind string, objDataBuf []byte) ([]K8sObject, error) {
 	res := []K8sObject{}
 
 	switch kind {
-	case "Pod":
+	case Pod:
 		obj := parsePod(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Pod: obj, Kind: kind})
-	case "ReplicaSet":
+	case ReplicaSet:
 		obj := parseReplicaSet(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Replicaset: obj, Kind: kind})
-	case "NetworkPolicy":
+	case Networkpolicy:
 		obj := parseNetworkPolicy(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Networkpolicy: obj, Kind: kind})
-	case "Namespace":
+	case Namespace:
 		obj := parseNamespace(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Namespace: obj, Kind: kind})
-	case "List":
+	case List:
 		obj := parseList(objDataBuf)
+		res = obj
+	case PodList:
+		obj := parsePodList(objDataBuf)
+		res = obj
+	case NamespaceList:
+		obj := parseNamespaceList(objDataBuf)
 		res = obj
 	default:
 		return res, fmt.Errorf("unsupported object type: `%s`", kind)

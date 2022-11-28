@@ -1067,8 +1067,8 @@ func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) erro
 //
 //gocyclo:ignore
 func TestGeneralPerformance(t *testing.T) {
-	currentDir, _ := os.Getwd()
-	path := filepath.Join(currentDir, "testdata", "onlineboutique")
+	//currentDir, _ := os.Getwd()
+	path := filepath.Join(getTestsDir(), "onlineboutique")
 	// list of connections to test with, for CheckIfAllowed / CheckIfAllowedNew
 	connectionsListForTest := []TestEntry{
 		{protocol: "tcp", port: "5050"},
@@ -1180,8 +1180,8 @@ func TestGeneralPerformance(t *testing.T) {
 }
 
 func TestFromFiles2(t *testing.T) {
-	currentDir, _ := os.Getwd()
-	path := filepath.Join(currentDir, "testdata", "onlineboutique")
+	//currentDir, _ := os.Getwd()
+	path := filepath.Join(getTestsDir(), "onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
@@ -1234,8 +1234,8 @@ func TestFromFiles2(t *testing.T) {
 }
 
 func TestFromFiles(t *testing.T) {
-	currentDir, _ := os.Getwd()
-	path := filepath.Join(currentDir, "testdata", "onlineboutique")
+	//currentDir, _ := os.Getwd()
+	path := filepath.Join(getTestsDir(), "onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
@@ -1556,10 +1556,12 @@ func computeExpectedCacheHits(pe *PolicyEngine) (int, error) {
 }
 
 func TestCacheWithPodDeletion(t *testing.T) {
-	currentDir, _ := os.Getwd()
+	//currentDir, _ := os.Getwd()
 	pe := NewPolicyEngine()
 	var err error
-	if err = setResourcesFromDir(pe, filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas")); err != nil {
+	//filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas")
+	testDir := filepath.Join(getTestsDir(), "onlineboutique_with_replicas")
+	if err = setResourcesFromDir(pe, testDir); err != nil {
 		t.Fatal(err)
 	}
 	_, err = simpleConfigurableConnectivityMapTest(pe, false, "tcp", "80")
@@ -1590,7 +1592,9 @@ func TestCacheWithPodDeletion(t *testing.T) {
 }
 
 func TestConnectionsMapExamples(t *testing.T) {
-	currentDir, _ := os.Getwd()
+	//currentDir, _ := os.Getwd()
+	testsDir := getTestsDir()
+
 	tests := []struct {
 		testName           string
 		resourcesDir       string
@@ -1605,8 +1609,8 @@ func TestConnectionsMapExamples(t *testing.T) {
 		// tests with AllAllowedConnections -----------------------------------------------------------------------
 		{
 			testName:           "onlineboutique_all_allowed_connections",
-			resourcesDir:       filepath.Join(currentDir, "testdata", "onlineboutique"),
-			expectedOutputFile: filepath.Join("testdata", "onlineboutique", "connections_map_output.txt"),
+			resourcesDir:       filepath.Join(testsDir, "onlineboutique"),
+			expectedOutputFile: filepath.Join(testsDir, "onlineboutique", "connections_map_output.txt"),
 			actualOutputFile:   "connections_map_output.txt",
 			// expectedCacheHits:     0, // no pod replicas on this example,
 			checkCacheHits: false, // currently not relevant for "all connections" computation( only for bool result is connection allowed )
@@ -1616,8 +1620,8 @@ func TestConnectionsMapExamples(t *testing.T) {
 		// tests with IsConnectionAllowed -----------------------------------------------------------------------------
 		{
 			testName:           "onlineboutique_bool_connectivity_results",
-			resourcesDir:       filepath.Join(currentDir, "testdata", "onlineboutique"),
-			expectedOutputFile: filepath.Join("testdata", "onlineboutique", "connections_map_output_bool.txt"),
+			resourcesDir:       filepath.Join(testsDir, "onlineboutique"),
+			expectedOutputFile: filepath.Join(testsDir, "onlineboutique", "connections_map_output_bool.txt"),
 			actualOutputFile:   "connections_map_output_bool.txt",
 			//expectedCacheHits:  0, // no pod replicas on this example,
 			checkCacheHits: true,
@@ -1626,8 +1630,8 @@ func TestConnectionsMapExamples(t *testing.T) {
 
 		{
 			testName:           "onlineboutique_with_replicas_bool_connectivity_results",
-			resourcesDir:       filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas"),
-			expectedOutputFile: filepath.Join("testdata", "onlineboutique_with_replicas", "connections_map_with_replicas_output.txt"),
+			resourcesDir:       filepath.Join(testsDir, "onlineboutique_with_replicas"),
+			expectedOutputFile: filepath.Join(testsDir, "onlineboutique_with_replicas", "connections_map_with_replicas_output.txt"),
 			actualOutputFile:   "connections_map_with_replicas_output.txt",
 			checkCacheHits:     true,
 			allConnections:     false,
@@ -1638,8 +1642,8 @@ func TestConnectionsMapExamples(t *testing.T) {
 
 		{
 			testName:     "onlineboutique_with_replicas_and_variants_bool_connectivity_results",
-			resourcesDir: filepath.Join(currentDir, "testdata", "onlineboutique_with_replicas_and_variants"),
-			expectedOutputFile: filepath.Join("testdata", "onlineboutique_with_replicas_and_variants",
+			resourcesDir: filepath.Join(testsDir, "onlineboutique_with_replicas_and_variants"),
+			expectedOutputFile: filepath.Join(testsDir, "onlineboutique_with_replicas_and_variants",
 				"connections_map_with_replicas_and_variants_output.txt"),
 			actualOutputFile: "connections_map_with_replicas_and_variants_output.txt",
 			checkCacheHits:   true,
@@ -1753,4 +1757,32 @@ func testConnectivityMapOutput(res []string, actualFileName, expectedFileName st
 	}
 	comparisonRes := expectedOutputFileValue == actualOutputFileValue
 	return comparisonRes, nil
+}
+
+func TestDisjointIpBlocks(t *testing.T) {
+	//currentDir, _ := os.Getwd()
+	path := filepath.Join(getTestsDir(), "ipblockstest")
+	pe := NewPolicyEngine()
+	if err := setResourcesFromDir(pe, path); err != nil {
+		t.Errorf("%v", err)
+	}
+
+	ipList := pe.GetDisjointIPBlocks()
+	ipStrList := []string{}
+	for i := range ipList {
+		ipStrList = append(ipStrList, ipList[i].ToIPRanges())
+	}
+	sort.Strings(ipStrList)
+	res := fmt.Sprintf("%v", ipStrList)
+	fmt.Printf("ipStrList: %v\n", res)
+	expectedOutput := "[0.0.0.0-9.255.255.255 10.0.0.0-10.255.255.255 11.0.0.0-172.20.255.255 172.21.0.0-172.21.255.255 172.22.0.0-172.29.255.255 172.30.0.0-172.30.255.255 172.31.0.0-255.255.255.255]"
+	if res != expectedOutput {
+		t.Fatalf("unexpected output for GetDisjointIPBlocks")
+	}
+}
+
+func getTestsDir() string {
+	currentDir, _ := os.Getwd()
+	res := filepath.Join(currentDir, "..", "..", "..", "tests")
+	return res
 }
