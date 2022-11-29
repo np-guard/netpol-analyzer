@@ -33,10 +33,6 @@ type Peer struct {
 	Namespace *Namespace
 }
 
-/*func IsIPType(inputType PeerType) bool {
-	return inputType == IPBlockType
-}*/
-
 func (p *Peer) String() string {
 	if p.PeerType == PodType {
 		// pod type
