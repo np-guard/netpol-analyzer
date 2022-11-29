@@ -141,7 +141,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			if rulePeers[i].IPBlock != nil {
 				return false, errors.New("rulePeers of type NetworkPolicyPeer -cannot have both IPBlock and PodSelector/NamespaceSelector set")
 			}
-			if IsIPType(peer.PeerType) {
+			if peer.PeerType == IPBlockType {
 				continue // assuming that peer of type IP cannot be selected by pod selector
 			}
 			// peer is a pod

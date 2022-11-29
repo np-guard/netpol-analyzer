@@ -138,14 +138,14 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 			protocolsMap := allowedConnections.GetProtocolsAndPortsMap()
 			// convert each port range (list) to connlist.Port
 			for protocol, ports := range protocolsMap {
-				connection.ProtocolsAndPorts[protocol] = []Port{}
+				connection.ProtocolsAndPorts[protocol] = make([]Port, 0, len(ports))
 				for i := range ports {
 					startPort, endPort := ports[i][0], ports[i][1]
 					port := Port{Port: &startPort}
 					if endPort > startPort {
 						port.EndPort = &endPort
 					}
-					connection.ProtocolsAndPorts[protocol] = append(connection.ProtocolsAndPorts[protocol], port)
+					connection.ProtocolsAndPorts[protocol][i] = port
 				}
 			}
 			res = append(res, connection)
@@ -154,7 +154,7 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 	return res, nil
 }
 
-// return a string represntation for a Peer2PeerConnection object
+// return a string representation for a Peer2PeerConnection object
 func (pc *Peer2PeerConnection) String() string {
 	var connStr string
 	if pc.AllProtocolsAndPorts {
@@ -162,9 +162,11 @@ func (pc *Peer2PeerConnection) String() string {
 	} else if len(pc.ProtocolsAndPorts) == 0 {
 		connStr = "No Connections"
 	} else {
-		connStrings := []string{}
+		connStrings := make([]string, 0, len(pc.ProtocolsAndPorts))
+		index := 0
 		for protocol, ports := range pc.ProtocolsAndPorts {
-			connStrings = append(connStrings, string(protocol)+" "+portsString(ports))
+			connStrings[index] = string(protocol) + " " + portsString(ports)
+			index++
 		}
 		sort.Strings(connStrings)
 		connStr = strings.Join(connStrings, separator)
@@ -174,9 +176,9 @@ func (pc *Peer2PeerConnection) String() string {
 
 // get string of connections from list of Peer2PeerConnection objects
 func ConnectionsListToString(conns []Peer2PeerConnection) string {
-	connLines := []string{}
+	connLines := make([]string, 0, len(conns))
 	for i := range conns {
-		connLines = append(connLines, conns[i].String())
+		connLines[i] = conns[i].String()
 	}
 	sort.Strings(connLines)
 	return strings.Join(connLines, "\n")
@@ -192,9 +194,9 @@ func (p *Port) String() string {
 
 // get string representation for a list of port values
 func portsString(ports []Port) string {
-	portsStr := []string{}
+	portsStr := make([]string, 0, len(ports))
 	for i := range ports {
-		portsStr = append(portsStr, ports[i].String())
+		portsStr[i] = ports[i].String()
 	}
 	return strings.Join(portsStr, separator)
 }

@@ -26,11 +26,11 @@ type IPBlock struct {
 
 // ToIPRanges returns a string of the ip ranges in the current IPBlock object
 func (b *IPBlock) ToIPRanges() string {
-	IPRanges := []string{}
+	IPRanges := make([]string, len(b.ipRange.IntervalSet))
 	for index := range b.ipRange.IntervalSet {
 		startIP := InttoIP4(b.ipRange.IntervalSet[index].Start)
 		endIP := InttoIP4(b.ipRange.IntervalSet[index].End)
-		IPRanges = append(IPRanges, rangeIPstr(startIP, endIP))
+		IPRanges[index] = rangeIPstr(startIP, endIP)
 	}
 	return strings.Join(IPRanges, ",")
 }
@@ -62,11 +62,11 @@ func (b *IPBlock) ipCount() int {
 
 // split returns a set of IpBlock objects, each with a single range of ips
 func (b *IPBlock) split() []*IPBlock {
-	res := []*IPBlock{}
-	for _, ipr := range b.ipRange.IntervalSet {
+	res := make([]*IPBlock, len(b.ipRange.IntervalSet))
+	for index, ipr := range b.ipRange.IntervalSet {
 		newBlock := IPBlock{}
 		newBlock.ipRange.IntervalSet = append(newBlock.ipRange.IntervalSet, Interval{Start: ipr.Start, End: ipr.End})
-		res = append(res, &newBlock)
+		res[index] = &newBlock
 	}
 	return res
 }
