@@ -113,7 +113,10 @@ func FromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, err
 // getConnectionsList returns connections list from PolicyEngine object
 func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 	res := []Peer2PeerConnection{}
-	peerList := pe.GetPeersList() // pods and ip blocks
+	peerList, err := pe.GetPeersList() // pods and ip blocks
+	if err != nil {
+		return nil, err
+	}
 	for i := range peerList {
 		for j := range peerList {
 			srcPeer := peerList[i]
@@ -138,7 +141,7 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 			protocolsMap := allowedConnections.GetProtocolsAndPortsMap()
 			// convert each port range (list) to connlist.Port
 			for protocol, ports := range protocolsMap {
-				connection.ProtocolsAndPorts[protocol] = make([]Port, 0, len(ports))
+				connection.ProtocolsAndPorts[protocol] = make([]Port, len(ports))
 				for i := range ports {
 					startPort, endPort := ports[i][0], ports[i][1]
 					port := Port{Port: &startPort}
@@ -162,7 +165,7 @@ func (pc *Peer2PeerConnection) String() string {
 	} else if len(pc.ProtocolsAndPorts) == 0 {
 		connStr = "No Connections"
 	} else {
-		connStrings := make([]string, 0, len(pc.ProtocolsAndPorts))
+		connStrings := make([]string, len(pc.ProtocolsAndPorts))
 		index := 0
 		for protocol, ports := range pc.ProtocolsAndPorts {
 			connStrings[index] = string(protocol) + " " + portsString(ports)
@@ -176,7 +179,7 @@ func (pc *Peer2PeerConnection) String() string {
 
 // get string of connections from list of Peer2PeerConnection objects
 func ConnectionsListToString(conns []Peer2PeerConnection) string {
-	connLines := make([]string, 0, len(conns))
+	connLines := make([]string, len(conns))
 	for i := range conns {
 		connLines[i] = conns[i].String()
 	}
@@ -194,7 +197,7 @@ func (p *Port) String() string {
 
 // get string representation for a list of port values
 func portsString(ports []Port) string {
-	portsStr := make([]string, 0, len(ports))
+	portsStr := make([]string, len(ports))
 	for i := range ports {
 		portsStr[i] = ports[i].String()
 	}

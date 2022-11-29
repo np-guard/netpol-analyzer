@@ -1,6 +1,8 @@
 package eval
 
 import (
+	"fmt"
+
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -176,18 +178,22 @@ func (pe *PolicyEngine) GetPodsMap() map[string]*k8s.Pod {
 }
 
 // GetPeersList returns a slice of peers from all PolicyEngine resources
-func (pe *PolicyEngine) GetPeersList() []*k8s.Peer {
+func (pe *PolicyEngine) GetPeersList() ([]*k8s.Peer, error) {
 	ipBlocks := pe.GetDisjointIPBlocks()
-	res := make([]*k8s.Peer, 0, len(ipBlocks)+len(pe.podsMap))
+	res := make([]*k8s.Peer, len(ipBlocks)+len(pe.podsMap))
 	for i := range ipBlocks {
 		res[i] = &k8s.Peer{IPBlock: ipBlocks[i], PeerType: k8s.IPBlockType}
 	}
 	index := len(ipBlocks)
-	for _, pod := range pe.podsMap {
-		res[index] = &k8s.Peer{Pod: pod, PeerType: k8s.PodType}
+	for podName, pod := range pe.podsMap {
+		podNamespace, ok := pe.namspacesMap[pod.Namespace]
+		if !ok {
+			return nil, fmt.Errorf("error: namespace of pod %v is missing", podName)
+		}
+		res[index] = &k8s.Peer{Pod: pod, Namespace: podNamespace, PeerType: k8s.PodType}
 		index++
 	}
-	return res
+	return res, nil
 }
 
 // GetDisjointIPBlocks returns a slice of disjoint ip-blocks from all netpols resources
