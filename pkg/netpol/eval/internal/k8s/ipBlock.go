@@ -7,7 +7,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	// "inet.af/netaddr"
 )
 
 const (
@@ -178,16 +177,3 @@ func cidrToInterval(cidr string) (*Interval, error) {
 	}
 	return &Interval{Start: start, End: end}, nil
 }
-
-// func NewIpBlock(cidr string, exceptions []string) *IpBlock {
-/*var b netaddr.IPSetBuilder
-b.AddPrefix(netaddr.MustParseIPPrefix("10.0.0.0/8"))
-b.Remove(netaddr.MustParseIP("10.2.3.4"))
-s, _ := b.IPSet()
-fmt.Println(s.Ranges())
-fmt.Println(s.Prefixes())*/
-// }
-
-// func cidrTo
-
-// func DisjointIpBlocks()
