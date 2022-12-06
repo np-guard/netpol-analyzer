@@ -15,7 +15,6 @@ package k8s
 
 import (
 	"errors"
-	"net"
 	"strconv"
 	"strings"
 
@@ -142,7 +141,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			if rulePeers[i].IPBlock != nil {
 				return false, errors.New("rulePeers of type NetworkPolicyPeer -cannot have both IPBlock and PodSelector/NamespaceSelector set")
 			}
-			if peer.PeerType == Iptype {
+			if peer.PeerType == IPBlockType {
 				continue // assuming that peer of type IP cannot be selected by pod selector
 			}
 			// peer is a pod
@@ -179,22 +178,13 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 				// TODO: is this reasonable to assume?
 			}
 			// check that peer.IP matches the IPBlock
-			cidr := rulePeers[i].IPBlock.CIDR
-			_, ipnetA, _ := net.ParseCIDR(cidr)
-			ipB := net.ParseIP(peer.IP)
-			res1 := ipnetA.Contains(ipB)
-			if !res1 {
-				continue
+			ruleIPBlock, err := NewIPBlock(rulePeers[i].IPBlock.CIDR, rulePeers[i].IPBlock.Except)
+			if err != nil {
+				return false, err
 			}
-			res2 := false
-			for _, excepctCidr := range rulePeers[i].IPBlock.Except {
-				_, ipnetC, _ := net.ParseCIDR(excepctCidr)
-				res2 = res2 || ipnetC.Contains(ipB)
-				if res2 {
-					break
-				}
-			}
-			if !res2 {
+			peerIPBlock := peer.IPBlock
+			res := peerIPBlock.ipRange.ContainedIn(ruleIPBlock.ipRange)
+			if res {
 				return true, nil
 			}
 		} else {

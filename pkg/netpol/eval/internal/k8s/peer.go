@@ -13,18 +13,31 @@
 // limitations under the License.
 package k8s
 
+import (
+	"k8s.io/apimachinery/pkg/types"
+)
+
 // PeerType is a type to indicate the type of a Peer object (Pod or IP address)
 type PeerType int
 
 const (
 	PodType PeerType = iota
-	Iptype
+	IPBlockType
 )
 
 // Peer represents a k8s pod or an ip address
 type Peer struct {
-	PeerType  PeerType // PodType or Iptype
-	IP        string
+	PeerType  PeerType
+	IPBlock   *IPBlock // a set of intervals for ip addresses ranges
 	Pod       *Pod
 	Namespace *Namespace
+}
+
+func (p *Peer) String() string {
+	if p.PeerType == PodType {
+		// pod type
+		return types.NamespacedName{Name: p.Pod.Name, Namespace: p.Pod.Namespace}.String()
+	}
+	// IPBlockType
+	return p.IPBlock.ToIPRanges()
 }

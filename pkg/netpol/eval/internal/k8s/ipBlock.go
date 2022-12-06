@@ -6,7 +6,7 @@ import (
 	"net"
 	"sort"
 	"strconv"
-	// "inet.af/netaddr"
+	"strings"
 )
 
 const (
@@ -23,15 +23,25 @@ type IPBlock struct {
 	ipRange CanonicalIntervalSet
 }
 
-// ToIPRanges returns a string if the ip ranges in the current IPBlock object
+// ToIPRanges returns a string of the ip ranges in the current IPBlock object
 func (b *IPBlock) ToIPRanges() string {
-	res := ""
+	IPRanges := make([]string, len(b.ipRange.IntervalSet))
 	for index := range b.ipRange.IntervalSet {
 		startIP := InttoIP4(b.ipRange.IntervalSet[index].Start)
 		endIP := InttoIP4(b.ipRange.IntervalSet[index].End)
-		res += fmt.Sprintf("%v-%v,", startIP, endIP)
+		IPRanges[index] = rangeIPstr(startIP, endIP)
 	}
-	return res
+	return strings.Join(IPRanges, ",")
+}
+
+// IsIPAddress returns true if IPBlock object is a range of exactly one ip address from input
+func (b *IPBlock) IsIPAddress(ipAddress string) bool {
+	ipRanges := b.ToIPRanges()
+	return ipRanges == rangeIPstr(ipAddress, ipAddress)
+}
+
+func rangeIPstr(start, end string) string {
+	return fmt.Sprintf("%v-%v", start, end)
 }
 
 // Copy returns a new copy of IPBlock object
@@ -51,11 +61,11 @@ func (b *IPBlock) ipCount() int {
 
 // split returns a set of IpBlock objects, each with a single range of ips
 func (b *IPBlock) split() []*IPBlock {
-	res := []*IPBlock{}
-	for _, ipr := range b.ipRange.IntervalSet {
+	res := make([]*IPBlock, len(b.ipRange.IntervalSet))
+	for index, ipr := range b.ipRange.IntervalSet {
 		newBlock := IPBlock{}
 		newBlock.ipRange.IntervalSet = append(newBlock.ipRange.IntervalSet, Interval{Start: ipr.Start, End: ipr.End})
-		res = append(res, &newBlock)
+		res[index] = &newBlock
 	}
 	return res
 }
@@ -70,8 +80,6 @@ func InttoIP4(ipInt int64) string {
 	return b0 + "." + b1 + "." + b2 + "." + b3
 }
 
-// TODO: support allowed_connections considering an ipBlock (cidr), not only ip address
-// TODO: generate tests for disjoint ip blocks (unit tests, and per netpols)
 // DisjointIPBlocks returns an IPBlock of disjoint ip ranges from 2 input IPBlock objects
 func DisjointIPBlocks(set1, set2 []*IPBlock) []*IPBlock {
 	ipbList := []*IPBlock{}
@@ -99,6 +107,7 @@ func DisjointIPBlocks(set1, set2 []*IPBlock) []*IPBlock {
 	return res
 }
 
+// addIntervalToList is used for computation of DisjointIPBlocks
 func addIntervalToList(ipbNew *IPBlock, ipbList []*IPBlock) []*IPBlock {
 	toAdd := []*IPBlock{}
 	for idx, ipb := range ipbList {
@@ -139,6 +148,11 @@ func NewIPBlock(cidr string, exceptions []string) (*IPBlock, error) {
 	return &res, nil
 }
 
+// NewIPBlockFromIPAddress returns an IPBlock object from input ip address str
+func NewIPBlockFromIPAddress(ipAddress string) (*IPBlock, error) {
+	return NewIPBlock(ipAddress+"/32", []string{})
+}
+
 func cidrToIPRange(cidr string) (int64, int64, error) {
 	// convert string to IPNet struct
 	_, ipv4Net, err := net.ParseCIDR(cidr)
@@ -163,16 +177,3 @@ func cidrToInterval(cidr string) (*Interval, error) {
 	}
 	return &Interval{Start: start, End: end}, nil
 }
-
-// func NewIpBlock(cidr string, exceptions []string) *IpBlock {
-/*var b netaddr.IPSetBuilder
-b.AddPrefix(netaddr.MustParseIPPrefix("10.0.0.0/8"))
-b.Remove(netaddr.MustParseIP("10.2.3.4"))
-s, _ := b.IPSet()
-fmt.Println(s.Ranges())
-fmt.Println(s.Prefixes())*/
-// }
-
-// func cidrTo
-
-// func DisjointIpBlocks()

@@ -1609,7 +1609,7 @@ func TestConnectionsMapExamples(t *testing.T) {
 			expectedOutputFile: filepath.Join("testdata", "onlineboutique", "connections_map_output.txt"),
 			actualOutputFile:   "connections_map_output.txt",
 			// expectedCacheHits:     0, // no pod replicas on this example,
-			checkCacheHits: false, // currently not relevant for "all connections" computation( only for bool result is connecion allowed )
+			checkCacheHits: false, // currently not relevant for "all connections" computation( only for bool result is connection allowed )
 			allConnections: true,
 		},
 
