@@ -69,10 +69,10 @@ type connection struct {
 }
 
 func (c *connection) Src() Peer {
-	return c.src
+	return &c.src
 }
 func (c *connection) Dst() Peer {
-	return c.dst
+	return &c.dst
 }
 func (c *connection) AllProtocolsAndPorts() bool {
 	return c.allConnections
@@ -82,7 +82,7 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]PortRange {
 	for protocol, ports := range c.protocolsAndPorts {
 		res[protocol] = make([]PortRange, len(ports))
 		for i := range ports {
-			res[protocol][i] = ports[i]
+			res[protocol][i] = &ports[i]
 		}
 	}
 	return res
@@ -95,19 +95,19 @@ type peer struct {
 	ip        string
 }
 
-func (p peer) GetNamespace() string {
+func (p *peer) GetNamespace() string {
 	return p.namespace
 }
 
-func (p peer) GetName() string {
+func (p *peer) GetName() string {
 	return p.name
 }
 
-func (p peer) GetIP() string {
+func (p *peer) GetIP() string {
 	return p.ip
 }
 
-func (p peer) String() string {
+func (p *peer) String() string {
 	if p.GetIP() != "" {
 		return p.GetIP()
 	}
@@ -120,10 +120,10 @@ type portRange struct {
 	end   int64
 }
 
-func (pr portRange) Start() int64 {
+func (pr *portRange) Start() int64 {
 	return pr.start
 }
-func (pr portRange) End() int64 {
+func (pr *portRange) End() int64 {
 	return pr.end
 }
 
@@ -270,7 +270,7 @@ func ConnectionsListToString(conns []Peer2PeerConnection) string {
 }
 
 // return a string representation for a Port object
-func (pr portRange) String() string {
+func (pr *portRange) String() string {
 	if pr.End() != pr.Start() {
 		return fmt.Sprintf("%d-%d", pr.Start(), pr.End())
 	}
