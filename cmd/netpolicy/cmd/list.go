@@ -15,6 +15,7 @@ package cmd
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 
@@ -39,7 +40,7 @@ defined`,
 		var err error
 
 		if dirPath != "" {
-			conns, err = connlist.FromDir(dirPath)
+			conns, err = connlist.FromDir(dirPath, filepath.WalkDir)
 		} else {
 			conns, err = connlist.FromK8sCluster(clientset)
 		}

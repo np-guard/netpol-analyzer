@@ -17,6 +17,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -106,7 +107,7 @@ var evaluateCmd = &cobra.Command{
 
 		if dirPath != "" {
 			// get relevant resources from dir path
-			objectsList, err := scan.FilesToObjectsListFiltered(dirPath, podNames)
+			objectsList, err := scan.FilesToObjectsListFiltered(dirPath, filepath.WalkDir, podNames)
 			if err != nil {
 				return err
 			}
