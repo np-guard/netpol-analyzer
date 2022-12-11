@@ -331,15 +331,15 @@ func splitByYamlDocuments(data []byte) []string {
 	return documents
 }
 
-func parseK8sYaml(YAMLDoc string) []deployObject {
+func parseK8sYaml(yamlDoc string) []deployObject {
 	dObjs := make([]deployObject, 0)
 
-	if YAMLDoc == "\n" || YAMLDoc == "" {
+	if yamlDoc == "\n" || yamlDoc == "" {
 		// ignore empty cases
 		return dObjs
 	}
 	decode := scheme.Codecs.UniversalDeserializer().Decode
-	_, groupVersionKind, err := decode([]byte(YAMLDoc), nil, nil)
+	_, groupVersionKind, err := decode([]byte(yamlDoc), nil, nil)
 	if err != nil {
 		return dObjs
 	}
@@ -347,12 +347,12 @@ func parseK8sYaml(YAMLDoc string) []deployObject {
 	if !acceptedK8sTypes.MatchString(groupVersionKind.Kind) {
 		fmt.Printf("Skipping object with type: %s", groupVersionKind.Kind)
 		return dObjs
-	} else {
-		d := deployObject{}
-		d.groupKind = groupVersionKind.Kind
-		d.runtimeObject = []byte(YAMLDoc)
-		dObjs = append(dObjs, d)
 	}
+
+	d := deployObject{}
+	d.groupKind = groupVersionKind.Kind
+	d.runtimeObject = []byte(yamlDoc)
+	dObjs = append(dObjs, d)
 
 	return dObjs
 }
