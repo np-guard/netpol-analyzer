@@ -3,6 +3,7 @@ package connlist
 import (
 	"context"
 	"fmt"
+
 	"sort"
 	"strings"
 
@@ -157,14 +158,13 @@ func (pr *portRange) String() string {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-// FromDir returns the allowed connections list from dir path resources
-func FromDir(dirPath string) ([]Peer2PeerConnection, error) {
-	pe := eval.NewPolicyEngine()
-	// get all resources from dir
-	objectsList, err := scan.FilesToObjectsList(dirPath)
+// FromYAMLManifests returns the allowed connections list from input YAML manifests
+func FromYAMLManifests(manifests []string) ([]Peer2PeerConnection, error) {
+	objectsList, err := scan.YAMLDocumentsToObjectsList(manifests)
 	if err != nil {
 		return nil, err
 	}
+	pe := eval.NewPolicyEngine()
 	for _, obj := range objectsList {
 		if obj.Kind == scan.Pod {
 			err = pe.UpsertObject(obj.Pod)
@@ -177,8 +177,13 @@ func FromDir(dirPath string) ([]Peer2PeerConnection, error) {
 			return nil, err
 		}
 	}
-
 	return getConnectionsList(pe)
+}
+
+// FromDir returns the allowed connections list from dir path resources
+func FromDir(dirPath string) ([]Peer2PeerConnection, error) {
+	manifests := scan.GetYAMLDocumentsFromPath(dirPath)
+	return FromYAMLManifests(manifests)
 }
 
 // FromK8sCluster returns the allowed connections list from k8s cluster resources

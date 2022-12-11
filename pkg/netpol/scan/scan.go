@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 
 	yamlv3 "gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
@@ -36,13 +35,13 @@ func FilesToObjectsListFiltered(path string, podNames []types.NamespacedName) ([
 	if err != nil {
 		return nil, err
 	}
-	podNamesMap := map[string]bool{}
-	nsMap := map[string]bool{}
+	podNamesMap := make(map[string]bool, 0)
+	nsMap := make(map[string]bool, 0)
 	for i := range podNames {
 		podNamesMap[podNames[i].String()] = true
 		nsMap[podNames[i].Namespace] = true
 	}
-	res := []K8sObject{}
+	res := make([]K8sObject, 0)
 	for _, obj := range allObjects {
 		if obj.Kind == Namespace {
 			if _, ok := nsMap[obj.Namespace.Name]; ok {
@@ -63,18 +62,34 @@ func FilesToObjectsListFiltered(path string, podNames []types.NamespacedName) ([
 
 // FilesToObjectsList returns a list of K8sObject parsed from yaml files in the input dir path
 func FilesToObjectsList(path string) ([]K8sObject, error) {
-	res := []K8sObject{}
-	parsedObjects := getK8sDeploymentResources(&path)
-	for _, obj := range parsedObjects {
-		for _, o := range obj.deployObjects {
-			kind := o.groupKind
-			if kind == Pod || kind == Networkpolicy || kind == Namespace || kind == List || kind == PodList || kind == NamespaceList {
-				res1, err := scanK8sDeployObject(kind, o.runtimeObject)
-				if err == nil {
-					res = append(res, res1...)
-				} else {
-					return res, err
-				}
+	manifests := GetYAMLDocumentsFromPath(path)
+	return YAMLDocumentsToObjectsList(manifests)
+}
+
+// YAMLDocumentsToObjectsList returns a list of K8sObject parsed from input YAML documents
+func YAMLDocumentsToObjectsList(documents []string) ([]K8sObject, error) {
+	res := make([]K8sObject, 0)
+	for _, manifest := range documents {
+		parsedObject := parseK8sYaml(manifest)
+		if k8sObjects, err := deployObjectsToK8sObjects(parsedObject); err == nil {
+			res = append(res, k8sObjects...)
+		} else {
+			return res, err
+		}
+	}
+	return res, nil
+}
+
+func deployObjectsToK8sObjects(deployobjects []deployObject) ([]K8sObject, error) {
+	res := make([]K8sObject, 0)
+	for _, o := range deployobjects {
+		kind := o.groupKind
+		if kind == Pod || kind == Networkpolicy || kind == Namespace || kind == List || kind == PodList || kind == NamespaceList {
+			k8sObjects, err := scanK8sDeployObject(kind, o.runtimeObject)
+			if err == nil {
+				res = append(res, k8sObjects...)
+			} else {
+				return res, err
 			}
 		}
 	}
@@ -99,6 +114,14 @@ const (
 	PodList               string = "PodList"
 )
 
+var (
+	acceptedK8sTypesRegex = fmt.Sprintf("(%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s)",
+		Pod, ReplicaSet, ReplicationController, Deployment, Daemonset, Statefulset, Job, CronJob,
+		Service, Configmap, Networkpolicy, Namespace, List, NamespaceList, PodList)
+	acceptedK8sTypes = regexp.MustCompile(acceptedK8sTypesRegex)
+	yamlSuffix       = regexp.MustCompile(".ya?ml$")
+)
+
 const yamlParseBufferSize = 200
 
 type deployObject struct {
@@ -106,44 +129,28 @@ type deployObject struct {
 	runtimeObject []byte
 }
 
-type parsedK8sObjects struct {
-	manifestFilepath string
-	deployObjects    []deployObject
-}
-
-func getK8sDeploymentResources(repoDir *string) []parsedK8sObjects {
+func GetYAMLDocumentsFromPath(repoDir string) []string {
+	res := make([]string, 0)
 	manifestFiles := searchDeploymentManifests(repoDir)
-	if len(manifestFiles) == 0 {
-		return nil
-	}
-	parsedObjs := []parsedK8sObjects{}
 	for _, mfp := range manifestFiles {
 		filebuf, err := os.ReadFile(mfp)
 		if err != nil {
 			continue
 		}
-		p := parsedK8sObjects{}
-		p.manifestFilepath = mfp
-		if pathSplit := strings.Split(mfp, *repoDir); len(pathSplit) > 1 {
-			p.manifestFilepath = pathSplit[1]
-		}
-		p.deployObjects = parseK8sYaml(filebuf)
-		parsedObjs = append(parsedObjs, p)
+		res = append(res, splitByYamlDocuments(filebuf)...)
 	}
-	return parsedObjs
+	return res
 }
 
-func searchDeploymentManifests(repoDir *string) []string {
-	yamls := []string{}
-	err := filepath.WalkDir(*repoDir, func(path string, f os.DirEntry, err error) error {
+// return a list of paths for yaml files in the input dir path
+func searchDeploymentManifests(repoDir string) []string {
+	yamls := make([]string, 0)
+	err := filepath.WalkDir(repoDir, func(path string, f os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		if f != nil && !f.IsDir() {
-			r, err := regexp.MatchString(`^.*\.y(a)?ml$`, f.Name())
-			if err == nil && r {
-				yamls = append(yamls, path)
-			}
+		if f != nil && !f.IsDir() && yamlSuffix.MatchString(f.Name()) {
+			yamls = append(yamls, path)
 		}
 		return nil
 	})
@@ -155,7 +162,7 @@ func searchDeploymentManifests(repoDir *string) []string {
 
 func parseNamespaceList(objDataBuf []byte) []K8sObject {
 	r := bytes.NewReader(objDataBuf)
-	res := []K8sObject{}
+	res := make([]K8sObject, 0)
 	if r == nil {
 		return res
 	}
@@ -171,7 +178,7 @@ func parseNamespaceList(objDataBuf []byte) []K8sObject {
 
 func parsePodList(objDataBuf []byte) []K8sObject {
 	r := bytes.NewReader(objDataBuf)
-	res := []K8sObject{}
+	res := make([]K8sObject, 0)
 	if r == nil {
 		return res
 	}
@@ -190,7 +197,7 @@ func parsePodList(objDataBuf []byte) []K8sObject {
 
 func parseList(objDataBuf []byte) []K8sObject {
 	r := bytes.NewReader(objDataBuf)
-	res := []K8sObject{}
+	res := make([]K8sObject, 0)
 	if r == nil {
 		return res
 	}
@@ -276,7 +283,7 @@ func parseReplicaSet(r io.Reader) *appsv1.ReplicaSet {
 }
 
 func scanK8sDeployObject(kind string, objDataBuf []byte) ([]K8sObject, error) {
-	res := []K8sObject{}
+	res := make([]K8sObject, 0)
 
 	switch kind {
 	case Pod:
@@ -308,7 +315,7 @@ func scanK8sDeployObject(kind string, objDataBuf []byte) ([]K8sObject, error) {
 
 func splitByYamlDocuments(data []byte) []string {
 	decoder := yamlv3.NewDecoder(bytes.NewBuffer(data))
-	documents := []string{}
+	documents := make([]string, 0)
 	for {
 		var doc map[interface{}]interface{}
 		if err := decoder.Decode(&doc); err != nil {
@@ -324,31 +331,29 @@ func splitByYamlDocuments(data []byte) []string {
 	return documents
 }
 
-func parseK8sYaml(fileR []byte) []deployObject {
-	dObjs := []deployObject{}
-	acceptedK8sTypes := regexp.MustCompile(fmt.Sprintf("(%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s)",
-		Pod, ReplicaSet, ReplicationController, Deployment, Daemonset, Statefulset, Job, CronJob,
-		Service, Configmap, Networkpolicy, Namespace, List))
-	sepYamlfiles := splitByYamlDocuments(fileR)
-	for _, f := range sepYamlfiles {
-		if f == "\n" || f == "" {
-			// ignore empty cases
-			continue
-		}
-		decode := scheme.Codecs.UniversalDeserializer().Decode
-		_, groupVersionKind, err := decode([]byte(f), nil, nil)
-		if err != nil {
-			continue
-		}
-		if !acceptedK8sTypes.MatchString(groupVersionKind.Kind) {
-			fmt.Printf("Skipping object with type: %v", groupVersionKind.Kind)
-		} else {
-			d := deployObject{}
-			d.groupKind = groupVersionKind.Kind
-			d.runtimeObject = []byte(f)
-			dObjs = append(dObjs, d)
-		}
+func parseK8sYaml(YAMLDoc string) []deployObject {
+	dObjs := make([]deployObject, 0)
+
+	if YAMLDoc == "\n" || YAMLDoc == "" {
+		// ignore empty cases
+		return dObjs
 	}
+	decode := scheme.Codecs.UniversalDeserializer().Decode
+	_, groupVersionKind, err := decode([]byte(YAMLDoc), nil, nil)
+	if err != nil {
+		return dObjs
+	}
+
+	if !acceptedK8sTypes.MatchString(groupVersionKind.Kind) {
+		fmt.Printf("Skipping object with type: %s", groupVersionKind.Kind)
+		return dObjs
+	} else {
+		d := deployObject{}
+		d.groupKind = groupVersionKind.Kind
+		d.runtimeObject = []byte(YAMLDoc)
+		dObjs = append(dObjs, d)
+	}
+
 	return dObjs
 }
 
