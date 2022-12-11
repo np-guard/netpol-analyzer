@@ -68,16 +68,16 @@ type connection struct {
 	protocolsAndPorts map[v1.Protocol][]portRange
 }
 
-func (c connection) Src() Peer {
+func (c *connection) Src() Peer {
 	return c.src
 }
-func (c connection) Dst() Peer {
+func (c *connection) Dst() Peer {
 	return c.dst
 }
-func (c connection) AllProtocolsAndPorts() bool {
+func (c *connection) AllProtocolsAndPorts() bool {
 	return c.allConnections
 }
-func (c connection) ProtocolsAndPorts() map[v1.Protocol][]PortRange {
+func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]PortRange {
 	res := make(map[v1.Protocol][]PortRange, len(c.protocolsAndPorts))
 	for protocol, ports := range c.protocolsAndPorts {
 		res[protocol] = make([]PortRange, len(ports))
@@ -218,7 +218,7 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 				continue
 			}
 			protocolsMap := allowedConnections.GetProtocolsAndPortsMap()
-			connection := connection{
+			connectionObj := &connection{
 				src:               peer{name: srcPeer.Name(), namespace: srcPeer.NamespaceStr(), ip: srcPeer.IP()},
 				dst:               peer{name: dstPeer.Name(), namespace: dstPeer.NamespaceStr(), ip: dstPeer.IP()},
 				allConnections:    allowedConnections.AllowAll,
@@ -226,37 +226,37 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 			}
 			// convert each port range (list) to connlist.Port
 			for protocol, ports := range protocolsMap {
-				connection.protocolsAndPorts[protocol] = make([]portRange, len(ports))
+				connectionObj.protocolsAndPorts[protocol] = make([]portRange, len(ports))
 				for i := range ports {
 					startPort, endPort := ports[i][0], ports[i][1]
 					port := portRange{start: startPort, end: endPort}
-					connection.protocolsAndPorts[protocol][i] = port
+					connectionObj.protocolsAndPorts[protocol][i] = port
 				}
 			}
-			res = append(res, connection)
+			res = append(res, connectionObj)
 		}
 	}
 	return res, nil
 }
 
 // return a string representation for a Peer2PeerConnection object
-func (pc connection) String() string {
+func (c *connection) String() string {
 	var connStr string
-	if pc.AllProtocolsAndPorts() {
+	if c.AllProtocolsAndPorts() {
 		connStr = "All Connections"
-	} else if len(pc.ProtocolsAndPorts()) == 0 {
+	} else if len(c.ProtocolsAndPorts()) == 0 {
 		connStr = "No Connections"
 	} else {
-		connStrings := make([]string, len(pc.ProtocolsAndPorts()))
+		connStrings := make([]string, len(c.ProtocolsAndPorts()))
 		index := 0
-		for protocol, ports := range pc.ProtocolsAndPorts() {
+		for protocol, ports := range c.ProtocolsAndPorts() {
 			connStrings[index] = string(protocol) + " " + portsString(ports)
 			index++
 		}
 		sort.Strings(connStrings)
 		connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
 	}
-	return fmt.Sprintf("%s => %s : %s", pc.Src().String(), pc.Dst().String(), connStr)
+	return fmt.Sprintf("%s => %s : %s", c.Src().String(), c.Dst().String(), connStr)
 }
 
 // get string of connections from list of Peer2PeerConnection objects
@@ -270,11 +270,11 @@ func ConnectionsListToString(conns []Peer2PeerConnection) string {
 }
 
 // return a string representation for a Port object
-func (p portRange) String() string {
-	if p.End() != p.Start() {
-		return fmt.Sprintf("%d-%d", p.Start(), p.End())
+func (pr portRange) String() string {
+	if pr.End() != pr.Start() {
+		return fmt.Sprintf("%d-%d", pr.Start(), pr.End())
 	}
-	return fmt.Sprintf("%d", p.Start())
+	return fmt.Sprintf("%d", pr.Start())
 }
 
 // get string representation for a list of port values
