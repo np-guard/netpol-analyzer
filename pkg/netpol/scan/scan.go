@@ -70,7 +70,7 @@ func FilesToObjectsList(path string) ([]K8sObject, error) {
 func YAMLDocumentsToObjectsList(documents []string) ([]K8sObject, error) {
 	res := make([]K8sObject, 0)
 	for _, manifest := range documents {
-		parsedObject := parseK8sYaml(manifest)
+		parsedObject := parseK8sYamlDocument(manifest)
 		if k8sObjects, err := deployObjectsToK8sObjects(parsedObject); err == nil {
 			res = append(res, k8sObjects...)
 		} else {
@@ -115,7 +115,7 @@ const (
 )
 
 var (
-	acceptedK8sTypesRegex = fmt.Sprintf("(%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s)",
+	acceptedK8sTypesRegex = fmt.Sprintf("(^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$)",
 		Pod, ReplicaSet, ReplicationController, Deployment, Daemonset, Statefulset, Job, CronJob,
 		Service, Configmap, Networkpolicy, Namespace, List, NamespaceList, PodList)
 	acceptedK8sTypes = regexp.MustCompile(acceptedK8sTypesRegex)
@@ -331,7 +331,7 @@ func splitByYamlDocuments(data []byte) []string {
 	return documents
 }
 
-func parseK8sYaml(yamlDoc string) []deployObject {
+func parseK8sYamlDocument(yamlDoc string) []deployObject {
 	dObjs := make([]deployObject, 0)
 
 	if yamlDoc == "\n" || yamlDoc == "" {
