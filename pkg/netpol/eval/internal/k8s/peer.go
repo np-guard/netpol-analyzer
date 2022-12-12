@@ -25,10 +25,16 @@ const (
 
 // Peer represents a k8s pod or an ip address
 type Peer interface {
+	// PeerType returns the PeerType of the Peer object
 	PeerType() PeerType
+	// String returns a string representation of the Peer object
 	String() string
+	// GetPeerPod returns a reference to the Pod object of the peer if it is a pod, else returns nil
 	GetPeerPod() *Pod
+	// GetPeerNamespace returns a reference to Namespace object of the peer's namespace if it is a pod,
+	// else returns nil
 	GetPeerNamespace() *Namespace
+	// GetPeerIPBlock returns a reference to IPBlock if the peer is IP address, else returns nil
 	GetPeerIPBlock() *IPBlock
 }
 
