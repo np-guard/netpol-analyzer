@@ -13,7 +13,7 @@ func TestConnList(t *testing.T) {
 	for _, testName := range testNames {
 		path := filepath.Join(getTestsDir(), testName)
 		expectedOutputFile := filepath.Join(path, expectedOutputFileName)
-		res, err := FromDir(path)
+		res, err := FromDir(path, filepath.WalkDir)
 		if err != nil {
 			t.Fatalf("Test %v: TestConnList FromDir err: %v", testName, err)
 		}

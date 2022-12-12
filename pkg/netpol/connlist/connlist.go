@@ -181,8 +181,9 @@ func FromYAMLManifests(manifests []string) ([]Peer2PeerConnection, error) {
 }
 
 // FromDir returns the allowed connections list from dir path resources
-func FromDir(dirPath string) ([]Peer2PeerConnection, error) {
-	manifests := scan.GetYAMLDocumentsFromPath(dirPath)
+// walkFn : for customizing directory scan
+func FromDir(dirPath string, walkFn scan.WalkFunction) ([]Peer2PeerConnection, error) {
+	manifests := scan.GetYAMLDocumentsFromPath(dirPath, walkFn)
 	return FromYAMLManifests(manifests)
 }
 

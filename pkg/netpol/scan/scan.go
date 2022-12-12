@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
-	"path/filepath"
 	"regexp"
 
 	yamlv3 "gopkg.in/yaml.v3"
@@ -19,6 +19,10 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 )
 
+// Walk function is a function for recursively scanning a directory, in the spirit of Go's native filepath.WalkDir()
+// See https://pkg.go.dev/path/filepath#WalkDir for full description on how such file should work
+type WalkFunction func(root string, fn fs.WalkDirFunc) error
+
 // K8sObject holds a an object kind and a pointer of the relevant object
 type K8sObject struct {
 	Kind          string
@@ -30,8 +34,8 @@ type K8sObject struct {
 
 // FilesToObjectsListFiltered returns only K8sObjects from dir path if they match input pods namespaces (for non pod resources)
 // and full input pods names for pod resources
-func FilesToObjectsListFiltered(path string, podNames []types.NamespacedName) ([]K8sObject, error) {
-	allObjects, err := FilesToObjectsList(path)
+func FilesToObjectsListFiltered(path string, walkFn WalkFunction, podNames []types.NamespacedName) ([]K8sObject, error) {
+	allObjects, err := FilesToObjectsList(path, walkFn)
 	if err != nil {
 		return nil, err
 	}
@@ -61,8 +65,8 @@ func FilesToObjectsListFiltered(path string, podNames []types.NamespacedName) ([
 }
 
 // FilesToObjectsList returns a list of K8sObject parsed from yaml files in the input dir path
-func FilesToObjectsList(path string) ([]K8sObject, error) {
-	manifests := GetYAMLDocumentsFromPath(path)
+func FilesToObjectsList(path string, walkFn WalkFunction) ([]K8sObject, error) {
+	manifests := GetYAMLDocumentsFromPath(path, walkFn)
 	return YAMLDocumentsToObjectsList(manifests)
 }
 
@@ -129,9 +133,9 @@ type deployObject struct {
 	runtimeObject []byte
 }
 
-func GetYAMLDocumentsFromPath(repoDir string) []string {
+func GetYAMLDocumentsFromPath(repoDir string, walkFn WalkFunction) []string {
 	res := make([]string, 0)
-	manifestFiles := searchDeploymentManifests(repoDir)
+	manifestFiles := searchDeploymentManifests(repoDir, walkFn)
 	for _, mfp := range manifestFiles {
 		filebuf, err := os.ReadFile(mfp)
 		if err != nil {
@@ -143,9 +147,9 @@ func GetYAMLDocumentsFromPath(repoDir string) []string {
 }
 
 // return a list of paths for yaml files in the input dir path
-func searchDeploymentManifests(repoDir string) []string {
+func searchDeploymentManifests(repoDir string, walkFn WalkFunction) []string {
 	yamls := make([]string, 0)
-	err := filepath.WalkDir(repoDir, func(path string, f os.DirEntry, err error) error {
+	err := walkFn(repoDir, func(path string, f os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}

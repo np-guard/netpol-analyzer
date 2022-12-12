@@ -1040,7 +1040,7 @@ func writeRes(res, fileName string) {
 }
 
 func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) error {
-	objectsList, err := scan.FilesToObjectsList(path)
+	objectsList, err := scan.FilesToObjectsList(path, filepath.WalkDir)
 	if err != nil {
 		return err
 	}
