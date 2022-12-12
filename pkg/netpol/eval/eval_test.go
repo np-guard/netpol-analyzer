@@ -961,10 +961,17 @@ func checkTestEntry(test *TestEntry, t *testing.T, pe *PolicyEngine) {
 	if test.res != res {
 		t.Fatalf("test %v: mismatch on test result: expected %v, got %v", test.name, test.res, res)
 	}
+	res2, err := pe.checkIfAllowedNew(test.src, test.dst, test.protocol, test.port)
+	if err != nil {
+		t.Fatalf("checkIfAllowedNew, test %v: expected err to be nil, but got %v", test.name, err)
+	}
+	if test.res != res2 {
+		t.Fatalf("checkIfAllowedNew test %v: mismatch on test result: expected %v, got %v", test.name, test.res, res2)
+	}
 }
 
 func checkTestAllConnectionsEntry(test *TestEntry, t *testing.T, pe *PolicyEngine) {
-	res, err := pe.AllAllowedConnections(test.src, test.dst)
+	res, err := pe.allAllowedConnections(test.src, test.dst)
 	if err != nil {
 		t.Fatalf("test %v: expected err to be nil, but got %v", test.name, err)
 	}
@@ -1103,7 +1110,7 @@ func TestGeneralPerformance(t *testing.T) {
 				for podName1 := range pe.podsMap {
 					for podName2 := range pe.podsMap {
 						if functionName == "AllAllowedConnections" {
-							_, err := pe.AllAllowedConnections(podName1, podName2)
+							_, err := pe.allAllowedConnections(podName1, podName2)
 							loopsCounter++
 							if err != nil {
 								t.Fatalf("error from AllAllowedConnections")
@@ -1117,7 +1124,7 @@ func TestGeneralPerformance(t *testing.T) {
 										t.Fatalf("error from CheckIfAllowed")
 									}
 								} else {
-									_, err := pe.CheckIfAllowedNew(podName1, podName2, conn.protocol, conn.port)
+									_, err := pe.checkIfAllowedNew(podName1, podName2, conn.protocol, conn.port)
 									loopsCounter++
 									if err != nil {
 										t.Fatalf("error from CheckIfAllowed")
@@ -1209,7 +1216,7 @@ func TestFromFiles2(t *testing.T) {
 							t.Fatalf("error from CheckIfAllowed")
 						}
 					} else {
-						_, err := pe.CheckIfAllowedNew(podName1, podName2, conn.protocol, conn.port)
+						_, err := pe.checkIfAllowedNew(podName1, podName2, conn.protocol, conn.port)
 						if err != nil {
 							t.Fatalf("error from CheckIfAllowed")
 						}
@@ -1236,7 +1243,7 @@ func TestFromFiles(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error from SetResourcesFromDir")
 	}
-	res, err := pe.AllAllowedConnections("default/frontend-99684f7f8-l7mqq", "default/adservice-77d5cd745d-t8mx4")
+	res, err := pe.allAllowedConnections("default/frontend-99684f7f8-l7mqq", "default/adservice-77d5cd745d-t8mx4")
 	if err != nil {
 		t.Fatalf("error from AllAllowedConnectionst")
 	}
@@ -1249,7 +1256,7 @@ func TestFromFiles(t *testing.T) {
 		/*// allResStr := ""*/
 		for podName1 := range pe.podsMap {
 			for podName2 := range pe.podsMap {
-				_, err := pe.AllAllowedConnections(podName1, podName2)
+				_, err := pe.allAllowedConnections(podName1, podName2)
 				if err != nil {
 					t.Fatalf("error from AllAllowedConnections")
 				}
@@ -1677,7 +1684,7 @@ func connectionsString(pe *PolicyEngine, srcPod, dstPod, protocol, port string, 
 	var err error
 	if allConnections {
 		var allowedConnections k8s.ConnectionSet
-		allowedConnections, err = pe.AllAllowedConnections(srcPod, dstPod)
+		allowedConnections, err = pe.allAllowedConnections(srcPod, dstPod)
 		if err == nil {
 			allowedConnectionsStr = allowedConnections.String()
 		}

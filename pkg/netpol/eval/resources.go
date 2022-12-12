@@ -178,11 +178,11 @@ func (pe *PolicyEngine) GetPodsMap() map[string]*k8s.Pod {
 }
 
 // GetPeersList returns a slice of peers from all PolicyEngine resources
-func (pe *PolicyEngine) GetPeersList() ([]*k8s.Peer, error) {
+func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 	ipBlocks := pe.GetDisjointIPBlocks()
-	res := make([]*k8s.Peer, len(ipBlocks)+len(pe.podsMap))
+	res := make([]Peer, len(ipBlocks)+len(pe.podsMap))
 	for i := range ipBlocks {
-		res[i] = &k8s.Peer{IPBlock: ipBlocks[i], PeerType: k8s.IPBlockType}
+		res[i] = &k8s.IPBlockPeer{IPBlock: ipBlocks[i]}
 	}
 	index := len(ipBlocks)
 	for podName, pod := range pe.podsMap {
@@ -190,7 +190,7 @@ func (pe *PolicyEngine) GetPeersList() ([]*k8s.Peer, error) {
 		if !ok {
 			return nil, fmt.Errorf("error: namespace of pod %v is missing", podName)
 		}
-		res[index] = &k8s.Peer{Pod: pod, Namespace: podNamespace, PeerType: k8s.PodType}
+		res[index] = &k8s.PodPeer{Pod: pod, NamespaceObject: podNamespace}
 		index++
 	}
 	return res, nil
@@ -208,9 +208,4 @@ func (pe *PolicyEngine) GetDisjointIPBlocks() []*k8s.IPBlock {
 	newAll, _ := k8s.NewIPBlock("0.0.0.0/0", []string{})
 	disjointRes := k8s.DisjointIPBlocks(ipbList, []*k8s.IPBlock{newAll})
 	return disjointRes
-}
-
-// IsPeerIPType returns true for an input peer if it is an IP type
-func IsPeerIPType(peer *k8s.Peer) bool {
-	return peer.PeerType == k8s.IPBlockType
 }

@@ -59,10 +59,10 @@ func convertNamedPort(namedPort string, pod *Pod) (int32, error) {
 func getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (int32, int32, error) {
 	var start, end int32
 	if port.Type == intstr.String {
-		if dst.PeerType != PodType || dst.Pod == nil {
+		if dst.PeerType() != PodType {
 			return start, end, errors.New("cannot convert named port on extenral ip destination")
 		}
-		portNum, err := convertNamedPort(port.StrVal, dst.Pod)
+		portNum, err := convertNamedPort(port.StrVal, dst.GetPeerPod())
 		if err != nil {
 			return start, end, err
 		}
@@ -141,20 +141,20 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			if rulePeers[i].IPBlock != nil {
 				return false, errors.New("rulePeers of type NetworkPolicyPeer -cannot have both IPBlock and PodSelector/NamespaceSelector set")
 			}
-			if peer.PeerType == IPBlockType {
+			if peer.PeerType() == IPBlockType {
 				continue // assuming that peer of type IP cannot be selected by pod selector
 			}
 			// peer is a pod
 			peerMatchesPodSelector := false
 			peerMatchesNamespaceSelector := false
 			if rulePeers[i].NamespaceSelector == nil {
-				peerMatchesNamespaceSelector = (np.ObjectMeta.Namespace == peer.Pod.Namespace)
+				peerMatchesNamespaceSelector = (np.ObjectMeta.Namespace == peer.GetPeerPod().Namespace)
 			} else {
 				selector, err := metav1.LabelSelectorAsSelector(rulePeers[i].NamespaceSelector)
 				if err != nil {
 					return false, err
 				}
-				peerNamespace := peer.Namespace
+				peerNamespace := peer.GetPeerNamespace()
 				peerMatchesNamespaceSelector = selector.Matches(labels.Set(peerNamespace.Labels))
 			}
 			if !peerMatchesNamespaceSelector {
@@ -167,13 +167,13 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 				if err != nil {
 					return false, err
 				}
-				peerMatchesPodSelector = selector.Matches(labels.Set(peer.Pod.Labels))
+				peerMatchesPodSelector = selector.Matches(labels.Set(peer.GetPeerPod().Labels))
 			}
 			if peerMatchesPodSelector {
 				return true, nil //  matching both pod selector and ns_selector here
 			}
 		} else if rulePeers[i].IPBlock != nil {
-			if peer.PeerType == PodType {
+			if peer.PeerType() == PodType {
 				continue // assuming that peer of type Pod cannot be selected by IPBlock
 				// TODO: is this reasonable to assume?
 			}
@@ -182,7 +182,8 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			if err != nil {
 				return false, err
 			}
-			peerIPBlock := peer.IPBlock
+
+			peerIPBlock := peer.GetPeerIPBlock()
 			res := peerIPBlock.ipRange.ContainedIn(ruleIPBlock.ipRange)
 			if res {
 				return true, nil

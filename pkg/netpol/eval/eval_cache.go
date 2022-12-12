@@ -75,18 +75,18 @@ func getPodOwnerKey(p *k8s.Pod) string {
 
 // TODO: currently supporting only connections between two pods with owners for caching
 // keyPerConnection: return string value of key per input connection
-func (ec *evalCache) keyPerConnection(src, dst *k8s.Peer, protocol, port string) string {
-	if src.PeerType == k8s.PodType && dst.PeerType == k8s.PodType {
-		if src.Pod.Owner.Name != "" && dst.Pod.Owner.Name != "" {
-			srcKey := getPodOwnerKey(src.Pod)
-			dstKey := getPodOwnerKey(dst.Pod)
+func (ec *evalCache) keyPerConnection(src, dst k8s.Peer, protocol, port string) string {
+	if src.PeerType() == k8s.PodType && dst.PeerType() == k8s.PodType {
+		if src.GetPeerPod().Owner.Name != "" && dst.GetPeerPod().Owner.Name != "" {
+			srcKey := getPodOwnerKey(src.GetPeerPod())
+			dstKey := getPodOwnerKey(dst.GetPeerPod())
 			return strings.Join([]string{srcKey, dstKey, protocol, port}, string(types.Separator))
 		}
 	}
 	return ""
 }
 
-func (ec *evalCache) hasConnectionResult(src, dst *k8s.Peer, protocol, port string) (bool, bool) {
+func (ec *evalCache) hasConnectionResult(src, dst k8s.Peer, protocol, port string) (bool, bool) {
 	if ec.cache == nil {
 		return false, false
 	}
@@ -109,7 +109,7 @@ func (ec *evalCache) hasConnectionResult(src, dst *k8s.Peer, protocol, port stri
 	return false, false
 }
 
-func (ec *evalCache) addConnectionResult(src, dst *k8s.Peer, protocol, port string, res bool) {
+func (ec *evalCache) addConnectionResult(src, dst k8s.Peer, protocol, port string, res bool) {
 	if ec.cache == nil {
 		return
 	}

@@ -13,9 +13,7 @@
 // limitations under the License.
 package k8s
 
-import (
-	"k8s.io/apimachinery/pkg/types"
-)
+import "k8s.io/apimachinery/pkg/types"
 
 // PeerType is a type to indicate the type of a Peer object (Pod or IP address)
 type PeerType int
@@ -26,39 +24,93 @@ const (
 )
 
 // Peer represents a k8s pod or an ip address
-type Peer struct {
-	PeerType  PeerType
-	IPBlock   *IPBlock // a set of intervals for ip addresses ranges
-	Pod       *Pod
-	Namespace *Namespace
+type Peer interface {
+	PeerType() PeerType
+	String() string
+	GetPeerPod() *Pod
+	GetPeerNamespace() *Namespace
+	GetPeerIPBlock() *IPBlock
 }
 
-func (p *Peer) String() string {
-	if p.PeerType == PodType {
-		// pod type
-		return types.NamespacedName{Name: p.Pod.Name, Namespace: p.Pod.Namespace}.String()
-	}
-	// IPBlockType
+// PodPeer implements k8s.Peer interface and eval.Peer interface
+type PodPeer struct {
+	Pod             *Pod
+	NamespaceObject *Namespace
+}
+
+// IPBlockPeer implements k8s.Peer interface and eval.Peer interface
+type IPBlockPeer struct {
+	IPBlock *IPBlock
+}
+
+func (p *PodPeer) PeerType() PeerType {
+	return PodType
+}
+
+func (p *PodPeer) String() string {
+	return types.NamespacedName{Name: p.Pod.Name, Namespace: p.Pod.Namespace}.String()
+}
+
+func (p *PodPeer) GetPeerPod() *Pod {
+	return p.Pod
+}
+
+func (p *PodPeer) GetPeerNamespace() *Namespace {
+	return p.NamespaceObject
+}
+
+func (p *PodPeer) GetPeerIPBlock() *IPBlock {
+	return nil
+}
+
+func (p *PodPeer) Name() string {
+	return p.Pod.Name
+}
+
+func (p *PodPeer) Namespace() string {
+	return p.Pod.Namespace
+}
+
+func (p *PodPeer) IP() string {
+	return ""
+}
+
+func (p *PodPeer) IsPeerIPType() bool {
+	return false
+}
+
+func (p *IPBlockPeer) PeerType() PeerType {
+	return IPBlockType
+}
+
+func (p *IPBlockPeer) String() string {
 	return p.IPBlock.ToIPRanges()
 }
 
-func (p *Peer) Name() string {
-	if p.PeerType == PodType {
-		return p.Pod.Name
-	}
+func (p *IPBlockPeer) GetPeerPod() *Pod {
+	return nil
+}
+
+func (p *IPBlockPeer) GetPeerNamespace() *Namespace {
+	return nil
+}
+
+func (p *IPBlockPeer) GetPeerIPBlock() *IPBlock {
+	return p.IPBlock
+}
+
+func (p *IPBlockPeer) Name() string {
 	return ""
 }
 
-func (p *Peer) NamespaceStr() string {
-	if p.PeerType == PodType {
-		return p.Pod.Namespace
-	}
+func (p *IPBlockPeer) Namespace() string {
 	return ""
 }
 
-func (p *Peer) IP() string {
-	if p.PeerType == IPBlockType {
-		return p.String()
-	}
-	return ""
+func (p *IPBlockPeer) IP() string {
+	return p.String()
+}
+
+func (p *IPBlockPeer) IsPeerIPType() bool {
+	return true
 }
