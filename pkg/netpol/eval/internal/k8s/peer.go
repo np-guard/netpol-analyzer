@@ -41,3 +41,24 @@ func (p *Peer) String() string {
 	// IPBlockType
 	return p.IPBlock.ToIPRanges()
 }
+
+func (p *Peer) Name() string {
+	if p.PeerType == PodType {
+		return p.Pod.Name
+	}
+	return ""
+}
+
+func (p *Peer) NamespaceStr() string {
+	if p.PeerType == PodType {
+		return p.Pod.Namespace
+	}
+	return ""
+}
+
+func (p *Peer) IP() string {
+	if p.PeerType == IPBlockType {
+		return p.String()
+	}
+	return ""
+}

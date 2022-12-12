@@ -10,39 +10,152 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
 const (
-	separator = ","
+	connsAndPortRangeSeparator = ","
 )
 
 // Peer2PeerConnection encapsulates the allowed connectivity result between two peers.
-type Peer2PeerConnection struct {
-	// Src is the source peer. It can be a pod name (in the form of namespace/name) or an ip address.
-	Src string
-	// Dst is the destination peer. It can be a pod name (in the form of namespace/name) or an ip address.
-	Dst string
-	// AllProtocolsAndPorts is used when all ports are allowed for all protocols.
-	// if set true then ProtocolsAndPorts is empty.
-	// if false then allowed connections is according to ProtocolsAndPorts value.
-	AllProtocolsAndPorts bool
-	// ProtocolsAndPorts encapsulates the set of allowed connections.
-	// Each allowed protocol is mapped to a list of the allowed port numbers.
-	ProtocolsAndPorts map[v1.Protocol][]Port
+type Peer2PeerConnection interface {
+	// Src returns the source peer
+	Src() Peer
+	// Dst returns the destination peer
+	Dst() Peer
+	// AllProtocolsAndPorts returns true if all ports are allowed for all protocols
+	AllProtocolsAndPorts() bool
+	// ProtocolsAndPorts returns the set of allowed connections
+	ProtocolsAndPorts() map[v1.Protocol][]PortRange
+	// String returns a string representation of the connection object
+	String() string
 }
 
-// Port describes a port or a range of ports for allowed traffic
-type Port struct {
-	// Indicates the allowed port, if EndPort is not set.
-	// Indicates the start port for a range of allowed ports, if EndPort is set.
-	// Port has to be set.
-	Port *int64
-	// If set, indicates the end port for the range of ports starting from port.
-	EndPort *int64
+// Peer can either represent a Pod or an IP address
+type Peer interface {
+	// GetNamespace returns a pod's namespace in case the peer is a pod, else it returns an empty string
+	GetNamespace() string
+	// GetName returns a pod's name in case the peer is a pod, else it returns an empty string
+	GetName() string
+	// GetIP returns an IP address string in case peer is IP address, else it returns an empty string
+	GetIP() string
+	// String returns a string representation of the Peer object
+	String() string
 }
+
+// PortRange describes a port or a range of ports for allowed traffic
+// If start port equals end port, it represents a single port
+type PortRange interface {
+	// Start is the start port
+	Start() int64
+	// End is the end port
+	End() int64
+	// String returns a string representation of the PortRange object
+	String() string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// internal type definitions below
+
+// connection implements the Peer2PeerConnection interface
+type connection struct {
+	src               peer
+	dst               peer
+	allConnections    bool
+	protocolsAndPorts map[v1.Protocol][]portRange
+}
+
+func (c *connection) Src() Peer {
+	return &c.src
+}
+func (c *connection) Dst() Peer {
+	return &c.dst
+}
+func (c *connection) AllProtocolsAndPorts() bool {
+	return c.allConnections
+}
+func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]PortRange {
+	res := make(map[v1.Protocol][]PortRange, len(c.protocolsAndPorts))
+	for protocol, ports := range c.protocolsAndPorts {
+		res[protocol] = make([]PortRange, len(ports))
+		for i := range ports {
+			res[protocol][i] = &ports[i]
+		}
+	}
+	return res
+}
+
+// return a string representation for a connection object
+func (c *connection) String() string {
+	var connStr string
+	if c.AllProtocolsAndPorts() {
+		connStr = "All Connections"
+	} else if len(c.ProtocolsAndPorts()) == 0 {
+		connStr = "No Connections"
+	} else {
+		connStrings := make([]string, len(c.ProtocolsAndPorts()))
+		index := 0
+		for protocol, ports := range c.ProtocolsAndPorts() {
+			connStrings[index] = string(protocol) + " " + portsString(ports)
+			index++
+		}
+		sort.Strings(connStrings)
+		connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
+	}
+	return fmt.Sprintf("%s => %s : %s", c.Src().String(), c.Dst().String(), connStr)
+}
+
+// peer implements the Peer interface
+type peer struct {
+	namespace string
+	name      string
+	ip        string
+}
+
+func (p *peer) GetNamespace() string {
+	return p.namespace
+}
+
+func (p *peer) GetName() string {
+	return p.name
+}
+
+func (p *peer) GetIP() string {
+	return p.ip
+}
+
+func (p *peer) String() string {
+	if p.GetIP() != "" {
+		return p.GetIP()
+	}
+	return types.NamespacedName{Name: p.GetName(), Namespace: p.GetNamespace()}.String()
+}
+
+// portRange implements the PortRange interface
+type portRange struct {
+	start int64
+	end   int64
+}
+
+func (pr *portRange) Start() int64 {
+	return pr.start
+}
+func (pr *portRange) End() int64 {
+	return pr.end
+}
+
+// return a string representation for a portRange object
+func (pr *portRange) String() string {
+	if pr.End() != pr.Start() {
+		return fmt.Sprintf("%d-%d", pr.Start(), pr.End())
+	}
+	return fmt.Sprintf("%d", pr.Start())
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 // FromDir returns the allowed connections list from dir path resources
 func FromDir(dirPath string) ([]Peer2PeerConnection, error) {
@@ -112,11 +225,11 @@ func FromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, err
 
 // getConnectionsList returns connections list from PolicyEngine object
 func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
-	res := []Peer2PeerConnection{}
 	peerList, err := pe.GetPeersList() // pods and ip blocks
 	if err != nil {
 		return nil, err
 	}
+	res := make([]Peer2PeerConnection, 0)
 	for i := range peerList {
 		for j := range peerList {
 			srcPeer := peerList[i]
@@ -132,49 +245,26 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 			if allowedConnections.IsEmpty() {
 				continue
 			}
-			connection := Peer2PeerConnection{
-				Src:                  srcPeer.String(),
-				Dst:                  dstPeer.String(),
-				AllProtocolsAndPorts: allowedConnections.AllowAll,
-				ProtocolsAndPorts:    map[v1.Protocol][]Port{},
-			}
 			protocolsMap := allowedConnections.GetProtocolsAndPortsMap()
+			connectionObj := &connection{
+				src:               peer{name: srcPeer.Name(), namespace: srcPeer.NamespaceStr(), ip: srcPeer.IP()},
+				dst:               peer{name: dstPeer.Name(), namespace: dstPeer.NamespaceStr(), ip: dstPeer.IP()},
+				allConnections:    allowedConnections.AllowAll,
+				protocolsAndPorts: make(map[v1.Protocol][]portRange, len(protocolsMap)),
+			}
 			// convert each port range (list) to connlist.Port
 			for protocol, ports := range protocolsMap {
-				connection.ProtocolsAndPorts[protocol] = make([]Port, len(ports))
+				connectionObj.protocolsAndPorts[protocol] = make([]portRange, len(ports))
 				for i := range ports {
 					startPort, endPort := ports[i][0], ports[i][1]
-					port := Port{Port: &startPort}
-					if endPort > startPort {
-						port.EndPort = &endPort
-					}
-					connection.ProtocolsAndPorts[protocol][i] = port
+					port := portRange{start: startPort, end: endPort}
+					connectionObj.protocolsAndPorts[protocol][i] = port
 				}
 			}
-			res = append(res, connection)
+			res = append(res, connectionObj)
 		}
 	}
 	return res, nil
-}
-
-// return a string representation for a Peer2PeerConnection object
-func (pc *Peer2PeerConnection) String() string {
-	var connStr string
-	if pc.AllProtocolsAndPorts {
-		connStr = "All Connections"
-	} else if len(pc.ProtocolsAndPorts) == 0 {
-		connStr = "No Connections"
-	} else {
-		connStrings := make([]string, len(pc.ProtocolsAndPorts))
-		index := 0
-		for protocol, ports := range pc.ProtocolsAndPorts {
-			connStrings[index] = string(protocol) + " " + portsString(ports)
-			index++
-		}
-		sort.Strings(connStrings)
-		connStr = strings.Join(connStrings, separator)
-	}
-	return fmt.Sprintf("%v => %v : %v", pc.Src, pc.Dst, connStr)
 }
 
 // get string of connections from list of Peer2PeerConnection objects
@@ -187,19 +277,11 @@ func ConnectionsListToString(conns []Peer2PeerConnection) string {
 	return strings.Join(connLines, "\n")
 }
 
-// return a string representation for a Port object
-func (p *Port) String() string {
-	if p.EndPort != nil {
-		return fmt.Sprintf("%v-%v", *p.Port, *p.EndPort)
-	}
-	return fmt.Sprintf("%v", *p.Port)
-}
-
-// get string representation for a list of port values
-func portsString(ports []Port) string {
+// get string representation for a list of port ranges
+func portsString(ports []PortRange) string {
 	portsStr := make([]string, len(ports))
 	for i := range ports {
 		portsStr[i] = ports[i].String()
 	}
-	return strings.Join(portsStr, separator)
+	return strings.Join(portsStr, connsAndPortRangeSeparator)
 }

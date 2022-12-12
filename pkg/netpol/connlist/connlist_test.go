@@ -1,6 +1,7 @@
 package connlist
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -21,6 +22,7 @@ func TestConnList(t *testing.T) {
 			t.Fatalf("Test %v: TestConnList ReadFile err: %v", testName, err)
 		}
 		if string(expectedStr) != ConnectionsListToString(res) {
+			fmt.Printf("%v", ConnectionsListToString(res))
 			t.Fatalf("unexpected output result for test %v", testName)
 		}
 	}
