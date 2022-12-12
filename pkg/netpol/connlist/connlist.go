@@ -88,6 +88,26 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]PortRange {
 	return res
 }
 
+// return a string representation for a connection object
+func (c *connection) String() string {
+	var connStr string
+	if c.AllProtocolsAndPorts() {
+		connStr = "All Connections"
+	} else if len(c.ProtocolsAndPorts()) == 0 {
+		connStr = "No Connections"
+	} else {
+		connStrings := make([]string, len(c.ProtocolsAndPorts()))
+		index := 0
+		for protocol, ports := range c.ProtocolsAndPorts() {
+			connStrings[index] = string(protocol) + " " + portsString(ports)
+			index++
+		}
+		sort.Strings(connStrings)
+		connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
+	}
+	return fmt.Sprintf("%s => %s : %s", c.Src().String(), c.Dst().String(), connStr)
+}
+
 // peer implements the Peer interface
 type peer struct {
 	namespace string
@@ -125,6 +145,14 @@ func (pr *portRange) Start() int64 {
 }
 func (pr *portRange) End() int64 {
 	return pr.end
+}
+
+// return a string representation for a portRange object
+func (pr *portRange) String() string {
+	if pr.End() != pr.Start() {
+		return fmt.Sprintf("%d-%d", pr.Start(), pr.End())
+	}
+	return fmt.Sprintf("%d", pr.Start())
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -197,11 +225,11 @@ func FromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, err
 
 // getConnectionsList returns connections list from PolicyEngine object
 func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
-	res := make([]Peer2PeerConnection, 0)
 	peerList, err := pe.GetPeersList() // pods and ip blocks
 	if err != nil {
 		return nil, err
 	}
+	res := make([]Peer2PeerConnection, 0)
 	for i := range peerList {
 		for j := range peerList {
 			srcPeer := peerList[i]
@@ -239,26 +267,6 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 	return res, nil
 }
 
-// return a string representation for a Peer2PeerConnection object
-func (c *connection) String() string {
-	var connStr string
-	if c.AllProtocolsAndPorts() {
-		connStr = "All Connections"
-	} else if len(c.ProtocolsAndPorts()) == 0 {
-		connStr = "No Connections"
-	} else {
-		connStrings := make([]string, len(c.ProtocolsAndPorts()))
-		index := 0
-		for protocol, ports := range c.ProtocolsAndPorts() {
-			connStrings[index] = string(protocol) + " " + portsString(ports)
-			index++
-		}
-		sort.Strings(connStrings)
-		connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
-	}
-	return fmt.Sprintf("%s => %s : %s", c.Src().String(), c.Dst().String(), connStr)
-}
-
 // get string of connections from list of Peer2PeerConnection objects
 func ConnectionsListToString(conns []Peer2PeerConnection) string {
 	connLines := make([]string, len(conns))
@@ -269,15 +277,7 @@ func ConnectionsListToString(conns []Peer2PeerConnection) string {
 	return strings.Join(connLines, "\n")
 }
 
-// return a string representation for a Port object
-func (pr *portRange) String() string {
-	if pr.End() != pr.Start() {
-		return fmt.Sprintf("%d-%d", pr.Start(), pr.End())
-	}
-	return fmt.Sprintf("%d", pr.Start())
-}
-
-// get string representation for a list of port values
+// get string representation for a list of port ranges
 func portsString(ports []PortRange) string {
 	portsStr := make([]string, len(ports))
 	for i := range ports {
