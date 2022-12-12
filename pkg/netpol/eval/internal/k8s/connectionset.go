@@ -14,6 +14,7 @@
 package k8s
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -33,24 +34,6 @@ func MakeConnectionSet(all bool) ConnectionSet {
 		return ConnectionSet{AllowAll: true, AllowedProtocols: map[v1.Protocol]*PortSet{}}
 	}
 	return ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}}
-}
-
-// GetProtocolsAndPortsMap returns a map from allowed protocol to list of allowed ports ranges.
-// Each port range is a list numbers of size 2, where the first number is the start port, and
-// the second number is the end port. (where end port >= start port).
-func (conn *ConnectionSet) GetProtocolsAndPortsMap() map[v1.Protocol][][]int64 {
-	res := map[v1.Protocol][][]int64{}
-	for protocol, portSet := range conn.AllowedProtocols {
-		res[protocol] = [][]int64{}
-		// TODO: consider leave the slice of ports empty if portSet covers the full range
-		for i := range portSet.Ports.IntervalSet {
-			startPort := portSet.Ports.IntervalSet[i].Start
-			endPort := portSet.Ports.IntervalSet[i].End
-			portRange := []int64{startPort, endPort}
-			res[protocol] = append(res[protocol], portRange)
-		}
-	}
-	return res
 }
 
 // Intersection updates ConnectionSet object to be the intersection result with other ConnectionSet
@@ -215,4 +198,41 @@ func (conn *ConnectionSet) Equal(other ConnectionSet) bool {
 		}
 	}
 	return true
+}
+
+// portRange implements the eval.PortRange interface
+type portRange struct {
+	start int64
+	end   int64
+}
+
+func (p *portRange) Start() int64 {
+	return p.start
+}
+
+func (p *portRange) End() int64 {
+	return p.end
+}
+
+func (p *portRange) String() string {
+	if p.End() != p.Start() {
+		return fmt.Sprintf("%d-%d", p.Start(), p.End())
+	}
+	return fmt.Sprintf("%d", p.Start())
+}
+
+// ProtocolsAndPortsMap() returns a map from allowed protocol to list of allowed ports ranges.
+func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]*portRange {
+	res := map[v1.Protocol][]*portRange{}
+	for protocol, portSet := range conn.AllowedProtocols {
+		res[protocol] = []*portRange{}
+		// TODO: consider leave the slice of ports empty if portSet covers the full range
+		for i := range portSet.Ports.IntervalSet {
+			startPort := portSet.Ports.IntervalSet[i].Start
+			endPort := portSet.Ports.IntervalSet[i].End
+			portRange := &portRange{start: startPort, end: endPort}
+			res[protocol] = append(res[protocol], portRange)
+		}
+	}
+	return res
 }
