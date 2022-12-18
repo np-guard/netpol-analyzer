@@ -138,6 +138,9 @@ func (conn *ConnectionSet) Contains(port, protocol string) bool {
 	if err != nil {
 		return false
 	}
+	if conn.AllowAll {
+		return true
+	}
 	for allowedProtocol, allowedPorts := range conn.AllowedProtocols {
 		if strings.EqualFold(protocol, string(allowedProtocol)) {
 			return allowedPorts.Contains(int64(intPort))

@@ -11,7 +11,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
@@ -24,26 +23,14 @@ const (
 // Peer2PeerConnection encapsulates the allowed connectivity result between two peers.
 type Peer2PeerConnection interface {
 	// Src returns the source peer
-	Src() Peer
+	Src() eval.Peer
 	// Dst returns the destination peer
-	Dst() Peer
+	Dst() eval.Peer
 	// AllProtocolsAndPorts returns true if all ports are allowed for all protocols
 	AllProtocolsAndPorts() bool
 	// ProtocolsAndPorts returns the set of allowed connections
 	ProtocolsAndPorts() map[v1.Protocol][]PortRange
 	// String returns a string representation of the connection object
-	String() string
-}
-
-// Peer can either represent a Pod or an IP address
-type Peer interface {
-	// GetNamespace returns a pod's namespace in case the peer is a pod, else it returns an empty string
-	GetNamespace() string
-	// GetName returns a pod's name in case the peer is a pod, else it returns an empty string
-	GetName() string
-	// GetIP returns an IP address string in case peer is IP address, else it returns an empty string
-	GetIP() string
-	// String returns a string representation of the Peer object
 	String() string
 }
 
@@ -63,17 +50,17 @@ type PortRange interface {
 
 // connection implements the Peer2PeerConnection interface
 type connection struct {
-	src               peer
-	dst               peer
+	src               eval.Peer
+	dst               eval.Peer
 	allConnections    bool
 	protocolsAndPorts map[v1.Protocol][]portRange
 }
 
-func (c *connection) Src() Peer {
-	return &c.src
+func (c *connection) Src() eval.Peer {
+	return c.src
 }
-func (c *connection) Dst() Peer {
-	return &c.dst
+func (c *connection) Dst() eval.Peer {
+	return c.dst
 }
 func (c *connection) AllProtocolsAndPorts() bool {
 	return c.allConnections
@@ -107,32 +94,6 @@ func (c *connection) String() string {
 		connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
 	}
 	return fmt.Sprintf("%s => %s : %s", c.Src().String(), c.Dst().String(), connStr)
-}
-
-// peer implements the Peer interface
-type peer struct {
-	namespace string
-	name      string
-	ip        string
-}
-
-func (p *peer) GetNamespace() string {
-	return p.namespace
-}
-
-func (p *peer) GetName() string {
-	return p.name
-}
-
-func (p *peer) GetIP() string {
-	return p.ip
-}
-
-func (p *peer) String() string {
-	if p.GetIP() != "" {
-		return p.GetIP()
-	}
-	return types.NamespacedName{Name: p.GetName(), Namespace: p.GetNamespace()}.String()
 }
 
 // portRange implements the PortRange interface
@@ -240,7 +201,7 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 		for j := range peerList {
 			srcPeer := peerList[i]
 			dstPeer := peerList[j]
-			if eval.IsPeerIPType(srcPeer) && eval.IsPeerIPType(dstPeer) {
+			if srcPeer.IsPeerIPType() && dstPeer.IsPeerIPType() {
 				continue
 			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenPeers(srcPeer, dstPeer)
@@ -253,8 +214,8 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 			}
 			protocolsMap := allowedConnections.GetProtocolsAndPortsMap()
 			connectionObj := &connection{
-				src:               peer{name: srcPeer.Name(), namespace: srcPeer.NamespaceStr(), ip: srcPeer.IP()},
-				dst:               peer{name: dstPeer.Name(), namespace: dstPeer.NamespaceStr(), ip: dstPeer.IP()},
+				src:               srcPeer,
+				dst:               dstPeer,
 				allConnections:    allowedConnections.AllowAll,
 				protocolsAndPorts: make(map[v1.Protocol][]portRange, len(protocolsMap)),
 			}
