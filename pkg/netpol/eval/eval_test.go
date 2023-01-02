@@ -1767,7 +1767,8 @@ func TestPolicyEngineWithWorkloads(t *testing.T) {
 	if err != nil {
 		t.Fatalf("TestPolicyEngineWithWorkloads error: %v", err)
 	}
-	if len(pe.podsMap) != 12 {
+	// 12 deployments, one with 3 replicas, thus expecting 13 pods in policy engine
+	if len(pe.podsMap) != 13 {
 		t.Fatalf("TestPolicyEngineWithWorkloads: unexpected podsMap len: %d ", len(pe.podsMap))
 	}
 }

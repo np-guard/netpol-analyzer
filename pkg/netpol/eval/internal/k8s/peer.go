@@ -49,6 +49,38 @@ type IPBlockPeer struct {
 	IPBlock *IPBlock
 }
 
+// WorkloadPeer implements eval.Peer interface
+type WorkloadPeer struct {
+	Pod *Pod
+}
+
+// //////////////////////////////////////////////////
+func (p *WorkloadPeer) Name() string {
+	return p.Pod.Owner.Name
+}
+
+func (p *WorkloadPeer) Namespace() string {
+	return p.Pod.Namespace
+}
+
+func (p *WorkloadPeer) Kind() string {
+	return p.Pod.Owner.Kind
+}
+
+func (p *WorkloadPeer) String() string {
+	return types.NamespacedName{Name: p.Name(), Namespace: p.Namespace()}.String() + "[" + p.Kind() + "]"
+}
+
+func (p *WorkloadPeer) IP() string {
+	return ""
+}
+
+func (p *WorkloadPeer) IsPeerIPType() bool {
+	return false
+}
+
+////////////////////////////////////////////////////
+
 func (p *PodPeer) PeerType() PeerType {
 	return PodType
 }
@@ -85,6 +117,12 @@ func (p *PodPeer) IsPeerIPType() bool {
 	return false
 }
 
+func (p *PodPeer) Kind() string {
+	return "Pod"
+}
+
+////////////////////////////////////////////////////
+
 func (p *IPBlockPeer) PeerType() PeerType {
 	return IPBlockType
 }
@@ -119,4 +157,8 @@ func (p *IPBlockPeer) IP() string {
 
 func (p *IPBlockPeer) IsPeerIPType() bool {
 	return true
+}
+
+func (p *IPBlockPeer) Kind() string {
+	return ""
 }
