@@ -90,18 +90,9 @@ func FromYAMLManifests(manifests []string) ([]Peer2PeerConnection, error) {
 	if err != nil {
 		return nil, err
 	}
-	pe := eval.NewPolicyEngine()
-	for _, obj := range objectsList {
-		if obj.Kind == scan.Pod {
-			err = pe.UpsertObject(obj.Pod)
-		} else if obj.Kind == scan.Namespace {
-			err = pe.UpsertObject(obj.Namespace)
-		} else if obj.Kind == scan.Networkpolicy {
-			err = pe.UpsertObject(obj.Networkpolicy)
-		}
-		if err != nil {
-			return nil, err
-		}
+	pe, err := eval.NewPolicyEngineWithObjects(objectsList)
+	if err != nil {
+		return nil, err
 	}
 	return getConnectionsList(pe)
 }
