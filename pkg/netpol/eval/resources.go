@@ -3,6 +3,8 @@ package eval
 import (
 	"fmt"
 
+	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -10,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
 type (
@@ -43,6 +46,41 @@ func NewPolicyEngine() *PolicyEngine {
 	}
 }
 
+func NewPolicyEngineWithObjects(objects []scan.K8sObject) (*PolicyEngine, error) {
+	pe := NewPolicyEngine()
+	var err error
+	for _, obj := range objects {
+		switch obj.Kind {
+		case scan.Namespace:
+			err = pe.UpsertObject(obj.Namespace)
+		case scan.Networkpolicy:
+			err = pe.UpsertObject(obj.Networkpolicy)
+		case scan.Pod:
+			err = pe.UpsertObject(obj.Pod)
+		case scan.ReplicaSet:
+			err = pe.UpsertObject(obj.Replicaset)
+		case scan.Deployment:
+			err = pe.UpsertObject(obj.Deployment)
+		case scan.Daemonset:
+			err = pe.UpsertObject(obj.Daemonset)
+		case scan.Statefulset:
+			err = pe.UpsertObject(obj.Statefulset)
+		case scan.ReplicationController:
+			err = pe.UpsertObject(obj.ReplicationController)
+		case scan.Job:
+			err = pe.UpsertObject(obj.Job)
+		case scan.CronJob:
+			err = pe.UpsertObject(obj.CronJob)
+		default:
+			err = fmt.Errorf("unsupported kind: %s", obj.Kind)
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	return pe, nil
+}
+
 // SetResources: updates the set of all relevant k8s resources
 // This function *may* be used as convenience to set the initial policy engine state from a
 // set of resources (e.g., retrieved via List from a cluster).
@@ -74,12 +112,30 @@ func (pe *PolicyEngine) SetResources(policies []*netv1.NetworkPolicy, pods []*co
 // view of the world
 func (pe *PolicyEngine) UpsertObject(rtobj runtime.Object) error {
 	switch obj := rtobj.(type) {
+	// namespace object
 	case *corev1.Namespace:
 		return pe.upsertNamespace(obj)
+	// pod object
 	case *corev1.Pod:
 		return pe.upsertPod(obj)
+	// netpol object
 	case *netv1.NetworkPolicy:
 		return pe.upsertNetworkPolicy(obj)
+	// workload object
+	case *appsv1.ReplicaSet:
+		return pe.upsertWorkload(obj, scan.ReplicaSet)
+	case *appsv1.Deployment:
+		return pe.upsertWorkload(obj, scan.Deployment)
+	case *appsv1.StatefulSet:
+		return pe.upsertWorkload(obj, scan.Statefulset)
+	case *appsv1.DaemonSet:
+		return pe.upsertWorkload(obj, scan.Daemonset)
+	case *corev1.ReplicationController:
+		return pe.upsertWorkload(obj, scan.ReplicationController)
+	case *batchv1.CronJob:
+		return pe.upsertWorkload(obj, scan.CronJob)
+	case *batchv1.Job:
+		return pe.upsertWorkload(obj, scan.Job)
 	}
 	return nil
 }
@@ -111,6 +167,20 @@ func (pe *PolicyEngine) upsertNamespace(ns *corev1.Namespace) error {
 		return err
 	}
 	pe.namspacesMap[nsObj.Name] = nsObj
+	return nil
+}
+
+func (pe *PolicyEngine) upsertWorkload(rs interface{}, kind string) error {
+	pods, err := k8s.PodsFromWorkloadObject(rs, kind)
+	if err != nil {
+		return err
+	}
+	for _, podObj := range pods {
+		podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
+		pe.podsMap[podStr.String()] = podObj
+		// update cache with new pod associated to to its owner
+		pe.cache.addPod(podObj, podStr.String())
+	}
 	return nil
 }
 

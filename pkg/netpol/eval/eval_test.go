@@ -1756,3 +1756,18 @@ func TestDisjointIpBlocks(t *testing.T) {
 		t.Fatalf("unexpected output for GetDisjointIPBlocks")
 	}
 }
+
+func TestPolicyEngineWithWorkloads(t *testing.T) {
+	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
+	objects, err := scan.FilesToObjectsList(path, filepath.WalkDir)
+	if err != nil {
+		t.Fatalf("TestPolicyEngineWithWorkloads error: %v", err)
+	}
+	pe, err := NewPolicyEngineWithObjects(objects)
+	if err != nil {
+		t.Fatalf("TestPolicyEngineWithWorkloads error: %v", err)
+	}
+	if len(pe.podsMap) != 12 {
+		t.Fatalf("TestPolicyEngineWithWorkloads: unexpected podsMap len: %d ", len(pe.podsMap))
+	}
+}
