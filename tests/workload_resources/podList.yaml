@@ -1,0 +1,28 @@
+kind: PodList
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    labels:
+      app: public-cre08b89c167414305a1afb205d0bd346f-alb1
+      pod-template-hash: '4045640149'
+    name: public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f-b9j42
+    namespace: kube-system-dummy-to-ignore
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f
+      uid: 505e0425-78a5-11e8-bd75-ce1115ac0d30
+  spec:
+    containers:
+    - ports:
+      - containerPort: 8080
+        protocol: TCP
+    - ports:
+      - containerPort: 80
+        protocol: TCP
+      - containerPort: 443
+        protocol: TCP

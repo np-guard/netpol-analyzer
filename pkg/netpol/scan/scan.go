@@ -52,7 +52,7 @@ func YAMLDocumentsToObjectsList(documents []string) ([]K8sObject, error) {
 	res := make([]K8sObject, 0)
 	for _, manifest := range documents {
 		if isAcceptedType, kind := getKind(manifest); isAcceptedType {
-			if k8sObjects, err := mainfestToK8sObjects(manifest, kind); err == nil {
+			if k8sObjects, err := manifestToK8sObjects(manifest, kind); err == nil {
 				res = append(res, k8sObjects...)
 			} else {
 				return res, err
@@ -65,7 +65,7 @@ func YAMLDocumentsToObjectsList(documents []string) ([]K8sObject, error) {
 // GetYAMLDocumentsFromPath returns a list of YAML documents from input dir path
 func GetYAMLDocumentsFromPath(repoDir string, walkFn WalkFunction) []string {
 	res := make([]string, 0)
-	manifestFiles := searchDeploymentManifests(repoDir, walkFn)
+	manifestFiles := searchYamlFiles(repoDir, walkFn)
 	for _, mfp := range manifestFiles {
 		filebuf, err := os.ReadFile(mfp)
 		if err != nil {
@@ -184,14 +184,14 @@ func getKind(yamlDoc string) (bool, string) {
 		return false, ""
 	}
 	if !acceptedK8sTypes.MatchString(groupVersionKind.Kind) {
-		fmt.Printf("Skipping object with type: %s", groupVersionKind.Kind)
+		fmt.Printf("Skipping resource of kind: %s", groupVersionKind.Kind)
 		return false, ""
 	}
 	return true, groupVersionKind.Kind
 }
 
 // given a YAML doc and its resource kind, convert to a slice of K8sObject
-func mainfestToK8sObjects(yamlDoc, kind string) ([]K8sObject, error) {
+func manifestToK8sObjects(yamlDoc, kind string) ([]K8sObject, error) {
 	objDataBuf := []byte(yamlDoc)
 	res := make([]K8sObject, 0, 1)
 	switch kind {
@@ -241,7 +241,7 @@ func mainfestToK8sObjects(yamlDoc, kind string) ([]K8sObject, error) {
 const yamlParseBufferSize = 200
 
 // return a list of paths for yaml files in the input dir path
-func searchDeploymentManifests(repoDir string, walkFn WalkFunction) []string {
+func searchYamlFiles(repoDir string, walkFn WalkFunction) []string {
 	yamls := make([]string, 0)
 	err := walkFn(repoDir, func(path string, f os.DirEntry, err error) error {
 		if err != nil {
