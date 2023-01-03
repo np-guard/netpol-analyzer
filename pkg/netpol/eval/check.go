@@ -62,23 +62,24 @@ func (pe *PolicyEngine) CheckIfAllowed(src, dst, protocol, port string) (bool, e
 	return ingressRes, nil
 }
 
-// AllAllowedConnectionsBetweenPeers: returns the ConnectionSet of allowed connections from srcPeer to dstPeer
-func (pe *PolicyEngine) AllAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer) (k8s.ConnectionSet, error) {
+// AllAllowedConnectionsBetweenPeers: returns the allowed connections from srcPeer to dstPeer
+func (pe *PolicyEngine) AllAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer) (Connection, error) {
 	srcK8sPeer := srcPeer.(k8s.Peer)
 	dstK8sPeer := dstPeer.(k8s.Peer)
 	res := k8s.ConnectionSet{}
 	// cases where any connection is always allowed
 	if isPodToItself(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(dstK8sPeer, srcK8sPeer) {
-		return k8s.MakeConnectionSet(true), nil
+		conn := k8s.MakeConnectionSet(true)
+		return getConnectionObject(conn), nil
 	}
 	// egress
 	res = pe.allallowedXgressConnections(srcK8sPeer, dstK8sPeer, false)
 	if res.IsEmpty() {
-		return res, nil
+		return getConnectionObject(res), nil
 	}
 	// ingress
 	res.Intersection(pe.allallowedXgressConnections(srcK8sPeer, dstK8sPeer, true))
-	return res, nil
+	return getConnectionObject(res), nil
 }
 
 // getPod: returns a Pod object corresponding to the input pod name
@@ -259,5 +260,6 @@ func (pe *PolicyEngine) allAllowedConnections(src, dst string) (k8s.ConnectionSe
 	if err != nil {
 		return res, err
 	}
-	return pe.AllAllowedConnectionsBetweenPeers(srcPeer.(Peer), dstPeer.(Peer))
+	allowedConns, err := pe.AllAllowedConnectionsBetweenPeers(srcPeer.(Peer), dstPeer.(Peer))
+	return allowedConns.(*k8sConnectionSetWrapper).ConnectionSet(), err
 }

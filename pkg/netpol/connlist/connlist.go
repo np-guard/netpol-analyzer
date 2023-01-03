@@ -16,9 +16,9 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
-const (
-	connsAndPortRangeSeparator = ","
-)
+// The connlist package allows producing a k8s connectivity report based on network policies.
+// It lists the set of allowed connections between each pair of peers (pods or ip-blocks).
+// The resources can be extracted from a directory containing YAML manifests, or from a k8s cluster.
 
 // Peer2PeerConnection encapsulates the allowed connectivity result between two peers.
 type Peer2PeerConnection interface {
@@ -29,31 +29,24 @@ type Peer2PeerConnection interface {
 	// AllProtocolsAndPorts returns true if all ports are allowed for all protocols
 	AllProtocolsAndPorts() bool
 	// ProtocolsAndPorts returns the set of allowed connections
-	ProtocolsAndPorts() map[v1.Protocol][]PortRange
+	ProtocolsAndPorts() map[v1.Protocol][]eval.PortRange
 	// String returns a string representation of the connection object
-	String() string
-}
-
-// PortRange describes a port or a range of ports for allowed traffic
-// If start port equals end port, it represents a single port
-type PortRange interface {
-	// Start is the start port
-	Start() int64
-	// End is the end port
-	End() int64
-	// String returns a string representation of the PortRange object
 	String() string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // internal type definitions below
 
+const (
+	connsAndPortRangeSeparator = ","
+)
+
 // connection implements the Peer2PeerConnection interface
 type connection struct {
 	src               eval.Peer
 	dst               eval.Peer
 	allConnections    bool
-	protocolsAndPorts map[v1.Protocol][]portRange
+	protocolsAndPorts map[v1.Protocol][]eval.PortRange
 }
 
 func (c *connection) Src() eval.Peer {
@@ -65,15 +58,8 @@ func (c *connection) Dst() eval.Peer {
 func (c *connection) AllProtocolsAndPorts() bool {
 	return c.allConnections
 }
-func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]PortRange {
-	res := make(map[v1.Protocol][]PortRange, len(c.protocolsAndPorts))
-	for protocol, ports := range c.protocolsAndPorts {
-		res[protocol] = make([]PortRange, len(ports))
-		for i := range ports {
-			res[protocol][i] = &ports[i]
-		}
-	}
-	return res
+func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]eval.PortRange {
+	return c.protocolsAndPorts
 }
 
 // return a string representation for a connection object
@@ -94,27 +80,6 @@ func (c *connection) String() string {
 		connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
 	}
 	return fmt.Sprintf("%s => %s : %s", c.Src().String(), c.Dst().String(), connStr)
-}
-
-// portRange implements the PortRange interface
-type portRange struct {
-	start int64
-	end   int64
-}
-
-func (pr *portRange) Start() int64 {
-	return pr.start
-}
-func (pr *portRange) End() int64 {
-	return pr.end
-}
-
-// return a string representation for a portRange object
-func (pr *portRange) String() string {
-	if pr.End() != pr.Start() {
-		return fmt.Sprintf("%d-%d", pr.Start(), pr.End())
-	}
-	return fmt.Sprintf("%d", pr.Start())
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -212,21 +177,11 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 			if allowedConnections.IsEmpty() {
 				continue
 			}
-			protocolsMap := allowedConnections.GetProtocolsAndPortsMap()
 			connectionObj := &connection{
 				src:               srcPeer,
 				dst:               dstPeer,
-				allConnections:    allowedConnections.AllowAll,
-				protocolsAndPorts: make(map[v1.Protocol][]portRange, len(protocolsMap)),
-			}
-			// convert each port range (list) to connlist.Port
-			for protocol, ports := range protocolsMap {
-				connectionObj.protocolsAndPorts[protocol] = make([]portRange, len(ports))
-				for i := range ports {
-					startPort, endPort := ports[i][0], ports[i][1]
-					port := portRange{start: startPort, end: endPort}
-					connectionObj.protocolsAndPorts[protocol][i] = port
-				}
+				allConnections:    allowedConnections.AllConnections(),
+				protocolsAndPorts: allowedConnections.ProtocolsAndPortsMap(),
 			}
 			res = append(res, connectionObj)
 		}
@@ -245,7 +200,7 @@ func ConnectionsListToString(conns []Peer2PeerConnection) string {
 }
 
 // get string representation for a list of port ranges
-func portsString(ports []PortRange) string {
+func portsString(ports []eval.PortRange) string {
 	portsStr := make([]string, len(ports))
 	for i := range ports {
 		portsStr[i] = ports[i].String()
