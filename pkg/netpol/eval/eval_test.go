@@ -19,6 +19,7 @@ import (
 	"sigs.k8s.io/yaml"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
@@ -1072,7 +1073,7 @@ func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) erro
 //
 //gocyclo:ignore
 func TestGeneralPerformance(t *testing.T) {
-	path := filepath.Join(getTestsDir(), "onlineboutique")
+	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
 	// list of connections to test with, for CheckIfAllowed / CheckIfAllowedNew
 	connectionsListForTest := []TestEntry{
 		{protocol: "tcp", port: "5050"},
@@ -1184,7 +1185,7 @@ func TestGeneralPerformance(t *testing.T) {
 }
 
 func TestFromFiles2(t *testing.T) {
-	path := filepath.Join(getTestsDir(), "onlineboutique")
+	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
@@ -1237,7 +1238,7 @@ func TestFromFiles2(t *testing.T) {
 }
 
 func TestFromFiles(t *testing.T) {
-	path := filepath.Join(getTestsDir(), "onlineboutique")
+	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
@@ -1560,7 +1561,7 @@ func computeExpectedCacheHits(pe *PolicyEngine) (int, error) {
 func TestCacheWithPodDeletion(t *testing.T) {
 	pe := NewPolicyEngine()
 	var err error
-	testDir := filepath.Join(getTestsDir(), "onlineboutique_with_replicas")
+	testDir := filepath.Join(testutils.GetTestsDir(), "onlineboutique_with_replicas")
 	if err = setResourcesFromDir(pe, testDir); err != nil {
 		t.Fatal(err)
 	}
@@ -1592,7 +1593,7 @@ func TestCacheWithPodDeletion(t *testing.T) {
 }
 
 func TestConnectionsMapExamples(t *testing.T) {
-	testsDir := getTestsDir()
+	testsDir := testutils.GetTestsDir()
 
 	tests := []struct {
 		testName           string
@@ -1727,7 +1728,7 @@ func testConnectivityMapOutput(res []string, expectedFileName string) (bool, err
 }
 
 func TestDisjointIpBlocks(t *testing.T) {
-	path := filepath.Join(getTestsDir(), "ipblockstest")
+	path := filepath.Join(testutils.GetTestsDir(), "ipblockstest")
 	pe := NewPolicyEngine()
 	if err := setResourcesFromDir(pe, path); err != nil {
 		t.Errorf("%v", err)
@@ -1754,10 +1755,4 @@ func TestDisjointIpBlocks(t *testing.T) {
 	if res != expectedOutput {
 		t.Fatalf("unexpected output for GetDisjointIPBlocks")
 	}
-}
-
-func getTestsDir() string {
-	currentDir, _ := os.Getwd()
-	res := filepath.Join(currentDir, "..", "..", "..", "tests")
-	return res
 }

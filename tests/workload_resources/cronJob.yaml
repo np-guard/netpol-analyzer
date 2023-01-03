@@ -1,0 +1,27 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: hello-cron-job
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: hello-app
+            tier: hello-tier
+            tester: hello-tester
+        spec:
+          containers:
+          - name: hello-cron-job
+            image: busybox
+            imagePullPolicy: IfNotPresent
+            args:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+            ports:
+            - containerPort: 80
+              name: box
+            restartPolicy: OnFailure

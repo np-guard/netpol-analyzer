@@ -5,13 +5,15 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 )
 
 func TestConnList(t *testing.T) {
 	testNames := []string{"ipblockstest", "onlineboutique"}
 	expectedOutputFileName := "connlist_output.txt"
 	for _, testName := range testNames {
-		path := filepath.Join(getTestsDir(), testName)
+		path := filepath.Join(testutils.GetTestsDir(), testName)
 		expectedOutputFile := filepath.Join(path, expectedOutputFileName)
 		res, err := FromDir(path, filepath.WalkDir)
 		if err != nil {
@@ -26,10 +28,4 @@ func TestConnList(t *testing.T) {
 			t.Fatalf("unexpected output result for test %v", testName)
 		}
 	}
-}
-
-func getTestsDir() string {
-	currentDir, _ := os.Getwd()
-	res := filepath.Join(currentDir, "..", "..", "..", "tests")
-	return res
 }
