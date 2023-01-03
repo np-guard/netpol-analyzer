@@ -17,7 +17,7 @@ import (
 )
 
 // The connlist package allows producing a k8s connectivity report based on network policies.
-// It lists the set of allowed connections between each pair of peers (pods or ip-blocks).
+// It lists the set of allowed connections between each pair of peers (k8s workloads or ip-blocks).
 // The resources can be extracted from a directory containing YAML manifests, or from a k8s cluster.
 
 // Peer2PeerConnection encapsulates the allowed connectivity result between two peers.
@@ -148,7 +148,8 @@ func FromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, err
 
 // getConnectionsList returns connections list from PolicyEngine object
 func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
-	peerList, err := pe.GetPeersList() // pods and ip blocks
+	// get workload peers and ip blocks
+	peerList, err := pe.GetPeersList()
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +161,7 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 			if srcPeer.IsPeerIPType() && dstPeer.IsPeerIPType() {
 				continue
 			}
-			allowedConnections, err := pe.AllAllowedConnectionsBetweenPeers(srcPeer, dstPeer)
+			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
 			if err != nil {
 				return nil, err
 			}
