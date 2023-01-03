@@ -79,7 +79,6 @@ func NewPolicyEngineWithObjects(objects []scan.K8sObject) (*PolicyEngine, error)
 		}
 	}
 	return pe, nil
-
 }
 
 // SetResources: updates the set of all relevant k8s resources

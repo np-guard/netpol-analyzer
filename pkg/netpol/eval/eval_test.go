@@ -1770,5 +1770,4 @@ func TestPolicyEngineWithWorkloads(t *testing.T) {
 	if len(pe.podsMap) != 12 {
 		t.Fatalf("TestPolicyEngineWithWorkloads: unexpected podsMap len: %d ", len(pe.podsMap))
 	}
-
 }
