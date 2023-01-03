@@ -21,8 +21,6 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 )
 
-//TODO: assign default namespace if missing, for parsed objects
-
 // Walk function is a function for recursively scanning a directory, in the spirit of Go's native filepath.WalkDir()
 // See https://pkg.go.dev/path/filepath#WalkDir for full description on how such file should work
 type WalkFunction func(root string, fn fs.WalkDirFunc) error
@@ -116,6 +114,14 @@ func FilesToObjectsListFiltered(path string, walkFn WalkFunction, podNames []typ
 	return res, nil
 }
 
+var (
+	acceptedK8sTypesRegex = fmt.Sprintf("(^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$)",
+		Pod, ReplicaSet, ReplicationController, Deployment, Daemonset, Statefulset, Job, CronJob,
+		Networkpolicy, Namespace, List, NamespaceList, PodList)
+	acceptedK8sTypes = regexp.MustCompile(acceptedK8sTypesRegex)
+	yamlSuffix       = regexp.MustCompile(".ya?ml$")
+)
+
 // relevant K8s resource kinds as string values
 const (
 	Networkpolicy         string = "NetworkPolicy"
@@ -133,23 +139,7 @@ const (
 	PodList               string = "PodList"
 )
 
-// the k8s kinds that scan pkg supports
-/*var supportedK8sKinds = map[string]struct{}{
-	Pod:                   {},
-	Networkpolicy:         {},
-	Namespace:             {},
-	List:                  {},
-	PodList:               {},
-	NamespaceList:         {},
-	ReplicaSet:            {},
-	Deployment:            {},
-	Statefulset:           {},
-	Daemonset:             {},
-	Job:                   {},
-	CronJob:               {},
-	ReplicationController: {},
-}*/
-
+// the k8s kinds that scan pkg supports, without List kinds
 var singleResourceK8sKinds = map[string]struct{}{
 	Pod:                   {},
 	Networkpolicy:         {},
@@ -248,14 +238,6 @@ func mainfestToK8sObjects(yamlDoc, kind string) ([]K8sObject, error) {
 	return res, nil
 }
 
-var (
-	acceptedK8sTypesRegex = fmt.Sprintf("(^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$)",
-		Pod, ReplicaSet, ReplicationController, Deployment, Daemonset, Statefulset, Job, CronJob,
-		Networkpolicy, Namespace, List, NamespaceList, PodList)
-	acceptedK8sTypes = regexp.MustCompile(acceptedK8sTypesRegex)
-	yamlSuffix       = regexp.MustCompile(".ya?ml$")
-)
-
 const yamlParseBufferSize = 200
 
 // return a list of paths for yaml files in the input dir path
@@ -305,13 +287,13 @@ func parsePodList(objDataBuf []byte) []K8sObject {
 // given a parsed k8s object's namespace and kind, validate its kind, and assign kind or namespace if missing
 // return true if the actual kind matches the expected kind
 func validateNamespaceAndKind(namespace, kind *string, expectedKind string) (bool, error) {
-	if *namespace == metav1.NamespaceNone {
+	if namespace != nil && *namespace == metav1.NamespaceNone {
 		*namespace = metav1.NamespaceDefault
 	}
-	if *kind != "" && *kind != expectedKind {
+	if kind != nil && *kind != "" && *kind != expectedKind {
 		return false, errors.New("unexpected kind")
 	}
-	if *kind == "" {
+	if kind != nil && *kind == "" {
 		*kind = expectedKind
 	}
 	return true, nil
@@ -329,10 +311,9 @@ func convertPodListTOK8sObjects(pl *v1.PodList) ([]K8sObject, error) {
 }
 
 func convertNamespaceListTOK8sObjects(nsl *v1.NamespaceList) ([]K8sObject, error) {
-	ns := ""
 	res := make([]K8sObject, len(nsl.Items))
 	for i := range nsl.Items {
-		if isValidKind, err := validateNamespaceAndKind(&ns, &nsl.Items[i].Kind, Namespace); !isValidKind {
+		if isValidKind, err := validateNamespaceAndKind(nil, &nsl.Items[i].Kind, Namespace); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Namespace: &nsl.Items[i], Kind: Namespace}
