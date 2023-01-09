@@ -54,9 +54,15 @@ type WorkloadPeer struct {
 	Pod *Pod
 }
 
+const podKind = "Pod"
+
 // //////////////////////////////////////////////////
 func (p *WorkloadPeer) Name() string {
-	return p.Pod.Owner.Name
+	ownerName := p.Pod.Owner.Name
+	if ownerName == "" {
+		return p.Pod.Name // no owner - workload is a Pod
+	}
+	return ownerName
 }
 
 func (p *WorkloadPeer) Namespace() string {
@@ -64,7 +70,11 @@ func (p *WorkloadPeer) Namespace() string {
 }
 
 func (p *WorkloadPeer) Kind() string {
-	return p.Pod.Owner.Kind
+	ownerKind := p.Pod.Owner.Kind
+	if ownerKind == "" { // no owner -- workload is a Pod
+		return podKind
+	}
+	return ownerKind
 }
 
 func (p *WorkloadPeer) String() string {
@@ -118,7 +128,7 @@ func (p *PodPeer) IsPeerIPType() bool {
 }
 
 func (p *PodPeer) Kind() string {
-	return "Pod"
+	return podKind
 }
 
 ////////////////////////////////////////////////////
