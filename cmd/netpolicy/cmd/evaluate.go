@@ -129,8 +129,7 @@ var evaluateCmd = &cobra.Command{
 			// get relevant resources from k8s live cluster
 			var err error
 			const ctxTimeoutSeconds = 3
-			ctx := context.Background()
-			ctx, cancel := context.WithTimeout(ctx, ctxTimeoutSeconds*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
 			defer cancel()
 
 			for _, name := range nsNames {

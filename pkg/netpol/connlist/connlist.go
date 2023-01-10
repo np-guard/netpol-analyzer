@@ -112,8 +112,7 @@ func FromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, err
 
 	// get all resources from k8s cluster
 
-	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, ctxTimeoutSeconds*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
 	defer cancel()
 
 	// get all namespaces
