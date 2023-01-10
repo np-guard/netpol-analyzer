@@ -22,6 +22,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
@@ -83,14 +84,25 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 	for refIndex := range p.ObjectMeta.OwnerReferences {
 		ownerRef := p.ObjectMeta.OwnerReferences[refIndex]
 		if *ownerRef.Controller {
-			pr.Owner.Name = ownerRef.Name
-			pr.Owner.Kind = ownerRef.Kind
-			pr.Owner.APIVersion = ownerRef.APIVersion
-			pr.Owner.Variant = variantFromLabelsMap(p.Labels)
+			if addOwner := addPodOwner(&ownerRef, pr); addOwner {
+				pr.Owner.Variant = variantFromLabelsMap(p.Labels)
+			}
 			break
 		}
 	}
+
 	return pr, nil
+}
+
+// return true if adding pod owner of a relevant kind
+func addPodOwner(ownerRef *v1.OwnerReference, pod *Pod) bool {
+	if ownerRef.Kind == "Node" {
+		return false
+	}
+	pod.Owner.Name = ownerRef.Name
+	pod.Owner.Kind = ownerRef.Kind
+	pod.Owner.APIVersion = ownerRef.APIVersion
+	return true
 }
 
 func getReplicas(r *int32) int32 {
