@@ -10,7 +10,7 @@ import (
 )
 
 func TestConnList(t *testing.T) {
-	testNames := []string{"ipblockstest", "onlineboutique", "onlineboutique_workloads"}
+	testNames := []string{"ipblockstest", "onlineboutique", "onlineboutique_workloads", "minikube_resources"}
 	expectedOutputFileName := "connlist_output.txt"
 	generateActualOutput := false
 	for _, testName := range testNames {
