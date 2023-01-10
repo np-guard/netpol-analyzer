@@ -3,6 +3,7 @@ package connlist
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"sort"
 	"strings"
@@ -39,6 +40,7 @@ type Peer2PeerConnection interface {
 
 const (
 	connsAndPortRangeSeparator = ","
+	ctxTimeoutSeconds          = 3
 )
 
 // connection implements the Peer2PeerConnection interface
@@ -110,8 +112,12 @@ func FromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, err
 
 	// get all resources from k8s cluster
 
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, ctxTimeoutSeconds*time.Second)
+	defer cancel()
+
 	// get all namespaces
-	nsList, apierr := clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	nsList, apierr := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	if apierr != nil {
 		return nil, apierr
 	}
@@ -123,7 +129,7 @@ func FromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, err
 	}
 
 	// get all pods
-	podList, apierr := clientset.CoreV1().Pods(metav1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
+	podList, apierr := clientset.CoreV1().Pods(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	if apierr != nil {
 		return nil, apierr
 	}
@@ -134,7 +140,7 @@ func FromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, err
 	}
 
 	// get all netpols
-	npList, apierr := clientset.NetworkingV1().NetworkPolicies(metav1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
+	npList, apierr := clientset.NetworkingV1().NetworkPolicies(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	if apierr != nil {
 		return nil, apierr
 	}
@@ -188,7 +194,8 @@ func ConnectionsListToString(conns []Peer2PeerConnection) string {
 		connLines[i] = conns[i].String()
 	}
 	sort.Strings(connLines)
-	return strings.Join(connLines, "\n")
+	newlineChar := fmt.Sprintln("")
+	return strings.Join(connLines, newlineChar)
 }
 
 // get string representation for a list of port ranges
