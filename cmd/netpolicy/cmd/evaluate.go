@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"github.com/spf13/cobra"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -127,8 +128,12 @@ var evaluateCmd = &cobra.Command{
 		} else {
 			// get relevant resources from k8s live cluster
 			var err error
+			const ctxTimeoutSeconds = 3
+			ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
+			defer cancel()
+
 			for _, name := range nsNames {
-				ns, apierr := clientset.CoreV1().Namespaces().Get(context.TODO(), name, metav1.GetOptions{})
+				ns, apierr := clientset.CoreV1().Namespaces().Get(ctx, name, metav1.GetOptions{})
 				if apierr != nil {
 					return apierr
 				}
@@ -138,7 +143,7 @@ var evaluateCmd = &cobra.Command{
 			}
 
 			for _, name := range podNames {
-				pod, apierr := clientset.CoreV1().Pods(name.Namespace).Get(context.TODO(), name.Name, metav1.GetOptions{})
+				pod, apierr := clientset.CoreV1().Pods(name.Namespace).Get(ctx, name.Name, metav1.GetOptions{})
 				if apierr != nil {
 					return apierr
 				}
@@ -148,7 +153,7 @@ var evaluateCmd = &cobra.Command{
 			}
 
 			for _, ns := range nsNames {
-				npList, apierr := clientset.NetworkingV1().NetworkPolicies(ns).List(context.TODO(), metav1.ListOptions{})
+				npList, apierr := clientset.NetworkingV1().NetworkPolicies(ns).List(ctx, metav1.ListOptions{})
 				if apierr != nil {
 					return apierr
 				}
