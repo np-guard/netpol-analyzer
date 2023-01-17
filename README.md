@@ -1,7 +1,7 @@
 # netpol-analyzer
 
 ## About netpol-analyzer
-A Golang library for analyzing k8s connectivity-configuration resources (a.k.a. network policies).
+This repo contains a Golang library and CLI for analyzing k8s connectivity-configuration resources (a.k.a. network policies).
 
 
 ## Usage 
