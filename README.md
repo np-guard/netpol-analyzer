@@ -118,5 +118,7 @@ make mod
 make build
 ```
 
+Test your build by running `./bin/k8snetpolicy -h`.
+
 
 
