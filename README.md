@@ -4,7 +4,7 @@
 This repo contains a Golang library and CLI for analyzing k8s connectivity-configuration resources (a.k.a. network policies).
 
 
-## Usage 
+## CLI usage 
 
 ### Evaluate command
 ```
