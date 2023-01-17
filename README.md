@@ -66,7 +66,7 @@ Global Flags:
 
 
 
-## Example outputs:
+### Example outputs:
 ```
 $ k8snetpolicy eval --dirpath tests/onlineboutique -s adservice-77d5cd745d-t8mx4 -d emailservice-54c7c5d9d-vp27n -p 80
 
