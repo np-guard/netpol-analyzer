@@ -47,7 +47,7 @@ defined`,
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%v", connlist.ConnectionsListToString(conns))
+		fmt.Printf("%v", connlist.ConnectionsListToString(conns, connlist.Txt))
 
 		return nil
 	},

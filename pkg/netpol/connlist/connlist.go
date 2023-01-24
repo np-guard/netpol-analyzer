@@ -35,6 +35,13 @@ type Peer2PeerConnection interface {
 	String() string
 }
 
+type OutputFormat int
+
+const (
+	Txt OutputFormat = iota
+	Dot
+)
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 // internal type definitions below
 
@@ -66,6 +73,11 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]eval.PortRange {
 
 // return a string representation for a connection object
 func (c *connection) String() string {
+	connStr := getProtocolsAndPortsStr(c)
+	return fmt.Sprintf("%s => %s : %s", c.Src().String(), c.Dst().String(), connStr)
+}
+
+func getProtocolsAndPortsStr(c Peer2PeerConnection) string {
 	var connStr string
 	if c.AllProtocolsAndPorts() {
 		connStr = "All Connections"
@@ -81,7 +93,7 @@ func (c *connection) String() string {
 		sort.Strings(connStrings)
 		connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
 	}
-	return fmt.Sprintf("%s => %s : %s", c.Src().String(), c.Dst().String(), connStr)
+	return connStr
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,14 +199,14 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 }
 
 // get string of connections from list of Peer2PeerConnection objects
-func ConnectionsListToString(conns []Peer2PeerConnection) string {
-	connLines := make([]string, len(conns))
-	for i := range conns {
-		connLines[i] = conns[i].String()
+func ConnectionsListToString(conns []Peer2PeerConnection, outFormat OutputFormat) string {
+	switch outFormat {
+	case Txt:
+		return produceTxtOutput(conns)
+	case Dot:
+		return produceDotOutput(conns)
 	}
-	sort.Strings(connLines)
-	newlineChar := fmt.Sprintln("")
-	return strings.Join(connLines, newlineChar)
+	return ""
 }
 
 // get string representation for a list of port ranges
@@ -204,4 +216,52 @@ func portsString(ports []eval.PortRange) string {
 		portsStr[i] = ports[i].String()
 	}
 	return strings.Join(portsStr, connsAndPortRangeSeparator)
+}
+
+func getPeerLine(peer eval.Peer) string {
+	var peerColor string
+	if peer.IsPeerIPType() {
+		peerColor = "red2"
+	} else {
+		peerColor = "blue"
+	}
+	peerName := peer.String()
+	return fmt.Sprintf("\t\"%s\" [label=\"%s\" color=\"%s\" fontcolor=\"%s\"]\n", peerName, peerName, peerColor, peerColor)
+}
+
+func produceTxtOutput(conns []Peer2PeerConnection) string {
+	connLines := make([]string, len(conns))
+	for i := range conns {
+		connLines[i] = conns[i].String()
+	}
+	sort.Strings(connLines)
+	newlineChar := fmt.Sprintln("")
+	return strings.Join(connLines, newlineChar)
+}
+
+func produceDotOutput(connsList []Peer2PeerConnection) string {
+	edgeLines := make([]string, len(connsList))
+	peerLines := make(map[string]string, 0)
+	for index := range connsList {
+		conn := connsList[index]
+		src := conn.Src().String()
+		dst := conn.Dst().String()
+		connSet := getProtocolsAndPortsStr(conn)
+		edgeLines[index] = fmt.Sprintf("\t\"%s\" -> \"%s\" [label=\"%s\" color=\"gold2\" fontcolor=\"darkgreen\"]\n", src, dst, connSet)
+		if _, ok := peerLines[src]; !ok {
+			peerLines[src] = getPeerLine(conn.Src())
+		}
+		if _, ok := peerLines[dst]; !ok {
+			peerLines[dst] = getPeerLine(conn.Dst())
+		}
+	}
+	res := "digraph {\n"
+	for _, peerLine := range peerLines {
+		res += peerLine
+	}
+	for _, edgeLine := range edgeLines {
+		res += edgeLine
+	}
+	res += "}\n"
+	return res
 }

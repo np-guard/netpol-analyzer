@@ -20,7 +20,7 @@ func TestConnList(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Test %s: TestConnList FromDir err: %v", testName, err)
 		}
-		actualOutput := ConnectionsListToString(res)
+		actualOutput := produceTxtOutput(res)
 
 		if generateActualOutput {
 			// update expected output: override expected output with actual output
@@ -39,4 +39,20 @@ func TestConnList(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestDotOutput(t *testing.T) {
+	testNames := []string{"onlineboutique_workloads"}
+	for _, testName := range testNames {
+		path := filepath.Join(testutils.GetTestsDir(), testName)
+		res, err := FromDir(path, filepath.WalkDir)
+		if err != nil {
+			t.Fatalf("Test %s: TestConnList FromDir err: %v", testName, err)
+		}
+		outputFile := filepath.Join(path, "connlist_output.dot")
+		actualOutput := produceDotOutput(res)
+		fmt.Printf("%s", actualOutput)
+		os.WriteFile(outputFile, []byte(actualOutput), 0600)
+	}
+
 }
