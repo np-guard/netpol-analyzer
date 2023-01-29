@@ -37,13 +37,12 @@ Flags:
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
-  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster (default "/home/adisos/.kube/config")
+  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster 
 ```
 
 ### List command
 ```
-Lists all allowed connections based on the workloads and network policies
-defined
+Lists all allowed connections based on the workloads and network policies defined
 
 Usage:
   k8snetpolicy list [flags]
@@ -61,7 +60,7 @@ Flags:
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
-  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster (default "/home/adisos/.kube/config")
+  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
 ```
 
 
