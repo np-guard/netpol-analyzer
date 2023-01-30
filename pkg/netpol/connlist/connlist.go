@@ -226,7 +226,7 @@ func getPeerLine(peer eval.Peer) string {
 		peerColor = "blue"
 	}
 	peerName := peer.String()
-	return fmt.Sprintf("\t\"%s\" [label=\"%s\" color=\"%s\" fontcolor=\"%s\"]\n", peerName, peerName, peerColor, peerColor)
+	return fmt.Sprintf("\t%q [label=%q color=%q fontcolor=%q]\n", peerName, peerName, peerColor, peerColor)
 }
 
 func produceTxtOutput(conns []Peer2PeerConnection) string {
@@ -247,7 +247,7 @@ func produceDotOutput(connsList []Peer2PeerConnection) string {
 		src := conn.Src().String()
 		dst := conn.Dst().String()
 		connSet := getProtocolsAndPortsStr(conn)
-		edgeLines[index] = fmt.Sprintf("\t\"%s\" -> \"%s\" [label=\"%s\" color=\"gold2\" fontcolor=\"darkgreen\"]\n", src, dst, connSet)
+		edgeLines[index] = fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\"]\n", src, dst, connSet)
 		if _, ok := peerLines[src]; !ok {
 			peerLines[src] = getPeerLine(conn.Src())
 		}

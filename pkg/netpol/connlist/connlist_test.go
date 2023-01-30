@@ -49,10 +49,8 @@ func TestDotOutput(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Test %s: TestConnList FromDir err: %v", testName, err)
 		}
-		outputFile := filepath.Join(path, "connlist_output.dot")
 		actualOutput := produceDotOutput(res)
 		fmt.Printf("%s", actualOutput)
-		os.WriteFile(outputFile, []byte(actualOutput), 0600)
+		// TODO: compare sorted output
 	}
-
 }
