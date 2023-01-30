@@ -1,0 +1,25 @@
+name: Publish to pkg.go.dev
+
+on:
+  push:
+    tags:
+      - v0.**
+
+permissions:
+  contents: read
+
+jobs:
+  publish_on_pkg_go_dev:
+    name: publish a new version in pkg.go.dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+
+      - name: Set up Go
+        uses: actions/setup-go@d0a58c1c4d2b25278816e339b944508c875f3613
+        with:
+          go-version: 1.18
+
+      - name: Publish on pkg.go.dev
+        run: GOPROXY=proxy.golang.org go list -m github.com/np-guard/netpol-analyzer@${{ github.ref_name }}
