@@ -19,7 +19,7 @@ import (
 	"strings"
 	"sync"
 
-	lru "github.com/hashicorp/golang-lru"
+	lru "github.com/hashicorp/golang-lru/v2"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
@@ -38,7 +38,7 @@ type evalCache struct {
 	ownerToPods    map[string]map[string]struct{} // map from owner key to its associated pods map
 	cacheHitsCount int                            // for testing
 	debug          bool
-	cache          *lru.Cache
+	cache          *lru.Cache[string, bool]
 }
 
 // newEvalCache returns a new EvalCache with an empty initial state, of default size
@@ -55,7 +55,7 @@ func newEvalCacheWithSize(size int) *evalCache {
 		fmt.Printf("Warning: newEvalCache requested cached size is not within supported range. Using default cache size instead.")
 	}
 
-	cache, err := lru.New(cacheSize)
+	cache, err := lru.New[string, bool](cacheSize)
 	if err != nil {
 		cache = nil // disable caching on error
 	}
@@ -104,7 +104,7 @@ func (ec *evalCache) hasConnectionResult(src, dst k8s.Peer, protocol, port strin
 				fmt.Printf("error WriteString: %v", err)
 			}
 		}
-		return true, res.(bool)
+		return true, res
 	}
 	return false, false
 }
@@ -164,7 +164,7 @@ func (ec *evalCache) deletePod(p *k8s.Pod, podName string) {
 func (ec *evalCache) deleteWorkload(key string) {
 	cacheKeys := ec.cache.Keys()
 	for _, cacheKey := range cacheKeys {
-		if strings.Contains(cacheKey.(string), key) {
+		if strings.Contains(cacheKey, key) {
 			ec.cache.Remove(cacheKey)
 		}
 	}
