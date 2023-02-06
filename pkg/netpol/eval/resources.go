@@ -78,7 +78,29 @@ func NewPolicyEngineWithObjects(objects []scan.K8sObject) (*PolicyEngine, error)
 			return nil, err
 		}
 	}
-	return pe, nil
+	err = pe.resolveMissingNamespaces()
+	return pe, err
+}
+
+func (pe *PolicyEngine) resolveMissingNamespaces() error {
+	for _, pod := range pe.podsMap {
+		ns := pod.Namespace
+		if _, ok := pe.namspacesMap[ns]; !ok {
+			// create a ns object and upsert to PolicyEngine
+			nsObj := &corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: ns,
+					Labels: map[string]string{
+						"kubernetes.io/metadata.name": ns,
+					},
+				},
+			}
+			if err := pe.upsertNamespace(nsObj); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // SetResources: updates the set of all relevant k8s resources
