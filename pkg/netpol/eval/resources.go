@@ -87,11 +87,14 @@ func (pe *PolicyEngine) resolveMissingNamespaces() error {
 		ns := pod.Namespace
 		if _, ok := pe.namspacesMap[ns]; !ok {
 			// create a ns object and upsert to PolicyEngine
-			nsObj := &corev1.Namespace{}
-			nsObj.Name = ns
-			nsObj.Labels = make(map[string]string, 0)
-			// add the known label for each k8s namespace
-			nsObj.Labels["kubernetes.io/metadata.name"] = ns
+			nsObj := &corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: ns,
+					Labels: map[string]string{
+						"kubernetes.io/metadata.name": ns,
+					},
+				},
+			}
 			if err := pe.upsertNamespace(nsObj); err != nil {
 				return err
 			}
