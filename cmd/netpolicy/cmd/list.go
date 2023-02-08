@@ -15,7 +15,6 @@ package cmd
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/spf13/cobra"
 
@@ -39,15 +38,17 @@ defined`,
 		var conns []connlist.Peer2PeerConnection
 		var err error
 
+		analyzer := connlist.NewConnlistAnalyzer()
+
 		if dirPath != "" {
-			conns, err = connlist.FromDir(dirPath, filepath.WalkDir)
+			conns, err = analyzer.ConnlistFromDirPath(dirPath)
 		} else {
-			conns, err = connlist.FromK8sCluster(clientset)
+			conns, err = analyzer.ConnlistFromK8sCluster(clientset)
 		}
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%v", connlist.ConnectionsListToString(conns))
+		fmt.Printf("%s", analyzer.ConnectionsListToString(conns))
 
 		return nil
 	},

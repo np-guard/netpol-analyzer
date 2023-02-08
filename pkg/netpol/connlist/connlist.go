@@ -1,8 +1,14 @@
+// The connlist package of netpol-analyzer allows producing a k8s connectivity report based on network policies.
+// It lists the set of allowed connections between each pair of peers (k8s workloads or ip-blocks).
+// The resources can be extracted from a directory containing YAML manifests, or from a k8s cluster.
+// For more information, see https://github.com/np-guard/netpol-analyzer.
 package connlist
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"path/filepath"
 	"time"
 
 	"sort"
@@ -14,12 +20,168 @@ import (
 	v1 "k8s.io/api/core/v1"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
-// The connlist package allows producing a k8s connectivity report based on network policies.
-// It lists the set of allowed connections between each pair of peers (k8s workloads or ip-blocks).
-// The resources can be extracted from a directory containing YAML manifests, or from a k8s cluster.
+// A ConnlistAnalyzer provides API to recursively scan a directory for Kubernetes resources including network policies,
+// and get the list of permitted connectivity between the workloads of the K8s application managed in this directory.
+type ConnlistAnalyzer struct {
+	logger      logger.Logger
+	stopOnError bool
+	errors      []scan.FileProcessingError
+	walkFn      scan.WalkFunction
+	scanner     *scan.ResourcesScanner
+}
+
+// ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
+// using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
+type ConnlistAnalyzerOption func(*ConnlistAnalyzer)
+
+// WithLogger is a functional option which sets the logger for a ConnlistAnalyzer to use.
+// The provided logger must conform with the package's Logger interface.
+func WithLogger(l logger.Logger) ConnlistAnalyzerOption {
+	return func(p *ConnlistAnalyzer) {
+		p.logger = l
+	}
+}
+
+// WithStopOnError is a functional option which directs ConnlistAnalyzer to stop any processing after the
+// first severe error.
+func WithStopOnError() ConnlistAnalyzerOption {
+	return func(p *ConnlistAnalyzer) {
+		p.stopOnError = true
+	}
+}
+
+// WithWalkFn is a functional option, allowing user to provide their own dir-scanning function.
+// It is relevant when using ConnlistAnalyzer to analyze connectivity from scanned dir resources.
+func WithWalkFn(walkFn scan.WalkFunction) ConnlistAnalyzerOption {
+	return func(p *ConnlistAnalyzer) {
+		p.walkFn = walkFn
+	}
+}
+
+// NewConnlistAnalyzer creates a new instance of ConnlistAnalyzer, and applies the provided functional options.
+func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
+	// object with default behavior options
+	ps := &ConnlistAnalyzer{
+		logger:      logger.NewDefaultLogger(),
+		stopOnError: false,
+		errors:      []scan.FileProcessingError{},
+		walkFn:      filepath.WalkDir,
+	}
+	for _, o := range options {
+		o(ps)
+	}
+	ps.scanner = scan.NewResourcesScanner(ps.logger, ps.stopOnError, ps.walkFn)
+	return ps
+}
+
+// Errors returns a slice of FileProcessingError with all warnings and errors encountered during processing.
+func (ca *ConnlistAnalyzer) Errors() []scan.FileProcessingError {
+	return ca.errors
+}
+
+// return err object if it is fatal or severe with flag stopOnError
+func (ca *ConnlistAnalyzer) stopProcessing() error {
+	for idx := range ca.errors {
+		if ca.errors[idx].IsFatal() || ca.stopOnError && ca.errors[idx].IsSevere() {
+			return ca.errors[idx].Error()
+		}
+	}
+	return nil
+}
+
+// ConnlistFromDirPath returns the allowed connections list from dir path containing k8s resources
+func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConnection, error) {
+	objectsList, processingErrs := ca.scanner.FilesToObjectsList(dirPath)
+	ca.errors = append(ca.errors, processingErrs...)
+
+	if err := ca.stopProcessing(); err != nil {
+		return nil, err
+	}
+	return ca.connslistFromParsedResources(objectsList)
+}
+
+// ConnlistFromYAMLManifests returns the allowed connections list from input YAML manifests
+func (ca *ConnlistAnalyzer) ConnlistFromYAMLManifests(manifests []scan.YAMLDocumentIntf) ([]Peer2PeerConnection, error) {
+	objectsList, processingErrs := ca.scanner.YAMLDocumentsToObjectsList(manifests)
+	ca.errors = append(ca.errors, processingErrs...)
+
+	if err := ca.stopProcessing(); err != nil {
+		return nil, err
+	}
+
+	return ca.connslistFromParsedResources(objectsList)
+}
+
+func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []scan.K8sObject) ([]Peer2PeerConnection, error) {
+	// TODO: do we need logger in policyEngine?
+	pe, err := eval.NewPolicyEngineWithObjects(objectsList)
+	if err != nil {
+		return nil, err
+	}
+	return ca.getConnectionsList(pe)
+}
+
+// ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources
+func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, error) {
+	pe := eval.NewPolicyEngine()
+
+	// get all resources from k8s cluster
+
+	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
+	defer cancel()
+
+	// get all namespaces
+	nsList, apierr := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
+	if apierr != nil {
+		return nil, apierr
+	}
+	for i := range nsList.Items {
+		ns := &nsList.Items[i]
+		if err := pe.UpsertObject(ns); err != nil {
+			return nil, err
+		}
+	}
+
+	// get all pods
+	podList, apierr := clientset.CoreV1().Pods(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	if apierr != nil {
+		return nil, apierr
+	}
+	for i := range podList.Items {
+		if err := pe.UpsertObject(&podList.Items[i]); err != nil {
+			return nil, err
+		}
+	}
+
+	// get all netpols
+	npList, apierr := clientset.NetworkingV1().NetworkPolicies(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	if apierr != nil {
+		return nil, apierr
+	}
+	for i := range npList.Items {
+		if err := pe.UpsertObject(&npList.Items[i]); err != nil {
+			return nil, err
+		}
+	}
+	return ca.getConnectionsList(pe)
+}
+
+// ConnectionsListToString returns a string of connections from list of Peer2PeerConnection objects
+func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection) string {
+	connLines := make([]string, len(conns))
+	for i := range conns {
+		connLines[i] = conns[i].String()
+	}
+	sort.Strings(connLines)
+	newlineChar := fmt.Sprintln("")
+	return strings.Join(connLines, newlineChar)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 // Peer2PeerConnection encapsulates the allowed connectivity result between two peers.
 type Peer2PeerConnection interface {
@@ -86,73 +248,12 @@ func (c *connection) String() string {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-// FromYAMLManifests returns the allowed connections list from input YAML manifests
-func FromYAMLManifests(manifests []string) ([]Peer2PeerConnection, error) {
-	objectsList, err := scan.YAMLDocumentsToObjectsList(manifests)
-	if err != nil {
-		return nil, err
-	}
-	pe, err := eval.NewPolicyEngineWithObjects(objectsList)
-	if err != nil {
-		return nil, err
-	}
-	return getConnectionsList(pe)
-}
-
-// FromDir returns the allowed connections list from dir path resources
-// walkFn : for customizing directory scan
-func FromDir(dirPath string, walkFn scan.WalkFunction) ([]Peer2PeerConnection, error) {
-	manifests := scan.GetYAMLDocumentsFromPath(dirPath, walkFn)
-	return FromYAMLManifests(manifests)
-}
-
-// FromK8sCluster returns the allowed connections list from k8s cluster resources
-func FromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, error) {
-	pe := eval.NewPolicyEngine()
-
-	// get all resources from k8s cluster
-
-	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
-	defer cancel()
-
-	// get all namespaces
-	nsList, apierr := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
-	if apierr != nil {
-		return nil, apierr
-	}
-	for i := range nsList.Items {
-		ns := &nsList.Items[i]
-		if err := pe.UpsertObject(ns); err != nil {
-			return nil, err
-		}
-	}
-
-	// get all pods
-	podList, apierr := clientset.CoreV1().Pods(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
-	if apierr != nil {
-		return nil, apierr
-	}
-	for i := range podList.Items {
-		if err := pe.UpsertObject(&podList.Items[i]); err != nil {
-			return nil, err
-		}
-	}
-
-	// get all netpols
-	npList, apierr := clientset.NetworkingV1().NetworkPolicies(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
-	if apierr != nil {
-		return nil, apierr
-	}
-	for i := range npList.Items {
-		if err := pe.UpsertObject(&npList.Items[i]); err != nil {
-			return nil, err
-		}
-	}
-	return getConnectionsList(pe)
-}
-
 // getConnectionsList returns connections list from PolicyEngine object
-func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
+func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
+	if !pe.HasPodPeers() {
+		return nil, errors.New("cannot produce connectivity list without k8s workloads")
+	}
+
 	// get workload peers and ip blocks
 	peerList, err := pe.GetPeersList()
 	if err != nil {
@@ -184,17 +285,6 @@ func getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 		}
 	}
 	return res, nil
-}
-
-// get string of connections from list of Peer2PeerConnection objects
-func ConnectionsListToString(conns []Peer2PeerConnection) string {
-	connLines := make([]string, len(conns))
-	for i := range conns {
-		connLines[i] = conns[i].String()
-	}
-	sort.Strings(connLines)
-	newlineChar := fmt.Sprintln("")
-	return strings.Join(connLines, newlineChar)
 }
 
 // get string representation for a list of port ranges

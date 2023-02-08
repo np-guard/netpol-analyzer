@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"regexp"
 
 	yamlv3 "gopkg.in/yaml.v3"
@@ -15,11 +16,24 @@ import (
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/kubernetes/scheme"
 )
+
+type ResourcesScanner struct {
+	logger      logger.Logger
+	stopOnError bool
+	walkFn      WalkFunction
+}
+
+func NewResourcesScanner(l logger.Logger, stopOnError bool, walkFn WalkFunction) *ResourcesScanner {
+	res := &ResourcesScanner{logger: l, stopOnError: stopOnError, walkFn: walkFn}
+	return res
+}
 
 // Walk function is a function for recursively scanning a directory, in the spirit of Go's native filepath.WalkDir()
 // See https://pkg.go.dev/path/filepath#WalkDir for full description on how such file should work
@@ -48,46 +62,97 @@ type K8sObject struct {
 }
 
 // YAMLDocumentsToObjectsList returns a list of K8sObject parsed from input YAML documents
-func YAMLDocumentsToObjectsList(documents []string) ([]K8sObject, error) {
+func (sc *ResourcesScanner) YAMLDocumentsToObjectsList(documents []YAMLDocumentIntf) ([]K8sObject, []FileProcessingError) {
 	res := make([]K8sObject, 0)
+	errs := make([]FileProcessingError, 0)
 	for _, manifest := range documents {
-		if isAcceptedType, kind := getKind(manifest); isAcceptedType {
-			if k8sObjects, err := manifestToK8sObjects(manifest, kind); err == nil {
+		isAcceptedType, kind, processingErrs := sc.getKind(manifest)
+		if isAcceptedType {
+			if k8sObjects, err := sc.manifestToK8sObjects(manifest, kind); err == nil {
 				res = append(res, k8sObjects...)
 			} else {
-				return res, err
+				errs = appendAndLogNewError(errs, failedScanningResource(kind, manifest.FilePath(), err), sc.logger)
 			}
 		}
+		errs = append(errs, processingErrs...)
+		if stopProcessing(sc.stopOnError, errs) {
+			return res, errs
+		}
 	}
-	return res, nil
+	if len(res) == 0 {
+		errs = appendAndLogNewError(errs, noK8sResourcesFound(), sc.logger)
+	}
+	return res, errs
+}
+
+// YAMLDocumentIntf is an interface for holding YAML document
+type YAMLDocumentIntf interface {
+	// Content is the string content of the YAML doc
+	Content() string
+	// FilePath is the file path containing the YAML doc
+	FilePath() string
+	// DocID is the document ID of the YAML doc within the file
+	DocID() int
+}
+
+// yamlDocument implements the YAMLDocumentIntf interface
+type yamlDocument struct {
+	content  string
+	filePath string
+	docID    int
+}
+
+func (yd *yamlDocument) Content() string {
+	return yd.content
+}
+func (yd *yamlDocument) FilePath() string {
+	return yd.filePath
+}
+func (yd *yamlDocument) DocID() int {
+	return yd.docID
 }
 
 // GetYAMLDocumentsFromPath returns a list of YAML documents from input dir path
-func GetYAMLDocumentsFromPath(repoDir string, walkFn WalkFunction) []string {
-	res := make([]string, 0)
-	manifestFiles := searchYamlFiles(repoDir, walkFn)
-	for _, mfp := range manifestFiles {
-		filebuf, err := os.ReadFile(mfp)
-		if err != nil {
-			continue
-		}
-		res = append(res, splitByYamlDocuments(filebuf)...)
+func (sc *ResourcesScanner) GetYAMLDocumentsFromPath(repoDir string) ([]YAMLDocumentIntf, []FileProcessingError) {
+	res := make([]YAMLDocumentIntf, 0)
+	manifestFiles, fileScanErrors := sc.searchYamlFiles(repoDir)
+	if stopProcessing(sc.stopOnError, fileScanErrors) {
+		return nil, fileScanErrors
 	}
-	return res
+
+	if len(manifestFiles) == 0 {
+		fileScanErrors = appendAndLogNewError(fileScanErrors, noYamlsFound(), sc.logger)
+		return nil, fileScanErrors
+	}
+
+	for _, mfp := range manifestFiles {
+		yamlDocs, errs := sc.splitByYamlDocuments(mfp)
+		res = append(res, yamlDocs...)
+		fileScanErrors = append(fileScanErrors, errs...)
+		if stopProcessing(sc.stopOnError, errs) {
+			return nil, fileScanErrors
+		}
+	}
+	return res, fileScanErrors
 }
 
 // FilesToObjectsList returns a list of K8sObject parsed from yaml files in the input dir path
-func FilesToObjectsList(path string, walkFn WalkFunction) ([]K8sObject, error) {
-	manifests := GetYAMLDocumentsFromPath(path, walkFn)
-	return YAMLDocumentsToObjectsList(manifests)
+func (sc *ResourcesScanner) FilesToObjectsList(path string) ([]K8sObject, []FileProcessingError) {
+	manifests, fileScanErrors := sc.GetYAMLDocumentsFromPath(path)
+	if stopProcessing(sc.stopOnError, fileScanErrors) {
+		return nil, fileScanErrors
+	}
+	objects, errs := sc.YAMLDocumentsToObjectsList(manifests)
+	fileScanErrors = append(fileScanErrors, errs...)
+	return objects, fileScanErrors
 }
 
 // FilesToObjectsListFiltered returns only K8sObjects from dir path if they match input pods namespaces (for non pod resources)
 // and full input pods names for pod resources
-func FilesToObjectsListFiltered(path string, walkFn WalkFunction, podNames []types.NamespacedName) ([]K8sObject, error) {
-	allObjects, err := FilesToObjectsList(path, walkFn)
-	if err != nil {
-		return nil, err
+func (sc *ResourcesScanner) FilesToObjectsListFiltered(path string, podNames []types.NamespacedName) ([]K8sObject, []FileProcessingError) {
+	allObjects, errs := sc.FilesToObjectsList(path)
+	if len(errs) > 0 {
+		return nil, errs
 	}
 	podNamesMap := make(map[string]bool, 0)
 	nsMap := make(map[string]bool, 0)
@@ -154,83 +219,92 @@ var singleResourceK8sKinds = map[string]struct{}{
 }
 
 // given a YAML file content, split to a list of YAML documents
-func splitByYamlDocuments(data []byte) []string {
-	decoder := yamlv3.NewDecoder(bytes.NewBuffer(data))
-	documents := make([]string, 0)
-	for {
-		var doc map[interface{}]interface{}
-		if err := decoder.Decode(&doc); err != nil {
-			if err == io.EOF {
-				break
-			}
-		}
-		if len(doc) > 0 {
-			out, _ := yamlv3.Marshal(doc)
-			documents = append(documents, string(out))
-		}
+func (sc *ResourcesScanner) splitByYamlDocuments(mfp string) ([]YAMLDocumentIntf, []FileProcessingError) {
+	fileBuf, err := os.ReadFile(mfp)
+	if err != nil {
+		return []YAMLDocumentIntf{}, appendAndLogNewError(nil, failedReadingFile(mfp, err), sc.logger)
 	}
-	return documents
+
+	decoder := yamlv3.NewDecoder(bytes.NewBuffer(fileBuf))
+	documents := make([]YAMLDocumentIntf, 0)
+	documentID := 0
+	for {
+		var doc yamlv3.Node
+		if err := decoder.Decode(&doc); err != nil {
+			if err != io.EOF {
+				return documents, appendAndLogNewError(nil, malformedYamlDoc(mfp, 0, documentID, err), sc.logger)
+			}
+			break
+		}
+		if len(doc.Content) > 0 && doc.Content[0].Kind == yamlv3.MappingNode {
+			out, err := yamlv3.Marshal(doc.Content[0])
+			if err != nil {
+				return documents, appendAndLogNewError(nil, malformedYamlDoc(mfp, doc.Line, documentID, err), sc.logger)
+			}
+			documents = append(documents, &yamlDocument{content: string(out), docID: documentID, filePath: mfp})
+		}
+		documentID += 1
+	}
+	return documents, nil
 }
 
 // return if yamlDoc is of accepted kind, and the kind string
-func getKind(yamlDoc string) (bool, string) {
-	if yamlDoc == "\n" || yamlDoc == "" {
-		// ignore empty cases
-		return false, ""
-	}
+func (sc *ResourcesScanner) getKind(yamlDoc YAMLDocumentIntf) (bool, string, []FileProcessingError) {
+	fileProcessingErrors := make([]FileProcessingError, 0)
 	decode := scheme.Codecs.UniversalDeserializer().Decode
-	_, groupVersionKind, err := decode([]byte(yamlDoc), nil, nil)
+	_, groupVersionKind, err := decode([]byte(yamlDoc.Content()), nil, nil)
 	if err != nil {
-		return false, ""
+		fileProcessingErrors = appendAndLogNewError(fileProcessingErrors, notK8sResource(yamlDoc.FilePath(), yamlDoc.DocID(), err), sc.logger)
+		return false, "", fileProcessingErrors
 	}
 	if !acceptedK8sTypes.MatchString(groupVersionKind.Kind) {
-		fmt.Printf("Skipping resource of kind: %s", groupVersionKind.Kind)
-		return false, ""
+		sc.logger.Infof("in file: %s, document: %d, skipping object with type: %s", yamlDoc.FilePath(), yamlDoc.DocID(), groupVersionKind.Kind)
+		return false, "", fileProcessingErrors
 	}
-	return true, groupVersionKind.Kind
+	return true, groupVersionKind.Kind, fileProcessingErrors
 }
 
 // given a YAML doc and its resource kind, convert to a slice of K8sObject
-func manifestToK8sObjects(yamlDoc, kind string) ([]K8sObject, error) {
-	objDataBuf := []byte(yamlDoc)
+func (sc *ResourcesScanner) manifestToK8sObjects(yamlDoc YAMLDocumentIntf, kind string) ([]K8sObject, error) {
+	objDataBuf := []byte(yamlDoc.Content())
 	res := make([]K8sObject, 0, 1)
 	switch kind {
 	case Pod:
-		obj := parsePod(bytes.NewReader(objDataBuf))
+		obj := sc.parsePod(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Pod: obj, Kind: kind})
 	case ReplicaSet:
-		obj := parseReplicaSet(bytes.NewReader(objDataBuf))
+		obj := sc.parseReplicaSet(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Replicaset: obj, Kind: kind})
 	case Deployment:
-		obj := parseDeployment(bytes.NewReader(objDataBuf))
+		obj := sc.parseDeployment(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Deployment: obj, Kind: kind})
 	case Statefulset:
-		obj := parseStatefulSet(bytes.NewReader(objDataBuf))
+		obj := sc.parseStatefulSet(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Statefulset: obj, Kind: kind})
 	case ReplicationController:
-		obj := parseReplicationController(bytes.NewReader(objDataBuf))
+		obj := sc.parseReplicationController(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{ReplicationController: obj, Kind: kind})
 	case Daemonset:
-		obj := parseDaemonSet(bytes.NewReader(objDataBuf))
+		obj := sc.parseDaemonSet(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Daemonset: obj, Kind: kind})
 	case Job:
-		obj := parseJob(bytes.NewReader(objDataBuf))
+		obj := sc.parseJob(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Job: obj, Kind: kind})
 	case CronJob:
-		obj := parseCronJob(bytes.NewReader(objDataBuf))
+		obj := sc.parseCronJob(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{CronJob: obj, Kind: kind})
 	case Networkpolicy:
-		obj := parseNetworkPolicy(bytes.NewReader(objDataBuf))
+		obj := sc.parseNetworkPolicy(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Networkpolicy: obj, Kind: kind})
 	case Namespace:
-		obj := parseNamespace(bytes.NewReader(objDataBuf))
+		obj := sc.parseNamespace(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Namespace: obj, Kind: kind})
 	case List:
-		res = parseList(objDataBuf)
+		res = sc.parseList(objDataBuf)
 	case PodList:
-		res = parsePodList(objDataBuf)
+		res = sc.parsePodList(objDataBuf)
 	case NamespaceList:
-		res = parseNamespaceList(objDataBuf)
+		res = sc.parseNamespaceList(objDataBuf)
 	// TODO: support other specific list types, other than PodList and NamespaceList
 	default:
 		return res, fmt.Errorf("unsupported kind: %s", kind)
@@ -241,11 +315,16 @@ func manifestToK8sObjects(yamlDoc, kind string) ([]K8sObject, error) {
 const yamlParseBufferSize = 200
 
 // return a list of paths for yaml files in the input dir path
-func searchYamlFiles(repoDir string, walkFn WalkFunction) []string {
+func (sc *ResourcesScanner) searchYamlFiles(repoDir string) ([]string, []FileProcessingError) {
 	yamls := make([]string, 0)
-	err := walkFn(repoDir, func(path string, f os.DirEntry, err error) error {
+	processingErrors := make([]FileProcessingError, 0)
+	err := sc.walkFn(repoDir, func(path string, f os.DirEntry, err error) error {
 		if err != nil {
-			return err
+			processingErrors = appendAndLogNewError(processingErrors, failedAccessingDir(path, err, path != repoDir), sc.logger)
+			if stopProcessing(sc.stopOnError, processingErrors) {
+				return err
+			}
+			return filepath.SkipDir
 		}
 		if f != nil && !f.IsDir() && yamlSuffix.MatchString(f.Name()) {
 			yamls = append(yamls, path)
@@ -253,15 +332,15 @@ func searchYamlFiles(repoDir string, walkFn WalkFunction) []string {
 		return nil
 	})
 	if err != nil {
-		fmt.Printf("Error: Error in searching for manifests: %v", err)
+		sc.logger.Errorf(err, "Error walking directory")
 	}
-	return yamls
+	return yamls, processingErrors
 }
 
 // given YAML of kind "List" , parse and convert to slice of K8sObject
-func parseList(objDataBuf []byte) []K8sObject {
+func (sc *ResourcesScanner) parseList(objDataBuf []byte) []K8sObject {
 	for kind := range singleResourceK8sKinds {
-		if isKind, resList := parseListOfKind(objDataBuf, kind); isKind {
+		if isKind, resList := sc.parseListOfKind(objDataBuf, kind); isKind {
 			return resList
 		}
 	}
@@ -269,16 +348,16 @@ func parseList(objDataBuf []byte) []K8sObject {
 }
 
 // given YAML of kind "NamespaceList" , parse and convert to slice of K8sObject
-func parseNamespaceList(objDataBuf []byte) []K8sObject {
-	if isKind, resList := parseListOfKind(objDataBuf, Namespace); isKind {
+func (sc *ResourcesScanner) parseNamespaceList(objDataBuf []byte) []K8sObject {
+	if isKind, resList := sc.parseListOfKind(objDataBuf, Namespace); isKind {
 		return resList
 	}
 	return nil
 }
 
 // given YAML of kind "PodList" , parse and convert to slice of K8sObject
-func parsePodList(objDataBuf []byte) []K8sObject {
-	if isKind, resList := parseListOfKind(objDataBuf, Pod); isKind {
+func (sc *ResourcesScanner) parsePodList(objDataBuf []byte) []K8sObject {
+	if isKind, resList := sc.parseListOfKind(objDataBuf, Pod); isKind {
 		return resList
 	}
 	return nil
@@ -286,7 +365,7 @@ func parsePodList(objDataBuf []byte) []K8sObject {
 
 // given a parsed k8s object's namespace and kind, validate its kind, and assign kind or namespace if missing
 // return true if the actual kind matches the expected kind
-func validateNamespaceAndKind(namespace, kind *string, expectedKind string) (bool, error) {
+func (sc *ResourcesScanner) validateNamespaceAndKind(namespace, kind *string, expectedKind string) (bool, error) {
 	if namespace != nil && *namespace == metav1.NamespaceNone {
 		*namespace = metav1.NamespaceDefault
 	}
@@ -299,10 +378,10 @@ func validateNamespaceAndKind(namespace, kind *string, expectedKind string) (boo
 	return true, nil
 }
 
-func convertPodListTOK8sObjects(pl *v1.PodList) ([]K8sObject, error) {
+func (sc *ResourcesScanner) convertPodListTOK8sObjects(pl *v1.PodList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(pl.Items))
 	for i := range pl.Items {
-		if isValidKind, err := validateNamespaceAndKind(&pl.Items[i].Namespace, &pl.Items[i].Kind, Pod); !isValidKind {
+		if isValidKind, err := sc.validateNamespaceAndKind(&pl.Items[i].Namespace, &pl.Items[i].Kind, Pod); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Pod: &pl.Items[i], Kind: Pod}
@@ -310,10 +389,10 @@ func convertPodListTOK8sObjects(pl *v1.PodList) ([]K8sObject, error) {
 	return res, nil
 }
 
-func convertNamespaceListTOK8sObjects(nsl *v1.NamespaceList) ([]K8sObject, error) {
+func (sc *ResourcesScanner) convertNamespaceListTOK8sObjects(nsl *v1.NamespaceList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(nsl.Items))
 	for i := range nsl.Items {
-		if isValidKind, err := validateNamespaceAndKind(nil, &nsl.Items[i].Kind, Namespace); !isValidKind {
+		if isValidKind, err := sc.validateNamespaceAndKind(nil, &nsl.Items[i].Kind, Namespace); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Namespace: &nsl.Items[i], Kind: Namespace}
@@ -321,10 +400,10 @@ func convertNamespaceListTOK8sObjects(nsl *v1.NamespaceList) ([]K8sObject, error
 	return res, nil
 }
 
-func convertNetpolListTOK8sObjects(nl *netv1.NetworkPolicyList) ([]K8sObject, error) {
+func (sc *ResourcesScanner) convertNetpolListTOK8sObjects(nl *netv1.NetworkPolicyList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(nl.Items))
 	for i := range nl.Items {
-		if isValidKind, err := validateNamespaceAndKind(&nl.Items[i].Namespace, &nl.Items[i].Kind, Networkpolicy); !isValidKind {
+		if isValidKind, err := sc.validateNamespaceAndKind(&nl.Items[i].Namespace, &nl.Items[i].Kind, Networkpolicy); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Networkpolicy: &nl.Items[i], Kind: Networkpolicy}
@@ -332,10 +411,10 @@ func convertNetpolListTOK8sObjects(nl *netv1.NetworkPolicyList) ([]K8sObject, er
 	return res, nil
 }
 
-func convertReplicaSetListTOK8sObjects(rsl *appsv1.ReplicaSetList) ([]K8sObject, error) {
+func (sc *ResourcesScanner) convertReplicaSetListTOK8sObjects(rsl *appsv1.ReplicaSetList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(rsl.Items))
 	for i := range rsl.Items {
-		if isValidKind, err := validateNamespaceAndKind(&rsl.Items[i].Namespace, &rsl.Items[i].Kind, ReplicaSet); !isValidKind {
+		if isValidKind, err := sc.validateNamespaceAndKind(&rsl.Items[i].Namespace, &rsl.Items[i].Kind, ReplicaSet); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Replicaset: &rsl.Items[i], Kind: ReplicaSet}
@@ -343,10 +422,10 @@ func convertReplicaSetListTOK8sObjects(rsl *appsv1.ReplicaSetList) ([]K8sObject,
 	return res, nil
 }
 
-func convertDeploymentListTOK8sObjects(dl *appsv1.DeploymentList) ([]K8sObject, error) {
+func (sc *ResourcesScanner) convertDeploymentListTOK8sObjects(dl *appsv1.DeploymentList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(dl.Items))
 	for i := range dl.Items {
-		if isValidKind, err := validateNamespaceAndKind(&dl.Items[i].Namespace, &dl.Items[i].Kind, Deployment); !isValidKind {
+		if isValidKind, err := sc.validateNamespaceAndKind(&dl.Items[i].Namespace, &dl.Items[i].Kind, Deployment); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Deployment: &dl.Items[i], Kind: Deployment}
@@ -354,10 +433,10 @@ func convertDeploymentListTOK8sObjects(dl *appsv1.DeploymentList) ([]K8sObject, 
 	return res, nil
 }
 
-func convertStatefulSetListTOK8sObjects(sl *appsv1.StatefulSetList) ([]K8sObject, error) {
+func (sc *ResourcesScanner) convertStatefulSetListTOK8sObjects(sl *appsv1.StatefulSetList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(sl.Items))
 	for i := range sl.Items {
-		if isValidKind, err := validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, Statefulset); !isValidKind {
+		if isValidKind, err := sc.validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, Statefulset); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Statefulset: &sl.Items[i], Kind: Statefulset}
@@ -365,10 +444,10 @@ func convertStatefulSetListTOK8sObjects(sl *appsv1.StatefulSetList) ([]K8sObject
 	return res, nil
 }
 
-func convertDaemonSetListTOK8sObjects(sl *appsv1.DaemonSetList) ([]K8sObject, error) {
+func (sc *ResourcesScanner) convertDaemonSetListTOK8sObjects(sl *appsv1.DaemonSetList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(sl.Items))
 	for i := range sl.Items {
-		if isValidKind, err := validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, Daemonset); !isValidKind {
+		if isValidKind, err := sc.validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, Daemonset); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Daemonset: &sl.Items[i], Kind: Daemonset}
@@ -376,10 +455,10 @@ func convertDaemonSetListTOK8sObjects(sl *appsv1.DaemonSetList) ([]K8sObject, er
 	return res, nil
 }
 
-func convertReplicationControllerListTOK8sObjects(sl *v1.ReplicationControllerList) ([]K8sObject, error) {
+func (sc *ResourcesScanner) convertReplicationControllerListTOK8sObjects(sl *v1.ReplicationControllerList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(sl.Items))
 	for i := range sl.Items {
-		if isValidKind, err := validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, ReplicationController); !isValidKind {
+		if isValidKind, err := sc.validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, ReplicationController); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{ReplicationController: &sl.Items[i], Kind: ReplicationController}
@@ -387,10 +466,10 @@ func convertReplicationControllerListTOK8sObjects(sl *v1.ReplicationControllerLi
 	return res, nil
 }
 
-func convertJobListTOK8sObjects(sl *batchv1.JobList) ([]K8sObject, error) {
+func (sc *ResourcesScanner) convertJobListTOK8sObjects(sl *batchv1.JobList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(sl.Items))
 	for i := range sl.Items {
-		if isValidKind, err := validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, Job); !isValidKind {
+		if isValidKind, err := sc.validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, Job); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Job: &sl.Items[i], Kind: Job}
@@ -398,10 +477,10 @@ func convertJobListTOK8sObjects(sl *batchv1.JobList) ([]K8sObject, error) {
 	return res, nil
 }
 
-func convertCronJobListTOK8sObjects(sl *batchv1.CronJobList) ([]K8sObject, error) {
+func (sc *ResourcesScanner) convertCronJobListTOK8sObjects(sl *batchv1.CronJobList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(sl.Items))
 	for i := range sl.Items {
-		if isValidKind, err := validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, CronJob); !isValidKind {
+		if isValidKind, err := sc.validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, CronJob); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{CronJob: &sl.Items[i], Kind: CronJob}
@@ -410,53 +489,53 @@ func convertCronJobListTOK8sObjects(sl *batchv1.CronJobList) ([]K8sObject, error
 }
 
 //gocyclo:ignore
-func getListObjects(parsedList interface{}, kind string) ([]K8sObject, error) {
+func (sc *ResourcesScanner) getListObjects(parsedList interface{}, kind string) ([]K8sObject, error) {
 	switch kind {
 	case Pod:
 		if podList, ok := parsedList.(*v1.PodList); ok {
-			return convertPodListTOK8sObjects(podList)
+			return sc.convertPodListTOK8sObjects(podList)
 		}
 	case Namespace:
 		if nsList, ok := parsedList.(*v1.NamespaceList); ok {
-			return convertNamespaceListTOK8sObjects(nsList)
+			return sc.convertNamespaceListTOK8sObjects(nsList)
 		}
 	case Networkpolicy:
 		if netpolList, ok := parsedList.(*netv1.NetworkPolicyList); ok {
-			return convertNetpolListTOK8sObjects(netpolList)
+			return sc.convertNetpolListTOK8sObjects(netpolList)
 		}
 	case ReplicaSet:
 		if rsList, ok := parsedList.(*appsv1.ReplicaSetList); ok {
-			return convertReplicaSetListTOK8sObjects(rsList)
+			return sc.convertReplicaSetListTOK8sObjects(rsList)
 		}
 	case Deployment:
 		if dlList, ok := parsedList.(*appsv1.DeploymentList); ok {
-			return convertDeploymentListTOK8sObjects(dlList)
+			return sc.convertDeploymentListTOK8sObjects(dlList)
 		}
 	case Statefulset:
 		if slList, ok := parsedList.(*appsv1.StatefulSetList); ok {
-			return convertStatefulSetListTOK8sObjects(slList)
+			return sc.convertStatefulSetListTOK8sObjects(slList)
 		}
 	case Daemonset:
 		if dslList, ok := parsedList.(*appsv1.DaemonSetList); ok {
-			return convertDaemonSetListTOK8sObjects(dslList)
+			return sc.convertDaemonSetListTOK8sObjects(dslList)
 		}
 	case ReplicationController:
 		if dslList, ok := parsedList.(*v1.ReplicationControllerList); ok {
-			return convertReplicationControllerListTOK8sObjects(dslList)
+			return sc.convertReplicationControllerListTOK8sObjects(dslList)
 		}
 	case Job:
 		if dslList, ok := parsedList.(*batchv1.JobList); ok {
-			return convertJobListTOK8sObjects(dslList)
+			return sc.convertJobListTOK8sObjects(dslList)
 		}
 	case CronJob:
 		if dslList, ok := parsedList.(*batchv1.CronJobList); ok {
-			return convertCronJobListTOK8sObjects(dslList)
+			return sc.convertCronJobListTOK8sObjects(dslList)
 		}
 	}
 	return nil, fmt.Errorf("invalid kind: %s", kind)
 }
 
-func parseListOfKind(objDataBuf []byte, kind string) (bool, []K8sObject) {
+func (sc *ResourcesScanner) parseListOfKind(objDataBuf []byte, kind string) (bool, []K8sObject) {
 	r := bytes.NewReader(objDataBuf)
 	var err error
 	var resList interface{}
@@ -487,7 +566,7 @@ func parseListOfKind(objDataBuf []byte, kind string) (bool, []K8sObject) {
 	if err != nil {
 		return false, nil
 	}
-	listObjects, err := getListObjects(resList, kind)
+	listObjects, err := sc.getListObjects(resList, kind)
 	if err != nil {
 		return false, nil
 	}
@@ -495,7 +574,7 @@ func parseListOfKind(objDataBuf []byte, kind string) (bool, []K8sObject) {
 	return true, listObjects
 }
 
-func parsePod(r io.Reader) *v1.Pod {
+func (sc *ResourcesScanner) parsePod(r io.Reader) *v1.Pod {
 	if r == nil {
 		return nil
 	}
@@ -504,13 +583,13 @@ func parsePod(r io.Reader) *v1.Pod {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Pod); !isValid || err != nil {
+	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Pod); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func parseNamespace(r io.Reader) *v1.Namespace {
+func (sc *ResourcesScanner) parseNamespace(r io.Reader) *v1.Namespace {
 	if r == nil {
 		return nil
 	}
@@ -522,7 +601,7 @@ func parseNamespace(r io.Reader) *v1.Namespace {
 	return &rc
 }
 
-func parseNetworkPolicy(r io.Reader) *netv1.NetworkPolicy {
+func (sc *ResourcesScanner) parseNetworkPolicy(r io.Reader) *netv1.NetworkPolicy {
 	if r == nil {
 		return nil
 	}
@@ -531,13 +610,13 @@ func parseNetworkPolicy(r io.Reader) *netv1.NetworkPolicy {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Networkpolicy); !isValid || err != nil {
+	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Networkpolicy); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func parseReplicaSet(r io.Reader) *appsv1.ReplicaSet {
+func (sc *ResourcesScanner) parseReplicaSet(r io.Reader) *appsv1.ReplicaSet {
 	if r == nil {
 		return nil
 	}
@@ -546,13 +625,13 @@ func parseReplicaSet(r io.Reader) *appsv1.ReplicaSet {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, ReplicaSet); !isValid || err != nil {
+	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, ReplicaSet); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func parseReplicationController(r io.Reader) *v1.ReplicationController {
+func (sc *ResourcesScanner) parseReplicationController(r io.Reader) *v1.ReplicationController {
 	if r == nil {
 		return nil
 	}
@@ -561,13 +640,13 @@ func parseReplicationController(r io.Reader) *v1.ReplicationController {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, ReplicationController); !isValid || err != nil {
+	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, ReplicationController); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func parseDaemonSet(r io.Reader) *appsv1.DaemonSet {
+func (sc *ResourcesScanner) parseDaemonSet(r io.Reader) *appsv1.DaemonSet {
 	if r == nil {
 		return nil
 	}
@@ -576,13 +655,13 @@ func parseDaemonSet(r io.Reader) *appsv1.DaemonSet {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Daemonset); !isValid || err != nil {
+	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Daemonset); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func parseStatefulSet(r io.Reader) *appsv1.StatefulSet {
+func (sc *ResourcesScanner) parseStatefulSet(r io.Reader) *appsv1.StatefulSet {
 	if r == nil {
 		return nil
 	}
@@ -591,13 +670,13 @@ func parseStatefulSet(r io.Reader) *appsv1.StatefulSet {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Statefulset); !isValid || err != nil {
+	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Statefulset); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func parseJob(r io.Reader) *batchv1.Job {
+func (sc *ResourcesScanner) parseJob(r io.Reader) *batchv1.Job {
 	if r == nil {
 		return nil
 	}
@@ -606,13 +685,13 @@ func parseJob(r io.Reader) *batchv1.Job {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Job); !isValid || err != nil {
+	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Job); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func parseCronJob(r io.Reader) *batchv1.CronJob {
+func (sc *ResourcesScanner) parseCronJob(r io.Reader) *batchv1.CronJob {
 	if r == nil {
 		return nil
 	}
@@ -621,13 +700,13 @@ func parseCronJob(r io.Reader) *batchv1.CronJob {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, CronJob); !isValid || err != nil {
+	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, CronJob); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func parseDeployment(r io.Reader) *appsv1.Deployment {
+func (sc *ResourcesScanner) parseDeployment(r io.Reader) *appsv1.Deployment {
 	if r == nil {
 		return nil
 	}
@@ -636,8 +715,37 @@ func parseDeployment(r io.Reader) *appsv1.Deployment {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Deployment); !isValid || err != nil {
+	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Deployment); !isValid || err != nil {
 		return nil
 	}
 	return &rc
+}
+
+func stopProcessing(stopOn1stErr bool, errs []FileProcessingError) bool {
+	for idx := range errs {
+		if errs[idx].IsFatal() || stopOn1stErr && errs[idx].IsSevere() {
+			return true
+		}
+	}
+
+	return false
+}
+
+func appendAndLogNewError(errs []FileProcessingError, newErr *FileProcessingError, l logger.Logger) []FileProcessingError {
+	logError(l, newErr)
+	errs = append(errs, *newErr)
+	return errs
+}
+
+func logError(l logger.Logger, fpe *FileProcessingError) {
+	logMsg := fpe.Error().Error()
+	location := fpe.Location()
+	if location != "" {
+		logMsg = fmt.Sprintf("%s %s", location, logMsg)
+	}
+	if fpe.IsSevere() || fpe.IsFatal() {
+		l.Errorf(errors.New(logMsg), "")
+	} else {
+		l.Warnf(logMsg)
+	}
 }

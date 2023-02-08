@@ -269,6 +269,10 @@ func (pe *PolicyEngine) GetPodsMap() map[string]*k8s.Pod {
 	return pe.podsMap
 }
 
+func (pe *PolicyEngine) HasPodPeers() bool {
+	return len(pe.podsMap) > 0
+}
+
 // GetPeersList returns a slice of peers from all PolicyEngine resources
 // get peers in level of workloads (pod owners) of type WorkloadPeer, and ip-blocks
 func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {

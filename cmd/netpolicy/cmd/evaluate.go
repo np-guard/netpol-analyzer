@@ -25,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
@@ -108,10 +109,12 @@ var evaluateCmd = &cobra.Command{
 
 		if dirPath != "" {
 			// get relevant resources from dir path
-			objectsList, err := scan.FilesToObjectsListFiltered(dirPath, filepath.WalkDir, podNames)
-			if err != nil {
-				return err
+			scanner := scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir)
+			objectsList, processingErrs := scanner.FilesToObjectsListFiltered(dirPath, podNames)
+			if len(processingErrs) > 0 {
+				return errors.New("has processing errors")
 			}
+			var err error
 			for _, obj := range objectsList {
 				if obj.Kind == scan.Pod {
 					err = pe.UpsertObject(obj.Pod)
