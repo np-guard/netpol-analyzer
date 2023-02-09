@@ -41,41 +41,41 @@ type ConnlistAnalyzerOption func(*ConnlistAnalyzer)
 // WithLogger is a functional option which sets the logger for a ConnlistAnalyzer to use.
 // The provided logger must conform with the package's Logger interface.
 func WithLogger(l logger.Logger) ConnlistAnalyzerOption {
-	return func(p *ConnlistAnalyzer) {
-		p.logger = l
+	return func(c *ConnlistAnalyzer) {
+		c.logger = l
 	}
 }
 
 // WithStopOnError is a functional option which directs ConnlistAnalyzer to stop any processing after the
 // first severe error.
 func WithStopOnError() ConnlistAnalyzerOption {
-	return func(p *ConnlistAnalyzer) {
-		p.stopOnError = true
+	return func(c *ConnlistAnalyzer) {
+		c.stopOnError = true
 	}
 }
 
 // WithWalkFn is a functional option, allowing user to provide their own dir-scanning function.
 // It is relevant when using ConnlistAnalyzer to analyze connectivity from scanned dir resources.
 func WithWalkFn(walkFn scan.WalkFunction) ConnlistAnalyzerOption {
-	return func(p *ConnlistAnalyzer) {
-		p.walkFn = walkFn
+	return func(c *ConnlistAnalyzer) {
+		c.walkFn = walkFn
 	}
 }
 
 // NewConnlistAnalyzer creates a new instance of ConnlistAnalyzer, and applies the provided functional options.
 func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	// object with default behavior options
-	ps := &ConnlistAnalyzer{
+	ca := &ConnlistAnalyzer{
 		logger:      logger.NewDefaultLogger(),
 		stopOnError: false,
 		errors:      []scan.FileProcessingError{},
 		walkFn:      filepath.WalkDir,
 	}
 	for _, o := range options {
-		o(ps)
+		o(ca)
 	}
-	ps.scanner = scan.NewResourcesScanner(ps.logger, ps.stopOnError, ps.walkFn)
-	return ps
+	ca.scanner = scan.NewResourcesScanner(ca.logger, ca.stopOnError, ca.walkFn)
+	return ca
 }
 
 // Errors returns a slice of FileProcessingError with all warnings and errors encountered during processing.
