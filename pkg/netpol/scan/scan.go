@@ -68,7 +68,7 @@ func (sc *ResourcesScanner) YAMLDocumentsToObjectsList(documents []YAMLDocumentI
 	for _, manifest := range documents {
 		isAcceptedType, kind, processingErrs := sc.getKind(manifest)
 		if isAcceptedType {
-			if k8sObjects, err := sc.manifestToK8sObjects(manifest, kind); err == nil {
+			if k8sObjects, err := manifestToK8sObjects(manifest, kind); err == nil {
 				res = append(res, k8sObjects...)
 			} else {
 				errs = appendAndLogNewError(errs, failedScanningResource(kind, manifest.FilePath(), err), sc.logger)
@@ -151,7 +151,7 @@ func (sc *ResourcesScanner) FilesToObjectsList(path string) ([]K8sObject, []File
 // and full input pods names for pod resources
 func (sc *ResourcesScanner) FilesToObjectsListFiltered(path string, podNames []types.NamespacedName) ([]K8sObject, []FileProcessingError) {
 	allObjects, errs := sc.FilesToObjectsList(path)
-	if len(errs) > 0 {
+	if stopProcessing(sc.stopOnError, errs) {
 		return nil, errs
 	}
 	podNamesMap := make(map[string]bool, 0)
@@ -265,46 +265,46 @@ func (sc *ResourcesScanner) getKind(yamlDoc YAMLDocumentIntf) (bool, string, []F
 }
 
 // given a YAML doc and its resource kind, convert to a slice of K8sObject
-func (sc *ResourcesScanner) manifestToK8sObjects(yamlDoc YAMLDocumentIntf, kind string) ([]K8sObject, error) {
+func manifestToK8sObjects(yamlDoc YAMLDocumentIntf, kind string) ([]K8sObject, error) {
 	objDataBuf := []byte(yamlDoc.Content())
 	res := make([]K8sObject, 0, 1)
 	switch kind {
 	case Pod:
-		obj := sc.parsePod(bytes.NewReader(objDataBuf))
+		obj := parsePod(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Pod: obj, Kind: kind})
 	case ReplicaSet:
-		obj := sc.parseReplicaSet(bytes.NewReader(objDataBuf))
+		obj := parseReplicaSet(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Replicaset: obj, Kind: kind})
 	case Deployment:
-		obj := sc.parseDeployment(bytes.NewReader(objDataBuf))
+		obj := parseDeployment(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Deployment: obj, Kind: kind})
 	case Statefulset:
-		obj := sc.parseStatefulSet(bytes.NewReader(objDataBuf))
+		obj := parseStatefulSet(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Statefulset: obj, Kind: kind})
 	case ReplicationController:
-		obj := sc.parseReplicationController(bytes.NewReader(objDataBuf))
+		obj := parseReplicationController(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{ReplicationController: obj, Kind: kind})
 	case Daemonset:
-		obj := sc.parseDaemonSet(bytes.NewReader(objDataBuf))
+		obj := parseDaemonSet(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Daemonset: obj, Kind: kind})
 	case Job:
-		obj := sc.parseJob(bytes.NewReader(objDataBuf))
+		obj := parseJob(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Job: obj, Kind: kind})
 	case CronJob:
-		obj := sc.parseCronJob(bytes.NewReader(objDataBuf))
+		obj := parseCronJob(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{CronJob: obj, Kind: kind})
 	case Networkpolicy:
-		obj := sc.parseNetworkPolicy(bytes.NewReader(objDataBuf))
+		obj := parseNetworkPolicy(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Networkpolicy: obj, Kind: kind})
 	case Namespace:
-		obj := sc.parseNamespace(bytes.NewReader(objDataBuf))
+		obj := parseNamespace(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Namespace: obj, Kind: kind})
 	case List:
-		res = sc.parseList(objDataBuf)
+		res = parseList(objDataBuf)
 	case PodList:
-		res = sc.parsePodList(objDataBuf)
+		res = parsePodList(objDataBuf)
 	case NamespaceList:
-		res = sc.parseNamespaceList(objDataBuf)
+		res = parseNamespaceList(objDataBuf)
 	// TODO: support other specific list types, other than PodList and NamespaceList
 	default:
 		return res, fmt.Errorf("unsupported kind: %s", kind)
@@ -338,9 +338,9 @@ func (sc *ResourcesScanner) searchYamlFiles(repoDir string) ([]string, []FilePro
 }
 
 // given YAML of kind "List" , parse and convert to slice of K8sObject
-func (sc *ResourcesScanner) parseList(objDataBuf []byte) []K8sObject {
+func parseList(objDataBuf []byte) []K8sObject {
 	for kind := range singleResourceK8sKinds {
-		if isKind, resList := sc.parseListOfKind(objDataBuf, kind); isKind {
+		if isKind, resList := parseListOfKind(objDataBuf, kind); isKind {
 			return resList
 		}
 	}
@@ -348,16 +348,16 @@ func (sc *ResourcesScanner) parseList(objDataBuf []byte) []K8sObject {
 }
 
 // given YAML of kind "NamespaceList" , parse and convert to slice of K8sObject
-func (sc *ResourcesScanner) parseNamespaceList(objDataBuf []byte) []K8sObject {
-	if isKind, resList := sc.parseListOfKind(objDataBuf, Namespace); isKind {
+func parseNamespaceList(objDataBuf []byte) []K8sObject {
+	if isKind, resList := parseListOfKind(objDataBuf, Namespace); isKind {
 		return resList
 	}
 	return nil
 }
 
 // given YAML of kind "PodList" , parse and convert to slice of K8sObject
-func (sc *ResourcesScanner) parsePodList(objDataBuf []byte) []K8sObject {
-	if isKind, resList := sc.parseListOfKind(objDataBuf, Pod); isKind {
+func parsePodList(objDataBuf []byte) []K8sObject {
+	if isKind, resList := parseListOfKind(objDataBuf, Pod); isKind {
 		return resList
 	}
 	return nil
@@ -365,7 +365,7 @@ func (sc *ResourcesScanner) parsePodList(objDataBuf []byte) []K8sObject {
 
 // given a parsed k8s object's namespace and kind, validate its kind, and assign kind or namespace if missing
 // return true if the actual kind matches the expected kind
-func (sc *ResourcesScanner) validateNamespaceAndKind(namespace, kind *string, expectedKind string) (bool, error) {
+func validateNamespaceAndKind(namespace, kind *string, expectedKind string) (bool, error) {
 	if namespace != nil && *namespace == metav1.NamespaceNone {
 		*namespace = metav1.NamespaceDefault
 	}
@@ -378,10 +378,10 @@ func (sc *ResourcesScanner) validateNamespaceAndKind(namespace, kind *string, ex
 	return true, nil
 }
 
-func (sc *ResourcesScanner) convertPodListTOK8sObjects(pl *v1.PodList) ([]K8sObject, error) {
+func convertPodListTOK8sObjects(pl *v1.PodList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(pl.Items))
 	for i := range pl.Items {
-		if isValidKind, err := sc.validateNamespaceAndKind(&pl.Items[i].Namespace, &pl.Items[i].Kind, Pod); !isValidKind {
+		if isValidKind, err := validateNamespaceAndKind(&pl.Items[i].Namespace, &pl.Items[i].Kind, Pod); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Pod: &pl.Items[i], Kind: Pod}
@@ -389,10 +389,10 @@ func (sc *ResourcesScanner) convertPodListTOK8sObjects(pl *v1.PodList) ([]K8sObj
 	return res, nil
 }
 
-func (sc *ResourcesScanner) convertNamespaceListTOK8sObjects(nsl *v1.NamespaceList) ([]K8sObject, error) {
+func convertNamespaceListTOK8sObjects(nsl *v1.NamespaceList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(nsl.Items))
 	for i := range nsl.Items {
-		if isValidKind, err := sc.validateNamespaceAndKind(nil, &nsl.Items[i].Kind, Namespace); !isValidKind {
+		if isValidKind, err := validateNamespaceAndKind(nil, &nsl.Items[i].Kind, Namespace); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Namespace: &nsl.Items[i], Kind: Namespace}
@@ -400,10 +400,10 @@ func (sc *ResourcesScanner) convertNamespaceListTOK8sObjects(nsl *v1.NamespaceLi
 	return res, nil
 }
 
-func (sc *ResourcesScanner) convertNetpolListTOK8sObjects(nl *netv1.NetworkPolicyList) ([]K8sObject, error) {
+func convertNetpolListTOK8sObjects(nl *netv1.NetworkPolicyList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(nl.Items))
 	for i := range nl.Items {
-		if isValidKind, err := sc.validateNamespaceAndKind(&nl.Items[i].Namespace, &nl.Items[i].Kind, Networkpolicy); !isValidKind {
+		if isValidKind, err := validateNamespaceAndKind(&nl.Items[i].Namespace, &nl.Items[i].Kind, Networkpolicy); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Networkpolicy: &nl.Items[i], Kind: Networkpolicy}
@@ -411,10 +411,10 @@ func (sc *ResourcesScanner) convertNetpolListTOK8sObjects(nl *netv1.NetworkPolic
 	return res, nil
 }
 
-func (sc *ResourcesScanner) convertReplicaSetListTOK8sObjects(rsl *appsv1.ReplicaSetList) ([]K8sObject, error) {
+func convertReplicaSetListTOK8sObjects(rsl *appsv1.ReplicaSetList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(rsl.Items))
 	for i := range rsl.Items {
-		if isValidKind, err := sc.validateNamespaceAndKind(&rsl.Items[i].Namespace, &rsl.Items[i].Kind, ReplicaSet); !isValidKind {
+		if isValidKind, err := validateNamespaceAndKind(&rsl.Items[i].Namespace, &rsl.Items[i].Kind, ReplicaSet); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Replicaset: &rsl.Items[i], Kind: ReplicaSet}
@@ -422,10 +422,10 @@ func (sc *ResourcesScanner) convertReplicaSetListTOK8sObjects(rsl *appsv1.Replic
 	return res, nil
 }
 
-func (sc *ResourcesScanner) convertDeploymentListTOK8sObjects(dl *appsv1.DeploymentList) ([]K8sObject, error) {
+func convertDeploymentListTOK8sObjects(dl *appsv1.DeploymentList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(dl.Items))
 	for i := range dl.Items {
-		if isValidKind, err := sc.validateNamespaceAndKind(&dl.Items[i].Namespace, &dl.Items[i].Kind, Deployment); !isValidKind {
+		if isValidKind, err := validateNamespaceAndKind(&dl.Items[i].Namespace, &dl.Items[i].Kind, Deployment); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Deployment: &dl.Items[i], Kind: Deployment}
@@ -433,10 +433,10 @@ func (sc *ResourcesScanner) convertDeploymentListTOK8sObjects(dl *appsv1.Deploym
 	return res, nil
 }
 
-func (sc *ResourcesScanner) convertStatefulSetListTOK8sObjects(sl *appsv1.StatefulSetList) ([]K8sObject, error) {
+func convertStatefulSetListTOK8sObjects(sl *appsv1.StatefulSetList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(sl.Items))
 	for i := range sl.Items {
-		if isValidKind, err := sc.validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, Statefulset); !isValidKind {
+		if isValidKind, err := validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, Statefulset); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Statefulset: &sl.Items[i], Kind: Statefulset}
@@ -444,10 +444,10 @@ func (sc *ResourcesScanner) convertStatefulSetListTOK8sObjects(sl *appsv1.Statef
 	return res, nil
 }
 
-func (sc *ResourcesScanner) convertDaemonSetListTOK8sObjects(sl *appsv1.DaemonSetList) ([]K8sObject, error) {
+func convertDaemonSetListTOK8sObjects(sl *appsv1.DaemonSetList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(sl.Items))
 	for i := range sl.Items {
-		if isValidKind, err := sc.validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, Daemonset); !isValidKind {
+		if isValidKind, err := validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, Daemonset); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Daemonset: &sl.Items[i], Kind: Daemonset}
@@ -455,10 +455,10 @@ func (sc *ResourcesScanner) convertDaemonSetListTOK8sObjects(sl *appsv1.DaemonSe
 	return res, nil
 }
 
-func (sc *ResourcesScanner) convertReplicationControllerListTOK8sObjects(sl *v1.ReplicationControllerList) ([]K8sObject, error) {
+func convertReplicationControllerListTOK8sObjects(sl *v1.ReplicationControllerList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(sl.Items))
 	for i := range sl.Items {
-		if isValidKind, err := sc.validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, ReplicationController); !isValidKind {
+		if isValidKind, err := validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, ReplicationController); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{ReplicationController: &sl.Items[i], Kind: ReplicationController}
@@ -466,10 +466,10 @@ func (sc *ResourcesScanner) convertReplicationControllerListTOK8sObjects(sl *v1.
 	return res, nil
 }
 
-func (sc *ResourcesScanner) convertJobListTOK8sObjects(sl *batchv1.JobList) ([]K8sObject, error) {
+func convertJobListTOK8sObjects(sl *batchv1.JobList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(sl.Items))
 	for i := range sl.Items {
-		if isValidKind, err := sc.validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, Job); !isValidKind {
+		if isValidKind, err := validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, Job); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{Job: &sl.Items[i], Kind: Job}
@@ -477,10 +477,10 @@ func (sc *ResourcesScanner) convertJobListTOK8sObjects(sl *batchv1.JobList) ([]K
 	return res, nil
 }
 
-func (sc *ResourcesScanner) convertCronJobListTOK8sObjects(sl *batchv1.CronJobList) ([]K8sObject, error) {
+func convertCronJobListTOK8sObjects(sl *batchv1.CronJobList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(sl.Items))
 	for i := range sl.Items {
-		if isValidKind, err := sc.validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, CronJob); !isValidKind {
+		if isValidKind, err := validateNamespaceAndKind(&sl.Items[i].Namespace, &sl.Items[i].Kind, CronJob); !isValidKind {
 			return nil, err
 		}
 		res[i] = K8sObject{CronJob: &sl.Items[i], Kind: CronJob}
@@ -489,53 +489,53 @@ func (sc *ResourcesScanner) convertCronJobListTOK8sObjects(sl *batchv1.CronJobLi
 }
 
 //gocyclo:ignore
-func (sc *ResourcesScanner) getListObjects(parsedList interface{}, kind string) ([]K8sObject, error) {
+func getListObjects(parsedList interface{}, kind string) ([]K8sObject, error) {
 	switch kind {
 	case Pod:
 		if podList, ok := parsedList.(*v1.PodList); ok {
-			return sc.convertPodListTOK8sObjects(podList)
+			return convertPodListTOK8sObjects(podList)
 		}
 	case Namespace:
 		if nsList, ok := parsedList.(*v1.NamespaceList); ok {
-			return sc.convertNamespaceListTOK8sObjects(nsList)
+			return convertNamespaceListTOK8sObjects(nsList)
 		}
 	case Networkpolicy:
 		if netpolList, ok := parsedList.(*netv1.NetworkPolicyList); ok {
-			return sc.convertNetpolListTOK8sObjects(netpolList)
+			return convertNetpolListTOK8sObjects(netpolList)
 		}
 	case ReplicaSet:
 		if rsList, ok := parsedList.(*appsv1.ReplicaSetList); ok {
-			return sc.convertReplicaSetListTOK8sObjects(rsList)
+			return convertReplicaSetListTOK8sObjects(rsList)
 		}
 	case Deployment:
 		if dlList, ok := parsedList.(*appsv1.DeploymentList); ok {
-			return sc.convertDeploymentListTOK8sObjects(dlList)
+			return convertDeploymentListTOK8sObjects(dlList)
 		}
 	case Statefulset:
 		if slList, ok := parsedList.(*appsv1.StatefulSetList); ok {
-			return sc.convertStatefulSetListTOK8sObjects(slList)
+			return convertStatefulSetListTOK8sObjects(slList)
 		}
 	case Daemonset:
 		if dslList, ok := parsedList.(*appsv1.DaemonSetList); ok {
-			return sc.convertDaemonSetListTOK8sObjects(dslList)
+			return convertDaemonSetListTOK8sObjects(dslList)
 		}
 	case ReplicationController:
 		if dslList, ok := parsedList.(*v1.ReplicationControllerList); ok {
-			return sc.convertReplicationControllerListTOK8sObjects(dslList)
+			return convertReplicationControllerListTOK8sObjects(dslList)
 		}
 	case Job:
 		if dslList, ok := parsedList.(*batchv1.JobList); ok {
-			return sc.convertJobListTOK8sObjects(dslList)
+			return convertJobListTOK8sObjects(dslList)
 		}
 	case CronJob:
 		if dslList, ok := parsedList.(*batchv1.CronJobList); ok {
-			return sc.convertCronJobListTOK8sObjects(dslList)
+			return convertCronJobListTOK8sObjects(dslList)
 		}
 	}
 	return nil, fmt.Errorf("invalid kind: %s", kind)
 }
 
-func (sc *ResourcesScanner) parseListOfKind(objDataBuf []byte, kind string) (bool, []K8sObject) {
+func parseListOfKind(objDataBuf []byte, kind string) (bool, []K8sObject) {
 	r := bytes.NewReader(objDataBuf)
 	var err error
 	var resList interface{}
@@ -566,7 +566,7 @@ func (sc *ResourcesScanner) parseListOfKind(objDataBuf []byte, kind string) (boo
 	if err != nil {
 		return false, nil
 	}
-	listObjects, err := sc.getListObjects(resList, kind)
+	listObjects, err := getListObjects(resList, kind)
 	if err != nil {
 		return false, nil
 	}
@@ -574,7 +574,7 @@ func (sc *ResourcesScanner) parseListOfKind(objDataBuf []byte, kind string) (boo
 	return true, listObjects
 }
 
-func (sc *ResourcesScanner) parsePod(r io.Reader) *v1.Pod {
+func parsePod(r io.Reader) *v1.Pod {
 	if r == nil {
 		return nil
 	}
@@ -583,13 +583,13 @@ func (sc *ResourcesScanner) parsePod(r io.Reader) *v1.Pod {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Pod); !isValid || err != nil {
+	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Pod); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func (sc *ResourcesScanner) parseNamespace(r io.Reader) *v1.Namespace {
+func parseNamespace(r io.Reader) *v1.Namespace {
 	if r == nil {
 		return nil
 	}
@@ -601,7 +601,7 @@ func (sc *ResourcesScanner) parseNamespace(r io.Reader) *v1.Namespace {
 	return &rc
 }
 
-func (sc *ResourcesScanner) parseNetworkPolicy(r io.Reader) *netv1.NetworkPolicy {
+func parseNetworkPolicy(r io.Reader) *netv1.NetworkPolicy {
 	if r == nil {
 		return nil
 	}
@@ -610,13 +610,13 @@ func (sc *ResourcesScanner) parseNetworkPolicy(r io.Reader) *netv1.NetworkPolicy
 	if err != nil {
 		return nil
 	}
-	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Networkpolicy); !isValid || err != nil {
+	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Networkpolicy); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func (sc *ResourcesScanner) parseReplicaSet(r io.Reader) *appsv1.ReplicaSet {
+func parseReplicaSet(r io.Reader) *appsv1.ReplicaSet {
 	if r == nil {
 		return nil
 	}
@@ -625,13 +625,13 @@ func (sc *ResourcesScanner) parseReplicaSet(r io.Reader) *appsv1.ReplicaSet {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, ReplicaSet); !isValid || err != nil {
+	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, ReplicaSet); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func (sc *ResourcesScanner) parseReplicationController(r io.Reader) *v1.ReplicationController {
+func parseReplicationController(r io.Reader) *v1.ReplicationController {
 	if r == nil {
 		return nil
 	}
@@ -640,13 +640,13 @@ func (sc *ResourcesScanner) parseReplicationController(r io.Reader) *v1.Replicat
 	if err != nil {
 		return nil
 	}
-	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, ReplicationController); !isValid || err != nil {
+	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, ReplicationController); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func (sc *ResourcesScanner) parseDaemonSet(r io.Reader) *appsv1.DaemonSet {
+func parseDaemonSet(r io.Reader) *appsv1.DaemonSet {
 	if r == nil {
 		return nil
 	}
@@ -655,13 +655,13 @@ func (sc *ResourcesScanner) parseDaemonSet(r io.Reader) *appsv1.DaemonSet {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Daemonset); !isValid || err != nil {
+	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Daemonset); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func (sc *ResourcesScanner) parseStatefulSet(r io.Reader) *appsv1.StatefulSet {
+func parseStatefulSet(r io.Reader) *appsv1.StatefulSet {
 	if r == nil {
 		return nil
 	}
@@ -670,13 +670,13 @@ func (sc *ResourcesScanner) parseStatefulSet(r io.Reader) *appsv1.StatefulSet {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Statefulset); !isValid || err != nil {
+	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Statefulset); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func (sc *ResourcesScanner) parseJob(r io.Reader) *batchv1.Job {
+func parseJob(r io.Reader) *batchv1.Job {
 	if r == nil {
 		return nil
 	}
@@ -685,13 +685,13 @@ func (sc *ResourcesScanner) parseJob(r io.Reader) *batchv1.Job {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Job); !isValid || err != nil {
+	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Job); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func (sc *ResourcesScanner) parseCronJob(r io.Reader) *batchv1.CronJob {
+func parseCronJob(r io.Reader) *batchv1.CronJob {
 	if r == nil {
 		return nil
 	}
@@ -700,13 +700,13 @@ func (sc *ResourcesScanner) parseCronJob(r io.Reader) *batchv1.CronJob {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, CronJob); !isValid || err != nil {
+	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, CronJob); !isValid || err != nil {
 		return nil
 	}
 	return &rc
 }
 
-func (sc *ResourcesScanner) parseDeployment(r io.Reader) *appsv1.Deployment {
+func parseDeployment(r io.Reader) *appsv1.Deployment {
 	if r == nil {
 		return nil
 	}
@@ -715,7 +715,7 @@ func (sc *ResourcesScanner) parseDeployment(r io.Reader) *appsv1.Deployment {
 	if err != nil {
 		return nil
 	}
-	if isValid, err := sc.validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Deployment); !isValid || err != nil {
+	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Deployment); !isValid || err != nil {
 		return nil
 	}
 	return &rc

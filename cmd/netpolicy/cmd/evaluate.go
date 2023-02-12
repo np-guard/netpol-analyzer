@@ -111,9 +111,12 @@ var evaluateCmd = &cobra.Command{
 			// get relevant resources from dir path
 			scanner := scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir)
 			objectsList, processingErrs := scanner.FilesToObjectsListFiltered(dirPath, podNames)
-			if len(processingErrs) > 0 {
-				return errors.New("has processing errors")
+			for _, err := range processingErrs {
+				if err.IsFatal() || err.IsSevere() {
+					return fmt.Errorf("scan dir path %s had processing errors: %v", dirPath, err.Error())
+				}
 			}
+
 			var err error
 			for _, obj := range objectsList {
 				if obj.Kind == scan.Pod {

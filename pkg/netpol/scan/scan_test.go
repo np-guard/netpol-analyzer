@@ -22,7 +22,7 @@ var scanner = NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.Wal
 
 func TestParseList(t *testing.T) {
 	testName := "TestParseList"
-	res := scanner.parseList([]byte(podList))
+	res := parseList([]byte(podList))
 	if len(res) != 1 {
 		t.Fatalf("Test %s: unexpected len of parsed k8s objects list: %d", testName, len(res))
 	}

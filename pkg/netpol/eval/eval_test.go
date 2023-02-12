@@ -1054,7 +1054,7 @@ func writeRes(res, fileName string) {
 func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) error {
 	objectsList, processingErrs := scanner.FilesToObjectsList(path)
 	if len(processingErrs) > 0 {
-		return errors.New("processing erros occured")
+		return errors.New("processing errors occurred")
 	}
 	var netpols = []*netv1.NetworkPolicy{}
 	var pods = []*v1.Pod{}
