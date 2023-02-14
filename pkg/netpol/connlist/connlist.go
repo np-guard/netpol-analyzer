@@ -94,7 +94,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	return ca
 }
 
-// Errors returns a slice of FileProcessingError with all warnings and errors encountered during processing.
+// Errors returns a slice of ConnlistError with all warnings and errors encountered during processing.
 func (ca *ConnlistAnalyzer) Errors() []ConnlistError {
 	return ca.errors
 }
