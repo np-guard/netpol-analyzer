@@ -27,11 +27,12 @@ import (
 // A ConnlistAnalyzer provides API to recursively scan a directory for Kubernetes resources including network policies,
 // and get the list of permitted connectivity between the workloads of the K8s application managed in this directory.
 type ConnlistAnalyzer struct {
-	logger      logger.Logger
-	stopOnError bool
-	errors      []scan.FileProcessingError
-	walkFn      scan.WalkFunction
-	scanner     *scan.ResourcesScanner
+	logger        logger.Logger
+	stopOnError   bool
+	errors        []scan.FileProcessingError
+	walkFn        scan.WalkFunction
+	scanner       *scan.ResourcesScanner
+	focusWorkload string
 }
 
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
@@ -59,6 +60,12 @@ func WithStopOnError() ConnlistAnalyzerOption {
 func WithWalkFn(walkFn scan.WalkFunction) ConnlistAnalyzerOption {
 	return func(c *ConnlistAnalyzer) {
 		c.walkFn = walkFn
+	}
+}
+
+func WithFocusWorkload(workload string) ConnlistAnalyzerOption {
+	return func(p *ConnlistAnalyzer) {
+		p.focusWorkload = workload
 	}
 }
 
@@ -248,6 +255,23 @@ func (c *connection) String() string {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
+func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
+	if src.IsPeerIPType() && dst.IsPeerIPType() {
+		return false
+	}
+	if ca.focusWorkload == "" {
+		return true
+	}
+	// at least one of src/dst should be the focus workload
+	if !src.IsPeerIPType() && src.Name() == ca.focusWorkload {
+		return true
+	}
+	if !dst.IsPeerIPType() && dst.Name() == ca.focusWorkload {
+		return true
+	}
+	return false
+}
+
 // getConnectionsList returns connections list from PolicyEngine object
 func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 	if !pe.HasPodPeers() {
@@ -264,7 +288,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2Pe
 		for j := range peerList {
 			srcPeer := peerList[i]
 			dstPeer := peerList[j]
-			if srcPeer.IsPeerIPType() && dstPeer.IsPeerIPType() {
+			if !ca.includePairOfWorkloads(srcPeer, dstPeer) {
 				continue
 			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)

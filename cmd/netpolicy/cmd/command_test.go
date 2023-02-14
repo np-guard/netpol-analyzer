@@ -145,6 +145,21 @@ func TestCommannds(t *testing.T) {
 			exact:          true,
 			isErr:          false,
 		},
+
+		{
+			name: "test_legal_list_with_focus_workload",
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				"--focusworkload",
+				"emailservice",
+			},
+			expectedOutput: `default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080
+default/emailservice[Deployment] => default/emailservice[Deployment] : All Connections`,
+			exact: true,
+			isErr: false,
+		},
 	}
 
 	for _, test := range tests {

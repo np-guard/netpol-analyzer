@@ -21,6 +21,10 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 )
 
+var (
+	focusWorkload string
+)
+
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
@@ -38,7 +42,7 @@ defined`,
 		var conns []connlist.Peer2PeerConnection
 		var err error
 
-		analyzer := connlist.NewConnlistAnalyzer()
+		analyzer := connlist.NewConnlistAnalyzer(connlist.WithFocusWorkload(focusWorkload))
 
 		if dirPath != "" {
 			conns, err = analyzer.ConnlistFromDirPath(dirPath)
@@ -58,4 +62,8 @@ defined`,
 // Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
 func init() {
 	rootCmd.AddCommand(listCmd)
+
+	// output options
+	listCmd.Flags().StringVarP(&focusWorkload, "focusworkload", "",
+		focusWorkload, "Focus connections of specified workload name in the output")
 }
