@@ -283,7 +283,10 @@ func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 		podOwnersMap[workload.String()] = workload
 	}
 
-	ipBlocks := pe.GetDisjointIPBlocks()
+	ipBlocks, err := pe.GetDisjointIPBlocks()
+	if err != nil {
+		return nil, err
+	}
 
 	// add ip-blocks to peers list
 	res := make([]Peer, len(ipBlocks)+len(podOwnersMap))
@@ -300,15 +303,18 @@ func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 }
 
 // GetDisjointIPBlocks returns a slice of disjoint ip-blocks from all netpols resources
-func (pe *PolicyEngine) GetDisjointIPBlocks() []*k8s.IPBlock {
+func (pe *PolicyEngine) GetDisjointIPBlocks() ([]*k8s.IPBlock, error) {
 	var ipbList []*k8s.IPBlock
 	for _, nsMap := range pe.netpolsMap {
 		for _, policy := range nsMap {
-			policyIPBlocksList := policy.GetReferencedIPBlocks()
+			policyIPBlocksList, err := policy.GetReferencedIPBlocks()
+			if err != nil {
+				return nil, err
+			}
 			ipbList = append(ipbList, policyIPBlocksList...)
 		}
 	}
 	newAll, _ := k8s.NewIPBlock("0.0.0.0/0", []string{})
 	disjointRes := k8s.DisjointIPBlocks(ipbList, []*k8s.IPBlock{newAll})
-	return disjointRes
+	return disjointRes, nil
 }

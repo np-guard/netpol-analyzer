@@ -135,12 +135,19 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 		return getConnectionObject(conn), nil
 	}
 	// egress
-	res = pe.allallowedXgressConnections(srcK8sPeer, dstK8sPeer, false)
+	res, err := pe.allallowedXgressConnections(srcK8sPeer, dstK8sPeer, false)
+	if err != nil {
+		return nil, err
+	}
 	if res.IsEmpty() {
 		return getConnectionObject(res), nil
 	}
 	// ingress
-	res.Intersection(pe.allallowedXgressConnections(srcK8sPeer, dstK8sPeer, true))
+	ingressRes, err := pe.allallowedXgressConnections(srcK8sPeer, dstK8sPeer, true)
+	if err != nil {
+		return nil, err
+	}
+	res.Intersection(ingressRes)
 	return getConnectionObject(res), nil
 }
 
@@ -154,33 +161,40 @@ func (pe *PolicyEngine) getPod(p string) *k8s.Pod {
 
 // TODO: consider caching: for each pod and direction, test set of policies that are selecting it
 // getPoliciesSelectingPod returns a list of policies that select the input pod on the required direction (ingress/egress)
-func (pe *PolicyEngine) getPoliciesSelectingPod(p *k8s.Pod, direction netv1.PolicyType) []*k8s.NetworkPolicy {
+func (pe *PolicyEngine) getPoliciesSelectingPod(p *k8s.Pod, direction netv1.PolicyType) ([]*k8s.NetworkPolicy, error) {
 	netpols := pe.netpolsMap[p.Namespace]
 	res := []*k8s.NetworkPolicy{}
 	for _, policy := range netpols {
 		selects, err := policy.Selects(p, direction)
-		if err == nil && selects {
+		if err != nil {
+			return nil, err
+		}
+		if selects {
 			res = append(res, policy)
 		}
 	}
-	return res
+	return res, nil
 }
 
 // allowedXgressConnections returns true if the given connection from src to dst on given direction(ingress/egress)
 // is allowed by network policies rules
 func (pe *PolicyEngine) allowedXgressConnection(src, dst k8s.Peer, isIngress bool, protocol, port string) (bool, error) {
 	// relevant policies: policies that capture dst if isIngress, else policies that capture src
+	var err error
 	var netpols []*k8s.NetworkPolicy
 	if isIngress {
 		if dst.PeerType() == k8s.IPBlockType {
 			return true, nil // all connections allowed - no restrictions on ingress to externalIP
 		}
-		netpols = pe.getPoliciesSelectingPod(dst.(*k8s.PodPeer).Pod, netv1.PolicyTypeIngress)
+		netpols, err = pe.getPoliciesSelectingPod(dst.(*k8s.PodPeer).Pod, netv1.PolicyTypeIngress)
 	} else {
 		if src.PeerType() == k8s.IPBlockType {
 			return true, nil // all connections allowed - no restrictions on egress from externalIP
 		}
-		netpols = pe.getPoliciesSelectingPod(src.(*k8s.PodPeer).Pod, netv1.PolicyTypeEgress)
+		netpols, err = pe.getPoliciesSelectingPod(src.(*k8s.PodPeer).Pod, netv1.PolicyTypeEgress)
+	}
+	if err != nil {
+		return false, err
 	}
 
 	if len(netpols) == 0 { // no networkpolicy captures the relevant pod on the required direction
@@ -214,40 +228,51 @@ func (pe *PolicyEngine) allowedXgressConnection(src, dst k8s.Peer, isIngress boo
 
 // allallowedXgressConnections returns the set of allowed connections from src to dst on given
 // direction(ingress/egress), by network policies rules
-func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress bool) k8s.ConnectionSet {
+func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress bool) (k8s.ConnectionSet, error) {
 	// relevant policies: policies that capture dst if isIngress, else policies that capture src
+	var err error
 	var netpols []*k8s.NetworkPolicy
 	if isIngress {
 		if dst.PeerType() == k8s.IPBlockType {
-			return k8s.MakeConnectionSet(true) // all connections allowed - no restrictions on ingress to externalIP
+			return k8s.MakeConnectionSet(true), nil // all connections allowed - no restrictions on ingress to externalIP
 		}
-		netpols = pe.getPoliciesSelectingPod(dst.GetPeerPod(), netv1.PolicyTypeIngress)
+		netpols, err = pe.getPoliciesSelectingPod(dst.GetPeerPod(), netv1.PolicyTypeIngress)
 	} else {
 		if src.PeerType() == k8s.IPBlockType {
-			return k8s.MakeConnectionSet(true) // all connections allowed - no restrictions on egress from externalIP
+			return k8s.MakeConnectionSet(true), nil // all connections allowed - no restrictions on egress from externalIP
 		}
-		netpols = pe.getPoliciesSelectingPod(src.GetPeerPod(), netv1.PolicyTypeEgress)
+		netpols, err = pe.getPoliciesSelectingPod(src.GetPeerPod(), netv1.PolicyTypeEgress)
+	}
+	if err != nil {
+		return k8s.ConnectionSet{}, err
 	}
 
 	if len(netpols) == 0 {
-		return k8s.MakeConnectionSet(true) // all connections allowed - no networkpolicy captures the relevant pod on the required direction
+		return k8s.MakeConnectionSet(true), nil // all connections allowed - no networkpolicy captures the relevant pod on the required direction
 	}
 
 	allowedConns := k8s.MakeConnectionSet(false)
 
-	// iterate relevant network policies (that captuer the required pod)
+	// iterate relevant network policies (that capture the required pod)
 	for _, policy := range netpols {
 		// if isIngress: check for ingress rules that capture src within 'from'
-		// if not isIngress: check for egress rulres that capture dst within 'to'
+		// if not isIngress: check for egress rules that capture dst within 'to'
 		// collect the allowed connectivity from the relevant rules into allowedConns
 		if isIngress {
-			allowedConns.Union(policy.GetIngressAllowedConns(src, dst))
+			policyAllowedIngress, err := policy.GetIngressAllowedConns(src, dst)
+			if err != nil {
+				return allowedConns, err
+			}
+			allowedConns.Union(policyAllowedIngress)
 		} else {
-			allowedConns.Union(policy.GetEgressAllowedConns(dst))
+			policyAllowedEgress, err := policy.GetEgressAllowedConns(dst)
+			if err != nil {
+				return allowedConns, err
+			}
+			allowedConns.Union(policyAllowedEgress)
 		}
 	}
-
-	return allowedConns
+	return allowedConns, nil
 }
 
 // isPeerNodeIP returns true if peer1 is an IP address of a node and peer2 is a pod on that node

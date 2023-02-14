@@ -24,12 +24,19 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
+type ConnlistError interface {
+	IsFatal() bool
+	IsSevere() bool
+	Error() error
+	Location() string
+}
+
 // A ConnlistAnalyzer provides API to recursively scan a directory for Kubernetes resources including network policies,
 // and get the list of permitted connectivity between the workloads of the K8s application managed in this directory.
 type ConnlistAnalyzer struct {
 	logger        logger.Logger
 	stopOnError   bool
-	errors        []scan.FileProcessingError
+	errors        []ConnlistError
 	walkFn        scan.WalkFunction
 	scanner       *scan.ResourcesScanner
 	focusWorkload string
@@ -75,7 +82,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	ca := &ConnlistAnalyzer{
 		logger:      logger.NewDefaultLogger(),
 		stopOnError: false,
-		errors:      []scan.FileProcessingError{},
+		errors:      []ConnlistError{},
 		walkFn:      filepath.WalkDir,
 	}
 	for _, o := range options {
@@ -86,7 +93,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 }
 
 // Errors returns a slice of FileProcessingError with all warnings and errors encountered during processing.
-func (ca *ConnlistAnalyzer) Errors() []scan.FileProcessingError {
+func (ca *ConnlistAnalyzer) Errors() []ConnlistError {
 	return ca.errors
 }
 
@@ -103,7 +110,9 @@ func (ca *ConnlistAnalyzer) stopProcessing() error {
 // ConnlistFromDirPath returns the allowed connections list from dir path containing k8s resources
 func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConnection, error) {
 	objectsList, processingErrs := ca.scanner.FilesToObjectsList(dirPath)
-	ca.errors = append(ca.errors, processingErrs...)
+	for i := range processingErrs {
+		ca.errors = append(ca.errors, &processingErrs[i])
+	}
 
 	if err := ca.stopProcessing(); err != nil {
 		return nil, err
@@ -114,7 +123,9 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 // ConnlistFromYAMLManifests returns the allowed connections list from input YAML manifests
 func (ca *ConnlistAnalyzer) ConnlistFromYAMLManifests(manifests []scan.YAMLDocumentIntf) ([]Peer2PeerConnection, error) {
 	objectsList, processingErrs := ca.scanner.YAMLDocumentsToObjectsList(manifests)
-	ca.errors = append(ca.errors, processingErrs...)
+	for i := range processingErrs {
+		ca.errors = append(ca.errors, &processingErrs[i])
+	}
 
 	if err := ca.stopProcessing(); err != nil {
 		return nil, err

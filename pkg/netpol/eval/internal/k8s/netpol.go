@@ -14,7 +14,7 @@
 package k8s
 
 import (
-	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -22,6 +22,7 @@ import (
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
@@ -37,8 +38,12 @@ type NetworkPolicy netv1.NetworkPolicy
 // @todo need a network policy collection type along with convenience methods?
 // 	if so, also consider concurrent access (or declare not goroutine safe?)
 
-const portBase = 10
-const portBits = 32
+const (
+	portBase          = 10
+	portBits          = 32
+	namedPortErrTitle = "named port error"
+	rulePeerErrTitle  = "rule NetworkPolicyPeer error"
+)
 
 func getProtocolStr(p *v1.Protocol) string {
 	if p == nil { // If not specified, this field defaults to TCP.
@@ -47,22 +52,23 @@ func getProtocolStr(p *v1.Protocol) string {
 	return string(*p)
 }
 
-func convertNamedPort(namedPort string, pod *Pod) (int32, error) {
+func (np *NetworkPolicy) convertNamedPort(namedPort string, pod *Pod) (int32, error) {
 	for _, containerPort := range pod.Ports {
 		if namedPort == containerPort.Name {
 			return containerPort.ContainerPort, nil
 		}
 	}
-	return 0, errors.New("no matching named port")
+	errStr := fmt.Sprintf("named port is not defined in a selected workload %s", pod.Owner.Name)
+	return 0, np.netpolErr(namedPortErrTitle, errStr)
 }
 
-func getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (int32, int32, error) {
+func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (int32, int32, error) {
 	var start, end int32
 	if port.Type == intstr.String {
 		if dst.PeerType() != PodType {
-			return start, end, errors.New("cannot convert named port on extenral ip destination")
+			return start, end, np.netpolErr(namedPortErrTitle, "cannot convert named port for an IP destination")
 		}
-		portNum, err := convertNamedPort(port.StrVal, dst.GetPeerPod())
+		portNum, err := np.convertNamedPort(port.StrVal, dst.GetPeerPod())
 		if err != nil {
 			return start, end, err
 		}
@@ -78,9 +84,9 @@ func getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (int32, i
 	return start, end, nil
 }
 
-func ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) ConnectionSet {
+func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) (ConnectionSet, error) {
 	if len(rulePorts) == 0 {
-		return MakeConnectionSet(true) // If this field is empty or missing, this rule matches all ports (traffic not restricted by port)
+		return MakeConnectionSet(true), nil // If this field is empty or missing, this rule matches all ports (traffic not restricted by port)
 	}
 	res := MakeConnectionSet(false)
 	for i := range rulePorts {
@@ -92,18 +98,19 @@ func ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) ConnectionSe
 		if rulePorts[i].Port == nil {
 			ports = MakePortSet(true)
 		} else {
-			startPort, endPort, err := getPortsRange(rulePorts[i].Port, rulePorts[i].EndPort, dst)
-			if err == nil {
-				ports.AddPortRange(int64(startPort), int64(endPort))
+			startPort, endPort, err := np.getPortsRange(rulePorts[i].Port, rulePorts[i].EndPort, dst)
+			if err != nil {
+				return res, err
 			}
+			ports.AddPortRange(int64(startPort), int64(endPort))
 		}
 		res.AddConnection(protocol, ports)
 	}
-	return res
+	return res, nil
 }
 
 // ruleConnsContain returns true if the given protocol and port are contained in connections allowed by rulePorts
-func ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, protocol, port string, dst Peer) (bool, error) {
+func (np *NetworkPolicy) ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, protocol, port string, dst Peer) (bool, error) {
 	if len(rulePorts) == 0 {
 		return true, nil // If this field is empty or missing, this rule matches all ports (traffic not restricted by port)
 	}
@@ -114,7 +121,7 @@ func ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, protocol, port string
 		if rulePorts[i].Port == nil { // If this field is not provided, this matches all port names and numbers.
 			return true, nil
 		}
-		startPort, endPort, err := getPortsRange(rulePorts[i].Port, rulePorts[i].EndPort, dst)
+		startPort, endPort, err := np.getPortsRange(rulePorts[i].Port, rulePorts[i].EndPort, dst)
 		if err != nil {
 			return false, err
 		}
@@ -139,7 +146,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 	for i := range rulePeers {
 		if rulePeers[i].PodSelector != nil || rulePeers[i].NamespaceSelector != nil {
 			if rulePeers[i].IPBlock != nil {
-				return false, errors.New("rulePeers of type NetworkPolicyPeer -cannot have both IPBlock and PodSelector/NamespaceSelector set")
+				return false, np.netpolErr(rulePeerErrTitle, "cannot have both IPBlock and PodSelector/NamespaceSelector set")
 			}
 			if peer.PeerType() == IPBlockType {
 				continue // assuming that peer of type IP cannot be selected by pod selector
@@ -150,7 +157,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			if rulePeers[i].NamespaceSelector == nil {
 				peerMatchesNamespaceSelector = (np.ObjectMeta.Namespace == peer.GetPeerPod().Namespace)
 			} else {
-				selector, err := metav1.LabelSelectorAsSelector(rulePeers[i].NamespaceSelector)
+				selector, err := np.parseNetpolLabelSelector(rulePeers[i].NamespaceSelector)
 				if err != nil {
 					return false, err
 				}
@@ -163,7 +170,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			if rulePeers[i].PodSelector == nil {
 				peerMatchesPodSelector = true
 			} else {
-				selector, err := metav1.LabelSelectorAsSelector(rulePeers[i].PodSelector)
+				selector, err := np.parseNetpolLabelSelector(rulePeers[i].PodSelector)
 				if err != nil {
 					return false, err
 				}
@@ -178,9 +185,9 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 				// TODO: is this reasonable to assume?
 			}
 			// check that peer.IP matches the IPBlock
-			ruleIPBlock, err := NewIPBlock(rulePeers[i].IPBlock.CIDR, rulePeers[i].IPBlock.Except)
+			ruleIPBlock, err := np.parseNetpolCIDR(rulePeers[i].IPBlock.CIDR, rulePeers[i].IPBlock.Except)
 			if err != nil {
-				return false, err
+				return false, fmt.Errorf("network policy %s CIDR error: %s", np.fullName(), err)
 			}
 
 			peerIPBlock := peer.GetPeerIPBlock()
@@ -189,8 +196,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 				return true, nil
 			}
 		} else {
-			// unexpected obj -> at podselector / ipblock should be set?
-			return false, errors.New("rulePeers of type NetworkPolicyPeer - all fields are empty")
+			return false, np.netpolErr(rulePeerErrTitle, "cannot have empty rule peer")
 		}
 	}
 	return false, nil
@@ -210,7 +216,7 @@ func (np *NetworkPolicy) IngressAllowedConn(src Peer, protocol, port string, dst
 		if !peerSselected {
 			continue
 		}
-		connSelected, err := ruleConnsContain(rulePorts, protocol, port, dst)
+		connSelected, err := np.ruleConnsContain(rulePorts, protocol, port, dst)
 		if err != nil {
 			return false, err
 		}
@@ -234,7 +240,7 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 		if !peerSselected {
 			continue
 		}
-		connSelected, err := ruleConnsContain(rulePorts, protocol, port, dst)
+		connSelected, err := np.ruleConnsContain(rulePorts, protocol, port, dst)
 		if err != nil {
 			return false, err
 		}
@@ -246,66 +252,109 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 }
 
 // GetEgressAllowedConns returns the set of allowed connetions from any captured pod to the destination peer
-func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) ConnectionSet {
+func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (ConnectionSet, error) {
 	res := MakeConnectionSet(false)
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
 		peerSselected, err := np.ruleSelectsPeer(rulePeers, dst)
-		if err != nil || !peerSselected {
+		if err != nil {
+			return res, err
+		}
+		if !peerSselected {
 			continue
 		}
-		ruleConns := ruleConnections(rulePorts, dst)
+		ruleConns, err := np.ruleConnections(rulePorts, dst)
+		if err != nil {
+			return res, err
+		}
 		res.Union(ruleConns)
 		if res.AllowAll {
-			return res
+			return res, nil
 		}
 	}
-	return res
+	return res, nil
 }
 
 // GetIngressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer
-func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) ConnectionSet {
+func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (ConnectionSet, error) {
 	res := MakeConnectionSet(false)
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
 		peerSselected, err := np.ruleSelectsPeer(rulePeers, src)
-		if err != nil || !peerSselected {
+		if err != nil {
+			return res, err
+		}
+		if !peerSselected {
 			continue
 		}
-		ruleConns := ruleConnections(rulePorts, dst)
+
+		ruleConns, err := np.ruleConnections(rulePorts, dst)
+		if err != nil {
+			return res, err
+		}
 		res.Union(ruleConns)
 		if res.AllowAll {
-			return res
+			return res, nil
 		}
 	}
-	return res
+	return res, nil
 }
 
-func rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPolicyPeer) []*IPBlock {
+func (np *NetworkPolicy) netpolErr(title, description string) error {
+	return fmt.Errorf("network policy %s %s: %s", np.fullName(), title, description)
+}
+
+func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*IPBlock, error) {
+	ipb, err := NewIPBlock(cidr, except)
+	if err != nil {
+		return nil, np.netpolErr("CIDR error", err.Error())
+	}
+	return ipb, nil
+}
+
+func (np *NetworkPolicy) parseNetpolLabelSelector(selector *metav1.LabelSelector) (labels.Selector, error) {
+	selectorRes, err := metav1.LabelSelectorAsSelector(selector)
+	if err != nil {
+		return nil, np.netpolErr("selector error", err.Error())
+	}
+	return selectorRes, nil
+}
+
+func (np *NetworkPolicy) rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPolicyPeer) ([]*IPBlock, error) {
 	res := []*IPBlock{}
 	for _, peerObj := range rulePeers {
 		if peerObj.IPBlock != nil {
-			ipb, err := NewIPBlock(peerObj.IPBlock.CIDR, peerObj.IPBlock.Except)
+			ipb, err := np.parseNetpolCIDR(peerObj.IPBlock.CIDR, peerObj.IPBlock.Except)
 			if err == nil {
 				res = append(res, ipb.split()...)
+			} else {
+				return nil, err
 			}
 		}
 	}
-	return res
+	return res, nil
 }
 
 // GetReferencedIPBlocks: return list of IPBlock objects referenced in the current network policy
-func (np *NetworkPolicy) GetReferencedIPBlocks() []*IPBlock {
+func (np *NetworkPolicy) GetReferencedIPBlocks() ([]*IPBlock, error) {
 	res := []*IPBlock{}
 	for _, rule := range np.Spec.Ingress {
-		res = append(res, rulePeersReferencedIPBlocks(rule.From)...)
+		ruleRes, err := np.rulePeersReferencedIPBlocks(rule.From)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, ruleRes...)
 	}
 	for _, rule := range np.Spec.Egress {
-		res = append(res, rulePeersReferencedIPBlocks(rule.To)...)
+		ruleRes, err := np.rulePeersReferencedIPBlocks(rule.To)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, ruleRes...)
 	}
-	return res
+	return res, nil
 }
 
 // policyAffectsDirection receives ingress/egress direction and returns true if it affects this direction on its captured pods
@@ -341,9 +390,13 @@ func (np *NetworkPolicy) Selects(p *Pod, direction netv1.PolicyType) (bool, erro
 		return true, nil //  empty selector matches all pods
 	}
 
-	selector, err := metav1.LabelSelectorAsSelector(&np.Spec.PodSelector)
+	selector, err := np.parseNetpolLabelSelector(&np.Spec.PodSelector)
 	if err != nil {
 		return false, err
 	}
 	return selector.Matches(labels.Set(p.Labels)), nil
+}
+
+func (np *NetworkPolicy) fullName() string {
+	return types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String()
 }

@@ -1738,7 +1738,10 @@ func TestDisjointIpBlocks(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	ipList := pe.GetDisjointIPBlocks()
+	ipList, err := pe.GetDisjointIPBlocks()
+	if err != nil {
+		t.Fatalf("unexpected err GetDisjointIPBlocks: %v", err)
+	}
 	ipStrList := []string{}
 	for i := range ipList {
 		ipStrList = append(ipStrList, ipList[i].ToIPRanges())
