@@ -24,6 +24,8 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
+// ConnlistError holds information about a single error/warning that occurred during
+// the parsing and connectivity analysis of k8s-app with network policies
 type ConnlistError interface {
 	IsFatal() bool
 	IsSevere() bool
