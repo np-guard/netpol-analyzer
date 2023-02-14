@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"regexp"
 
 	yamlv3 "gopkg.in/yaml.v3"
@@ -15,11 +16,24 @@ import (
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/kubernetes/scheme"
 )
+
+type ResourcesScanner struct {
+	logger      logger.Logger
+	stopOnError bool
+	walkFn      WalkFunction
+}
+
+func NewResourcesScanner(l logger.Logger, stopOnError bool, walkFn WalkFunction) *ResourcesScanner {
+	res := &ResourcesScanner{logger: l, stopOnError: stopOnError, walkFn: walkFn}
+	return res
+}
 
 // Walk function is a function for recursively scanning a directory, in the spirit of Go's native filepath.WalkDir()
 // See https://pkg.go.dev/path/filepath#WalkDir for full description on how such file should work
@@ -48,46 +62,97 @@ type K8sObject struct {
 }
 
 // YAMLDocumentsToObjectsList returns a list of K8sObject parsed from input YAML documents
-func YAMLDocumentsToObjectsList(documents []string) ([]K8sObject, error) {
+func (sc *ResourcesScanner) YAMLDocumentsToObjectsList(documents []YAMLDocumentIntf) ([]K8sObject, []FileProcessingError) {
 	res := make([]K8sObject, 0)
+	errs := make([]FileProcessingError, 0)
 	for _, manifest := range documents {
-		if isAcceptedType, kind := getKind(manifest); isAcceptedType {
+		isAcceptedType, kind, processingErrs := sc.getKind(manifest)
+		if isAcceptedType {
 			if k8sObjects, err := manifestToK8sObjects(manifest, kind); err == nil {
 				res = append(res, k8sObjects...)
 			} else {
-				return res, err
+				errs = appendAndLogNewError(errs, failedScanningResource(kind, manifest.FilePath(), err), sc.logger)
 			}
 		}
+		errs = append(errs, processingErrs...)
+		if stopProcessing(sc.stopOnError, errs) {
+			return res, errs
+		}
 	}
-	return res, nil
+	if len(res) == 0 {
+		errs = appendAndLogNewError(errs, noK8sResourcesFound(), sc.logger)
+	}
+	return res, errs
+}
+
+// YAMLDocumentIntf is an interface for holding YAML document
+type YAMLDocumentIntf interface {
+	// Content is the string content of the YAML doc
+	Content() string
+	// FilePath is the file path containing the YAML doc
+	FilePath() string
+	// DocID is the document ID of the YAML doc within the file
+	DocID() int
+}
+
+// yamlDocument implements the YAMLDocumentIntf interface
+type yamlDocument struct {
+	content  string
+	filePath string
+	docID    int
+}
+
+func (yd *yamlDocument) Content() string {
+	return yd.content
+}
+func (yd *yamlDocument) FilePath() string {
+	return yd.filePath
+}
+func (yd *yamlDocument) DocID() int {
+	return yd.docID
 }
 
 // GetYAMLDocumentsFromPath returns a list of YAML documents from input dir path
-func GetYAMLDocumentsFromPath(repoDir string, walkFn WalkFunction) []string {
-	res := make([]string, 0)
-	manifestFiles := searchYamlFiles(repoDir, walkFn)
-	for _, mfp := range manifestFiles {
-		filebuf, err := os.ReadFile(mfp)
-		if err != nil {
-			continue
-		}
-		res = append(res, splitByYamlDocuments(filebuf)...)
+func (sc *ResourcesScanner) GetYAMLDocumentsFromPath(repoDir string) ([]YAMLDocumentIntf, []FileProcessingError) {
+	res := make([]YAMLDocumentIntf, 0)
+	manifestFiles, fileScanErrors := sc.searchYamlFiles(repoDir)
+	if stopProcessing(sc.stopOnError, fileScanErrors) {
+		return nil, fileScanErrors
 	}
-	return res
+
+	if len(manifestFiles) == 0 {
+		fileScanErrors = appendAndLogNewError(fileScanErrors, noYamlsFound(), sc.logger)
+		return nil, fileScanErrors
+	}
+
+	for _, mfp := range manifestFiles {
+		yamlDocs, errs := sc.splitByYamlDocuments(mfp)
+		res = append(res, yamlDocs...)
+		fileScanErrors = append(fileScanErrors, errs...)
+		if stopProcessing(sc.stopOnError, errs) {
+			return nil, fileScanErrors
+		}
+	}
+	return res, fileScanErrors
 }
 
 // FilesToObjectsList returns a list of K8sObject parsed from yaml files in the input dir path
-func FilesToObjectsList(path string, walkFn WalkFunction) ([]K8sObject, error) {
-	manifests := GetYAMLDocumentsFromPath(path, walkFn)
-	return YAMLDocumentsToObjectsList(manifests)
+func (sc *ResourcesScanner) FilesToObjectsList(path string) ([]K8sObject, []FileProcessingError) {
+	manifests, fileScanErrors := sc.GetYAMLDocumentsFromPath(path)
+	if stopProcessing(sc.stopOnError, fileScanErrors) {
+		return nil, fileScanErrors
+	}
+	objects, errs := sc.YAMLDocumentsToObjectsList(manifests)
+	fileScanErrors = append(fileScanErrors, errs...)
+	return objects, fileScanErrors
 }
 
 // FilesToObjectsListFiltered returns only K8sObjects from dir path if they match input pods namespaces (for non pod resources)
 // and full input pods names for pod resources
-func FilesToObjectsListFiltered(path string, walkFn WalkFunction, podNames []types.NamespacedName) ([]K8sObject, error) {
-	allObjects, err := FilesToObjectsList(path, walkFn)
-	if err != nil {
-		return nil, err
+func (sc *ResourcesScanner) FilesToObjectsListFiltered(path string, podNames []types.NamespacedName) ([]K8sObject, []FileProcessingError) {
+	allObjects, errs := sc.FilesToObjectsList(path)
+	if stopProcessing(sc.stopOnError, errs) {
+		return nil, errs
 	}
 	podNamesMap := make(map[string]bool, 0)
 	nsMap := make(map[string]bool, 0)
@@ -154,45 +219,54 @@ var singleResourceK8sKinds = map[string]struct{}{
 }
 
 // given a YAML file content, split to a list of YAML documents
-func splitByYamlDocuments(data []byte) []string {
-	decoder := yamlv3.NewDecoder(bytes.NewBuffer(data))
-	documents := make([]string, 0)
-	for {
-		var doc map[interface{}]interface{}
-		if err := decoder.Decode(&doc); err != nil {
-			if err == io.EOF {
-				break
-			}
-		}
-		if len(doc) > 0 {
-			out, _ := yamlv3.Marshal(doc)
-			documents = append(documents, string(out))
-		}
+func (sc *ResourcesScanner) splitByYamlDocuments(mfp string) ([]YAMLDocumentIntf, []FileProcessingError) {
+	fileBuf, err := os.ReadFile(mfp)
+	if err != nil {
+		return []YAMLDocumentIntf{}, appendAndLogNewError(nil, failedReadingFile(mfp, err), sc.logger)
 	}
-	return documents
+
+	decoder := yamlv3.NewDecoder(bytes.NewBuffer(fileBuf))
+	documents := make([]YAMLDocumentIntf, 0)
+	documentID := 0
+	for {
+		var doc yamlv3.Node
+		if err := decoder.Decode(&doc); err != nil {
+			if err != io.EOF {
+				return documents, appendAndLogNewError(nil, malformedYamlDoc(mfp, 0, documentID, err), sc.logger)
+			}
+			break
+		}
+		if len(doc.Content) > 0 && doc.Content[0].Kind == yamlv3.MappingNode {
+			out, err := yamlv3.Marshal(doc.Content[0])
+			if err != nil {
+				return documents, appendAndLogNewError(nil, malformedYamlDoc(mfp, doc.Line, documentID, err), sc.logger)
+			}
+			documents = append(documents, &yamlDocument{content: string(out), docID: documentID, filePath: mfp})
+		}
+		documentID += 1
+	}
+	return documents, nil
 }
 
 // return if yamlDoc is of accepted kind, and the kind string
-func getKind(yamlDoc string) (bool, string) {
-	if yamlDoc == "\n" || yamlDoc == "" {
-		// ignore empty cases
-		return false, ""
-	}
+func (sc *ResourcesScanner) getKind(yamlDoc YAMLDocumentIntf) (bool, string, []FileProcessingError) {
+	fileProcessingErrors := make([]FileProcessingError, 0)
 	decode := scheme.Codecs.UniversalDeserializer().Decode
-	_, groupVersionKind, err := decode([]byte(yamlDoc), nil, nil)
+	_, groupVersionKind, err := decode([]byte(yamlDoc.Content()), nil, nil)
 	if err != nil {
-		return false, ""
+		fileProcessingErrors = appendAndLogNewError(fileProcessingErrors, notK8sResource(yamlDoc.FilePath(), yamlDoc.DocID(), err), sc.logger)
+		return false, "", fileProcessingErrors
 	}
 	if !acceptedK8sTypes.MatchString(groupVersionKind.Kind) {
-		fmt.Printf("Skipping resource of kind: %s", groupVersionKind.Kind)
-		return false, ""
+		sc.logger.Infof("in file: %s, document: %d, skipping object with type: %s", yamlDoc.FilePath(), yamlDoc.DocID(), groupVersionKind.Kind)
+		return false, "", fileProcessingErrors
 	}
-	return true, groupVersionKind.Kind
+	return true, groupVersionKind.Kind, fileProcessingErrors
 }
 
 // given a YAML doc and its resource kind, convert to a slice of K8sObject
-func manifestToK8sObjects(yamlDoc, kind string) ([]K8sObject, error) {
-	objDataBuf := []byte(yamlDoc)
+func manifestToK8sObjects(yamlDoc YAMLDocumentIntf, kind string) ([]K8sObject, error) {
+	objDataBuf := []byte(yamlDoc.Content())
 	res := make([]K8sObject, 0, 1)
 	switch kind {
 	case Pod:
@@ -241,11 +315,16 @@ func manifestToK8sObjects(yamlDoc, kind string) ([]K8sObject, error) {
 const yamlParseBufferSize = 200
 
 // return a list of paths for yaml files in the input dir path
-func searchYamlFiles(repoDir string, walkFn WalkFunction) []string {
+func (sc *ResourcesScanner) searchYamlFiles(repoDir string) ([]string, []FileProcessingError) {
 	yamls := make([]string, 0)
-	err := walkFn(repoDir, func(path string, f os.DirEntry, err error) error {
+	processingErrors := make([]FileProcessingError, 0)
+	err := sc.walkFn(repoDir, func(path string, f os.DirEntry, err error) error {
 		if err != nil {
-			return err
+			processingErrors = appendAndLogNewError(processingErrors, failedAccessingDir(path, err, path != repoDir), sc.logger)
+			if stopProcessing(sc.stopOnError, processingErrors) {
+				return err
+			}
+			return filepath.SkipDir
 		}
 		if f != nil && !f.IsDir() && yamlSuffix.MatchString(f.Name()) {
 			yamls = append(yamls, path)
@@ -253,9 +332,9 @@ func searchYamlFiles(repoDir string, walkFn WalkFunction) []string {
 		return nil
 	})
 	if err != nil {
-		fmt.Printf("Error: Error in searching for manifests: %v", err)
+		sc.logger.Errorf(err, "Error walking directory")
 	}
-	return yamls
+	return yamls, processingErrors
 }
 
 // given YAML of kind "List" , parse and convert to slice of K8sObject
@@ -640,4 +719,33 @@ func parseDeployment(r io.Reader) *appsv1.Deployment {
 		return nil
 	}
 	return &rc
+}
+
+func stopProcessing(stopOn1stErr bool, errs []FileProcessingError) bool {
+	for idx := range errs {
+		if errs[idx].IsFatal() || stopOn1stErr && errs[idx].IsSevere() {
+			return true
+		}
+	}
+
+	return false
+}
+
+func appendAndLogNewError(errs []FileProcessingError, newErr *FileProcessingError, l logger.Logger) []FileProcessingError {
+	logError(l, newErr)
+	errs = append(errs, *newErr)
+	return errs
+}
+
+func logError(l logger.Logger, fpe *FileProcessingError) {
+	logMsg := fpe.Error().Error()
+	location := fpe.Location()
+	if location != "" {
+		logMsg = fmt.Sprintf("%s %s", location, logMsg)
+	}
+	if fpe.IsSevere() || fpe.IsFatal() {
+		l.Errorf(errors.New(logMsg), "")
+	} else {
+		l.Warnf(logMsg)
+	}
 }

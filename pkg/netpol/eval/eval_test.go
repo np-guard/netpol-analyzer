@@ -20,8 +20,12 @@ import (
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
+
+// global scanner object for testing
+var scanner = scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir)
 
 const (
 	allowAllOnSCTPSerialized = `
@@ -1048,9 +1052,9 @@ func writeRes(res, fileName string) {
 }
 
 func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) error {
-	objectsList, err := scan.FilesToObjectsList(path, filepath.WalkDir)
-	if err != nil {
-		return err
+	objectsList, processingErrs := scanner.FilesToObjectsList(path)
+	if len(processingErrs) > 0 {
+		return errors.New("processing errors occurred")
 	}
 	var netpols = []*netv1.NetworkPolicy{}
 	var pods = []*v1.Pod{}
@@ -1759,9 +1763,9 @@ func TestDisjointIpBlocks(t *testing.T) {
 
 func TestPolicyEngineWithWorkloads(t *testing.T) {
 	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
-	objects, err := scan.FilesToObjectsList(path, filepath.WalkDir)
-	if err != nil {
-		t.Fatalf("TestPolicyEngineWithWorkloads error: %v", err)
+	objects, processingErrs := scanner.FilesToObjectsList(path)
+	if len(processingErrs) > 0 {
+		t.Fatalf("TestPolicyEngineWithWorkloads errors: %v", processingErrs)
 	}
 	pe, err := NewPolicyEngineWithObjects(objects)
 	if err != nil {
