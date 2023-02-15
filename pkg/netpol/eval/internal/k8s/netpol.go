@@ -187,7 +187,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			// check that peer.IP matches the IPBlock
 			ruleIPBlock, err := np.parseNetpolCIDR(rulePeers[i].IPBlock.CIDR, rulePeers[i].IPBlock.Except)
 			if err != nil {
-				return false, fmt.Errorf("network policy %s CIDR error: %s", np.fullName(), err)
+				return false, err
 			}
 
 			peerIPBlock := peer.GetPeerIPBlock()
@@ -327,11 +327,10 @@ func (np *NetworkPolicy) rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPo
 	for _, peerObj := range rulePeers {
 		if peerObj.IPBlock != nil {
 			ipb, err := np.parseNetpolCIDR(peerObj.IPBlock.CIDR, peerObj.IPBlock.Except)
-			if err == nil {
-				res = append(res, ipb.split()...)
-			} else {
+			if err != nil {
 				return nil, err
 			}
+			res = append(res, ipb.split()...)
 		}
 	}
 	return res, nil
