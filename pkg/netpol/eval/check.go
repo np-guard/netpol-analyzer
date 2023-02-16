@@ -258,19 +258,17 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 		// if isIngress: check for ingress rules that capture src within 'from'
 		// if not isIngress: check for egress rules that capture dst within 'to'
 		// collect the allowed connectivity from the relevant rules into allowedConns
+		var policyAllowedConnectionsPerDirection k8s.ConnectionSet
+		var err error
 		if isIngress {
-			policyAllowedIngress, err := policy.GetIngressAllowedConns(src, dst)
-			if err != nil {
-				return allowedConns, err
-			}
-			allowedConns.Union(policyAllowedIngress)
+			policyAllowedConnectionsPerDirection, err = policy.GetIngressAllowedConns(src, dst)
 		} else {
-			policyAllowedEgress, err := policy.GetEgressAllowedConns(dst)
-			if err != nil {
-				return allowedConns, err
-			}
-			allowedConns.Union(policyAllowedEgress)
+			policyAllowedConnectionsPerDirection, err = policy.GetEgressAllowedConns(dst)
 		}
+		if err != nil {
+			return allowedConns, err
+		}
+		allowedConns.Union(policyAllowedConnectionsPerDirection)
 	}
 	return allowedConns, nil
 }

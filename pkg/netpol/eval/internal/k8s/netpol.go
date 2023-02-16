@@ -43,6 +43,8 @@ const (
 	portBits          = 32
 	namedPortErrTitle = "named port error"
 	rulePeerErrTitle  = "rule NetworkPolicyPeer error"
+	cidrErrTitle      = "CIDR error"
+	selectorErrTitle  = "selector error"
 )
 
 func getProtocolStr(p *v1.Protocol) string {
@@ -309,7 +311,7 @@ func (np *NetworkPolicy) netpolErr(title, description string) error {
 func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*IPBlock, error) {
 	ipb, err := NewIPBlock(cidr, except)
 	if err != nil {
-		return nil, np.netpolErr("CIDR error", err.Error())
+		return nil, np.netpolErr(cidrErrTitle, err.Error())
 	}
 	return ipb, nil
 }
@@ -317,7 +319,7 @@ func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*IPBlock
 func (np *NetworkPolicy) parseNetpolLabelSelector(selector *metav1.LabelSelector) (labels.Selector, error) {
 	selectorRes, err := metav1.LabelSelectorAsSelector(selector)
 	if err != nil {
-		return nil, np.netpolErr("selector error", err.Error())
+		return nil, np.netpolErr(selectorErrTitle, err.Error())
 	}
 	return selectorRes, nil
 }
