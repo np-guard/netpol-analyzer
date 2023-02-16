@@ -24,12 +24,21 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
+// ConnlistError holds information about a single error/warning that occurred during
+// the parsing and connectivity analysis of k8s-app with network policies
+type ConnlistError interface {
+	IsFatal() bool
+	IsSevere() bool
+	Error() error
+	Location() string
+}
+
 // A ConnlistAnalyzer provides API to recursively scan a directory for Kubernetes resources including network policies,
 // and get the list of permitted connectivity between the workloads of the K8s application managed in this directory.
 type ConnlistAnalyzer struct {
 	logger        logger.Logger
 	stopOnError   bool
-	errors        []scan.FileProcessingError
+	errors        []ConnlistError
 	walkFn        scan.WalkFunction
 	scanner       *scan.ResourcesScanner
 	focusWorkload string
@@ -75,7 +84,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	ca := &ConnlistAnalyzer{
 		logger:      logger.NewDefaultLogger(),
 		stopOnError: false,
-		errors:      []scan.FileProcessingError{},
+		errors:      []ConnlistError{},
 		walkFn:      filepath.WalkDir,
 	}
 	for _, o := range options {
@@ -85,8 +94,8 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	return ca
 }
 
-// Errors returns a slice of FileProcessingError with all warnings and errors encountered during processing.
-func (ca *ConnlistAnalyzer) Errors() []scan.FileProcessingError {
+// Errors returns a slice of ConnlistError with all warnings and errors encountered during processing.
+func (ca *ConnlistAnalyzer) Errors() []ConnlistError {
 	return ca.errors
 }
 
@@ -103,7 +112,9 @@ func (ca *ConnlistAnalyzer) stopProcessing() error {
 // ConnlistFromDirPath returns the allowed connections list from dir path containing k8s resources
 func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConnection, error) {
 	objectsList, processingErrs := ca.scanner.FilesToObjectsList(dirPath)
-	ca.errors = append(ca.errors, processingErrs...)
+	for i := range processingErrs {
+		ca.errors = append(ca.errors, &processingErrs[i])
+	}
 
 	if err := ca.stopProcessing(); err != nil {
 		return nil, err
@@ -114,7 +125,9 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 // ConnlistFromYAMLManifests returns the allowed connections list from input YAML manifests
 func (ca *ConnlistAnalyzer) ConnlistFromYAMLManifests(manifests []scan.YAMLDocumentIntf) ([]Peer2PeerConnection, error) {
 	objectsList, processingErrs := ca.scanner.YAMLDocumentsToObjectsList(manifests)
-	ca.errors = append(ca.errors, processingErrs...)
+	for i := range processingErrs {
+		ca.errors = append(ca.errors, &processingErrs[i])
+	}
 
 	if err := ca.stopProcessing(); err != nil {
 		return nil, err

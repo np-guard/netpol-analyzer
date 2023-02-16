@@ -50,6 +50,62 @@ func TestConnList(t *testing.T) {
 	}
 }
 
+func TestWithFocusWorkload(t *testing.T) {
+	analyzer1 := NewConnlistAnalyzer(WithFocusWorkload("emailservice"))
+	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
+	res, err := analyzer1.ConnlistFromDirPath(dirPath)
+	require.Len(t, res, 2)
+	require.Nil(t, err)
+}
+
+func TestErrNetpolBadCIDR(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir1")
+	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	fmt.Printf("%v %v", res, err)
+	require.Nil(t, res)
+	require.NotNil(t, err)
+}
+
+func TestErrNetpolBadLabelKey(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir2")
+	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	fmt.Printf("%v %v", res, err)
+	require.Nil(t, res)
+	require.NotNil(t, err)
+}
+
+func TestErrNetpolBadNetpolRulePeer(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir3")
+	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	fmt.Printf("%v %v", res, err)
+	require.Nil(t, res)
+	require.NotNil(t, err)
+}
+
+func TestErrNetpolBadNetpolRulePeerEmpty(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir4")
+	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	fmt.Printf("%v %v", res, err)
+	require.Nil(t, res)
+	require.NotNil(t, err)
+}
+
+func TestErrNetpolBadNetpolNamedPortErr(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir5")
+	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	fmt.Printf("%v %v", res, err)
+	require.Nil(t, res)
+	require.NotNil(t, err)
+}
+
+func TestErrNetpolBadNetpolNamedPortErrOnIpBlock(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir6")
+	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	fmt.Printf("%v %v", res, err)
+	require.Nil(t, res)
+	require.NotNil(t, err)
+}
+
 func TestConnlistAnalyzerMalformedYamlDoc(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_yamls", "document_with_syntax_error.yaml")
 	res, err := analyzer.ConnlistFromDirPath(dirPath)
@@ -98,12 +154,4 @@ func TestConnlistAnalyzerBadDirNoYamls(t *testing.T) {
 	res1, err1 := analyzerWithStopOnError.ConnlistFromDirPath(dirPath)
 	require.NotNil(t, err1)
 	require.Empty(t, res1)
-}
-
-func TestWithFocusWorkload(t *testing.T) {
-	analyzer1 := NewConnlistAnalyzer(WithFocusWorkload("emailservice"))
-	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
-	res, err := analyzer1.ConnlistFromDirPath(dirPath)
-	require.Len(t, res, 2)
-	require.Nil(t, err)
 }

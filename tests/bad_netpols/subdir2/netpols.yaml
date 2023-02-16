@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: shippingservice-netpol
+spec:
+  egress: []
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: checkoutservice
+    ports:
+    - port: 50051
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - port: 50051
+  podSelector:
+    matchLabels:
+      app@b: shippingservice # bad label key 
+  policyTypes:
+  - Ingress
+  - Egress
