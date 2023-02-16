@@ -13,8 +13,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var analyzer = NewConnlistAnalyzer()
-var analyzerWithStopOnError = NewConnlistAnalyzer(WithStopOnError())
+func getConnlistFromDirPathRes(stopOnErr bool, path string) (*ConnlistAnalyzer, []Peer2PeerConnection, error) {
+	var analyzer *ConnlistAnalyzer
+	if stopOnErr {
+		analyzer = NewConnlistAnalyzer(WithStopOnError())
+	} else {
+		analyzer = NewConnlistAnalyzer()
+	}
+
+	res, err := analyzer.ConnlistFromDirPath(path)
+	return analyzer, res, err
+}
 
 // TestConnList tests the output of ConnlistFromDirPath() for valid input resources
 func TestConnList(t *testing.T) {
@@ -25,7 +34,7 @@ func TestConnList(t *testing.T) {
 	for _, testName := range testNames {
 		path := filepath.Join(testutils.GetTestsDir(), testName)
 		expectedOutputFile := filepath.Join(path, expectedOutputFileName)
-		res, err := analyzer.ConnlistFromDirPath(path)
+		analyzer, res, err := getConnlistFromDirPathRes(false, path)
 		if err != nil {
 			t.Fatalf("Test %s: TestConnList FromDir err: %v", testName, err)
 		}
@@ -60,7 +69,7 @@ func TestWithFocusWorkload(t *testing.T) {
 
 func TestErrNetpolBadCIDR(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir1")
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	_, res, err := getConnlistFromDirPathRes(false, dirPath)
 	fmt.Printf("%v %v", res, err)
 	require.Nil(t, res)
 	require.NotNil(t, err)
@@ -68,7 +77,7 @@ func TestErrNetpolBadCIDR(t *testing.T) {
 
 func TestErrNetpolBadLabelKey(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir2")
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	_, res, err := getConnlistFromDirPathRes(false, dirPath)
 	fmt.Printf("%v %v", res, err)
 	require.Nil(t, res)
 	require.NotNil(t, err)
@@ -76,7 +85,7 @@ func TestErrNetpolBadLabelKey(t *testing.T) {
 
 func TestErrNetpolBadNetpolRulePeer(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir3")
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	_, res, err := getConnlistFromDirPathRes(false, dirPath)
 	fmt.Printf("%v %v", res, err)
 	require.Nil(t, res)
 	require.NotNil(t, err)
@@ -84,7 +93,7 @@ func TestErrNetpolBadNetpolRulePeer(t *testing.T) {
 
 func TestErrNetpolBadNetpolRulePeerEmpty(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir4")
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	_, res, err := getConnlistFromDirPathRes(false, dirPath)
 	fmt.Printf("%v %v", res, err)
 	require.Nil(t, res)
 	require.NotNil(t, err)
@@ -92,7 +101,7 @@ func TestErrNetpolBadNetpolRulePeerEmpty(t *testing.T) {
 
 func TestErrNetpolBadNetpolNamedPortErr(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir5")
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	_, res, err := getConnlistFromDirPathRes(false, dirPath)
 	fmt.Printf("%v %v", res, err)
 	require.Nil(t, res)
 	require.NotNil(t, err)
@@ -100,7 +109,7 @@ func TestErrNetpolBadNetpolNamedPortErr(t *testing.T) {
 
 func TestErrNetpolBadNetpolNamedPortErrOnIpBlock(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir6")
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	_, res, err := getConnlistFromDirPathRes(false, dirPath)
 	fmt.Printf("%v %v", res, err)
 	require.Nil(t, res)
 	require.NotNil(t, err)
@@ -108,33 +117,41 @@ func TestErrNetpolBadNetpolNamedPortErrOnIpBlock(t *testing.T) {
 
 func TestConnlistAnalyzerMalformedYamlDoc(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_yamls", "document_with_syntax_error.yaml")
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
-	// MalformedYamlDocError is not fatal, thus not returned without stopOnErr
+	analyzer, res, err := getConnlistFromDirPathRes(false, dirPath)
+	// MalformedYamlDocError is not fatal, thus not returned
 	// analysis is able to parse some deployments before the bad one, thus can produce connectivity output
 	require.Nil(t, err)
 	require.NotEmpty(t, res)
+	require.NotEmpty(t, analyzer.Errors())
 
 	// MalformedYamlDocError is severe, thus returned with stopOnErr
-	res1, err1 := analyzerWithStopOnError.ConnlistFromDirPath(dirPath)
-	require.NotNil(t, err1)
+	analyzerWithStopOnError, res1, err1 := getConnlistFromDirPathRes(true, dirPath)
+	require.Nil(t, err1)
 	require.Empty(t, res1)
+	errs := analyzerWithStopOnError.Errors()
+	require.NotEmpty(t, errs)
+	returnedErr := errs[0]
 	malformedYamlDocError := &scan.MalformedYamlDocError{}
-	require.True(t, errors.As(err1, &malformedYamlDocError))
+	require.True(t, errors.As(returnedErr.Error(), &malformedYamlDocError))
 }
 
 func TestConnlistAnalyzerYAMLDocNotK8sResource(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_yamls", "not_a_k8s_resource.yaml")
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
-	require.NotNil(t, err)
-	require.Empty(t, res)
-	res1, err1 := analyzerWithStopOnError.ConnlistFromDirPath(dirPath)
-	require.NotNil(t, err1)
+	analyzer, res, err := getConnlistFromDirPathRes(false, dirPath)
+	analyzerWithStopOnError, res1, err1 := getConnlistFromDirPathRes(true, dirPath)
+	resErrs1 := analyzerWithStopOnError.Errors()
+	resErrs := analyzer.Errors()
+	require.Nil(t, err1)
 	require.Empty(t, res1)
+	require.Nil(t, err)
+	require.Empty(t, res)
+	require.NotEmpty(t, resErrs)
+	require.NotEmpty(t, resErrs1)
 }
 
 func TestConnlistAnalyzerBadDirDoesNotExist(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_yamls", "subdir3") // doesn't exist
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	_, res, err := getConnlistFromDirPathRes(false, dirPath)
 	badDir := &scan.FailedAccessingDirError{}
 	require.True(t, errors.As(err, &badDir))
 	require.Empty(t, res)
@@ -142,16 +159,18 @@ func TestConnlistAnalyzerBadDirDoesNotExist(t *testing.T) {
 
 func TestConnlistAnalyzerBadDirNoYamls(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_yamls", "subdir2") // no yamls
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
-
-	// TODO: should noK8sResourcesFound / noYamls be fatal to force processing?
-	// is it ok to return a custom error as fatal error?
-	require.NotNil(t, err)
+	analyzer, res, err := getConnlistFromDirPathRes(false, dirPath)
+	require.Nil(t, err)
 	require.Empty(t, res)
-
-	// in both cases returns errors.New("cannot produce connectivity list without k8s workloads")
-	// this "type" of error does not stop processing, so reaching err within getConnectionsList function
-	res1, err1 := analyzerWithStopOnError.ConnlistFromDirPath(dirPath)
-	require.NotNil(t, err1)
+	analyzerWithStopOnError, res1, err1 := getConnlistFromDirPathRes(true, dirPath)
+	require.Nil(t, err1)
 	require.Empty(t, res1)
+	errs := analyzer.Errors()
+	errs1 := analyzerWithStopOnError.Errors()
+	require.Len(t, errs, 2)  // noK8sResourcesFound + noYamlsFound
+	require.Len(t, errs1, 2) // noK8sResourcesFound + noYamlsFound
+	for i := range errs {
+		require.False(t, errs[i].IsFatal())
+		require.False(t, errs[i].IsSevere())
+	}
 }
