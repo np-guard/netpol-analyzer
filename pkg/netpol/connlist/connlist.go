@@ -6,7 +6,6 @@ package connlist
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"path/filepath"
 	"time"
@@ -99,10 +98,19 @@ func (ca *ConnlistAnalyzer) Errors() []ConnlistError {
 	return ca.errors
 }
 
-// return err object if it is fatal or severe with flag stopOnError
-func (ca *ConnlistAnalyzer) stopProcessing() error {
+// return true if has fatal error or severe with flag stopOnError
+func (ca *ConnlistAnalyzer) stopProcessing() bool {
 	for idx := range ca.errors {
 		if ca.errors[idx].IsFatal() || ca.stopOnError && ca.errors[idx].IsSevere() {
+			return true
+		}
+	}
+	return false
+}
+
+func (ca *ConnlistAnalyzer) hasFatalError() error {
+	for idx := range ca.errors {
+		if ca.errors[idx].IsFatal() {
 			return ca.errors[idx].Error()
 		}
 	}
@@ -116,8 +124,11 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 		ca.errors = append(ca.errors, &processingErrs[i])
 	}
 
-	if err := ca.stopProcessing(); err != nil {
-		return nil, err
+	if ca.stopProcessing() {
+		if err := ca.hasFatalError(); err != nil {
+			return nil, err
+		}
+		return []Peer2PeerConnection{}, nil
 	}
 	return ca.connslistFromParsedResources(objectsList)
 }
@@ -129,8 +140,11 @@ func (ca *ConnlistAnalyzer) ConnlistFromYAMLManifests(manifests []scan.YAMLDocum
 		ca.errors = append(ca.errors, &processingErrs[i])
 	}
 
-	if err := ca.stopProcessing(); err != nil {
-		return nil, err
+	if ca.stopProcessing() {
+		if err := ca.hasFatalError(); err != nil {
+			return nil, err
+		}
+		return []Peer2PeerConnection{}, nil
 	}
 
 	return ca.connslistFromParsedResources(objectsList)
@@ -287,8 +301,9 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 
 // getConnectionsList returns connections list from PolicyEngine object
 func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
+	res := make([]Peer2PeerConnection, 0)
 	if !pe.HasPodPeers() {
-		return nil, errors.New("cannot produce connectivity list without k8s workloads")
+		return res, nil
 	}
 
 	// get workload peers and ip blocks
@@ -296,7 +311,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2Pe
 	if err != nil {
 		return nil, err
 	}
-	res := make([]Peer2PeerConnection, 0)
+
 	for i := range peerList {
 		for j := range peerList {
 			srcPeer := peerList[i]
