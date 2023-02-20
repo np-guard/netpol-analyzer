@@ -32,6 +32,7 @@ func TestFilesToObjectsList(t *testing.T) {
 	tests := []struct {
 		testName                   string
 		expectedNumOfParsedObjects int
+		expectedErrs               int
 	}{
 		{
 			testName:                   "onlineboutique_workloads",
@@ -44,13 +45,14 @@ func TestFilesToObjectsList(t *testing.T) {
 		{
 			testName:                   "workload_resources",
 			expectedNumOfParsedObjects: 18,
+			expectedErrs:               1, // no network policy resource found err
 		},
 	}
 
 	for _, test := range tests {
 		path := filepath.Join(testutils.GetTestsDir(), test.testName)
 		res, errs := scanner.FilesToObjectsList(path)
-		if len(errs) > 0 {
+		if len(errs) != test.expectedErrs {
 			t.Fatalf("Test %s: TestFilesToObjectsList err: %v", test.testName, errs)
 		}
 		if len(res) != test.expectedNumOfParsedObjects {
@@ -72,9 +74,11 @@ func TestFilesToObjectsListBadYamlDocument(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_yamls", "document_with_syntax_error.yaml")
 
 	objs, errs := scanner.FilesToObjectsList(dirPath)
-	require.Len(t, errs, 1)
+	require.Len(t, errs, 2)
 	badDoc := &MalformedYamlDocError{}
 	require.True(t, errors.As(errs[0].Error(), &badDoc))
+	noNetpolsFound := &NoK8sNetworkPolicyResourcesFoundError{}
+	require.True(t, errors.As(errs[1].Error(), &noNetpolsFound))
 
 	docID, err := errs[0].DocumentID()
 	require.Equal(t, 6, docID)

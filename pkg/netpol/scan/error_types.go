@@ -22,6 +22,12 @@ type NoYamlsFoundError struct {
 type NoK8sResourcesFoundError struct {
 }
 
+type NoK8sWorkloadResourcesFoundError struct {
+}
+
+type NoK8sNetworkPolicyResourcesFoundError struct {
+}
+
 type FailedScanningResource struct {
 	resourceType string
 	origErr      error
@@ -49,6 +55,14 @@ func (err *NoYamlsFoundError) Error() string {
 
 func (err *NoK8sResourcesFoundError) Error() string {
 	return "no relevant Kubernetes resources found"
+}
+
+func (err *NoK8sWorkloadResourcesFoundError) Error() string {
+	return "no relevant Kubernetes workload resources found"
+}
+
+func (err *NoK8sNetworkPolicyResourcesFoundError) Error() string {
+	return "no relevant Kubernetes network policy resources found"
 }
 
 func (err *FailedScanningResource) Error() string {
@@ -149,6 +163,14 @@ func noYamlsFound() *FileProcessingError {
 
 func noK8sResourcesFound() *FileProcessingError {
 	return &FileProcessingError{&NoK8sResourcesFoundError{}, "", 0, -1, false, false}
+}
+
+func noK8sWorkloadResourcesFound() *FileProcessingError {
+	return &FileProcessingError{&NoK8sWorkloadResourcesFoundError{}, "", 0, -1, false, false}
+}
+
+func noK8sNetworkPolicyResourcesFound() *FileProcessingError {
+	return &FileProcessingError{&NoK8sNetworkPolicyResourcesFoundError{}, "", 0, -1, false, false}
 }
 
 func failedScanningResource(resourceType, filePath string, err error) *FileProcessingError {
