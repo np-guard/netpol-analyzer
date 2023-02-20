@@ -162,15 +162,15 @@ func noYamlsFound() *FileProcessingError {
 }
 
 func noK8sResourcesFound() *FileProcessingError {
-	return &FileProcessingError{&NoK8sResourcesFoundError{}, "", 0, -1, false, false}
+	return &FileProcessingError{&NoK8sResourcesFoundError{}, "", 0, -1, false, true}
 }
 
 func noK8sWorkloadResourcesFound() *FileProcessingError {
-	return &FileProcessingError{&NoK8sWorkloadResourcesFoundError{}, "", 0, -1, false, false}
+	return &FileProcessingError{&NoK8sWorkloadResourcesFoundError{}, "", 0, -1, false, true}
 }
 
 func noK8sNetworkPolicyResourcesFound() *FileProcessingError {
-	return &FileProcessingError{&NoK8sNetworkPolicyResourcesFoundError{}, "", 0, -1, false, false}
+	return &FileProcessingError{&NoK8sNetworkPolicyResourcesFoundError{}, "", 0, -1, false, true}
 }
 
 func failedScanningResource(resourceType, filePath string, err error) *FileProcessingError {
