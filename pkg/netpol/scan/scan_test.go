@@ -162,3 +162,13 @@ func TestSearchForManifestsNonRecursiveWalk(t *testing.T) {
 	require.Len(t, errs, 2) // malformed yaml + not a k8s resource  - errors
 	require.Len(t, objs, 6) // not including obj from subdir4
 }
+
+func TestNoK8sWorkloadResourcesFoundError(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "missing_workload_resources")
+	objs, errs := scanner.FilesToObjectsList(dirPath)
+	require.Len(t, errs, 1)
+	require.Len(t, objs, 11)
+
+	noK8sWorkloadResourcesFound := &NoK8sWorkloadResourcesFoundError{}
+	require.True(t, errors.As(errs[0].Error(), &noK8sWorkloadResourcesFound))
+}
