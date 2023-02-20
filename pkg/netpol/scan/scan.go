@@ -81,6 +81,14 @@ func (sc *ResourcesScanner) YAMLDocumentsToObjectsList(documents []YAMLDocumentI
 	}
 	if len(res) == 0 {
 		errs = appendAndLogNewError(errs, noK8sResourcesFound(), sc.logger)
+	} else {
+		hasWorkloads, hasNetpols := hasWorkloadsOrNetworkPolicies(res)
+		if !hasWorkloads {
+			errs = appendAndLogNewError(errs, noK8sWorkloadResourcesFound(), sc.logger)
+		}
+		if !hasNetpols {
+			errs = appendAndLogNewError(errs, noK8sNetworkPolicyResourcesFound(), sc.logger)
+		}
 	}
 	return res, errs
 }
@@ -748,4 +756,19 @@ func logError(l logger.Logger, fpe *FileProcessingError) {
 	} else {
 		l.Warnf(logMsg)
 	}
+}
+
+func hasWorkloadsOrNetworkPolicies(objects []K8sObject) (bool, bool) {
+	var hasWorkloads, hasNetpols bool
+	for i := range objects {
+		kind := objects[i].Kind
+		if kind == Networkpolicy {
+			hasNetpols = true
+		} else if _, ok := singleResourceK8sKinds[kind]; ok {
+			if kind != Namespace {
+				hasWorkloads = true
+			}
+		}
+	}
+	return hasWorkloads, hasNetpols
 }

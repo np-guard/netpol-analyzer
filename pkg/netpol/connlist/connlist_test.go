@@ -169,8 +169,10 @@ func TestConnlistAnalyzerBadDirNoYamls(t *testing.T) {
 	errs1 := analyzerWithStopOnError.Errors()
 	require.Len(t, errs, 2)  // noK8sResourcesFound + noYamlsFound
 	require.Len(t, errs1, 2) // noK8sResourcesFound + noYamlsFound
-	for i := range errs {
-		require.False(t, errs[i].IsFatal())
-		require.False(t, errs[i].IsSevere())
-	}
+	firstErr := &scan.NoYamlsFoundError{}
+	secondErr := &scan.NoK8sResourcesFoundError{}
+	require.True(t, errors.As(errs[0].Error(), &firstErr))
+	require.True(t, errors.As(errs[1].Error(), &secondErr))
+	require.True(t, errors.As(errs1[0].Error(), &firstErr))
+	require.True(t, errors.As(errs1[1].Error(), &secondErr))
 }
