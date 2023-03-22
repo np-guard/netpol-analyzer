@@ -160,6 +160,33 @@ default/emailservice[Deployment] => default/emailservice[Deployment] : All Conne
 			exact: true,
 			isErr: false,
 		},
+
+		{
+			name: "test_legal_list_with_focus_workload_json_output",
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				"--focusworkload",
+				"emailservice",
+				"--output",
+				"json",
+			},
+			expectedOutput: `[
+  {
+    "src": "default/checkoutservice[Deployment]",
+    "dst": "default/emailservice[Deployment]",
+    "conn": "TCP 8080"
+  },
+  {
+    "src": "default/emailservice[Deployment]",
+    "dst": "default/emailservice[Deployment]",
+    "conn": "All Connections"
+  }
+]`,
+			exact: true,
+			isErr: false,
+		},
 	}
 
 	for _, test := range tests {

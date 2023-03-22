@@ -52,8 +52,11 @@ defined`,
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%s", analyzer.ConnectionsListToString(conns))
-
+		if output == "json" {
+			fmt.Printf("%s", analyzer.ConnectionsListTojson(conns))
+		} else {
+			fmt.Printf("%s", analyzer.ConnectionsListTotxt(conns))
+		}
 		return nil
 	},
 }

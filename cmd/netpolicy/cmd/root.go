@@ -27,6 +27,8 @@ var (
 	kubeconfig  string
 	// resources dir information
 	dirPath string
+	// output format
+	output string
 	// k8s client
 	clientset *kubernetes.Clientset
 )
@@ -76,7 +78,8 @@ func init() {
 	// resources dir path
 	rootCmd.PersistentFlags().StringVarP(&dirPath, "dirpath", "",
 		dirPath, "Resources dir path when evaluating connections from a dir")
-
+	// output format
+	rootCmd.PersistentFlags().StringVarP(&output, "output", "o", output, "Required output format (txt, json) (default value: txt)")
 	// cluster access
 	config := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
 	if config == "" {

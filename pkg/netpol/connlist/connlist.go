@@ -6,6 +6,7 @@ package connlist
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"time"
@@ -204,15 +205,34 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 	return ca.getConnectionsList(pe)
 }
 
-// ConnectionsListToString returns a string of connections from list of Peer2PeerConnection objects
-func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection) string {
+// ConnectionsListTotxt returns a textual string format of connections from list of Peer2PeerConnection objects
+func (ca *ConnlistAnalyzer) ConnectionsListTotxt(conns []Peer2PeerConnection) string {
 	connLines := make([]string, len(conns))
 	for i := range conns {
-		connLines[i] = conns[i].String()
+		connLines[i] = conns[i].TxtFormat()
 	}
 	sort.Strings(connLines)
 	newlineChar := fmt.Sprintln("")
 	return strings.Join(connLines, newlineChar)
+}
+
+// ConnectionsListTojson returns a json string form of connections from list of Peer2PeerConnection objects
+func (ca *ConnlistAnalyzer) ConnectionsListTojson(conns []Peer2PeerConnection) string {
+	connItems := make([]jsonConnForm, len(conns))
+	for i := range conns {
+		connItems[i] = conns[i].JSONFormat()
+	}
+	sort.Slice(connItems, func(i, j int) bool {
+		if connItems[i].Src != connItems[j].Src {
+			return connItems[i].Src < connItems[j].Src
+		}
+		return connItems[i].Dst < connItems[j].Dst
+	})
+	jsonConns, err := json.MarshalIndent(connItems, "", "  ")
+	if err != nil {
+		return err.Error()
+	}
+	return string(jsonConns)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -229,6 +249,8 @@ type Peer2PeerConnection interface {
 	ProtocolsAndPorts() map[v1.Protocol][]eval.PortRange
 	// String returns a string representation of the connection object
 	String() string
+	TxtFormat() string
+	JSONFormat() jsonConnForm
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -260,24 +282,45 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]eval.PortRange {
 	return c.protocolsAndPorts
 }
 
-// return a string representation for a connection object
-func (c *connection) String() string {
-	var connStr string
-	if c.AllProtocolsAndPorts() {
-		connStr = "All Connections"
-	} else if len(c.ProtocolsAndPorts()) == 0 {
-		connStr = "No Connections"
-	} else {
-		connStrings := make([]string, len(c.ProtocolsAndPorts()))
-		index := 0
-		for protocol, ports := range c.ProtocolsAndPorts() {
-			connStrings[index] = string(protocol) + " " + portsString(ports)
-			index++
-		}
-		sort.Strings(connStrings)
-		connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
-	}
+// return a txt representation for a connection object
+func (c *connection) TxtFormat() string {
+	connStr := c.String()
 	return fmt.Sprintf("%s => %s : %s", c.Src().String(), c.Dst().String(), connStr)
+}
+
+// struct for json representation of a connection object
+type jsonConnForm struct {
+	Src        string `json:"src"`
+	Dst        string `json:"dst"`
+	ConnString string `json:"conn"`
+}
+
+// return a json representation for a connection object
+func (c *connection) JSONFormat() jsonConnForm {
+	connStr := c.String()
+	jsonFormat := jsonConnForm{Src: c.Src().String(), Dst: c.Dst().String(), ConnString: connStr}
+	return jsonFormat
+}
+
+// return a string representation for a connection type (protocols and ports)
+func (c *connection) String() string {
+
+	if c.AllProtocolsAndPorts() {
+		return "All Connections"
+	}
+	if len(c.ProtocolsAndPorts()) == 0 {
+		return "No Connections"
+	}
+	var connStr string
+	connStrings := make([]string, len(c.ProtocolsAndPorts()))
+	index := 0
+	for protocol, ports := range c.ProtocolsAndPorts() {
+		connStrings[index] = string(protocol) + " " + portsString(ports)
+		index++
+	}
+	sort.Strings(connStrings)
+	connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
+	return connStr
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
