@@ -7,6 +7,7 @@ package connlist
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"path/filepath"
 	"time"
@@ -205,6 +206,27 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 	return ca.getConnectionsList(pe)
 }
 
+// ConnectionsListToString returns a string of connections from list of Peer2PeerConnection objects in the required output format
+func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection, output string) (string, error) {
+	// supported output formats
+	const (
+		txtFormat  = "txt"
+		jsonFormat = "json"
+	)
+	// default if output flag is unused
+	if output == "" {
+		output = txtFormat
+	}
+
+	if output == jsonFormat {
+		return ca.ConnectionsListTojson(conns)
+	} else if output == txtFormat {
+		return ca.ConnectionsListTotxt(conns), nil
+	} else {
+		return "", errors.New(output + " output format is not supported.")
+	}
+}
+
 // ConnectionsListTotxt returns a textual string format of connections from list of Peer2PeerConnection objects
 func (ca *ConnlistAnalyzer) ConnectionsListTotxt(conns []Peer2PeerConnection) string {
 	connLines := make([]string, len(conns))
@@ -217,7 +239,7 @@ func (ca *ConnlistAnalyzer) ConnectionsListTotxt(conns []Peer2PeerConnection) st
 }
 
 // ConnectionsListTojson returns a json string form of connections from list of Peer2PeerConnection objects
-func (ca *ConnlistAnalyzer) ConnectionsListTojson(conns []Peer2PeerConnection) string {
+func (ca *ConnlistAnalyzer) ConnectionsListTojson(conns []Peer2PeerConnection) (string, error) {
 	connItems := make([]jsonConnForm, len(conns))
 	for i := range conns {
 		connItems[i] = conns[i].JSONFormat()
@@ -230,9 +252,9 @@ func (ca *ConnlistAnalyzer) ConnectionsListTojson(conns []Peer2PeerConnection) s
 	})
 	jsonConns, err := json.MarshalIndent(connItems, "", "  ")
 	if err != nil {
-		return err.Error()
+		return "", err
 	}
-	return string(jsonConns)
+	return string(jsonConns), nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
