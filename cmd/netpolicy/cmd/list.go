@@ -72,6 +72,6 @@ func init() {
 	// output options
 	listCmd.Flags().StringVarP(&focusWorkload, "focusworkload", "",
 		focusWorkload, "Focus connections of specified workload name in the output")
-	// output format
-	listCmd.PersistentFlags().StringVarP(&output, "output", "o", output, "Required output format (txt, json) (default value: txt)")
+	// output format - default txt
+	listCmd.PersistentFlags().StringVarP(&output, "output", "o", "txt", "Required output format (txt, json) (default value: txt)")
 }
