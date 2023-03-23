@@ -23,6 +23,8 @@ import (
 
 var (
 	focusWorkload string
+	// output format
+	output string
 )
 
 // listCmd represents the list command
@@ -70,4 +72,6 @@ func init() {
 	// output options
 	listCmd.Flags().StringVarP(&focusWorkload, "focusworkload", "",
 		focusWorkload, "Focus connections of specified workload name in the output")
+	// output format
+	listCmd.PersistentFlags().StringVarP(&output, "output", "o", output, "Required output format (txt, json) (default value: txt)")
 }
