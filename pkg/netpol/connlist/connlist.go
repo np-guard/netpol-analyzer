@@ -213,7 +213,7 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection,
 		txtFormat  = "txt"
 		jsonFormat = "json"
 	)
-	// default if output flag is unused
+	// default if output parameter is empty
 	if output == "" {
 		output = txtFormat
 	}
