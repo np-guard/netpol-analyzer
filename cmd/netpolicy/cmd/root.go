@@ -76,6 +76,7 @@ func init() {
 	// resources dir path
 	rootCmd.PersistentFlags().StringVarP(&dirPath, "dirpath", "",
 		dirPath, "Resources dir path when evaluating connections from a dir")
+
 	// cluster access
 	config := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
 	if config == "" {
