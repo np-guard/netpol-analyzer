@@ -14,6 +14,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -54,7 +55,11 @@ defined`,
 		if err != nil {
 			return err
 		}
-		out, err := analyzer.ConnectionsListToString(conns, output)
+		outputFormat, err := validateAndGetOutputFormat()
+		if err != nil {
+			return err
+		}
+		out, err := analyzer.ConnectionsListToString(conns, outputFormat)
 		if err != nil {
 			return err
 		}
@@ -73,5 +78,23 @@ func init() {
 	listCmd.Flags().StringVarP(&focusWorkload, "focusworkload", "",
 		focusWorkload, "Focus connections of specified workload name in the output")
 	// output format - default txt
-	listCmd.PersistentFlags().StringVarP(&output, "output", "o", "txt", "Required output format (txt, json) (default value: txt)")
+	listCmd.PersistentFlags().StringVarP(&output, "output", "o", "txt", "Required output format (txt, json)")
+}
+
+// possible values of output arg
+const (
+	txtFormatStr  = "txt"
+	JSONFormatStr = "json"
+)
+
+// validate the value of output arg and return the relevant ConnsFormatter type
+func validateAndGetOutputFormat() (connlist.ConnsFormatter, error) {
+	if output == txtFormatStr {
+		return connlist.TxtFormatter{}, nil
+	}
+
+	if output == JSONFormatStr {
+		return connlist.JSONFormatter{}, nil
+	}
+	return nil, errors.New(output + " output format is not supported.")
 }
