@@ -34,12 +34,12 @@ func TestConnList(t *testing.T) {
 	for _, testName := range testNames {
 		path := filepath.Join(testutils.GetTestsDir(), testName)
 		expectedOutputFile := filepath.Join(path, expectedOutputFileName)
-		_, res, err := getConnlistFromDirPathRes(false, path)
+		analyzer, res, err := getConnlistFromDirPathRes(false, path)
 		if err != nil {
 			t.Fatalf("Test %s: TestConnList FromDir err: %v", testName, err)
 		}
-		var txtOutput = TxtFormatter{}
-		actualOutput, _ := txtOutput.writeOutput(res)
+		analyzer.outputFormat = TxtFormatter{}
+		actualOutput, _ := analyzer.ConnectionsListToString(res)
 		if generateActualOutput {
 			// update expected output: override expected output with actual output
 			if err = os.WriteFile(expectedOutputFile, []byte(actualOutput), 0600); err != nil {
