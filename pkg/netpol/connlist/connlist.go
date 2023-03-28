@@ -40,6 +40,7 @@ type ConnlistAnalyzer struct {
 	walkFn        scan.WalkFunction
 	scanner       *scan.ResourcesScanner
 	focusWorkload string
+	outputFormat  ConnsFormatter
 }
 
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
@@ -73,6 +74,12 @@ func WithWalkFn(walkFn scan.WalkFunction) ConnlistAnalyzerOption {
 func WithFocusWorkload(workload string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
 		p.focusWorkload = workload
+	}
+}
+
+func WithOutputFormat(outputFormat ConnsFormatter) ConnlistAnalyzerOption {
+	return func(p *ConnlistAnalyzer) {
+		p.outputFormat = outputFormat
 	}
 }
 
@@ -204,8 +211,8 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 }
 
 // ConnectionsListToString returns a string of connections from list of Peer2PeerConnection objects in the required output format
-func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection, outputFormat ConnsFormatter) (string, error) {
-	return outputFormat.writeOutput(conns)
+func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection) (string, error) {
+	return ca.outputFormat.writeOutput(conns)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

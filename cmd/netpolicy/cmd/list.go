@@ -45,7 +45,12 @@ defined`,
 		var conns []connlist.Peer2PeerConnection
 		var err error
 
-		analyzer := connlist.NewConnlistAnalyzer(connlist.WithFocusWorkload(focusWorkload))
+		outputFormat, err := validateAndGetOutputFormat()
+		if err != nil {
+			return err
+		}
+
+		analyzer := connlist.NewConnlistAnalyzer(connlist.WithFocusWorkload(focusWorkload), connlist.WithOutputFormat(outputFormat))
 
 		if dirPath != "" {
 			conns, err = analyzer.ConnlistFromDirPath(dirPath)
@@ -55,11 +60,7 @@ defined`,
 		if err != nil {
 			return err
 		}
-		outputFormat, err := validateAndGetOutputFormat()
-		if err != nil {
-			return err
-		}
-		out, err := analyzer.ConnectionsListToString(conns, outputFormat)
+		out, err := analyzer.ConnectionsListToString(conns)
 		if err != nil {
 			return err
 		}
