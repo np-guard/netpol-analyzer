@@ -28,6 +28,8 @@ var (
 	output string
 )
 
+const defaultFormat = "txt"
+
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
@@ -40,17 +42,23 @@ defined`,
   # Get list of allowed connections from live k8s cluster
   k8snetpolicy list -k ./kube/config`,
 
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error { // Call parent pre-run
+		// call parent pre-run
+		if rootCmd.PersistentPreRunE != nil {
+			if err := rootCmd.PersistentPreRunE(cmd, args); err != nil {
+				return err
+			}
+		}
+
+		return validateOutputArg()
+	},
+
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		var conns []connlist.Peer2PeerConnection
 		var err error
 
-		outputFormat, err := validateAndGetOutputFormat()
-		if err != nil {
-			return err
-		}
-
-		analyzer := connlist.NewConnlistAnalyzer(connlist.WithFocusWorkload(focusWorkload), connlist.WithOutputFormat(outputFormat))
+		analyzer := connlist.NewConnlistAnalyzer(connlist.WithFocusWorkload(focusWorkload), connlist.WithOutputFormat(output))
 
 		if dirPath != "" {
 			conns, err = analyzer.ConnlistFromDirPath(dirPath)
@@ -79,23 +87,17 @@ func init() {
 	listCmd.Flags().StringVarP(&focusWorkload, "focusworkload", "",
 		focusWorkload, "Focus connections of specified workload name in the output")
 	// output format - default txt
-	listCmd.PersistentFlags().StringVarP(&output, "output", "o", "txt", "Required output format (txt, json)")
+	listCmd.Flags().StringVarP(&output, "output", "o", defaultFormat, "Required output format (txt, json)")
 }
 
-// possible values of output arg
-const (
-	txtFormatStr  = "txt"
-	JSONFormatStr = "json"
-)
-
-// validate the value of output arg and return the relevant ConnsFormatter type
-func validateAndGetOutputFormat() (connlist.ConnsFormatter, error) {
-	if output == txtFormatStr {
-		return connlist.TxtFormatter{}, nil
+// validate the value of output arg
+func validateOutputArg() error {
+	// possible values of output arg
+	validFormats := []string{defaultFormat, "json"}
+	for _, formatName := range validFormats {
+		if output == formatName {
+			return nil
+		}
 	}
-
-	if output == JSONFormatStr {
-		return connlist.JSONFormatter{}, nil
-	}
-	return nil, errors.New(output + " output format is not supported.")
+	return errors.New(output + " output format is not supported.")
 }

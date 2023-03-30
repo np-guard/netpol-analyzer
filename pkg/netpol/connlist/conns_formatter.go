@@ -8,7 +8,7 @@ import (
 )
 
 // formatting an output in the required output format
-type ConnsFormatter interface {
+type connsFormatter interface {
 	writeOutput(conns []Peer2PeerConnection) (string, error)
 }
 
@@ -31,11 +31,11 @@ func formSingleConn(conn Peer2PeerConnection) singleConnFields {
 }
 
 // TxtFormatter: implements the ConnsFormatter interface for txt output format
-type TxtFormatter struct {
+type txtFormatter struct {
 }
 
 // returns a textual string format of connections from list of Peer2PeerConnection objects
-func (t TxtFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
+func (t txtFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	connLines := make([]string, len(conns))
 	for i := range conns {
 		connLines[i] = formSingleConn(conns[i]).String()
@@ -46,11 +46,11 @@ func (t TxtFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 }
 
 // JSONFormatter: implements the ConnsFormatter interface for JSON output format
-type JSONFormatter struct {
+type jsonFormatter struct {
 }
 
 // returns a json string form of connections from list of Peer2PeerConnection objects
-func (j JSONFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
+func (j jsonFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	connItems := make([]singleConnFields, len(conns))
 	for i := range conns {
 		connItems[i] = formSingleConn(conns[i])

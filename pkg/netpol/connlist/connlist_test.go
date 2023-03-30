@@ -38,7 +38,6 @@ func TestConnList(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Test %s: TestConnList FromDir err: %v", testName, err)
 		}
-		analyzer.outputFormat = TxtFormatter{}
 		actualOutput, _ := analyzer.ConnectionsListToString(res)
 		if generateActualOutput {
 			// update expected output: override expected output with actual output
