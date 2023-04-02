@@ -12,7 +12,7 @@ type connsFormatter interface {
 	writeOutput(conns []Peer2PeerConnection) (string, error)
 }
 
-// struct for representation of a single connection object
+// singleConnFields represents a single connection object
 type singleConnFields struct {
 	Src        string `json:"src"`
 	Dst        string `json:"dst"`
