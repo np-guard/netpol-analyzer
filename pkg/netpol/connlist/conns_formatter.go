@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// connsFormatter implements output  formatting in the required output format
+// connsFormatter implements output formatting in the required output format
 type connsFormatter interface {
 	writeOutput(conns []Peer2PeerConnection) (string, error)
 }
@@ -20,7 +20,7 @@ type singleConnFields struct {
 }
 
 // string representation of the singleConnFields struct
-func (c singleConnFields) String() string {
+func (c singleConnFields) string() string {
 	return fmt.Sprintf("%s => %s : %s", c.Src, c.Dst, c.ConnString)
 }
 
@@ -38,14 +38,14 @@ type txtFormatter struct {
 func (t txtFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	connLines := make([]string, len(conns))
 	for i := range conns {
-		connLines[i] = formSingleConn(conns[i]).String()
+		connLines[i] = formSingleConn(conns[i]).string()
 	}
 	sort.Strings(connLines)
 	newlineChar := fmt.Sprintln("")
 	return strings.Join(connLines, newlineChar), nil
 }
 
-// JSONFormatter: implements the ConnsFormatter interface for JSON output format
+// jsonFormatter: implements the connsFormatter interface for JSON output format
 type jsonFormatter struct {
 }
 

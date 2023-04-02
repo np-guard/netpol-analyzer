@@ -14,7 +14,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -27,8 +26,6 @@ var (
 	// output format
 	output string
 )
-
-const defaultFormat = "txt"
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
@@ -50,7 +47,7 @@ defined`,
 			}
 		}
 
-		return validateOutputArg()
+		return connlist.ValidateOutputFormat(output)
 	},
 
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -87,17 +84,5 @@ func init() {
 	listCmd.Flags().StringVarP(&focusWorkload, "focusworkload", "",
 		focusWorkload, "Focus connections of specified workload name in the output")
 	// output format - default txt
-	listCmd.Flags().StringVarP(&output, "output", "o", defaultFormat, "Required output format (txt, json)")
-}
-
-// validate the value of output arg
-func validateOutputArg() error {
-	// possible values of output arg
-	validFormats := []string{defaultFormat, "json"}
-	for _, formatName := range validFormats {
-		if output == formatName {
-			return nil
-		}
-	}
-	return errors.New(output + " output format is not supported.")
+	listCmd.Flags().StringVarP(&output, "output", "o", "txt", "Required output format (txt, json)")
 }

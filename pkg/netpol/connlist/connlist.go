@@ -6,6 +6,7 @@ package connlist
 
 import (
 	"context"
+	"errors"
 	"path/filepath"
 	"time"
 
@@ -42,6 +43,12 @@ type ConnlistAnalyzer struct {
 	focusWorkload string
 	outputFormat  string
 }
+
+const (
+	defaultFormat = "txt"
+	txtFormat     = "txt"
+	jsonFormat    = "json"
+)
 
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
@@ -88,10 +95,11 @@ func WithOutputFormat(outputFormat string) ConnlistAnalyzerOption {
 func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	// object with default behavior options
 	ca := &ConnlistAnalyzer{
-		logger:      logger.NewDefaultLogger(),
-		stopOnError: false,
-		errors:      []ConnlistError{},
-		walkFn:      filepath.WalkDir,
+		logger:       logger.NewDefaultLogger(),
+		stopOnError:  false,
+		errors:       []ConnlistError{},
+		walkFn:       filepath.WalkDir,
+		outputFormat: defaultFormat,
 	}
 	for _, o := range options {
 		o(ca)
@@ -213,16 +221,35 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 
 // ConnectionsListToString returns a string of connections from list of Peer2PeerConnection objects in the required output format
 func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection) (string, error) {
-	connsFormatter := getFormatter(ca.outputFormat)
+	connsFormatter, err := getFormatter(ca.outputFormat)
+	if err != nil {
+		return "", err
+	}
 	return connsFormatter.writeOutput(conns)
 }
 
-// returns the relevant formatter for the analyzer's outputFormat
-func getFormatter(format string) connsFormatter {
-	if format == "json" {
-		return jsonFormatter{}
+// validate the value of the output format
+func ValidateOutputFormat(format string) error {
+	// possible values of output format
+	validFormats := []string{txtFormat, jsonFormat}
+	for _, formatName := range validFormats {
+		if format == formatName {
+			return nil
+		}
 	}
-	return txtFormatter{}
+	return errors.New(format + " output format is not supported.")
+}
+
+// returns the relevant formatter for the analyzer's outputFormat
+func getFormatter(format string) (connsFormatter, error) {
+	err := ValidateOutputFormat(format)
+	if err != nil {
+		return nil, err
+	}
+	if format == jsonFormat {
+		return jsonFormatter{}, nil
+	}
+	return txtFormatter{}, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
