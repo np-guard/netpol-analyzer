@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// formatting an output in the required output format
+// connsFormatter implements output  formatting in the required output format
 type connsFormatter interface {
 	writeOutput(conns []Peer2PeerConnection) (string, error)
 }
