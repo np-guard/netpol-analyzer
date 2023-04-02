@@ -30,7 +30,7 @@ func formSingleConn(conn Peer2PeerConnection) singleConnFields {
 	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr}
 }
 
-// TxtFormatter: implements the ConnsFormatter interface for txt output format
+// txtFormatter: implements the connsFormatter interface for txt output format
 type txtFormatter struct {
 }
 
