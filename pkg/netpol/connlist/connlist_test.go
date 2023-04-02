@@ -201,7 +201,6 @@ func TestWithOutputFormats(t *testing.T) {
 	expectedOutput2, err6 := os.ReadFile(expectedOutputFile2)
 	require.Nil(t, err6)
 	require.Equal(t, string(expectedOutput2), jsonRes)
-
 }
 
 func TestConnlistAnalyzerBadOutputFormat(t *testing.T) {
