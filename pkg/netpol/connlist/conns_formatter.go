@@ -24,7 +24,7 @@ func (c singleConnFields) String() string {
 	return fmt.Sprintf("%s => %s : %s", c.Src, c.Dst, c.ConnString)
 }
 
-// external func called by all types of ConnsFormatter : return string representation of single connection fields as singleConnFields struct
+// formSingleConn returns a string representation of single connection fields as singleConnFields object
 func formSingleConn(conn Peer2PeerConnection) singleConnFields {
 	connStr := getProtocolsAndPortsStr(conn)
 	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr}
