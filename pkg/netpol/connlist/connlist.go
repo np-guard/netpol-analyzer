@@ -242,8 +242,7 @@ func ValidateOutputFormat(format string) error {
 
 // returns the relevant formatter for the analyzer's outputFormat
 func getFormatter(format string) (connsFormatter, error) {
-	err := ValidateOutputFormat(format)
-	if err != nil {
+	if err := ValidateOutputFormat(format) ; err != nil {
 		return nil, err
 	}
 	if format == jsonFormat {
