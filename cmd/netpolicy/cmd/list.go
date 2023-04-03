@@ -40,7 +40,7 @@ defined`,
   # Get list of allowed connections from live k8s cluster
   k8snetpolicy list -k ./kube/config`,
 
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error { // Call parent pre-run
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// call parent pre-run
 		if rootCmd.PersistentPreRunE != nil {
 			if err := rootCmd.PersistentPreRunE(cmd, args); err != nil {
