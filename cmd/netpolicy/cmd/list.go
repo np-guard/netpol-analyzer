@@ -41,14 +41,17 @@ defined`,
   k8snetpolicy list -k ./kube/config`,
 
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+
+		if err := connlist.ValidateOutputFormat(output); err != nil {
+			return err
+		}
 		// call parent pre-run
 		if rootCmd.PersistentPreRunE != nil {
 			if err := rootCmd.PersistentPreRunE(cmd, args); err != nil {
 				return err
 			}
 		}
-
-		return connlist.ValidateOutputFormat(output)
+		return nil
 	},
 
 	RunE: func(cmd *cobra.Command, args []string) error {
