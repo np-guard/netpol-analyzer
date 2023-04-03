@@ -50,7 +50,7 @@ const (
 	JSONFormat    = "json"
 )
 
-// possible values of output format
+// ValidFormats array of possible values of output format
 var ValidFormats = []string{TxtFormat, JSONFormat}
 
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
