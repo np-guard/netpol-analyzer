@@ -56,12 +56,6 @@ var evaluateCmd = &cobra.Command{
 
 	// TODO: can this check be done in an Args function (e.g., incl. built-in's such as MinArgs(3))?
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		// Call parent pre-run
-		if rootCmd.PersistentPreRunE != nil {
-			if err := rootCmd.PersistentPreRunE(cmd, args); err != nil {
-				return err
-			}
-		}
 
 		// Validate flags values
 		if sourcePod.Name == "" && srcExternalIP == "" {
@@ -82,6 +76,13 @@ var evaluateCmd = &cobra.Command{
 
 		if port == "" {
 			return errors.New("destination port name or value is required")
+		}
+
+		// Call parent pre-run
+		if rootCmd.PersistentPreRunE != nil {
+			if err := rootCmd.PersistentPreRunE(cmd, args); err != nil {
+				return err
+			}
 		}
 
 		return nil
