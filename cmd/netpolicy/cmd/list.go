@@ -15,6 +15,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -84,5 +85,6 @@ func init() {
 	listCmd.Flags().StringVarP(&focusWorkload, "focusworkload", "",
 		focusWorkload, "Focus connections of specified workload name in the output")
 	// output format - default txt
-	listCmd.Flags().StringVarP(&output, "output", "o", connlist.DefaultFormat, "Required output format (txt, json)")
+	supportedFormats := strings.Join(connlist.ValidFormats, ",")
+	listCmd.Flags().StringVarP(&output, "output", "o", connlist.DefaultFormat, "Required output format ("+supportedFormats+")")
 }

@@ -50,6 +50,9 @@ const (
 	JSONFormat    = "json"
 )
 
+// possible values of output format
+var ValidFormats = []string{TxtFormat, JSONFormat}
+
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
 type ConnlistAnalyzerOption func(*ConnlistAnalyzer)
@@ -99,7 +102,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 		stopOnError:  false,
 		errors:       []ConnlistError{},
 		walkFn:       filepath.WalkDir,
-		outputFormat: defaultFormat,
+		outputFormat: DefaultFormat,
 	}
 	for _, o := range options {
 		o(ca)
@@ -230,9 +233,7 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 
 // validate the value of the output format
 func ValidateOutputFormat(format string) error {
-	// possible values of output format
-	validFormats := []string{txtFormat, jsonFormat}
-	for _, formatName := range validFormats {
+	for _, formatName := range ValidFormats {
 		if format == formatName {
 			return nil
 		}
@@ -242,13 +243,17 @@ func ValidateOutputFormat(format string) error {
 
 // returns the relevant formatter for the analyzer's outputFormat
 func getFormatter(format string) (connsFormatter, error) {
-	if err := ValidateOutputFormat(format) ; err != nil {
+	if err := ValidateOutputFormat(format); err != nil {
 		return nil, err
 	}
-	if format == jsonFormat {
+	switch format {
+	case JSONFormat:
 		return jsonFormatter{}, nil
+	case TxtFormat:
+		return txtFormatter{}, nil
+	default:
+		return txtFormatter{}, nil
 	}
-	return txtFormatter{}, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
