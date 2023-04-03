@@ -45,9 +45,9 @@ type ConnlistAnalyzer struct {
 }
 
 const (
-	defaultFormat = "txt"
-	txtFormat     = "txt"
-	jsonFormat    = "json"
+	DefaultFormat = "txt"
+	TxtFormat     = "txt"
+	JSONFormat    = "json"
 )
 
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
