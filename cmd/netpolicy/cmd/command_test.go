@@ -187,6 +187,19 @@ default/emailservice[Deployment] => default/emailservice[Deployment] : All Conne
 			exact: true,
 			isErr: false,
 		},
+
+		{
+			name: "test_illegal_list_output_format",
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "onlineboutique"),
+				"-o",
+				"png"},
+			expectedOutput: "png output format is not supported.",
+			containment:    true,
+			isErr:          true,
+		},
 	}
 
 	for _, test := range tests {
