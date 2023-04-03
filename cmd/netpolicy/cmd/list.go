@@ -84,5 +84,5 @@ func init() {
 	listCmd.Flags().StringVarP(&focusWorkload, "focusworkload", "",
 		focusWorkload, "Focus connections of specified workload name in the output")
 	// output format - default txt
-	listCmd.Flags().StringVarP(&output, "output", "o", "txt", "Required output format (txt, json)")
+	listCmd.Flags().StringVarP(&output, "output", "o", connlist.DefaultFormat, "Required output format (txt, json)")
 }
