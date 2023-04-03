@@ -38,8 +38,10 @@ func TestConnList(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Test %s: TestConnList FromDir err: %v", testName, err)
 		}
-		actualOutput := analyzer.ConnectionsListToString(res)
-
+		actualOutput, err := analyzer.ConnectionsListToString(res)
+		if err != nil {
+			t.Fatalf("Test %s:  TestConnList writing output err: %v", testName, err)
+		}
 		if generateActualOutput {
 			// update expected output: override expected output with actual output
 			if err = os.WriteFile(expectedOutputFile, []byte(actualOutput), 0600); err != nil {
@@ -175,4 +177,37 @@ func TestConnlistAnalyzerBadDirNoYamls(t *testing.T) {
 	require.True(t, errors.As(errs[1].Error(), &secondErr))
 	require.True(t, errors.As(errs1[0].Error(), &firstErr))
 	require.True(t, errors.As(errs1[1].Error(), &secondErr))
+}
+
+func TestWithOutputFormats(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
+
+	analyzer1 := NewConnlistAnalyzer(WithOutputFormat("txt"))
+	res1, err1 := analyzer1.ConnlistFromDirPath(dirPath)
+	require.Nil(t, err1)
+	txtRes, err2 := analyzer1.ConnectionsListToString(res1)
+	require.Nil(t, err2)
+	expectedOutputFile1 := filepath.Join(dirPath, "connlist_output.txt")
+	expectedOutput1, err3 := os.ReadFile(expectedOutputFile1)
+	require.Nil(t, err3)
+	require.Equal(t, string(expectedOutput1), txtRes)
+
+	analyzer2 := NewConnlistAnalyzer(WithOutputFormat("json"))
+	res2, err4 := analyzer2.ConnlistFromDirPath(dirPath)
+	require.Nil(t, err4)
+	jsonRes, err5 := analyzer2.ConnectionsListToString(res2)
+	require.Nil(t, err5)
+	expectedOutputFile2 := filepath.Join(dirPath, "connlist_output.json")
+	expectedOutput2, err6 := os.ReadFile(expectedOutputFile2)
+	require.Nil(t, err6)
+	require.Equal(t, string(expectedOutput2), jsonRes)
+}
+
+func TestConnlistAnalyzerBadOutputFormat(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
+	analyzer := NewConnlistAnalyzer(WithOutputFormat("jpeg"))
+	res, err1 := analyzer.ConnlistFromDirPath(dirPath)
+	require.Nil(t, err1)
+	_, err2 := analyzer.ConnectionsListToString(res)
+	require.NotNil(t, err2)
 }

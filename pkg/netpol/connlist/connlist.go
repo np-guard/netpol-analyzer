@@ -6,7 +6,7 @@ package connlist
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"path/filepath"
 	"time"
 
@@ -41,7 +41,17 @@ type ConnlistAnalyzer struct {
 	walkFn        scan.WalkFunction
 	scanner       *scan.ResourcesScanner
 	focusWorkload string
+	outputFormat  string
 }
+
+const (
+	DefaultFormat = "txt"
+	TxtFormat     = "txt"
+	JSONFormat    = "json"
+)
+
+// ValidFormats array of possible values of output format
+var ValidFormats = []string{TxtFormat, JSONFormat}
 
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
@@ -77,14 +87,22 @@ func WithFocusWorkload(workload string) ConnlistAnalyzerOption {
 	}
 }
 
+// WithOutputFormat is a functional option, allowing user to choose the output format txt/json.
+func WithOutputFormat(outputFormat string) ConnlistAnalyzerOption {
+	return func(p *ConnlistAnalyzer) {
+		p.outputFormat = outputFormat
+	}
+}
+
 // NewConnlistAnalyzer creates a new instance of ConnlistAnalyzer, and applies the provided functional options.
 func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	// object with default behavior options
 	ca := &ConnlistAnalyzer{
-		logger:      logger.NewDefaultLogger(),
-		stopOnError: false,
-		errors:      []ConnlistError{},
-		walkFn:      filepath.WalkDir,
+		logger:       logger.NewDefaultLogger(),
+		stopOnError:  false,
+		errors:       []ConnlistError{},
+		walkFn:       filepath.WalkDir,
+		outputFormat: DefaultFormat,
 	}
 	for _, o := range options {
 		o(ca)
@@ -204,15 +222,38 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 	return ca.getConnectionsList(pe)
 }
 
-// ConnectionsListToString returns a string of connections from list of Peer2PeerConnection objects
-func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection) string {
-	connLines := make([]string, len(conns))
-	for i := range conns {
-		connLines[i] = conns[i].String()
+// ConnectionsListToString returns a string of connections from list of Peer2PeerConnection objects in the required output format
+func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection) (string, error) {
+	connsFormatter, err := getFormatter(ca.outputFormat)
+	if err != nil {
+		return "", err
 	}
-	sort.Strings(connLines)
-	newlineChar := fmt.Sprintln("")
-	return strings.Join(connLines, newlineChar)
+	return connsFormatter.writeOutput(conns)
+}
+
+// validate the value of the output format
+func ValidateOutputFormat(format string) error {
+	for _, formatName := range ValidFormats {
+		if format == formatName {
+			return nil
+		}
+	}
+	return errors.New(format + " output format is not supported.")
+}
+
+// returns the relevant formatter for the analyzer's outputFormat
+func getFormatter(format string) (connsFormatter, error) {
+	if err := ValidateOutputFormat(format); err != nil {
+		return nil, err
+	}
+	switch format {
+	case JSONFormat:
+		return jsonFormatter{}, nil
+	case TxtFormat:
+		return txtFormatter{}, nil
+	default:
+		return txtFormatter{}, nil
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -227,8 +268,6 @@ type Peer2PeerConnection interface {
 	AllProtocolsAndPorts() bool
 	// ProtocolsAndPorts returns the set of allowed connections
 	ProtocolsAndPorts() map[v1.Protocol][]eval.PortRange
-	// String returns a string representation of the connection object
-	String() string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -260,24 +299,24 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]eval.PortRange {
 	return c.protocolsAndPorts
 }
 
-// return a string representation for a connection object
-func (c *connection) String() string {
-	var connStr string
+// return a string representation of a connection type (protocols and ports)
+func getProtocolsAndPortsStr(c Peer2PeerConnection) string {
 	if c.AllProtocolsAndPorts() {
-		connStr = "All Connections"
-	} else if len(c.ProtocolsAndPorts()) == 0 {
-		connStr = "No Connections"
-	} else {
-		connStrings := make([]string, len(c.ProtocolsAndPorts()))
-		index := 0
-		for protocol, ports := range c.ProtocolsAndPorts() {
-			connStrings[index] = string(protocol) + " " + portsString(ports)
-			index++
-		}
-		sort.Strings(connStrings)
-		connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
+		return "All Connections"
 	}
-	return fmt.Sprintf("%s => %s : %s", c.Src().String(), c.Dst().String(), connStr)
+	if len(c.ProtocolsAndPorts()) == 0 {
+		return "No Connections"
+	}
+	var connStr string
+	connStrings := make([]string, len(c.ProtocolsAndPorts()))
+	index := 0
+	for protocol, ports := range c.ProtocolsAndPorts() {
+		connStrings[index] = string(protocol) + " " + portsString(ports)
+		index++
+	}
+	sort.Strings(connStrings)
+	connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
+	return connStr
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

@@ -15,6 +15,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -23,6 +24,8 @@ import (
 
 var (
 	focusWorkload string
+	// output format
+	output string
 )
 
 // listCmd represents the list command
@@ -37,12 +40,23 @@ defined`,
   # Get list of allowed connections from live k8s cluster
   k8snetpolicy list -k ./kube/config`,
 
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		// call parent pre-run
+		if rootCmd.PersistentPreRunE != nil {
+			if err := rootCmd.PersistentPreRunE(cmd, args); err != nil {
+				return err
+			}
+		}
+
+		return connlist.ValidateOutputFormat(output)
+	},
+
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		var conns []connlist.Peer2PeerConnection
 		var err error
 
-		analyzer := connlist.NewConnlistAnalyzer(connlist.WithFocusWorkload(focusWorkload))
+		analyzer := connlist.NewConnlistAnalyzer(connlist.WithFocusWorkload(focusWorkload), connlist.WithOutputFormat(output))
 
 		if dirPath != "" {
 			conns, err = analyzer.ConnlistFromDirPath(dirPath)
@@ -52,7 +66,11 @@ defined`,
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%s", analyzer.ConnectionsListToString(conns))
+		out, err := analyzer.ConnectionsListToString(conns)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%s", out)
 
 		return nil
 	},
@@ -66,4 +84,7 @@ func init() {
 	// output options
 	listCmd.Flags().StringVarP(&focusWorkload, "focusworkload", "",
 		focusWorkload, "Focus connections of specified workload name in the output")
+	// output format - default txt
+	supportedFormats := strings.Join(connlist.ValidFormats, ",")
+	listCmd.Flags().StringVarP(&output, "output", "o", connlist.DefaultFormat, "Required output format ("+supportedFormats+")")
 }

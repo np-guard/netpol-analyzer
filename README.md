@@ -55,6 +55,8 @@ Examples:
   k8snetpolicy list -k ./kube/config
 
 Flags:
+      --focusworkload       Focus connections of specified workload name in the output
+  -o, --output string       Required output format (txt, json) (default "txt")
   -h, --help   help for list
 
 Global Flags:
