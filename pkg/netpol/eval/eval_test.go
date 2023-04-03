@@ -1077,7 +1077,8 @@ func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) erro
 //
 //gocyclo:ignore
 func TestGeneralPerformance(t *testing.T) {
-	// Github environment variable is always set to true (https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables)
+	// Github environment variable is always set to true
+	// (https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables)
 	// skipping this test on github
 	if os.Getenv("CI") != "" {
 		t.Skip("skipping TestGeneralPerformance")
