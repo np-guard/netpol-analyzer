@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
@@ -25,6 +25,6 @@ jobs:
         CGO_ENABLED: 0
         GOOS: linux      
       run: go build --tags static_all -v -o ./bin/netpolicy cmd/netpolicy/main.go
-
-    #- name: Test
-    #  run: go test -v ./pkg/controller
+    
+    - name: Test
+      run: go test -v ./...
