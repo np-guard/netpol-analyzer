@@ -179,28 +179,43 @@ func TestConnlistAnalyzerBadDirNoYamls(t *testing.T) {
 	require.True(t, errors.As(errs1[1].Error(), &secondErr))
 }
 
-func TestWithOutputFormats(t *testing.T) {
+func TestWithTxtOutputFormat(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
-
-	analyzer1 := NewConnlistAnalyzer(WithOutputFormat("txt"))
-	res1, err1 := analyzer1.ConnlistFromDirPath(dirPath)
+	analyzer := NewConnlistAnalyzer(WithOutputFormat("txt"))
+	res, err1 := analyzer.ConnlistFromDirPath(dirPath)
 	require.Nil(t, err1)
-	txtRes, err2 := analyzer1.ConnectionsListToString(res1)
+	txtRes, err2 := analyzer.ConnectionsListToString(res)
 	require.Nil(t, err2)
-	expectedOutputFile1 := filepath.Join(dirPath, "connlist_output.txt")
-	expectedOutput1, err3 := os.ReadFile(expectedOutputFile1)
+	expectedOutputFile := filepath.Join(dirPath, "connlist_output.txt")
+	expectedOutput, err3 := os.ReadFile(expectedOutputFile)
 	require.Nil(t, err3)
-	require.Equal(t, string(expectedOutput1), txtRes)
+	require.Equal(t, string(expectedOutput), txtRes)
+}
 
-	analyzer2 := NewConnlistAnalyzer(WithOutputFormat("json"))
-	res2, err4 := analyzer2.ConnlistFromDirPath(dirPath)
-	require.Nil(t, err4)
-	jsonRes, err5 := analyzer2.ConnectionsListToString(res2)
-	require.Nil(t, err5)
-	expectedOutputFile2 := filepath.Join(dirPath, "connlist_output.json")
-	expectedOutput2, err6 := os.ReadFile(expectedOutputFile2)
-	require.Nil(t, err6)
-	require.Equal(t, string(expectedOutput2), jsonRes)
+func TestWithJSONOutputFormat(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
+	analyzer := NewConnlistAnalyzer(WithOutputFormat("json"))
+	res, err1 := analyzer.ConnlistFromDirPath(dirPath)
+	require.Nil(t, err1)
+	jsonRes, err2 := analyzer.ConnectionsListToString(res)
+	require.Nil(t, err2)
+	expectedOutputFile := filepath.Join(dirPath, "connlist_output.json")
+	expectedOutput, err3 := os.ReadFile(expectedOutputFile)
+	require.Nil(t, err3)
+	require.Equal(t, string(expectedOutput), jsonRes)
+}
+
+func TestWithDotOutputFormat(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
+	analyzer := NewConnlistAnalyzer(WithOutputFormat("dot"))
+	res, err1 := analyzer.ConnlistFromDirPath(dirPath)
+	require.Nil(t, err1)
+	dotRes, err2 := analyzer.ConnectionsListToString(res)
+	require.Nil(t, err2)
+	expectedOutputFile := filepath.Join(dirPath, "connlist_output.dot")
+	expectedOutput, err3 := os.ReadFile(expectedOutputFile)
+	require.Nil(t, err3)
+	require.Equal(t, string(expectedOutput), dotRes)
 }
 
 func TestConnlistAnalyzerBadOutputFormat(t *testing.T) {
