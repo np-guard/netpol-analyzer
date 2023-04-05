@@ -75,12 +75,12 @@ type dotFormatter struct {
 }
 
 // formats an edge line from a singleConnFields struct , to be used for dot graph
-func (d dotFormatter) getEdgeLine(c singleConnFields) string {
+func getEdgeLine(c singleConnFields) string {
 	return fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\"]\n", c.Src, c.Dst, c.ConnString)
 }
 
 // formats a peer line for dot graph
-func (d dotFormatter) getPeerLine(peer eval.Peer) string {
+func getPeerLine(peer eval.Peer) string {
 	var peerColor string
 	if peer.IsPeerIPType() {
 		peerColor = "red2"
@@ -91,34 +91,35 @@ func (d dotFormatter) getPeerLine(peer eval.Peer) string {
 	return fmt.Sprintf("\t%q [label=%q color=%q fontcolor=%q]\n", peerName, peerName, peerColor, peerColor)
 }
 
-// sorts the final dot graph lines
-func (d dotFormatter) sortGraphLines(graphLines string) string {
-	var graphLinesSorted sort.StringSlice = strings.Split(graphLines, "\n")
-	graphLinesSorted.Sort()
-	return strings.Join(graphLinesSorted, "\n")
-}
-
 // returns a dot string form of connections from list of Peer2PeerConnection objects
 func (d dotFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
-	edgeLines := make([]string, len(conns))
-	peerLines := make(map[string]string, 0)
+	edgeLines := make([]string, len(conns))      // list of edges lines
+	peersVisited := make(map[string]struct{}, 0) // acts as a set
+	var visited = struct{}{}
+	peerLines := make([]string, 0) // list of peers lines
 	for index := range conns {
 		connLine := formSingleConn(conns[index])
-		edgeLines[index] = d.getEdgeLine(connLine)
-		if _, ok := peerLines[connLine.Src]; !ok {
-			peerLines[connLine.Src] = d.getPeerLine(conns[index].Src())
+		edgeLines[index] = getEdgeLine(connLine)
+		if _, ok := peersVisited[connLine.Src]; !ok {
+			peersVisited[connLine.Src] = visited
+			peerLines = append(peerLines, getPeerLine(conns[index].Src()))
 		}
-		if _, ok := peerLines[connLine.Dst]; !ok {
-			peerLines[connLine.Dst] = d.getPeerLine(conns[index].Dst())
+		if _, ok := peersVisited[connLine.Dst]; !ok {
+			peersVisited[connLine.Dst] = visited
+			peerLines = append(peerLines, getPeerLine(conns[index].Dst()))
 		}
 	}
-	var graphLines string
+	// sort graph lines
+	sort.Strings(peerLines)
+	sort.Strings(edgeLines)
+
+	res := "digraph {\n"
 	for _, peerLine := range peerLines {
-		graphLines += peerLine
+		res += peerLine
 	}
 	for _, edgeLine := range edgeLines {
-		graphLines += edgeLine
+		res += edgeLine
 	}
-	res := "digraph {" + d.sortGraphLines(graphLines) + "\n}\n"
+	res += "}\n"
 	return res, nil
 }
