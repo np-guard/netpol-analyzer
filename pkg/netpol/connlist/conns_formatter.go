@@ -9,6 +9,12 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
+
+const (
+	dotHeader  = "digraph {"
+	dotClosing = "}"
+)
+
 func getNewLineChar() string {
 	return fmt.Sprintln("")
 }
