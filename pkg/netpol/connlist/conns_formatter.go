@@ -95,17 +95,16 @@ func getPeerLine(peer eval.Peer) string {
 func (d dotFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	edgeLines := make([]string, len(conns))      // list of edges lines
 	peersVisited := make(map[string]struct{}, 0) // acts as a set
-	var visited = struct{}{}
 	peerLines := make([]string, 0) // list of peers lines
 	for index := range conns {
 		connLine := formSingleConn(conns[index])
 		edgeLines[index] = getEdgeLine(connLine)
 		if _, ok := peersVisited[connLine.Src]; !ok {
-			peersVisited[connLine.Src] = visited
+			peersVisited[connLine.Src] = struct{}{}
 			peerLines = append(peerLines, getPeerLine(conns[index].Src()))
 		}
 		if _, ok := peersVisited[connLine.Dst]; !ok {
-			peersVisited[connLine.Dst] = visited
+			peersVisited[connLine.Dst] = struct{}{}
 			peerLines = append(peerLines, getPeerLine(conns[index].Dst()))
 		}
 	}
