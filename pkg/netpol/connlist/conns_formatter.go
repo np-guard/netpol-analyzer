@@ -126,3 +126,26 @@ func (d dotFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	allLines = append(allLines, dotClosing)
 	return strings.Join(allLines, getNewLineChar()), nil
 }
+
+// mdFormatter: implements the connsFormatter interface for md output format
+type mdFormatter struct {
+}
+
+func getMdHeader() string {
+	return "| src | dst | conn |\n|-----|-----|------|"
+}
+
+func getMdLine(c singleConnFields) string {
+	return fmt.Sprintf("| %s | %s | %s |", c.Src, c.Dst, c.ConnString)
+}
+
+func (md mdFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
+	mdLines := make([]string, len(conns))
+	for index := range conns {
+		mdLines[index] = getMdLine(formSingleConn(conns[index]))
+	}
+	sort.Strings(mdLines)
+	allLines := []string{getMdHeader()}
+	allLines = append(allLines, mdLines...)
+	return strings.Join(allLines, getNewLineChar()), nil
+}

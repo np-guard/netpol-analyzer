@@ -218,6 +218,19 @@ func TestWithDotOutputFormat(t *testing.T) {
 	require.Equal(t, string(expectedOutput), dotRes)
 }
 
+func TestWithMdOutputFormat(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
+	analyzer := NewConnlistAnalyzer(WithOutputFormat("md"))
+	res, err1 := analyzer.ConnlistFromDirPath(dirPath)
+	require.Nil(t, err1)
+	mdRes, err2 := analyzer.ConnectionsListToString(res)
+	require.Nil(t, err2)
+	expectedOutputFile := filepath.Join(dirPath, "connlist_output.md")
+	expectedOutput, err3 := os.ReadFile(expectedOutputFile)
+	require.Nil(t, err3)
+	require.Equal(t, string(expectedOutput), mdRes)
+}
+
 func TestConnlistAnalyzerBadOutputFormat(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
 	analyzer := NewConnlistAnalyzer(WithOutputFormat("jpeg"))
