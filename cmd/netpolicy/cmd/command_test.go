@@ -233,10 +233,10 @@ default/emailservice[Deployment] => default/emailservice[Deployment] : All Conne
 				"--output",
 				"md",
 			},
-			expectedOutput: `| src | dst | conn |
-|-----|-----|------|
-| default/checkoutservice[Deployment] | default/emailservice[Deployment] | TCP 8080 |
-| default/emailservice[Deployment] | default/emailservice[Deployment] | All Connections |`,
+			expectedOutput: "| src | dst | conn |\n" +
+				"|-----|-----|------|\n" +
+				"| default/checkoutservice[Deployment] | default/emailservice[Deployment] | TCP 8080 |\n" +
+				"| default/emailservice[Deployment] | default/emailservice[Deployment] | All Connections |",
 			exact: true,
 			isErr: false,
 		},

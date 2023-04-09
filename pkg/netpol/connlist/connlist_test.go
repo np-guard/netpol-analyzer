@@ -218,16 +218,16 @@ func TestWithDotOutputFormat(t *testing.T) {
 	require.Equal(t, string(expectedOutput), dotRes)
 }
 
-func TestWithMdOutputFormat(t *testing.T) {
+func TestWithMDOutputFormat(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
 	analyzer := NewConnlistAnalyzer(WithOutputFormat("md"))
-	res, err1 := analyzer.ConnlistFromDirPath(dirPath)
-	require.Nil(t, err1)
-	mdRes, err2 := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err2)
+	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	require.Nil(t, err)
+	mdRes, err := analyzer.ConnectionsListToString(res)
+	require.Nil(t, err)
 	expectedOutputFile := filepath.Join(dirPath, "connlist_output.md")
-	expectedOutput, err3 := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err3)
+	expectedOutput, err := os.ReadFile(expectedOutputFile)
+	require.Nil(t, err)
 	require.Equal(t, string(expectedOutput), mdRes)
 }
 
