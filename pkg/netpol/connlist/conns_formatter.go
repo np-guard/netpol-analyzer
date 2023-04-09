@@ -5,7 +5,13 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
+
+func getNewLineChar() string {
+	return fmt.Sprintln("")
+}
 
 // connsFormatter implements output formatting in the required output format
 type connsFormatter interface {
@@ -41,8 +47,7 @@ func (t txtFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 		connLines[i] = formSingleConn(conns[i]).string()
 	}
 	sort.Strings(connLines)
-	newlineChar := fmt.Sprintln("")
-	return strings.Join(connLines, newlineChar), nil
+	return strings.Join(connLines, getNewLineChar()), nil
 }
 
 // jsonFormatter: implements the connsFormatter interface for JSON output format
@@ -66,4 +71,58 @@ func (j jsonFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) 
 		return "", err
 	}
 	return string(jsonConns), nil
+}
+
+// dotFormatter: implements the connsFormatter interface for dot output format
+type dotFormatter struct {
+}
+
+const (
+	dotHeader  = "digraph {"
+	dotClosing = "}"
+)
+
+// formats an edge line from a singleConnFields struct , to be used for dot graph
+func getEdgeLine(c singleConnFields) string {
+	return fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\"]", c.Src, c.Dst, c.ConnString)
+}
+
+// formats a peer line for dot graph
+func getPeerLine(peer eval.Peer) string {
+	var peerColor string
+	if peer.IsPeerIPType() {
+		peerColor = "red2"
+	} else {
+		peerColor = "blue"
+	}
+	peerName := peer.String()
+	return fmt.Sprintf("\t%q [label=%q color=%q fontcolor=%q]", peerName, peerName, peerColor, peerColor)
+}
+
+// returns a dot string form of connections from list of Peer2PeerConnection objects
+func (d dotFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
+	edgeLines := make([]string, len(conns))      // list of edges lines
+	peersVisited := make(map[string]struct{}, 0) // acts as a set
+	peerLines := make([]string, 0)               // list of peers lines
+	for index := range conns {
+		connLine := formSingleConn(conns[index])
+		edgeLines[index] = getEdgeLine(connLine)
+		if _, ok := peersVisited[connLine.Src]; !ok {
+			peersVisited[connLine.Src] = struct{}{}
+			peerLines = append(peerLines, getPeerLine(conns[index].Src()))
+		}
+		if _, ok := peersVisited[connLine.Dst]; !ok {
+			peersVisited[connLine.Dst] = struct{}{}
+			peerLines = append(peerLines, getPeerLine(conns[index].Dst()))
+		}
+	}
+	// sort graph lines
+	sort.Strings(peerLines)
+	sort.Strings(edgeLines)
+	// collect all lines by order
+	allLines := []string{dotHeader}
+	allLines = append(allLines, peerLines...)
+	allLines = append(allLines, edgeLines...)
+	allLines = append(allLines, dotClosing)
+	return strings.Join(allLines, getNewLineChar()), nil
 }

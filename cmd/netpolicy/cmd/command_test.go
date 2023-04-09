@@ -200,6 +200,27 @@ default/emailservice[Deployment] => default/emailservice[Deployment] : All Conne
 			containment:    true,
 			isErr:          true,
 		},
+
+		{
+			name: "test_legal_list_with_focus_workload_dot_output",
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				"--focusworkload",
+				"emailservice",
+				"--output",
+				"dot",
+			},
+			expectedOutput: `digraph {
+	"default/checkoutservice[Deployment]" [label="default/checkoutservice[Deployment]" color="blue" fontcolor="blue"]
+	"default/emailservice[Deployment]" [label="default/emailservice[Deployment]" color="blue" fontcolor="blue"]
+	"default/checkoutservice[Deployment]" -> "default/emailservice[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"default/emailservice[Deployment]" -> "default/emailservice[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+}`,
+			exact: true,
+			isErr: false,
+		},
 	}
 
 	for _, test := range tests {
