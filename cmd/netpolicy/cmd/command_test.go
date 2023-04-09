@@ -217,8 +217,7 @@ default/emailservice[Deployment] => default/emailservice[Deployment] : All Conne
 	"default/emailservice[Deployment]" [label="default/emailservice[Deployment]" color="blue" fontcolor="blue"]
 	"default/checkoutservice[Deployment]" -> "default/emailservice[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
 	"default/emailservice[Deployment]" -> "default/emailservice[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-}
-`,
+}`,
 			exact: true,
 			isErr: false,
 		},

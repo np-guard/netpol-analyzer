@@ -9,6 +9,10 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
+func getNewLineChar() string {
+	return fmt.Sprintln("")
+}
+
 // connsFormatter implements output formatting in the required output format
 type connsFormatter interface {
 	writeOutput(conns []Peer2PeerConnection) (string, error)
@@ -43,8 +47,7 @@ func (t txtFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 		connLines[i] = formSingleConn(conns[i]).string()
 	}
 	sort.Strings(connLines)
-	newlineChar := fmt.Sprintln("")
-	return strings.Join(connLines, newlineChar), nil
+	return strings.Join(connLines, getNewLineChar()), nil
 }
 
 // jsonFormatter: implements the connsFormatter interface for JSON output format
@@ -76,7 +79,7 @@ type dotFormatter struct {
 
 // formats an edge line from a singleConnFields struct , to be used for dot graph
 func getEdgeLine(c singleConnFields) string {
-	return fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\"]\n", c.Src, c.Dst, c.ConnString)
+	return fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\"]", c.Src, c.Dst, c.ConnString)
 }
 
 // formats a peer line for dot graph
@@ -88,14 +91,14 @@ func getPeerLine(peer eval.Peer) string {
 		peerColor = "blue"
 	}
 	peerName := peer.String()
-	return fmt.Sprintf("\t%q [label=%q color=%q fontcolor=%q]\n", peerName, peerName, peerColor, peerColor)
+	return fmt.Sprintf("\t%q [label=%q color=%q fontcolor=%q]", peerName, peerName, peerColor, peerColor)
 }
 
 // returns a dot string form of connections from list of Peer2PeerConnection objects
 func (d dotFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	edgeLines := make([]string, len(conns))      // list of edges lines
 	peersVisited := make(map[string]struct{}, 0) // acts as a set
-	peerLines := make([]string, 0) // list of peers lines
+	peerLines := make([]string, 0)               // list of peers lines
 	for index := range conns {
 		connLine := formSingleConn(conns[index])
 		edgeLines[index] = getEdgeLine(connLine)
@@ -111,14 +114,9 @@ func (d dotFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	// sort graph lines
 	sort.Strings(peerLines)
 	sort.Strings(edgeLines)
-
-	res := "digraph {\n"
-	for _, peerLine := range peerLines {
-		res += peerLine
-	}
-	for _, edgeLine := range edgeLines {
-		res += edgeLine
-	}
-	res += "}\n"
+	dotHeader := "digraph {" + getNewLineChar()
+	dotClosing := getNewLineChar() + "}"
+	res := dotHeader + strings.Join(peerLines, getNewLineChar()) + getNewLineChar() +
+		strings.Join(edgeLines, getNewLineChar()) + dotClosing
 	return res, nil
 }
