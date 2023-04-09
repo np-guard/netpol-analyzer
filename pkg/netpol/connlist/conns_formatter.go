@@ -131,14 +131,17 @@ func (d dotFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 type mdFormatter struct {
 }
 
+// formats the md output header
 func getMdHeader() string {
 	return "| src | dst | conn |\n|-----|-----|------|"
 }
 
+// formats a connection line for md output
 func getMdLine(c singleConnFields) string {
 	return fmt.Sprintf("| %s | %s | %s |", c.Src, c.Dst, c.ConnString)
 }
 
+// returns a md string form of connections from list of Peer2PeerConnection objects
 func (md mdFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	mdLines := make([]string, len(conns))
 	for index := range conns {
