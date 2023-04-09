@@ -1,6 +1,8 @@
 package connlist
 
 import (
+	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -11,6 +13,22 @@ import (
 
 func getNewLineChar() string {
 	return fmt.Sprintln("")
+}
+
+// gets the conns array and returns a sorted array of singleConnFields struct. helps with forming the json and csv outputs
+func writeConnsIntoSortedSingleConnFieldsArray(conns []Peer2PeerConnection) []singleConnFields {
+	connItems := make([]singleConnFields, len(conns))
+	for i := range conns {
+		connItems[i] = formSingleConn(conns[i])
+	}
+	sort.Slice(connItems, func(i, j int) bool {
+		if connItems[i].Src != connItems[j].Src {
+			return connItems[i].Src < connItems[j].Src
+		}
+		return connItems[i].Dst < connItems[j].Dst
+	})
+
+	return connItems
 }
 
 // connsFormatter implements output formatting in the required output format
@@ -56,17 +74,9 @@ type jsonFormatter struct {
 
 // returns a json string form of connections from list of Peer2PeerConnection objects
 func (j jsonFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
-	connItems := make([]singleConnFields, len(conns))
-	for i := range conns {
-		connItems[i] = formSingleConn(conns[i])
-	}
-	sort.Slice(connItems, func(i, j int) bool {
-		if connItems[i].Src != connItems[j].Src {
-			return connItems[i].Src < connItems[j].Src
-		}
-		return connItems[i].Dst < connItems[j].Dst
-	})
-	jsonConns, err := json.MarshalIndent(connItems, "", "  ")
+	// get an array of sorted conns items ([]singleConnFields)
+	sortedConnItems := writeConnsIntoSortedSingleConnFieldsArray(conns)
+	jsonConns, err := json.MarshalIndent(sortedConnItems, "", "  ")
 	if err != nil {
 		return "", err
 	}
@@ -125,4 +135,30 @@ func (d dotFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	allLines = append(allLines, edgeLines...)
 	allLines = append(allLines, dotClosing)
 	return strings.Join(allLines, getNewLineChar()), nil
+}
+
+// csvFormatter: implements the connsFormatter interface for csv output format
+type csvFormatter struct {
+}
+
+// returns a csv string form of connections from list of Peer2PeerConnection objects
+func (cs csvFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
+	// get an array of sorted conns items ([]singleConnFields)
+	sortedConnItems := writeConnsIntoSortedSingleConnFieldsArray(conns)
+	var csvHeader = []string{"src", "dst", "conn"}
+
+	// writing csv rows into a buffer
+	buf := new(bytes.Buffer)
+	writer := csv.NewWriter(buf)
+	if err := writer.Write(csvHeader); err != nil {
+		return "", err
+	}
+	for _, conn := range sortedConnItems {
+		row := []string{conn.Src, conn.Dst, conn.ConnString}
+		if err := writer.Write(row); err != nil {
+			return "", err
+		}
+	}
+	writer.Flush()
+	return buf.String(), nil
 }

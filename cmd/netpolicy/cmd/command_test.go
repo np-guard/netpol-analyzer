@@ -221,6 +221,25 @@ default/emailservice[Deployment] => default/emailservice[Deployment] : All Conne
 			exact: true,
 			isErr: false,
 		},
+
+		{
+			name: "test_legal_list_with_focus_workload_csv_output",
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				"--focusworkload",
+				"emailservice",
+				"--output",
+				"csv",
+			},
+			expectedOutput: `src,dst,conn
+default/checkoutservice[Deployment],default/emailservice[Deployment],TCP 8080
+default/emailservice[Deployment],default/emailservice[Deployment],All Connections
+`,
+			exact: true,
+			isErr: false,
+		},
 	}
 
 	for _, test := range tests {

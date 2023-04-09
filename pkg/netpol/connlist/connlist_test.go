@@ -218,6 +218,19 @@ func TestWithDotOutputFormat(t *testing.T) {
 	require.Equal(t, string(expectedOutput), dotRes)
 }
 
+func TestWithCsvOutputFormat(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
+	analyzer := NewConnlistAnalyzer(WithOutputFormat("csv"))
+	res, err1 := analyzer.ConnlistFromDirPath(dirPath)
+	require.Nil(t, err1)
+	csvRes, err2 := analyzer.ConnectionsListToString(res)
+	require.Nil(t, err2)
+	expectedOutputFile := filepath.Join(dirPath, "connlist_output.csv")
+	expectedOutput, err3 := os.ReadFile(expectedOutputFile)
+	require.Nil(t, err3)
+	require.Equal(t, string(expectedOutput), csvRes)
+}
+
 func TestConnlistAnalyzerBadOutputFormat(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
 	analyzer := NewConnlistAnalyzer(WithOutputFormat("jpeg"))
