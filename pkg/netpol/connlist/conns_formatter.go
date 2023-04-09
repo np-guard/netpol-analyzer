@@ -9,12 +9,6 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
-
-const (
-	dotHeader  = "digraph {"
-	dotClosing = "}"
-)
-
 func getNewLineChar() string {
 	return fmt.Sprintln("")
 }
@@ -82,6 +76,11 @@ func (j jsonFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) 
 // dotFormatter: implements the connsFormatter interface for dot output format
 type dotFormatter struct {
 }
+
+const (
+	dotHeader  = "digraph {"
+	dotClosing = "}"
+)
 
 // formats an edge line from a singleConnFields struct , to be used for dot graph
 func getEdgeLine(c singleConnFields) string {
