@@ -120,9 +120,10 @@ func (d dotFormatter) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	// sort graph lines
 	sort.Strings(peerLines)
 	sort.Strings(edgeLines)
-	dotHeader := "digraph {" + getNewLineChar()
-	dotClosing := getNewLineChar() + "}"
-	res := dotHeader + strings.Join(peerLines, getNewLineChar()) + getNewLineChar() +
-		strings.Join(edgeLines, getNewLineChar()) + dotClosing
-	return res, nil
+	// collect all lines by order
+	allLines := []string{dotHeader}
+	allLines = append(allLines, peerLines...)
+	allLines = append(allLines, edgeLines...)
+	allLines = append(allLines, dotClosing)
+	return strings.Join(allLines, getNewLineChar()), nil
 }
