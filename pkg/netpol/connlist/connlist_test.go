@@ -218,6 +218,19 @@ func TestWithDOTOutputFormat(t *testing.T) {
 	require.Equal(t, string(expectedOutput), dotRes)
 }
 
+func TestWithMDOutputFormat(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
+	analyzer := NewConnlistAnalyzer(WithOutputFormat("md"))
+	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	require.Nil(t, err)
+	mdRes, err := analyzer.ConnectionsListToString(res)
+	require.Nil(t, err)
+	expectedOutputFile := filepath.Join(dirPath, "connlist_output.md")
+	expectedOutput, err := os.ReadFile(expectedOutputFile)
+	require.Nil(t, err)
+	require.Equal(t, string(expectedOutput), mdRes)
+}
+
 func TestWithCSVOutputFormat(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
 	analyzer := NewConnlistAnalyzer(WithOutputFormat("csv"))
