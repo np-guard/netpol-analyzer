@@ -46,13 +46,14 @@ type ConnlistAnalyzer struct {
 
 const (
 	DefaultFormat = "txt"
-	TxtFormat     = "txt"
+	TextFormat    = "txt"
 	JSONFormat    = "json"
-	DotFormat     = "dot"
+	DOTFormat     = "dot"
+	CSVFormat     = "csv"
 )
 
 // ValidFormats array of possible values of output format
-var ValidFormats = []string{TxtFormat, JSONFormat, DotFormat}
+var ValidFormats = []string{TextFormat, JSONFormat, DOTFormat, CSVFormat}
 
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
@@ -249,13 +250,15 @@ func getFormatter(format string) (connsFormatter, error) {
 	}
 	switch format {
 	case JSONFormat:
-		return jsonFormatter{}, nil
-	case TxtFormat:
-		return txtFormatter{}, nil
-	case DotFormat:
-		return dotFormatter{}, nil
+		return formatJSON{}, nil
+	case TextFormat:
+		return formatText{}, nil
+	case DOTFormat:
+		return formatDOT{}, nil
+	case CSVFormat:
+		return formatCSV{}, nil
 	default:
-		return txtFormatter{}, nil
+		return formatText{}, nil
 	}
 }
 
