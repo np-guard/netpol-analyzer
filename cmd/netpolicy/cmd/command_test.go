@@ -155,8 +155,8 @@ func TestCommannds(t *testing.T) {
 				"--focusworkload",
 				"emailservice",
 			},
-			expectedOutput: `default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080
-default/emailservice[Deployment] => default/emailservice[Deployment] : All Connections`,
+			expectedOutput: "default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080\n" +
+				"default/emailservice[Deployment] => default/emailservice[Deployment] : All Connections",
 			exact: true,
 			isErr: false,
 		},
@@ -172,18 +172,18 @@ default/emailservice[Deployment] => default/emailservice[Deployment] : All Conne
 				"--output",
 				"json",
 			},
-			expectedOutput: `[
-  {
-    "src": "default/checkoutservice[Deployment]",
-    "dst": "default/emailservice[Deployment]",
-    "conn": "TCP 8080"
-  },
-  {
-    "src": "default/emailservice[Deployment]",
-    "dst": "default/emailservice[Deployment]",
-    "conn": "All Connections"
-  }
-]`,
+			expectedOutput: "[\n" +
+				"  {\n" +
+				"    \"src\": \"default/checkoutservice[Deployment]\",\n" +
+				"    \"dst\": \"default/emailservice[Deployment]\",\n" +
+				"    \"conn\": \"TCP 8080\"\n" +
+				"  },\n" +
+				"  {\n" +
+				"    \"src\": \"default/emailservice[Deployment]\",\n" +
+				"    \"dst\": \"default/emailservice[Deployment]\",\n" +
+				"    \"conn\": \"All Connections\"\n" +
+				"  }\n" +
+				"]",
 			exact: true,
 			isErr: false,
 		},
@@ -212,12 +212,32 @@ default/emailservice[Deployment] => default/emailservice[Deployment] : All Conne
 				"--output",
 				"dot",
 			},
-			expectedOutput: `digraph {
-	"default/checkoutservice[Deployment]" [label="default/checkoutservice[Deployment]" color="blue" fontcolor="blue"]
-	"default/emailservice[Deployment]" [label="default/emailservice[Deployment]" color="blue" fontcolor="blue"]
-	"default/checkoutservice[Deployment]" -> "default/emailservice[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
-	"default/emailservice[Deployment]" -> "default/emailservice[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-}`,
+			expectedOutput: "digraph {\n" +
+				"\t\"default/checkoutservice[Deployment]\" [label=\"default/checkoutservice[Deployment]\" color=\"blue\" fontcolor=\"blue\"]\n" +
+				"\t\"default/emailservice[Deployment]\" [label=\"default/emailservice[Deployment]\" color=\"blue\" fontcolor=\"blue\"]\n" +
+				"\t\"default/checkoutservice[Deployment]\" -> \"default/emailservice[Deployment]\"" +
+				" [label=\"TCP 8080\" color=\"gold2\" fontcolor=\"darkgreen\"]\n" +
+				"\t\"default/emailservice[Deployment]\" -> \"default/emailservice[Deployment]\"" +
+				" [label=\"All Connections\" color=\"gold2\" fontcolor=\"darkgreen\"]\n" +
+				"}",
+			exact: true,
+			isErr: false,
+		},
+
+		{
+			name: "test_legal_list_with_focus_workload_csv_output",
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				"--focusworkload",
+				"emailservice",
+				"--output",
+				"csv",
+			},
+			expectedOutput: "src,dst,conn\n" +
+				"default/checkoutservice[Deployment],default/emailservice[Deployment],TCP 8080\n" +
+				"default/emailservice[Deployment],default/emailservice[Deployment],All Connections\n",
 			exact: true,
 			isErr: false,
 		},

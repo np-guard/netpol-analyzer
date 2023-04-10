@@ -179,42 +179,42 @@ func TestConnlistAnalyzerBadDirNoYamls(t *testing.T) {
 	require.True(t, errors.As(errs1[1].Error(), &secondErr))
 }
 
-func TestWithTxtOutputFormat(t *testing.T) {
+func TestWithTextOutputFormat(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
 	analyzer := NewConnlistAnalyzer(WithOutputFormat("txt"))
-	res, err1 := analyzer.ConnlistFromDirPath(dirPath)
-	require.Nil(t, err1)
-	txtRes, err2 := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err2)
+	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	require.Nil(t, err)
+	txtRes, err := analyzer.ConnectionsListToString(res)
+	require.Nil(t, err)
 	expectedOutputFile := filepath.Join(dirPath, "connlist_output.txt")
-	expectedOutput, err3 := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err3)
+	expectedOutput, err := os.ReadFile(expectedOutputFile)
+	require.Nil(t, err)
 	require.Equal(t, string(expectedOutput), txtRes)
 }
 
 func TestWithJSONOutputFormat(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
 	analyzer := NewConnlistAnalyzer(WithOutputFormat("json"))
-	res, err1 := analyzer.ConnlistFromDirPath(dirPath)
-	require.Nil(t, err1)
-	jsonRes, err2 := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err2)
+	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	require.Nil(t, err)
+	jsonRes, err := analyzer.ConnectionsListToString(res)
+	require.Nil(t, err)
 	expectedOutputFile := filepath.Join(dirPath, "connlist_output.json")
-	expectedOutput, err3 := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err3)
+	expectedOutput, err := os.ReadFile(expectedOutputFile)
+	require.Nil(t, err)
 	require.Equal(t, string(expectedOutput), jsonRes)
 }
 
-func TestWithDotOutputFormat(t *testing.T) {
+func TestWithDOTOutputFormat(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
 	analyzer := NewConnlistAnalyzer(WithOutputFormat("dot"))
-	res, err1 := analyzer.ConnlistFromDirPath(dirPath)
-	require.Nil(t, err1)
-	dotRes, err2 := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err2)
+	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	require.Nil(t, err)
+	dotRes, err := analyzer.ConnectionsListToString(res)
+	require.Nil(t, err)
 	expectedOutputFile := filepath.Join(dirPath, "connlist_output.dot")
-	expectedOutput, err3 := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err3)
+	expectedOutput, err := os.ReadFile(expectedOutputFile)
+	require.Nil(t, err)
 	require.Equal(t, string(expectedOutput), dotRes)
 }
 
@@ -229,6 +229,19 @@ func TestWithMDOutputFormat(t *testing.T) {
 	expectedOutput, err := os.ReadFile(expectedOutputFile)
 	require.Nil(t, err)
 	require.Equal(t, string(expectedOutput), mdRes)
+}
+
+func TestWithCSVOutputFormat(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
+	analyzer := NewConnlistAnalyzer(WithOutputFormat("csv"))
+	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	require.Nil(t, err)
+	csvRes, err := analyzer.ConnectionsListToString(res)
+	require.Nil(t, err)
+	expectedOutputFile := filepath.Join(dirPath, "connlist_output.csv")
+	expectedOutput, err := os.ReadFile(expectedOutputFile)
+	require.Nil(t, err)
+	require.Equal(t, string(expectedOutput), csvRes)
 }
 
 func TestConnlistAnalyzerBadOutputFormat(t *testing.T) {

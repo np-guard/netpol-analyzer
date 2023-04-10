@@ -56,7 +56,7 @@ Examples:
 
 Flags:
       --focusworkload       Focus connections of specified workload name in the output
-  -o, --output string       Required output format (txt, json, dot, md) (default "txt")
+  -o, --output string       Required output format (txt, json, dot, csv, md) (default "txt")
   -h, --help   help for list
 
 Global Flags:
