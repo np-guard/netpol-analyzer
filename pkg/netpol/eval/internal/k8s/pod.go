@@ -54,7 +54,7 @@ type Owner struct {
 
 // PodFromCoreObject creates a PodRef by extracting relevant fields from the k8s Pod
 func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
-	if p.Status.HostIP == "" { // not scheduled IP addresses - ignore
+	if p.Status.HostIP == "" && len(p.Status.PodIPs) == 0 { // not scheduled nor assigned IP addresses - ignore
 		return nil, errors.New("no worker node or IP assigned for pod: " + namespacedName(p))
 	}
 
