@@ -28,10 +28,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
-const (
-	defaultPortsListSize = 8
-	ipv4LoopbackAddr     = "127.0.0.1"
-)
+const defaultPortsListSize = 8
 
 // Pod encapsulates k8s Pod fields that are relevant for evaluating network policies
 type Pod struct {
@@ -188,7 +185,7 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.Labels = make(map[string]string, len(podTemplate.Labels))
 		pod.IPs = make([]corev1.PodIP, 0)
 		pod.Ports = make([]corev1.ContainerPort, 0, defaultPortsListSize)
-		pod.HostIP = getFakePodIP()
+		pod.HostIP = scan.IPv4LoopbackAddr
 		pod.Owner = Owner{Name: workloadName, Kind: kind, APIVersion: APIVersion}
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
@@ -209,8 +206,4 @@ func namespacedName(pod *corev1.Pod) string {
 
 func variantFromLabelsMap(labels map[string]string) string {
 	return hex.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%v", labels)))) //nolint:gosec
-}
-
-func getFakePodIP() string {
-	return ipv4LoopbackAddr
 }

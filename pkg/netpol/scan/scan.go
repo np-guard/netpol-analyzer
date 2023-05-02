@@ -24,6 +24,9 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 )
 
+// IPv4LoopbackAddr is used as fake IP in the abscence of Pod.HostIP
+const IPv4LoopbackAddr = "127.0.0.1"
+
 type ResourcesScanner struct {
 	logger      logger.Logger
 	stopOnError bool
@@ -392,6 +395,9 @@ func convertPodListTOK8sObjects(pl *v1.PodList) ([]K8sObject, error) {
 		if isValidKind, err := validateNamespaceAndKind(&pl.Items[i].Namespace, &pl.Items[i].Kind, Pod); !isValidKind {
 			return nil, err
 		}
+		if pl.Items[i].Status.HostIP == "" {
+			pl.Items[i].Status.HostIP = IPv4LoopbackAddr
+		}
 		res[i] = K8sObject{Pod: &pl.Items[i], Kind: Pod}
 	}
 	return res, nil
@@ -593,6 +599,9 @@ func parsePod(r io.Reader) *v1.Pod {
 	}
 	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Pod); !isValid || err != nil {
 		return nil
+	}
+	if rc.Status.HostIP == "" {
+		rc.Status.HostIP = IPv4LoopbackAddr
 	}
 	return &rc
 }
