@@ -16,6 +16,7 @@ package k8s
 import (
 	"crypto/sha1" //nolint:gosec
 	"encoding/hex"
+	"errors"
 	"fmt"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -56,9 +57,8 @@ type Owner struct {
 
 // PodFromCoreObject creates a PodRef by extracting relevant fields from the k8s Pod
 func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
-	hostIP := p.Status.HostIP
-	if p.Status.HostIP == "" || len(p.Status.PodIPs) == 0 { // not scheduled nor assigned IP addresses
-		hostIP = getFakePodIP()
+	if p.Status.HostIP == "" { // not scheduled IP addresses - ignore
+		return nil, errors.New("no worker node or IP assigned for pod: " + namespacedName(p))
 	}
 
 	pr := &Pod{
@@ -67,7 +67,7 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		Labels:    make(map[string]string, len(p.Labels)),
 		IPs:       make([]corev1.PodIP, len(p.Status.PodIPs)),
 		Ports:     make([]corev1.ContainerPort, 0, defaultPortsListSize),
-		HostIP:    hostIP,
+		HostIP:    p.Status.HostIP,
 		Owner:     Owner{},
 	}
 
