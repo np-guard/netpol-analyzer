@@ -173,16 +173,23 @@ func (ca *ConnlistAnalyzer) ConnlistFromYAMLManifests(manifests []scan.YAMLDocum
 
 func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []scan.K8sObject) ([]Peer2PeerConnection, error) {
 	// TODO: do we need logger in policyEngine?
-	pe, err := eval.NewPolicyEngineWithObjects(objectsList)
-	if err != nil {
-		return nil, err
+	pe, evalErrs := eval.NewPolicyEngineWithObjects(objectsList, ca.stopOnError)
+	for i := range evalErrs {
+		ca.errors = append(ca.errors, &evalErrs[i])
+	}
+
+	if ca.stopProcessing() {
+		if err := ca.hasFatalError(); err != nil {
+			return nil, err
+		}
+		return []Peer2PeerConnection{}, nil
 	}
 	return ca.getConnectionsList(pe)
 }
 
 // ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources
 func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, error) {
-	pe := eval.NewPolicyEngine()
+	pe := eval.NewPolicyEngine(ca.stopOnError)
 
 	// get all resources from k8s cluster
 
@@ -229,9 +236,25 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection) (string, error) {
 	connsFormatter, err := getFormatter(ca.outputFormat)
 	if err != nil {
-		return "", err
+		ca.errors = append(ca.errors, newResultFormattingError(err))
 	}
-	return connsFormatter.writeOutput(conns)
+	if ca.stopProcessing() {
+		if err := ca.hasFatalError(); err != nil {
+			return "", err
+		}
+		return "", nil
+	}
+	output, err := connsFormatter.writeOutput(conns)
+	if err != nil {
+		ca.errors = append(ca.errors, newResultFormattingError(err))
+	}
+	if ca.stopProcessing() {
+		if err := ca.hasFatalError(); err != nil {
+			return "", err
+		}
+		return "", nil
+	}
+	return output, nil
 }
 
 // validate the value of the output format
@@ -355,9 +378,12 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2Pe
 	}
 
 	// get workload peers and ip blocks
-	peerList, err := pe.GetPeersList()
-	if err != nil {
-		return nil, err
+	peerList, evalError := pe.GetPeersList()
+	if evalError != nil {
+		ca.errors = append(ca.errors, evalError)
+		if ca.stopProcessing() {
+			return nil, evalError.Error()
+		}
 	}
 
 	for i := range peerList {
@@ -367,9 +393,12 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2Pe
 			if !ca.includePairOfWorkloads(srcPeer, dstPeer) {
 				continue
 			}
-			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
-			if err != nil {
-				return nil, err
+			allowedConnections, evalError := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
+			if evalError != nil {
+				ca.errors = append(ca.errors, evalError)
+				if ca.stopProcessing() {
+					return nil, evalError.Error()
+				}
 			}
 			// skip empty connections
 			if allowedConnections.IsEmpty() {
