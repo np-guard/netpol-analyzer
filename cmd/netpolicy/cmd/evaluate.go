@@ -106,7 +106,7 @@ var evaluateCmd = &cobra.Command{
 			podNames = append(podNames, sourcePod)
 		}
 
-		pe := eval.NewPolicyEngine(true)
+		pe := eval.NewPolicyEngine()
 
 		if dirPath != "" {
 			// get relevant resources from dir path

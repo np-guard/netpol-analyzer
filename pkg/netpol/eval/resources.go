@@ -22,8 +22,8 @@ type (
 		namspacesMap map[string]*k8s.Namespace                // map from ns name to ns object
 		podsMap      map[string]*k8s.Pod                      // map from pod name to pod object
 		netpolsMap   map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
-		stopOnError  bool
-		cache        *evalCache
+
+		cache *evalCache
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -37,20 +37,18 @@ type (
 )
 
 // NewPolicyEngine returns a new PolicyEngine with an empty initial state
-func NewPolicyEngine(stopOnError bool) *PolicyEngine {
+func NewPolicyEngine() *PolicyEngine {
 	return &PolicyEngine{
 		namspacesMap: make(map[string]*k8s.Namespace),
 		podsMap:      make(map[string]*k8s.Pod),
 		netpolsMap:   make(map[string]map[string]*k8s.NetworkPolicy),
-		stopOnError:  stopOnError,
 		cache:        newEvalCache(),
 	}
 }
 
-func NewPolicyEngineWithObjects(objects []scan.K8sObject, stopOnError bool) (*PolicyEngine, []ResourcesEvaluationError) {
-	pe := NewPolicyEngine(stopOnError)
+func NewPolicyEngineWithObjects(objects []scan.K8sObject) (*PolicyEngine, error) {
+	pe := NewPolicyEngine()
 	var err error
-	var evalErrs []ResourcesEvaluationError
 	for _, obj := range objects {
 		switch obj.Kind {
 		case scan.Namespace:
@@ -77,19 +75,11 @@ func NewPolicyEngineWithObjects(objects []scan.K8sObject, stopOnError bool) (*Po
 			err = fmt.Errorf("unsupported kind: %s", obj.Kind)
 		}
 		if err != nil {
-			evalErrs = append(evalErrs, *newResourcesEvaluationError(err))
-			if pe.stopOnError {
-				return nil, evalErrs
-			}
+			return nil, err
 		}
 	}
-	if err = pe.resolveMissingNamespaces(); err != nil {
-		evalErrs = append(evalErrs, *newResourcesEvaluationError(err))
-		if pe.stopOnError {
-			return nil, evalErrs
-		}
-	}
-	return pe, evalErrs
+	err = pe.resolveMissingNamespaces()
+	return pe, err
 }
 
 func (pe *PolicyEngine) resolveMissingNamespaces() error {
@@ -285,7 +275,7 @@ func (pe *PolicyEngine) HasPodPeers() bool {
 
 // GetPeersList returns a slice of peers from all PolicyEngine resources
 // get peers in level of workloads (pod owners) of type WorkloadPeer, and ip-blocks
-func (pe *PolicyEngine) GetPeersList() ([]Peer, *ResourcesEvaluationError) {
+func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 	// create map from workload str to workload peer object
 	podOwnersMap := make(map[string]Peer, 0)
 	for _, pod := range pe.podsMap {
@@ -293,13 +283,9 @@ func (pe *PolicyEngine) GetPeersList() ([]Peer, *ResourcesEvaluationError) {
 		podOwnersMap[workload.String()] = workload
 	}
 
-	var evalErr *ResourcesEvaluationError
 	ipBlocks, err := pe.GetDisjointIPBlocks()
 	if err != nil {
-		evalErr = newResourcesEvaluationError(err)
-		if pe.stopOnError {
-			return nil, evalErr
-		}
+		return nil, err
 	}
 
 	// add ip-blocks to peers list
@@ -313,7 +299,7 @@ func (pe *PolicyEngine) GetPeersList() ([]Peer, *ResourcesEvaluationError) {
 		res[index] = workloadPeer
 		index++
 	}
-	return res, evalErr
+	return res, nil
 }
 
 // GetDisjointIPBlocks returns a slice of disjoint ip-blocks from all netpols resources

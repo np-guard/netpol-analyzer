@@ -88,62 +88,39 @@ func (pe *PolicyEngine) changePodPeerToAnotherPodObject(peer *k8s.PodPeer) {
 
 // AllAllowedConnectionsBetweenWorkloadPeers returns the allowed connections from srcPeer to dstPeer,
 // expecting that srcPeer and dstPeer are in level of workloads (WorkloadPeer)
-func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer Peer) (Connection, *ResourcesEvaluationError) {
-	var evalErr *ResourcesEvaluationError
+func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer Peer) (Connection, error) {
 	if srcPeer.IsPeerIPType() && !dstPeer.IsPeerIPType() {
 		// assuming dstPeer is WorkloadPeer, should be converted to k8s.Peer
 		dstPodPeer, err := pe.convertWorkloadPeerToPodPeer(dstPeer)
 		if err != nil {
-			return nil, newResourcesEvaluationError(err) // we can not continue to compute anyway
+			return nil, err
 		}
-		conn, err := pe.allAllowedConnectionsBetweenPeers(srcPeer, dstPodPeer)
-		if err != nil {
-			evalErr = newResourcesEvaluationError(err)
-			if pe.stopOnError {
-				return nil, evalErr
-			}
-		}
-		return conn, evalErr
+		return pe.allAllowedConnectionsBetweenPeers(srcPeer, dstPodPeer)
 	} else if dstPeer.IsPeerIPType() && !srcPeer.IsPeerIPType() {
 		// assuming srcPeer is WorkloadPeer, should be converted to k8s.Peer
 		srcPodPeer, err := pe.convertWorkloadPeerToPodPeer(srcPeer)
 		if err != nil {
-			return nil, newResourcesEvaluationError(err)
+			return nil, err
 		}
-		conn, err := pe.allAllowedConnectionsBetweenPeers(srcPodPeer, dstPeer)
-		if err != nil {
-			evalErr = newResourcesEvaluationError(err)
-			if pe.stopOnError {
-				return nil, evalErr
-			}
-		}
-		return conn, evalErr
+		return pe.allAllowedConnectionsBetweenPeers(srcPodPeer, dstPeer)
 	} else if !dstPeer.IsPeerIPType() && !srcPeer.IsPeerIPType() {
 		// assuming srcPeer and dstPeer are WorkloadPeer, should be converted to k8s.Peer
 		srcPodPeer, err := pe.convertWorkloadPeerToPodPeer(srcPeer)
 		if err != nil {
-			return nil, newResourcesEvaluationError(err)
+			return nil, err
 		}
 		dstPodPeer, err := pe.convertWorkloadPeerToPodPeer(dstPeer)
 		if err != nil {
-			return nil, newResourcesEvaluationError(err)
+			return nil, err
 		}
 		// if src and dst are the same workload peer, their conversion to pods should be of different pods
 		// (if owner has more than 1 instances)
 		if srcPeer.String() == dstPeer.String() {
 			pe.changePodPeerToAnotherPodObject(dstPodPeer)
 		}
-		conn, err := pe.allAllowedConnectionsBetweenPeers(srcPodPeer, dstPodPeer)
-		if err != nil {
-			evalErr = newResourcesEvaluationError(err)
-			if pe.stopOnError {
-				return nil, evalErr
-			}
-		}
-		return conn, evalErr
+		return pe.allAllowedConnectionsBetweenPeers(srcPodPeer, dstPodPeer)
 	}
-	evalErr = newResourcesEvaluationError(fmt.Errorf("cannot have both srcPeer and dstPeer of IP types: src: %s, dst: %s", srcPeer.String(), dstPeer.String()))
-	return nil, evalErr
+	return nil, fmt.Errorf("cannot have both srcPeer and dstPeer of IP types: src: %s, dst: %s", srcPeer.String(), dstPeer.String())
 }
 
 // allAllowedConnectionsBetweenPeers: returns the allowed connections from srcPeer to dstPeer

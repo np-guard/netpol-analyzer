@@ -947,7 +947,7 @@ type TestEntry struct {
 }
 
 func initTest(test *TestEntry, t *testing.T) (*PolicyEngine, error) {
-	pe := NewPolicyEngine(true)
+	pe := NewPolicyEngine()
 	if len(test.nsList) > 0 || len(test.podsList) > 0 || len(test.policies) > 0 {
 		err := pe.SetResources(test.policies, test.podsList, test.nsList)
 		if err != nil {
@@ -1007,7 +1007,7 @@ func TestBasic(t *testing.T) {
 	nsList := []*v1.Namespace{}
 	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "default", Labels: map[string]string{"a": "b"}}})
 
-	pe := NewPolicyEngine(true)
+	pe := NewPolicyEngine()
 	err = pe.SetResources(policies, podsList, nsList)
 	if err != nil {
 		t.Fatalf("error SetResources: %v", err)
@@ -1105,7 +1105,7 @@ func TestGeneralPerformance(t *testing.T) {
 	allResStrPerFunc := map[string]string{"CheckIfAllowed": "", "CheckIfAllowedNew": "", "AllAllowedConnections": ""}
 	allResPerFuncAndNetpolLimit := map[int]map[string]string{}
 	for i := netoplLimitMin; i <= netoplLimitMax; i++ {
-		pe := NewPolicyEngine(true)
+		pe := NewPolicyEngine()
 
 		err := setResourcesFromDir(pe, path, i)
 		if err != nil {
@@ -1196,7 +1196,7 @@ func TestGeneralPerformance(t *testing.T) {
 
 func TestFromFiles2(t *testing.T) {
 	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
-	pe := NewPolicyEngine(true)
+	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
 		t.Fatalf("error from SetResourcesFromDir")
@@ -1249,7 +1249,7 @@ func TestFromFiles2(t *testing.T) {
 
 func TestFromFiles(t *testing.T) {
 	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
-	pe := NewPolicyEngine(true)
+	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
 		t.Fatalf("error from SetResourcesFromDir")
@@ -1569,7 +1569,7 @@ func computeExpectedCacheHits(pe *PolicyEngine) (int, error) {
 }
 
 func TestCacheWithPodDeletion(t *testing.T) {
-	pe := NewPolicyEngine(true)
+	pe := NewPolicyEngine()
 	var err error
 	testDir := filepath.Join(testutils.GetTestsDir(), "onlineboutique_with_replicas")
 	if err = setResourcesFromDir(pe, testDir); err != nil {
@@ -1659,7 +1659,7 @@ func TestConnectionsMapExamples(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		pe := NewPolicyEngine(true)
+		pe := NewPolicyEngine()
 		var err error
 		if err = setResourcesFromDir(pe, test.resourcesDir); err != nil {
 			t.Fatal(err)
@@ -1739,7 +1739,7 @@ func testConnectivityMapOutput(res []string, expectedFileName string) (bool, err
 
 func TestDisjointIpBlocks(t *testing.T) {
 	path := filepath.Join(testutils.GetTestsDir(), "ipblockstest")
-	pe := NewPolicyEngine(true)
+	pe := NewPolicyEngine()
 	if err := setResourcesFromDir(pe, path); err != nil {
 		t.Errorf("%v", err)
 	}
@@ -1776,7 +1776,7 @@ func TestPolicyEngineWithWorkloads(t *testing.T) {
 	if len(processingErrs) > 0 {
 		t.Fatalf("TestPolicyEngineWithWorkloads errors: %v", processingErrs)
 	}
-	pe, err := NewPolicyEngineWithObjects(objects, true)
+	pe, err := NewPolicyEngineWithObjects(objects)
 	if err != nil {
 		t.Fatalf("TestPolicyEngineWithWorkloads error: %v", err)
 	}
