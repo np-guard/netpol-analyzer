@@ -410,6 +410,7 @@ func convertPodListTOK8sObjects(pl *v1.PodList) ([]K8sObject, error) {
 	return res, nil
 }
 
+// checkAndUpdatePodStatusIPsFields adds fake IP to pod.Status.HostIP or pod.Status.PodIPs if missing
 func checkAndUpdatePodStatusIPsFields(rc *v1.Pod) {
 	if rc.Status.HostIP == "" {
 		rc.Status.HostIP = IPv4LoopbackAddr
