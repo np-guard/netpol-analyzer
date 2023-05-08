@@ -26,7 +26,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 )
 
-// IPv4LoopbackAddr is used as fake IP in the absenceof Pod.Status.HostIP or Pod.Status.PodIPs
+// IPv4LoopbackAddr is used as fake IP in the absence of Pod.Status.HostIP or Pod.Status.PodIPs
 const IPv4LoopbackAddr = "127.0.0.1"
 
 type ResourcesScanner struct {
