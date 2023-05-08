@@ -175,6 +175,7 @@ func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []scan.K8sO
 	// TODO: do we need logger in policyEngine?
 	pe, err := eval.NewPolicyEngineWithObjects(objectsList)
 	if err != nil {
+		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, err
 	}
 	return ca.getConnectionsList(pe)
@@ -229,9 +230,15 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection) (string, error) {
 	connsFormatter, err := getFormatter(ca.outputFormat)
 	if err != nil {
+		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
 	}
-	return connsFormatter.writeOutput(conns)
+	output, err := connsFormatter.writeOutput(conns)
+	if err != nil {
+		ca.errors = append(ca.errors, newResultFormattingError(err))
+		return "", err
+	}
+	return output, nil
 }
 
 // validate the value of the output format
@@ -357,6 +364,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2Pe
 	// get workload peers and ip blocks
 	peerList, err := pe.GetPeersList()
 	if err != nil {
+		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, err
 	}
 
@@ -369,6 +377,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2Pe
 			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
 			if err != nil {
+				ca.errors = append(ca.errors, newResourceEvaluationError(err))
 				return nil, err
 			}
 			// skip empty connections
