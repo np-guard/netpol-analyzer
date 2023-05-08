@@ -404,15 +404,19 @@ func convertPodListTOK8sObjects(pl *v1.PodList) ([]K8sObject, error) {
 		if isValidKind, err := validateNamespaceAndKind(&pl.Items[i].Namespace, &pl.Items[i].Kind, Pod); !isValidKind {
 			return nil, err
 		}
-		if pl.Items[i].Status.HostIP == "" {
-			pl.Items[i].Status.HostIP = IPv4LoopbackAddr
-		}
-		if len(pl.Items[i].Status.PodIPs) == 0 {
-			pl.Items[i].Status.PodIPs =  []v1.PodIP{v1.PodIP{IP: IPv4LoopbackAddr}}  
-		}
+		checkAndUpdatePodStatusIPsFields(&pl.Items[i])
 		res[i] = K8sObject{Pod: &pl.Items[i], Kind: Pod}
 	}
 	return res, nil
+}
+
+func checkAndUpdatePodStatusIPsFields(rc *v1.Pod) {
+	if rc.Status.HostIP == "" {
+		rc.Status.HostIP = IPv4LoopbackAddr
+	}
+	if len(rc.Status.PodIPs) == 0 {
+		rc.Status.PodIPs = []v1.PodIP{{IP: IPv4LoopbackAddr}}
+	}
 }
 
 func convertNamespaceListTOK8sObjects(nsl *v1.NamespaceList) ([]K8sObject, error) {
@@ -612,12 +616,7 @@ func parsePod(r io.Reader) *v1.Pod {
 	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Pod); !isValid || err != nil {
 		return nil
 	}
-	if rc.Status.HostIP == "" {
-		rc.Status.HostIP = IPv4LoopbackAddr
-	}
-	if len(rc.Status.PodIPs) == 0 {
-		rc.Status.PodIPs = append(rc.Status.PodIPs, v1.PodIP{IP: IPv4LoopbackAddr})
-	}
+	checkAndUpdatePodStatusIPsFields(&rc)
 	return &rc
 }
 
