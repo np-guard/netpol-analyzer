@@ -18,13 +18,9 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@4d34df0c2316fe8122ab82dc22947d607c0c91f9
       with:
-        go-version: 1.18
+        go-version: 1.19
 
     - name: Build
-      env:
-        CGO_ENABLED: 0
-        GOOS: linux      
-      run: go build --tags static_all -v -o ./bin/netpolicy cmd/netpolicy/main.go
-    
+      run: make build
     - name: Test
-      run: go test -v ./...
+      run: make test

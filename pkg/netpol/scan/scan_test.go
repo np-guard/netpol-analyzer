@@ -172,3 +172,10 @@ func TestNoK8sWorkloadResourcesFoundError(t *testing.T) {
 	noK8sWorkloadResourcesFound := &NoK8sWorkloadResourcesFoundError{}
 	require.True(t, errors.As(errs[0].Error(), &noK8sWorkloadResourcesFound))
 }
+
+func TestK8sWithOpenShiftResources(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "acs_security_frontend_demos")
+	objs, errs := scanner.FilesToObjectsList(dirPath)
+	require.Empty(t, errs)
+	require.Len(t, objs, 5) // two deployments, 3 netpols (skipping services, routes and configMaps)
+}

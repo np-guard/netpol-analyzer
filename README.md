@@ -110,7 +110,7 @@ default/shippingservice[Deployment] => default/shippingservice[Deployment] : All
 
 ## Build the project
 
-Make sure you have golang 1.18+ on your platform
+Make sure you have golang 1.19+ on your platform
 
 ```commandline
 git clone git@github.com:np-guard/netpol-analyzer.git
