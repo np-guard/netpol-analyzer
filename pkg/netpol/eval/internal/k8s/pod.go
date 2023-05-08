@@ -185,7 +185,7 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.Labels = make(map[string]string, len(podTemplate.Labels))
 		pod.IPs = make([]corev1.PodIP, 0)
 		pod.Ports = make([]corev1.ContainerPort, 0, defaultPortsListSize)
-		pod.HostIP = scan.IPv4LoopbackAddr
+		pod.HostIP = getFakePodIP()
 		pod.Owner = Owner{Name: workloadName, Kind: kind, APIVersion: APIVersion}
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
@@ -206,4 +206,8 @@ func namespacedName(pod *corev1.Pod) string {
 
 func variantFromLabelsMap(labels map[string]string) string {
 	return hex.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%v", labels)))) //nolint:gosec
+}
+
+func getFakePodIP() string {
+	return scan.IPv4LoopbackAddr
 }
