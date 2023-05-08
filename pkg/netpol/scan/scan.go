@@ -24,7 +24,7 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 )
 
-// IPv4LoopbackAddr is used as fake IP in the abscence of Pod.HostIP
+// IPv4LoopbackAddr is used as fake IP in the absenceof Pod.HostIP
 const IPv4LoopbackAddr = "127.0.0.1"
 
 type ResourcesScanner struct {
