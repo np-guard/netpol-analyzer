@@ -283,7 +283,7 @@ func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 		podOwnersMap[workload.String()] = workload
 	}
 
-	ipBlocks, err := pe.GetDisjointIPBlocks()
+	ipBlocks, err := pe.getDisjointIPBlocks()
 	if err != nil {
 		return nil, err
 	}
@@ -302,8 +302,8 @@ func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 	return res, nil
 }
 
-// GetDisjointIPBlocks returns a slice of disjoint ip-blocks from all netpols resources
-func (pe *PolicyEngine) GetDisjointIPBlocks() ([]*k8s.IPBlock, error) {
+// getDisjointIPBlocks returns a slice of disjoint ip-blocks from all netpols resources
+func (pe *PolicyEngine) getDisjointIPBlocks() ([]*k8s.IPBlock, error) {
 	var ipbList []*k8s.IPBlock
 	for _, nsMap := range pe.netpolsMap {
 		for _, policy := range nsMap {

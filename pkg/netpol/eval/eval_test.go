@@ -1744,9 +1744,9 @@ func TestDisjointIpBlocks(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	ipList, err := pe.GetDisjointIPBlocks()
+	ipList, err := pe.getDisjointIPBlocks()
 	if err != nil {
-		t.Fatalf("unexpected err GetDisjointIPBlocks: %v", err)
+		t.Fatalf("unexpected err getDisjointIPBlocks: %v", err)
 	}
 	ipStrList := []string{}
 	for i := range ipList {
@@ -1766,7 +1766,7 @@ func TestDisjointIpBlocks(t *testing.T) {
 	}
 	expectedOutput := fmt.Sprintf("%v", ipAddressesExpected)
 	if res != expectedOutput {
-		t.Fatalf("unexpected output for GetDisjointIPBlocks")
+		t.Fatalf("unexpected output for getDisjointIPBlocks")
 	}
 }
 
