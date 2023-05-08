@@ -19,7 +19,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@4d34df0c2316fe8122ab82dc22947d607c0c91f9
         with:
-          go-version: 1.18
+          go-version: 1.19
 
       - name: Publish on pkg.go.dev
         run: GOPROXY=proxy.golang.org go list -m github.com/np-guard/netpol-analyzer@${{ github.ref_name }}

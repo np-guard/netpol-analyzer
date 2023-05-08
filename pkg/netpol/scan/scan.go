@@ -16,26 +16,36 @@ import (
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
-
+	ocapiv1 "github.com/openshift/api"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/yaml"
-	"k8s.io/client-go/kubernetes/scheme"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 )
 
 // IPv4LoopbackAddr is used as fake IP in the absenceof Pod.HostIP
 const IPv4LoopbackAddr = "127.0.0.1"
 
 type ResourcesScanner struct {
-	logger      logger.Logger
-	stopOnError bool
-	walkFn      WalkFunction
+	logger          logger.Logger
+	stopOnError     bool
+	walkFn          WalkFunction
+	resourceDecoder runtime.Decoder
 }
 
 func NewResourcesScanner(l logger.Logger, stopOnError bool, walkFn WalkFunction) *ResourcesScanner {
-	res := &ResourcesScanner{logger: l, stopOnError: stopOnError, walkFn: walkFn}
-	return res
+	res := ResourcesScanner{logger: l, stopOnError: stopOnError, walkFn: walkFn}
+
+	scheme := runtime.NewScheme()
+	Codecs := serializer.NewCodecFactory(scheme)
+	_ = ocapiv1.InstallKube(scheme) // returned error is ignored - seems to be always nil
+	_ = ocapiv1.Install(scheme)     // returned error is ignored - seems to be always nil
+	res.resourceDecoder = Codecs.UniversalDeserializer()
+
+	return &res
 }
 
 // Walk function is a function for recursively scanning a directory, in the spirit of Go's native filepath.WalkDir()
@@ -262,8 +272,7 @@ func (sc *ResourcesScanner) splitByYamlDocuments(mfp string) ([]YAMLDocumentIntf
 // return if yamlDoc is of accepted kind, and the kind string
 func (sc *ResourcesScanner) getKind(yamlDoc YAMLDocumentIntf) (bool, string, []FileProcessingError) {
 	fileProcessingErrors := make([]FileProcessingError, 0)
-	decode := scheme.Codecs.UniversalDeserializer().Decode
-	_, groupVersionKind, err := decode([]byte(yamlDoc.Content()), nil, nil)
+	_, groupVersionKind, err := sc.resourceDecoder.Decode([]byte(yamlDoc.Content()), nil, nil)
 	if err != nil {
 		fileProcessingErrors = appendAndLogNewError(fileProcessingErrors, notK8sResource(yamlDoc.FilePath(), yamlDoc.DocID(), err), sc.logger)
 		return false, "", fileProcessingErrors
