@@ -26,7 +26,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 )
 
-// IPv4LoopbackAddr is used as fake IP in the absenceof Pod.HostIP
+// IPv4LoopbackAddr is used as fake IP in the absenceof Pod.Status.HostIP or Pod.Status.PodIPs
 const IPv4LoopbackAddr = "127.0.0.1"
 
 type ResourcesScanner struct {
@@ -407,6 +407,9 @@ func convertPodListTOK8sObjects(pl *v1.PodList) ([]K8sObject, error) {
 		if pl.Items[i].Status.HostIP == "" {
 			pl.Items[i].Status.HostIP = IPv4LoopbackAddr
 		}
+		if len(pl.Items[i].Status.PodIPs) == 0 {
+			pl.Items[i].Status.PodIPs = append(pl.Items[i].Status.PodIPs, v1.PodIP{IP: IPv4LoopbackAddr})
+		}
 		res[i] = K8sObject{Pod: &pl.Items[i], Kind: Pod}
 	}
 	return res, nil
@@ -611,6 +614,9 @@ func parsePod(r io.Reader) *v1.Pod {
 	}
 	if rc.Status.HostIP == "" {
 		rc.Status.HostIP = IPv4LoopbackAddr
+	}
+	if len(rc.Status.PodIPs) == 0 {
+		rc.Status.PodIPs = append(rc.Status.PodIPs, v1.PodIP{IP: IPv4LoopbackAddr})
 	}
 	return &rc
 }
