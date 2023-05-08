@@ -408,7 +408,7 @@ func convertPodListTOK8sObjects(pl *v1.PodList) ([]K8sObject, error) {
 			pl.Items[i].Status.HostIP = IPv4LoopbackAddr
 		}
 		if len(pl.Items[i].Status.PodIPs) == 0 {
-			pl.Items[i].Status.PodIPs = append(pl.Items[i].Status.PodIPs, v1.PodIP{IP: IPv4LoopbackAddr})
+			pl.Items[i].Status.PodIPs =  []v1.PodIP{v1.PodIP{IP: IPv4LoopbackAddr}}  
 		}
 		res[i] = K8sObject{Pod: &pl.Items[i], Kind: Pod}
 	}
