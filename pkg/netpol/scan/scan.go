@@ -26,6 +26,9 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 )
 
+// IPv4LoopbackAddr is used as fake IP in the absence of Pod.Status.HostIP or Pod.Status.PodIPs
+const IPv4LoopbackAddr = "127.0.0.1"
+
 type ResourcesScanner struct {
 	logger          logger.Logger
 	stopOnError     bool
@@ -401,9 +404,20 @@ func convertPodListTOK8sObjects(pl *v1.PodList) ([]K8sObject, error) {
 		if isValidKind, err := validateNamespaceAndKind(&pl.Items[i].Namespace, &pl.Items[i].Kind, Pod); !isValidKind {
 			return nil, err
 		}
+		checkAndUpdatePodStatusIPsFields(&pl.Items[i])
 		res[i] = K8sObject{Pod: &pl.Items[i], Kind: Pod}
 	}
 	return res, nil
+}
+
+// checkAndUpdatePodStatusIPsFields adds fake IP to pod.Status.HostIP or pod.Status.PodIPs if missing
+func checkAndUpdatePodStatusIPsFields(rc *v1.Pod) {
+	if rc.Status.HostIP == "" {
+		rc.Status.HostIP = IPv4LoopbackAddr
+	}
+	if len(rc.Status.PodIPs) == 0 {
+		rc.Status.PodIPs = []v1.PodIP{{IP: IPv4LoopbackAddr}}
+	}
 }
 
 func convertNamespaceListTOK8sObjects(nsl *v1.NamespaceList) ([]K8sObject, error) {
@@ -603,6 +617,7 @@ func parsePod(r io.Reader) *v1.Pod {
 	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Pod); !isValid || err != nil {
 		return nil
 	}
+	checkAndUpdatePodStatusIPsFields(&rc)
 	return &rc
 }
 
