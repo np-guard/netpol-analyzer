@@ -3,11 +3,11 @@ linters-settings:
     threshold: 100
   funlen:
     lines: 100
-    statements: 80
+    statements: 50
   gci:
     local-prefixes: github.com/np-guard
   goconst:
-    min-len: 6
+    min-len: 2
     min-occurrences: 2
   gocritic:
     enabled-tags:
@@ -16,13 +16,6 @@ linters-settings:
       - opinionated
       - performance
       - style
-    disabled-checks:
-      - dupImport # https://github.com/go-critic/go-critic/issues/845
-      - ifElseChain
-      - octalLiteral
-      - whyNoLint
-      - wrapperFunc
-      - unnamedResult
   gocyclo:
     min-complexity: 15
   goimports:
@@ -46,9 +39,6 @@ linters-settings:
     allow-unused: false # report any unused nolint directives
     require-explanation: false # don't require an explanation for nolint directives
     require-specific: false # don't require nolint directives to be specific about which linter is being skipped
-  gosec:
-    # Exclude generated files
-    exclude-generated: true
   revive:
     # see https://github.com/mgechev/revive#available-rules for details.
     ignore-generated-header: true
@@ -68,13 +58,12 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
     - dogsled
     - dupl
     - errcheck
     - exportloopref
     - funlen
-    # - gochecknoinits
+    - gochecknoinits
     - goconst
     - gocritic
     - gocyclo
@@ -87,34 +76,25 @@ linters:
     - govet
     - ineffassign
     - lll
+    - misspell
     - nakedret
     - noctx
     - nolintlint
+    - prealloc
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
     - revive
 
   # don't enable:
-  # - asciicheck
-  # - depguard
-  # - scopelint
   # - gochecknoglobals
   # - gocognit
-  # - godot
-  # - godox
-  # - misspell
   # - goerr113
-  # - interfacer
-  # - maligned
   # - nestif
-  # - prealloc
   # - testpackage
   # - wsl
 issues:
@@ -125,14 +105,6 @@ issues:
        - revive
        - goconst
        - funlen
-    - path: _test\.go
-      linters:
-      - staticcheck
-      text: "SA1019"
-    - linters:
-      - lll
-      source: "^// .kubebuilder:"
-
-
+ 
 run:
   timeout: 5m
