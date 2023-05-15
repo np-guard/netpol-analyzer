@@ -311,7 +311,7 @@ spec:
       app: web
   ingress:
     - from:
-      - namespaceSelector:     # chooses all pods in namespaces labelled with team=operations
+      - namespaceSelector:     # chooses all pods in namespaces labeled with team=operations
           matchLabels:
             team: operations
         podSelector:           # chooses pods with type=monitoring
