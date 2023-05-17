@@ -1045,7 +1045,7 @@ func writeRes(res, fileName string) {
 		return
 	}
 	b := []byte(res)
-	err = os.WriteFile(fileName, b, 0600)
+	err = os.WriteFile(fileName, b, 0o600)
 	if err != nil {
 		fmt.Printf("error WriteFile: %v", err)
 	}
@@ -1060,12 +1060,15 @@ func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) erro
 	var pods = []*v1.Pod{}
 	var ns = []*v1.Namespace{}
 	for _, obj := range objectsList {
-		if obj.Kind == "Pod" {
+		switch obj.Kind {
+		case "Pod":
 			pods = append(pods, obj.Pod)
-		} else if obj.Kind == "Namespace" {
+		case "Namespace":
 			ns = append(ns, obj.Namespace)
-		} else if obj.Kind == "NetworkPolicy" {
+		case "NetworkPolicy":
 			netpols = append(netpols, obj.Networkpolicy)
+		default:
+			continue
 		}
 	}
 	if len(netpolLimit) > 0 {

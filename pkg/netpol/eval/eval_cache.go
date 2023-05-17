@@ -27,7 +27,7 @@ import (
 
 const (
 	cacheHitsLog      = "cacheHitsLog.txt"
-	writeOnlyFileMode = 0644
+	writeOnlyFileMode = 0o644
 	defaultCacheSize  = 500
 	minCacheSize      = 10
 	maxCacheSize      = 10000
@@ -86,7 +86,7 @@ func (ec *evalCache) keyPerConnection(src, dst k8s.Peer, protocol, port string) 
 	return ""
 }
 
-func (ec *evalCache) hasConnectionResult(src, dst k8s.Peer, protocol, port string) (bool, bool) {
+func (ec *evalCache) hasConnectionResult(src, dst k8s.Peer, protocol, port string) (hasConnKey, connResult bool) {
 	if ec.cache == nil {
 		return false, false
 	}

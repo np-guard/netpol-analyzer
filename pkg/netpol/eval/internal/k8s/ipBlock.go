@@ -153,7 +153,7 @@ func NewIPBlockFromIPAddress(ipAddress string) (*IPBlock, error) {
 	return NewIPBlock(ipAddress+"/32", []string{})
 }
 
-func cidrToIPRange(cidr string) (int64, int64, error) {
+func cidrToIPRange(cidr string) (beginning, end int64, err error) {
 	// convert string to IPNet struct
 	_, ipv4Net, err := net.ParseCIDR(cidr)
 	if err != nil {

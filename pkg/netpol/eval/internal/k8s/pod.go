@@ -14,7 +14,7 @@
 package k8s
 
 import (
-	"crypto/sha1" //nolint:gosec
+	"crypto/sha1" //nolint:gosec // Non-crypto use
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -205,7 +205,7 @@ func namespacedName(pod *corev1.Pod) string {
 }
 
 func variantFromLabelsMap(labels map[string]string) string {
-	return hex.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%v", labels)))) //nolint:gosec
+	return hex.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%v", labels)))) //nolint:gosec // Non-crypto use
 }
 
 func getFakePodIP() string {
