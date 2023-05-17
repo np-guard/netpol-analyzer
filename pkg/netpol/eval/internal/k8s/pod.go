@@ -110,7 +110,7 @@ func getReplicas(r *int32) int32 {
 }
 
 // PodsFromWorkloadObject creates a slice of one or two Pod objects by extracting relevant fields from the k8s workload
-func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
+func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) { //nolint:funlen // should not break this up
 	var replicas int32
 	var workloadName string
 	var workloadNamespace string
