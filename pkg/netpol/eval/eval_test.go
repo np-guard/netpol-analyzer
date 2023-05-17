@@ -132,7 +132,7 @@ func podFromYaml(podYamlStr string) (*v1.Pod, error) {
 
 func LabelString(labels map[string]string) string {
 	// 1. first, sort the keys so we get a deterministic answer
-	var keys []string
+	keys := make([]string, 0, len(labels))
 	for key := range labels {
 		keys = append(keys, key)
 	}
@@ -140,7 +140,7 @@ func LabelString(labels map[string]string) string {
 		return keys[i] < keys[j]
 	})
 	// 2. now use the sorted keys to generate chunks
-	var chunks []string
+	chunks := make([]string, 0, len(labels))
 	for _, key := range keys {
 		chunks = append(chunks, key, labels[key])
 	}
@@ -805,7 +805,7 @@ spec:
           role: web
 */
 func AllowFromMultipleTo(namespace string, fromLabels []map[string]string, targetLabels map[string]string) *netv1.NetworkPolicy {
-	var froms []netv1.NetworkPolicyPeer
+	froms := make([]netv1.NetworkPolicyPeer, 0, len(fromLabels))
 	for _, labels := range fromLabels {
 		froms = append(froms, netv1.NetworkPolicyPeer{
 			PodSelector: &metav1.LabelSelector{MatchLabels: labels},
@@ -829,7 +829,7 @@ func AllowFromMultipleTo(namespace string, fromLabels []map[string]string, targe
 }
 
 func AllowFromMultipleIPBlockTo(namespace string, fromIPBlocks, targetLabels map[string]string) *netv1.NetworkPolicy {
-	var froms []netv1.NetworkPolicyPeer
+	froms := make([]netv1.NetworkPolicyPeer, 0, len(fromIPBlocks))
 	for ip, excludedIP := range fromIPBlocks {
 		netpolPeer := netv1.NetworkPolicyPeer{IPBlock: &netv1.IPBlock{CIDR: ip, Except: []string{excludedIP}}}
 		froms = append(froms, netpolPeer)
