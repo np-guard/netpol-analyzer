@@ -183,6 +183,7 @@ var evaluateCmd = &cobra.Command{
 	},
 }
 
+//nolint:gochecknoinits // TODO: refactor
 func init() {
 	rootCmd.AddCommand(evaluateCmd)
 
