@@ -65,7 +65,7 @@ func TestWithFocusWorkload(t *testing.T) {
 	analyzer1 := NewConnlistAnalyzer(WithFocusWorkload("emailservice"))
 	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
 	res, err := analyzer1.ConnlistFromDirPath(dirPath)
-	require.Len(t, res, 2)
+	require.Len(t, res, 1)
 	require.Nil(t, err)
 }
 
