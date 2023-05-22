@@ -375,13 +375,14 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2Pe
 			if !ca.includePairOfWorkloads(srcPeer, dstPeer) {
 				continue
 			}
-			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
+			allowedConnections, isTrivial, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
 			if err != nil {
 				ca.errors = append(ca.errors, newResourceEvaluationError(err))
 				return nil, err
 			}
-			// skip empty connections
-			if allowedConnections.IsEmpty() {
+			// skip empty  or trivial connections
+			// trivial connections: connection from deployment to itself when the deployment has one replica.
+			if allowedConnections.IsEmpty() || isTrivial {
 				continue
 			}
 			connectionObj := &connection{
