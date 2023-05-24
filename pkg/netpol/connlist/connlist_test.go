@@ -28,7 +28,8 @@ func getConnlistFromDirPathRes(stopOnErr bool, path string) (*ConnlistAnalyzer, 
 // TestConnList tests the output of ConnlistFromDirPath() for valid input resources
 func TestConnList(t *testing.T) {
 	testNames := []string{"ipblockstest", "onlineboutique", "onlineboutique_workloads",
-		"minikube_resources", "online_boutique_workloads_no_ns", "core_pods_without_host_ip"}
+		"minikube_resources", "online_boutique_workloads_no_ns", "core_pods_without_host_ip",
+		"onlineboutique_with_replicas", "onlineboutique_with_replicas_and_variants"}
 	expectedOutputFileName := "connlist_output.txt"
 	generateActualOutput := false
 	for _, testName := range testNames {
