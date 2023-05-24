@@ -76,7 +76,7 @@ func (pe *PolicyEngine) convertWorkloadPeerToPodPeer(peer Peer) (*k8s.PodPeer, e
 
 // for connectivity considerations, when requesting allowed connections between 2 workload peers which are the same,
 // looking for 2 different pod instances, if exist (to avoid the trivial case of connectivity from pod to itself)
-// returns true if different pod instances found
+// if different pod instance was found - returns true and updates the input peer with another pod instance
 func (pe *PolicyEngine) changePodPeerToAnotherPodObject(peer *k8s.PodPeer) bool {
 	// look for another pod, different from peer.Pod, with the same owner
 	for _, pod := range pe.podsMap {
@@ -93,42 +93,42 @@ func (pe *PolicyEngine) changePodPeerToAnotherPodObject(peer *k8s.PodPeer) bool 
 // i.e. Connection from deployment to itself when the deployment has only one replica.
 // expecting that srcPeer and dstPeer are in level of workloads (WorkloadPeer)
 func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer Peer) (Connection, bool, error) {
-	isTrivial := false
 	if srcPeer.IsPeerIPType() && !dstPeer.IsPeerIPType() {
 		// assuming dstPeer is WorkloadPeer, should be converted to k8s.Peer
 		dstPodPeer, err := pe.convertWorkloadPeerToPodPeer(dstPeer)
 		if err != nil {
-			return nil, isTrivial, err
+			return nil, false, err
 		}
 		conn, err := pe.allAllowedConnectionsBetweenPeers(srcPeer, dstPodPeer)
-		return conn, isTrivial, err
+		return conn, false, err
 	} else if dstPeer.IsPeerIPType() && !srcPeer.IsPeerIPType() {
 		// assuming srcPeer is WorkloadPeer, should be converted to k8s.Peer
 		srcPodPeer, err := pe.convertWorkloadPeerToPodPeer(srcPeer)
 		if err != nil {
-			return nil, isTrivial, err
+			return nil, false, err
 		}
 		conn, err := pe.allAllowedConnectionsBetweenPeers(srcPodPeer, dstPeer)
-		return conn, isTrivial, err
+		return conn, false, err
 	} else if !dstPeer.IsPeerIPType() && !srcPeer.IsPeerIPType() {
 		// assuming srcPeer and dstPeer are WorkloadPeer, should be converted to k8s.Peer
 		srcPodPeer, err := pe.convertWorkloadPeerToPodPeer(srcPeer)
 		if err != nil {
-			return nil, isTrivial, err
+			return nil, false, err
 		}
 		dstPodPeer, err := pe.convertWorkloadPeerToPodPeer(dstPeer)
 		if err != nil {
-			return nil, isTrivial, err
+			return nil, false, err
 		}
 		// if src and dst are the same workload peer, their conversion to pods should be of different pods
 		// (if owner has more than 1 instances)
+		isTrivial := false
 		if srcPeer.String() == dstPeer.String() {
 			isTrivial = !pe.changePodPeerToAnotherPodObject(dstPodPeer)
 		}
 		conn, err := pe.allAllowedConnectionsBetweenPeers(srcPodPeer, dstPodPeer)
 		return conn, isTrivial, err
 	}
-	return nil, isTrivial, fmt.Errorf("cannot have both srcPeer and dstPeer of IP types: src: %s, dst: %s", srcPeer.String(), dstPeer.String())
+	return nil, false, fmt.Errorf("cannot have both srcPeer and dstPeer of IP types: src: %s, dst: %s", srcPeer.String(), dstPeer.String())
 }
 
 // allAllowedConnectionsBetweenPeers: returns the allowed connections from srcPeer to dstPeer
