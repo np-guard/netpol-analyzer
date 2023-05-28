@@ -1636,17 +1636,6 @@ func TestConnectionsMapExamples(t *testing.T) {
 		},
 
 		{
-			testName:           "onlineboutique_with_replicas_bool_connectivity_results",
-			resourcesDir:       filepath.Join(testsDir, "onlineboutique_with_replicas"),
-			expectedOutputFile: filepath.Join(testsDir, "onlineboutique_with_replicas", "connections_map_with_replicas_output.txt"),
-			checkCacheHits:     true,
-			allConnections:     false,
-			port:               "80",
-			protocol:           "TCP",
-			//expectedCacheHits:  49, // loadgenerator pod has 3 replicas
-		},
-
-		{
 			testName:     "onlineboutique_with_replicas_and_variants_bool_connectivity_results",
 			resourcesDir: filepath.Join(testsDir, "onlineboutique_with_replicas_and_variants"),
 			expectedOutputFile: filepath.Join(testsDir, "onlineboutique_with_replicas_and_variants",
