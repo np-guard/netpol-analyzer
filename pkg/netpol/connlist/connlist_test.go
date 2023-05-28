@@ -253,3 +253,14 @@ func TestConnlistAnalyzerBadOutputFormat(t *testing.T) {
 	_, err2 := analyzer.ConnectionsListToString(res)
 	require.NotNil(t, err2)
 }
+
+func TestWithFocusWorkloadWithReplicasConnections(t *testing.T) {
+	analyzer1 := NewConnlistAnalyzer(WithFocusWorkload("calico-node"))
+	dirPath := filepath.Join(testutils.GetTestsDir(), "ipblockstest")
+	res, err := analyzer1.ConnlistFromDirPath(dirPath)
+	require.Len(t, res, 50)
+	require.Nil(t, err)
+	out, err := analyzer1.ConnectionsListToString(res)
+	require.Nil(t, err)
+	require.Contains(t, out, "kube-system/calico-node[DaemonSet] => kube-system/calico-node[DaemonSet] : All Connections")
+}
