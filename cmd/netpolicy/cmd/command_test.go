@@ -53,6 +53,7 @@ func postTestRun(isErr bool) string {
 func runTest(test cmdTest, t *testing.T) {
 	// run the test and get its output
 	preTestRun()
+	rootCmd := newCommandRoot()
 	rootCmd.SetArgs(test.args)
 	err := rootCmd.Execute()
 	if !test.isErr {
