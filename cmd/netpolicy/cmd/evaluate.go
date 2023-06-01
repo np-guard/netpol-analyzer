@@ -43,163 +43,183 @@ var (
 	port           string
 )
 
-// evaluateCmd represents the evaluate command
-var evaluateCmd = &cobra.Command{
-	Use:     "evaluate",
-	Short:   "Evaluate if a specific connection allowed",
-	Aliases: []string{"eval", "check", "allow"}, // TODO: close on fewer, consider changing command name?
-	Example: `  # Evaluate if a specific connection is allowed on given resources from dir path
-  k8snetpolicy eval --dirpath ./resources_dir/ -s pod-1 -d pod-2 -p 80
-  
-  # Evaluate if a specific connection is allowed on a live k8s cluster
-  k8snetpolicy eval -k ./kube/config -s pod-1 -d pod-2 -p 80`,
+func validateEvalFlags() error {
+	// Validate flags values
+	if sourcePod.Name == "" && srcExternalIP == "" {
+		return errors.New("no source defined, source pod and namespace or external IP required")
+	} else if sourcePod.Name != "" && srcExternalIP != "" {
+		return errors.New("only one of source pod and namespace or external IP can be defined, not both")
+	}
 
-	// TODO: can this check be done in an Args function (e.g., incl. built-in's such as MinArgs(3))?
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+	if destinationPod.Name == "" && dstExternalIP == "" {
+		return errors.New("no destination defined, destination pod and namespace or external IP required")
+	} else if destinationPod.Name != "" && dstExternalIP != "" {
+		return errors.New("only one of destination pod and namespace or external IP can be defined, not both")
+	}
 
-		// Validate flags values
-		if sourcePod.Name == "" && srcExternalIP == "" {
-			return errors.New("no source defined, source pod and namespace or external IP required")
-		} else if sourcePod.Name != "" && srcExternalIP != "" {
-			return errors.New("only one of source pod and namespace or external IP can be defined, not both")
+	if srcExternalIP != "" && dstExternalIP == "" {
+		return errors.New("only one of source or destination can be defined as external IP, not both")
+	}
+
+	if port == "" {
+		return errors.New("destination port name or value is required")
+	}
+	return nil
+}
+
+func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []types.NamespacedName) error {
+	// get relevant resources from dir path
+	scanner := scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir)
+	objectsList, processingErrs := scanner.FilesToObjectsListFiltered(dirPath, podNames)
+	for _, err := range processingErrs {
+		if err.IsFatal() || err.IsSevere() {
+			return fmt.Errorf("scan dir path %s had processing errors: %v", dirPath, err.Error())
 		}
+	}
 
-		if destinationPod.Name == "" && dstExternalIP == "" {
-			return errors.New("no destination defined, destination pod and namespace or external IP required")
-		} else if destinationPod.Name != "" && dstExternalIP != "" {
-			return errors.New("only one of destination pod and namespace or external IP can be defined, not both")
+	var err error
+	for _, obj := range objectsList {
+		switch obj.Kind {
+		case scan.Pod:
+			err = pe.UpsertObject(obj.Pod)
+		case scan.Namespace:
+			err = pe.UpsertObject(obj.Namespace)
+		case scan.Networkpolicy:
+			err = pe.UpsertObject(obj.Networkpolicy)
+		default:
+			continue
 		}
-
-		if srcExternalIP != "" && dstExternalIP == "" {
-			return errors.New("only one of source or destination can be defined as external IP, not both")
+		if err != nil {
+			return err
 		}
+	}
+	return nil
+}
 
-		if port == "" {
-			return errors.New("destination port name or value is required")
+func updatePolicyEngineObjectsFromLiveCluster(pe *eval.PolicyEngine, podNames []types.NamespacedName, nsNames []string) error {
+	// get relevant resources from k8s live cluster
+	const ctxTimeoutSeconds = 3
+	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
+	defer cancel()
+
+	for _, name := range nsNames {
+		ns, apierr := clientset.CoreV1().Namespaces().Get(ctx, name, metav1.GetOptions{})
+		if apierr != nil {
+			return apierr
 		}
+		if err := pe.UpsertObject(ns); err != nil {
+			return err
+		}
+	}
 
-		// Call parent pre-run
-		if rootCmd.PersistentPreRunE != nil {
-			if err := rootCmd.PersistentPreRunE(cmd, args); err != nil {
+	for _, name := range podNames {
+		pod, apierr := clientset.CoreV1().Pods(name.Namespace).Get(ctx, name.Name, metav1.GetOptions{})
+		if apierr != nil {
+			return apierr
+		}
+		if err := pe.UpsertObject(pod); err != nil {
+			return err
+		}
+	}
+
+	for _, ns := range nsNames {
+		npList, apierr := clientset.NetworkingV1().NetworkPolicies(ns).List(ctx, metav1.ListOptions{})
+		if apierr != nil {
+			return apierr
+		}
+		for i := range npList.Items {
+			if err := pe.UpsertObject(&npList.Items[i]); err != nil {
 				return err
 			}
 		}
+	}
+	return nil
+}
 
-		return nil
-	},
+func runEvalCommand() error {
+	nsNames := []string{}
+	podNames := []types.NamespacedName{}
 
-	RunE: func(cmd *cobra.Command, args []string) error {
-		nsNames := []string{}
-		podNames := []types.NamespacedName{}
+	destination := dstExternalIP
+	if destination == "" {
+		destination = destinationPod.String()
+		nsNames = append(nsNames, destinationPod.Namespace)
+		podNames = append(podNames, destinationPod)
+	}
 
-		destination := dstExternalIP
-		if destination == "" {
-			destination = destinationPod.String()
-			nsNames = append(nsNames, destinationPod.Namespace)
-			podNames = append(podNames, destinationPod)
+	source := srcExternalIP
+	if source == "" {
+		source = sourcePod.String()
+		nsNames = append(nsNames, sourcePod.Namespace)
+		podNames = append(podNames, sourcePod)
+	}
+
+	pe := eval.NewPolicyEngine()
+
+	if dirPath != "" {
+		if err := updatePolicyEngineObjectsFromDirPath(pe, podNames); err != nil {
+			return err
 		}
-
-		source := srcExternalIP
-		if source == "" {
-			source = sourcePod.String()
-			nsNames = append(nsNames, sourcePod.Namespace)
-			podNames = append(podNames, sourcePod)
+	} else {
+		if err := updatePolicyEngineObjectsFromLiveCluster(pe, podNames, nsNames); err != nil {
+			return err
 		}
+	}
 
-		pe := eval.NewPolicyEngine()
+	allowed, err := pe.CheckIfAllowed(source, destination, protocol, port)
+	if err != nil {
+		return err
+	}
 
-		if dirPath != "" {
-			// get relevant resources from dir path
-			scanner := scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir)
-			objectsList, processingErrs := scanner.FilesToObjectsListFiltered(dirPath, podNames)
-			for _, err := range processingErrs {
-				if err.IsFatal() || err.IsSevere() {
-					return fmt.Errorf("scan dir path %s had processing errors: %v", dirPath, err.Error())
-				}
+	// @todo: use a logger instead?
+	fmt.Printf("%v => %v over %s/%s: %t\n", source, destination, protocol, port, allowed)
+	return nil
+}
+
+// newCommandEvaluate returns a cobra command with the appropriate configuration and flags to run evaluate command
+func newCommandEvaluate() *cobra.Command {
+	c := &cobra.Command{
+		Use:     "evaluate",
+		Short:   "Evaluate if a specific connection allowed",
+		Aliases: []string{"eval", "check", "allow"}, // TODO: close on fewer, consider changing command name?
+		Example: `  # Evaluate if a specific connection is allowed on given resources from dir path
+	k8snetpolicy eval --dirpath ./resources_dir/ -s pod-1 -d pod-2 -p 80
+	
+	# Evaluate if a specific connection is allowed on a live k8s cluster
+	k8snetpolicy eval -k ./kube/config -s pod-1 -d pod-2 -p 80`,
+
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			if err := validateEvalFlags(); err != nil {
+				return err
 			}
-
-			var err error
-			for _, obj := range objectsList {
-				if obj.Kind == scan.Pod {
-					err = pe.UpsertObject(obj.Pod)
-				} else if obj.Kind == scan.Namespace {
-					err = pe.UpsertObject(obj.Namespace)
-				} else if obj.Kind == scan.Networkpolicy {
-					err = pe.UpsertObject(obj.Networkpolicy)
-				}
-				if err != nil {
-					return err
-				}
-			}
-
-		} else {
-			// get relevant resources from k8s live cluster
-			var err error
-			const ctxTimeoutSeconds = 3
-			ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
-			defer cancel()
-
-			for _, name := range nsNames {
-				ns, apierr := clientset.CoreV1().Namespaces().Get(ctx, name, metav1.GetOptions{})
-				if apierr != nil {
-					return apierr
-				}
-				if err = pe.UpsertObject(ns); err != nil {
-					return err
-				}
-			}
-
-			for _, name := range podNames {
-				pod, apierr := clientset.CoreV1().Pods(name.Namespace).Get(ctx, name.Name, metav1.GetOptions{})
-				if apierr != nil {
-					return apierr
-				}
-				if err = pe.UpsertObject(pod); err != nil {
-					return err
-				}
-			}
-
-			for _, ns := range nsNames {
-				npList, apierr := clientset.NetworkingV1().NetworkPolicies(ns).List(ctx, metav1.ListOptions{})
-				if apierr != nil {
-					return apierr
-				}
-				for i := range npList.Items {
-					if err = pe.UpsertObject(&npList.Items[i]); err != nil {
+			// call parent pre-run
+			if parent := cmd.Parent(); parent != nil {
+				if parent.PersistentPreRunE != nil {
+					if err := parent.PersistentPreRunE(cmd, args); err != nil {
 						return err
 					}
 				}
 			}
-		}
+			return nil
+		},
 
-		allowed, err := pe.CheckIfAllowed(source, destination, protocol, port)
-		if err != nil {
-			return err
-		}
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := runEvalCommand(); err != nil {
+				return err
+			}
+			return nil
+		},
+	}
 
-		// @todo: use a logger instead?
-		fmt.Printf("%v => %v over %s/%s: %t\n", source, destination, protocol, port, allowed)
-		return nil
-	},
-}
+	// add flags
+	c.Flags().StringVarP(&sourcePod.Name, "source-pod", "s", sourcePod.Name, "Source pod name, required")
+	c.Flags().StringVarP(&sourcePod.Namespace, "source-namespace", "n", sourcePod.Namespace, "Source pod namespace")
+	c.Flags().StringVarP(&destinationPod.Name, "destination-pod", "d", destinationPod.Name, "Destination pod name")
+	c.Flags().StringVarP(&destinationPod.Namespace, "destination-namespace", "", destinationPod.Namespace, "Destination pod namespace")
+	c.Flags().StringVarP(&srcExternalIP, "source-ip", "", srcExternalIP, "Source (external) IP address")
+	c.Flags().StringVarP(&dstExternalIP, "destination-ip", "", dstExternalIP, "Destination (external) IP address")
+	c.Flags().StringVarP(&port, "destination-port", "p", port, "Destination port (name or number)")
+	c.Flags().StringVarP(&protocol, "protocol", "", protocol, "Protocol in use (tcp, udp, sctp)")
 
-//nolint:gochecknoinits // TODO: refactor
-func init() {
-	rootCmd.AddCommand(evaluateCmd)
-
-	// connection definition
-	evaluateCmd.Flags().StringVarP(&sourcePod.Name, "source-pod", "s",
-		sourcePod.Name, "Source pod name, required")
-	evaluateCmd.Flags().StringVarP(&sourcePod.Namespace, "source-namespace", "n",
-		sourcePod.Namespace, "Source pod namespace")
-	evaluateCmd.Flags().StringVarP(&destinationPod.Name, "destination-pod", "d",
-		destinationPod.Name, "Destination pod name")
-	evaluateCmd.Flags().StringVarP(&destinationPod.Namespace, "destination-namespace", "",
-		destinationPod.Namespace, "Destination pod namespace")
-	evaluateCmd.Flags().StringVarP(&srcExternalIP, "source-ip", "",
-		srcExternalIP, "Source (external) IP address")
-	evaluateCmd.Flags().StringVarP(&dstExternalIP, "destination-ip", "",
-		dstExternalIP, "Destination (external) IP address")
-	evaluateCmd.Flags().StringVarP(&port, "destination-port", "p", port, "Destination port (name or number)")
-	evaluateCmd.Flags().StringVarP(&protocol, "protocol", "", protocol, "Protocol in use (tcp, udp, sctp)")
+	return c
 }
