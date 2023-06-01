@@ -170,7 +170,7 @@ func noK8sWorkloadResourcesFound() *FileProcessingError {
 }
 
 func noK8sNetworkPolicyResourcesFound() *FileProcessingError {
-	return &FileProcessingError{&NoK8sNetworkPolicyResourcesFoundError{}, "", 0, -1, false, true}
+	return &FileProcessingError{&NoK8sNetworkPolicyResourcesFoundError{}, "", 0, -1, false, false}
 }
 
 func failedScanningResource(resourceType, filePath string, err error) *FileProcessingError {
