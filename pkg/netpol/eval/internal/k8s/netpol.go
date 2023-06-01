@@ -64,7 +64,7 @@ func (np *NetworkPolicy) convertNamedPort(namedPort string, pod *Pod) (int32, er
 	return 0, np.netpolErr(namedPortErrTitle, errStr)
 }
 
-func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (int32, int32, error) {
+func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (startNum, endNum int32, err error) {
 	var start, end int32
 	if port.Type == intstr.String {
 		if dst.PeerType() != PodType {
@@ -146,6 +146,9 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 		return true, nil // If this field is empty or missing, this rule matches all destinations
 	}
 	for i := range rulePeers {
+		if rulePeers[i].PodSelector == nil && rulePeers[i].NamespaceSelector == nil && rulePeers[i].IPBlock == nil {
+			return false, np.netpolErr(rulePeerErrTitle, "cannot have empty rule peer")
+		}
 		if rulePeers[i].PodSelector != nil || rulePeers[i].NamespaceSelector != nil {
 			if rulePeers[i].IPBlock != nil {
 				return false, np.netpolErr(rulePeerErrTitle, "cannot have both IPBlock and PodSelector/NamespaceSelector set")
@@ -181,7 +184,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			if peerMatchesPodSelector {
 				return true, nil //  matching both pod selector and ns_selector here
 			}
-		} else if rulePeers[i].IPBlock != nil {
+		} else { // ipblock
 			if peer.PeerType() == PodType {
 				continue // assuming that peer of type Pod cannot be selected by IPBlock
 				// TODO: is this reasonable to assume?
@@ -197,8 +200,6 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			if res {
 				return true, nil
 			}
-		} else {
-			return false, np.netpolErr(rulePeerErrTitle, "cannot have empty rule peer")
 		}
 	}
 	return false, nil

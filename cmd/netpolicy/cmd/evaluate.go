@@ -160,7 +160,6 @@ func runEvalCommand() error {
 		if err := updatePolicyEngineObjectsFromDirPath(pe, podNames); err != nil {
 			return err
 		}
-
 	} else {
 		if err := updatePolicyEngineObjectsFromLiveCluster(pe, podNames, nsNames); err != nil {
 			return err

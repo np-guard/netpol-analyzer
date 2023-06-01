@@ -14,7 +14,7 @@
 package k8s
 
 import (
-	"crypto/sha1" //nolint:gosec
+	"crypto/sha1" //nolint:gosec // Non-crypto use
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -110,7 +110,7 @@ func getReplicas(r *int32) int32 {
 }
 
 // PodsFromWorkloadObject creates a slice of one or two Pod objects by extracting relevant fields from the k8s workload
-func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
+func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) { //nolint:funlen // should not break this up
 	var replicas int32
 	var workloadName string
 	var workloadNamespace string
@@ -205,7 +205,7 @@ func namespacedName(pod *corev1.Pod) string {
 }
 
 func variantFromLabelsMap(labels map[string]string) string {
-	return hex.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%v", labels)))) //nolint:gosec
+	return hex.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%v", labels)))) //nolint:gosec // Non-crypto use
 }
 
 func getFakePodIP() string {
