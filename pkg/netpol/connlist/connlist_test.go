@@ -44,7 +44,7 @@ func TestConnList(t *testing.T) {
 		}
 		if generateActualOutput {
 			// update expected output: override expected output with actual output
-			if err = os.WriteFile(expectedOutputFile, []byte(actualOutput), 0600); err != nil {
+			if err = os.WriteFile(expectedOutputFile, []byte(actualOutput), 0o600); err != nil {
 				t.Fatalf("Test %s: TestConnList WriteFile err: %v", testName, err)
 			}
 		} else {

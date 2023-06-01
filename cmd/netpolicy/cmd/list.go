@@ -81,6 +81,8 @@ defined`,
 
 // define any flags and configuration settings.
 // Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
+//
+//nolint:gochecknoinits // TODO: refactor
 func init() {
 	rootCmd.AddCommand(listCmd)
 
