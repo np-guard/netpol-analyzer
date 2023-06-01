@@ -72,6 +72,8 @@ func Execute() {
 }
 
 // define any flags and configuration settings
+//
+//nolint:gochecknoinits // TODO: refactor
 func init() {
 	// resources dir path
 	rootCmd.PersistentFlags().StringVarP(&dirPath, "dirpath", "",

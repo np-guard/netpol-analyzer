@@ -235,7 +235,7 @@ func getNumAsStr(num int64) string {
 	return fmt.Sprintf("%v", num)
 }
 
-// String returns a string represetnation of the current CanonicalIntervalSet object
+// String returns a string representation of the current CanonicalIntervalSet object
 func (c *CanonicalIntervalSet) String() string {
 	if c.IsEmpty() {
 		return "Empty"

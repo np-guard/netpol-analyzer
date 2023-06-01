@@ -84,14 +84,16 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 			return nil, err
 		}
 		return pe.allAllowedConnectionsBetweenPeers(srcPeer, dstPodPeer)
-	} else if dstPeer.IsPeerIPType() && !srcPeer.IsPeerIPType() {
+	}
+	if dstPeer.IsPeerIPType() && !srcPeer.IsPeerIPType() {
 		// assuming srcPeer is WorkloadPeer, should be converted to k8s.Peer
 		srcPodPeer, err := pe.convertWorkloadPeerToPodPeer(srcPeer)
 		if err != nil {
 			return nil, err
 		}
 		return pe.allAllowedConnectionsBetweenPeers(srcPodPeer, dstPeer)
-	} else if !dstPeer.IsPeerIPType() && !srcPeer.IsPeerIPType() {
+	}
+	if !dstPeer.IsPeerIPType() && !srcPeer.IsPeerIPType() {
 		// assuming srcPeer and dstPeer are WorkloadPeer, should be converted to k8s.Peer
 		srcPodPeer, err := pe.convertWorkloadPeerToPodPeer(srcPeer)
 		if err != nil {

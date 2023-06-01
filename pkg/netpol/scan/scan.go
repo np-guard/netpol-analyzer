@@ -183,18 +183,21 @@ func (sc *ResourcesScanner) FilesToObjectsListFiltered(path string, podNames []t
 	}
 	res := make([]K8sObject, 0)
 	for _, obj := range allObjects {
-		if obj.Kind == Namespace {
+		switch obj.Kind {
+		case Namespace:
 			if _, ok := nsMap[obj.Namespace.Name]; ok {
 				res = append(res, obj)
 			}
-		} else if obj.Kind == Networkpolicy {
+		case Networkpolicy:
 			if _, ok := nsMap[obj.Networkpolicy.Namespace]; ok {
 				res = append(res, obj)
 			}
-		} else if obj.Kind == Pod {
+		case Pod:
 			if _, ok := podNamesMap[types.NamespacedName{Name: obj.Pod.Name, Namespace: obj.Pod.Namespace}.String()]; ok {
 				res = append(res, obj)
 			}
+		default:
+			continue
 		}
 	}
 	return res, nil
@@ -270,7 +273,7 @@ func (sc *ResourcesScanner) splitByYamlDocuments(mfp string) ([]YAMLDocumentIntf
 }
 
 // return if yamlDoc is of accepted kind, and the kind string
-func (sc *ResourcesScanner) getKind(yamlDoc YAMLDocumentIntf) (bool, string, []FileProcessingError) {
+func (sc *ResourcesScanner) getKind(yamlDoc YAMLDocumentIntf) (acceptedKind bool, kind string, processingErrs []FileProcessingError) {
 	fileProcessingErrors := make([]FileProcessingError, 0)
 	_, groupVersionKind, err := sc.resourceDecoder.Decode([]byte(yamlDoc.Content()), nil, nil)
 	if err != nil {
@@ -782,7 +785,7 @@ func logError(l logger.Logger, fpe *FileProcessingError) {
 	}
 }
 
-func hasWorkloadsOrNetworkPolicies(objects []K8sObject) (bool, bool) {
+func hasWorkloadsOrNetworkPolicies(objects []K8sObject) (hasWl, hasNp bool) {
 	var hasWorkloads, hasNetpols bool
 	for i := range objects {
 		kind := objects[i].Kind

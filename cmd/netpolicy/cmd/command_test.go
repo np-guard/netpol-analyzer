@@ -65,12 +65,16 @@ func runTest(test cmdTest, t *testing.T) {
 	// compare actual to test.expectedOutput
 	if test.exact {
 		assert.Equal(t, test.expectedOutput, actual, "error - unexpected output")
-	} else if test.containment {
+		return
+	}
+
+	if test.containment {
 		isContained := strings.Contains(actual, test.expectedOutput)
 		assert.True(t, isContained, "test %s error: %s not contained in %s", test.name, test.expectedOutput, actual)
-	} else {
-		assert.Error(t, errors.New(""), "test %s: missing containment or equality flag for test")
+		return
 	}
+
+	assert.Error(t, errors.New(""), "test %s: missing containment or equality flag for test")
 }
 
 type cmdTest struct {
