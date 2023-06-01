@@ -74,18 +74,6 @@ func (pe *PolicyEngine) convertWorkloadPeerToPodPeer(peer Peer) (*k8s.PodPeer, e
 	return nil, fmt.Errorf("peer: %s ,is not a WorkloadPeer", peer.String())
 }
 
-// for connectivity considerations, when requesting allowed connections between 2 workload peers which are the same,
-// looking for 2 different pod instances, if exist (to avoid the trivial case of connectivity from pod to itself)
-func (pe *PolicyEngine) changePodPeerToAnotherPodObject(peer *k8s.PodPeer) {
-	// look for another pod, different from peer.Pod, with the same owner
-	for _, pod := range pe.podsMap {
-		if pod.Namespace == peer.Pod.Namespace && pod.Name != peer.Pod.Name && pod.Owner.Name == peer.Pod.Owner.Name {
-			peer.Pod = pod
-			break
-		}
-	}
-}
-
 // AllAllowedConnectionsBetweenWorkloadPeers returns the allowed connections from srcPeer to dstPeer,
 // expecting that srcPeer and dstPeer are in level of workloads (WorkloadPeer)
 func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer Peer) (Connection, error) {
@@ -113,10 +101,9 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 		if err != nil {
 			return nil, err
 		}
-		// if src and dst are the same workload peer, their conversion to pods should be of different pods
-		// (if owner has more than 1 instances)
+		// if src and dst are the same workload peer, it is a self-loop connection we want to skip it
 		if srcPeer.String() == dstPeer.String() {
-			pe.changePodPeerToAnotherPodObject(dstPodPeer)
+			return nil, nil
 		}
 		return pe.allAllowedConnectionsBetweenPeers(srcPodPeer, dstPodPeer)
 	}

@@ -155,10 +155,9 @@ func TestCommannds(t *testing.T) {
 				"--focusworkload",
 				"emailservice",
 			},
-			expectedOutput: "default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080\n" +
-				"default/emailservice[Deployment] => default/emailservice[Deployment] : All Connections",
-			exact: true,
-			isErr: false,
+			expectedOutput: "default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080",
+			exact:          true,
+			isErr:          false,
 		},
 
 		{
@@ -177,11 +176,6 @@ func TestCommannds(t *testing.T) {
 				"    \"src\": \"default/checkoutservice[Deployment]\",\n" +
 				"    \"dst\": \"default/emailservice[Deployment]\",\n" +
 				"    \"conn\": \"TCP 8080\"\n" +
-				"  },\n" +
-				"  {\n" +
-				"    \"src\": \"default/emailservice[Deployment]\",\n" +
-				"    \"dst\": \"default/emailservice[Deployment]\",\n" +
-				"    \"conn\": \"All Connections\"\n" +
 				"  }\n" +
 				"]",
 			exact: true,
@@ -217,8 +211,6 @@ func TestCommannds(t *testing.T) {
 				"\t\"default/emailservice[Deployment]\" [label=\"default/emailservice[Deployment]\" color=\"blue\" fontcolor=\"blue\"]\n" +
 				"\t\"default/checkoutservice[Deployment]\" -> \"default/emailservice[Deployment]\"" +
 				" [label=\"TCP 8080\" color=\"gold2\" fontcolor=\"darkgreen\"]\n" +
-				"\t\"default/emailservice[Deployment]\" -> \"default/emailservice[Deployment]\"" +
-				" [label=\"All Connections\" color=\"gold2\" fontcolor=\"darkgreen\"]\n" +
 				"}",
 			exact: true,
 			isErr: false,
@@ -236,8 +228,7 @@ func TestCommannds(t *testing.T) {
 				"csv",
 			},
 			expectedOutput: "src,dst,conn\n" +
-				"default/checkoutservice[Deployment],default/emailservice[Deployment],TCP 8080\n" +
-				"default/emailservice[Deployment],default/emailservice[Deployment],All Connections\n",
+				"default/checkoutservice[Deployment],default/emailservice[Deployment],TCP 8080\n",
 			exact: true,
 			isErr: false,
 		},
@@ -255,8 +246,7 @@ func TestCommannds(t *testing.T) {
 			},
 			expectedOutput: "| src | dst | conn |\n" +
 				"|-----|-----|------|\n" +
-				"| default/checkoutservice[Deployment] | default/emailservice[Deployment] | TCP 8080 |\n" +
-				"| default/emailservice[Deployment] | default/emailservice[Deployment] | All Connections |",
+				"| default/checkoutservice[Deployment] | default/emailservice[Deployment] | TCP 8080 |",
 			exact: true,
 			isErr: false,
 		},

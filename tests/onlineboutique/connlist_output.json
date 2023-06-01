@@ -5,24 +5,9 @@
     "conn": "All Connections"
   },
   {
-    "src": "default/adservice-77d5cd745d[ReplicaSet]",
-    "dst": "default/adservice-77d5cd745d[ReplicaSet]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "default/cartservice-74f56fd4b[ReplicaSet]",
-    "dst": "default/cartservice-74f56fd4b[ReplicaSet]",
-    "conn": "All Connections"
-  },
-  {
     "src": "default/checkoutservice-69c8ff664b[ReplicaSet]",
     "dst": "default/cartservice-74f56fd4b[ReplicaSet]",
     "conn": "TCP 7070"
-  },
-  {
-    "src": "default/checkoutservice-69c8ff664b[ReplicaSet]",
-    "dst": "default/checkoutservice-69c8ff664b[ReplicaSet]",
-    "conn": "All Connections"
   },
   {
     "src": "default/checkoutservice-69c8ff664b[ReplicaSet]",
@@ -48,16 +33,6 @@
     "src": "default/checkoutservice-69c8ff664b[ReplicaSet]",
     "dst": "default/shippingservice-5bd985c46d[ReplicaSet]",
     "conn": "TCP 50051"
-  },
-  {
-    "src": "default/currencyservice-77654bbbdd[ReplicaSet]",
-    "dst": "default/currencyservice-77654bbbdd[ReplicaSet]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "default/emailservice-54c7c5d9d[ReplicaSet]",
-    "dst": "default/emailservice-54c7c5d9d[ReplicaSet]",
-    "conn": "All Connections"
   },
   {
     "src": "default/frontend-99684f7f8[ReplicaSet]",
@@ -81,11 +56,6 @@
   },
   {
     "src": "default/frontend-99684f7f8[ReplicaSet]",
-    "dst": "default/frontend-99684f7f8[ReplicaSet]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "default/frontend-99684f7f8[ReplicaSet]",
     "dst": "default/productcatalogservice-68765d49b6[ReplicaSet]",
     "conn": "TCP 3550"
   },
@@ -105,43 +75,13 @@
     "conn": "TCP 8080"
   },
   {
-    "src": "default/loadgenerator-555fbdc87d[ReplicaSet]",
-    "dst": "default/loadgenerator-555fbdc87d[ReplicaSet]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "default/paymentservice-bbcbdc6b6[ReplicaSet]",
-    "dst": "default/paymentservice-bbcbdc6b6[ReplicaSet]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "default/productcatalogservice-68765d49b6[ReplicaSet]",
-    "dst": "default/productcatalogservice-68765d49b6[ReplicaSet]",
-    "conn": "All Connections"
-  },
-  {
     "src": "default/recommendationservice-5f8c456796[ReplicaSet]",
     "dst": "default/productcatalogservice-68765d49b6[ReplicaSet]",
     "conn": "TCP 3550"
   },
   {
-    "src": "default/recommendationservice-5f8c456796[ReplicaSet]",
-    "dst": "default/recommendationservice-5f8c456796[ReplicaSet]",
-    "conn": "All Connections"
-  },
-  {
     "src": "default/redis-cart-78746d49dc[ReplicaSet]",
     "dst": "0.0.0.0-255.255.255.255",
-    "conn": "All Connections"
-  },
-  {
-    "src": "default/redis-cart-78746d49dc[ReplicaSet]",
-    "dst": "default/redis-cart-78746d49dc[ReplicaSet]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "default/shippingservice-5bd985c46d[ReplicaSet]",
-    "dst": "default/shippingservice-5bd985c46d[ReplicaSet]",
     "conn": "All Connections"
   }
 ]

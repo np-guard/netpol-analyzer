@@ -380,7 +380,12 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2Pe
 				ca.errors = append(ca.errors, newResourceEvaluationError(err))
 				return nil, err
 			}
-			// skip empty connections
+			// skip nil connenctions or empty connections
+			// nil connections are returned in case of self-looped connection,
+			// i.e. a connection from workload to itself (regardless existence of replicas)
+			if allowedConnections == nil {
+				continue
+			}
 			if allowedConnections.IsEmpty() {
 				continue
 			}
