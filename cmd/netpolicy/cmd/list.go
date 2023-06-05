@@ -28,68 +28,71 @@ var (
 	output string
 )
 
-// listCmd represents the list command
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "Lists all allowed connections",
-	Long: `Lists all allowed connections based on the workloads and network policies
+func runListCommand() error {
+	var conns []connlist.Peer2PeerConnection
+	var err error
+
+	analyzer := connlist.NewConnlistAnalyzer(connlist.WithFocusWorkload(focusWorkload), connlist.WithOutputFormat(output))
+
+	if dirPath != "" {
+		conns, err = analyzer.ConnlistFromDirPath(dirPath)
+	} else {
+		conns, err = analyzer.ConnlistFromK8sCluster(clientset)
+	}
+	if err != nil {
+		return err
+	}
+	out, err := analyzer.ConnectionsListToString(conns)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s", out)
+
+	return nil
+}
+
+// newCommandList returns a cobra command with the appropriate configuration and flags to run list command
+func newCommandList() *cobra.Command {
+	c := &cobra.Command{
+		Use:   "list",
+		Short: "Lists all allowed connections",
+		Long: `Lists all allowed connections based on the workloads and network policies
 defined`,
-	Example: `  # Get list of allowed connections from resources dir path
+		Example: `  # Get list of allowed connections from resources dir path
   k8snetpolicy list --dirpath ./resources_dir/ 
   
   # Get list of allowed connections from live k8s cluster
   k8snetpolicy list -k ./kube/config`,
 
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-
-		if err := connlist.ValidateOutputFormat(output); err != nil {
-			return err
-		}
-		// call parent pre-run
-		if rootCmd.PersistentPreRunE != nil {
-			if err := rootCmd.PersistentPreRunE(cmd, args); err != nil {
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			if err := connlist.ValidateOutputFormat(output); err != nil {
 				return err
 			}
-		}
-		return nil
-	},
+			// call parent pre-run
+			if parent := cmd.Parent(); parent != nil {
+				if parent.PersistentPreRunE != nil {
+					if err := parent.PersistentPreRunE(cmd, args); err != nil {
+						return err
+					}
+				}
+			}
+			return nil
+		},
 
-	RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := runListCommand(); err != nil {
+				return err
+			}
+			return nil
+		},
+	}
 
-		var conns []connlist.Peer2PeerConnection
-		var err error
-
-		analyzer := connlist.NewConnlistAnalyzer(connlist.WithFocusWorkload(focusWorkload), connlist.WithOutputFormat(output))
-
-		if dirPath != "" {
-			conns, err = analyzer.ConnlistFromDirPath(dirPath)
-		} else {
-			conns, err = analyzer.ConnlistFromK8sCluster(clientset)
-		}
-		if err != nil {
-			return err
-		}
-		out, err := analyzer.ConnectionsListToString(conns)
-		if err != nil {
-			return err
-		}
-		fmt.Printf("%s", out)
-
-		return nil
-	},
-}
-
-// define any flags and configuration settings.
-// Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
-//
-//nolint:gochecknoinits // TODO: refactor
-func init() {
-	rootCmd.AddCommand(listCmd)
-
-	// output options
-	listCmd.Flags().StringVarP(&focusWorkload, "focusworkload", "",
-		focusWorkload, "Focus connections of specified workload name in the output")
+	// define any flags and configuration settings.
+	// Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
+	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "", "Focus connections of specified workload name in the output")
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
-	listCmd.Flags().StringVarP(&output, "output", "o", connlist.DefaultFormat, "Required output format ("+supportedFormats+")")
+	c.Flags().StringVarP(&output, "output", "o", connlist.DefaultFormat, "Required output format ("+supportedFormats+")")
+
+	return c
 }

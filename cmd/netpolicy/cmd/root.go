@@ -31,61 +31,63 @@ var (
 	clientset *kubernetes.Clientset
 )
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use:   "k8snetpolicy",
-	Short: "Determine allowed connection based on Kubernetes NetworkPolicy objects",
+// newCommandRoot returns a cobra command with the appropriate configuration, flags and sub-commands to run the root command k8snetpolicy
+func newCommandRoot() *cobra.Command {
+	c := &cobra.Command{
+		Use:   "k8snetpolicy",
+		Short: "Determine allowed connection based on Kubernetes NetworkPolicy objects",
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			if dirPath != "" {
+				return nil
+			}
+			// TODO: add explicit logs to indicate progress (loading config, listing namespaces, ...)
+			// TODO: use errors.Wrap for clearer error return?
 
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		if dirPath != "" {
+			// create a k8s client with the correct config and context
+			loadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig}
+			overrides := &clientcmd.ConfigOverrides{}
+			if kubecontext != "" {
+				overrides.CurrentContext = kubecontext
+			}
+
+			k8sconf, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, overrides).ClientConfig()
+			if err != nil {
+				return err
+			}
+			clientset, err = kubernetes.NewForConfig(k8sconf)
+			if err != nil {
+				return err
+			}
 			return nil
-		}
-		// TODO: add explicit logs to indicate progress (loading config, listing namespaces, ...)
-		// TODO: use errors.Wrap for clearer error return?
-
-		// create a k8s client with the correct config and context
-		loadingRules := &clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig}
-		overrides := &clientcmd.ConfigOverrides{}
-		if kubecontext != "" {
-			overrides.CurrentContext = kubecontext
-		}
-
-		k8sconf, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, overrides).ClientConfig()
-		if err != nil {
-			return err
-		}
-		clientset, err = kubernetes.NewForConfig(k8sconf)
-		if err != nil {
-			return err
-		}
-		return nil
-	},
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
+		},
 	}
-}
 
-// define any flags and configuration settings
-//
-//nolint:gochecknoinits // TODO: refactor
-func init() {
+	// define any flags and configuration settings
 	// resources dir path
-	rootCmd.PersistentFlags().StringVarP(&dirPath, "dirpath", "",
-		dirPath, "Resources dir path when evaluating connections from a dir")
-
+	c.PersistentFlags().StringVarP(&dirPath, "dirpath", "", "", "Resources dir path when evaluating connections from a dir")
 	// cluster access
 	config := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
 	if config == "" {
 		config = clientcmd.RecommendedHomeFile
 	}
-	rootCmd.PersistentFlags().StringVarP(&kubeconfig, clientcmd.RecommendedConfigPathFlag, "k", config,
+	c.PersistentFlags().StringVarP(&kubeconfig, clientcmd.RecommendedConfigPathFlag, "k", config,
 		"Path and file to use for kubeconfig when evaluating connections in a live cluster")
-	rootCmd.PersistentFlags().StringVarP(&kubecontext, clientcmd.FlagContext, "c", "",
+	c.PersistentFlags().StringVarP(&kubecontext, clientcmd.FlagContext, "c", "",
 		"Kubernetes context to use when evaluating connections in a live cluster")
+
+	// add sub-commands
+	c.AddCommand(newCommandEvaluate())
+	c.AddCommand(newCommandList())
+
+	return c
+}
+
+// Execute adds all child commands to the root command and sets flags appropriately.
+// This is called by main.main(). It only needs to happen once to the rootCmd.
+func Execute() {
+	rootCmd := newCommandRoot()
+	err := rootCmd.Execute()
+	if err != nil {
+		os.Exit(1)
+	}
 }
