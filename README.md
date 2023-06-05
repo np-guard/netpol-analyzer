@@ -43,8 +43,7 @@ Global Flags:
 ### List command
 ```
 Lists all allowed connections based on the workloads and network policies defined.
-Excluding self looped connections such as trivial connections from a peer to itself,
-or connections between different replicas of same workload.
+Connections between workload to itself are excluded from the output.
 
 Usage:
   k8snetpolicy list [flags]
