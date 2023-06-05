@@ -79,6 +79,9 @@ func TestFilesToObjectsListBadYamlDocument(t *testing.T) {
 	require.True(t, errors.As(errs[0].Error(), &badDoc))
 	noNetpolsFound := &NoK8sNetworkPolicyResourcesFoundError{}
 	require.True(t, errors.As(errs[1].Error(), &noNetpolsFound))
+	// noNetpolsFound is a warning
+	require.False(t, errs[1].IsFatal())
+	require.False(t, errs[1].IsSevere())
 
 	docID, err := errs[0].DocumentID()
 	require.Equal(t, 6, docID)
