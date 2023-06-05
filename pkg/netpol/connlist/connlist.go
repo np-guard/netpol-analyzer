@@ -1,5 +1,7 @@
 // The connlist package of netpol-analyzer allows producing a k8s connectivity report based on network policies.
-// It lists the set of allowed connections between each pair of peers (k8s workloads or ip-blocks).
+// It lists the set of allowed connections between each pair of different peers (k8s workloads or ip-blocks).
+// Self looped connections such as trivial connections from a peer to itself,
+// or connections between different replicas of same workload will be excluded.
 // The resources can be extracted from a directory containing YAML manifests, or from a k8s cluster.
 // For more information, see https://github.com/np-guard/netpol-analyzer.
 package connlist
@@ -375,17 +377,17 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2Pe
 			if !ca.includePairOfWorkloads(srcPeer, dstPeer) {
 				continue
 			}
+			// skip self-looped connection,
+			// i.e. a connection from workload to itself (regardless existence of replicas)
+			if srcPeer.String() == dstPeer.String() {
+				continue
+			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
 			if err != nil {
 				ca.errors = append(ca.errors, newResourceEvaluationError(err))
 				return nil, err
 			}
-			// skip nil connenctions or empty connections
-			// nil connections are returned in case of self-looped connection,
-			// i.e. a connection from workload to itself (regardless existence of replicas)
-			if allowedConnections == nil {
-				continue
-			}
+			// skip empty connections
 			if allowedConnections.IsEmpty() {
 				continue
 			}
