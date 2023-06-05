@@ -342,6 +342,11 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 	if src.IsPeerIPType() && dst.IsPeerIPType() {
 		return false
 	}
+	// skip self-looped connection,
+	// i.e. a connection from workload to itself (regardless existence of replicas)
+	if src.String() == dst.String() {
+		return false
+	}
 	if ca.focusWorkload == "" {
 		return true
 	}
@@ -374,11 +379,6 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2Pe
 			srcPeer := peerList[i]
 			dstPeer := peerList[j]
 			if !ca.includePairOfWorkloads(srcPeer, dstPeer) {
-				continue
-			}
-			// skip self-looped connection,
-			// i.e. a connection from workload to itself (regardless existence of replicas)
-			if srcPeer.String() == dstPeer.String() {
 				continue
 			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
