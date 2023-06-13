@@ -17,7 +17,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// Service encapsulates k8s service fields that are relevant for evaluating network policies
+// Service encapsulates k8s service fields that are relevant for connectivity analysis
 type Service struct {
 	Name      string
 	Namespace string
