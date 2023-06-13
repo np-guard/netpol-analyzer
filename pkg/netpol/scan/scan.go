@@ -64,6 +64,9 @@ type K8sObject struct {
 	// pod object
 	Pod *v1.Pod
 
+	// service object
+	Service *v1.Service
+
 	// workload object
 	Replicaset            *appsv1.ReplicaSet
 	Deployment            *appsv1.Deployment
@@ -196,6 +199,10 @@ func (sc *ResourcesScanner) FilesToObjectsListFiltered(path string, podNames []t
 			if _, ok := podNamesMap[types.NamespacedName{Name: obj.Pod.Name, Namespace: obj.Pod.Namespace}.String()]; ok {
 				res = append(res, obj)
 			}
+		case Service:
+			if _, ok := nsMap[obj.Service.Namespace]; ok {
+				res = append(res, obj)
+			}
 		default:
 			continue
 		}
@@ -204,9 +211,9 @@ func (sc *ResourcesScanner) FilesToObjectsListFiltered(path string, podNames []t
 }
 
 var (
-	acceptedK8sTypesRegex = fmt.Sprintf("(^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$)",
+	acceptedK8sTypesRegex = fmt.Sprintf("(^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$)",
 		Pod, ReplicaSet, ReplicationController, Deployment, Daemonset, Statefulset, Job, CronJob,
-		Networkpolicy, Namespace, List, NamespaceList, PodList)
+		Networkpolicy, Namespace, Service, List, NamespaceList, PodList)
 	acceptedK8sTypes = regexp.MustCompile(acceptedK8sTypesRegex)
 	yamlSuffix       = regexp.MustCompile(".ya?ml$")
 )
@@ -226,6 +233,7 @@ const (
 	List                  string = "List"
 	NamespaceList         string = "NamespaceList"
 	PodList               string = "PodList"
+	Service               string = "Service"
 )
 
 // the k8s kinds that scan pkg supports, without List kinds
@@ -240,6 +248,7 @@ var singleResourceK8sKinds = map[string]struct{}{
 	Job:                   {},
 	CronJob:               {},
 	ReplicationController: {},
+	Service:               {},
 }
 
 // given a YAML file content, split to a list of YAML documents
@@ -322,6 +331,9 @@ func manifestToK8sObjects(yamlDoc YAMLDocumentIntf, kind string) ([]K8sObject, e
 	case Namespace:
 		obj := parseNamespace(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Namespace: obj, Kind: kind})
+	case Service:
+		obj := parseService(bytes.NewReader(objDataBuf))
+		res = append(res, K8sObject{Service: obj, Kind: kind})
 	case List:
 		res = parseList(objDataBuf)
 	case PodList:
@@ -445,6 +457,17 @@ func convertNetpolListTOK8sObjects(nl *netv1.NetworkPolicyList) ([]K8sObject, er
 	return res, nil
 }
 
+func convertServiceListTOK8sObjects(svcl *v1.ServiceList) ([]K8sObject, error) {
+	res := make([]K8sObject, len(svcl.Items))
+	for i := range svcl.Items {
+		if isValidKind, err := validateNamespaceAndKind(&svcl.Items[i].Namespace, &svcl.Items[i].Kind, Service); !isValidKind {
+			return nil, err
+		}
+		res[i] = K8sObject{Service: &svcl.Items[i], Kind: Service}
+	}
+	return res, nil
+}
+
 func convertReplicaSetListTOK8sObjects(rsl *appsv1.ReplicaSetList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(rsl.Items))
 	for i := range rsl.Items {
@@ -537,6 +560,10 @@ func getListObjects(parsedList interface{}, kind string) ([]K8sObject, error) {
 		if netpolList, ok := parsedList.(*netv1.NetworkPolicyList); ok {
 			return convertNetpolListTOK8sObjects(netpolList)
 		}
+	case Service:
+		if svclist, ok := parsedList.(*v1.ServiceList); ok {
+			return convertServiceListTOK8sObjects(svclist)
+		}
 	case ReplicaSet:
 		if rsList, ok := parsedList.(*appsv1.ReplicaSetList); ok {
 			return convertReplicaSetListTOK8sObjects(rsList)
@@ -581,6 +608,8 @@ func parseListOfKind(objDataBuf []byte, kind string) (bool, []K8sObject) {
 		resList = &v1.NamespaceList{}
 	case Networkpolicy:
 		resList = &netv1.NetworkPolicyList{}
+	case Service:
+		resList = &v1.ServiceList{}
 	case ReplicaSet:
 		resList = &appsv1.ReplicaSetList{}
 	case Deployment:
@@ -646,6 +675,21 @@ func parseNetworkPolicy(r io.Reader) *netv1.NetworkPolicy {
 		return nil
 	}
 	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Networkpolicy); !isValid || err != nil {
+		return nil
+	}
+	return &rc
+}
+
+func parseService(r io.Reader) *v1.Service {
+	if r == nil {
+		return nil
+	}
+	rc := v1.Service{}
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
+	if err != nil {
+		return nil
+	}
+	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Service); !isValid || err != nil {
 		return nil
 	}
 	return &rc
@@ -792,7 +836,7 @@ func hasWorkloadsOrNetworkPolicies(objects []K8sObject) (hasWl, hasNp bool) {
 		if kind == Networkpolicy {
 			hasNetpols = true
 		} else if _, ok := singleResourceK8sKinds[kind]; ok {
-			if kind != Namespace {
+			if kind != Namespace && kind != Service {
 				hasWorkloads = true
 			}
 		}

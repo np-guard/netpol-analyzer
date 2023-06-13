@@ -8,15 +8,10 @@ networkConfigList:
 ---
 # empty document
 ---
+# non supported K8s object
 apiVersion: v1
-kind: Service
+kind: Secret
 metadata:
-  name: recommendationservice
-spec:
-  type: ClusterIP
-  selector:
-    app: recommendationservice
-  ports:
-  - name: grpc
-    port: 8080
-    targetPort: 8080
+  name: dotfile-secret
+data:
+  .secret-file: dmFsdWUtMg0KDQo=

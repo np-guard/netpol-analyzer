@@ -22,8 +22,8 @@ type (
 		namspacesMap map[string]*k8s.Namespace                // map from ns name to ns object
 		podsMap      map[string]*k8s.Pod                      // map from pod name to pod object
 		netpolsMap   map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
-
-		cache *evalCache
+		servicesMap  map[string]*k8s.Service                  // map from service name to service object
+		cache        *evalCache
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -42,6 +42,7 @@ func NewPolicyEngine() *PolicyEngine {
 		namspacesMap: make(map[string]*k8s.Namespace),
 		podsMap:      make(map[string]*k8s.Pod),
 		netpolsMap:   make(map[string]map[string]*k8s.NetworkPolicy),
+		servicesMap:  make(map[string]*k8s.Service),
 		cache:        newEvalCache(),
 	}
 }
@@ -71,6 +72,8 @@ func NewPolicyEngineWithObjects(objects []scan.K8sObject) (*PolicyEngine, error)
 			err = pe.UpsertObject(obj.Job)
 		case scan.CronJob:
 			err = pe.UpsertObject(obj.CronJob)
+		case scan.Service:
+			err = pe.UpsertObject(obj.Service)
 		default:
 			err = fmt.Errorf("unsupported kind: %s", obj.Kind)
 		}
@@ -143,6 +146,9 @@ func (pe *PolicyEngine) UpsertObject(rtobj runtime.Object) error {
 	// netpol object
 	case *netv1.NetworkPolicy:
 		return pe.upsertNetworkPolicy(obj)
+	// service object
+	case *corev1.Service:
+		return pe.upsertService(obj)
 	// workload object
 	case *appsv1.ReplicaSet:
 		return pe.upsertWorkload(obj, scan.ReplicaSet)
@@ -171,6 +177,8 @@ func (pe *PolicyEngine) DeleteObject(rtobj runtime.Object) error {
 		return pe.deletePod(obj)
 	case *netv1.NetworkPolicy:
 		return pe.deleteNetworkPolicy(obj)
+	case *corev1.Service:
+		return pe.deleteService(obj)
 	}
 	return nil
 }
@@ -180,6 +188,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.namspacesMap = make(map[string]*k8s.Namespace)
 	pe.podsMap = make(map[string]*k8s.Pod)
 	pe.netpolsMap = make(map[string]map[string]*k8s.NetworkPolicy)
+	pe.servicesMap = make(map[string]*k8s.Service)
 	pe.cache = newEvalCache()
 }
 
@@ -234,6 +243,16 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 	return nil
 }
 
+func (pe *PolicyEngine) upsertService(svc *corev1.Service) error {
+	svcObj, err := k8s.ServiceFromCoreObject(svc)
+	if err != nil {
+		return err
+	}
+	svcStr := types.NamespacedName{Namespace: svcObj.Namespace, Name: svcObj.Name}.String()
+	pe.servicesMap[svcStr] = svcObj
+	return nil
+}
+
 func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
 	delete(pe.namspacesMap, ns.Name)
 	return nil
@@ -261,6 +280,12 @@ func (pe *PolicyEngine) deleteNetworkPolicy(np *netv1.NetworkPolicy) error {
 
 	// clear the cache on netpols changes
 	pe.cache.clear()
+	return nil
+}
+
+func (pe *PolicyEngine) deleteService(svc *corev1.Service) error {
+	svcStr := types.NamespacedName{Namespace: svc.Namespace, Name: svc.Name}.String()
+	delete(pe.servicesMap, svcStr)
 	return nil
 }
 

@@ -36,7 +36,7 @@ func TestFilesToObjectsList(t *testing.T) {
 	}{
 		{
 			testName:                   "onlineboutique_workloads",
-			expectedNumOfParsedObjects: 28,
+			expectedNumOfParsedObjects: 40,
 		},
 		{
 			testName:                   "ipblockstest",
@@ -44,7 +44,7 @@ func TestFilesToObjectsList(t *testing.T) {
 		},
 		{
 			testName:                   "workload_resources",
-			expectedNumOfParsedObjects: 18,
+			expectedNumOfParsedObjects: 19,
 			expectedErrs:               1, // no network policy resource found err
 		},
 	}
@@ -87,7 +87,7 @@ func TestFilesToObjectsListBadYamlDocument(t *testing.T) {
 	require.Equal(t, 6, docID)
 	require.Nil(t, err)
 
-	require.Len(t, objs, 3)
+	require.Len(t, objs, 6) // 3 deployments + 3 services
 }
 func TestFilesToObjectsListBadYamlDocumentFailFast(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_yamls", "document_with_syntax_error.yaml")
@@ -141,7 +141,7 @@ func TestFilesToObjectsListWithBadYamls(t *testing.T) {
 	objs, errs := scanner.FilesToObjectsList(dirPath)
 
 	require.Len(t, errs, 2) // malformed yaml + not a k8s resource  - errors
-	require.Len(t, objs, 7)
+	require.Len(t, objs, 11)
 }
 
 func nonRecursiveWalk(root string, fn fs.WalkDirFunc) error {
@@ -163,7 +163,7 @@ func TestSearchForManifestsNonRecursiveWalk(t *testing.T) {
 	objs, errs := scannerNew.FilesToObjectsList(dirPath)
 
 	require.Len(t, errs, 2) // malformed yaml + not a k8s resource  - errors
-	require.Len(t, objs, 6) // not including obj from subdir4
+	require.Len(t, objs, 9) // not including obj from subdir4
 }
 
 func TestNoK8sWorkloadResourcesFoundError(t *testing.T) {
@@ -180,5 +180,5 @@ func TestK8sWithOpenShiftResources(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "acs_security_frontend_demos")
 	objs, errs := scanner.FilesToObjectsList(dirPath)
 	require.Empty(t, errs)
-	require.Len(t, objs, 5) // two deployments, 3 netpols (skipping services, routes and configMaps)
+	require.Len(t, objs, 7) // two deployments, 3 netpols, 2 services (skipping routes and configMaps)
 }
