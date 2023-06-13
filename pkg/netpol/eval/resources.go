@@ -113,7 +113,7 @@ func (pe *PolicyEngine) resolveMissingNamespaces() error {
 // Deprecated: this function simply calls UpsertObject on the PolicyEngine.
 // Calling the UpsertObject should be preferred in new code.
 func (pe *PolicyEngine) SetResources(policies []*netv1.NetworkPolicy, pods []*corev1.Pod,
-	namespaces []*corev1.Namespace, services []*corev1.Service) error {
+	namespaces []*corev1.Namespace) error {
 	for i := range namespaces {
 		if err := pe.upsertNamespace(namespaces[i]); err != nil {
 			return err
@@ -126,11 +126,6 @@ func (pe *PolicyEngine) SetResources(policies []*netv1.NetworkPolicy, pods []*co
 	}
 	for i := range pods {
 		if err := pe.upsertPod(pods[i]); err != nil {
-			return err
-		}
-	}
-	for i := range services {
-		if err := pe.upsertService(services[i]); err != nil {
 			return err
 		}
 	}

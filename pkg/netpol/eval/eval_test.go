@@ -944,13 +944,12 @@ type TestEntry struct {
 	nsList      []*v1.Namespace
 	podsList    []*v1.Pod
 	policies    []*netv1.NetworkPolicy
-	services    []*v1.Service
 }
 
 func initTest(test *TestEntry, t *testing.T) (*PolicyEngine, error) {
 	pe := NewPolicyEngine()
-	if len(test.nsList) > 0 || len(test.podsList) > 0 || len(test.policies) > 0 || len(test.services) > 0 {
-		err := pe.SetResources(test.policies, test.podsList, test.nsList, test.services)
+	if len(test.nsList) > 0 || len(test.podsList) > 0 || len(test.policies) > 0 {
+		err := pe.SetResources(test.policies, test.podsList, test.nsList)
 		if err != nil {
 			t.Fatalf("error init test: %v", err)
 			return nil, err
@@ -1009,7 +1008,7 @@ func TestBasic(t *testing.T) {
 	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "default", Labels: map[string]string{"a": "b"}}})
 
 	pe := NewPolicyEngine()
-	err = pe.SetResources(policies, podsList, nsList, nil)
+	err = pe.SetResources(policies, podsList, nsList)
 	if err != nil {
 		t.Fatalf("error SetResources: %v", err)
 	}
@@ -1060,7 +1059,6 @@ func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) erro
 	var netpols = []*netv1.NetworkPolicy{}
 	var pods = []*v1.Pod{}
 	var ns = []*v1.Namespace{}
-	var services = []*v1.Service{}
 	for _, obj := range objectsList {
 		switch obj.Kind {
 		case "Pod":
@@ -1069,8 +1067,6 @@ func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) erro
 			ns = append(ns, obj.Namespace)
 		case "NetworkPolicy":
 			netpols = append(netpols, obj.Networkpolicy)
-		case "Service":
-			services = append(services, obj.Service)
 		default:
 			continue
 		}
@@ -1078,7 +1074,7 @@ func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) erro
 	if len(netpolLimit) > 0 {
 		netpols = netpols[:netpolLimit[0]]
 	}
-	return pe.SetResources(netpols, pods, ns, services)
+	return pe.SetResources(netpols, pods, ns)
 }
 
 //

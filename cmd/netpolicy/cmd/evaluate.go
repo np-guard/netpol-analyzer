@@ -86,8 +86,6 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 			err = pe.UpsertObject(obj.Namespace)
 		case scan.Networkpolicy:
 			err = pe.UpsertObject(obj.Networkpolicy)
-		case scan.Service:
-			err = pe.UpsertObject(obj.Service)
 		default:
 			continue
 		}
