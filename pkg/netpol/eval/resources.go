@@ -255,7 +255,6 @@ func (pe *PolicyEngine) upsertService(svc *corev1.Service) error {
 	}
 	svcStr := types.NamespacedName{Namespace: svcObj.Namespace, Name: svcObj.Name}.String()
 	pe.servicesMap[svcStr] = svcObj
-	// todo : should clear cache on services changes?
 	return nil
 }
 
