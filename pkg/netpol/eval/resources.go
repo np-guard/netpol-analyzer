@@ -343,3 +343,39 @@ func (pe *PolicyEngine) getDisjointIPBlocks() ([]*k8s.IPBlock, error) {
 	disjointRes := k8s.DisjointIPBlocks(ipbList, []*k8s.IPBlock{newAll})
 	return disjointRes, nil
 }
+
+func (pe *PolicyEngine) getServicePods(svcName, svcNamespace string) ([]*k8s.Pod, error) {
+	svc := pe.getServiceFromServiceNameAndNameSpace(svcName, svcNamespace)
+	// todo: should return error if the service not found?
+	if svc == nil {
+		return nil, fmt.Errorf("service does not exist: %s\\%s", svcNamespace, svcName)
+	}
+	res := make([]*k8s.Pod, 0)
+	for _, pod := range pe.podsMap {
+		match := true
+		if pod.Namespace != svcNamespace {
+			continue
+		}
+		for k, v := range svc.Selectors {
+			val, ok := pod.Labels[k]
+			// no match if the pod doesn't have a lebel with same key, or it has a similar key but with different value
+			if !ok || (ok && val != v) {
+				match = false
+				break // continue to next pod
+			}
+		}
+		if match {
+			res = append(res, pod)
+		}
+	}
+	return res, nil
+}
+
+func (pe *PolicyEngine) getServiceFromServiceNameAndNameSpace(svcName, svcNamespace string) *k8s.Service {
+	for _, svc := range pe.servicesMap {
+		if svc.Name == svcName && svc.Namespace == svcNamespace {
+			return svc
+		}
+	}
+	return nil
+}
