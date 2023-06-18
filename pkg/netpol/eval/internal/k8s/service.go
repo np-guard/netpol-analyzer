@@ -17,6 +17,7 @@ import (
 	"errors"
 
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // Service encapsulates k8s service fields that are relevant for connectivity analysis
@@ -36,6 +37,10 @@ func ServiceFromCoreObject(svcObj *corev1.Service) (*Service, error) {
 
 	if svcObj.Spec.Selector == nil {
 		return nil, errors.New("K8s Service without selectors is not supported")
+	}
+
+	if svc.Namespace == "" {
+		svc.Namespace = metav1.NamespaceDefault
 	}
 
 	for k, v := range svcObj.Spec.Selector {

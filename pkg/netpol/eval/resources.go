@@ -22,7 +22,7 @@ type (
 		namspacesMap map[string]*k8s.Namespace                // map from ns name to ns object
 		podsMap      map[string]*k8s.Pod                      // map from pod name to pod object
 		netpolsMap   map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
-		servicesMap  map[string]*k8s.Service                  // map from service name to service object
+		servicesMap  map[string]map[string]*k8s.Service       // map from namespace to map from service name to its object
 		cache        *evalCache
 	}
 
@@ -42,7 +42,7 @@ func NewPolicyEngine() *PolicyEngine {
 		namspacesMap: make(map[string]*k8s.Namespace),
 		podsMap:      make(map[string]*k8s.Pod),
 		netpolsMap:   make(map[string]map[string]*k8s.NetworkPolicy),
-		servicesMap:  make(map[string]*k8s.Service),
+		servicesMap:  make(map[string]map[string]*k8s.Service),
 		cache:        newEvalCache(),
 	}
 }
@@ -188,7 +188,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.namspacesMap = make(map[string]*k8s.Namespace)
 	pe.podsMap = make(map[string]*k8s.Pod)
 	pe.netpolsMap = make(map[string]map[string]*k8s.NetworkPolicy)
-	pe.servicesMap = make(map[string]*k8s.Service)
+	pe.servicesMap = make(map[string]map[string]*k8s.Service)
 	pe.cache = newEvalCache()
 }
 
@@ -248,8 +248,10 @@ func (pe *PolicyEngine) upsertService(svc *corev1.Service) error {
 	if err != nil {
 		return err
 	}
-	svcStr := types.NamespacedName{Namespace: svcObj.Namespace, Name: svcObj.Name}.String()
-	pe.servicesMap[svcStr] = svcObj
+	if _, ok := pe.servicesMap[svcObj.Namespace]; !ok {
+		pe.servicesMap[svcObj.Namespace] = make(map[string]*k8s.Service)
+	}
+	pe.servicesMap[svcObj.Namespace][svcObj.Name] = svcObj
 	return nil
 }
 
@@ -284,8 +286,12 @@ func (pe *PolicyEngine) deleteNetworkPolicy(np *netv1.NetworkPolicy) error {
 }
 
 func (pe *PolicyEngine) deleteService(svc *corev1.Service) error {
-	svcStr := types.NamespacedName{Namespace: svc.Namespace, Name: svc.Name}.String()
-	delete(pe.servicesMap, svcStr)
+	if svcMap, ok := pe.servicesMap[svc.Namespace]; ok {
+		delete(svcMap, svc.Name)
+		if len(svcMap) == 0 {
+			delete(pe.servicesMap, svc.Namespace)
+		}
+	}
 	return nil
 }
 
@@ -348,7 +354,8 @@ func (pe *PolicyEngine) getServicePods(svcName, svcNamespace string) ([]*k8s.Pod
 	svc := pe.getServiceFromServiceNameAndNameSpace(svcName, svcNamespace)
 	// todo: should return error if the service not found?
 	if svc == nil {
-		return nil, fmt.Errorf("service does not exist: %s\\%s", svcNamespace, svcName)
+		svcStr := types.NamespacedName{Namespace: svcNamespace, Name: svcName}
+		return nil, fmt.Errorf("service does not exist: %s", svcStr)
 	}
 	res := make([]*k8s.Pod, 0)
 	for _, pod := range pe.podsMap {
@@ -372,10 +379,8 @@ func (pe *PolicyEngine) getServicePods(svcName, svcNamespace string) ([]*k8s.Pod
 }
 
 func (pe *PolicyEngine) getServiceFromServiceNameAndNameSpace(svcName, svcNamespace string) *k8s.Service {
-	for _, svc := range pe.servicesMap {
-		if svc.Name == svcName && svc.Namespace == svcNamespace {
-			return svc
-		}
+	if svcMap, ok := pe.servicesMap[svcNamespace]; ok {
+		return svcMap[svcName]
 	}
 	return nil
 }
