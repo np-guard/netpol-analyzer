@@ -8,6 +8,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 
@@ -357,21 +358,16 @@ func (pe *PolicyEngine) getServicePods(svcName, svcNamespace string) ([]*k8s.Pod
 		svcStr := types.NamespacedName{Namespace: svcNamespace, Name: svcName}
 		return nil, fmt.Errorf("service does not exist: %s", svcStr)
 	}
+	svcLabelsSelect, err := svc.ServicSelectorsAsLabelSelector()
+	if err != nil {
+		return nil, err
+	}
 	res := make([]*k8s.Pod, 0)
 	for _, pod := range pe.podsMap {
-		match := true
 		if pod.Namespace != svcNamespace {
 			continue
 		}
-		for k, v := range svc.Selectors {
-			val, ok := pod.Labels[k]
-			// no match if the pod doesn't have a lebel with same key, or it has a similar key but with different value
-			if !ok || (ok && val != v) {
-				match = false
-				break // continue to next pod
-			}
-		}
-		if match {
+		if svcLabelsSelect.Matches(labels.Set(pod.Labels)) {
 			res = append(res, pod)
 		}
 	}
