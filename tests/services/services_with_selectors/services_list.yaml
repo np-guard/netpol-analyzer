@@ -152,6 +152,32 @@ items:
     type: ClusterIP
   status:
     loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: "2022-01-27T18:17:18Z"
+    name: no-pods-selected
+    namespace: default
+    resourceVersion: "1278"
+    uid: 5f07099a-e4dd-427e-b060-337a0d8de3dd
+  spec:
+    clusterIP: 10.111.43.154
+    clusterIPs:
+    - 10.111.43.154
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+    selector:
+      app: not-existing
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
 kind: List
 metadata:
   resourceVersion: ""
