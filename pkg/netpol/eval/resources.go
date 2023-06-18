@@ -351,7 +351,7 @@ func (pe *PolicyEngine) getDisjointIPBlocks() ([]*k8s.IPBlock, error) {
 }
 
 func (pe *PolicyEngine) getServicePods(svcName, svcNamespace string) ([]*k8s.Pod, error) {
-	svc := pe.getServiceFromServiceNameAndNameSpace(svcName, svcNamespace)
+	svc := pe.getServiceFromServiceNameAndNamespace(svcName, svcNamespace)
 	// todo: should return error if the service not found?
 	if svc == nil {
 		svcStr := types.NamespacedName{Namespace: svcNamespace, Name: svcName}
