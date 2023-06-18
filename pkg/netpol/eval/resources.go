@@ -378,7 +378,7 @@ func (pe *PolicyEngine) getServicePods(svcName, svcNamespace string) ([]*k8s.Pod
 	return res, nil
 }
 
-func (pe *PolicyEngine) getServiceFromServiceNameAndNameSpace(svcName, svcNamespace string) *k8s.Service {
+func (pe *PolicyEngine) getServiceFromServiceNameAndNamespace(svcName, svcNamespace string) *k8s.Service {
 	if svcMap, ok := pe.servicesMap[svcNamespace]; ok {
 		return svcMap[svcName]
 	}
