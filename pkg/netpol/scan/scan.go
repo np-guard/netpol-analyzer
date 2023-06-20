@@ -17,6 +17,7 @@ import (
 	netv1 "k8s.io/api/networking/v1"
 
 	ocapiv1 "github.com/openshift/api"
+	ocroutev1 "github.com/openshift/api/route/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
@@ -66,6 +67,10 @@ type K8sObject struct {
 
 	// service object
 	Service *v1.Service
+
+	// Ingress objects
+	Route   *ocroutev1.Route
+	Ingress *netv1.Ingress
 
 	// workload object
 	Replicaset            *appsv1.ReplicaSet
@@ -173,6 +178,8 @@ func (sc *ResourcesScanner) FilesToObjectsList(path string) ([]K8sObject, []File
 
 // FilesToObjectsListFiltered returns only K8sObjects from dir path if they match input pods namespaces (for non pod resources)
 // and full input pods names for pod resources
+//
+//gocyclo:ignore
 func (sc *ResourcesScanner) FilesToObjectsListFiltered(path string, podNames []types.NamespacedName) ([]K8sObject, []FileProcessingError) {
 	allObjects, errs := sc.FilesToObjectsList(path)
 	if stopProcessing(sc.stopOnError, errs) {
@@ -203,6 +210,14 @@ func (sc *ResourcesScanner) FilesToObjectsListFiltered(path string, podNames []t
 			if _, ok := nsMap[obj.Service.Namespace]; ok {
 				res = append(res, obj)
 			}
+		case Route:
+			if _, ok := nsMap[obj.Route.Namespace]; ok {
+				res = append(res, obj)
+			}
+		case Ingress:
+			if _, ok := nsMap[obj.Ingress.Namespace]; ok {
+				res = append(res, obj)
+			}
 		default:
 			continue
 		}
@@ -211,9 +226,9 @@ func (sc *ResourcesScanner) FilesToObjectsListFiltered(path string, podNames []t
 }
 
 var (
-	acceptedK8sTypesRegex = fmt.Sprintf("(^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$)",
+	acceptedK8sTypesRegex = fmt.Sprintf("(^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$)",
 		Pod, ReplicaSet, ReplicationController, Deployment, Daemonset, Statefulset, Job, CronJob,
-		Networkpolicy, Namespace, Service, List, NamespaceList, PodList)
+		Networkpolicy, Namespace, Service, Route, Ingress, List, NamespaceList, PodList)
 	acceptedK8sTypes = regexp.MustCompile(acceptedK8sTypesRegex)
 	yamlSuffix       = regexp.MustCompile(".ya?ml$")
 )
@@ -234,6 +249,8 @@ const (
 	NamespaceList         string = "NamespaceList"
 	PodList               string = "PodList"
 	Service               string = "Service"
+	Route                 string = "Route"
+	Ingress               string = "Ingress"
 )
 
 // the k8s kinds that scan pkg supports, without List kinds
@@ -249,6 +266,15 @@ var singleResourceK8sKinds = map[string]struct{}{
 	CronJob:               {},
 	ReplicationController: {},
 	Service:               {},
+	Route:                 {},
+	Ingress:               {},
+}
+
+// the kinds that scan considers as networking policies objects
+var policyelements = map[string]struct{}{
+	Networkpolicy: {},
+	Route:         {},
+	Ingress:       {},
 }
 
 // given a YAML file content, split to a list of YAML documents
@@ -297,7 +323,9 @@ func (sc *ResourcesScanner) getKind(yamlDoc YAMLDocumentIntf) (acceptedKind bool
 }
 
 // given a YAML doc and its resource kind, convert to a slice of K8sObject
-func manifestToK8sObjects(yamlDoc YAMLDocumentIntf, kind string) ([]K8sObject, error) {
+//
+//gocyclo:ignore
+func manifestToK8sObjects(yamlDoc YAMLDocumentIntf, kind string) ([]K8sObject, error) { //nolint:funlen // cases of objects kinds
 	objDataBuf := []byte(yamlDoc.Content())
 	res := make([]K8sObject, 0, 1)
 	switch kind {
@@ -334,6 +362,12 @@ func manifestToK8sObjects(yamlDoc YAMLDocumentIntf, kind string) ([]K8sObject, e
 	case Service:
 		obj := parseService(bytes.NewReader(objDataBuf))
 		res = append(res, K8sObject{Service: obj, Kind: kind})
+	case Route:
+		obj := parseRoute(bytes.NewReader(objDataBuf))
+		res = append(res, K8sObject{Route: obj, Kind: kind})
+	case Ingress:
+		obj := parseIngress(bytes.NewReader(objDataBuf))
+		res = append(res, K8sObject{Ingress: obj, Kind: kind})
 	case List:
 		res = parseList(objDataBuf)
 	case PodList:
@@ -468,6 +502,28 @@ func convertServiceListTOK8sObjects(svcl *v1.ServiceList) ([]K8sObject, error) {
 	return res, nil
 }
 
+func convertRouteListTOK8sObjects(rtl *ocroutev1.RouteList) ([]K8sObject, error) {
+	res := make([]K8sObject, len(rtl.Items))
+	for i := range rtl.Items {
+		if isValidKind, err := validateNamespaceAndKind(&rtl.Items[i].Namespace, &rtl.Items[i].Kind, Route); !isValidKind {
+			return nil, err
+		}
+		res[i] = K8sObject{Route: &rtl.Items[i], Kind: Route}
+	}
+	return res, nil
+}
+
+func convertIngressListTOK8sObjects(ingl *netv1.IngressList) ([]K8sObject, error) {
+	res := make([]K8sObject, len(ingl.Items))
+	for i := range ingl.Items {
+		if isValidKind, err := validateNamespaceAndKind(&ingl.Items[i].Namespace, &ingl.Items[i].Kind, Ingress); !isValidKind {
+			return nil, err
+		}
+		res[i] = K8sObject{Ingress: &ingl.Items[i], Kind: Ingress}
+	}
+	return res, nil
+}
+
 func convertReplicaSetListTOK8sObjects(rsl *appsv1.ReplicaSetList) ([]K8sObject, error) {
 	res := make([]K8sObject, len(rsl.Items))
 	for i := range rsl.Items {
@@ -564,6 +620,14 @@ func getListObjects(parsedList interface{}, kind string) ([]K8sObject, error) {
 		if svclist, ok := parsedList.(*v1.ServiceList); ok {
 			return convertServiceListTOK8sObjects(svclist)
 		}
+	case Route:
+		if rtlist, ok := parsedList.(*ocroutev1.RouteList); ok {
+			return convertRouteListTOK8sObjects(rtlist)
+		}
+	case Ingress:
+		if inglist, ok := parsedList.(*netv1.IngressList); ok {
+			return convertIngressListTOK8sObjects(inglist)
+		}
 	case ReplicaSet:
 		if rsList, ok := parsedList.(*appsv1.ReplicaSetList); ok {
 			return convertReplicaSetListTOK8sObjects(rsList)
@@ -596,6 +660,7 @@ func getListObjects(parsedList interface{}, kind string) ([]K8sObject, error) {
 	return nil, fmt.Errorf("invalid kind: %s", kind)
 }
 
+//gocyclo:ignore
 func parseListOfKind(objDataBuf []byte, kind string) (bool, []K8sObject) {
 	r := bytes.NewReader(objDataBuf)
 	var err error
@@ -610,6 +675,10 @@ func parseListOfKind(objDataBuf []byte, kind string) (bool, []K8sObject) {
 		resList = &netv1.NetworkPolicyList{}
 	case Service:
 		resList = &v1.ServiceList{}
+	case Route:
+		resList = &ocroutev1.RouteList{}
+	case Ingress:
+		resList = &netv1.IngressList{}
 	case ReplicaSet:
 		resList = &appsv1.ReplicaSetList{}
 	case Deployment:
@@ -690,6 +759,36 @@ func parseService(r io.Reader) *v1.Service {
 		return nil
 	}
 	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Service); !isValid || err != nil {
+		return nil
+	}
+	return &rc
+}
+
+func parseRoute(r io.Reader) *ocroutev1.Route {
+	if r == nil {
+		return nil
+	}
+	rc := ocroutev1.Route{}
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
+	if err != nil {
+		return nil
+	}
+	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Route); !isValid || err != nil {
+		return nil
+	}
+	return &rc
+}
+
+func parseIngress(r io.Reader) *netv1.Ingress {
+	if r == nil {
+		return nil
+	}
+	rc := netv1.Ingress{}
+	err := yaml.NewYAMLOrJSONDecoder(r, yamlParseBufferSize).Decode(&rc)
+	if err != nil {
+		return nil
+	}
+	if isValid, err := validateNamespaceAndKind(&rc.Namespace, &rc.Kind, Ingress); !isValid || err != nil {
 		return nil
 	}
 	return &rc
@@ -833,7 +932,7 @@ func hasWorkloadsOrNetworkPolicies(objects []K8sObject) (hasWl, hasNp bool) {
 	var hasWorkloads, hasNetpols bool
 	for i := range objects {
 		kind := objects[i].Kind
-		if kind == Networkpolicy {
+		if _, ok := policyelements[kind]; ok {
 			hasNetpols = true
 		} else if _, ok := singleResourceK8sKinds[kind]; ok {
 			if kind != Namespace && kind != Service {
