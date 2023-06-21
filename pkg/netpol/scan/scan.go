@@ -253,28 +253,21 @@ const (
 	Ingress               string = "Ingress"
 )
 
-// the k8s kinds that scan pkg supports, without List kinds
-var singleResourceK8sKinds = map[string]struct{}{
-	Pod:                   {},
-	Networkpolicy:         {},
-	Namespace:             {},
-	ReplicaSet:            {},
-	Deployment:            {},
-	Statefulset:           {},
-	Daemonset:             {},
-	Job:                   {},
-	CronJob:               {},
-	ReplicationController: {},
-	Service:               {},
-	Route:                 {},
-	Ingress:               {},
-}
-
-// the kinds that scan considers as networking policies objects
-var policyelements = map[string]struct{}{
-	Networkpolicy: {},
-	Route:         {},
-	Ingress:       {},
+// the k8s kinds that scan pkg supports, without List kinds, mapped to a bool flag indicating if it is a workload type or not
+var singleResourceK8sKinds = map[string]bool{
+	Pod:                   true,
+	Networkpolicy:         false,
+	Namespace:             false,
+	ReplicaSet:            true,
+	Deployment:            true,
+	Statefulset:           true,
+	Daemonset:             true,
+	Job:                   true,
+	CronJob:               true,
+	ReplicationController: true,
+	Service:               false,
+	Route:                 false,
+	Ingress:               false,
 }
 
 // given a YAML file content, split to a list of YAML documents
@@ -932,12 +925,10 @@ func hasWorkloadsOrNetworkPolicies(objects []K8sObject) (hasWl, hasNp bool) {
 	var hasWorkloads, hasNetpols bool
 	for i := range objects {
 		kind := objects[i].Kind
-		if _, ok := policyelements[kind]; ok {
+		if kind == Networkpolicy {
 			hasNetpols = true
-		} else if _, ok := singleResourceK8sKinds[kind]; ok {
-			if kind != Namespace && kind != Service {
-				hasWorkloads = true
-			}
+		} else if singleResourceK8sKinds[kind] {
+			hasWorkloads = true
 		}
 	}
 	return hasWorkloads, hasNetpols

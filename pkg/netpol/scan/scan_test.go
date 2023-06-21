@@ -54,6 +54,7 @@ func TestFilesToObjectsList(t *testing.T) {
 		{
 			testName:                   "k8s_ingress_test",
 			expectedNumOfParsedObjects: 12, // 6 pods, 5 services, 1 ingress
+			expectedErrs:               1,  // no relevant Kubernetes network policy resources found
 		},
 	}
 
@@ -182,4 +183,11 @@ func TestNoK8sWorkloadResourcesFoundError(t *testing.T) {
 
 	noK8sWorkloadResourcesFound := &NoK8sWorkloadResourcesFoundError{}
 	require.True(t, errors.As(errs[0].Error(), &noK8sWorkloadResourcesFound))
+}
+
+func TestK8sSkippsUnsupportedOpenShiftResources(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "test_with_irrelevant_oc_resources")
+	objs, errs := scanner.FilesToObjectsList(dirPath)
+	require.Len(t, errs, 2) // no netpols , nor workloads
+	require.Len(t, objs, 1) //1 route +  skipping unsupported openshift resource : SecurityContextConstraints
 }
