@@ -189,5 +189,5 @@ func TestK8sSkippsUnsupportedOpenShiftResources(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "test_with_irrelevant_oc_resources")
 	objs, errs := scanner.FilesToObjectsList(dirPath)
 	require.Len(t, errs, 2) // no netpols , nor workloads
-	require.Len(t, objs, 1) //1 route +  skipping unsupported openshift resource : SecurityContextConstraints
+	require.Len(t, objs, 1) // 1 route +  skipping unsupported openshift resource : SecurityContextConstraints
 }
