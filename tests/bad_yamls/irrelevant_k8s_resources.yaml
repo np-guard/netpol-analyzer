@@ -1,25 +1,28 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+# irrelevant k8s resource : IngressClass
+apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: IngressClass
+  metadata:
+    annotations:
+      ingressclass.kubernetes.io/is-default-class: "true"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"IngressClass","metadata":{"annotations":{"ingressclass.kubernetes.io/is-default-class":"true"},"labels":{"app.kubernetes.io/component":"controller","app.kubernetes.io/instance":"ingress-nginx","app.kubernetes.io/name":"ingress-nginx"},"name":"nginx"},"spec":{"controller":"k8s.io/ingress-nginx"}}
+    creationTimestamp: "2022-01-27T18:07:04Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/instance: ingress-nginx
+      app.kubernetes.io/name: ingress-nginx
+    name: nginx
+    resourceVersion: "679"
+    uid: 678b7bf6-45d5-401f-a5ea-2ac04216f2d2
+  spec:
+    controller: k8s.io/ingress-nginx
+kind: List
 metadata:
-  creationTimestamp: "2022-01-27T18:20:25Z"
-  generation: 3
-  name: testcase26-ingress-policy #-ingress
-  namespace: default
-  resourceVersion: "37135"
-  uid: 85e70fbc-0b4b-462c-9bc1-9a1e7e00db58
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: demo.localdev.me
-    http:
-      paths:
-      - backend:
-          service:
-            name: details
-            port:
-              number: 9080
-        path: /details
-        pathType: Prefix
+  resourceVersion: ""
+  selfLink: ""    
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
