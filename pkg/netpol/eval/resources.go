@@ -75,6 +75,8 @@ func NewPolicyEngineWithObjects(objects []scan.K8sObject) (*PolicyEngine, error)
 			err = pe.UpsertObject(obj.CronJob)
 		case scan.Service:
 			err = pe.UpsertObject(obj.Service)
+		case scan.Route:
+			continue
 		default:
 			err = fmt.Errorf("unsupported kind: %s", obj.Kind)
 		}
@@ -379,4 +381,20 @@ func (pe *PolicyEngine) getServiceFromServiceNameAndNamespace(svcName, svcNamesp
 		return svcMap[svcName]
 	}
 	return nil
+}
+
+func (pe *PolicyEngine) CheckServiceSelectsPod(svcName, svcNamespace string, pod *k8s.Pod) bool {
+	svc := pe.getServiceFromServiceNameAndNamespace(svcName, svcNamespace)
+	if svc == nil {
+		return false
+	}
+	svcLabelsSelect, err := svc.ServicSelectorsAsLabelSelector()
+	if err != nil {
+		return false
+	}
+	if svcLabelsSelect.Matches(labels.Set(pod.Labels)) {
+		return true
+	}
+
+	return false
 }

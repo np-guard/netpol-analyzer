@@ -5,10 +5,19 @@ import (
 	"path/filepath"
 )
 
-const dirLevelUp = ".."
+const (
+	dirLevelUp   = ".."
+	testsDirName = "tests"
+)
 
 func GetTestsDir() string {
 	currentDir, _ := os.Getwd()
-	res := filepath.Join(currentDir, dirLevelUp, dirLevelUp, dirLevelUp, "tests")
+	res := filepath.Join(currentDir, dirLevelUp, dirLevelUp, dirLevelUp, testsDirName)
+	return res
+}
+
+func GetTestsDirFromInternalSubDir() string {
+	currentDir, _ := os.Getwd()
+	res := filepath.Join(currentDir, dirLevelUp, dirLevelUp, dirLevelUp, dirLevelUp, testsDirName)
 	return res
 }
