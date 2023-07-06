@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
@@ -20,21 +19,13 @@ func TestIngressAnalyzerWithRoutes(t *testing.T) {
 	routesNamespace := "frontend"
 	path := filepath.Join(testutils.GetTestsDirFromInternalSubDir(), "acs_security_frontend_demos")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
-	if len(processingErrs) > 0 {
-		t.Fatalf("TestIngressAnalyzerWithRoutes errors: %v", processingErrs)
-	}
+	assert.Empty(t, processingErrs)
 	ia, err := NewIngressAnalyzerWithObjects(objects)
-	if err != nil {
-		t.Fatalf("TestIngressAnalyzerWithRoutes error: %v", err)
-	}
+	assert.Empty(t, err)
 	// routes map includes 1 namespace
-	if len(ia.routesMap) != 1 {
-		t.Fatalf("TestIngressAnalyzerWithRoutes: unexpected routesMap len: %d ", len(ia.routesMap))
-	}
+	assert.Len(t, ia.routesMap, 1)
 	// the routes namespace includes 2 different routes
-	if len(ia.routesMap[routesNamespace]) != 2 {
-		t.Fatalf("TestIngressAnalyzerWithRoutes: unexpected routes len: %d for namespace : %s ", len(ia.routesMap), routesNamespace)
-	}
+	assert.Len(t, ia.routesMap[routesNamespace], 2)
 }
 
 type ingressToPod struct {
@@ -64,25 +55,15 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 	}
 	path := filepath.Join(testutils.GetTestsDirFromInternalSubDir(), "acs_security_frontend_demos")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
-	if len(processingErrs) > 0 {
-		t.Fatalf("TestIngressAnalyzerConnectivityToAPod errors: %v", processingErrs)
-	}
-	pe, err := eval.NewPolicyEngineWithObjects(objects)
-	if err != nil {
-		t.Fatalf("TestIngressAnalyzerConnectivityToAPod error: %v", err)
-	}
+	assert.Empty(t, processingErrs)
 	ia, err := NewIngressAnalyzerWithObjects(objects)
-	if err != nil {
-		t.Fatalf("TestIngressAnalyzerConnectivityToAPod error: %v", err)
-	}
-	peers, err := pe.GetPeersList()
-	if err != nil {
-		t.Fatalf("TestIngressAnalyzerConnectivityToAPod error: %v", err)
-	}
+	assert.Empty(t, err)
+	peers, err := ia.pe.GetPeersList()
+	assert.Empty(t, err)
 	for _, entry := range testingEntries {
 		for _, peer := range peers {
 			if peer.Name() == entry.podName && peer.Namespace() == entry.podNamespace {
-				conn, err := ia.AllowedIngressConnectionsToAWorkloadPeer(peer, pe)
+				conn, err := ia.AllowedIngressConnectionsToAWorkloadPeer(peer)
 				if err != nil {
 					t.Fatalf("TestIngressAnalyzerConnectivityToAPod error: %v", err)
 				}

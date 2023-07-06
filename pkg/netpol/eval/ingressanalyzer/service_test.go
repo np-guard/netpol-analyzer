@@ -1,4 +1,4 @@
-package eval
+package ingressanalyzer
 
 import (
 	"errors"
@@ -64,25 +64,25 @@ func TestServiceMappingToPods(t *testing.T) {
 		},
 	}
 
-	path := filepath.Join(testutils.GetTestsDir(), "services", "services_with_selectors")
+	path := filepath.Join(testutils.GetTestsDirFromInternalSubDir(), "services", "services_with_selectors")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
 	require.Len(t, processingErrs, 1) // no policies
 	require.Len(t, objects, 16)       // found 5 services and 11 pods
-	pe, err := NewPolicyEngineWithObjects(objects)
+	ia, err := NewIngressAnalyzerWithObjects(objects)
 	require.Empty(t, err)
 
 	for _, serviceMappingItem := range serviceMappingList {
-		pods, err := pe.getServicePods(serviceMappingItem.serviceName, serviceMappingItem.serviceNamespace)
+		pods, err := ia.getServicePods(serviceMappingItem.serviceName, serviceMappingItem.serviceNamespace)
 		require.Equal(t, serviceMappingItem.expectedError, err)
 		require.Len(t, pods, serviceMappingItem.numPods)
 	}
 }
 
 func TestNotSupportedService(t *testing.T) {
-	path := filepath.Join(testutils.GetTestsDir(), "services", "services_without_selector")
+	path := filepath.Join(testutils.GetTestsDirFromInternalSubDir(), "services", "services_without_selector")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
 	require.Len(t, objects, 1)
 	require.Len(t, processingErrs, 2) // no policies nor workloads
-	_, err := NewPolicyEngineWithObjects(objects)
+	_, err := NewIngressAnalyzerWithObjects(objects)
 	require.Equal(t, err.Error(), "K8s Service without selectors is not supported")
 }

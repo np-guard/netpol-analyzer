@@ -15,8 +15,13 @@
 package ingressanalyzer
 
 import (
+	"fmt"
+
+	corev1 "k8s.io/api/core/v1"
+
 	ocroutev1 "github.com/openshift/api/route/v1"
-	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
@@ -25,24 +30,20 @@ import (
 
 type (
 	IngressAnalyzer struct {
-		routesMap map[string]map[string]*k8s.Route // map from namespace to map from route name to its object
+		pe *eval.PolicyEngine // a struct type that includes the podsMap and
+		// some functionality on pods and namespaces which is required for ingress analyzing
+		servicesMap map[string]map[string]*k8s.Service // map from namespace to map from service name to its object
+		routesMap   map[string]map[string]*k8s.Route   // map from namespace to map from route name to its object
 		// k8sIngressMap map[string]map[string]*k8s.Ingress // map from namespace to map from ingress name to its object
-	}
-
-	// NotificationTarget defines an interface for updating the state needed for ingress
-	// decisions
-	NotificationTarget interface {
-		// UpsertObject inserts (or updates) an object to the policy engine's view of the world
-		UpsertObject(obj runtime.Object) error
-		// DeleteObject removes an object from the policy engine's view of the world
-		DeleteObject(obj runtime.Object) error
 	}
 )
 
 // NewIngressAnalyzer returns a new IngressAnalyzer with an empty initial state
 func NewIngressAnalyzer() *IngressAnalyzer {
 	return &IngressAnalyzer{
-		routesMap: make(map[string]map[string]*k8s.Route),
+		pe:          eval.NewPolicyEngine(),
+		servicesMap: make(map[string]map[string]*k8s.Service),
+		routesMap:   make(map[string]map[string]*k8s.Route),
 	}
 }
 
@@ -50,9 +51,16 @@ func NewIngressAnalyzer() *IngressAnalyzer {
 func NewIngressAnalyzerWithObjects(objects []scan.K8sObject) (*IngressAnalyzer, error) {
 	ia := NewIngressAnalyzer()
 	var err error
+	ia.pe, err = eval.NewPolicyEngineWithObjects(objects)
+	if err != nil {
+		return nil, err
+	}
 	for _, obj := range objects {
-		if obj.Kind == scan.Route { // todo: when adding more objects (ingress) will rewrite if statement to switch
-			err = ia.UpsertObject(obj.Route)
+		switch obj.Kind {
+		case scan.Service:
+			err = ia.upsertService(obj.Service)
+		case scan.Route:
+			err = ia.upsertRoute(obj.Route)
 		}
 		if err != nil {
 			return nil, err
@@ -70,29 +78,23 @@ func (ia *IngressAnalyzer) GetIngressControllerPod() eval.Peer {
 	return &k8s.WorkloadPeer{Pod: ingressPod}
 }
 
-// UpsertObject updates (an existing) or inserts (a new) object in the ingress analyzer
-func (ia *IngressAnalyzer) UpsertObject(rtobj runtime.Object) error {
-	obj := rtobj.(*ocroutev1.Route)
-	// route object
-	if obj != nil { // todo: when adding more objects (ingress) will rewrite if statement to switch on rtobj.(type)
-		return ia.upsertRoute(obj)
-	}
-	return nil
-}
-
-// DeleteObject removes an object from the ingress analyzer
-func (ia *IngressAnalyzer) DeleteObject(rtobj runtime.Object) error {
-	obj := rtobj.(*ocroutev1.Route)
-	// route object
-	if obj != nil { // todo: when adding more objects (ingress) will rewrite if statement to switch on rtobj.(type)
-		return ia.deleteRoute(obj)
-	}
-	return nil
-}
-
 // ClearResources: deletes all current ingress resources
 func (ia *IngressAnalyzer) ClearResources() {
+	ia.pe = nil // or should call pe.ClearResources?
 	ia.routesMap = make(map[string]map[string]*k8s.Route)
+	ia.servicesMap = make(map[string]map[string]*k8s.Service)
+}
+
+func (ia *IngressAnalyzer) upsertService(svc *corev1.Service) error {
+	svcObj, err := k8s.ServiceFromCoreObject(svc)
+	if err != nil {
+		return err
+	}
+	if _, ok := ia.servicesMap[svcObj.Namespace]; !ok {
+		ia.servicesMap[svcObj.Namespace] = make(map[string]*k8s.Service)
+	}
+	ia.servicesMap[svcObj.Namespace][svcObj.Name] = svcObj
+	return nil
 }
 
 func (ia *IngressAnalyzer) upsertRoute(rt *ocroutev1.Route) error {
@@ -107,25 +109,65 @@ func (ia *IngressAnalyzer) upsertRoute(rt *ocroutev1.Route) error {
 	return nil
 }
 
-func (ia *IngressAnalyzer) deleteRoute(rt *ocroutev1.Route) error {
-	if rtMap, ok := ia.routesMap[rt.Namespace]; ok {
-		delete(rtMap, rt.Name)
-		if len(rtMap) == 0 {
-			delete(ia.routesMap, rt.Namespace)
+// ///////////////////////////////////////////////////////////////////////////////////
+// map service to pods
+
+func (ia *IngressAnalyzer) getServicePods(svcName, svcNamespace string) ([]*k8s.Pod, error) {
+	svc := ia.getServiceFromServiceNameAndNamespace(svcName, svcNamespace)
+	// todo: should return error if the service not found?
+	if svc == nil {
+		svcStr := types.NamespacedName{Namespace: svcNamespace, Name: svcName}
+		return nil, fmt.Errorf("service does not exist: %s", svcStr)
+	}
+	svcLabelsSelect, err := svc.ServicSelectorsAsLabelSelector()
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*k8s.Pod, 0)
+	for _, pod := range ia.pe.GetPodsMap() {
+		if pod.Namespace != svcNamespace {
+			continue
 		}
+		if svcLabelsSelect.Matches(labels.Set(pod.Labels)) {
+			res = append(res, pod)
+		}
+	}
+	return res, nil
+}
+
+func (ia *IngressAnalyzer) CheckServiceSelectsPod(svcName, svcNamespace string, pod *k8s.Pod) bool {
+	svc := ia.getServiceFromServiceNameAndNamespace(svcName, svcNamespace)
+	if svc == nil {
+		return false
+	}
+	svcLabelsSelect, err := svc.ServicSelectorsAsLabelSelector()
+	if err != nil {
+		return false
+	}
+	if svcLabelsSelect.Matches(labels.Set(pod.Labels)) {
+		return true
+	}
+
+	return false
+}
+
+func (ia *IngressAnalyzer) getServiceFromServiceNameAndNamespace(svcName, svcNamespace string) *k8s.Service {
+	if svcMap, ok := ia.servicesMap[svcNamespace]; ok {
+		return svcMap[svcName]
 	}
 	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
+// Ingress connections
 
 // AllowedIngressConnectionsToAWorkloadPeer return the allowed external ingress-controller's connections to the dst peer
-func (ia *IngressAnalyzer) AllowedIngressConnectionsToAWorkloadPeer(dst eval.Peer, pe *eval.PolicyEngine) (eval.Connection, error) {
+func (ia *IngressAnalyzer) AllowedIngressConnectionsToAWorkloadPeer(dst eval.Peer) (eval.Connection, error) {
 	// if there is at least one route/ ingress object that targets a service which selects the dst peer,
 	// then we have an ingress conns to the peer
 
 	// assuming dstPeer is WorkloadPeer, should be converted to k8s.Peer
-	dstPodPeer, err := pe.ConvertWorkloadPeerToPodPeer(dst)
+	dstPodPeer, err := ia.pe.ConvertWorkloadPeerToPodPeer(dst)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +179,7 @@ func (ia *IngressAnalyzer) AllowedIngressConnectionsToAWorkloadPeer(dst eval.Pee
 	}
 
 	for _, rt := range rtMap {
-		if pe.CheckServiceSelectsPod(rt.TargetSvc, peerNs, dstPodPeer.Pod) {
+		if ia.CheckServiceSelectsPod(rt.TargetSvc, peerNs, dstPodPeer.Pod) {
 			return eval.GetConnectionObject((dstPodPeer.Pod).AllowedConnectionsToPod()), nil
 		}
 	}
