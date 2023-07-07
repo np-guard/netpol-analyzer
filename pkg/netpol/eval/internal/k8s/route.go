@@ -19,6 +19,8 @@ import (
 
 	ocroutev1 "github.com/openshift/api/route/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
 // Route encapsulates openshift route fields that are relevant for ingress traffic analysis
@@ -30,7 +32,7 @@ type Route struct {
 }
 
 const (
-	allowedTargetKind  = "Service"
+	allowedTargetKind  = scan.Service
 	routeTargetKindErr = "target kind error"
 )
 

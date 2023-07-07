@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 )
 
@@ -68,7 +69,9 @@ func TestServiceMappingToPods(t *testing.T) {
 	objects, processingErrs := scanner.FilesToObjectsList(path)
 	require.Len(t, processingErrs, 1) // no policies
 	require.Len(t, objects, 16)       // found 5 services and 11 pods
-	ia, err := NewIngressAnalyzerWithObjects(objects)
+	pe, err := eval.NewPolicyEngineWithObjects(objects)
+	require.Empty(t, err)
+	ia, err := NewIngressAnalyzerWithObjects(objects, pe)
 	require.Empty(t, err)
 
 	for _, serviceMappingItem := range serviceMappingList {
@@ -83,6 +86,6 @@ func TestNotSupportedService(t *testing.T) {
 	objects, processingErrs := scanner.FilesToObjectsList(path)
 	require.Len(t, objects, 1)
 	require.Len(t, processingErrs, 2) // no policies nor workloads
-	_, err := NewIngressAnalyzerWithObjects(objects)
+	_, err := NewIngressAnalyzerWithObjects(objects, nil)
 	require.Equal(t, err.Error(), "K8s Service without selectors is not supported")
 }

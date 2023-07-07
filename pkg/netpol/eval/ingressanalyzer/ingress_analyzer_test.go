@@ -4,9 +4,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	v1 "k8s.io/api/core/v1"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
@@ -19,13 +20,13 @@ func TestIngressAnalyzerWithRoutes(t *testing.T) {
 	routesNamespace := "frontend"
 	path := filepath.Join(testutils.GetTestsDirFromInternalSubDir(), "acs_security_frontend_demos")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
-	assert.Empty(t, processingErrs)
-	ia, err := NewIngressAnalyzerWithObjects(objects)
-	assert.Empty(t, err)
+	require.Empty(t, processingErrs)
+	ia, err := NewIngressAnalyzerWithObjects(objects, nil)
+	require.Empty(t, err)
 	// routes map includes 1 namespace
-	assert.Len(t, ia.routesMap, 1)
+	require.Len(t, ia.routesMap, 1)
 	// the routes namespace includes 2 different routes
-	assert.Len(t, ia.routesMap[routesNamespace], 2)
+	require.Len(t, ia.routesMap[routesNamespace], 2)
 }
 
 type ingressToPod struct {
@@ -55,11 +56,13 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 	}
 	path := filepath.Join(testutils.GetTestsDirFromInternalSubDir(), "acs_security_frontend_demos")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
-	assert.Empty(t, processingErrs)
-	ia, err := NewIngressAnalyzerWithObjects(objects)
-	assert.Empty(t, err)
-	peers, err := ia.pe.GetPeersList()
-	assert.Empty(t, err)
+	require.Empty(t, processingErrs)
+	pe, err := eval.NewPolicyEngineWithObjects(objects)
+	require.Empty(t, err)
+	ia, err := NewIngressAnalyzerWithObjects(objects, pe)
+	require.Empty(t, err)
+	peers, err := pe.GetPeersList()
+	require.Empty(t, err)
 	for _, entry := range testingEntries {
 		for _, peer := range peers {
 			if peer.Name() == entry.podName && peer.Namespace() == entry.podNamespace {
@@ -67,11 +70,11 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 				if err != nil {
 					t.Fatalf("TestIngressAnalyzerConnectivityToAPod error: %v", err)
 				}
-				assert.Equal(t, conn.AllConnections(), entry.allConnections)
+				require.Equal(t, conn.AllConnections(), entry.allConnections)
 				if !conn.AllConnections() {
-					assert.Contains(t, conn.ProtocolsAndPortsMap(), v1.Protocol(entry.protocol))
+					require.Contains(t, conn.ProtocolsAndPortsMap(), v1.Protocol(entry.protocol))
 					connPortRange := conn.ProtocolsAndPortsMap()[v1.Protocol(entry.protocol)]
-					assert.Equal(t, connPortRange[0].Start(), entry.port)
+					require.Equal(t, connPortRange[0].Start(), entry.port)
 				}
 			}
 		}

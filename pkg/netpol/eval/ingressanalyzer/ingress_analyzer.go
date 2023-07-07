@@ -48,13 +48,10 @@ func NewIngressAnalyzer() *IngressAnalyzer {
 }
 
 // NewIngressAnalyzerWithObjects returns a new IngressAnalyzer with relevant objects
-func NewIngressAnalyzerWithObjects(objects []scan.K8sObject) (*IngressAnalyzer, error) {
+func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngine) (*IngressAnalyzer, error) {
 	ia := NewIngressAnalyzer()
+	ia.pe = pe
 	var err error
-	ia.pe, err = eval.NewPolicyEngineWithObjects(objects)
-	if err != nil {
-		return nil, err
-	}
 	for _, obj := range objects {
 		switch obj.Kind {
 		case scan.Service:
@@ -76,13 +73,6 @@ func (ia *IngressAnalyzer) GetIngressControllerPod() eval.Peer {
 		Namespace: "",
 	}
 	return &k8s.WorkloadPeer{Pod: ingressPod}
-}
-
-// ClearResources: deletes all current ingress resources
-func (ia *IngressAnalyzer) ClearResources() {
-	ia.pe = nil // or should call pe.ClearResources?
-	ia.routesMap = make(map[string]map[string]*k8s.Route)
-	ia.servicesMap = make(map[string]map[string]*k8s.Service)
 }
 
 func (ia *IngressAnalyzer) upsertService(svc *corev1.Service) error {
