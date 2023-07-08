@@ -213,10 +213,6 @@ func getFakePodIP() string {
 }
 
 func (pod *Pod) AllowedConnectionsToPod() ConnectionSet {
-	if len(pod.Ports) == 0 {
-		return MakeConnectionSet(true)
-	}
-
 	res := MakeConnectionSet(false)
 	for _, cPort := range pod.Ports {
 		protocol := corev1.ProtocolTCP
