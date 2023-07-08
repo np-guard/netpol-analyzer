@@ -28,6 +28,11 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
+const (
+	ingressPodName = "ingress-controller"
+	ingressPodNs   = "ingress-controller-ns"
+)
+
 type (
 	IngressAnalyzer struct {
 		pe *eval.PolicyEngine // a struct type that includes the podsMap and
@@ -69,8 +74,8 @@ func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngi
 // GetIngressControllerPod creates a new ingress-controller pod, as the source of all ingress connections
 func (ia *IngressAnalyzer) GetIngressControllerPod() eval.Peer {
 	ingressPod := &k8s.Pod{
-		Name:      "ingress-controller",
-		Namespace: "",
+		Name:      ingressPodName,
+		Namespace: ingressPodNs,
 	}
 	return &k8s.WorkloadPeer{Pod: ingressPod}
 }
