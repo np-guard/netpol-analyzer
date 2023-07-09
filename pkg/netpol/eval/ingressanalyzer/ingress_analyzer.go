@@ -158,7 +158,7 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() map[*k8s.Pod]eval.Connect
 	// then we have an ingress conns to the peer
 
 	// get all targeted pods
-	targetedPodsSet := make(map[*k8s.Pod]struct{}, 0)
+	targetedPodsSet := make(map[*k8s.Pod]bool, 0)
 	for ns, rtMap := range ia.routesMap {
 		// if there are no services in same namespace of the route, the routes in this ns will be skipped
 		if _, ok := ia.servicesMap[ns]; !ok {
@@ -168,8 +168,8 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() map[*k8s.Pod]eval.Connect
 			routeTargetPods := ia.getRouteTargetedPods(ns, route.TargetServices)
 			// avoid dups in the targetedPodsSet
 			for _, pod := range routeTargetPods {
-				if _, ok := targetedPodsSet[pod]; !ok {
-					targetedPodsSet[pod] = struct{}{}
+				if !targetedPodsSet[pod] {
+					targetedPodsSet[pod] = true
 				}
 			}
 		}

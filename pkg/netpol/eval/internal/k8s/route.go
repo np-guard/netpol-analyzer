@@ -52,12 +52,12 @@ func RouteFromOCObject(rtObj *ocroutev1.Route) (*Route, error) {
 	}
 
 	targetSvcs := make([]string, len(rtObj.Spec.AlternateBackends)+1)
-	targetSvcs = append(targetSvcs, rtObj.Spec.To.Name)
-	for _, backend := range rtObj.Spec.AlternateBackends {
+	targetSvcs[0] = rtObj.Spec.To.Name
+	for i, backend := range rtObj.Spec.AlternateBackends {
 		if backend.Kind != "" && backend.Kind != allowedTargetKind {
 			return nil, errors.New(errorMessage(routeStr, routeBackendsErr))
 		}
-		targetSvcs = append(targetSvcs, backend.Name)
+		targetSvcs[i+1] = backend.Name
 	}
 
 	rt := &Route{
