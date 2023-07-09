@@ -130,22 +130,6 @@ func (ia *IngressAnalyzer) getServicePods(svcName, svcNamespace string) ([]*k8s.
 	return res, nil
 }
 
-func (ia *IngressAnalyzer) CheckServiceSelectsPod(svcName, svcNamespace string, pod *k8s.Pod) bool {
-	svc := ia.getServiceFromServiceNameAndNamespace(svcName, svcNamespace)
-	if svc == nil {
-		return false
-	}
-	svcLabelsSelect, err := svc.ServicSelectorsAsLabelSelector()
-	if err != nil {
-		return false
-	}
-	if svcLabelsSelect.Matches(labels.Set(pod.Labels)) {
-		return true
-	}
-
-	return false
-}
-
 func (ia *IngressAnalyzer) getServiceFromServiceNameAndNamespace(svcName, svcNamespace string) *k8s.Service {
 	if svcMap, ok := ia.servicesMap[svcNamespace]; ok {
 		return svcMap[svcName]
@@ -156,28 +140,44 @@ func (ia *IngressAnalyzer) getServiceFromServiceNameAndNamespace(svcName, svcNam
 ////////////////////////////////////////////////////////////////////////////////////
 // Ingress connections
 
-// AllowedIngressConnectionsToAWorkloadPeer return the allowed external ingress-controller's connections to the dst peer
-func (ia *IngressAnalyzer) AllowedIngressConnectionsToAWorkloadPeer(dst eval.Peer) (eval.Connection, error) {
-	// if there is at least one route/ ingress object that targets a service which selects the dst peer,
+func (ia *IngressAnalyzer) getRouteTargetedPods(namespace string, svcList []string) []*k8s.Pod {
+	var res []*k8s.Pod
+	for _, svc := range svcList {
+		svcPods, err := ia.getServicePods(svc, namespace)
+		if err != nil {
+			continue // can not get targeted pods of this service
+		}
+		res = append(res, svcPods...)
+	}
+	return res
+}
+
+// AllowedIngressConnections returns map of the allowed external ingress-controller's connections of each targeted peer
+func (ia *IngressAnalyzer) AllowedIngressConnections() map[*k8s.Pod]eval.Connection {
+	// if there is at least one route/ ingress object that targets a service which selects a dst peer,
 	// then we have an ingress conns to the peer
 
-	// assuming dstPeer is WorkloadPeer, should be converted to k8s.Peer
-	dstPodPeer, err := ia.pe.ConvertWorkloadPeerToPodPeer(dst)
-	if err != nil {
-		return nil, err
-	}
-
-	peerNs := dstPodPeer.Namespace()
-	rtMap, ok := ia.routesMap[peerNs]
-	if !ok {
-		return nil, nil // no ingress objects in the pod's namespace
-	}
-
-	for _, rt := range rtMap {
-		if ia.CheckServiceSelectsPod(rt.TargetSvc, peerNs, dstPodPeer.Pod) {
-			return eval.GetConnectionObject((dstPodPeer.Pod).AllowedConnectionsToPod()), nil
+	// get all targeted pods
+	targetedPodsSet := make(map[*k8s.Pod]struct{}, 0)
+	for ns, rtMap := range ia.routesMap {
+		// if there are no services in same namespace of the route, the routes in this ns will be skipped
+		if _, ok := ia.servicesMap[ns]; !ok {
+			continue
+		}
+		for _, route := range rtMap {
+			routeTargetPods := ia.getRouteTargetedPods(ns, route.TargetServices)
+			// avoid dups in the targetedPodsSet
+			for _, pod := range routeTargetPods {
+				if _, ok := targetedPodsSet[pod]; !ok {
+					targetedPodsSet[pod] = struct{}{}
+				}
+			}
 		}
 	}
-
-	return nil, nil // did not find any defined ingress connection to the dst peer
+	// compute allowed conns of each pod
+	res := make(map[*k8s.Pod]eval.Connection)
+	for pod := range targetedPodsSet {
+		res[pod] = eval.GetConnectionObject(pod.AllowedConnectionsToPod())
+	}
+	return res
 }

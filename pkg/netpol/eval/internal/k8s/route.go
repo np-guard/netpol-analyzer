@@ -15,7 +15,7 @@
 package k8s
 
 import (
-	"fmt"
+	"errors"
 
 	ocroutev1 "github.com/openshift/api/route/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -25,28 +25,45 @@ import (
 
 // Route encapsulates openshift route fields that are relevant for ingress traffic analysis
 type Route struct {
-	Name      string
-	Namespace string
-	TargetSvc string // service name
-	// todo : should support alternateBackends ? with/without weights (rr)?
+	Name           string
+	Namespace      string
+	TargetServices []string
 }
 
 const (
+	maxBackendServices = 3
 	allowedTargetKind  = scan.Service
 	routeTargetKindErr = "target kind error"
+	routeBackendsErr   = "alternate backends error"
 )
 
+func errorMessage(routeStr, routeErr string) string {
+	return scan.Route + " " + routeStr + ": " + routeErr
+}
+
 func RouteFromOCObject(rtObj *ocroutev1.Route) (*Route, error) {
+	routeStr := types.NamespacedName{Namespace: rtObj.Namespace, Name: rtObj.Name}.String()
 	// Currently, only 'Service' is allowed as the kind of target that the route is referring to.
 	if rtObj.Spec.To.Kind != "" && rtObj.Spec.To.Kind != allowedTargetKind {
-		routeStr := types.NamespacedName{Namespace: rtObj.Namespace, Name: rtObj.Name}
-		return nil, fmt.Errorf("Route %s : %s ", routeStr, routeTargetKindErr)
+		return nil, errors.New(errorMessage(routeStr, routeTargetKindErr))
+	}
+	if len(rtObj.Spec.AlternateBackends) > maxBackendServices {
+		return nil, errors.New(errorMessage(routeStr, routeBackendsErr))
+	}
+
+	targetSvcs := make([]string, len(rtObj.Spec.AlternateBackends)+1)
+	targetSvcs = append(targetSvcs, rtObj.Spec.To.Name)
+	for _, backend := range rtObj.Spec.AlternateBackends {
+		if backend.Kind != "" && backend.Kind != allowedTargetKind {
+			return nil, errors.New(errorMessage(routeStr, routeBackendsErr))
+		}
+		targetSvcs = append(targetSvcs, backend.Name)
 	}
 
 	rt := &Route{
-		Name:      rtObj.Name,
-		Namespace: rtObj.Namespace,
-		TargetSvc: rtObj.Spec.To.Name,
+		Name:           rtObj.Name,
+		Namespace:      rtObj.Namespace,
+		TargetServices: targetSvcs,
 	}
 
 	return rt, nil

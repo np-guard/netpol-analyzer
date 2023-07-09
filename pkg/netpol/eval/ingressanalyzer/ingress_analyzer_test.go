@@ -61,21 +61,25 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 	require.Empty(t, err)
 	ia, err := NewIngressAnalyzerWithObjects(objects, pe)
 	require.Empty(t, err)
+	ingressConns := ia.AllowedIngressConnections()
 	peers, err := pe.GetPeersList()
 	require.Empty(t, err)
 	for _, entry := range testingEntries {
 		for _, peer := range peers {
-			if peer.Name() == entry.podName && peer.Namespace() == entry.podNamespace {
-				conn, err := ia.AllowedIngressConnectionsToAWorkloadPeer(peer)
-				if err != nil {
-					t.Fatalf("TestIngressAnalyzerConnectivityToAPod error: %v", err)
-				}
-				require.Equal(t, conn.AllConnections(), entry.allConnections)
-				if !conn.AllConnections() {
-					require.Contains(t, conn.ProtocolsAndPortsMap(), v1.Protocol(entry.protocol))
-					connPortRange := conn.ProtocolsAndPortsMap()[v1.Protocol(entry.protocol)]
-					require.Equal(t, connPortRange[0].Start(), entry.port)
-				}
+			if peer.Namespace() != entry.podNamespace {
+				continue
+			}
+			if peer.Name() != entry.podName {
+				continue
+			}
+			podPeer, err := pe.ConvertWorkloadPeerToPodPeer(peer)
+			require.Empty(t, err)
+			conn := ingressConns[podPeer.Pod]
+			require.Equal(t, conn.AllConnections(), entry.allConnections)
+			if !conn.AllConnections() {
+				require.Contains(t, conn.ProtocolsAndPortsMap(), v1.Protocol(entry.protocol))
+				connPortRange := conn.ProtocolsAndPortsMap()[v1.Protocol(entry.protocol)]
+				require.Equal(t, connPortRange[0].Start(), entry.port)
 			}
 		}
 	}
