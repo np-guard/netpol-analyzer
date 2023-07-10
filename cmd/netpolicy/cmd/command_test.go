@@ -106,6 +106,14 @@ func TestCommannds(t *testing.T) {
 		},
 
 		{
+			name:           "test_illegal_diff_no_args",
+			args:           []string{"diff"},
+			expectedOutput: "the other directory path is required",
+			containment:    true,
+			isErr:          true,
+		},
+
+		{
 			name: "test_illegal_eval_peer_not_found",
 			args: []string{
 				"eval",

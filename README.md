@@ -66,6 +66,30 @@ Global Flags:
   -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
 ```
 
+### Diff command
+```
+Reports all different allowed connections on common workloads 
+between different networkpolicies sets.
+
+Usage:
+  k8snetpolicy diff [flags]
+
+Examples:
+  # Get list of different allowed connections between two resources dir paths
+  k8snetpolicy diff --dirpath ./resources_dir/ --other ./other_resources_dir/
+
+  # Get list of different allowed connections between live k8s cluster and a resources dir path
+  k8snetpolicy diff -k ./kube/config --other ./other_resources_dir/
+
+Flags:
+      --other  Resources dir path to be compared with the first dir path/ live-cluster
+  -h, --help   help for list
+
+Global Flags:
+  -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
+      --dirpath string      Resources dir path when evaluating connections from a dir
+  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
+```
 
 
 ### Example outputs:
