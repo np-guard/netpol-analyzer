@@ -13,7 +13,10 @@
 // limitations under the License.
 package k8s
 
-import "k8s.io/apimachinery/pkg/types"
+import (
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
+)
 
 // PeerType is a type to indicate the type of a Peer object (Pod or IP address)
 type PeerType int
@@ -36,6 +39,9 @@ type Peer interface {
 	GetPeerNamespace() *Namespace
 	// GetPeerIPBlock returns a reference to IPBlock if the peer is IP address, else returns nil
 	GetPeerIPBlock() *IPBlock
+	// GetAllowedConnectionsToPod returns ConnectionSet of the allowed connections to the Pod object of the peer
+	// if it is a pod, else returns empty ConnectionSet
+	GetAllowedConnectionsToPod() ConnectionSet
 }
 
 // PodPeer implements k8s.Peer interface and eval.Peer interface
@@ -131,6 +137,20 @@ func (p *PodPeer) Kind() string {
 	return podKind
 }
 
+func (p *PodPeer) GetAllowedConnectionsToPod() ConnectionSet {
+	res := MakeConnectionSet(false)
+	for _, cPort := range p.Pod.Ports {
+		protocol := corev1.ProtocolTCP
+		if cPort.Protocol != "" {
+			protocol = cPort.Protocol
+		}
+		ports := PortSet{}
+		ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort))
+		res.AddConnection(protocol, ports)
+	}
+	return res
+}
+
 ////////////////////////////////////////////////////
 
 func (p *IPBlockPeer) PeerType() PeerType {
@@ -171,4 +191,8 @@ func (p *IPBlockPeer) IsPeerIPType() bool {
 
 func (p *IPBlockPeer) Kind() string {
 	return ""
+}
+
+func (p *IPBlockPeer) GetAllowedConnectionsToPod() ConnectionSet {
+	return ConnectionSet{}
 }

@@ -4,8 +4,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/stretchr/testify/require"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
@@ -18,15 +20,20 @@ var scanner = scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepat
 
 func TestIngressAnalyzerWithRoutes(t *testing.T) {
 	routesNamespace := "frontend"
-	path := filepath.Join(testutils.GetTestsDirFromInternalSubDir(), "acs_security_frontend_demos")
+	routeNameExample := "webapp"
+	path := filepath.Join(testutils.GetTestsDir(), "acs_security_frontend_demos")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
 	require.Empty(t, processingErrs)
-	ia, err := NewIngressAnalyzerWithObjects(objects, nil)
+	pe, err := eval.NewPolicyEngineWithObjects(objects)
+	require.Empty(t, err)
+	ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger())
 	require.Empty(t, err)
 	// routes map includes 1 namespace
-	require.Len(t, ia.routesMap, 1)
+	require.Len(t, ia.routesToServicesMap, 1)
 	// the routes namespace includes 2 different routes
-	require.Len(t, ia.routesMap[routesNamespace], 2)
+	require.Len(t, ia.routesToServicesMap[routesNamespace], 2)
+	// each route is mapped to 1 service - check 1 for example
+	require.Len(t, ia.routesToServicesMap[routesNamespace][routeNameExample], 1)
 }
 
 type ingressToPod struct {
@@ -54,33 +61,24 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			protocol:       "TCP",
 		},
 	}
-	path := filepath.Join(testutils.GetTestsDirFromInternalSubDir(), "acs_security_frontend_demos")
+	path := filepath.Join(testutils.GetTestsDir(), "acs_security_frontend_demos")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
 	require.Empty(t, processingErrs)
 	pe, err := eval.NewPolicyEngineWithObjects(objects)
 	require.Empty(t, err)
-	ia, err := NewIngressAnalyzerWithObjects(objects, pe)
+	ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger())
 	require.Empty(t, err)
 	ingressConns := ia.AllowedIngressConnections()
-	peers, err := pe.GetPeersList()
 	require.Empty(t, err)
 	for _, entry := range testingEntries {
-		for _, peer := range peers {
-			if peer.Namespace() != entry.podNamespace {
-				continue
-			}
-			if peer.Name() != entry.podName {
-				continue
-			}
-			podPeer, err := pe.ConvertWorkloadPeerToPodPeer(peer)
-			require.Empty(t, err)
-			conn := ingressConns[podPeer.Pod]
-			require.Equal(t, conn.AllConnections(), entry.allConnections)
-			if !conn.AllConnections() {
-				require.Contains(t, conn.ProtocolsAndPortsMap(), v1.Protocol(entry.protocol))
-				connPortRange := conn.ProtocolsAndPortsMap()[v1.Protocol(entry.protocol)]
-				require.Equal(t, connPortRange[0].Start(), entry.port)
-			}
+		peerStr := types.NamespacedName{Name: entry.podName, Namespace: entry.podNamespace}.String()
+		require.Contains(t, ingressConns, peerStr)
+		conn := ingressConns[peerStr]
+		require.Equal(t, conn.AllConnections(), entry.allConnections)
+		if !conn.AllConnections() {
+			require.Contains(t, conn.ProtocolsAndPortsMap(), v1.Protocol(entry.protocol))
+			connPortRange := conn.ProtocolsAndPortsMap()[v1.Protocol(entry.protocol)]
+			require.Equal(t, connPortRange[0].Start(), entry.port)
 		}
 	}
 }
