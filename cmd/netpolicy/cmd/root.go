@@ -38,7 +38,7 @@ var (
 
 // returns verbosity level based on the -q and -v switches
 func detrmineLogVerbosity() logger.Verbosity {
-	verbosity := logger.HighVerbosity // todo: maybe default should be verbosity := logger.MediumVerbosity
+	verbosity := logger.MediumVerbosity
 	if quiet {
 		verbosity = logger.LowVerbosity
 	} else if verbose {
