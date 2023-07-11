@@ -28,6 +28,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
+// IngressAnalyzer provides API to analyze Ingress/Route resources, to allow inferring potential connectivity from ingress-controller to pods in the cluster
 type IngressAnalyzer struct {
 	logger logger.Logger
 	pe     *eval.PolicyEngine // a struct type that includes the podsMap and
