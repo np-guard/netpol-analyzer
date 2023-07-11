@@ -141,6 +141,7 @@ const (
 	routeBackendsErr   = "alternate backends error"
 )
 
+// this function populates routesToServicesMap
 func (ia *IngressAnalyzer) mapRouteToServices(rt *ocroutev1.Route) error {
 	services, err := getRouteServices(rt)
 	if err != nil {
