@@ -181,8 +181,7 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() map[string]eval.Connectio
 	res := make(map[string]eval.Connection)
 	for peer := range targetedPeersSet {
 		peerStr := types.NamespacedName{Name: peer.Name(), Namespace: peer.Namespace()}.String()
-		peerPod, _ := ia.pe.ConvertWorkloadPeerToPodPeer(peer) // should not get error since all peers in ia.servicesToPeersMap are confirmed
-		res[peerStr] = eval.GetConnectionObject(peerPod.GetAllowedConnectionsToPod())
+		res[peerStr] = eval.GetConnectionObject(peer.GetAllowedConnectionsToPod())
 	}
 	return res
 }

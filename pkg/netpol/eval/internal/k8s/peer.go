@@ -14,7 +14,6 @@
 package k8s
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
 
@@ -39,9 +38,6 @@ type Peer interface {
 	GetPeerNamespace() *Namespace
 	// GetPeerIPBlock returns a reference to IPBlock if the peer is IP address, else returns nil
 	GetPeerIPBlock() *IPBlock
-	// GetAllowedConnectionsToPod returns ConnectionSet of the allowed connections to the Pod object of the peer
-	// if it is a pod, else returns empty ConnectionSet
-	GetAllowedConnectionsToPod() ConnectionSet
 }
 
 // PodPeer implements k8s.Peer interface and eval.Peer interface
@@ -95,6 +91,10 @@ func (p *WorkloadPeer) IsPeerIPType() bool {
 	return false
 }
 
+func (p *WorkloadPeer) GetAllowedConnectionsToPod() ConnectionSet {
+	return p.Pod.allowedConnectionsToPod()
+}
+
 ////////////////////////////////////////////////////
 
 func (p *PodPeer) PeerType() PeerType {
@@ -138,17 +138,7 @@ func (p *PodPeer) Kind() string {
 }
 
 func (p *PodPeer) GetAllowedConnectionsToPod() ConnectionSet {
-	res := MakeConnectionSet(false)
-	for _, cPort := range p.Pod.Ports {
-		protocol := corev1.ProtocolTCP
-		if cPort.Protocol != "" {
-			protocol = cPort.Protocol
-		}
-		ports := PortSet{}
-		ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort))
-		res.AddConnection(protocol, ports)
-	}
-	return res
+	return p.Pod.allowedConnectionsToPod()
 }
 
 ////////////////////////////////////////////////////

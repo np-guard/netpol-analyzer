@@ -62,8 +62,7 @@ func (pe *PolicyEngine) CheckIfAllowed(src, dst, protocol, port string) (bool, e
 	return ingressRes, nil
 }
 
-// ConvertWorkloadPeerToPodPeer converts a WorkloadPeer to a k8s.Peer
-func (pe *PolicyEngine) ConvertWorkloadPeerToPodPeer(peer Peer) (*k8s.PodPeer, error) {
+func (pe *PolicyEngine) convertWorkloadPeerToPodPeer(peer Peer) (*k8s.PodPeer, error) {
 	if workloadPeer, ok := peer.(*k8s.WorkloadPeer); ok {
 		podNamespace, ok := pe.namspacesMap[workloadPeer.Pod.Namespace]
 		if !ok {
@@ -92,7 +91,7 @@ func (pe *PolicyEngine) changePodPeerToAnotherPodObject(peer *k8s.PodPeer) {
 func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer Peer) (Connection, error) {
 	if srcPeer.IsPeerIPType() && !dstPeer.IsPeerIPType() {
 		// assuming dstPeer is WorkloadPeer, should be converted to k8s.Peer
-		dstPodPeer, err := pe.ConvertWorkloadPeerToPodPeer(dstPeer)
+		dstPodPeer, err := pe.convertWorkloadPeerToPodPeer(dstPeer)
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +99,7 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 	}
 	if dstPeer.IsPeerIPType() && !srcPeer.IsPeerIPType() {
 		// assuming srcPeer is WorkloadPeer, should be converted to k8s.Peer
-		srcPodPeer, err := pe.ConvertWorkloadPeerToPodPeer(srcPeer)
+		srcPodPeer, err := pe.convertWorkloadPeerToPodPeer(srcPeer)
 		if err != nil {
 			return nil, err
 		}
@@ -108,11 +107,11 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 	}
 	if !dstPeer.IsPeerIPType() && !srcPeer.IsPeerIPType() {
 		// assuming srcPeer and dstPeer are WorkloadPeer, should be converted to k8s.Peer
-		srcPodPeer, err := pe.ConvertWorkloadPeerToPodPeer(srcPeer)
+		srcPodPeer, err := pe.convertWorkloadPeerToPodPeer(srcPeer)
 		if err != nil {
 			return nil, err
 		}
-		dstPodPeer, err := pe.ConvertWorkloadPeerToPodPeer(dstPeer)
+		dstPodPeer, err := pe.convertWorkloadPeerToPodPeer(dstPeer)
 		if err != nil {
 			return nil, err
 		}
