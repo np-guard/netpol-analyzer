@@ -334,14 +334,10 @@ func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace st
 		if peer.IsPeerIPType() {
 			continue
 		}
-		podPeer, err := pe.ConvertWorkloadPeerToPodPeer(peer)
-		if err != nil {
-			return nil, err
-		}
-		if podPeer.Namespace() != namespace {
+		if peer.Namespace() != namespace {
 			continue
 		}
-		if selectors.Matches(labels.Set(podPeer.Pod.Labels)) {
+		if selectors.Matches(labels.Set(peer.(*k8s.WorkloadPeer).Pod.Labels)) {
 			res = append(res, peer)
 		}
 	}
