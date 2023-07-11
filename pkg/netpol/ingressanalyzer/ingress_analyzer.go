@@ -131,7 +131,7 @@ func convertServiceSelctorToLabelSelector(svcSelect map[string]string, svcStr st
 }
 
 // //////////////////////////////////////////////////////////////////////////////////////////////
-// routes analyze
+// routes analysis
 
 const (
 	maxBackendServices = 3
