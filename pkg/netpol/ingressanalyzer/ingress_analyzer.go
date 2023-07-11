@@ -77,7 +77,7 @@ const (
 
 // this function populates servicesToPeersMap
 func (ia *IngressAnalyzer) mapServiceToPeers(svc *corev1.Service) error {
-	// get peers selected by the service selctors
+	// get peers selected by the service selectors
 	peers, err := ia.getServicePeers(svc)
 	if err != nil {
 		return err
