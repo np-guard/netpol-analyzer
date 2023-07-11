@@ -152,7 +152,7 @@ func getRouteServices(rt *ocroutev1.Route) ([]string, error) {
 // AllowedIngressConnections returns a map of the possible connections from ingress-controller pod to workload peers, as inferred from Ingress and Route resources. The map is from a workload name to its connection object.
 func (ia *IngressAnalyzer) AllowedIngressConnections() map[string]eval.Connection {
 	// if there is at least one route/ ingress object that targets a service which selects a dst peer,
-	// then we have an ingress conns to the peer
+	// then we have ingress connections to that peer
 
 	// get all targeted peer pods
 	targetedPeersSet := make(map[eval.Peer]bool, 0)
