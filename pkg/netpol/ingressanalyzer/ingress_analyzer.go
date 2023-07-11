@@ -89,7 +89,7 @@ func (ia *IngressAnalyzer) getServicePeers(svc *corev1.Service) ([]eval.Peer, er
 	if svc.Spec.Selector == nil {
 		return nil, errors.New(scan.Service + " " + svcStr + " " + missingSelectorError)
 	}
-	svcLabelsSelector, err := convertServiceSelctorToLabelSelector(svc.Spec.Selector, svcStr)
+	svcLabelsSelector, err := convertServiceSelectorToLabelSelector(svc.Spec.Selector, svcStr)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (ia *IngressAnalyzer) getServicePeers(svc *corev1.Service) ([]eval.Peer, er
 
 // utility func
 func convertServiceSelectorToLabelSelector(svcSelector map[string]string, svcStr string) (labels.Selector, error) {
-	labelsSelector := metav1.LabelSelector{MatchLabels: svcSelect}
+	labelsSelector := metav1.LabelSelector{MatchLabels: svcSelector}
 	selectorRes, err := metav1.LabelSelectorAsSelector(&labelsSelector)
 	if err != nil {
 		return nil, errors.New(scan.Service + " " + svcStr + " " + selectorError)
@@ -140,14 +140,14 @@ func getRouteServices(rt *ocroutev1.Route) ([]string, error) {
 	}
 
 	targetServices := make([]string, len(rt.Spec.AlternateBackends)+1)
-	targetSvcs[0] = rt.Spec.To.Name
+	targetServices[0] = rt.Spec.To.Name
 	for i, backend := range rt.Spec.AlternateBackends {
 		if backend.Kind != "" && backend.Kind != allowedTargetKind {
 			return nil, errors.New(scan.Route + " " + routeStr + ": " + routeBackendsErr)
 		}
-		targetSvcs[i+1] = backend.Name
+		targetServices[i+1] = backend.Name
 	}
-	return targetSvcs, nil
+	return targetServices, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
