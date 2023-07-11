@@ -168,7 +168,7 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() map[string]eval.Connectio
 
 		for _, svcList := range rtSvcMap {
 			routeTargetPeers := ia.getRouteTargetedPeers(ns, svcList)
-			// avoid dups in the targetedPeersSet
+			// avoid duplicates in the targetedPeersSet
 			for _, peer := range routeTargetPeers {
 				if !targetedPeersSet[peer] {
 					targetedPeersSet[peer] = true
