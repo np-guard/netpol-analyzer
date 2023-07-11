@@ -75,6 +75,7 @@ const (
 	missingSelectorError = "error : K8s Service without selectors is not supported"
 )
 
+// this function populates servicesToPeersMap
 func (ia *IngressAnalyzer) mapServiceToPeers(svc *corev1.Service) error {
 	// get peers selected by the service selctors
 	peers, err := ia.getServicePeers(svc)
