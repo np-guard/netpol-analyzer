@@ -13,9 +13,7 @@
 // limitations under the License.
 package k8s
 
-import (
-	"k8s.io/apimachinery/pkg/types"
-)
+import "k8s.io/apimachinery/pkg/types"
 
 // PeerType is a type to indicate the type of a Peer object (Pod or IP address)
 type PeerType int
