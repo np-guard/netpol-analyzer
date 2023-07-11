@@ -139,7 +139,7 @@ func getRouteServices(rt *ocroutev1.Route) ([]string, error) {
 		return nil, errors.New(scan.Route + " " + routeStr + ": " + routeBackendsErr)
 	}
 
-	targetSvcs := make([]string, len(rt.Spec.AlternateBackends)+1)
+	targetServices := make([]string, len(rt.Spec.AlternateBackends)+1)
 	targetSvcs[0] = rt.Spec.To.Name
 	for i, backend := range rt.Spec.AlternateBackends {
 		if backend.Kind != "" && backend.Kind != allowedTargetKind {
