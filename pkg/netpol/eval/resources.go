@@ -8,6 +8,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 
@@ -320,4 +321,29 @@ func (pe *PolicyEngine) getDisjointIPBlocks() ([]*k8s.IPBlock, error) {
 	newAll, _ := k8s.NewIPBlock("0.0.0.0/0", []string{})
 	disjointRes := k8s.DisjointIPBlocks(ipbList, []*k8s.IPBlock{newAll})
 	return disjointRes, nil
+}
+
+// GetSelectedPeers returns list of peers in the given namespace which match the given labels selector
+func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace string) ([]Peer, error) {
+	res := make([]Peer, 0)
+	peers, err := pe.GetPeersList()
+	if err != nil {
+		return nil, err
+	}
+	for _, peer := range peers {
+		if peer.IsPeerIPType() {
+			continue
+		}
+		podPeer, err := pe.ConvertWorkloadPeerToPodPeer(peer)
+		if err != nil {
+			return nil, err
+		}
+		if podPeer.Namespace() != namespace {
+			continue
+		}
+		if selectors.Matches(labels.Set(podPeer.Pod.Labels)) {
+			res = append(res, peer)
+		}
+	}
+	return res, nil
 }

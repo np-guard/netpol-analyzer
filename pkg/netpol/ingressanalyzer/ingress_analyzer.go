@@ -28,7 +28,8 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
-// IngressAnalyzer provides API to analyze Ingress/Route resources, to allow inferring potential connectivity from ingress-controller to pods in the cluster
+// IngressAnalyzer provides API to analyze Ingress/Route resources, to allow inferring potential connectivity
+// from ingress-controller to pods in the cluster
 type IngressAnalyzer struct {
 	logger logger.Logger
 	pe     *eval.PolicyEngine // a struct type that includes the podsMap and
@@ -37,21 +38,15 @@ type IngressAnalyzer struct {
 	routesToServicesMap map[string]map[string][]string    // map from namespace to map from route name to its target service names
 }
 
-// NewIngressAnalyzer returns a new IngressAnalyzer with an empty initial state
-func NewIngressAnalyzer() *IngressAnalyzer {
-	return &IngressAnalyzer{
-		logger:              logger.NewDefaultLogger(),
-		pe:                  eval.NewPolicyEngine(),
-		servicesToPeersMap:  make(map[string]map[string][]eval.Peer),
-		routesToServicesMap: make(map[string]map[string][]string),
-	}
-}
-
 // NewIngressAnalyzerWithObjects returns a new IngressAnalyzer with relevant objects
 func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngine, l logger.Logger) (*IngressAnalyzer, error) {
-	ia := NewIngressAnalyzer()
-	ia.logger = l
-	ia.pe = pe
+	ia := &IngressAnalyzer{
+		servicesToPeersMap:  make(map[string]map[string][]eval.Peer),
+		routesToServicesMap: make(map[string]map[string][]string),
+		logger:              l,
+		pe:                  pe,
+	}
+
 	var err error
 	for _, obj := range objects {
 		switch obj.Kind {
@@ -98,27 +93,7 @@ func (ia *IngressAnalyzer) getServicePeers(svc *corev1.Service) ([]eval.Peer, er
 	if err != nil {
 		return nil, err
 	}
-	res := make([]eval.Peer, 0)
-	peers, err := ia.pe.GetPeersList()
-	if err != nil {
-		return nil, err
-	}
-	for _, peer := range peers {
-		if peer.IsPeerIPType() {
-			continue
-		}
-		podPeer, err := ia.pe.ConvertWorkloadPeerToPodPeer(peer)
-		if err != nil {
-			return nil, err
-		}
-		if podPeer.Namespace() != svc.Namespace {
-			continue
-		}
-		if svcLabelsSelector.Matches(labels.Set(podPeer.Pod.Labels)) {
-			res = append(res, peer)
-		}
-	}
-	return res, nil
+	return pe.GetSelectedPeers(svcLabelsSelector, svc.Namespace)
 }
 
 // utility func
