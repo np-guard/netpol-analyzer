@@ -34,7 +34,7 @@ type IngressAnalyzer struct {
 	pe     *eval.PolicyEngine // a struct type that includes the podsMap and
 	// some functionality on pods and namespaces which is required for ingress analyzing
 	servicesToPeersMap  map[string]map[string][]eval.Peer // map from namespace to map from service name to its selected workloads
-	routesToServicesMap map[string]map[string][]string    // map from namespace to map from route name to its target services names
+	routesToServicesMap map[string]map[string][]string    // map from namespace to map from route name to its target service names
 }
 
 // NewIngressAnalyzer returns a new IngressAnalyzer with an empty initial state
