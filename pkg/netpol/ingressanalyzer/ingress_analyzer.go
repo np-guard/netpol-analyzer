@@ -68,7 +68,7 @@ func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngi
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-// services analyze
+// services analysis
 
 const (
 	selectorError        = "selector conversion error"
