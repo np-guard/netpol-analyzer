@@ -149,13 +149,14 @@ func getRouteServices(rt *ocroutev1.Route) ([]string, error) {
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Ingress allowed connections
 
-// AllowedIngressConnections returns a map of the possible connections from ingress-controller pod to workload peers, as inferred from Ingress and Route resources. The map is from a workload name to its connection object.
+// AllowedIngressConnections returns a map of the possible connections from ingress-controller pod to workload peers,
+// as inferred from Ingress and Route resources. The map is from a workload name to its connection object.
 func (ia *IngressAnalyzer) AllowedIngressConnections() map[string]eval.Connection {
 	// if there is at least one route/ ingress object that targets a service which selects a dst peer,
 	// then we have ingress connections to that peer
 
-	// get all targeted workload peers
-	targetedPeersSet := make(map[eval.Peer]bool, 0)
+	// get all targeted workload peers and compute allowed conns of each workload peer
+	res := make(map[string]eval.Connection)
 	for ns, rtSvcMap := range ia.routesToServicesMap {
 		// if there are no services in same namespace of the route, the routes in this ns will be skipped
 		if _, ok := ia.servicesToPeersMap[ns]; !ok {
@@ -164,21 +165,16 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() map[string]eval.Connectio
 
 		for _, svcList := range rtSvcMap {
 			routeTargetPeers := ia.getRouteTargetedPeers(ns, svcList)
-			// avoid duplicates in the targetedPeersSet
+			// avoid duplicates in the result
 			for _, peer := range routeTargetPeers {
-				if !targetedPeersSet[peer] {
-					targetedPeersSet[peer] = true
+				peerStr := types.NamespacedName{Name: peer.Name(), Namespace: peer.Namespace()}.String()
+				if _, ok := res[peerStr]; !ok {
+					res[peerStr] = ia.pe.AllowedConnectionsToPeer(peer)
 				}
 			}
 		}
 	}
 
-	// compute allowed conns of each peer pod
-	res := make(map[string]eval.Connection)
-	for peer := range targetedPeersSet {
-		peerStr := types.NamespacedName{Name: peer.Name(), Namespace: peer.Namespace()}.String()
-		res[peerStr] = ia.pe.AllowedConnectionsToPeer(peer)
-	}
 	return res
 }
 
