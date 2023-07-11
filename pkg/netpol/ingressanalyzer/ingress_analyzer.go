@@ -97,7 +97,7 @@ func (ia *IngressAnalyzer) getServicePeers(svc *corev1.Service) ([]eval.Peer, er
 }
 
 // utility func
-func convertServiceSelctorToLabelSelector(svcSelect map[string]string, svcStr string) (labels.Selector, error) {
+func convertServiceSelectorToLabelSelector(svcSelector map[string]string, svcStr string) (labels.Selector, error) {
 	labelsSelector := metav1.LabelSelector{MatchLabels: svcSelect}
 	selectorRes, err := metav1.LabelSelectorAsSelector(&labelsSelector)
 	if err != nil {
