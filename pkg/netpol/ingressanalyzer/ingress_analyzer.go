@@ -93,7 +93,7 @@ func (ia *IngressAnalyzer) getServicePeers(svc *corev1.Service) ([]eval.Peer, er
 	if err != nil {
 		return nil, err
 	}
-	return ia.pe.GetSelectedPeers(svcLabelsSelector, svc.Namespace)
+	return ia.pe.GetSelectedPeers(svcLabelsSelector, svc.Namespace), nil
 }
 
 // utility func

@@ -324,22 +324,15 @@ func (pe *PolicyEngine) getDisjointIPBlocks() ([]*k8s.IPBlock, error) {
 }
 
 // GetSelectedPeers returns list of peers in the given namespace which match the given labels selector
-func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace string) ([]Peer, error) {
+func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace string) []Peer {
 	res := make([]Peer, 0)
-	peers, err := pe.GetPeersList()
-	if err != nil {
-		return nil, err
-	}
-	for _, peer := range peers {
-		if peer.IsPeerIPType() {
+	for _, pod := range pe.podsMap {
+		if pod.Namespace != namespace {
 			continue
 		}
-		if peer.Namespace() != namespace {
-			continue
-		}
-		if selectors.Matches(labels.Set(peer.(*k8s.WorkloadPeer).Pod.Labels)) {
-			res = append(res, peer)
+		if selectors.Matches(labels.Set(pod.Labels)) {
+			res = append(res, &k8s.WorkloadPeer{Pod: pod})
 		}
 	}
-	return res, nil
+	return res
 }
