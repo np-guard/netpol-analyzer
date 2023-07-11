@@ -48,8 +48,8 @@ func (c *k8sConnectionSetWrapper) ConnectionSet() k8s.ConnectionSet {
 	return c.connectionSet
 }
 
-// GetConnectionObject converts an input k8s.ConnectionSet object to a connectionObj that implements Connection interface
-func GetConnectionObject(conn k8s.ConnectionSet) Connection {
+// convert an input k8s.ConnectionSet object to a connectionObj that implements Connection interface
+func getConnectionObject(conn k8s.ConnectionSet) Connection {
 	protocolsMap := conn.ProtocolsAndPortsMap()
 	res := &k8sConnectionSetWrapper{
 		protocolsAndPortsMap: make(map[v1.Protocol][]PortRange, len(protocolsMap)),

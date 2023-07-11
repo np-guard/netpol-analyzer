@@ -177,7 +177,7 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() map[string]eval.Connectio
 	res := make(map[string]eval.Connection)
 	for peer := range targetedPeersSet {
 		peerStr := types.NamespacedName{Name: peer.Name(), Namespace: peer.Namespace()}.String()
-		res[peerStr] = eval.GetConnectionObject(peer.GetAllowedConnectionsToPod())
+		res[peerStr] = ia.pe.AllowedConnectionsToPeer(peer)
 	}
 	return res
 }

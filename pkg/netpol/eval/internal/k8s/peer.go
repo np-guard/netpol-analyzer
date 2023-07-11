@@ -91,10 +91,6 @@ func (p *WorkloadPeer) IsPeerIPType() bool {
 	return false
 }
 
-func (p *WorkloadPeer) GetAllowedConnectionsToPod() ConnectionSet {
-	return p.Pod.allowedConnectionsToPod()
-}
-
 ////////////////////////////////////////////////////
 
 func (p *PodPeer) PeerType() PeerType {
@@ -137,10 +133,6 @@ func (p *PodPeer) Kind() string {
 	return podKind
 }
 
-func (p *PodPeer) GetAllowedConnectionsToPod() ConnectionSet {
-	return p.Pod.allowedConnectionsToPod()
-}
-
 ////////////////////////////////////////////////////
 
 func (p *IPBlockPeer) PeerType() PeerType {
@@ -181,8 +173,4 @@ func (p *IPBlockPeer) IsPeerIPType() bool {
 
 func (p *IPBlockPeer) Kind() string {
 	return ""
-}
-
-func (p *IPBlockPeer) GetAllowedConnectionsToPod() ConnectionSet {
-	return ConnectionSet{}
 }
