@@ -110,7 +110,6 @@ func convertServiceSelectorToLabelSelector(svcSelector map[string]string, svcStr
 // routes analysis
 
 const (
-	maxBackendServices = 3
 	allowedTargetKind  = scan.Service
 	routeTargetKindErr = "target kind error"
 	routeBackendsErr   = "alternate backends error"
@@ -134,9 +133,6 @@ func getRouteServices(rt *ocroutev1.Route) ([]string, error) {
 	// Currently, only 'Service' is allowed as the kind of target that the route is referring to.
 	if rt.Spec.To.Kind != "" && rt.Spec.To.Kind != allowedTargetKind {
 		return nil, errors.New(scan.Route + " " + routeStr + ": " + routeTargetKindErr)
-	}
-	if len(rt.Spec.AlternateBackends) > maxBackendServices {
-		return nil, errors.New(scan.Route + " " + routeStr + ": " + routeBackendsErr)
 	}
 
 	targetServices := make([]string, len(rt.Spec.AlternateBackends)+1)
