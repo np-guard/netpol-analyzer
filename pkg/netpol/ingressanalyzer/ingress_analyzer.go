@@ -154,7 +154,7 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() map[string]eval.Connectio
 	// if there is at least one route/ ingress object that targets a service which selects a dst peer,
 	// then we have ingress connections to that peer
 
-	// get all targeted peer pods
+	// get all targeted workload peers
 	targetedPeersSet := make(map[eval.Peer]bool, 0)
 	for ns, rtSvcMap := range ia.routesToServicesMap {
 		// if there are no services in same namespace of the route, the routes in this ns will be skipped
