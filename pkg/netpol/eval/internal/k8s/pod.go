@@ -212,7 +212,7 @@ func getFakePodIP() string {
 	return scan.IPv4LoopbackAddr
 }
 
-func (pod *Pod) AllowedConnectionsToPod() ConnectionSet {
+func (pod *Pod) PodExposedProtocolsAndPorts() ConnectionSet {
 	res := MakeConnectionSet(false)
 	for _, cPort := range pod.Ports {
 		protocol := corev1.ProtocolTCP

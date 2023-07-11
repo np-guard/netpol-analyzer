@@ -169,7 +169,7 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() map[string]eval.Connectio
 			for _, peer := range routeTargetPeers {
 				peerStr := types.NamespacedName{Name: peer.Name(), Namespace: peer.Namespace()}.String()
 				if _, ok := res[peerStr]; !ok {
-					res[peerStr] = ia.pe.AllowedConnectionsToPeer(peer)
+					res[peerStr] = ia.pe.GetPeerExposedProtocolsAndPorts(peer)
 				}
 			}
 		}

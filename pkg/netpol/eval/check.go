@@ -351,11 +351,16 @@ func (pe *PolicyEngine) allAllowedConnections(src, dst string) (k8s.ConnectionSe
 	return allowedConns.(*k8sConnectionSetWrapper).ConnectionSet(), err
 }
 
-// AllowedConnectionsToPeer returns the allowed connections to a workload peer
-func (pe *PolicyEngine) AllowedConnectionsToPeer(peer Peer) Connection {
-	workload, ok := peer.(*k8s.WorkloadPeer)
-	if !ok {
+// GetPeerExposedProtocolsAndPorts returns the protocols and ports connections to a workload peer
+func (pe *PolicyEngine) GetPeerExposedProtocolsAndPorts(peer Peer) Connection {
+	switch currPeer := peer.(type) {
+	case *k8s.IPBlockPeer:
+		return nil
+	case *k8s.WorkloadPeer:
+		return getConnectionObject(currPeer.Pod.PodExposedProtocolsAndPorts())
+	case *k8s.PodPeer:
+		return getConnectionObject(currPeer.Pod.PodExposedProtocolsAndPorts())
+	default:
 		return nil
 	}
-	return getConnectionObject(workload.Pod.AllowedConnectionsToPod())
 }
