@@ -351,7 +351,7 @@ func (pe *PolicyEngine) allAllowedConnections(src, dst string) (k8s.ConnectionSe
 	return allowedConns.(*k8sConnectionSetWrapper).ConnectionSet(), err
 }
 
-// GetPeerExposedProtocolsAndPorts returns the protocols and ports connections to a workload peer
+// GetPeerExposedProtocolsAndPorts returns the protocols and ports exposed by a workload/pod peer
 func (pe *PolicyEngine) GetPeerExposedProtocolsAndPorts(peer Peer) Connection {
 	switch currPeer := peer.(type) {
 	case *k8s.IPBlockPeer:
