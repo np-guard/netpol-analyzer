@@ -328,7 +328,7 @@ func (pe *PolicyEngine) getDisjointIPBlocks() ([]*k8s.IPBlock, error) {
 	return disjointRes, nil
 }
 
-// GetSelectedPeers returns list of peers in the given namespace which match the given labels selector
+// GetSelectedPeers returns list of workload peers in the given namespace which match the given labels selector
 func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace string) []Peer {
 	res := make([]Peer, 0)
 	for _, peer := range pe.createPodOwnersMap() {
