@@ -23,7 +23,6 @@ type (
 		namspacesMap map[string]*k8s.Namespace                // map from ns name to ns object
 		podsMap      map[string]*k8s.Pod                      // map from pod name to pod object
 		netpolsMap   map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
-		servicesMap  map[string]map[string]*k8s.Service       // map from namespace to map from service name to its object
 		cache        *evalCache
 	}
 
@@ -43,7 +42,6 @@ func NewPolicyEngine() *PolicyEngine {
 		namspacesMap: make(map[string]*k8s.Namespace),
 		podsMap:      make(map[string]*k8s.Pod),
 		netpolsMap:   make(map[string]map[string]*k8s.NetworkPolicy),
-		servicesMap:  make(map[string]map[string]*k8s.Service),
 		cache:        newEvalCache(),
 	}
 }
@@ -74,7 +72,9 @@ func NewPolicyEngineWithObjects(objects []scan.K8sObject) (*PolicyEngine, error)
 		case scan.CronJob:
 			err = pe.UpsertObject(obj.CronJob)
 		case scan.Service:
-			err = pe.UpsertObject(obj.Service)
+			continue
+		case scan.Route:
+			continue
 		default:
 			err = fmt.Errorf("unsupported kind: %s", obj.Kind)
 		}
@@ -147,9 +147,6 @@ func (pe *PolicyEngine) UpsertObject(rtobj runtime.Object) error {
 	// netpol object
 	case *netv1.NetworkPolicy:
 		return pe.upsertNetworkPolicy(obj)
-	// service object
-	case *corev1.Service:
-		return pe.upsertService(obj)
 	// workload object
 	case *appsv1.ReplicaSet:
 		return pe.upsertWorkload(obj, scan.ReplicaSet)
@@ -178,8 +175,6 @@ func (pe *PolicyEngine) DeleteObject(rtobj runtime.Object) error {
 		return pe.deletePod(obj)
 	case *netv1.NetworkPolicy:
 		return pe.deleteNetworkPolicy(obj)
-	case *corev1.Service:
-		return pe.deleteService(obj)
 	}
 	return nil
 }
@@ -189,7 +184,6 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.namspacesMap = make(map[string]*k8s.Namespace)
 	pe.podsMap = make(map[string]*k8s.Pod)
 	pe.netpolsMap = make(map[string]map[string]*k8s.NetworkPolicy)
-	pe.servicesMap = make(map[string]map[string]*k8s.Service)
 	pe.cache = newEvalCache()
 }
 
@@ -244,18 +238,6 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 	return nil
 }
 
-func (pe *PolicyEngine) upsertService(svc *corev1.Service) error {
-	svcObj, err := k8s.ServiceFromCoreObject(svc)
-	if err != nil {
-		return err
-	}
-	if _, ok := pe.servicesMap[svcObj.Namespace]; !ok {
-		pe.servicesMap[svcObj.Namespace] = make(map[string]*k8s.Service)
-	}
-	pe.servicesMap[svcObj.Namespace][svcObj.Name] = svcObj
-	return nil
-}
-
 func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
 	delete(pe.namspacesMap, ns.Name)
 	return nil
@@ -286,16 +268,6 @@ func (pe *PolicyEngine) deleteNetworkPolicy(np *netv1.NetworkPolicy) error {
 	return nil
 }
 
-func (pe *PolicyEngine) deleteService(svc *corev1.Service) error {
-	if svcMap, ok := pe.servicesMap[svc.Namespace]; ok {
-		delete(svcMap, svc.Name)
-		if len(svcMap) == 0 {
-			delete(pe.servicesMap, svc.Namespace)
-		}
-	}
-	return nil
-}
-
 // GetPodsMap: return map of pods within PolicyEngine
 func (pe *PolicyEngine) GetPodsMap() map[string]*k8s.Pod {
 	return pe.podsMap
@@ -305,15 +277,20 @@ func (pe *PolicyEngine) HasPodPeers() bool {
 	return len(pe.podsMap) > 0
 }
 
+// createPodOwnersMap creates map from workload str to workload peer object
+func (pe *PolicyEngine) createPodOwnersMap() map[string]Peer {
+	res := make(map[string]Peer, 0)
+	for _, pod := range pe.podsMap {
+		workload := &k8s.WorkloadPeer{Pod: pod}
+		res[workload.String()] = workload
+	}
+	return res
+}
+
 // GetPeersList returns a slice of peers from all PolicyEngine resources
 // get peers in level of workloads (pod owners) of type WorkloadPeer, and ip-blocks
 func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
-	// create map from workload str to workload peer object
-	podOwnersMap := make(map[string]Peer, 0)
-	for _, pod := range pe.podsMap {
-		workload := &k8s.WorkloadPeer{Pod: pod}
-		podOwnersMap[workload.String()] = workload
-	}
+	podOwnersMap := pe.createPodOwnersMap()
 
 	ipBlocks, err := pe.getDisjointIPBlocks()
 	if err != nil {
@@ -351,32 +328,16 @@ func (pe *PolicyEngine) getDisjointIPBlocks() ([]*k8s.IPBlock, error) {
 	return disjointRes, nil
 }
 
-func (pe *PolicyEngine) getServicePods(svcName, svcNamespace string) ([]*k8s.Pod, error) {
-	svc := pe.getServiceFromServiceNameAndNamespace(svcName, svcNamespace)
-	// todo: should return error if the service not found?
-	if svc == nil {
-		svcStr := types.NamespacedName{Namespace: svcNamespace, Name: svcName}
-		return nil, fmt.Errorf("service does not exist: %s", svcStr)
-	}
-	svcLabelsSelect, err := svc.ServicSelectorsAsLabelSelector()
-	if err != nil {
-		return nil, err
-	}
-	res := make([]*k8s.Pod, 0)
-	for _, pod := range pe.podsMap {
-		if pod.Namespace != svcNamespace {
+// GetSelectedPeers returns list of workload peers in the given namespace which match the given labels selector
+func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace string) []Peer {
+	res := make([]Peer, 0)
+	for _, peer := range pe.createPodOwnersMap() {
+		if peer.Namespace() != namespace {
 			continue
 		}
-		if svcLabelsSelect.Matches(labels.Set(pod.Labels)) {
-			res = append(res, pod)
+		if selectors.Matches(labels.Set(peer.(*k8s.WorkloadPeer).Pod.Labels)) {
+			res = append(res, peer)
 		}
 	}
-	return res, nil
-}
-
-func (pe *PolicyEngine) getServiceFromServiceNameAndNamespace(svcName, svcNamespace string) *k8s.Service {
-	if svcMap, ok := pe.servicesMap[svcNamespace]; ok {
-		return svcMap[svcName]
-	}
-	return nil
+	return res
 }
