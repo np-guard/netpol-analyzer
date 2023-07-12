@@ -37,48 +37,103 @@ func TestIngressAnalyzerWithRoutes(t *testing.T) {
 }
 
 type ingressToPod struct {
-	podName        string
-	podNamespace   string
+	peerName       string
+	peerNamespace  string
 	allConnections bool
 	port           int64
 	protocol       string
 }
 
+type testEntry struct {
+	dirpath            string
+	processingErrs     int
+	testIngressEntries []ingressToPod
+}
+
 func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
-	testingEntries := []ingressToPod{
+	testingEntries := []testEntry{
 		{
-			podName:        "asset-cache",
-			podNamespace:   "frontend",
-			allConnections: false,
-			port:           8080,
-			protocol:       "TCP",
+			dirpath:        "acs_security_frontend_demos",
+			processingErrs: 0,
+			testIngressEntries: []ingressToPod{
+				{
+					peerName:       "asset-cache",
+					peerNamespace:  "frontend",
+					allConnections: false,
+					port:           8080,
+					protocol:       "TCP",
+				},
+				{
+					peerName:       "webapp",
+					peerNamespace:  "frontend",
+					allConnections: false,
+					port:           8080,
+					protocol:       "TCP",
+				},
+			},
 		},
 		{
-			podName:        "webapp",
-			podNamespace:   "frontend",
-			allConnections: false,
-			port:           8080,
-			protocol:       "TCP",
+			dirpath:        "k8s_ingress_test",
+			processingErrs: 1, // no network-policies
+			testIngressEntries: []ingressToPod{
+				{
+					peerName:       "details-v1-79f774bdb9",
+					peerNamespace:  "default",
+					allConnections: false,
+					port:           9080,
+					protocol:       "TCP",
+				},
+			},
+		},
+		{
+			dirpath:        "demo_app_with_routes_and_ingress",
+			processingErrs: 1, // no network-policies
+			testIngressEntries: []ingressToPod{
+				{
+					peerName:       "hello-world", // this workload is selected by both Ingress and Route objects
+					peerNamespace:  "helloworld",
+					allConnections: false,
+					port:           8000,
+					protocol:       "TCP",
+				},
+				{
+					peerName:       "ingress-world", // this workload is selected by Ingress object only
+					peerNamespace:  "ingressworld",
+					allConnections: false,
+					port:           8090,
+					protocol:       "TCP",
+				},
+				{
+					peerName:       "route-world", // this workload is selected by route object only
+					peerNamespace:  "routeworld",
+					allConnections: false,
+					port:           8060,
+					protocol:       "TCP",
+				},
+			},
 		},
 	}
-	path := filepath.Join(testutils.GetTestsDir(), "acs_security_frontend_demos")
-	objects, processingErrs := scanner.FilesToObjectsList(path)
-	require.Empty(t, processingErrs)
-	pe, err := eval.NewPolicyEngineWithObjects(objects)
-	require.Empty(t, err)
-	ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger())
-	require.Empty(t, err)
-	ingressConns := ia.AllowedIngressConnections()
-	require.Empty(t, err)
-	for _, entry := range testingEntries {
-		peerStr := types.NamespacedName{Name: entry.podName, Namespace: entry.podNamespace}.String()
-		require.Contains(t, ingressConns, peerStr)
-		conn := ingressConns[peerStr]
-		require.Equal(t, conn.AllConnections(), entry.allConnections)
-		if !conn.AllConnections() {
-			require.Contains(t, conn.ProtocolsAndPortsMap(), v1.Protocol(entry.protocol))
-			connPortRange := conn.ProtocolsAndPortsMap()[v1.Protocol(entry.protocol)]
-			require.Equal(t, connPortRange[0].Start(), entry.port)
+
+	for _, testEntry := range testingEntries {
+		path := filepath.Join(testutils.GetTestsDir(), testEntry.dirpath)
+		objects, processingErrs := scanner.FilesToObjectsList(path)
+		require.Len(t, processingErrs, testEntry.processingErrs)
+		pe, err := eval.NewPolicyEngineWithObjects(objects)
+		require.Empty(t, err)
+		ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger())
+		require.Empty(t, err)
+		ingressConns := ia.AllowedIngressConnections()
+		require.Empty(t, err)
+		for _, ingressEentry := range testEntry.testIngressEntries {
+			peerStr := types.NamespacedName{Name: ingressEentry.peerName, Namespace: ingressEentry.peerNamespace}.String()
+			require.Contains(t, ingressConns, peerStr)
+			conn := ingressConns[peerStr]
+			require.Equal(t, conn.AllConnections(), ingressEentry.allConnections)
+			if !conn.AllConnections() {
+				require.Contains(t, conn.ProtocolsAndPortsMap(), v1.Protocol(ingressEentry.protocol))
+				connPortRange := conn.ProtocolsAndPortsMap()[v1.Protocol(ingressEentry.protocol)]
+				require.Equal(t, connPortRange[0].Start(), ingressEentry.port)
+			}
 		}
 	}
 }

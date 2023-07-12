@@ -71,9 +71,7 @@ func NewPolicyEngineWithObjects(objects []scan.K8sObject) (*PolicyEngine, error)
 			err = pe.UpsertObject(obj.Job)
 		case scan.CronJob:
 			err = pe.UpsertObject(obj.CronJob)
-		case scan.Service:
-			continue
-		case scan.Route:
+		case scan.Service, scan.Route, scan.Ingress:
 			continue
 		default:
 			err = fmt.Errorf("unsupported kind: %s", obj.Kind)
