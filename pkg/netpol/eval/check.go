@@ -23,6 +23,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 )
 
@@ -130,10 +131,10 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer) (Connection, error) {
 	srcK8sPeer := srcPeer.(k8s.Peer)
 	dstK8sPeer := dstPeer.(k8s.Peer)
-	res := k8s.ConnectionSet{}
+	res := common.ConnectionSet{}
 	// cases where any connection is always allowed
 	if isPodToItself(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(dstK8sPeer, srcK8sPeer) {
-		conn := k8s.MakeConnectionSet(true)
+		conn := common.MakeConnectionSet(true)
 		return getConnectionObject(conn), nil
 	}
 	// egress
@@ -230,37 +231,38 @@ func (pe *PolicyEngine) allowedXgressConnection(src, dst k8s.Peer, isIngress boo
 
 // allallowedXgressConnections returns the set of allowed connections from src to dst on given
 // direction(ingress/egress), by network policies rules
-func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress bool) (k8s.ConnectionSet, error) {
+func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress bool) (common.ConnectionSet, error) {
 	// relevant policies: policies that capture dst if isIngress, else policies that capture src
 	var err error
 	var netpols []*k8s.NetworkPolicy
 	if isIngress {
 		if dst.PeerType() == k8s.IPBlockType {
-			return k8s.MakeConnectionSet(true), nil // all connections allowed - no restrictions on ingress to externalIP
+			return common.MakeConnectionSet(true), nil // all connections allowed - no restrictions on ingress to externalIP
 		}
 		netpols, err = pe.getPoliciesSelectingPod(dst.GetPeerPod(), netv1.PolicyTypeIngress)
 	} else {
 		if src.PeerType() == k8s.IPBlockType {
-			return k8s.MakeConnectionSet(true), nil // all connections allowed - no restrictions on egress from externalIP
+			return common.MakeConnectionSet(true), nil // all connections allowed - no restrictions on egress from externalIP
 		}
 		netpols, err = pe.getPoliciesSelectingPod(src.GetPeerPod(), netv1.PolicyTypeEgress)
 	}
 	if err != nil {
-		return k8s.ConnectionSet{}, err
+		return common.ConnectionSet{}, err
 	}
 
 	if len(netpols) == 0 {
-		return k8s.MakeConnectionSet(true), nil // all connections allowed - no networkpolicy captures the relevant pod on the required direction
+		return common.MakeConnectionSet(true), nil // all connections allowed - no networkpolicy captures the relevant pod
+		// on the required direction
 	}
 
-	allowedConns := k8s.MakeConnectionSet(false)
+	allowedConns := common.MakeConnectionSet(false)
 
 	// iterate relevant network policies (that capture the required pod)
 	for _, policy := range netpols {
 		// if isIngress: check for ingress rules that capture src within 'from'
 		// if not isIngress: check for egress rules that capture dst within 'to'
 		// collect the allowed connectivity from the relevant rules into allowedConns
-		var policyAllowedConnectionsPerDirection k8s.ConnectionSet
+		var policyAllowedConnectionsPerDirection common.ConnectionSet
 		var err error
 		if isIngress {
 			policyAllowedConnectionsPerDirection, err = policy.GetIngressAllowedConns(src, dst)
@@ -337,8 +339,8 @@ func (pe *PolicyEngine) checkIfAllowedNew(src, dst, protocol, port string) (bool
 
 // allAllowedConnections: returns allowed connection between input strings of src and dst
 // currently used only for testing
-func (pe *PolicyEngine) allAllowedConnections(src, dst string) (k8s.ConnectionSet, error) {
-	res := k8s.ConnectionSet{}
+func (pe *PolicyEngine) allAllowedConnections(src, dst string) (common.ConnectionSet, error) {
+	res := common.ConnectionSet{}
 	srcPeer, err := pe.getPeer(src)
 	if err != nil {
 		return res, err
@@ -348,7 +350,7 @@ func (pe *PolicyEngine) allAllowedConnections(src, dst string) (k8s.ConnectionSe
 		return res, err
 	}
 	allowedConns, err := pe.allAllowedConnectionsBetweenPeers(srcPeer.(Peer), dstPeer.(Peer))
-	return allowedConns.(*k8sConnectionSetWrapper).ConnectionSet(), err
+	return allowedConns.(*connectionSetWrapper).ConnectionSet(), err
 }
 
 // GetPeerExposedProtocolsAndPorts returns the protocols and ports exposed by a workload/pod peer

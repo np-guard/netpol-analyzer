@@ -18,7 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/yaml"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
@@ -1697,7 +1697,7 @@ func connectionsString(pe *PolicyEngine, srcPod, dstPod, protocol, port string, 
 	var allowedConnectionsStr string
 	var err error
 	if allConnections {
-		var allowedConnections k8s.ConnectionSet
+		var allowedConnections common.ConnectionSet
 		allowedConnections, err = pe.allAllowedConnections(srcPod, dstPod)
 		if err == nil {
 			allowedConnectionsStr = allowedConnections.String()
