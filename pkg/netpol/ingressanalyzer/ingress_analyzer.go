@@ -58,7 +58,7 @@ func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngi
 		case scan.Service:
 			err = ia.mapServiceToPeers(obj.Service)
 		case scan.Route:
-			err = ia.mapRouteToServices(obj.Route)
+			ia.mapRouteToServices(obj.Route)
 		case scan.Ingress:
 			ia.mapk8sIngressToServices(obj.Ingress)
 		}
@@ -117,40 +117,39 @@ func convertServiceSelectorToLabelSelector(svcSelector map[string]string, svcStr
 // routes analysis
 
 const (
-	allowedTargetKind  = scan.Service
-	routeTargetKindErr = "target kind error"
-	routeBackendsErr   = "alternate backends error"
+	allowedTargetKind      = scan.Service
+	routeTargetKindWarning = "ignoring target with unsupported kind"
+	routeBackendsWarning   = "ignoring alternate backend without Service "
 )
 
 // this function populates routesToServicesMap
-func (ia *IngressAnalyzer) mapRouteToServices(rt *ocroutev1.Route) error {
-	services, err := getRouteServices(rt)
-	if err != nil {
-		return err
-	}
+func (ia *IngressAnalyzer) mapRouteToServices(rt *ocroutev1.Route) {
+	services := ia.getRouteServices(rt)
+
 	if _, ok := ia.routesToServicesMap[rt.Namespace]; !ok {
 		ia.routesToServicesMap[rt.Namespace] = make(map[string][]string)
 	}
 	ia.routesToServicesMap[rt.Namespace][rt.Name] = services
-	return nil
 }
 
-func getRouteServices(rt *ocroutev1.Route) ([]string, error) {
+func (ia *IngressAnalyzer) getRouteServices(rt *ocroutev1.Route) []string {
 	routeStr := types.NamespacedName{Namespace: rt.Namespace, Name: rt.Name}.String()
+	targetServices := make([]string, len(rt.Spec.AlternateBackends)+1)
 	// Currently, only 'Service' is allowed as the kind of target that the route is referring to.
 	if rt.Spec.To.Kind != "" && rt.Spec.To.Kind != allowedTargetKind {
-		return nil, errors.New(scan.Route + " " + routeStr + ": " + routeTargetKindErr)
+		ia.logger.Warnf(scan.Route + " " + routeStr + ": " + routeTargetKindWarning)
+	} else {
+		targetServices[0] = rt.Spec.To.Name
 	}
 
-	targetServices := make([]string, len(rt.Spec.AlternateBackends)+1)
-	targetServices[0] = rt.Spec.To.Name
 	for i, backend := range rt.Spec.AlternateBackends {
 		if backend.Kind != "" && backend.Kind != allowedTargetKind {
-			return nil, errors.New(scan.Route + " " + routeStr + ": " + routeBackendsErr)
+			ia.logger.Warnf(scan.Route + " " + routeStr + ": " + routeBackendsWarning)
+		} else {
+			targetServices[i+1] = backend.Name
 		}
-		targetServices[i+1] = backend.Name
 	}
-	return targetServices, nil
+	return targetServices
 }
 
 // ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,7 +177,7 @@ func (ia *IngressAnalyzer) getk8sIngressServices(ing *netv1.Ingress) []string {
 		if ing.Spec.DefaultBackend.Service == nil {
 			ia.logger.Warnf(scan.Ingress + " " + ingressStr + ": " + defaultBackendWarning)
 		} else {
-			backendServices[0] = ing.Spec.DefaultBackend.Service.Name
+			backendServices = append(backendServices, ing.Spec.DefaultBackend.Service.Name)
 		}
 	}
 	// add service names from the Ingress rules
