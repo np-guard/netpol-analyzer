@@ -1697,7 +1697,7 @@ func connectionsString(pe *PolicyEngine, srcPod, dstPod, protocol, port string, 
 	var allowedConnectionsStr string
 	var err error
 	if allConnections {
-		var allowedConnections common.ConnectionSet
+		var allowedConnections *common.ConnectionSet
 		allowedConnections, err = pe.allAllowedConnections(srcPod, dstPod)
 		if err == nil {
 			allowedConnectionsStr = allowedConnections.String()

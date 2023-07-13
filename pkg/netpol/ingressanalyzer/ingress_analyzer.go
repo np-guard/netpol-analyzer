@@ -23,6 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
@@ -151,12 +152,12 @@ func getRouteServices(rt *ocroutev1.Route) ([]string, error) {
 
 // AllowedIngressConnections returns a map of the possible connections from ingress-controller pod to workload peers,
 // as inferred from Ingress and Route resources. The map is from a workload name to its connection object.
-func (ia *IngressAnalyzer) AllowedIngressConnections() map[string]eval.Connection {
+func (ia *IngressAnalyzer) AllowedIngressConnections() map[string]common.Connection {
 	// if there is at least one route/ ingress object that targets a service which selects a dst peer,
 	// then we have ingress connections to that peer
 
 	// get all targeted workload peers and compute allowed conns of each workload peer
-	res := make(map[string]eval.Connection)
+	res := make(map[string]common.Connection)
 	for ns, rtSvcMap := range ia.routesToServicesMap {
 		// if there are no services in same namespace of the route, the routes in this ns will be skipped
 		if _, ok := ia.servicesToPeersMap[ns]; !ok {
