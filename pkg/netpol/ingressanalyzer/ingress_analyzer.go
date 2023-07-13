@@ -156,8 +156,13 @@ func getRouteServices(rt *ocroutev1.Route) ([]string, error) {
 // ///////////////////////////////////////////////////////////////////////////////////////////////
 // k8s Ingress objects analysis
 
+const (
+	defaultBackendWarning = "ignoring default backend"
+	ruleBackendWarning    = "ignoring rule backend without Service"
+)
+
 func (ia *IngressAnalyzer) mapk8sIngressToServices(ing *netv1.Ingress) {
-	services := getk8sIngressServices(ing)
+	services := ia.getk8sIngressServices(ing)
 
 	if _, ok := ia.k8sIngressToServicesMap[ing.Namespace]; !ok {
 		ia.k8sIngressToServicesMap[ing.Namespace] = make(map[string][]string)
@@ -165,18 +170,23 @@ func (ia *IngressAnalyzer) mapk8sIngressToServices(ing *netv1.Ingress) {
 	ia.k8sIngressToServicesMap[ing.Namespace][ing.Name] = services
 }
 
-func getk8sIngressServices(ing *netv1.Ingress) []string {
+func (ia *IngressAnalyzer) getk8sIngressServices(ing *netv1.Ingress) []string {
+	ingressStr := types.NamespacedName{Namespace: ing.Namespace, Name: ing.Name}.String()
 	backendServices := make([]string, 0)
 	// if DefaultBackend is provided add its service name to the result
 	if ing.Spec.DefaultBackend != nil {
-		if ing.Spec.DefaultBackend.Service != nil {
+		if ing.Spec.DefaultBackend.Service == nil {
+			ia.logger.Warnf(scan.Ingress + " " + ingressStr + ": " + defaultBackendWarning)
+		} else {
 			backendServices[0] = ing.Spec.DefaultBackend.Service.Name
 		}
 	}
 	// add service names from the Ingress rules
 	for _, rule := range ing.Spec.Rules {
 		for _, path := range rule.IngressRuleValue.HTTP.Paths {
-			if path.Backend.Service != nil {
+			if path.Backend.Service == nil {
+				ia.logger.Warnf(scan.Ingress + " " + ingressStr + ": " + ruleBackendWarning)
+			} else {
 				backendServices = append(backendServices, path.Backend.Service.Name)
 			}
 		}
