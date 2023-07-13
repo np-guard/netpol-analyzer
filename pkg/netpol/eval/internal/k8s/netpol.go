@@ -88,7 +88,7 @@ func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32,
 	return start, end, nil
 }
 
-func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) (common.ConnectionSet, error) {
+func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) (*common.ConnectionSet, error) {
 	if len(rulePorts) == 0 {
 		return common.MakeConnectionSet(true), nil // If this field is empty or missing, this rule matches all ports
 		// (traffic not restricted by port)
@@ -258,7 +258,7 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 }
 
 // GetEgressAllowedConns returns the set of allowed connetions from any captured pod to the destination peer
-func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (common.ConnectionSet, error) {
+func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
@@ -283,7 +283,7 @@ func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (common.ConnectionSet, 
 }
 
 // GetIngressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer
-func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (common.ConnectionSet, error) {
+func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From

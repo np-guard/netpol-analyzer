@@ -19,6 +19,7 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
@@ -284,7 +285,7 @@ type Peer2PeerConnection interface {
 	// AllProtocolsAndPorts returns true if all ports are allowed for all protocols
 	AllProtocolsAndPorts() bool
 	// ProtocolsAndPorts returns the set of allowed connections
-	ProtocolsAndPorts() map[v1.Protocol][]eval.PortRange
+	ProtocolsAndPorts() map[v1.Protocol][]common.PortRange
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -300,7 +301,7 @@ type connection struct {
 	src               eval.Peer
 	dst               eval.Peer
 	allConnections    bool
-	protocolsAndPorts map[v1.Protocol][]eval.PortRange
+	protocolsAndPorts map[v1.Protocol][]common.PortRange
 }
 
 func (c *connection) Src() eval.Peer {
@@ -312,7 +313,7 @@ func (c *connection) Dst() eval.Peer {
 func (c *connection) AllProtocolsAndPorts() bool {
 	return c.allConnections
 }
-func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]eval.PortRange {
+func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 	return c.protocolsAndPorts
 }
 
@@ -403,7 +404,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2Pe
 }
 
 // get string representation for a list of port ranges
-func portsString(ports []eval.PortRange) string {
+func portsString(ports []common.PortRange) string {
 	portsStr := make([]string, len(ports))
 	for i := range ports {
 		portsStr[i] = ports[i].String()
