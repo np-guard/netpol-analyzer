@@ -25,6 +25,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
@@ -212,14 +213,14 @@ func getFakePodIP() string {
 	return scan.IPv4LoopbackAddr
 }
 
-func (pod *Pod) PodExposedProtocolsAndPorts() ConnectionSet {
-	res := MakeConnectionSet(false)
+func (pod *Pod) PodExposedProtocolsAndPorts() *common.ConnectionSet {
+	res := common.MakeConnectionSet(false)
 	for _, cPort := range pod.Ports {
 		protocol := corev1.ProtocolTCP
 		if cPort.Protocol != "" {
 			protocol = cPort.Protocol
 		}
-		ports := PortSet{}
+		ports := common.PortSet{}
 		ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort))
 		res.AddConnection(protocol, ports)
 	}

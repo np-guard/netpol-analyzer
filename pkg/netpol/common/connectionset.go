@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package k8s
+package common
 
 import (
 	"fmt"
@@ -23,21 +23,22 @@ import (
 )
 
 // ConnectionSet represents a set of allowed connections between two peers on a k8s env
+// and implements Connection interface
 type ConnectionSet struct {
 	AllowAll         bool
 	AllowedProtocols map[v1.Protocol]*PortSet // map from protocol name to set of allowed ports
 }
 
-// MakeConnectionSet returns a ConnectionSet object with all connections or no connections
-func MakeConnectionSet(all bool) ConnectionSet {
+// MakeConnectionSet returns a pointer to ConnectionSet object with all connections or no connections
+func MakeConnectionSet(all bool) *ConnectionSet {
 	if all {
-		return ConnectionSet{AllowAll: true, AllowedProtocols: map[v1.Protocol]*PortSet{}}
+		return &ConnectionSet{AllowAll: true, AllowedProtocols: map[v1.Protocol]*PortSet{}}
 	}
-	return ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}}
+	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}}
 }
 
 // Intersection updates ConnectionSet object to be the intersection result with other ConnectionSet
-func (conn *ConnectionSet) Intersection(other ConnectionSet) {
+func (conn *ConnectionSet) Intersection(other *ConnectionSet) {
 	if other.AllowAll {
 		return
 	}
@@ -62,7 +63,6 @@ func (conn *ConnectionSet) Intersection(other ConnectionSet) {
 	}
 }
 
-// IsEmpty returns true if the ConnectionSet has no allowed connections
 func (conn *ConnectionSet) IsEmpty() bool {
 	return !conn.AllowAll && len(conn.AllowedProtocols) == 0
 }
@@ -92,7 +92,7 @@ func (conn *ConnectionSet) checkIfAllConnections() {
 }
 
 // Union updates ConnectionSet object to be the union result with other ConnectionSet
-func (conn *ConnectionSet) Union(other ConnectionSet) {
+func (conn *ConnectionSet) Union(other *ConnectionSet) {
 	if conn.AllowAll || other.IsEmpty() {
 		return
 	}
@@ -133,7 +133,7 @@ func (conn *ConnectionSet) Contains(port, protocol string) bool {
 }
 
 // ContainedIn returns true if current ConnectionSet is conatained in the input ConnectionSet object
-func (conn *ConnectionSet) ContainedIn(other ConnectionSet) bool {
+func (conn *ConnectionSet) ContainedIn(other *ConnectionSet) bool {
 	if other.AllowAll {
 		return true
 	}
@@ -181,7 +181,7 @@ func (conn *ConnectionSet) String() string {
 }
 
 // Equal returns true if the current ConnectionSet object is equal to the input object
-func (conn *ConnectionSet) Equal(other ConnectionSet) bool {
+func (conn *ConnectionSet) Equal(other *ConnectionSet) bool {
 	if conn.AllowAll != other.AllowAll {
 		return false
 	}
@@ -200,7 +200,7 @@ func (conn *ConnectionSet) Equal(other ConnectionSet) bool {
 	return true
 }
 
-// portRange implements the eval.PortRange interface
+// portRange implements the PortRange interface
 type portRange struct {
 	start int64
 	end   int64
@@ -221,11 +221,10 @@ func (p *portRange) String() string {
 	return fmt.Sprintf("%d", p.Start())
 }
 
-// ProtocolsAndPortsMap() returns a map from allowed protocol to list of allowed ports ranges.
-func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]*portRange {
-	res := map[v1.Protocol][]*portRange{}
+func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
+	res := make(map[v1.Protocol][]PortRange, 0)
 	for protocol, portSet := range conn.AllowedProtocols {
-		res[protocol] = []*portRange{}
+		res[protocol] = make([]PortRange, 0)
 		// TODO: consider leave the slice of ports empty if portSet covers the full range
 		for i := range portSet.Ports.IntervalSet {
 			startPort := portSet.Ports.IntervalSet[i].Start
@@ -235,4 +234,8 @@ func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]*portRange {
 		}
 	}
 	return res
+}
+
+func (conn *ConnectionSet) AllConnections() bool {
+	return conn.AllowAll
 }
