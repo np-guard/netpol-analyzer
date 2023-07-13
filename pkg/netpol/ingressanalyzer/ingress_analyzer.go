@@ -60,7 +60,7 @@ func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngi
 		case scan.Route:
 			err = ia.mapRouteToServices(obj.Route)
 		case scan.Ingress:
-			err = ia.mapk8sIngressToServices(obj.Ingress)
+			ia.mapk8sIngressToServices(obj.Ingress)
 		}
 		if err != nil {
 			return nil, err
@@ -156,44 +156,32 @@ func getRouteServices(rt *ocroutev1.Route) ([]string, error) {
 // ///////////////////////////////////////////////////////////////////////////////////////////////
 // k8s Ingress objects analysis
 
-const (
-	defaultBackendError = "default backend kind error"
-	ruleBackendError    = "rule's backend kind error"
-)
+func (ia *IngressAnalyzer) mapk8sIngressToServices(ing *netv1.Ingress) {
+	services := getk8sIngressServices(ing)
 
-func (ia *IngressAnalyzer) mapk8sIngressToServices(ing *netv1.Ingress) error {
-	services, err := getk8sIngressServices(ing)
-	if err != nil {
-		return err
-	}
 	if _, ok := ia.k8sIngressToServicesMap[ing.Namespace]; !ok {
 		ia.k8sIngressToServicesMap[ing.Namespace] = make(map[string][]string)
 	}
 	ia.k8sIngressToServicesMap[ing.Namespace][ing.Name] = services
-	return nil
 }
 
-func getk8sIngressServices(ing *netv1.Ingress) ([]string, error) {
-	ingressStr := types.NamespacedName{Namespace: ing.Namespace, Name: ing.Name}.String()
+func getk8sIngressServices(ing *netv1.Ingress) []string {
 	backendServices := make([]string, 0)
 	// if DefaultBackend is provided add its service name to the result
 	if ing.Spec.DefaultBackend != nil {
-		if ing.Spec.DefaultBackend.Service == nil { // i.e backend.Resource is not nil
-			// Currently, only IngressBackend with Service is supported
-			return nil, errors.New(scan.Ingress + " " + ingressStr + ": " + defaultBackendError)
+		if ing.Spec.DefaultBackend.Service != nil {
+			backendServices[0] = ing.Spec.DefaultBackend.Service.Name
 		}
-		backendServices[0] = ing.Spec.DefaultBackend.Service.Name
 	}
 	// add service names from the Ingress rules
 	for _, rule := range ing.Spec.Rules {
 		for _, path := range rule.IngressRuleValue.HTTP.Paths {
-			if path.Backend.Service == nil {
-				return nil, errors.New(scan.Ingress + " " + ingressStr + ": " + ruleBackendError)
+			if path.Backend.Service != nil {
+				backendServices = append(backendServices, path.Backend.Service.Name)
 			}
-			backendServices = append(backendServices, path.Backend.Service.Name)
 		}
 	}
-	return backendServices, nil
+	return backendServices
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
