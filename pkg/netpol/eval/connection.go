@@ -3,7 +3,7 @@ package eval
 import (
 	v1 "k8s.io/api/core/v1"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 )
 
 // Connection represents a set of allowed connections between two peers
@@ -28,30 +28,30 @@ type PortRange interface {
 }
 
 // k8sConnectionSetWrapper implements the Connection interface
-type k8sConnectionSetWrapper struct {
+type connectionSetWrapper struct {
 	protocolsAndPortsMap map[v1.Protocol][]PortRange
-	connectionSet        k8s.ConnectionSet
+	connectionSet        common.ConnectionSet
 }
 
-func (c *k8sConnectionSetWrapper) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
+func (c *connectionSetWrapper) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
 	return c.protocolsAndPortsMap
 }
 
-func (c *k8sConnectionSetWrapper) AllConnections() bool {
+func (c *connectionSetWrapper) AllConnections() bool {
 	return c.connectionSet.AllowAll
 }
-func (c *k8sConnectionSetWrapper) IsEmpty() bool {
+func (c *connectionSetWrapper) IsEmpty() bool {
 	return c.connectionSet.IsEmpty()
 }
 
-func (c *k8sConnectionSetWrapper) ConnectionSet() k8s.ConnectionSet {
+func (c *connectionSetWrapper) ConnectionSet() common.ConnectionSet {
 	return c.connectionSet
 }
 
 // convert an input k8s.ConnectionSet object to a connectionObj that implements Connection interface
-func getConnectionObject(conn k8s.ConnectionSet) Connection {
+func getConnectionObject(conn common.ConnectionSet) Connection {
 	protocolsMap := conn.ProtocolsAndPortsMap()
-	res := &k8sConnectionSetWrapper{
+	res := &connectionSetWrapper{
 		protocolsAndPortsMap: make(map[v1.Protocol][]PortRange, len(protocolsMap)),
 		connectionSet:        conn,
 	}
