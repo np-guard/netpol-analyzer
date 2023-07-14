@@ -213,16 +213,16 @@ func getFakePodIP() string {
 	return scan.IPv4LoopbackAddr
 }
 
-func (pod *Pod) PodExposedProtocolsAndPorts() *common.ConnectionSet {
+// PodExposedTCPConnections : returns TCP connections exposed by a pod
+func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 	res := common.MakeConnectionSet(false)
 	for _, cPort := range pod.Ports {
 		protocol := corev1.ProtocolTCP
-		if cPort.Protocol != "" {
-			protocol = cPort.Protocol
+		if cPort.Protocol == "" || protocol == corev1.ProtocolTCP {
+			ports := common.PortSet{}
+			ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort))
+			res.AddConnection(protocol, ports)
 		}
-		ports := common.PortSet{}
-		ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort))
-		res.AddConnection(protocol, ports)
 	}
 	return res
 }

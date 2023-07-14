@@ -351,15 +351,15 @@ func (pe *PolicyEngine) allAllowedConnections(src, dst string) (*common.Connecti
 	return allowedConns, err
 }
 
-// GetPeerExposedProtocolsAndPorts returns the protocols and ports exposed by a workload/pod peer
-func (pe *PolicyEngine) GetPeerExposedProtocolsAndPorts(peer Peer) common.Connection {
+// GetPeerExposedTCPConnections returns the tcp connection (ports) exposed by a workload/pod peer
+func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 	switch currPeer := peer.(type) {
 	case *k8s.IPBlockPeer:
 		return nil
 	case *k8s.WorkloadPeer:
-		return currPeer.Pod.PodExposedProtocolsAndPorts()
+		return currPeer.Pod.PodExposedTCPConnections()
 	case *k8s.PodPeer:
-		return currPeer.Pod.PodExposedProtocolsAndPorts()
+		return currPeer.Pod.PodExposedTCPConnections()
 	default:
 		return nil
 	}

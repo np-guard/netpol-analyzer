@@ -39,6 +39,7 @@ func TestIngressAnalyzerWithRoutes(t *testing.T) {
 type ingressToPod struct {
 	peerName       string
 	peerNamespace  string
+	peerType       string
 	allConnections bool
 	port           int64
 	protocol       string
@@ -59,6 +60,7 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 				{
 					peerName:       "asset-cache",
 					peerNamespace:  "frontend",
+					peerType:       scan.Deployment,
 					allConnections: false,
 					port:           8080,
 					protocol:       "TCP",
@@ -66,6 +68,7 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 				{
 					peerName:       "webapp",
 					peerNamespace:  "frontend",
+					peerType:       scan.Deployment,
 					allConnections: false,
 					port:           8080,
 					protocol:       "TCP",
@@ -79,6 +82,7 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 				{
 					peerName:       "details-v1-79f774bdb9",
 					peerNamespace:  "default",
+					peerType:       scan.ReplicaSet,
 					allConnections: false,
 					port:           9080,
 					protocol:       "TCP",
@@ -92,6 +96,7 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 				{
 					peerName:       "hello-world", // this workload is selected by both Ingress and Route objects
 					peerNamespace:  "helloworld",
+					peerType:       scan.Deployment,
 					allConnections: false,
 					port:           8000,
 					protocol:       "TCP",
@@ -99,6 +104,7 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 				{
 					peerName:       "ingress-world", // this workload is selected by Ingress object only
 					peerNamespace:  "ingressworld",
+					peerType:       scan.Deployment,
 					allConnections: false,
 					port:           8090,
 					protocol:       "TCP",
@@ -106,6 +112,7 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 				{
 					peerName:       "route-world", // this workload is selected by route object only
 					peerNamespace:  "routeworld",
+					peerType:       scan.Deployment,
 					allConnections: false,
 					port:           8060,
 					protocol:       "TCP",
@@ -125,7 +132,8 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 		ingressConns := ia.AllowedIngressConnections()
 		require.Empty(t, err)
 		for _, ingressEentry := range testEntry.testIngressEntries {
-			peerStr := types.NamespacedName{Name: ingressEentry.peerName, Namespace: ingressEentry.peerNamespace}.String()
+			peerStr := types.NamespacedName{Name: ingressEentry.peerName, Namespace: ingressEentry.peerNamespace}.String() +
+				"[" + ingressEentry.peerType + "]"
 			require.Contains(t, ingressConns, peerStr)
 			conn := ingressConns[peerStr]
 			require.Equal(t, conn.AllConnections(), ingressEentry.allConnections)
