@@ -83,8 +83,9 @@ func TestServiceMappingToPods(t *testing.T) {
 func TestNotSupportedService(t *testing.T) {
 	path := filepath.Join(testutils.GetTestsDir(), "services", "services_without_selector")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
-	require.Len(t, objects, 1)
+	require.Len(t, objects, 1)        // 1 service object
 	require.Len(t, processingErrs, 2) // no policies nor workloads
-	_, err := NewIngressAnalyzerWithObjects(objects, nil, logger.NewDefaultLogger())
-	require.Contains(t, err.Error(), missingSelectorError)
+	ia, err := NewIngressAnalyzerWithObjects(objects, nil, logger.NewDefaultLogger())
+	require.Empty(t, err)
+	require.Len(t, ia.servicesToPeersMap, 0) // service was ignored
 }

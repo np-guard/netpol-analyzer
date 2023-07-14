@@ -80,8 +80,8 @@ func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngi
 // services analysis
 
 const (
-	selectorError        = "selector conversion error"
-	missingSelectorError = "error : K8s Service without selectors is not supported"
+	selectorError          = "selector conversion error"
+	missingSelectorWarning = "K8s Service without selectors is not supported"
 )
 
 // this function populates servicesToPeersMap
@@ -90,6 +90,10 @@ func (ia *IngressAnalyzer) mapServiceToPeers(svc *corev1.Service) error {
 	peers, err := ia.getServicePeers(svc)
 	if err != nil {
 		return err
+	}
+	if len(peers) == 0 {
+		// service was ignored
+		return nil
 	}
 	if _, ok := ia.servicesToPeersMap[svc.Namespace]; !ok {
 		ia.servicesToPeersMap[svc.Namespace] = make(map[string][]eval.Peer)
@@ -101,7 +105,8 @@ func (ia *IngressAnalyzer) mapServiceToPeers(svc *corev1.Service) error {
 func (ia *IngressAnalyzer) getServicePeers(svc *corev1.Service) ([]eval.Peer, error) {
 	svcStr := types.NamespacedName{Name: svc.Name, Namespace: svc.Namespace}.String()
 	if svc.Spec.Selector == nil {
-		return nil, errors.New(scan.Service + " " + svcStr + " " + missingSelectorError)
+		ia.logger.Warnf("ignoring " + scan.Service + " " + svcStr + ": " + missingSelectorWarning)
+		return nil, nil
 	}
 	svcLabelsSelector, err := convertServiceSelectorToLabelSelector(svc.Spec.Selector, svcStr)
 	if err != nil {
@@ -132,7 +137,9 @@ const (
 // this function populates routesToServicesMap
 func (ia *IngressAnalyzer) mapRouteToServices(rt *ocroutev1.Route) {
 	services := ia.getRouteServices(rt)
-
+	if len(services) == 0 { // all route targets were ignored
+		return
+	}
 	if _, ok := ia.routesToServicesMap[rt.Namespace]; !ok {
 		ia.routesToServicesMap[rt.Namespace] = make(map[string][]string)
 	}
@@ -169,7 +176,9 @@ const (
 
 func (ia *IngressAnalyzer) mapk8sIngressToServices(ing *netv1.Ingress) {
 	services := ia.getk8sIngressServices(ing)
-
+	if len(services) == 0 { // all ingress backends were ignored
+		return
+	}
 	if _, ok := ia.k8sIngressToServicesMap[ing.Namespace]; !ok {
 		ia.k8sIngressToServicesMap[ing.Namespace] = make(map[string][]serviceInfo)
 	}
