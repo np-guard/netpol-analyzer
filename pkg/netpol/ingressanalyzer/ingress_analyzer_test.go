@@ -41,7 +41,7 @@ type ingressToPod struct {
 	peerNamespace  string
 	peerType       string
 	allConnections bool
-	port           int64
+	ports          []int64
 	protocol       string
 }
 
@@ -62,7 +62,7 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 					peerNamespace:  "frontend",
 					peerType:       scan.Deployment,
 					allConnections: false,
-					port:           8080,
+					ports:          []int64{8080},
 					protocol:       "TCP",
 				},
 				{
@@ -70,7 +70,7 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 					peerNamespace:  "frontend",
 					peerType:       scan.Deployment,
 					allConnections: false,
-					port:           8080,
+					ports:          []int64{8080},
 					protocol:       "TCP",
 				},
 			},
@@ -84,7 +84,7 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 					peerNamespace:  "default",
 					peerType:       scan.ReplicaSet,
 					allConnections: false,
-					port:           9080,
+					ports:          []int64{9080},
 					protocol:       "TCP",
 				},
 			},
@@ -98,7 +98,7 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 					peerNamespace:  "helloworld",
 					peerType:       scan.Deployment,
 					allConnections: false,
-					port:           8000,
+					ports:          []int64{8000},
 					protocol:       "TCP",
 				},
 				{
@@ -106,7 +106,7 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 					peerNamespace:  "ingressworld",
 					peerType:       scan.Deployment,
 					allConnections: false,
-					port:           8090,
+					ports:          []int64{8090},
 					protocol:       "TCP",
 				},
 				{
@@ -114,7 +114,35 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 					peerNamespace:  "routeworld",
 					peerType:       scan.Deployment,
 					allConnections: false,
-					port:           8060,
+					ports:          []int64{8060},
+					protocol:       "TCP",
+				},
+			},
+		},
+		{
+			dirpath:        "one_ingress_multiple_ports",
+			processingErrs: 1, // no network-policies
+			testIngressEntries: []ingressToPod{
+				{
+					peerName:       "ingress-world-multiple-ports",
+					peerNamespace:  "ingressworld",
+					peerType:       scan.Deployment,
+					allConnections: false,
+					ports:          []int64{8000, 8090},
+					protocol:       "TCP",
+				},
+			},
+		},
+		{
+			dirpath:        "multiple_ingress_objects_with_different_ports",
+			processingErrs: 1, // no network-policies
+			testIngressEntries: []ingressToPod{
+				{
+					peerName:       "ingress-world-multiple-ports",
+					peerNamespace:  "ingressworld",
+					peerType:       scan.Deployment,
+					allConnections: false,
+					ports:          []int64{8050, 8090},
 					protocol:       "TCP",
 				},
 			},
@@ -140,7 +168,10 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			if !conn.AllConnections() {
 				require.Contains(t, conn.ProtocolsAndPortsMap(), v1.Protocol(ingressEentry.protocol))
 				connPortRange := conn.ProtocolsAndPortsMap()[v1.Protocol(ingressEentry.protocol)]
-				require.Equal(t, connPortRange[0].Start(), ingressEentry.port)
+				require.Len(t, connPortRange, len(ingressEentry.ports))
+				for i := range ingressEentry.ports {
+					require.Equal(t, connPortRange[i].Start(), ingressEentry.ports[i])
+				}
 			}
 		}
 	}
