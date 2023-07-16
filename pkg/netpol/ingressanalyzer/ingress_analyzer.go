@@ -15,8 +15,6 @@
 package ingressanalyzer
 
 import (
-	"errors"
-
 	ocroutev1 "github.com/openshift/api/route/v1"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
@@ -40,11 +38,12 @@ type serviceInfo struct {
 // IngressAnalyzer provides API to analyze Ingress/Route resources, to allow inferring potential connectivity
 // from ingress-controller to pods in the cluster
 type IngressAnalyzer struct {
-	logger logger.Logger
-	pe     *eval.PolicyEngine // holds the workload peers relevant to the analysis
+	logger                  logger.Logger
+	pe                      *eval.PolicyEngine                  // holds the workload peers relevant to the analysis
 	servicesToPeersMap      map[string]map[string][]eval.Peer   // map from namespace to map from service name to its selected workloads
 	routesToServicesMap     map[string]map[string][]string      // map from namespace to map from route name to its target service names
-	k8sIngressToServicesMap map[string]map[string][]serviceInfo // map from namespace to map from k8s ingress object name to its target services 
+	k8sIngressToServicesMap map[string]map[string][]serviceInfo // map from namespace to map from k8s ingress object name to
+	// its target services
 }
 
 // NewIngressAnalyzerWithObjects returns a new IngressAnalyzer with relevant objects
@@ -77,12 +76,9 @@ func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngi
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // services analysis
 
-const (
-	selectorError          = "selector conversion error"
-	missingSelectorWarning = "K8s Service without selectors is not supported"
-)
+const missingSelectorWarning = "K8s Service without selectors is not supported"
 
-// this function populates servicesToPeersMap
+// mapServiceToPeers populates servicesToPeersMap
 func (ia *IngressAnalyzer) mapServiceToPeers(svc *corev1.Service) error {
 	// get peers selected by the service selectors
 	peers, err := ia.getServicePeers(svc)
@@ -100,13 +96,14 @@ func (ia *IngressAnalyzer) mapServiceToPeers(svc *corev1.Service) error {
 	return nil
 }
 
+// getServicePeers given a service return its selected peers
 func (ia *IngressAnalyzer) getServicePeers(svc *corev1.Service) ([]eval.Peer, error) {
 	svcStr := types.NamespacedName{Name: svc.Name, Namespace: svc.Namespace}.String()
 	if svc.Spec.Selector == nil {
 		ia.logger.Warnf("ignoring " + scan.Service + " " + svcStr + ": " + missingSelectorWarning)
 		return nil, nil
 	}
-	svcLabelsSelector, err := convertServiceSelectorToLabelSelector(svc.Spec.Selector, svcStr)
+	svcLabelsSelector, err := convertServiceSelectorToLabelSelector(svc.Spec.Selector)
 	if err != nil {
 		return nil, err
 	}
@@ -114,11 +111,12 @@ func (ia *IngressAnalyzer) getServicePeers(svc *corev1.Service) ([]eval.Peer, er
 }
 
 // utility func
-func convertServiceSelectorToLabelSelector(svcSelector map[string]string, svcStr string) (labels.Selector, error) {
+// convertServiceSelectorToLabelSelector converts service selector to LabelsSelector
+func convertServiceSelectorToLabelSelector(svcSelector map[string]string) (labels.Selector, error) {
 	labelsSelector := metav1.LabelSelector{MatchLabels: svcSelector}
 	selectorRes, err := metav1.LabelSelectorAsSelector(&labelsSelector)
 	if err != nil {
-		return nil, errors.New(scan.Service + " " + svcStr + " " + selectorError)
+		return nil, err
 	}
 	return selectorRes, nil
 }
@@ -132,7 +130,7 @@ const (
 	routeBackendsWarning   = "ignoring alternate backend without Service "
 )
 
-// this function populates routesToServicesMap
+// mapRouteToServices populates routesToServicesMap
 func (ia *IngressAnalyzer) mapRouteToServices(rt *ocroutev1.Route) {
 	services := ia.getRouteServices(rt)
 	if len(services) == 0 { // all route targets were ignored
@@ -144,6 +142,7 @@ func (ia *IngressAnalyzer) mapRouteToServices(rt *ocroutev1.Route) {
 	ia.routesToServicesMap[rt.Namespace][rt.Name] = services
 }
 
+// getRouteServices given Route object returns its targeted services names
 func (ia *IngressAnalyzer) getRouteServices(rt *ocroutev1.Route) []string {
 	routeStr := types.NamespacedName{Namespace: rt.Namespace, Name: rt.Name}.String()
 	targetServices := make([]string, len(rt.Spec.AlternateBackends)+1)
@@ -172,6 +171,7 @@ const (
 	ruleBackendWarning    = "ignoring rule backend without Service"
 )
 
+// mapk8sIngressToServices populates k8sIngressToServicesMap
 func (ia *IngressAnalyzer) mapk8sIngressToServices(ing *netv1.Ingress) {
 	services := ia.getk8sIngressServices(ing)
 	if len(services) == 0 { // all ingress backends were ignored
@@ -183,6 +183,7 @@ func (ia *IngressAnalyzer) mapk8sIngressToServices(ing *netv1.Ingress) {
 	ia.k8sIngressToServicesMap[ing.Namespace][ing.Name] = services
 }
 
+// getk8sIngressServices given k8s-Ingress object returns its targeted services info
 func (ia *IngressAnalyzer) getk8sIngressServices(ing *netv1.Ingress) []serviceInfo {
 	ingressStr := types.NamespacedName{Namespace: ing.Namespace, Name: ing.Name}.String()
 	backendServices := make([]serviceInfo, 0)
@@ -208,6 +209,7 @@ func (ia *IngressAnalyzer) getk8sIngressServices(ing *netv1.Ingress) []serviceIn
 }
 
 // utility func
+// getServiceInfo returns serviceInfo struct (name and port) from a given Ingress backend service
 func getServiceInfo(backendService *netv1.IngressServiceBackend) serviceInfo {
 	res := serviceInfo{serviceName: backendService.Name}
 	// Port.Name and Port.Number are mutually exclusive
@@ -240,8 +242,8 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() map[string]common.Connect
 }
 
 // utility func
+// mergeResults merges routesMap into ingressMap , since routesMap may be wider with peers connections
 func mergeResults(routesMap, ingressMap map[string]common.Connection) {
-	// merging routesMap into ingressMap , since routesMap may be wider with peers connections
 	for k, v := range routesMap {
 		ingressMap[k] = v
 	}
@@ -250,6 +252,7 @@ func mergeResults(routesMap, ingressMap map[string]common.Connection) {
 /*************************************************************************************************/
 // Ingress allowed connections by Routes
 
+// allowedIngressConnectionsByRoutes returns map from peers names to the allowed ingress connections based on Route objects rules
 func (ia *IngressAnalyzer) allowedIngressConnectionsByRoutes() map[string]common.Connection {
 	res := make(map[string]common.Connection)
 	for ns, objSvcMap := range ia.routesToServicesMap {
@@ -271,6 +274,7 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByRoutes() map[string]common
 	return res
 }
 
+// getRouteTargetedPeers returns all peers which are targeted by routes objects in their namespace
 func (ia *IngressAnalyzer) getRouteTargetedPeers(ns string, svcList []string) []eval.Peer {
 	var res []eval.Peer
 	for _, svc := range svcList {
@@ -286,6 +290,7 @@ func (ia *IngressAnalyzer) getRouteTargetedPeers(ns string, svcList []string) []
 /*************************************************************************************************/
 // Ingress allowed connections by k8s-ingress objects
 
+// allowedIngressConnectionsByk8sIngress returns map from peers names to the allowed ingress connections based on k8s-Ingress objects rules
 func (ia *IngressAnalyzer) allowedIngressConnectionsByk8sIngress() map[string]common.Connection {
 	medRes := make(map[string]*common.ConnectionSet)
 	for ns, objSvcMap := range ia.k8sIngressToServicesMap {
@@ -314,6 +319,8 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByk8sIngress() map[string]co
 	return res
 }
 
+// getIngressObjectTargetedPeersAndPorts returns map from peers which are targeted by Ingress objects in their namespace to
+// the Ingress required connections
 func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string, svcList []serviceInfo) map[eval.Peer]*common.ConnectionSet {
 	res := make(map[eval.Peer]*common.ConnectionSet)
 	for _, svc := range svcList {

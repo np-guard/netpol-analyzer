@@ -63,6 +63,7 @@ func (conn *ConnectionSet) Intersection(other *ConnectionSet) {
 	}
 }
 
+// IsEmpty returns true if the ConnectionSet has no allowed connections
 func (conn *ConnectionSet) IsEmpty() bool {
 	return !conn.AllowAll && len(conn.AllowedProtocols) == 0
 }
@@ -221,6 +222,7 @@ func (p *portRange) String() string {
 	return fmt.Sprintf("%d", p.Start())
 }
 
+// ProtocolsAndPortsMap() returns a map from allowed protocol to list of allowed ports ranges.
 func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
 	res := make(map[v1.Protocol][]PortRange, 0)
 	for protocol, portSet := range conn.AllowedProtocols {
@@ -236,6 +238,7 @@ func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
 	return res
 }
 
+// AllConnections returns true if all ports are allowed for all protocols
 func (conn *ConnectionSet) AllConnections() bool {
 	return conn.AllowAll
 }

@@ -213,7 +213,7 @@ func getFakePodIP() string {
 	return scan.IPv4LoopbackAddr
 }
 
-// PodExposedTCPConnections : returns TCP connections exposed by a pod
+// PodExposedTCPConnections returns TCP connections exposed by a pod
 func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 	res := common.MakeConnectionSet(false)
 	for _, cPort := range pod.Ports {
