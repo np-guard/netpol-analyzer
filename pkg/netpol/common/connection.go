@@ -12,6 +12,8 @@ type Connection interface {
 	AllConnections() bool
 	// IsEmpty returns true if no connection is allowed
 	IsEmpty() bool
+	// ConnectionsIntersection updates Connection object to be the intersection result with other Connection
+	ConnectionsIntersection(other Connection)
 }
 
 // PortRange describes a port or a range of ports for allowed traffic

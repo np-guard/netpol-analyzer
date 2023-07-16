@@ -21,6 +21,7 @@ import (
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/ingressanalyzer"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
@@ -180,7 +181,12 @@ func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []scan.K8sO
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, err
 	}
-	return ca.getConnectionsList(pe)
+	ia, err := ingressanalyzer.NewIngressAnalyzerWithObjects(objectsList, pe, ca.logger)
+	if err != nil {
+		ca.errors = append(ca.errors, newResourceEvaluationError(err))
+		return nil, err
+	}
+	return ca.getConnectionsList(pe, ia)
 }
 
 // ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources
@@ -225,7 +231,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 			return nil, err
 		}
 	}
-	return ca.getConnectionsList(pe)
+	return ca.getConnectionsList(pe, nil)
 }
 
 // ConnectionsListToString returns a string of connections from list of Peer2PeerConnection objects in the required output format
@@ -362,7 +368,7 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 }
 
 // getConnectionsList returns connections list from PolicyEngine object
-func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
+func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingressanalyzer.IngressAnalyzer) ([]Peer2PeerConnection, error) {
 	res := make([]Peer2PeerConnection, 0)
 	if !pe.HasPodPeers() {
 		return res, nil
@@ -375,6 +381,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2Pe
 		return nil, err
 	}
 
+	// compute connections between peers based on pe policies rules
 	for i := range peerList {
 		for j := range peerList {
 			srcPeer := peerList[i]
@@ -396,6 +403,38 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine) ([]Peer2Pe
 				dst:               dstPeer,
 				allConnections:    allowedConnections.AllConnections(),
 				protocolsAndPorts: allowedConnections.ProtocolsAndPortsMap(),
+			}
+			res = append(res, connectionObj)
+		}
+	}
+
+	// analyze ingress connections - create connection objects for relevant ingress analyzer connections
+	if !ia.IsEmpty() {
+		ingressConns := ia.AllowedIngressConnections()
+		// adding the ingress controller pod to the policy engine,
+		ingressControllerPod, err := pe.AddPodByNameAndNamespace(ingressanalyzer.IngressPodName, ingressanalyzer.IngressPodNs)
+		if err != nil {
+			ca.errors = append(ca.errors, newResourceEvaluationError(err))
+			return nil, err
+		}
+		for _, peer := range peerList {
+			// if there is no ingress connections to the peer - skip
+			if _, ok := ingressConns[peer.String()]; !ok {
+				continue
+			}
+			// otherwise, compute allowed connections based on pe.policies to the peer, then intersect the conns with
+			// ingress connections to the peer -> the intersection will be appended to the result
+			peConn, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(ingressControllerPod, peer)
+			if err != nil {
+				ca.errors = append(ca.errors, newResourceEvaluationError(err))
+				return nil, err
+			}
+			ingressConns[peer.String()].ConnectionsIntersection(peConn)
+			connectionObj := &connection{
+				src:               ingressControllerPod,
+				dst:               peer,
+				allConnections:    ingressConns[peer.String()].AllConnections(),
+				protocolsAndPorts: ingressConns[peer.String()].ProtocolsAndPortsMap(),
 			}
 			res = append(res, connectionObj)
 		}
