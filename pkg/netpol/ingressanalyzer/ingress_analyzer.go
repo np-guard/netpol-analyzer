@@ -44,8 +44,7 @@ type IngressAnalyzer struct {
 	pe     *eval.PolicyEngine // holds the workload peers relevant to the analysis
 	servicesToPeersMap      map[string]map[string][]eval.Peer   // map from namespace to map from service name to its selected workloads
 	routesToServicesMap     map[string]map[string][]string      // map from namespace to map from route name to its target service names
-	k8sIngressToServicesMap map[string]map[string][]serviceInfo // map from namespace to map from k8s ingress object name to
-	// its backend service info
+	k8sIngressToServicesMap map[string]map[string][]serviceInfo // map from namespace to map from k8s ingress object name to its target services 
 }
 
 // NewIngressAnalyzerWithObjects returns a new IngressAnalyzer with relevant objects
