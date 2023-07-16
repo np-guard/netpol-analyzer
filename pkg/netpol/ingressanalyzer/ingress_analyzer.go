@@ -30,6 +30,11 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
+const (
+	IngressPodName = "ingress-controller"
+	IngressPodNs   = "ingress-controller-ns"
+)
+
 type serviceInfo struct {
 	serviceName       string
 	serviceTargetPort intstr.IntOrString // optional, used with k8s-Ingress rules only
@@ -71,6 +76,11 @@ func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngi
 		}
 	}
 	return ia, err
+}
+
+// IsEmpty returns weither the ingress analyzer is empty
+func (ia *IngressAnalyzer) IsEmpty() bool {
+	return len(ia.servicesToPeersMap) == 0
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
