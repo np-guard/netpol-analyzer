@@ -367,7 +367,7 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 	return false
 }
 
-// getConnectionsList returns connections list from PolicyEngine object
+// getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
 func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingressanalyzer.IngressAnalyzer) ([]Peer2PeerConnection, error) {
 	res := make([]Peer2PeerConnection, 0)
 	if !pe.HasPodPeers() {
@@ -382,6 +382,31 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	}
 
 	// compute connections between peers based on pe policies rules
+	peersAllowedConns, err := ca.getConnectionsBetweenPeers(pe, peerList)
+	if err != nil {
+		ca.errors = append(ca.errors, newResourceEvaluationError(err))
+		return nil, err
+	}
+	res = append(res, peersAllowedConns...)
+
+	if ia.IsEmpty() {
+		return res, nil
+	}
+
+	// analyze ingress connections - create connection objects for relevant ingress analyzer connections
+	ingressAllowedConns, err := ca.getIngressAllowedConnections(ia, pe, peerList)
+	if err != nil {
+		ca.errors = append(ca.errors, newResourceEvaluationError(err))
+		return nil, err
+	}
+	res = append(res, ingressAllowedConns...)
+	return res, nil
+}
+
+// getConnectionsList returns connections list from PolicyEngine object
+func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine,
+	peerList []eval.Peer) ([]Peer2PeerConnection, error) {
+	res := make([]Peer2PeerConnection, 0)
 	for i := range peerList {
 		for j := range peerList {
 			srcPeer := peerList[i]
@@ -391,53 +416,57 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
 			if err != nil {
-				ca.errors = append(ca.errors, newResourceEvaluationError(err))
 				return nil, err
 			}
 			// skip empty connections
 			if allowedConnections.IsEmpty() {
 				continue
 			}
-			connectionObj := &connection{
+			p2pConnection := &connection{
 				src:               srcPeer,
 				dst:               dstPeer,
 				allConnections:    allowedConnections.AllConnections(),
 				protocolsAndPorts: allowedConnections.ProtocolsAndPortsMap(),
 			}
-			res = append(res, connectionObj)
+			res = append(res, p2pConnection)
 		}
 	}
+	return res, nil
+}
 
-	// analyze ingress connections - create connection objects for relevant ingress analyzer connections
-	if !ia.IsEmpty() {
-		ingressConns := ia.AllowedIngressConnections()
-		// adding the ingress controller pod to the policy engine,
-		ingressControllerPod, err := pe.AddPodByNameAndNamespace(ingressanalyzer.IngressPodName, ingressanalyzer.IngressPodNs)
+// getIngressAllowedConnections returns connections list from IngressAnalyzer intersected with PolicyEngine's connections
+func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.IngressAnalyzer,
+	pe *eval.PolicyEngine, peerList []eval.Peer) ([]Peer2PeerConnection, error) {
+	res := make([]Peer2PeerConnection, 0)
+	ingressConns := ia.AllowedIngressConnections()
+	// adding the ingress controller pod to the policy engine,
+	ingressControllerPod, err := pe.AddPodByNameAndNamespace(ingressanalyzer.IngressPodName, ingressanalyzer.IngressPodNamespace)
+	if err != nil {
+		return nil, err
+	}
+	for _, peer := range peerList {
+		// if there is no ingress connections to the peer - skip
+		if _, ok := ingressConns[peer.String()]; !ok {
+			continue
+		}
+		// otherwise, compute allowed connections based on pe.policies to the peer, then intersect the conns with
+		// ingress connections to the peer -> the intersection will be appended to the result
+		peConn, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(ingressControllerPod, peer)
 		if err != nil {
-			ca.errors = append(ca.errors, newResourceEvaluationError(err))
 			return nil, err
 		}
-		for _, peer := range peerList {
-			// if there is no ingress connections to the peer - skip
-			if _, ok := ingressConns[peer.String()]; !ok {
-				continue
-			}
-			// otherwise, compute allowed connections based on pe.policies to the peer, then intersect the conns with
-			// ingress connections to the peer -> the intersection will be appended to the result
-			peConn, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(ingressControllerPod, peer)
-			if err != nil {
-				ca.errors = append(ca.errors, newResourceEvaluationError(err))
-				return nil, err
-			}
-			ingressConns[peer.String()].ConnectionsIntersection(peConn)
-			connectionObj := &connection{
-				src:               ingressControllerPod,
-				dst:               peer,
-				allConnections:    ingressConns[peer.String()].AllConnections(),
-				protocolsAndPorts: ingressConns[peer.String()].ProtocolsAndPortsMap(),
-			}
-			res = append(res, connectionObj)
+		ingressConns[peer.String()].(*common.ConnectionSet).Intersection(peConn.(*common.ConnectionSet))
+		if ingressConns[peer.String()].IsEmpty() {
+			ca.logger.Warnf("Ingrees Connections to: " + peer.String() + " were blocked by network-policies")
+			continue
 		}
+		p2pConnection := &connection{
+			src:               ingressControllerPod,
+			dst:               peer,
+			allConnections:    ingressConns[peer.String()].AllConnections(),
+			protocolsAndPorts: ingressConns[peer.String()].ProtocolsAndPortsMap(),
+		}
+		res = append(res, p2pConnection)
 	}
 	return res, nil
 }
