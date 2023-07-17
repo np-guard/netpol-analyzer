@@ -135,6 +135,20 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			},
 		},
 		{
+			dirpath:        "one_ingress_multiple_services",
+			processingErrs: 1, // no network-policies
+			testIngressEntries: []ingressToPod{
+				{
+					peerName:       "ingress-world-multiple-ports",
+					peerNamespace:  "ingressworld",
+					peerType:       scan.Deployment,
+					allConnections: false,
+					ports:          []int64{8000, 8090},
+					protocol:       "TCP",
+				},
+			},
+		},
+		{
 			dirpath:        "multiple_ingress_objects_with_different_ports",
 			processingErrs: 1, // no network-policies
 			testIngressEntries: []ingressToPod{
