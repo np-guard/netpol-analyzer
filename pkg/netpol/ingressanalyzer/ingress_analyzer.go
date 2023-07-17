@@ -330,7 +330,7 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string, svcL
 		}
 		for _, peer := range peers {
 			permittedPeerConn := common.MakeConnectionSet(false)
-			// check if its TCP conns contains the reuired port
+			// check if its TCP conns contains the required port
 			peerTCPConn := eval.GetPeerExposedTCPConnections(peer)
 			if peerTCPConn.Contains(svc.serviceTargetPort.String(), string(corev1.ProtocolTCP)) {
 				permittedPort := common.PortSet{}
