@@ -57,13 +57,11 @@ func getProtocolStr(p *v1.Protocol) string {
 }
 
 func (np *NetworkPolicy) convertNamedPort(namedPort string, pod *Pod) (int32, error) {
-	for _, containerPort := range pod.Ports {
-		if namedPort == containerPort.Name {
-			return containerPort.ContainerPort, nil
-		}
+	port, err := pod.ConvertPodNamedPort(namedPort)
+	if err != nil {
+		return 0, np.netpolErr(namedPortErrTitle, err.Error())
 	}
-	errStr := fmt.Sprintf("named port is not defined in a selected workload %s", pod.Owner.Name)
-	return 0, np.netpolErr(namedPortErrTitle, errStr)
+	return port, nil
 }
 
 func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (startNum, endNum int32, err error) {

@@ -157,7 +157,7 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 		require.Empty(t, err)
 		ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger())
 		require.Empty(t, err)
-		ingressConns := ia.AllowedIngressConnections()
+		ingressConns, err := ia.AllowedIngressConnections()
 		require.Empty(t, err)
 		for _, ingressEentry := range testEntry.testIngressEntries {
 			peerStr := types.NamespacedName{Name: ingressEentry.peerName, Namespace: ingressEentry.peerNamespace}.String() +
