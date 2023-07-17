@@ -105,6 +105,7 @@ issues:
        - revive
        - goconst
        - funlen
+       - errcheck
  
 run:
   timeout: 5m

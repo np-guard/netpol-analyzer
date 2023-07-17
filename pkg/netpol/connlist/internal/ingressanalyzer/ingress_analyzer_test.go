@@ -1,6 +1,7 @@
 package ingressanalyzer
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -21,7 +22,7 @@ var scanner = scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepat
 func TestIngressAnalyzerWithRoutes(t *testing.T) {
 	routesNamespace := "frontend"
 	routeNameExample := "webapp"
-	path := filepath.Join(testutils.GetTestsDir(), "acs_security_frontend_demos")
+	path := filepath.Join(getTestsDir(), "acs_security_frontend_demos")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
 	require.Empty(t, processingErrs)
 	pe, err := eval.NewPolicyEngineWithObjects(objects)
@@ -150,7 +151,7 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 	}
 
 	for _, testEntry := range testingEntries {
-		path := filepath.Join(testutils.GetTestsDir(), testEntry.dirpath)
+		path := filepath.Join(getTestsDir(), testEntry.dirpath)
 		objects, processingErrs := scanner.FilesToObjectsList(path)
 		require.Len(t, processingErrs, testEntry.processingErrs)
 		pe, err := eval.NewPolicyEngineWithObjects(objects)
@@ -175,4 +176,14 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			}
 		}
 	}
+}
+
+func getTestsDir() string {
+	currentDir, _ := os.Getwd()
+	// go two levels up since currentDir under internal
+	parentDir := filepath.Dir(filepath.Dir(currentDir))
+	os.Chdir(parentDir)
+	res := testutils.GetTestsDir()
+	os.Chdir(currentDir)
+	return res
 }

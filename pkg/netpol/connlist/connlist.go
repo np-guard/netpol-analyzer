@@ -20,8 +20,8 @@ import (
 	v1 "k8s.io/api/core/v1"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist/internal/ingressanalyzer"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/ingressanalyzer"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
