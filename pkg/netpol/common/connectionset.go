@@ -37,18 +37,6 @@ func MakeConnectionSet(all bool) *ConnectionSet {
 	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}}
 }
 
-func (conn *ConnectionSet) ConnectionsIntersection(other Connection) {
-	// making *ConnectionSet from other
-	otherProtocolsAndPortsSet := make(map[v1.Protocol]*PortSet, len(other.ProtocolsAndPortsMap()))
-	for protocol, portRange := range other.ProtocolsAndPortsMap() {
-		for _, port := range portRange {
-			otherProtocolsAndPortsSet[protocol].AddPortRange(port.Start(), port.End())
-		}
-	}
-	otherConnectionSet := &ConnectionSet{AllowAll: other.AllConnections(), AllowedProtocols: otherProtocolsAndPortsSet}
-	conn.Intersection(otherConnectionSet)
-}
-
 // Intersection updates ConnectionSet object to be the intersection result with other ConnectionSet
 func (conn *ConnectionSet) Intersection(other *ConnectionSet) {
 	if other.AllowAll {

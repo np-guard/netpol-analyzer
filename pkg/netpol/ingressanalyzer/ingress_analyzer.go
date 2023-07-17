@@ -31,8 +31,10 @@ import (
 )
 
 const (
-	IngressPodName = "ingress-controller"
-	IngressPodNs   = "ingress-controller-ns"
+	//  The actual ingress controller pod is usually unknown and not available in the input resources for the analysis.
+	// IngressPodName and IngressPodNamespace are used to represent  that pod with those placeholder values for name and namespace.
+	IngressPodName      = "ingress-controller"
+	IngressPodNamespace = "ingress-controller-ns"
 )
 
 type serviceInfo struct {
@@ -78,7 +80,7 @@ func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngi
 	return ia, err
 }
 
-// IsEmpty returns weither the ingress analyzer is empty
+// IsEmpty returns whether there are no services to consider for Ingress analysis
 func (ia *IngressAnalyzer) IsEmpty() bool {
 	return len(ia.servicesToPeersMap) == 0
 }

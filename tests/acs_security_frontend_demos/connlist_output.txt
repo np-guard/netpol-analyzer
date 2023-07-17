@@ -1,2 +1,0 @@
-{ingress-controller} => frontend/asset-cache[Deployment] : No Connections
-{ingress-controller} => frontend/webapp[Deployment] : No Connections
