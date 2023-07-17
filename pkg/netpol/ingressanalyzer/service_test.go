@@ -15,7 +15,7 @@ import (
 type serviceMapping struct {
 	serviceName      string
 	serviceNamespace string
-	numPods          int
+	numWorkloads     int
 	expectedError    error
 }
 
@@ -25,43 +25,43 @@ func TestServiceMappingToPods(t *testing.T) {
 		{
 			serviceName:      "demo",
 			serviceNamespace: "default",
-			numPods:          1,
+			numWorkloads:     1,
 			expectedError:    nil,
 		},
 		{
 			serviceName:      "ingress-nginx-controller",
 			serviceNamespace: "ingress-nginx",
-			numPods:          1,
+			numWorkloads:     1,
 			expectedError:    nil,
 		},
 		{
 			serviceName:      "ingress-nginx-controller-admission",
 			serviceNamespace: "ingress-nginx",
-			numPods:          2,
+			numWorkloads:     2,
 			expectedError:    nil,
 		},
 		{
 			serviceName:      "kube-dns",
 			serviceNamespace: "kube-system",
-			numPods:          1,
+			numWorkloads:     1,
 			expectedError:    nil,
 		},
 		{
 			serviceName:      "no-pods-selected",
 			serviceNamespace: "default",
-			numPods:          0,
+			numWorkloads:     0,
 			expectedError:    nil,
 		},
 		{
 			serviceName:      "not-existing-svc",
 			serviceNamespace: "default",
-			numPods:          0,
+			numWorkloads:     0,
 			expectedError:    errors.New("service does not exist: default/not-existing-svc"),
 		},
 		{
 			serviceName:      "not-existing-svc",
 			serviceNamespace: "not-existing-ns",
-			numPods:          0,
+			numWorkloads:     0,
 			expectedError:    errors.New("service does not exist: not-existing-ns/not-existing-svc"),
 		},
 	}
@@ -76,7 +76,8 @@ func TestServiceMappingToPods(t *testing.T) {
 	require.Empty(t, err)
 
 	for _, serviceMappingItem := range serviceMappingList {
-		require.Len(t, ia.servicesToPeersMap[serviceMappingItem.serviceNamespace][serviceMappingItem.serviceName], serviceMappingItem.numPods)
+		require.Len(t, ia.servicesToPeersMap[serviceMappingItem.serviceNamespace][serviceMappingItem.serviceName],
+			serviceMappingItem.numWorkloads)
 	}
 }
 
