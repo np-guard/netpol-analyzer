@@ -145,19 +145,19 @@ func (ia *IngressAnalyzer) mapRouteToServices(rt *ocroutev1.Route) {
 // getRouteServices given Route object returns its targeted services names
 func (ia *IngressAnalyzer) getRouteServices(rt *ocroutev1.Route) []string {
 	routeStr := types.NamespacedName{Namespace: rt.Namespace, Name: rt.Name}.String()
-	targetServices := make([]string, len(rt.Spec.AlternateBackends)+1)
+	targetServices := make([]string, 0, len(rt.Spec.AlternateBackends)+1)
 	// Currently, only 'Service' is allowed as the kind of target that the route is referring to.
 	if rt.Spec.To.Kind != "" && rt.Spec.To.Kind != allowedTargetKind {
 		ia.logger.Warnf(scan.Route + " " + routeStr + ": " + routeTargetKindWarning)
 	} else {
-		targetServices[0] = rt.Spec.To.Name
+		targetServices = append(targetServices, rt.Spec.To.Name)
 	}
 
-	for i, backend := range rt.Spec.AlternateBackends {
+	for _, backend := range rt.Spec.AlternateBackends {
 		if backend.Kind != "" && backend.Kind != allowedTargetKind {
 			ia.logger.Warnf(scan.Route + " " + routeStr + ": " + routeBackendsWarning)
 		} else {
-			targetServices[i+1] = backend.Name
+			targetServices = append(targetServices, backend.Name)
 		}
 	}
 	return targetServices
