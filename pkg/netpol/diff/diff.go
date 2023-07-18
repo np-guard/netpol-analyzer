@@ -1,8 +1,10 @@
 package diff
 
 import (
+	"fmt"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strings"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
@@ -110,6 +112,7 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection) (Connec
 }
 
 // checks whether two connlist.Peer2PeerConnection objects are equal
+// TODO: implement differently when importing common.connectionset is possible
 func equalConns(firstConn, secondConn connlist.Peer2PeerConnection) bool {
 	return firstConn.AllProtocolsAndPorts() == secondConn.AllProtocolsAndPorts() &&
 		reflect.DeepEqual(firstConn.ProtocolsAndPorts(), secondConn.ProtocolsAndPorts())
@@ -135,8 +138,7 @@ func (c *connectivityDiff) ChangedConnections() []*connsPair {
 
 func (c *connectivityDiff) String() (string, error) {
 	// currently only txt output is enabled, later add switch on output format
-	clAnalyzer := connlist.NewConnlistAnalyzer() // creates a ca with default output format (txt)
-	return c.writeTxtDiffOutput(clAnalyzer)
+	return c.writeTxtDiffOutput()
 }
 
 type ConnectivityDiff interface {
@@ -150,71 +152,52 @@ type ConnectivityDiff interface {
 // writing outputs
 
 const (
-	// txt output headers
-	removedHeader = "Lost Connections:"
-	addedHeader   = "\nNew Connections:"
-	changedHeader = "\nChanged Connections:"
-	beforeHeader  = "**Connections Before:"
-	afterHeader   = "**Connections After:"
+	// txt output header
+	changedHeader = "Changed Connections:"
+	noConns       = "no conns"
 )
 
-func (c *connectivityDiff) writeTxtDiffOutput(ca *connlist.ConnlistAnalyzer) (string, error) {
+func (c *connectivityDiff) writeTxtDiffOutput() (string, error) {
 	res := make([]string, 0)
-	removedLines, err := writeRemovedorAddedCategory(removedHeader, c.removedConns, ca)
-	if err != nil {
-		return "", err
-	}
-	res = append(res, removedLines)
-	addedLines, err := writeRemovedorAddedCategory(addedHeader, c.addedConns, ca)
-	if err != nil {
-		return "", err
-	}
-	res = append(res, addedLines)
-	changedLines, err := writeChangedCategory(changedHeader, c.changedConns, ca)
-	if err != nil {
-		return "", err
-	}
-	res = append(res, changedLines)
-	return strings.Join(res, connlist.GetNewLineChar()), nil
+	res = append(res, changedHeader)
+	changedLines := c.writeChangedCategory()
+	res = append(res, changedLines...)
+	addedLines := c.writeAddedCategory()
+	res = append(res, addedLines...)
+	removedLines := c.writeRemovedCategory()
+	res = append(res, removedLines...)
+
+	return strings.Join(res, fmt.Sprintln("")), nil
 }
 
-func writeRemovedorAddedCategory(categoryHeader string, conns []connlist.Peer2PeerConnection,
-	ca *connlist.ConnlistAnalyzer) (string, error) {
-	res := make([]string, 0)
-	res = append(res, categoryHeader)
-	categoryLines, err := ca.ConnectionsListToString(conns)
-	if err != nil {
-		return "", err
-	}
-	res = append(res, categoryLines)
-	return strings.Join(res, connlist.GetNewLineChar()), nil
+func singleDiffTxtLine(srcName, dstName, conn1Str, conn2Str string) string {
+	return fmt.Sprintf("source: %s, destination: %s, connections before:  %s, connections after: %s", srcName, dstName, conn1Str, conn2Str)
 }
 
-func writeChangedCategory(categoryHeader string, connsPairs []*connsPair,
-	ca *connlist.ConnlistAnalyzer) (string, error) {
+func (c *connectivityDiff) writeAddedCategory() []string {
 	res := make([]string, 0)
-	res = append(res, categoryHeader)
-	beforeConns := make([]connlist.Peer2PeerConnection, 0)
-	afterConns := make([]connlist.Peer2PeerConnection, 0)
-	for _, pair := range connsPairs {
-		beforeConns = append(beforeConns, pair.firstConn)
-		afterConns = append(afterConns, pair.secondConn)
+	for _, p2pConn := range c.addedConns {
+		res = append(res, singleDiffTxtLine(p2pConn.Src().String(), p2pConn.Dst().String(), noConns, connlist.GetProtocolsAndPortsStr(p2pConn)))
 	}
-	beforeLines, err := ca.ConnectionsListToString(beforeConns)
-	if err != nil {
-		return "", err
-	}
-	if beforeLines != "" {
-		res = append(res, beforeHeader, beforeLines)
-	}
+	sort.Strings(res)
+	return res
+}
 
-	afterLines, err := ca.ConnectionsListToString(afterConns)
-	if err != nil {
-		return "", err
+func (c *connectivityDiff) writeRemovedCategory() []string {
+	res := make([]string, 0)
+	for _, p2pConn := range c.removedConns {
+		res = append(res, singleDiffTxtLine(p2pConn.Src().String(), p2pConn.Dst().String(), connlist.GetProtocolsAndPortsStr(p2pConn), noConns))
 	}
-	if afterLines != "" {
-		res = append(res, afterHeader, afterLines)
-	}
+	sort.Strings(res)
+	return res
+}
 
-	return strings.Join(res, connlist.GetNewLineChar()), nil
+func (c *connectivityDiff) writeChangedCategory() []string {
+	res := make([]string, 0)
+	for _, pair := range c.changedConns {
+		res = append(res, singleDiffTxtLine(pair.firstConn.Src().String(), pair.firstConn.Dst().String(),
+			connlist.GetProtocolsAndPortsStr(pair.firstConn), connlist.GetProtocolsAndPortsStr(pair.secondConn)))
+	}
+	sort.Strings(res)
+	return res
 }
