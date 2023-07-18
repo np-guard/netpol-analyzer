@@ -108,7 +108,7 @@ func TestCommannds(t *testing.T) {
 		{
 			name:           "test_illegal_diff_no_args",
 			args:           []string{"diff"},
-			expectedOutput: "the other directory path is required",
+			expectedOutput: "both directory paths dir1 and dir2 are required",
 			containment:    true,
 			isErr:          true,
 		},
