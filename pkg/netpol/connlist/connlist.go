@@ -438,7 +438,10 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine,
 func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.IngressAnalyzer,
 	pe *eval.PolicyEngine, peerList []eval.Peer) ([]Peer2PeerConnection, error) {
 	res := make([]Peer2PeerConnection, 0)
-	ingressConns := ia.AllowedIngressConnections()
+	ingressConns, err := ia.AllowedIngressConnections()
+	if err != nil {
+		return nil, err
+	}
 	// adding the ingress controller pod to the policy engine,
 	ingressControllerPod, err := pe.AddPodByNameAndNamespace(ingressanalyzer.IngressPodName, ingressanalyzer.IngressPodNamespace)
 	if err != nil {
