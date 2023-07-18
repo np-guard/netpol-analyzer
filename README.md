@@ -68,28 +68,19 @@ Global Flags:
 
 ### Diff command
 ```
-Reports all different allowed connections on common workloads 
-between different networkpolicies sets.
+Reports all different allowed connections between different networkpolicies sets.
 
 Usage:
   k8snetpolicy diff [flags]
 
 Examples:
   # Get list of different allowed connections between two resources dir paths
-  k8snetpolicy diff --dirpath ./resources_dir/ --other ./other_resources_dir/
-
-  # Get list of different allowed connections between live k8s cluster and a resources dir path
-  k8snetpolicy diff -k ./kube/config --other ./other_resources_dir/
+  k8snetpolicy diff --dir1 ./resources_dir/ --dir2 ./other_resources_dir/
 
 Flags:
-      --other  Resources dir path to be compared with the first dir path/ live-cluster
+      --dir1  First resources dir path
+      --dir2  Second resources dir path to be compared with the first dir path
   -h, --help   help for list
-
-Global Flags:
-  -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
-      --dirpath string      Resources dir path when evaluating connections from a dir
-  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
-```
 
 
 ### Example outputs:
@@ -119,6 +110,17 @@ default/frontend[Deployment] => default/shippingservice[Deployment] : TCP 50051
 default/loadgenerator[Deployment] => default/frontend[Deployment] : TCP 8080
 default/recommendationservice[Deployment] => default/productcatalogservice[Deployment] : TCP 3550
 default/redis-cart[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+
+
+
+$ k8snetpolicy diff --dir1 tests/onlineboutique_workloads --dir2 tests/onlineboutique_workloads_changed_netpols
+
+source: default/checkoutservice[Deployment], destination: default/cartservice[Deployment], dir1:  TCP 7070, dir2: TCP 8000
+source: default/checkoutservice[Deployment], destination: default/emailservice[Deployment], dir1:  TCP 8080, dir2: TCP 8080,9555
+source: default/cartservice[Deployment], destination: default/emailservice[Deployment], dir1:  No Connections, dir2: TCP 9555
+source: default/checkoutservice[Deployment], destination: default/adservice[Deployment], dir1:  No Connections, dir2: TCP 9555
+source: default/checkoutservice[Deployment], destination: default/currencyservice[Deployment], dir1:  TCP 7000, dir2: No Connections
+source: default/frontend[Deployment], destination: default/adservice[Deployment], dir1:  TCP 9555, dir2: No Connections
 
 ```
 

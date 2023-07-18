@@ -23,7 +23,8 @@ import (
 )
 
 var (
-	otherDirPath string
+	dir1 string
+	dir2 string
 )
 
 func runDiffCommand() error {
@@ -31,11 +32,8 @@ func runDiffCommand() error {
 	var err error
 
 	diffAnalyzer := diff.NewDiffAnalyzer()
-	if dirPath != "" {
-		connsDiff, err = diffAnalyzer.ConnDiffFromDirPaths(dirPath, otherDirPath)
-	} else {
-		err = errors.New("currently only Diff from two dir paths is supported")
-	}
+
+	connsDiff, err = diffAnalyzer.ConnDiffFromDirPaths(dir1, dir2)
 	if err != nil {
 		return err
 	}
@@ -51,24 +49,16 @@ func newCommandDiff() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "diff",
 		Short: "Reports changed connections",
-		Long:  `Reports all changd connections on common workloads between different networkpolicies sets`,
-		Example: ` # Get list of different allowed connections on common workloads between two resources dir paths
-		k8snetpolicy diff --dirpath ./resources_dir/ --other ./other_resources_dir/
-	  
-		# Get list of different allowed connections between live k8s cluster and a resources dir path
-		k8snetpolicy diff -k ./kube/config --other ./other_resources_dir/`,
+		Long:  `Reports all changd connections between different networkpolicies sets`,
+		Example: ` # Get list of different allowed connections between two resources dir paths
+		k8snetpolicy diff --dir1 ./resources_dir/ --dir2 ./other_resources_dir/`,
 
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			if otherDirPath == "" {
-				return errors.New("the other directory path is required")
+			if dirPath != "" {
+				return errors.New("dirpath flag is not used with diff command")
 			}
-			// call parent pre-run
-			if parent := cmd.Parent(); parent != nil {
-				if parent.PersistentPreRunE != nil {
-					if err := parent.PersistentPreRunE(cmd, args); err != nil {
-						return err
-					}
-				}
+			if dir1 == "" || dir2 == "" {
+				return errors.New("both directory paths dir1 and dir2 are required")
 			}
 			return nil
 		},
@@ -82,7 +72,8 @@ func newCommandDiff() *cobra.Command {
 	}
 
 	// define any flags and configuration settings.
-	c.Flags().StringVarP(&otherDirPath, "other", "", "", "Compare connections with resources' connections from this path")
+	c.Flags().StringVarP(&dir1, "dir1", "", "", "Original Resources path to be compared")
+	c.Flags().StringVarP(&dir2, "dir2", "", "", "New Resources path to compare with original resources path")
 
 	return c
 }
