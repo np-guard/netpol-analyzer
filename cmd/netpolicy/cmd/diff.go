@@ -15,8 +15,11 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/spf13/cobra"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/diff"
 )
 
 var (
@@ -24,6 +27,23 @@ var (
 )
 
 func runDiffCommand() error {
+	var connsDiff diff.ConnectivityDiff
+	var err error
+
+	diffAnalyzer := diff.NewDiffAnalyzer()
+	if dirPath != "" {
+		connsDiff, err = diffAnalyzer.ConnDiffFromDirPaths(dirPath, otherDirPath)
+	} else {
+		err = errors.New("currently only Diff from two dir paths is supported")
+	}
+	if err != nil {
+		return err
+	}
+	out, err := connsDiff.String()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s", out)
 	return nil
 }
 

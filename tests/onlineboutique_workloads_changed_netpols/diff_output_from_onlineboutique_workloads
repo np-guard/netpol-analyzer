@@ -1,0 +1,15 @@
+Lost Connections:
+default/checkoutservice[Deployment] => default/currencyservice[Deployment] : TCP 7000
+default/frontend[Deployment] => default/adservice[Deployment] : TCP 9555
+
+New Connections:
+default/cartservice[Deployment] => default/emailservice[Deployment] : TCP 9555
+default/checkoutservice[Deployment] => default/adservice[Deployment] : TCP 9555
+
+Changed Connections:
+**Connections Before:
+default/checkoutservice[Deployment] => default/cartservice[Deployment] : TCP 7070
+default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080
+**Connections After:
+default/checkoutservice[Deployment] => default/cartservice[Deployment] : TCP 8000
+default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080,9555

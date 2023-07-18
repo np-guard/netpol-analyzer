@@ -2,6 +2,8 @@ package diff
 
 import (
 	"path/filepath"
+	"reflect"
+	"strings"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
@@ -11,11 +13,11 @@ import (
 type DiffAnalyzer struct {
 	logger      logger.Logger
 	stopOnError bool
-	//errors        []ConnlistError
+	// errors        []ConnlistError
 	walkFn  scan.WalkFunction
 	scanner *scan.ResourcesScanner
-	//focusWorkload string
-	//outputFormat  string
+	// focusWorkload string
+	// outputFormat string
 }
 
 func NewDiffAnalyzer() *DiffAnalyzer {
@@ -25,11 +27,9 @@ func NewDiffAnalyzer() *DiffAnalyzer {
 		stopOnError: false,
 		//errors:       []ConnlistError{},
 		walkFn: filepath.WalkDir,
-		//outputFormat: DefaultFormat,
+		//outputFormat: connlist.DefaultFormat,
 	}
-	/*for _, o := range options {
-		o(ca)
-	}*/
+	// todo : add optins
 	da.scanner = scan.NewResourcesScanner(da.logger, da.stopOnError, da.walkFn)
 	return da
 }
@@ -79,29 +79,40 @@ func (d diffMap) update(key string, isFirst bool, c connlist.Peer2PeerConnection
 // TODO: should modify the keys for ip-blocks, should work with disjoint ip-blocks from both results .
 func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection) (ConnectivityDiff, error) {
 	// convert to a map from src-dst full name, to its connections pair (conns1, conns2)
-	diffMap := diffMap{}
+	diffsMap := diffMap{}
 	for _, c := range conns1 {
-		diffMap.update(getKeyFromP2PConn(c), true, c)
+		diffsMap.update(getKeyFromP2PConn(c), true, c)
 	}
 	for _, c := range conns2 {
-		diffMap.update(getKeyFromP2PConn(c), false, c)
+		diffsMap.update(getKeyFromP2PConn(c), false, c)
 	}
 	res := &connectivityDiff{
 		removedConns: []connlist.Peer2PeerConnection{},
 		addedConns:   []connlist.Peer2PeerConnection{},
 		changedConns: []*connsPair{},
 	}
-	for _, d := range diffMap {
-		if d.firstConn != nil && d.secondConn != nil {
-			res.changedConns = append(res.changedConns, d)
-		} else if d.firstConn != nil {
+	for _, d := range diffsMap {
+		switch {
+		case d.firstConn != nil && d.secondConn != nil:
+			if !equalConns(d.firstConn, d.secondConn) {
+				res.changedConns = append(res.changedConns, d)
+			}
+		case d.firstConn != nil:
 			res.removedConns = append(res.removedConns, d.firstConn)
-		} else if d.secondConn != nil {
+		case d.secondConn != nil:
 			res.addedConns = append(res.addedConns, d.secondConn)
+		default:
+			continue
 		}
 	}
 
 	return res, nil
+}
+
+// checks whether two connlist.Peer2PeerConnection objects are equal
+func equalConns(firstConn, secondConn connlist.Peer2PeerConnection) bool {
+	return firstConn.AllProtocolsAndPorts() == secondConn.AllProtocolsAndPorts() &&
+		reflect.DeepEqual(firstConn.ProtocolsAndPorts(), secondConn.ProtocolsAndPorts())
 }
 
 type connectivityDiff struct {
@@ -122,13 +133,88 @@ func (c *connectivityDiff) ChangedConnections() []*connsPair {
 	return c.changedConns
 }
 
-func (c *connectivityDiff) String() string {
-	return ""
+func (c *connectivityDiff) String() (string, error) {
+	// currently only txt output is enabled, later add switch on output format
+	clAnalyzer := connlist.NewConnlistAnalyzer() // creates a ca with default output format (txt)
+	return c.writeTxtDiffOutput(clAnalyzer)
 }
 
 type ConnectivityDiff interface {
 	RemovedConnections() []connlist.Peer2PeerConnection // only first conn exists between peers
 	AddedConnections() []connlist.Peer2PeerConnection   // only second conn exists between peers
 	ChangedConnections() []*connsPair                   // both first & second conn exists between peers
-	String() string                                     // str summary of the connectivity diff
+	String() (string, error)                            // str summary of the connectivity diff
+}
+
+/***********************************************************************************************/
+// writing outputs
+
+const (
+	// txt output headers
+	removedHeader = "Lost Connections:"
+	addedHeader   = "\nNew Connections:"
+	changedHeader = "\nChanged Connections:"
+	beforeHeader  = "**Connections Before:"
+	afterHeader   = "**Connections After:"
+)
+
+func (c *connectivityDiff) writeTxtDiffOutput(ca *connlist.ConnlistAnalyzer) (string, error) {
+	res := make([]string, 0)
+	removedLines, err := writeRemovedorAddedCategory(removedHeader, c.removedConns, ca)
+	if err != nil {
+		return "", err
+	}
+	res = append(res, removedLines)
+	addedLines, err := writeRemovedorAddedCategory(addedHeader, c.addedConns, ca)
+	if err != nil {
+		return "", err
+	}
+	res = append(res, addedLines)
+	changedLines, err := writeChangedCategory(changedHeader, c.changedConns, ca)
+	if err != nil {
+		return "", err
+	}
+	res = append(res, changedLines)
+	return strings.Join(res, connlist.GetNewLineChar()), nil
+}
+
+func writeRemovedorAddedCategory(categoryHeader string, conns []connlist.Peer2PeerConnection,
+	ca *connlist.ConnlistAnalyzer) (string, error) {
+	res := make([]string, 0)
+	res = append(res, categoryHeader)
+	categoryLines, err := ca.ConnectionsListToString(conns)
+	if err != nil {
+		return "", err
+	}
+	res = append(res, categoryLines)
+	return strings.Join(res, connlist.GetNewLineChar()), nil
+}
+
+func writeChangedCategory(categoryHeader string, connsPairs []*connsPair,
+	ca *connlist.ConnlistAnalyzer) (string, error) {
+	res := make([]string, 0)
+	res = append(res, categoryHeader)
+	beforeConns := make([]connlist.Peer2PeerConnection, 0)
+	afterConns := make([]connlist.Peer2PeerConnection, 0)
+	for _, pair := range connsPairs {
+		beforeConns = append(beforeConns, pair.firstConn)
+		afterConns = append(afterConns, pair.secondConn)
+	}
+	beforeLines, err := ca.ConnectionsListToString(beforeConns)
+	if err != nil {
+		return "", err
+	}
+	if beforeLines != "" {
+		res = append(res, beforeHeader, beforeLines)
+	}
+
+	afterLines, err := ca.ConnectionsListToString(afterConns)
+	if err != nil {
+		return "", err
+	}
+	if afterLines != "" {
+		res = append(res, afterHeader, afterLines)
+	}
+
+	return strings.Join(res, connlist.GetNewLineChar()), nil
 }
