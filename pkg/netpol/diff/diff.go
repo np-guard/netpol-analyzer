@@ -153,8 +153,8 @@ type ConnectivityDiff interface {
 
 const (
 	// txt output header
-	changedHeader = "Changed Connections:"
-	noConns       = "no conns"
+	changedHeader = "Connectivity diff:"
+	noConns       = "No Connections"
 )
 
 func (c *connectivityDiff) writeTxtDiffOutput() (string, error) {
@@ -171,7 +171,7 @@ func (c *connectivityDiff) writeTxtDiffOutput() (string, error) {
 }
 
 func singleDiffTxtLine(srcName, dstName, conn1Str, conn2Str string) string {
-	return fmt.Sprintf("source: %s, destination: %s, connections before:  %s, connections after: %s", srcName, dstName, conn1Str, conn2Str)
+	return fmt.Sprintf("source: %s, destination: %s, dir1:  %s, dir2: %s", srcName, dstName, conn1Str, conn2Str)
 }
 
 func (c *connectivityDiff) writeAddedCategory() []string {
