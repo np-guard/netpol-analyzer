@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"errors"
 	"fmt"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -345,6 +346,18 @@ func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace st
 		}
 	}
 	return res
+}
+
+// ConvertPeerNamedPort returns the peer.pod.containerPort matching the named port of the peer
+func (pe *PolicyEngine) ConvertPeerNamedPort(namedPort string, peer Peer) (int32, error) {
+	switch currPeer := peer.(type) {
+	case *k8s.WorkloadPeer:
+		return currPeer.Pod.ConvertPodNamedPort(namedPort)
+	case *k8s.PodPeer:
+		return currPeer.Pod.ConvertPodNamedPort(namedPort)
+	default:
+		return 0, errors.New("peer type does not have ports") // should not get here
+	}
 }
 
 // AddPodByNameAndNamespace adds a new fake pod to the pe.podsMap

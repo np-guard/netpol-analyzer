@@ -39,7 +39,7 @@ const (
 
 type serviceInfo struct {
 	serviceName       string
-	serviceTargetPort intstr.IntOrString // optional, used with k8s-Ingress rules only
+	serviceTargetPort intstr.IntOrString
 }
 
 // IngressAnalyzer provides API to analyze Ingress/Route resources, to allow inferring potential connectivity
@@ -157,19 +157,19 @@ func (ia *IngressAnalyzer) mapRouteToServices(rt *ocroutev1.Route) {
 // getRouteServices given Route object returns its targeted services names
 func (ia *IngressAnalyzer) getRouteServices(rt *ocroutev1.Route) []string {
 	routeStr := types.NamespacedName{Namespace: rt.Namespace, Name: rt.Name}.String()
-	targetServices := make([]string, len(rt.Spec.AlternateBackends)+1)
+	targetServices := make([]string, 0, len(rt.Spec.AlternateBackends)+1)
 	// Currently, only 'Service' is allowed as the kind of target that the route is referring to.
 	if rt.Spec.To.Kind != "" && rt.Spec.To.Kind != allowedTargetKind {
 		ia.logger.Warnf(scan.Route + " " + routeStr + ": " + routeTargetKindWarning)
 	} else {
-		targetServices[0] = rt.Spec.To.Name
+		targetServices = append(targetServices, rt.Spec.To.Name)
 	}
 
-	for i, backend := range rt.Spec.AlternateBackends {
+	for _, backend := range rt.Spec.AlternateBackends {
 		if backend.Kind != "" && backend.Kind != allowedTargetKind {
 			ia.logger.Warnf(scan.Route + " " + routeStr + ": " + routeBackendsWarning)
 		} else {
-			targetServices[i+1] = backend.Name
+			targetServices = append(targetServices, backend.Name)
 		}
 	}
 	return targetServices
@@ -238,7 +238,7 @@ func getServiceInfo(backendService *netv1.IngressServiceBackend) serviceInfo {
 
 // AllowedIngressConnections returns a map of the possible connections from ingress-controller pod to workload peers,
 // as inferred from Ingress and Route resources. The map is from a workload name to its connection object.
-func (ia *IngressAnalyzer) AllowedIngressConnections() map[string]common.Connection {
+func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]common.Connection, error) {
 	// if there is at least one route/ ingress object that targets a service which selects a dst peer,
 	// then we have ingress connections to that peer
 
@@ -246,11 +246,14 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() map[string]common.Connect
 	// 1. from routes
 	routesResult := ia.allowedIngressConnectionsByRoutes()
 	// 2. from k8s-ingress objects
-	ingressResult := ia.allowedIngressConnectionsByk8sIngress()
+	ingressResult, err := ia.allowedIngressConnectionsByk8sIngress()
+	if err != nil {
+		return nil, err
+	}
 
 	// merge the map results from routes and k8s-ingress objects
 	mergeResults(routesResult, ingressResult)
-	return ingressResult
+	return ingressResult, nil
 }
 
 // utility func
@@ -303,7 +306,7 @@ func (ia *IngressAnalyzer) getRouteTargetedPeers(ns string, svcList []string) []
 // Ingress allowed connections by k8s-ingress objects
 
 // allowedIngressConnectionsByk8sIngress returns map from peers names to the allowed ingress connections based on k8s-Ingress objects rules
-func (ia *IngressAnalyzer) allowedIngressConnectionsByk8sIngress() map[string]common.Connection {
+func (ia *IngressAnalyzer) allowedIngressConnectionsByk8sIngress() (map[string]common.Connection, error) {
 	medRes := make(map[string]*common.ConnectionSet)
 	for ns, objSvcMap := range ia.k8sIngressToServicesMap {
 		// if there are no services in same namespace of the Ingress, the ingress objects in this ns will be skipped
@@ -312,7 +315,10 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByk8sIngress() map[string]co
 		}
 
 		for _, svcList := range objSvcMap {
-			ingressObjTargetPeersAndPorts := ia.getIngressObjectTargetedPeersAndPorts(ns, svcList)
+			ingressObjTargetPeersAndPorts, err := ia.getIngressObjectTargetedPeersAndPorts(ns, svcList)
+			if err != nil {
+				return nil, err
+			}
 			// avoid duplicates in the result, consider the different ports supported
 			for peer, pConn := range ingressObjTargetPeersAndPorts {
 				if _, ok := medRes[peer.String()]; !ok {
@@ -328,12 +334,13 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByk8sIngress() map[string]co
 	for peerStr, pConn := range medRes {
 		res[peerStr] = pConn
 	}
-	return res
+	return res, nil
 }
 
 // getIngressObjectTargetedPeersAndPorts returns map from peers which are targeted by Ingress objects in their namespace to
 // the Ingress required connections
-func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string, svcList []serviceInfo) map[eval.Peer]*common.ConnectionSet {
+func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string,
+	svcList []serviceInfo) (map[eval.Peer]*common.ConnectionSet, error) {
 	res := make(map[eval.Peer]*common.ConnectionSet)
 	for _, svc := range svcList {
 		peers, ok := ia.servicesToPeersMap[ns][svc.serviceName]
@@ -342,11 +349,21 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string, svcL
 		}
 		for _, peer := range peers {
 			permittedPeerConn := common.MakeConnectionSet(false)
-			// check if its TCP conns contains the reuired port
+			// check if its TCP conns contains the required port
 			peerTCPConn := eval.GetPeerExposedTCPConnections(peer)
 			if peerTCPConn.Contains(svc.serviceTargetPort.String(), string(corev1.ProtocolTCP)) {
 				permittedPort := common.PortSet{}
-				permittedPort.AddPort(svc.serviceTargetPort)
+				var portNum int
+				if svc.serviceTargetPort.Type == intstr.Int {
+					portNum = svc.serviceTargetPort.IntValue()
+				} else {
+					portInt, err := ia.pe.ConvertPeerNamedPort(svc.serviceTargetPort.StrVal, peer)
+					if err != nil {
+						return nil, err
+					}
+					portNum = int(portInt)
+				}
+				permittedPort.AddPort(intstr.FromInt(portNum))
 				permittedPeerConn.AddConnection(corev1.ProtocolTCP, permittedPort)
 				if _, ok := res[peer]; !ok {
 					res[peer] = permittedPeerConn
@@ -356,5 +373,5 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string, svcL
 			}
 		}
 	}
-	return res
+	return res, nil
 }
