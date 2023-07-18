@@ -211,3 +211,17 @@ func variantFromLabelsMap(labels map[string]string) string {
 func getFakePodIP() string {
 	return scan.IPv4LoopbackAddr
 }
+
+func (pod *Pod) PodExposedProtocolsAndPorts() ConnectionSet {
+	res := MakeConnectionSet(false)
+	for _, cPort := range pod.Ports {
+		protocol := corev1.ProtocolTCP
+		if cPort.Protocol != "" {
+			protocol = cPort.Protocol
+		}
+		ports := PortSet{}
+		ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort))
+		res.AddConnection(protocol, ports)
+	}
+	return res
+}
