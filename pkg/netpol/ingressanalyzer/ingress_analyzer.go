@@ -15,14 +15,15 @@
 package ingressanalyzer
 
 import (
+	"strconv"
+
 	ocroutev1 "github.com/openshift/api/route/v1"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
-
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
@@ -336,21 +337,20 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string,
 			ia.logger.Warnf("ignoring target service " + svc.serviceName + " : service not found")
 		}
 		for _, peer := range peers {
+			// if the service port is namedPort , check if the peer contains this port name and get its matching port number
+			portNum := svc.serviceTargetPort.IntValue()
+			if svc.serviceTargetPort.StrVal != "" {
+				portInt, err := ia.pe.ConvertPeerNamedPort(svc.serviceTargetPort.StrVal, peer)
+				if err != nil {
+					return nil, err
+				}
+				portNum = int(portInt)
+			}
 			permittedPeerConn := common.MakeConnectionSet(false)
 			// check if its TCP conns contains the required port
 			peerTCPConn := eval.GetPeerExposedTCPConnections(peer)
-			if peerTCPConn.Contains(svc.serviceTargetPort.String(), string(corev1.ProtocolTCP)) {
+			if peerTCPConn.Contains(strconv.Itoa(portNum), string(corev1.ProtocolTCP)) {
 				permittedPort := common.PortSet{}
-				var portNum int
-				if svc.serviceTargetPort.Type == intstr.Int {
-					portNum = svc.serviceTargetPort.IntValue()
-				} else {
-					portInt, err := ia.pe.ConvertPeerNamedPort(svc.serviceTargetPort.StrVal, peer)
-					if err != nil {
-						return nil, err
-					}
-					portNum = int(portInt)
-				}
 				permittedPort.AddPort(intstr.FromInt(portNum))
 				permittedPeerConn.AddConnection(corev1.ProtocolTCP, permittedPort)
 				if _, ok := res[peer]; !ok {

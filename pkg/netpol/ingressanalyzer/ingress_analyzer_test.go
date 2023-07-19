@@ -147,6 +147,20 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 				},
 			},
 		},
+		{
+			dirpath:        "ingress_example_with_named_port",
+			processingErrs: 1, // no network-policies
+			testIngressEntries: []ingressToPod{
+				{
+					peerName:       "hello-deployment",
+					peerNamespace:  "hello",
+					peerType:       scan.Deployment,
+					allConnections: false,
+					ports:          []int64{8080},
+					protocol:       "TCP",
+				},
+			},
+		},
 	}
 
 	for _, testEntry := range testingEntries {
