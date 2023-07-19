@@ -381,7 +381,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		return nil, err
 	}
 
-	// compute connections between peers based on pe policies rules
+	// compute connections between peers based on pe analysis of network policies
 	peersAllowedConns, err := ca.getConnectionsBetweenPeers(pe, peerList)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
