@@ -1,6 +1,8 @@
-// The connlist package of netpol-analyzer allows producing a k8s connectivity report based on network policies.
+// The connlist package of netpol-analyzer allows producing a k8s connectivity report based on several resources:
+// k8s NetworkPolicy, k8s Ingress, openshift Route
 // It lists the set of allowed connections between each pair of different peers (k8s workloads or ip-blocks).
 // Connections between workload to itself are excluded from the output.
+// Connectivity inferred from Ingress/Route resources is between {ingress-controller} to k8s workloads.
 // The resources can be extracted from a directory containing YAML manifests, or from a k8s cluster.
 // For more information, see https://github.com/np-guard/netpol-analyzer.
 package connlist

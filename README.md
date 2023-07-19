@@ -42,7 +42,8 @@ Global Flags:
 
 ### List command
 ```
-Lists all allowed connections based on the workloads and network policies defined.
+Lists all allowed connections based on the workloads, network policies, and Ingress/Route resources defined.
+
 Connections between workload to itself are excluded from the output.
 
 Usage:
@@ -97,6 +98,8 @@ default/recommendationservice[Deployment] => default/productcatalogservice[Deplo
 default/redis-cart[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
 
 ```
+
+Additional details about the connectivity analysis and its output is specified [here](docs/connlist_output.md).
 
 ## Build the project
 
