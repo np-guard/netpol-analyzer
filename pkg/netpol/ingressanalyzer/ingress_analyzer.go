@@ -336,36 +336,41 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string,
 func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServicePorts []corev1.ServicePort,
 	requiredPort intstr.IntOrString) (*common.ConnectionSet, error) {
 	peerTCPConn := eval.GetPeerExposedTCPConnections(peer)
-	// if the required port is not specified - all peer's TCP connections are allowed for ingress
-	if requiredPort.IntVal == 0 && requiredPort.StrVal == "" {
-		return peerTCPConn, nil
-	}
-	// get the peer port which may be accessed by the service required port
-	peerPortToFind := getPeerAccessPort(actualServicePorts, requiredPort)
-	// compute the connection to the peer with the required port
+	// get the peer port/s which may be accessed by the service required port
+	// (if the required port is not specified, all service ports are allowed)
+	peerPortsToFind := getPeerAccessPort(actualServicePorts, requiredPort)
+	// compute the connection to the peer with the required port/s
 	res := common.MakeConnectionSet(false)
-	portNum := peerPortToFind.IntValue()
-	if peerPortToFind.StrVal != "" { // if the port we are searching for is namedPort
-		portInt, err := ia.pe.ConvertPeerNamedPort(peerPortToFind.StrVal, peer)
-		if err != nil {
-			return nil, err
+	for _, peerPortToFind := range peerPortsToFind {
+		portNum := peerPortToFind.IntValue()
+		if peerPortToFind.StrVal != "" { // if the port we are searching for is namedPort
+			portInt, err := ia.pe.ConvertPeerNamedPort(peerPortToFind.StrVal, peer)
+			if err != nil {
+				return nil, err
+			}
+			portNum = int(portInt)
 		}
-		portNum = int(portInt)
-	}
 
-	if peerTCPConn.Contains(strconv.Itoa(portNum), string(corev1.ProtocolTCP)) {
-		permittedPort := common.PortSet{}
-		permittedPort.AddPort(intstr.FromInt(portNum))
-		res.AddConnection(corev1.ProtocolTCP, permittedPort)
+		if peerTCPConn.Contains(strconv.Itoa(portNum), string(corev1.ProtocolTCP)) {
+			permittedPort := common.PortSet{}
+			permittedPort.AddPort(intstr.FromInt(portNum))
+			res.AddConnection(corev1.ProtocolTCP, permittedPort)
+		}
 	}
 	return res, nil
 }
 
 // getPeerAccessPort returns the peer's port to be exposed based on the service's port.targetPort value
-func getPeerAccessPort(actualServicePorts []corev1.ServicePort, requiredPort intstr.IntOrString) intstr.IntOrString {
-	var svcPodAccessPort intstr.IntOrString
-	// get the peer port to find from the required port
+func getPeerAccessPort(actualServicePorts []corev1.ServicePort, requiredPort intstr.IntOrString) []intstr.IntOrString {
+	res := make([]intstr.IntOrString, 0)
+	requiredPortEmpty := false // if the required port is empty , then all service's target ports will be used (required)
+	if requiredPort.IntVal == 0 && requiredPort.StrVal == "" {
+		requiredPortEmpty = true
+	}
+
+	// get the peer port/s to find from the required port
 	for _, svcPort := range actualServicePorts {
+		var svcPodAccessPort intstr.IntOrString
 		// extracting the pod access port from the service port
 		if !(svcPort.TargetPort.IntVal == 0 && svcPort.TargetPort.StrVal == "") {
 			// servicePort.TargetPort is Number or name of the port to access on the pods targeted by the service.
@@ -374,13 +379,18 @@ func getPeerAccessPort(actualServicePorts []corev1.ServicePort, requiredPort int
 			// if servicePort.TargetPort is not specified, the value of the 'port' field is used
 			svcPodAccessPort.IntVal = svcPort.Port
 		}
-		// checking if the service port matches the required port, if yes returning its pod access port
-		switch {
-		case svcPort.Name != "" && svcPort.Name == requiredPort.StrVal, // or
-			svcPort.Port == requiredPort.IntVal, // or
-			svcPort.TargetPort == requiredPort:
-			return svcPodAccessPort
+
+		switch requiredPortEmpty {
+		case false: // the required port is specified (not empty)
+			// checking if the service port matches the required port, if yes returning its pod access port
+			if svcPort.Name != "" && svcPort.Name == requiredPort.StrVal || svcPort.Port == requiredPort.IntVal ||
+				svcPort.TargetPort == requiredPort {
+				res = append(res, svcPodAccessPort)
+				return res
+			}
+		case true:
+			res = append(res, svcPodAccessPort)
 		}
 	}
-	return svcPodAccessPort // with empty values
+	return res
 }
