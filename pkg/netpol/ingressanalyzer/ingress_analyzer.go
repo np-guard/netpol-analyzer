@@ -350,7 +350,7 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 		return peerTCPConn, nil
 	}
 	// get the peer port which may be accessed by the service required port
-	peerPortToFind := getPeerAccssesPort(actualServicePorts, requiredPort)
+	peerPortToFind := getPeerAccessPort(actualServicePorts, requiredPort)
 	// compute the connection to the peer with the required port
 	res := common.MakeConnectionSet(false)
 	portNum := peerPortToFind.IntValue()
@@ -370,8 +370,8 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 	return res, nil
 }
 
-// getPeerAccssesPort returns the peer's port to be exposed based on the service's port.targetPort value
-func getPeerAccssesPort(actualServicePorts []corev1.ServicePort, requiredPort intstr.IntOrString) intstr.IntOrString {
+// getPeerAccessPort returns the peer's port to be exposed based on the service's port.targetPort value
+func getPeerAccessPort(actualServicePorts []corev1.ServicePort, requiredPort intstr.IntOrString) intstr.IntOrString {
 	var svcPodAccessPort intstr.IntOrString
 	// get the peer port to find from the required port
 	for _, svcPort := range actualServicePorts {
