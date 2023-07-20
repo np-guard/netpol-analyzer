@@ -35,6 +35,7 @@ const defaultPortsListSize = 8
 type Pod struct {
 	Name      string
 	Namespace string
+	FakePod   bool // this flag is used to indicate if the pod is created from scanner objects or fake (ingress-controller)
 	Labels    map[string]string
 	IPs       []corev1.PodIP
 	Ports     []corev1.ContainerPort
@@ -67,6 +68,7 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		Ports:     make([]corev1.ContainerPort, 0, defaultPortsListSize),
 		HostIP:    p.Status.HostIP,
 		Owner:     Owner{},
+		FakePod:   false,
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -188,6 +190,7 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.Ports = make([]corev1.ContainerPort, 0, defaultPortsListSize)
 		pod.HostIP = getFakePodIP()
 		pod.Owner = Owner{Name: workloadName, Kind: kind, APIVersion: APIVersion}
+		pod.FakePod = false
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
 		}

@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 )
 
@@ -66,7 +65,7 @@ func TestServiceMappingToPods(t *testing.T) {
 		},
 	}
 
-	path := filepath.Join(testutils.GetTestsDir(), "services", "services_with_selectors")
+	path := filepath.Join(getTestsDir(), "services", "services_with_selectors")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
 	require.Len(t, processingErrs, 1) // no policies
 	require.Len(t, objects, 16)       // found 5 services and 11 pods
@@ -82,7 +81,7 @@ func TestServiceMappingToPods(t *testing.T) {
 }
 
 func TestNotSupportedService(t *testing.T) {
-	path := filepath.Join(testutils.GetTestsDir(), "services", "services_without_selector")
+	path := filepath.Join(getTestsDir(), "services", "services_without_selector")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
 	require.Len(t, objects, 1)        // 1 service object
 	require.Len(t, processingErrs, 2) // no policies nor workloads

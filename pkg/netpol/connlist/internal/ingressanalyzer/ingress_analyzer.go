@@ -31,6 +31,13 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
+const (
+	//  The actual ingress controller pod is usually unknown and not available in the input resources for the analysis.
+	// IngressPodName and IngressPodNamespace are used to represent  that pod with those placeholder values for name and namespace.
+	IngressPodName      = "ingress-controller"
+	IngressPodNamespace = "ingress-controller-ns"
+)
+
 type serviceInfo struct {
 	// used to populate routesToServicesMap and k8sIngressToServicesMap with their target services info
 	serviceName string
@@ -80,6 +87,11 @@ func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngi
 		}
 	}
 	return ia, err
+}
+
+// IsEmpty returns whether there are no services to consider for Ingress analysis
+func (ia *IngressAnalyzer) IsEmpty() bool {
+	return len(ia.routesToServicesMap) == 0 && len(ia.k8sIngressToServicesMap) == 0
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
