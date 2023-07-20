@@ -187,18 +187,18 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 		require.Empty(t, err)
 		ingressConns, err := ia.AllowedIngressConnections()
 		require.Empty(t, err)
-		for _, ingressEentry := range testEntry.testIngressEntries {
-			peerStr := types.NamespacedName{Name: ingressEentry.peerName, Namespace: ingressEentry.peerNamespace}.String() +
-				"[" + ingressEentry.peerType + "]"
+		for _, ingressEntry := range testEntry.testIngressEntries {
+			peerStr := types.NamespacedName{Name: ingressEntry.peerName, Namespace: ingressEntry.peerNamespace}.String() +
+				"[" + ingressEntry.peerType + "]"
 			require.Contains(t, ingressConns, peerStr)
 			peerAndConn := ingressConns[peerStr]
-			require.Equal(t, peerAndConn.conn.AllConnections(), ingressEentry.allConnections)
-			if !peerAndConn.conn.AllConnections() {
-				require.Contains(t, peerAndConn.conn.ProtocolsAndPortsMap(), v1.Protocol(ingressEentry.protocol))
-				connPortRange := peerAndConn.conn.ProtocolsAndPortsMap()[v1.Protocol(ingressEentry.protocol)]
-				require.Len(t, connPortRange, len(ingressEentry.ports))
-				for i := range ingressEentry.ports {
-					require.Equal(t, connPortRange[i].Start(), ingressEentry.ports[i])
+			require.Equal(t, peerAndConn.ConnSet.AllConnections(), ingressEntry.allConnections)
+			if !peerAndConn.ConnSet.AllConnections() {
+				require.Contains(t, peerAndConn.ConnSet.ProtocolsAndPortsMap(), v1.Protocol(ingressEntry.protocol))
+				connPortRange := peerAndConn.ConnSet.ProtocolsAndPortsMap()[v1.Protocol(ingressEntry.protocol)]
+				require.Len(t, connPortRange, len(ingressEntry.ports))
+				for i := range ingressEntry.ports {
+					require.Equal(t, connPortRange[i].Start(), ingressEntry.ports[i])
 				}
 			}
 		}
