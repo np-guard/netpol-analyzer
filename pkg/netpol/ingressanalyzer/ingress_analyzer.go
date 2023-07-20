@@ -270,7 +270,11 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]PeerAndIngres
 // mergeResults merges routesMap into ingressMap , since routesMap may be wider with peers connections
 func mergeResults(routesMap, ingressMap map[string]PeerAndIngressConnSet) {
 	for k, v := range routesMap {
-		ingressMap[k] = v
+		if _, ok := ingressMap[k]; ok {
+			ingressMap[k].ConnSet.Union(v.ConnSet)
+		} else {
+			ingressMap[k] = v
+		}
 	}
 }
 
@@ -364,8 +368,10 @@ func getPeerAccessPort(actualServicePorts []corev1.ServicePort, requiredPort int
 	for _, svcPort := range actualServicePorts {
 		// extracting the pod access port from the service port
 		if !(svcPort.TargetPort.IntVal == 0 && svcPort.TargetPort.StrVal == "") {
+			// servicePort.TargetPort is Number or name of the port to access on the pods targeted by the service.
 			svcPodAccessPort = svcPort.TargetPort
 		} else {
+			// if servicePort.TargetPort is not specified, the value of the 'port' field is used
 			svcPodAccessPort.IntVal = svcPort.Port
 		}
 		// checking if the service port matches the required port, if yes returning its pod access port
