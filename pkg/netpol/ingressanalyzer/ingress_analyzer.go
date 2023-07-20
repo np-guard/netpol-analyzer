@@ -251,12 +251,12 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]peerAndIngres
 
 	// get all targeted workload peers and compute allowed conns of each workload peer
 	// 1. from routes
-	routesResult, err := ia.allowedIngressConnectionsByResourcesType(true)
+	routesResult, err := ia.allowedIngressConnectionsByResourcesType(ia.routesToServicesMap)
 	if err != nil {
 		return nil, err
 	}
 	// 2. from k8s-ingress objects
-	ingressResult, err := ia.allowedIngressConnectionsByResourcesType(false)
+	ingressResult, err := ia.allowedIngressConnectionsByResourcesType(ia.k8sIngressToServicesMap)
 	if err != nil {
 		return nil, err
 	}
@@ -282,12 +282,9 @@ type peerAndIngressConnSet struct {
 
 // allowedIngressConnectionsByResourcesType returns map from peers names to the allowed ingress connections
 // based on k8s-Ingress/routes objects rules
-func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(isRoute bool) (map[string]peerAndIngressConn, error) {
+func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate map[string]map[string][]serviceInfo) (
+	map[string]peerAndIngressConn, error) {
 	medRes := make(map[string]peerAndIngressConnSet)
-	mapToIterate := ia.routesToServicesMap
-	if !isRoute {
-		mapToIterate = ia.k8sIngressToServicesMap
-	}
 	for ns, objSvcMap := range mapToIterate {
 		// if there are no services in same namespace of the Ingress, the ingress objects in this ns will be skipped
 		if _, ok := ia.servicesToPortsAndPeersMap[ns]; !ok {
@@ -316,7 +313,7 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(isRoute bool
 	return res, nil
 }
 
-// getIngressObjectTargetedPeersAndPorts returns map from peers which are targeted by Route/Ingress objects in their namespace to
+// getIngressObjectTargetedPeersAndPorts returns map from peers which are targeted by Route/k8s-Ingress objects in their namespace to
 // the Ingress required connections
 func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string,
 	svcList []serviceInfo) (map[eval.Peer]*common.ConnectionSet, error) {
