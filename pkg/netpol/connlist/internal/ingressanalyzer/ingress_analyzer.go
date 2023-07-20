@@ -249,26 +249,26 @@ func getServiceInfo(backendService *netv1.IngressServiceBackend) serviceInfo {
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Ingress allowed connections
 
-type peerAndIngressConn struct {
-	// used for the final result representation of AllowedIngressConnections
-	peer eval.Peer
-	conn common.Connection
+type PeerAndIngressConnSet struct {
+	// used for computations and rtype of allowedIngressConnectionsByResourcesType
+	Peer    eval.Peer
+	ConnSet *common.ConnectionSet
 }
 
 // AllowedIngressConnections returns a map of the possible connections from ingress-controller pod to workload peers,
 // as inferred from Ingress and Route resources. The map is from a workload name to its connection object.
-func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]peerAndIngressConn, error) {
+func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]PeerAndIngressConnSet, error) {
 	// if there is at least one route/ ingress object that targets a service which selects a dst peer,
 	// then we have ingress connections to that peer
 
 	// get all targeted workload peers and compute allowed conns of each workload peer
 	// 1. from routes
-	routesResult, err := ia.allowedIngressConnectionsByResourcesType(true)
+	routesResult, err := ia.allowedIngressConnectionsByResourcesType(ia.routesToServicesMap)
 	if err != nil {
 		return nil, err
 	}
 	// 2. from k8s-ingress objects
-	ingressResult, err := ia.allowedIngressConnectionsByResourcesType(false)
+	ingressResult, err := ia.allowedIngressConnectionsByResourcesType(ia.k8sIngressToServicesMap)
 	if err != nil {
 		return nil, err
 	}
@@ -280,26 +280,21 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]peerAndIngres
 
 // utility func
 // mergeResults merges routesMap into ingressMap , since routesMap may be wider with peers connections
-func mergeResults(routesMap, ingressMap map[string]peerAndIngressConn) {
+func mergeResults(routesMap, ingressMap map[string]PeerAndIngressConnSet) {
 	for k, v := range routesMap {
-		ingressMap[k] = v
+		if _, ok := ingressMap[k]; ok {
+			ingressMap[k].ConnSet.Union(v.ConnSet)
+		} else {
+			ingressMap[k] = v
+		}
 	}
-}
-
-type peerAndIngressConnSet struct {
-	// used for mid computations of allowedIngressConnectionsByResourcesType
-	peer    eval.Peer
-	connSet *common.ConnectionSet
 }
 
 // allowedIngressConnectionsByResourcesType returns map from peers names to the allowed ingress connections
 // based on k8s-Ingress/routes objects rules
-func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(isRoute bool) (map[string]peerAndIngressConn, error) {
-	medRes := make(map[string]peerAndIngressConnSet)
-	mapToIterate := ia.routesToServicesMap
-	if !isRoute {
-		mapToIterate = ia.k8sIngressToServicesMap
-	}
+func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate map[string]map[string][]serviceInfo) (
+	map[string]PeerAndIngressConnSet, error) {
+	res := make(map[string]PeerAndIngressConnSet)
 	for ns, objSvcMap := range mapToIterate {
 		// if there are no services in same namespace of the Ingress, the ingress objects in this ns will be skipped
 		if _, ok := ia.servicesToPortsAndPeersMap[ns]; !ok {
@@ -312,23 +307,19 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(isRoute bool
 			}
 			// avoid duplicates in the result, consider the different ports supported
 			for peer, pConn := range ingressObjTargetPeersAndPorts {
-				if _, ok := medRes[peer.String()]; !ok {
-					medRes[peer.String()] = peerAndIngressConnSet{peer: peer, connSet: pConn}
+				if _, ok := res[peer.String()]; !ok {
+					res[peer.String()] = PeerAndIngressConnSet{Peer: peer, ConnSet: pConn}
 				} else {
-					medRes[peer.String()].connSet.Union(pConn)
+					res[peer.String()].ConnSet.Union(pConn)
 				}
 			}
 		}
 	}
-	// convert all conns to common.Connection for outer representation
-	res := make(map[string]peerAndIngressConn, len(medRes))
-	for peerStr, peerAndConn := range medRes {
-		res[peerStr] = peerAndIngressConn{peer: peerAndConn.peer, conn: peerAndConn.connSet}
-	}
+
 	return res, nil
 }
 
-// getIngressObjectTargetedPeersAndPorts returns map from peers which are targeted by Ingress objects in their namespace to
+// getIngressObjectTargetedPeersAndPorts returns map from peers which are targeted by Route/k8s-Ingress objects in their namespace to
 // the Ingress required connections
 func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string,
 	svcList []serviceInfo) (map[eval.Peer]*common.ConnectionSet, error) {
@@ -357,49 +348,61 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string,
 func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServicePorts []corev1.ServicePort,
 	requiredPort intstr.IntOrString) (*common.ConnectionSet, error) {
 	peerTCPConn := eval.GetPeerExposedTCPConnections(peer)
-	// if the required port is not specified - all peer's TCP connections are allowed for ingress
-	if requiredPort.IntVal == 0 && requiredPort.StrVal == "" {
-		return peerTCPConn, nil
-	}
-	// get the peer port which may be accessed by the service required port
-	peerPortToFind := getPeerAccssesPort(actualServicePorts, requiredPort)
-	// compute the connection to the peer with the required port
+	// get the peer port/s which may be accessed by the service required port
+	// (if the required port is not specified, all service ports are allowed)
+	peerPortsToFind := getPeerAccessPort(actualServicePorts, requiredPort)
+	// compute the connection to the peer with the required port/s
 	res := common.MakeConnectionSet(false)
-	portNum := peerPortToFind.IntValue()
-	if peerPortToFind.StrVal != "" { // if the port we are searching for is namedPort
-		portInt, err := ia.pe.ConvertPeerNamedPort(peerPortToFind.StrVal, peer)
-		if err != nil {
-			return nil, err
+	for _, peerPortToFind := range peerPortsToFind {
+		portNum := peerPortToFind.IntValue()
+		if peerPortToFind.StrVal != "" { // if the port we are searching for is namedPort
+			portInt, err := ia.pe.ConvertPeerNamedPort(peerPortToFind.StrVal, peer)
+			if err != nil {
+				return nil, err
+			}
+			portNum = int(portInt)
 		}
-		portNum = int(portInt)
-	}
 
-	if peerTCPConn.Contains(strconv.Itoa(portNum), string(corev1.ProtocolTCP)) {
-		permittedPort := common.PortSet{}
-		permittedPort.AddPort(intstr.FromInt(portNum))
-		res.AddConnection(corev1.ProtocolTCP, permittedPort)
+		if peerTCPConn.Contains(strconv.Itoa(portNum), string(corev1.ProtocolTCP)) {
+			permittedPort := common.PortSet{}
+			permittedPort.AddPort(intstr.FromInt(portNum))
+			res.AddConnection(corev1.ProtocolTCP, permittedPort)
+		}
 	}
 	return res, nil
 }
 
-// getPeerAccssesPort returns the peer's port to be exposed based on the service's port.targetPort value
-func getPeerAccssesPort(actualServicePorts []corev1.ServicePort, requiredPort intstr.IntOrString) intstr.IntOrString {
-	var svcPodAccessPort intstr.IntOrString
-	// get the peer port to find from the required port
+// getPeerAccessPort returns the peer's port to be exposed based on the service's port.targetPort value
+func getPeerAccessPort(actualServicePorts []corev1.ServicePort, requiredPort intstr.IntOrString) []intstr.IntOrString {
+	res := make([]intstr.IntOrString, 0)
+	requiredPortEmpty := false // if the required port is empty , then all service's target ports will be used (required)
+	if requiredPort.IntVal == 0 && requiredPort.StrVal == "" {
+		requiredPortEmpty = true
+	}
+
+	// get the peer port/s to find from the required port
 	for _, svcPort := range actualServicePorts {
+		var svcPodAccessPort intstr.IntOrString
 		// extracting the pod access port from the service port
 		if !(svcPort.TargetPort.IntVal == 0 && svcPort.TargetPort.StrVal == "") {
+			// servicePort.TargetPort is Number or name of the port to access on the pods targeted by the service.
 			svcPodAccessPort = svcPort.TargetPort
 		} else {
+			// if servicePort.TargetPort is not specified, the value of the 'port' field is used
 			svcPodAccessPort.IntVal = svcPort.Port
 		}
-		// checking if the service port matches the required port, if yes returning its pod access port
-		switch {
-		case svcPort.Name != "" && svcPort.Name == requiredPort.StrVal, // or
-			svcPort.Port == requiredPort.IntVal, // or
-			svcPort.TargetPort == requiredPort:
-			return svcPodAccessPort
+
+		switch requiredPortEmpty {
+		case false: // the required port is specified (not empty)
+			// checking if the service port matches the required port, if yes returning its pod access port
+			if svcPort.Name != "" && svcPort.Name == requiredPort.StrVal || svcPort.Port == requiredPort.IntVal ||
+				svcPort.TargetPort == requiredPort {
+				res = append(res, svcPodAccessPort)
+				return res
+			}
+		case true:
+			res = append(res, svcPodAccessPort)
 		}
 	}
-	return svcPodAccessPort // with empty values
+	return res
 }
