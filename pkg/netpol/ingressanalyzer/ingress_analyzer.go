@@ -316,7 +316,7 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(isRoute bool
 	return res, nil
 }
 
-// getIngressObjectTargetedPeersAndPorts returns map from peers which are targeted by Ingress objects in their namespace to
+// getIngressObjectTargetedPeersAndPorts returns map from peers which are targeted by Route/Ingress objects in their namespace to
 // the Ingress required connections
 func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string,
 	svcList []serviceInfo) (map[eval.Peer]*common.ConnectionSet, error) {
