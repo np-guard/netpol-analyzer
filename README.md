@@ -71,6 +71,21 @@ Global Flags:
   -v, --verbose             Runs with more informative messages printed to log
 ```
 
+### Diff command
+```
+Reports all different allowed connections between different networkpolicies sets.
+
+Usage:
+  k8snetpolicy diff [flags]
+
+Examples:
+  # Get list of different allowed connections between two resources dir paths
+  k8snetpolicy diff --dir1 ./resources_dir/ --dir2 ./other_resources_dir/
+
+Flags:
+      --dir1  First resources dir path
+      --dir2  Second resources dir path to be compared with the first dir path
+  -h, --help   help for list
 
 
 ### Example outputs:
@@ -100,6 +115,17 @@ default/frontend[Deployment] => default/shippingservice[Deployment] : TCP 50051
 default/loadgenerator[Deployment] => default/frontend[Deployment] : TCP 8080
 default/recommendationservice[Deployment] => default/productcatalogservice[Deployment] : TCP 3550
 default/redis-cart[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+
+
+
+$ k8snetpolicy diff --dir1 tests/onlineboutique_workloads --dir2 tests/onlineboutique_workloads_changed_netpols
+
+source: default/checkoutservice[Deployment], destination: default/cartservice[Deployment], dir1:  TCP 7070, dir2: TCP 8000
+source: default/checkoutservice[Deployment], destination: default/emailservice[Deployment], dir1:  TCP 8080, dir2: TCP 8080,9555
+source: default/cartservice[Deployment], destination: default/emailservice[Deployment], dir1:  No Connections, dir2: TCP 9555
+source: default/checkoutservice[Deployment], destination: default/adservice[Deployment], dir1:  No Connections, dir2: TCP 9555
+source: default/checkoutservice[Deployment], destination: default/currencyservice[Deployment], dir1:  TCP 7000, dir2: No Connections
+source: default/frontend[Deployment], destination: default/adservice[Deployment], dir1:  TCP 9555, dir2: No Connections
 
 ```
 

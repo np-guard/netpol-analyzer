@@ -326,7 +326,7 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 }
 
 // return a string representation of a connection type (protocols and ports)
-func getProtocolsAndPortsStr(c Peer2PeerConnection) string {
+func GetProtocolsAndPortsStr(c Peer2PeerConnection) string {
 	if c.AllProtocolsAndPorts() {
 		return "All Connections"
 	}

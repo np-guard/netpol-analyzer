@@ -99,6 +99,7 @@ func newCommandRoot() *cobra.Command {
 	// add sub-commands
 	c.AddCommand(newCommandEvaluate())
 	c.AddCommand(newCommandList())
+	c.AddCommand(newCommandDiff())
 
 	return c
 }
