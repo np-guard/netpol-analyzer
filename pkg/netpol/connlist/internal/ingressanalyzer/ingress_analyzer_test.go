@@ -77,6 +77,20 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			},
 		},
 		{
+			dirpath:        "route_example_with_target_port",
+			processingErrs: 1, // no network-policies
+			testIngressEntries: []ingressToPod{
+				{
+					peerName:       "workload-with-multiple-ports",
+					peerNamespace:  "routes-world",
+					peerType:       scan.Deployment,
+					allConnections: false,
+					ports:          []int64{8000, 8090},
+					protocol:       "TCP",
+				},
+			},
+		},
+		{
 			dirpath:        "k8s_ingress_test",
 			processingErrs: 1, // no network-policies
 			testIngressEntries: []ingressToPod{
@@ -162,6 +176,20 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 				},
 			},
 		},
+		{
+			dirpath:        "ingress_example_with_named_port",
+			processingErrs: 1, // no network-policies
+			testIngressEntries: []ingressToPod{
+				{
+					peerName:       "hello-deployment",
+					peerNamespace:  "hello",
+					peerType:       scan.Deployment,
+					allConnections: false,
+					ports:          []int64{8080},
+					protocol:       "TCP",
+				},
+			},
+		},
 	}
 
 	for _, testEntry := range testingEntries {
@@ -178,11 +206,11 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			peerStr := types.NamespacedName{Name: ingressEentry.peerName, Namespace: ingressEentry.peerNamespace}.String() +
 				"[" + ingressEentry.peerType + "]"
 			require.Contains(t, ingressConns, peerStr)
-			conn := ingressConns[peerStr]
-			require.Equal(t, conn.AllConnections(), ingressEentry.allConnections)
-			if !conn.AllConnections() {
-				require.Contains(t, conn.ProtocolsAndPortsMap(), v1.Protocol(ingressEentry.protocol))
-				connPortRange := conn.ProtocolsAndPortsMap()[v1.Protocol(ingressEentry.protocol)]
+			peerAndConn := ingressConns[peerStr]
+			require.Equal(t, peerAndConn.conn.AllConnections(), ingressEentry.allConnections)
+			if !peerAndConn.conn.AllConnections() {
+				require.Contains(t, peerAndConn.conn.ProtocolsAndPortsMap(), v1.Protocol(ingressEentry.protocol))
+				connPortRange := peerAndConn.conn.ProtocolsAndPortsMap()[v1.Protocol(ingressEentry.protocol)]
 				require.Len(t, connPortRange, len(ingressEentry.ports))
 				for i := range ingressEentry.ports {
 					require.Equal(t, connPortRange[i].Start(), ingressEentry.ports[i])

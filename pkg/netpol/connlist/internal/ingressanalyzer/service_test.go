@@ -75,7 +75,7 @@ func TestServiceMappingToPods(t *testing.T) {
 	require.Empty(t, err)
 
 	for _, serviceMappingItem := range serviceMappingList {
-		require.Len(t, ia.servicesToPeersMap[serviceMappingItem.serviceNamespace][serviceMappingItem.serviceName],
+		require.Len(t, ia.servicesToPortsAndPeersMap[serviceMappingItem.serviceNamespace][serviceMappingItem.serviceName].peers,
 			serviceMappingItem.numWorkloads)
 	}
 }
@@ -87,5 +87,5 @@ func TestNotSupportedService(t *testing.T) {
 	require.Len(t, processingErrs, 2) // no policies nor workloads
 	ia, err := NewIngressAnalyzerWithObjects(objects, nil, logger.NewDefaultLogger())
 	require.Empty(t, err)
-	require.Len(t, ia.servicesToPeersMap, 0) // service was ignored
+	require.Len(t, ia.servicesToPortsAndPeersMap, 0) // service was ignored
 }

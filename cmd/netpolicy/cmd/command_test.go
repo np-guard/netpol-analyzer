@@ -255,6 +255,19 @@ func TestCommannds(t *testing.T) {
 			exact: true,
 			isErr: false,
 		},
+		{
+			name: "test_illegal_use_of_quiet_and_verbose_flags",
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				"-q",
+				"-v",
+			},
+			expectedOutput: "-q and -v cannot be specified together",
+			containment:    true,
+			isErr:          true,
+		},
 	}
 
 	for _, test := range tests {

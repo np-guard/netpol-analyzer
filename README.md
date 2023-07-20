@@ -38,6 +38,8 @@ Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
   -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster 
+  -q, --quiet               Runs quietly, reports only severe errors and results
+  -v, --verbose             Runs with more informative messages printed to log
 ```
 
 ### List command
@@ -65,6 +67,8 @@ Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
   -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
+  -q, --quiet               Runs quietly, reports only severe errors and results
+  -v, --verbose             Runs with more informative messages printed to log
 ```
 
 

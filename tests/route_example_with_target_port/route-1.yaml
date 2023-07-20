@@ -1,13 +1,15 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: asset-cache 
-  namespace: frontend 
+  name: route-1
+  namespace: routes-world 
   labels:
-    app: asset-cache
+    app: routes-world
 spec:
   to:
     kind: Service
-    name: asset-cache-service
+    name: routes-world-svc
     weight: 100
+  port:
+    targetPort: first-port
   wildcardPolicy: None
