@@ -91,7 +91,7 @@ func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngi
 
 // IsEmpty returns whether there are no services to consider for Ingress analysis
 func (ia *IngressAnalyzer) IsEmpty() bool {
-	return len(ia.routesToServicesMap) == 0 || len(ia.k8sIngressToServicesMap) == 0
+	return len(ia.routesToServicesMap) == 0 && len(ia.k8sIngressToServicesMap) == 0
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

@@ -376,15 +376,8 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		return res, nil
 	}
 
-	// get workload peers and ip blocks
-	peerList, err := pe.GetPeersList()
-	if err != nil {
-		ca.errors = append(ca.errors, newResourceEvaluationError(err))
-		return nil, err
-	}
-
 	// compute connections between peers based on pe analysis of network policies
-	peersAllowedConns, err := ca.getConnectionsBetweenPeers(pe, peerList)
+	peersAllowedConns, err := ca.getConnectionsBetweenPeers(pe)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, err
@@ -396,18 +389,29 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	}
 
 	// analyze ingress connections - create connection objects for relevant ingress analyzer connections
-	ingressAllowedConns, err := ca.getIngressAllowedConnections(ia, pe, peerList)
+	ingressAllowedConns, err := ca.getIngressAllowedConnections(ia, pe)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, err
 	}
 	res = append(res, ingressAllowedConns...)
+
+	if len(peersAllowedConns) == 0 {
+		ca.logger.Warnf("connectivity analysis found no allowed connectivity between pairs from the configured workloads or external IP-blocks")
+	}
+
 	return res, nil
 }
 
 // getConnectionsList returns connections list from PolicyEngine object
-func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine,
-	peerList []eval.Peer) ([]Peer2PeerConnection, error) {
+func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
+	// get workload peers and ip blocks
+	peerList, err := pe.GetPeersList()
+	if err != nil {
+		ca.errors = append(ca.errors, newResourceEvaluationError(err))
+		return nil, err
+	}
+
 	res := make([]Peer2PeerConnection, 0)
 	for i := range peerList {
 		for j := range peerList {
@@ -438,7 +442,7 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine,
 
 // getIngressAllowedConnections returns connections list from IngressAnalyzer intersected with PolicyEngine's connections
 func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.IngressAnalyzer,
-	pe *eval.PolicyEngine, peerList []eval.Peer) ([]Peer2PeerConnection, error) {
+	pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
 	res := make([]Peer2PeerConnection, 0)
 	ingressConns, err := ia.AllowedIngressConnections()
 	if err != nil {
@@ -449,27 +453,25 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 	if err != nil {
 		return nil, err
 	}
-	for _, peer := range peerList {
-		// if there is no ingress connections to the peer - skip
-		if _, ok := ingressConns[peer.String()]; !ok {
-			continue
-		}
-		// otherwise, compute allowed connections based on pe.policies to the peer, then intersect the conns with
+	for peerStr, peerAndConn := range ingressConns {
+		// compute allowed connections based on pe.policies to the peer, then intersect the conns with
 		// ingress connections to the peer -> the intersection will be appended to the result
-		peConn, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(ingressControllerPod, peer)
+		peConn, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(ingressControllerPod, peerAndConn.Peer)
 		if err != nil {
 			return nil, err
 		}
-		ingressConns[peer.String()].(*common.ConnectionSet).Intersection(peConn.(*common.ConnectionSet))
-		if ingressConns[peer.String()].IsEmpty() {
-			ca.logger.Warnf("Ingrees Connections to: " + peer.String() + " were blocked by network-policies")
+		peerAndConn.ConnSet.Intersection(peConn.(*common.ConnectionSet))
+		if peerAndConn.ConnSet.IsEmpty() {
+			ca.logger.Warnf("Analysis of Ingress/Route resources inferred there is a configured connectivity from ingress-controller to workload " +
+				peerStr + ", but network policies may be blocking access to this workload" +
+				"(unless specifically permitted to the installed ingress controller pod)")
 			continue
 		}
 		p2pConnection := &connection{
 			src:               ingressControllerPod,
-			dst:               peer,
-			allConnections:    ingressConns[peer.String()].AllConnections(),
-			protocolsAndPorts: ingressConns[peer.String()].ProtocolsAndPortsMap(),
+			dst:               peerAndConn.Peer,
+			allConnections:    peerAndConn.ConnSet.AllConnections(),
+			protocolsAndPorts: peerAndConn.ConnSet.ProtocolsAndPortsMap(),
 		}
 		res = append(res, p2pConnection)
 	}
