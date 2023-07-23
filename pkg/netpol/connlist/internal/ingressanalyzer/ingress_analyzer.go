@@ -256,7 +256,7 @@ type PeerAndIngressConnSet struct {
 }
 
 // AllowedIngressConnections returns a map of the possible connections from ingress-controller pod to workload peers,
-// as inferred from Ingress and Route resources. The map is from a workload name to its connection object.
+// as inferred from Ingress and Route resources. The map is from a workload name to its PeerAndIngressConnSet object.
 func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]PeerAndIngressConnSet, error) {
 	// if there is at least one route/ ingress object that targets a service which selects a dst peer,
 	// then we have ingress connections to that peer
