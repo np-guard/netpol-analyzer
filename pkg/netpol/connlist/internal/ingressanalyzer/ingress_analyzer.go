@@ -80,7 +80,7 @@ func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngi
 		case scan.Route:
 			ia.mapRouteToServices(obj.Route)
 		case scan.Ingress:
-			ia.mapk8sIngressToServices(obj.Ingress)
+			ia.mapK8sIngressToServices(obj.Ingress)
 		}
 		if err != nil {
 			return nil, err
@@ -91,18 +91,22 @@ func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngi
 
 // IsEmpty returns whether there are no services to consider for Ingress analysis
 func (ia *IngressAnalyzer) IsEmpty() bool {
-	return len(ia.routesToServicesMap) == 0 && len(ia.k8sIngressToServicesMap) == 0
+	return len(ia.servicesToPortsAndPeersMap) == 0 && len(ia.routesToServicesMap) == 0 && len(ia.k8sIngressToServicesMap) == 0
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // services analysis
 
-const missingSelectorWarning = "K8s Service without selectors is not supported"
+const (
+	missingSelectorWarning = "K8s Service without selectors is not supported"
+	whiteSpace             = " "
+	colon                  = ": "
+)
 
 // mapServiceToPeers populates servicesToPortsAndPeersMap
 func (ia *IngressAnalyzer) mapServiceToPeers(svc *corev1.Service) error {
 	// get peers selected by the service selectors
-	peers, err := ia.getServicePeers(svc)
+	peers, err := ia.getServiceSelectedPeers(svc)
 	if err != nil {
 		return err
 	}
@@ -121,7 +125,7 @@ func (ia *IngressAnalyzer) mapServiceToPeers(svc *corev1.Service) error {
 func (ia *IngressAnalyzer) getServiceSelectedPeers(svc *corev1.Service) ([]eval.Peer, error) {
 	svcStr := types.NamespacedName{Name: svc.Name, Namespace: svc.Namespace}.String()
 	if svc.Spec.Selector == nil {
-		ia.logger.Warnf("ignoring " + scan.Service + " " + svcStr + ": " + missingSelectorWarning)
+		ia.logger.Warnf("ignoring " + scan.Service + whiteSpace + svcStr + colon + missingSelectorWarning)
 		return nil, nil
 	}
 	svcLabelsSelector, err := convertServiceSelectorToLabelSelector(svc.Spec.Selector)
@@ -173,14 +177,14 @@ func (ia *IngressAnalyzer) getRouteServices(rt *ocroutev1.Route) []serviceInfo {
 	}
 	// Currently, only 'Service' is allowed as the kind of target that the route is referring to.
 	if rt.Spec.To.Kind != "" && rt.Spec.To.Kind != allowedTargetKind {
-		ia.logger.Warnf(scan.Route + " " + routeStr + ": " + routeTargetKindWarning)
+		ia.logger.Warnf(scan.Route + whiteSpace + routeStr + colon + routeTargetKindWarning)
 	} else {
 		targetServices = append(targetServices, serviceInfo{serviceName: rt.Spec.To.Name, servicePort: routeTargetPort})
 	}
 
 	for _, backend := range rt.Spec.AlternateBackends {
 		if backend.Kind != "" && backend.Kind != allowedTargetKind {
-			ia.logger.Warnf(scan.Route + " " + routeStr + ": " + routeBackendsWarning)
+			ia.logger.Warnf(scan.Route + whiteSpace + routeStr + colon + routeBackendsWarning)
 		} else {
 			targetServices = append(targetServices, serviceInfo{serviceName: backend.Name, servicePort: routeTargetPort})
 		}
@@ -198,7 +202,7 @@ const (
 
 // mapk8sIngressToServices populates k8sIngressToServicesMap
 func (ia *IngressAnalyzer) mapK8sIngressToServices(ing *netv1.Ingress) {
-	services := ia.getk8sIngressServices(ing)
+	services := ia.getK8sIngressServices(ing)
 	if len(services) == 0 { // all ingress backends were ignored
 		return
 	}
@@ -215,7 +219,7 @@ func (ia *IngressAnalyzer) getK8sIngressServices(ing *netv1.Ingress) []serviceIn
 	// if DefaultBackend is provided add its service info to the result
 	if ing.Spec.DefaultBackend != nil {
 		if ing.Spec.DefaultBackend.Service == nil {
-			ia.logger.Warnf(scan.Ingress + " " + ingressStr + ": " + defaultBackendWarning)
+			ia.logger.Warnf(scan.Ingress + whiteSpace + ingressStr + colon + defaultBackendWarning)
 		} else {
 			backendServices = append(backendServices, getServiceInfo(ing.Spec.DefaultBackend.Service))
 		}
@@ -224,7 +228,7 @@ func (ia *IngressAnalyzer) getK8sIngressServices(ing *netv1.Ingress) []serviceIn
 	for _, rule := range ing.Spec.Rules {
 		for _, path := range rule.IngressRuleValue.HTTP.Paths {
 			if path.Backend.Service == nil {
-				ia.logger.Warnf(scan.Ingress + " " + ingressStr + ": " + ruleBackendWarning)
+				ia.logger.Warnf(scan.Ingress + whiteSpace + ingressStr + colon + ruleBackendWarning)
 			} else {
 				backendServices = append(backendServices, getServiceInfo(path.Backend.Service))
 			}
