@@ -197,7 +197,7 @@ const (
 )
 
 // mapk8sIngressToServices populates k8sIngressToServicesMap
-func (ia *IngressAnalyzer) mapk8sIngressToServices(ing *netv1.Ingress) {
+func (ia *IngressAnalyzer) mapK8sIngressToServices(ing *netv1.Ingress) {
 	services := ia.getk8sIngressServices(ing)
 	if len(services) == 0 { // all ingress backends were ignored
 		return
