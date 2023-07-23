@@ -197,7 +197,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			}
 
 			peerIPBlock := peer.GetPeerIPBlock()
-			res := peerIPBlock.ipRange.ContainedIn(ruleIPBlock.ipRange)
+			res := peerIPBlock.ContainedIn(ruleIPBlock)
 			if res {
 				return true, nil
 			}
@@ -310,8 +310,8 @@ func (np *NetworkPolicy) netpolErr(title, description string) error {
 	return fmt.Errorf("network policy %s %s: %s", np.fullName(), title, description)
 }
 
-func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*IPBlock, error) {
-	ipb, err := NewIPBlock(cidr, except)
+func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*common.IPBlock, error) {
+	ipb, err := common.NewIPBlock(cidr, except)
 	if err != nil {
 		return nil, np.netpolErr(cidrErrTitle, err.Error())
 	}
@@ -326,23 +326,23 @@ func (np *NetworkPolicy) parseNetpolLabelSelector(selector *metav1.LabelSelector
 	return selectorRes, nil
 }
 
-func (np *NetworkPolicy) rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPolicyPeer) ([]*IPBlock, error) {
-	res := []*IPBlock{}
+func (np *NetworkPolicy) rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPolicyPeer) ([]*common.IPBlock, error) {
+	res := []*common.IPBlock{}
 	for _, peerObj := range rulePeers {
 		if peerObj.IPBlock != nil {
 			ipb, err := np.parseNetpolCIDR(peerObj.IPBlock.CIDR, peerObj.IPBlock.Except)
 			if err != nil {
 				return nil, err
 			}
-			res = append(res, ipb.split()...)
+			res = append(res, ipb.Split()...)
 		}
 	}
 	return res, nil
 }
 
 // GetReferencedIPBlocks: return list of IPBlock objects referenced in the current network policy
-func (np *NetworkPolicy) GetReferencedIPBlocks() ([]*IPBlock, error) {
-	res := []*IPBlock{}
+func (np *NetworkPolicy) GetReferencedIPBlocks() ([]*common.IPBlock, error) {
+	res := []*common.IPBlock{}
 	for _, rule := range np.Spec.Ingress {
 		ruleRes, err := np.rulePeersReferencedIPBlocks(rule.From)
 		if err != nil {

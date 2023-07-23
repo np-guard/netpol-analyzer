@@ -1,26 +1,15 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: redis-cart-netpol
-spec:
-  ingress:
-  - from: 
-    - ipBlock:
-        cidr: 0.0.0.0/1
-  podSelector:
-    matchLabels:
-      app: redis-cart
-  policyTypes:
-  - Ingress
-  - Egress
-
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
   name: frontend-netpol
 spec:
-  egress:   # removed egress to adservice
+  egress:
+  - ports:
+    - port: 9555
+    to:
+    - podSelector:
+        matchLabels:
+          app: adservice
   - ports:
     - port: 7070
     to:
@@ -85,13 +74,13 @@ metadata:
   name: adservice-netpol
 spec:
   egress: []
-  ingress: # removed ingress from frontend, added ingress from checkoutservice
-  - from:  # new conn 
+  ingress:
+  - from:
     - podSelector:
         matchLabels:
-          app: checkoutservice
+          app: frontend
     ports:
-    - port: 9555  
+    - port: 9555
   podSelector:
     matchLabels:
       app: adservice
@@ -105,21 +94,20 @@ metadata:
   name: checkoutservice-netpol
 spec:
   egress:
-  - ports:    # added egress to adservice
-    - port: 9555
-    to:
-    - podSelector:
-        matchLabels:
-          app: adservice
   - ports:
-    - port: 8000 # changed egress port to cartservice
+    - port: 7070
     to:
     - podSelector:
         matchLabels:
           app: cartservice
   - ports:
+    - port: 7000
+    to:
+    - podSelector:
+        matchLabels:
+          app: currencyservice
+  - ports:
     - port: 8080
-    - port: 9555
     to:
     - podSelector:
         matchLabels:
@@ -169,20 +157,14 @@ kind: NetworkPolicy
 metadata:
   name: cartservice-netpol
 spec:
-  egress:  # added egress 
-  - ports:
-    - port: 9555
-    to:
-    - podSelector:
-        matchLabels:
-          app: emailservice
+  egress: []
   ingress:
   - from:
     - podSelector:
         matchLabels:
           app: checkoutservice
     ports:
-    - port: 8000 # changed port
+    - port: 7070
   - from:
     - podSelector:
         matchLabels:
@@ -202,7 +184,13 @@ metadata:
   name: currencyservice-netpol
 spec:
   egress: []
-  ingress: # removed ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: checkoutservice
+    ports:
+    - port: 7000
   - from:
     - podSelector:
         matchLabels:
@@ -223,19 +211,12 @@ metadata:
 spec:
   egress: []
   ingress:
-  - from: # new conn
-    - podSelector:
-        matchLabels:
-          app: cartservice
-    ports:
-    - port: 9555    
   - from:
     - podSelector:
         matchLabels:
           app: checkoutservice
     ports:
     - port: 8080
-    - port: 9555    # added ingress port to existing conn (changed)
   podSelector:
     matchLabels:
       app: emailservice
