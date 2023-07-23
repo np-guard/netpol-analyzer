@@ -3,7 +3,6 @@ package diff
 import (
 	"fmt"
 	"path/filepath"
-	"reflect"
 	"sort"
 	"strings"
 
@@ -112,10 +111,12 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection) (Connec
 }
 
 // checks whether two connlist.Peer2PeerConnection objects are equal
-// TODO: implement differently when importing common.connectionset is possible
 func equalConns(firstConn, secondConn connlist.Peer2PeerConnection) bool {
-	return firstConn.AllProtocolsAndPorts() == secondConn.AllProtocolsAndPorts() &&
-		reflect.DeepEqual(firstConn.ProtocolsAndPorts(), secondConn.ProtocolsAndPorts())
+	// first convert the Peer2PeerConnections to ConnectionSet objects, then compare
+	conn1 := connlist.GetConnectionSetFromP2PConnection(firstConn)
+	conn2 := connlist.GetConnectionSetFromP2PConnection(secondConn)
+
+	return conn1.Equal(conn2)
 }
 
 type connectivityDiff struct {
