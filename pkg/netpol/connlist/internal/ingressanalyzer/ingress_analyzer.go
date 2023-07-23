@@ -209,7 +209,7 @@ func (ia *IngressAnalyzer) mapk8sIngressToServices(ing *netv1.Ingress) {
 }
 
 // getk8sIngressServices given k8s-Ingress object returns its targeted services info
-func (ia *IngressAnalyzer) getk8sIngressServices(ing *netv1.Ingress) []serviceInfo {
+func (ia *IngressAnalyzer) getK8sIngressServices(ing *netv1.Ingress) []serviceInfo {
 	ingressStr := types.NamespacedName{Namespace: ing.Namespace, Name: ing.Name}.String()
 	backendServices := make([]serviceInfo, 0)
 	// if DefaultBackend is provided add its service info to the result
