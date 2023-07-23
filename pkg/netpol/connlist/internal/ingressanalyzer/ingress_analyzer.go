@@ -118,7 +118,7 @@ func (ia *IngressAnalyzer) mapServiceToPeers(svc *corev1.Service) error {
 }
 
 // getServicePeers given a service return its selected peers
-func (ia *IngressAnalyzer) getServicePeers(svc *corev1.Service) ([]eval.Peer, error) {
+func (ia *IngressAnalyzer) getServiceSelectedPeers(svc *corev1.Service) ([]eval.Peer, error) {
 	svcStr := types.NamespacedName{Name: svc.Name, Namespace: svc.Namespace}.String()
 	if svc.Spec.Selector == nil {
 		ia.logger.Warnf("ignoring " + scan.Service + " " + svcStr + ": " + missingSelectorWarning)
