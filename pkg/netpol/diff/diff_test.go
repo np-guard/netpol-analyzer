@@ -23,6 +23,14 @@ func TestDiff(t *testing.T) {
 			firstDirName:  "onlineboutique_workloads",
 			secondDirName: "onlineboutique_workloads_changed_netpols",
 		},
+		{
+			firstDirName:  "onlineboutique_workloads",
+			secondDirName: "onlineboutique_workloads_changed_netpols_and_workloads",
+		},
+		{
+			firstDirName:  "onlineboutique_workloads",
+			secondDirName: "onlineboutique_workloads_changed_workloads",
+		},
 	}
 
 	for _, entry := range testingEntries {
