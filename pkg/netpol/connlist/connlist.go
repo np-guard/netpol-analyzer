@@ -384,7 +384,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	}
 	res = append(res, peersAllowedConns...)
 
-	if ia.IsEmpty() {
+	if ia == nil || ia.IsEmpty() {
 		return res, nil
 	}
 
