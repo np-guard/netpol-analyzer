@@ -69,7 +69,8 @@ func validateEvalFlags() error {
 
 func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []types.NamespacedName) error {
 	// get relevant resources from dir path
-	scanner := scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir)
+	elogger := logger.NewDefaultLoggerWithVerbosity(detrmineLogVerbosity())
+	scanner := scan.NewResourcesScanner(elogger, false, filepath.WalkDir)
 	objectsList, processingErrs := scanner.FilesToObjectsListFiltered(dirPath, podNames)
 	for _, err := range processingErrs {
 		if err.IsFatal() || err.IsSevere() {
@@ -205,6 +206,7 @@ func newCommandEvaluate() *cobra.Command {
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := runEvalCommand(); err != nil {
+				cmd.SilenceUsage = true // don't print usage message when returning an error from running a valid command
 				return err
 			}
 			return nil

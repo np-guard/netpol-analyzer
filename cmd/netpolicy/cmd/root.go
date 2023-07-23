@@ -14,11 +14,14 @@
 package cmd
 
 import (
+	"errors"
 	"os"
 
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 )
 
 var (
@@ -29,7 +32,20 @@ var (
 	dirPath string
 	// k8s client
 	clientset *kubernetes.Clientset
+	quiet     bool
+	verbose   bool
 )
+
+// returns verbosity level based on the -q and -v switches
+func detrmineLogVerbosity() logger.Verbosity {
+	verbosity := logger.DefaultVerbosity
+	if quiet {
+		verbosity = logger.LowVerbosity
+	} else if verbose {
+		verbosity = logger.HighVerbosity
+	}
+	return verbosity
+}
 
 // newCommandRoot returns a cobra command with the appropriate configuration, flags and sub-commands to run the root command k8snetpolicy
 func newCommandRoot() *cobra.Command {
@@ -37,6 +53,9 @@ func newCommandRoot() *cobra.Command {
 		Use:   "k8snetpolicy",
 		Short: "Determine allowed connection based on Kubernetes NetworkPolicy objects",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			if quiet && verbose {
+				return errors.New("-q and -v cannot be specified together")
+			}
 			if dirPath != "" {
 				return nil
 			}
@@ -74,6 +93,8 @@ func newCommandRoot() *cobra.Command {
 		"Path and file to use for kubeconfig when evaluating connections in a live cluster")
 	c.PersistentFlags().StringVarP(&kubecontext, clientcmd.FlagContext, "c", "",
 		"Kubernetes context to use when evaluating connections in a live cluster")
+	c.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "runs quietly, reports only severe errors and results")
+	c.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "runs with more informative messages printed to log")
 
 	// add sub-commands
 	c.AddCommand(newCommandEvaluate())

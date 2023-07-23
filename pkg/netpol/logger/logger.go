@@ -28,9 +28,11 @@ type DefaultLogger struct {
 	l         *log.Logger
 }
 
+const DefaultVerbosity = HighVerbosity
+
 // NewDefaultLogger creates an instance of DefaultLogger with the highest verbosity.
 func NewDefaultLogger() *DefaultLogger {
-	return NewDefaultLoggerWithVerbosity(HighVerbosity)
+	return NewDefaultLoggerWithVerbosity(DefaultVerbosity)
 }
 
 // NewDefaultLoggerWithVerbosity creates an instance of DefaultLogger with a user-defined verbosity.

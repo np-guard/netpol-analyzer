@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 )
 
 var (
@@ -32,7 +33,9 @@ func runListCommand() error {
 	var conns []connlist.Peer2PeerConnection
 	var err error
 
-	analyzer := connlist.NewConnlistAnalyzer(connlist.WithFocusWorkload(focusWorkload), connlist.WithOutputFormat(output))
+	clogger := logger.NewDefaultLoggerWithVerbosity(detrmineLogVerbosity())
+	analyzer := connlist.NewConnlistAnalyzer(connlist.WithLogger(clogger), connlist.WithFocusWorkload(focusWorkload),
+		connlist.WithOutputFormat(output))
 
 	if dirPath != "" {
 		conns, err = analyzer.ConnlistFromDirPath(dirPath)
@@ -81,6 +84,7 @@ defined`,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := runListCommand(); err != nil {
+				cmd.SilenceUsage = true // don't print usage message when returning an error from running a valid command
 				return err
 			}
 			return nil
