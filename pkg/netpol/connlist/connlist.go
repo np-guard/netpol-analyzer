@@ -284,18 +284,6 @@ func getFormatter(format string) (connsFormatter, error) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-// Peer2PeerConnection encapsulates the allowed connectivity result between two peers.
-type Peer2PeerConnection interface {
-	// Src returns the source peer
-	Src() eval.Peer
-	// Dst returns the destination peer
-	Dst() eval.Peer
-	// AllProtocolsAndPorts returns true if all ports are allowed for all protocols
-	AllProtocolsAndPorts() bool
-	// ProtocolsAndPorts returns the set of allowed connections
-	ProtocolsAndPorts() map[v1.Protocol][]common.PortRange
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 // internal type definitions below
 
@@ -343,6 +331,19 @@ func GetProtocolsAndPortsStr(c Peer2PeerConnection) string {
 	sort.Strings(connStrings)
 	connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
 	return connStr
+}
+
+// returns a *common.ConnectionSet from Peer2PeerConnection data
+func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.ConnectionSet {
+	protocolsToPortSetMap := make(map[v1.Protocol]*common.PortSet, len(c.ProtocolsAndPorts()))
+	for protocol, portRageArr := range c.ProtocolsAndPorts() {
+		protocolsToPortSetMap[protocol] = &common.PortSet{}
+		for _, portRange := range portRageArr {
+			protocolsToPortSetMap[protocol].AddPortRange(portRange.Start(), portRange.End())
+		}
+	}
+	connectionSet := &common.ConnectionSet{AllowAll: c.AllProtocolsAndPorts(), AllowedProtocols: protocolsToPortSetMap}
+	return connectionSet
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
