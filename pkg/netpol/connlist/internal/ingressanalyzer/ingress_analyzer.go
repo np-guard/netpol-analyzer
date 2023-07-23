@@ -249,8 +249,8 @@ func getServiceInfo(backendService *netv1.IngressServiceBackend) serviceInfo {
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Ingress allowed connections
 
+// PeerAndIngressConnSet captures Peer object as allowed target from ingress-controller Pod, with its possible connections
 type PeerAndIngressConnSet struct {
-	// used for computations and rtype of allowedIngressConnectionsByResourcesType
 	Peer    eval.Peer
 	ConnSet *common.ConnectionSet
 }
