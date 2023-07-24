@@ -65,13 +65,6 @@ func (da DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connecti
 		return nil, err
 	}
 
-	/*str1, _ := caAnalyzer.ConnectionsListToString(conns1Refined)
-	fmt.Println("conns1 refined: ")
-	fmt.Println(str1)
-	str2, _ := caAnalyzer.ConnectionsListToString(conns2Refined)
-	fmt.Println("conns2 refined: ")
-	fmt.Println(str2)*/
-
 	// get the diff w.r.t refined sets of connectivity
 	return diffConnectionsLists(conns1Refined, conns2Refined)
 }
