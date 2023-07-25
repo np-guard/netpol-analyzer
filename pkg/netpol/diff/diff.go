@@ -10,13 +10,21 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
+// DiffError holds information about a single error/warning that occurred during
+// the generating connectivity diff report
+type DiffError interface {
+	IsFatal() bool
+	IsSevere() bool
+	Error() error
+	Location() string
+}
+
 type DiffAnalyzer struct {
-	logger      logger.Logger
-	stopOnError bool
-	// errors        []ConnlistError
-	walkFn  scan.WalkFunction
-	scanner *scan.ResourcesScanner
-	// focusWorkload string
+	logger       logger.Logger
+	stopOnError  bool
+	errors       []DiffError
+	walkFn       scan.WalkFunction
+	scanner      *scan.ResourcesScanner
 	outputFormat string
 }
 
@@ -41,12 +49,20 @@ func WithOutputFormat(outputFormat string) DiffAnalyzerOption {
 	}
 }
 
+// WithStopOnError is a functional option which directs DiffAnalyzer to stop any processing after the
+// first severe error.
+func WithStopOnError() DiffAnalyzerOption {
+	return func(d *DiffAnalyzer) {
+		d.stopOnError = true
+	}
+}
+
 func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 	// object with default behavior options
 	da := &DiffAnalyzer{
-		logger:      logger.NewDefaultLogger(),
-		stopOnError: false,
-		//errors:       []ConnlistError{},
+		logger:       logger.NewDefaultLogger(),
+		stopOnError:  false,
+		errors:       []DiffError{},
 		walkFn:       filepath.WalkDir,
 		outputFormat: connlist.DefaultFormat,
 	}
@@ -57,14 +73,22 @@ func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 	return da
 }
 
+// Errors returns a slice of DiffError with all warnings and errors encountered during processing.
+func (da *DiffAnalyzer) Errors() []DiffError {
+	return da.errors
+}
+
+// ConnDiffFromDirPaths returns the connectivity diffs from two dir paths containing k8s resources
 func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (ConnectivityDiff, error) {
 	caAnalyzer := connlist.NewConnlistAnalyzer()
 	var conns1, conns2 []connlist.Peer2PeerConnection
 	var err error
 	if conns1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
+		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
 		return nil, err
 	}
 	if conns2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
+		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
 		return nil, err
 	}
 
@@ -73,16 +97,19 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 	ipPeers1, ipPeers2 := getIPblocksFromConnList(conns1), getIPblocksFromConnList(conns2)
 	disjointPeerIPMap, err := eval.DisjointPeerIPMap(ipPeers1, ipPeers2)
 	if err != nil {
+		da.errors = append(da.errors, newHandlingIPpeersError(err))
 		return nil, err
 	}
 
 	// refine conns1,conns2 based on common disjoint ip-blocks
 	conns1Refined, err := connlist.RefineConnListByDisjointPeers(conns1, disjointPeerIPMap)
 	if err != nil {
+		da.errors = append(da.errors, newHandlingIPpeersError(err))
 		return nil, err
 	}
 	conns2Refined, err := connlist.RefineConnListByDisjointPeers(conns2, disjointPeerIPMap)
 	if err != nil {
+		da.errors = append(da.errors, newHandlingIPpeersError(err))
 		return nil, err
 	}
 
@@ -115,6 +142,7 @@ func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
 	return src.String() + ";" + dst.String()
 }
 
+// ConnsPair pairs of Peer2PeerConnection from two dir paths
 type ConnsPair struct {
 	firstConn  connlist.Peer2PeerConnection
 	secondConn connlist.Peer2PeerConnection
@@ -179,7 +207,7 @@ func equalConns(firstConn, secondConn connlist.Peer2PeerConnection) bool {
 	return conn1.Equal(conn2)
 }
 
-// validate the value of the output format
+// ValidateDiffOutputFormat validate the value of the diff output format
 func ValidateDiffOutputFormat(format string) error {
 	for _, formatName := range ValidDiffFormats {
 		if format == formatName {
@@ -193,10 +221,12 @@ func ValidateDiffOutputFormat(format string) error {
 func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDiff) (string, error) {
 	diffFormatter, err := getFormatter(da.outputFormat)
 	if err != nil {
+		da.errors = append(da.errors, newResultFormattingError(err))
 		return "", err
 	}
 	output, err := diffFormatter.writeDiffOutput(connectivityDiff)
 	if err != nil {
+		da.errors = append(da.errors, newResultFormattingError(err))
 		return "", err
 	}
 	return output, nil
