@@ -462,9 +462,9 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		}
 		peerAndConn.ConnSet.Intersection(peConn.(*common.ConnectionSet))
 		if peerAndConn.ConnSet.IsEmpty() {
-			ca.logger.Warnf("Analysis of Ingress/Route resources inferred there is a configured connectivity from ingress-controller to workload " +
-				peerStr + ", but network policies may be blocking access to this workload" +
-				"(unless specifically permitted to the installed ingress controller pod)")
+			ca.logger.Warnf("Ingress/Route resources specified workload " + peerStr + " as a backend, " +
+				"but network policies are blocking ingress connections from an arbitrary in-cluster source to this workload." +
+				"Connectivity map will not include a possibly allowed connection between the ingress controller and this workload.")
 			continue
 		}
 		p2pConnection := &connection{
