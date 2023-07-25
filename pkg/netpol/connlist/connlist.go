@@ -326,7 +326,7 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 }
 
 // return a string representation of a connection type (protocols and ports)
-func getProtocolsAndPortsStr(c Peer2PeerConnection) string {
+func GetProtocolsAndPortsStr(c Peer2PeerConnection) string {
 	if c.AllProtocolsAndPorts() {
 		return "All Connections"
 	}
@@ -343,6 +343,19 @@ func getProtocolsAndPortsStr(c Peer2PeerConnection) string {
 	sort.Strings(connStrings)
 	connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
 	return connStr
+}
+
+// returns a *common.ConnectionSet from Peer2PeerConnection data
+func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.ConnectionSet {
+	protocolsToPortSetMap := make(map[v1.Protocol]*common.PortSet, len(c.ProtocolsAndPorts()))
+	for protocol, portRageArr := range c.ProtocolsAndPorts() {
+		protocolsToPortSetMap[protocol] = &common.PortSet{}
+		for _, portRange := range portRageArr {
+			protocolsToPortSetMap[protocol].AddPortRange(portRange.Start(), portRange.End())
+		}
+	}
+	connectionSet := &common.ConnectionSet{AllowAll: c.AllProtocolsAndPorts(), AllowedProtocols: protocolsToPortSetMap}
+	return connectionSet
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
