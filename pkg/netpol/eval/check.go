@@ -131,13 +131,14 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer) (*common.ConnectionSet, error) {
 	srcK8sPeer := srcPeer.(k8s.Peer)
 	dstK8sPeer := dstPeer.(k8s.Peer)
-	res := &common.ConnectionSet{}
+	var res *common.ConnectionSet
+	var err error
 	// cases where any connection is always allowed
 	if isPodToItself(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(dstK8sPeer, srcK8sPeer) {
 		return common.MakeConnectionSet(true), nil
 	}
 	// egress
-	res, err := pe.allallowedXgressConnections(srcK8sPeer, dstK8sPeer, false)
+	res, err = pe.allallowedXgressConnections(srcK8sPeer, dstK8sPeer, false)
 	if err != nil {
 		return nil, err
 	}
@@ -290,7 +291,7 @@ func isPodToItself(peer1, peer2 k8s.Peer) bool {
 func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 	// check if input peer is cidr
 	if _, _, err := net.ParseCIDR(p); err == nil {
-		peerIPBlock, err := k8s.NewIPBlock(p, []string{})
+		peerIPBlock, err := common.NewIPBlock(p, []string{})
 		if err != nil {
 			return nil, err
 		}
@@ -298,7 +299,7 @@ func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 	}
 	// check if input peer is an ip address
 	if net.ParseIP(p) != nil {
-		peerIPBlock, err := k8s.NewIPBlockFromIPAddress(p)
+		peerIPBlock, err := common.NewIPBlockFromIPAddress(p)
 		if err != nil {
 			return nil, err
 		}

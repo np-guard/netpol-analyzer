@@ -284,18 +284,6 @@ func getFormatter(format string) (connsFormatter, error) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-// Peer2PeerConnection encapsulates the allowed connectivity result between two peers.
-type Peer2PeerConnection interface {
-	// Src returns the source peer
-	Src() eval.Peer
-	// Dst returns the destination peer
-	Dst() eval.Peer
-	// AllProtocolsAndPorts returns true if all ports are allowed for all protocols
-	AllProtocolsAndPorts() bool
-	// ProtocolsAndPorts returns the set of allowed connections
-	ProtocolsAndPorts() map[v1.Protocol][]common.PortRange
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 // internal type definitions below
 

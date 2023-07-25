@@ -1,8 +1,12 @@
 Connectivity diff:
 source: default/checkoutservice[Deployment], destination: default/cartservice[Deployment], dir1:  TCP 7070, dir2: TCP 8000
 source: default/checkoutservice[Deployment], destination: default/emailservice[Deployment], dir1:  TCP 8080, dir2: TCP 8080,9555
+source: 0.0.0.0-127.255.255.255, destination: default/unicorn[Deployment], dir1:  No Connections, dir2: All Connections
+source: 128.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], dir1:  No Connections, dir2: All Connections
 source: default/cartservice[Deployment], destination: default/emailservice[Deployment], dir1:  No Connections, dir2: TCP 9555
 source: default/checkoutservice[Deployment], destination: default/adservice[Deployment], dir1:  No Connections, dir2: TCP 9555
+source: default/unicorn[Deployment], destination: 0.0.0.0-127.255.255.255, dir1:  No Connections, dir2: All Connections
+source: default/unicorn[Deployment], destination: 128.0.0.0-255.255.255.255, dir1:  No Connections, dir2: All Connections
 source: 128.0.0.0-255.255.255.255, destination: default/redis-cart[Deployment], dir1:  All Connections, dir2: No Connections
 source: default/checkoutservice[Deployment], destination: default/currencyservice[Deployment], dir1:  TCP 7000, dir2: No Connections
 source: default/frontend[Deployment], destination: default/adservice[Deployment], dir1:  TCP 9555, dir2: No Connections
