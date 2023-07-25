@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
@@ -46,7 +47,45 @@ func (da DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connecti
 		return nil, err
 	}
 
-	return diffConnectionsLists(conns1, conns2)
+	// get disjoint ip-blocks from both configs
+	// TODO: avoid duplications of ip-blocks
+	ipPeers1, ipPeers2 := getIPblocksFromConnList(conns1), getIPblocksFromConnList(conns2)
+	disjointPeerIPMap, err := eval.DisjointPeerIPMap(ipPeers1, ipPeers2)
+	if err != nil {
+		return nil, err
+	}
+
+	// refine conns1,conns2 based on common disjoint ip-blocks
+	conns1Refined, err := connlist.RefineConnListByDisjointPeers(conns1, disjointPeerIPMap)
+	if err != nil {
+		return nil, err
+	}
+	conns2Refined, err := connlist.RefineConnListByDisjointPeers(conns2, disjointPeerIPMap)
+	if err != nil {
+		return nil, err
+	}
+
+	// get the diff w.r.t refined sets of connectivity
+	return diffConnectionsLists(conns1Refined, conns2Refined)
+}
+
+func getIPblocksFromConnList(conns []connlist.Peer2PeerConnection) []eval.Peer {
+	peersMap := map[string]eval.Peer{}
+	for _, p2p := range conns {
+		if p2p.Src().IsPeerIPType() {
+			peersMap[p2p.Src().String()] = p2p.Src()
+		}
+		if p2p.Dst().IsPeerIPType() {
+			peersMap[p2p.Dst().String()] = p2p.Dst()
+		}
+	}
+	res := make([]eval.Peer, len(peersMap))
+	i := 0
+	for _, p := range peersMap {
+		res[i] = p
+		i += 1
+	}
+	return res
 }
 
 func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
@@ -55,12 +94,12 @@ func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
 	return src.String() + ";" + dst.String()
 }
 
-type connsPair struct {
+type ConnsPair struct {
 	firstConn  connlist.Peer2PeerConnection
 	secondConn connlist.Peer2PeerConnection
 }
 
-func (c *connsPair) update(isFirst bool, conn connlist.Peer2PeerConnection) {
+func (c *ConnsPair) update(isFirst bool, conn connlist.Peer2PeerConnection) {
 	if isFirst {
 		c.firstConn = conn
 	} else {
@@ -68,11 +107,11 @@ func (c *connsPair) update(isFirst bool, conn connlist.Peer2PeerConnection) {
 	}
 }
 
-type diffMap map[string]*connsPair
+type diffMap map[string]*ConnsPair
 
 func (d diffMap) update(key string, isFirst bool, c connlist.Peer2PeerConnection) {
 	if _, ok := d[key]; !ok {
-		d[key] = &connsPair{}
+		d[key] = &ConnsPair{}
 	}
 	d[key].update(isFirst, c)
 }
@@ -90,7 +129,7 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection) (Connec
 	res := &connectivityDiff{
 		removedConns: []connlist.Peer2PeerConnection{},
 		addedConns:   []connlist.Peer2PeerConnection{},
-		changedConns: []*connsPair{},
+		changedConns: []*ConnsPair{},
 	}
 	for _, d := range diffsMap {
 		switch {
@@ -119,10 +158,11 @@ func equalConns(firstConn, secondConn connlist.Peer2PeerConnection) bool {
 	return conn1.Equal(conn2)
 }
 
+// connectivityDiff implements the ConnectivityDiff interface
 type connectivityDiff struct {
 	removedConns []connlist.Peer2PeerConnection
 	addedConns   []connlist.Peer2PeerConnection
-	changedConns []*connsPair
+	changedConns []*ConnsPair
 }
 
 func (c *connectivityDiff) RemovedConnections() []connlist.Peer2PeerConnection {
@@ -133,7 +173,7 @@ func (c *connectivityDiff) AddedConnections() []connlist.Peer2PeerConnection {
 	return c.addedConns
 }
 
-func (c *connectivityDiff) ChangedConnections() []*connsPair {
+func (c *connectivityDiff) ChangedConnections() []*ConnsPair {
 	return c.changedConns
 }
 
@@ -142,10 +182,11 @@ func (c *connectivityDiff) String() (string, error) {
 	return c.writeTxtDiffOutput()
 }
 
+// ConnectivityDiff captures differences in terms of connectivity between two input resource sets
 type ConnectivityDiff interface {
 	RemovedConnections() []connlist.Peer2PeerConnection // only first conn exists between peers
 	AddedConnections() []connlist.Peer2PeerConnection   // only second conn exists between peers
-	ChangedConnections() []*connsPair                   // both first & second conn exists between peers
+	ChangedConnections() []*ConnsPair                   // both first & second conn exists between peers
 	String() (string, error)                            // str summary of the connectivity diff
 }
 
