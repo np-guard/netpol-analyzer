@@ -16,28 +16,31 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/diff"
 )
 
 var (
-	dir1 string
-	dir2 string
+	dir1      string
+	dir2      string
+	outFormat string
 )
 
 func runDiffCommand() error {
 	var connsDiff diff.ConnectivityDiff
 	var err error
 
-	diffAnalyzer := diff.NewDiffAnalyzer()
+	diffAnalyzer := diff.NewDiffAnalyzer(diff.WithOutputFormat(outFormat))
 
 	connsDiff, err = diffAnalyzer.ConnDiffFromDirPaths(dir1, dir2)
 	if err != nil {
 		return err
 	}
-	out, err := connsDiff.String()
+	out, err := diffAnalyzer.ConnectivityDiffToString(connsDiff)
 	if err != nil {
 		return err
 	}
@@ -60,12 +63,14 @@ func newCommandDiff() *cobra.Command {
 			if dir1 == "" || dir2 == "" {
 				return errors.New("both directory paths dir1 and dir2 are required")
 			}
+			if err := diff.ValidateDiffOutputFormat(outFormat); err != nil {
+				return err
+			}
 			return nil
 		},
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := runDiffCommand(); err != nil {
-				cmd.SilenceUsage = true // don't print usage message when returning an error from running a valid command
 				return err
 			}
 			return nil
@@ -75,6 +80,8 @@ func newCommandDiff() *cobra.Command {
 	// define any flags and configuration settings.
 	c.Flags().StringVarP(&dir1, "dir1", "", "", "Original Resources path to be compared")
 	c.Flags().StringVarP(&dir2, "dir2", "", "", "New Resources path to compare with original resources path")
+	supportedDiffFormats := strings.Join(diff.ValidDiffFormats, ",")
+	c.Flags().StringVarP(&outFormat, "output", "o", connlist.DefaultFormat, "Required output format ("+supportedDiffFormats+")")
 
 	return c
 }
