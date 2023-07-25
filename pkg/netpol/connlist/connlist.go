@@ -95,7 +95,7 @@ func WithFocusWorkload(workload string) ConnlistAnalyzerOption {
 	}
 }
 
-// WithOutputFormat is a functional option, allowing user to choose the output format txt/json.
+// WithOutputFormat is a functional option, allowing user to choose the output format txt/json/dot/csv/md.
 func WithOutputFormat(outputFormat string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
 		p.outputFormat = outputFormat

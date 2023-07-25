@@ -1,10 +1,8 @@
 package diff
 
 import (
-	"fmt"
+	"errors"
 	"path/filepath"
-	"sort"
-	"strings"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
@@ -12,38 +10,85 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
-type DiffAnalyzer struct {
-	logger      logger.Logger
-	stopOnError bool
-	// errors        []ConnlistError
-	walkFn  scan.WalkFunction
-	scanner *scan.ResourcesScanner
-	// focusWorkload string
-	// outputFormat string
+// DiffError holds information about a single error/warning that occurred during
+// the generating connectivity diff report
+type DiffError interface {
+	IsFatal() bool
+	IsSevere() bool
+	Error() error
+	Location() string
 }
 
-func NewDiffAnalyzer() *DiffAnalyzer {
+type DiffAnalyzer struct {
+	logger       logger.Logger
+	stopOnError  bool
+	errors       []DiffError
+	walkFn       scan.WalkFunction
+	scanner      *scan.ResourcesScanner
+	outputFormat string
+}
+
+var ValidDiffFormats = []string{connlist.TextFormat, connlist.CSVFormat, connlist.MDFormat}
+
+// DiffAnalyzerOption is the type for specifying options for DiffAnalyzer,
+// using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
+type DiffAnalyzerOption func(*DiffAnalyzer)
+
+// WithLogger is a functional option which sets the logger for a DiffAnalyzer to use.
+// The provided logger must conform with the package's Logger interface.
+func WithLogger(l logger.Logger) DiffAnalyzerOption {
+	return func(c *DiffAnalyzer) {
+		c.logger = l
+	}
+}
+
+// WithOutputFormat is a functional option, allowing user to choose the output format txt/csv/md.
+func WithOutputFormat(outputFormat string) DiffAnalyzerOption {
+	return func(d *DiffAnalyzer) {
+		d.outputFormat = outputFormat
+	}
+}
+
+// WithStopOnError is a functional option which directs DiffAnalyzer to stop any processing after the
+// first severe error.
+func WithStopOnError() DiffAnalyzerOption {
+	return func(d *DiffAnalyzer) {
+		d.stopOnError = true
+	}
+}
+
+func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 	// object with default behavior options
 	da := &DiffAnalyzer{
-		logger:      logger.NewDefaultLogger(),
-		stopOnError: false,
-		//errors:       []ConnlistError{},
-		walkFn: filepath.WalkDir,
-		//outputFormat: connlist.DefaultFormat,
+		logger:       logger.NewDefaultLogger(),
+		stopOnError:  false,
+		errors:       []DiffError{},
+		walkFn:       filepath.WalkDir,
+		outputFormat: connlist.DefaultFormat,
 	}
-	// todo : add options
+	for _, o := range options {
+		o(da)
+	}
 	da.scanner = scan.NewResourcesScanner(da.logger, da.stopOnError, da.walkFn)
 	return da
 }
 
-func (da DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (ConnectivityDiff, error) {
+// Errors returns a slice of DiffError with all warnings and errors encountered during processing.
+func (da *DiffAnalyzer) Errors() []DiffError {
+	return da.errors
+}
+
+// ConnDiffFromDirPaths returns the connectivity diffs from two dir paths containing k8s resources
+func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (ConnectivityDiff, error) {
 	caAnalyzer := connlist.NewConnlistAnalyzer()
 	var conns1, conns2 []connlist.Peer2PeerConnection
 	var err error
 	if conns1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
+		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
 		return nil, err
 	}
 	if conns2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
+		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
 		return nil, err
 	}
 
@@ -52,16 +97,19 @@ func (da DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connecti
 	ipPeers1, ipPeers2 := getIPblocksFromConnList(conns1), getIPblocksFromConnList(conns2)
 	disjointPeerIPMap, err := eval.DisjointPeerIPMap(ipPeers1, ipPeers2)
 	if err != nil {
+		da.errors = append(da.errors, newHandlingIPpeersError(err))
 		return nil, err
 	}
 
 	// refine conns1,conns2 based on common disjoint ip-blocks
 	conns1Refined, err := connlist.RefineConnListByDisjointPeers(conns1, disjointPeerIPMap)
 	if err != nil {
+		da.errors = append(da.errors, newHandlingIPpeersError(err))
 		return nil, err
 	}
 	conns2Refined, err := connlist.RefineConnListByDisjointPeers(conns2, disjointPeerIPMap)
 	if err != nil {
+		da.errors = append(da.errors, newHandlingIPpeersError(err))
 		return nil, err
 	}
 
@@ -94,6 +142,7 @@ func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
 	return src.String() + ";" + dst.String()
 }
 
+// ConnsPair pairs of Peer2PeerConnection from two dir paths
 type ConnsPair struct {
 	firstConn  connlist.Peer2PeerConnection
 	secondConn connlist.Peer2PeerConnection
@@ -158,6 +207,48 @@ func equalConns(firstConn, secondConn connlist.Peer2PeerConnection) bool {
 	return conn1.Equal(conn2)
 }
 
+// ValidateDiffOutputFormat validate the value of the diff output format
+func ValidateDiffOutputFormat(format string) error {
+	for _, formatName := range ValidDiffFormats {
+		if format == formatName {
+			return nil
+		}
+	}
+	return errors.New(format + " output format is not supported.")
+}
+
+// ConnectivityDiffToString returns a string of connections diff from connectivityDiff object in the required output format
+func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDiff) (string, error) {
+	diffFormatter, err := getFormatter(da.outputFormat)
+	if err != nil {
+		da.errors = append(da.errors, newResultFormattingError(err))
+		return "", err
+	}
+	output, err := diffFormatter.writeDiffOutput(connectivityDiff)
+	if err != nil {
+		da.errors = append(da.errors, newResultFormattingError(err))
+		return "", err
+	}
+	return output, nil
+}
+
+// returns the relevant formatter for the analyzer's outputFormat
+func getFormatter(format string) (diffFormatter, error) {
+	if err := ValidateDiffOutputFormat(format); err != nil {
+		return nil, err
+	}
+	switch format {
+	case connlist.TextFormat:
+		return &diffFormatText{}, nil
+	case connlist.CSVFormat:
+		return &diffFormatCSV{}, nil
+	case connlist.MDFormat:
+		return &diffFormatMD{}, nil
+	default:
+		return &diffFormatText{}, nil
+	}
+}
+
 // connectivityDiff implements the ConnectivityDiff interface
 type connectivityDiff struct {
 	removedConns []connlist.Peer2PeerConnection
@@ -177,69 +268,9 @@ func (c *connectivityDiff) ChangedConnections() []*ConnsPair {
 	return c.changedConns
 }
 
-func (c *connectivityDiff) String() (string, error) {
-	// currently only txt output is enabled, later add switch on output format
-	return c.writeTxtDiffOutput()
-}
-
 // ConnectivityDiff captures differences in terms of connectivity between two input resource sets
 type ConnectivityDiff interface {
 	RemovedConnections() []connlist.Peer2PeerConnection // only first conn exists between peers
 	AddedConnections() []connlist.Peer2PeerConnection   // only second conn exists between peers
 	ChangedConnections() []*ConnsPair                   // both first & second conn exists between peers
-	String() (string, error)                            // str summary of the connectivity diff
-}
-
-/***********************************************************************************************/
-// writing outputs
-
-const (
-	// txt output header
-	changedHeader = "Connectivity diff:"
-	noConns       = "No Connections"
-)
-
-func (c *connectivityDiff) writeTxtDiffOutput() (string, error) {
-	res := make([]string, 0)
-	res = append(res, changedHeader)
-	changedLines := c.writeChangedCategory()
-	res = append(res, changedLines...)
-	addedLines := c.writeAddedCategory()
-	res = append(res, addedLines...)
-	removedLines := c.writeRemovedCategory()
-	res = append(res, removedLines...)
-
-	return strings.Join(res, fmt.Sprintln("")), nil
-}
-
-func singleDiffTxtLine(srcName, dstName, conn1Str, conn2Str string) string {
-	return fmt.Sprintf("source: %s, destination: %s, dir1:  %s, dir2: %s", srcName, dstName, conn1Str, conn2Str)
-}
-
-func (c *connectivityDiff) writeAddedCategory() []string {
-	res := make([]string, 0)
-	for _, p2pConn := range c.addedConns {
-		res = append(res, singleDiffTxtLine(p2pConn.Src().String(), p2pConn.Dst().String(), noConns, connlist.GetProtocolsAndPortsStr(p2pConn)))
-	}
-	sort.Strings(res)
-	return res
-}
-
-func (c *connectivityDiff) writeRemovedCategory() []string {
-	res := make([]string, 0)
-	for _, p2pConn := range c.removedConns {
-		res = append(res, singleDiffTxtLine(p2pConn.Src().String(), p2pConn.Dst().String(), connlist.GetProtocolsAndPortsStr(p2pConn), noConns))
-	}
-	sort.Strings(res)
-	return res
-}
-
-func (c *connectivityDiff) writeChangedCategory() []string {
-	res := make([]string, 0)
-	for _, pair := range c.changedConns {
-		res = append(res, singleDiffTxtLine(pair.firstConn.Src().String(), pair.firstConn.Dst().String(),
-			connlist.GetProtocolsAndPortsStr(pair.firstConn), connlist.GetProtocolsAndPortsStr(pair.secondConn)))
-	}
-	sort.Strings(res)
-	return res
 }

@@ -11,9 +11,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
-func getNewLineChar() string {
-	return fmt.Sprintln("")
-}
+var newLineChar = fmt.Sprintln("")
 
 // gets the conns array and returns a sorted array of singleConnFields structs. helps with forming the json and csv outputs
 func sortConnections(conns []Peer2PeerConnection) []singleConnFields {
@@ -65,7 +63,7 @@ func (t formatText) writeOutput(conns []Peer2PeerConnection) (string, error) {
 		connLines[i] = formSingleConn(conns[i]).string()
 	}
 	sort.Strings(connLines)
-	return strings.Join(connLines, getNewLineChar()), nil
+	return strings.Join(connLines, newLineChar), nil
 }
 
 // formatJSON: implements the connsFormatter interface for JSON output format
@@ -134,7 +132,7 @@ func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	allLines = append(allLines, peerLines...)
 	allLines = append(allLines, edgeLines...)
 	allLines = append(allLines, dotClosing)
-	return strings.Join(allLines, getNewLineChar()), nil
+	return strings.Join(allLines, newLineChar), nil
 }
 
 // formatCSV: implements the connsFormatter interface for csv output format
@@ -186,5 +184,5 @@ func (md formatMD) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	sort.Strings(mdLines)
 	allLines := []string{getMDHeader()}
 	allLines = append(allLines, mdLines...)
-	return strings.Join(allLines, getNewLineChar()), nil
+	return strings.Join(allLines, newLineChar), nil
 }
