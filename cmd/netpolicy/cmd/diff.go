@@ -65,6 +65,7 @@ func newCommandDiff() *cobra.Command {
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := runDiffCommand(); err != nil {
+				cmd.SilenceUsage = true // don't print usage message when returning an error from running a valid command
 				return err
 			}
 			return nil
