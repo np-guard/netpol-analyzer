@@ -462,8 +462,8 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		}
 		peerAndConn.ConnSet.Intersection(peConn.(*common.ConnectionSet))
 		if peerAndConn.ConnSet.IsEmpty() {
-			ca.logger.Warnf("Ingress/Route resources specified workload " + peerStr + " as a backend, " +
-				"but network policies are blocking ingress connections from an arbitrary in-cluster source to this workload." +
+			ca.logger.Warnf("Ingress/Route object/s: " + strings.Join(peerAndConn.IngressObjects, ",") + " specified workload " + peerStr +
+				" as a backend, but network policies are blocking ingress connections from an arbitrary in-cluster source to this workload." +
 				"Connectivity map will not include a possibly allowed connection between the ingress controller and this workload.")
 			continue
 		}

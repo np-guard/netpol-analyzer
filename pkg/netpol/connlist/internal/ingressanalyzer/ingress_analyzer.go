@@ -256,13 +256,14 @@ func getServiceInfo(backendService *netv1.IngressServiceBackend) serviceInfo {
 
 // PeerAndIngressConnSet captures Peer object as allowed target from ingress-controller Pod, with its possible connections
 type PeerAndIngressConnSet struct {
-	Peer    eval.Peer
-	ConnSet *common.ConnectionSet
+	Peer           eval.Peer
+	ConnSet        *common.ConnectionSet
+	IngressObjects []string
 }
 
 // AllowedIngressConnections returns a map of the possible connections from ingress-controller pod to workload peers,
 // as inferred from Ingress and Route resources. The map is from a workload name to its PeerAndIngressConnSet object.
-func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]PeerAndIngressConnSet, error) {
+func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]*PeerAndIngressConnSet, error) {
 	// if there is at least one route/ ingress object that targets a service which selects a dst peer,
 	// then we have ingress connections to that peer
 
@@ -285,7 +286,7 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]PeerAndIngres
 
 // utility func
 // mergeResults merges routesMap into ingressMap , since routesMap may be wider with peers connections
-func mergeResults(routesMap, ingressMap map[string]PeerAndIngressConnSet) {
+func mergeResults(routesMap, ingressMap map[string]*PeerAndIngressConnSet) {
 	for k, v := range routesMap {
 		if _, ok := ingressMap[k]; ok {
 			ingressMap[k].ConnSet.Union(v.ConnSet)
@@ -298,24 +299,26 @@ func mergeResults(routesMap, ingressMap map[string]PeerAndIngressConnSet) {
 // allowedIngressConnectionsByResourcesType returns map from peers names to the allowed ingress connections
 // based on k8s-Ingress/routes objects rules
 func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate map[string]map[string][]serviceInfo) (
-	map[string]PeerAndIngressConnSet, error) {
-	res := make(map[string]PeerAndIngressConnSet)
+	map[string]*PeerAndIngressConnSet, error) {
+	res := make(map[string]*PeerAndIngressConnSet)
 	for ns, objSvcMap := range mapToIterate {
 		// if there are no services in same namespace of the Ingress, the ingress objects in this ns will be skipped
 		if _, ok := ia.servicesToPortsAndPeersMap[ns]; !ok {
 			continue
 		}
-		for _, svcList := range objSvcMap {
+		for objName, svcList := range objSvcMap {
 			ingressObjTargetPeersAndPorts, err := ia.getIngressObjectTargetedPeersAndPorts(ns, svcList)
 			if err != nil {
 				return nil, err
 			}
 			// avoid duplicates in the result, consider the different ports supported
 			for peer, pConn := range ingressObjTargetPeersAndPorts {
+				ingObjStr := types.NamespacedName{Namespace: ns, Name: objName}.String()
 				if _, ok := res[peer.String()]; !ok {
-					res[peer.String()] = PeerAndIngressConnSet{Peer: peer, ConnSet: pConn}
+					res[peer.String()] = &PeerAndIngressConnSet{Peer: peer, ConnSet: pConn, IngressObjects: []string{ingObjStr}}
 				} else {
 					res[peer.String()].ConnSet.Union(pConn)
+					res[peer.String()].IngressObjects = append(res[peer.String()].IngressObjects, ingObjStr)
 				}
 			}
 		}
