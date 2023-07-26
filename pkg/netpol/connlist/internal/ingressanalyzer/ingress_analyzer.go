@@ -258,7 +258,7 @@ func getServiceInfo(backendService *netv1.IngressServiceBackend) serviceInfo {
 type PeerAndIngressConnSet struct {
 	Peer           eval.Peer
 	ConnSet        *common.ConnectionSet
-	IngressObjects []string
+	IngressObjects map[string][]string
 }
 
 // AllowedIngressConnections returns a map of the possible connections from ingress-controller pod to workload peers,
@@ -269,12 +269,12 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]*PeerAndIngre
 
 	// get all targeted workload peers and compute allowed conns of each workload peer
 	// 1. from routes
-	routesResult, err := ia.allowedIngressConnectionsByResourcesType(ia.routesToServicesMap)
+	routesResult, err := ia.allowedIngressConnectionsByResourcesType(ia.routesToServicesMap, scan.Route)
 	if err != nil {
 		return nil, err
 	}
 	// 2. from k8s-ingress objects
-	ingressResult, err := ia.allowedIngressConnectionsByResourcesType(ia.k8sIngressToServicesMap)
+	ingressResult, err := ia.allowedIngressConnectionsByResourcesType(ia.k8sIngressToServicesMap, scan.Ingress)
 	if err != nil {
 		return nil, err
 	}
@@ -298,7 +298,7 @@ func mergeResults(routesMap, ingressMap map[string]*PeerAndIngressConnSet) {
 
 // allowedIngressConnectionsByResourcesType returns map from peers names to the allowed ingress connections
 // based on k8s-Ingress/routes objects rules
-func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate map[string]map[string][]serviceInfo) (
+func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate map[string]map[string][]serviceInfo, ingType string) (
 	map[string]*PeerAndIngressConnSet, error) {
 	res := make(map[string]*PeerAndIngressConnSet)
 	for ns, objSvcMap := range mapToIterate {
@@ -315,10 +315,12 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate
 			for peer, pConn := range ingressObjTargetPeersAndPorts {
 				ingObjStr := types.NamespacedName{Namespace: ns, Name: objName}.String()
 				if _, ok := res[peer.String()]; !ok {
-					res[peer.String()] = &PeerAndIngressConnSet{Peer: peer, ConnSet: pConn, IngressObjects: []string{ingObjStr}}
+					ingressObjs := make(map[string][]string, 2)
+					ingressObjs[ingType] = []string{ingObjStr}
+					res[peer.String()] = &PeerAndIngressConnSet{Peer: peer, ConnSet: pConn, IngressObjects: ingressObjs}
 				} else {
 					res[peer.String()].ConnSet.Union(pConn)
-					res[peer.String()].IngressObjects = append(res[peer.String()].IngressObjects, ingObjStr)
+					res[peer.String()].IngressObjects[ingType] = append(res[peer.String()].IngressObjects[ingType], ingObjStr)
 				}
 			}
 		}

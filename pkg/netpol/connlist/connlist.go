@@ -462,9 +462,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		}
 		peerAndConn.ConnSet.Intersection(peConn.(*common.ConnectionSet))
 		if peerAndConn.ConnSet.IsEmpty() {
-			ca.logger.Warnf("Ingress/Route object/s: " + strings.Join(peerAndConn.IngressObjects, ",") + " specified workload " + peerStr +
-				" as a backend, but network policies are blocking ingress connections from an arbitrary in-cluster source to this workload." +
-				"Connectivity map will not include a possibly allowed connection between the ingress controller and this workload.")
+			ca.warnBlockedIngress(peerStr, peerAndConn.IngressObjects)
 			continue
 		}
 		p2pConnection := &connection{
@@ -485,4 +483,21 @@ func portsString(ports []common.PortRange) string {
 		portsStr[i] = ports[i].String()
 	}
 	return strings.Join(portsStr, connsAndPortRangeSeparator)
+}
+
+func (ca *ConnlistAnalyzer) warnBlockedIngress(peerStr string, ingressObjs map[string][]string) {
+	warningMsg, commaSep := "", ","
+	if len(ingressObjs[scan.Ingress]) > 0 {
+		warningMsg = "K8s-Ingress object/s: " + strings.Join(ingressObjs[scan.Ingress], commaSep)
+	}
+	if len(ingressObjs[scan.Route]) > 0 {
+		if warningMsg != "" {
+			warningMsg += " and "
+		}
+		warningMsg += "Route objects/s: " + strings.Join(ingressObjs[scan.Route], commaSep)
+	}
+	warningMsg += " specified workload " + peerStr + " as a backend, but network policies are blocking " +
+		"ingress connections from an arbitrary in-cluster source to this workload." +
+		"Connectivity map will not include a possibly allowed connection between the ingress controller and this workload."
+	ca.logger.Warnf(warningMsg)
 }
