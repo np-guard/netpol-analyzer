@@ -25,39 +25,85 @@ func getConnlistFromDirPathRes(stopOnErr bool, path string) (*ConnlistAnalyzer, 
 	return analyzer, res, err
 }
 
+type testEntry struct {
+	testDirName          string
+	outputFormats        []string
+	generateActualOutput bool // if true, overrides existing expected output file
+}
+
+const expectedOutputFileNamePrefix = "connlist_output."
+
 // TestConnList tests the output of ConnlistFromDirPath() for valid input resources
 func TestConnList(t *testing.T) {
-	testNames := []string{"ipblockstest", "onlineboutique", "onlineboutique_workloads",
-		"minikube_resources", "online_boutique_workloads_no_ns", "core_pods_without_host_ip",
-		"acs_security_frontend_demos", "demo_app_with_routes_and_ingress", "k8s_ingress_test",
-		"multiple_ingress_objects_with_different_ports", "one_ingress_multiple_ports", "one_ingress_multiple_services"}
-	expectedOutputFileName := "connlist_output.txt"
-	generateActualOutput := false
-	for _, testName := range testNames {
-		path := filepath.Join(testutils.GetTestsDir(), testName)
-		expectedOutputFile := filepath.Join(path, expectedOutputFileName)
-		analyzer, res, err := getConnlistFromDirPathRes(false, path)
-		if err != nil {
-			t.Fatalf("Test %s: TestConnList FromDir err: %v", testName, err)
-		}
-		actualOutput, err := analyzer.ConnectionsListToString(res)
-		if err != nil {
-			t.Fatalf("Test %s:  TestConnList writing output err: %v", testName, err)
-		}
-		if generateActualOutput {
-			// update expected output: override expected output with actual output
-			if err = os.WriteFile(expectedOutputFile, []byte(actualOutput), 0o600); err != nil {
-				t.Fatalf("Test %s: TestConnList WriteFile err: %v", testName, err)
-			}
-		} else {
-			// compare actual output to expected output
-			expectedStr, err := os.ReadFile(expectedOutputFile)
-			if err != nil {
-				t.Fatalf("Test %s: TestConnList ReadFile err: %v", testName, err)
-			}
-			if string(expectedStr) != actualOutput {
-				fmt.Printf("%s", actualOutput)
-				t.Fatalf("unexpected output result for test %v", testName)
+	testingEntries := []testEntry{
+		{
+			testDirName:   "ipblockstest",
+			outputFormats: []string{TextFormat},
+		},
+		{
+			testDirName:   "onlineboutique",
+			outputFormats: []string{JSONFormat, MDFormat, TextFormat},
+		},
+		{
+			testDirName:   "onlineboutique_workloads",
+			outputFormats: []string{CSVFormat, DOTFormat, TextFormat},
+		},
+		{
+			testDirName:   "minikube_resources",
+			outputFormats: []string{TextFormat},
+		},
+		{
+			testDirName:   "online_boutique_workloads_no_ns",
+			outputFormats: []string{TextFormat},
+		},
+		{
+			testDirName:   "core_pods_without_host_ip",
+			outputFormats: []string{TextFormat},
+		},
+		{
+			testDirName:   "acs_security_frontend_demos",
+			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+		},
+		{
+			testDirName:   "demo_app_with_routes_and_ingress",
+			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+		},
+		{
+			testDirName:   "k8s_ingress_test",
+			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+		},
+		{
+			testDirName:   "multiple_ingress_objects_with_different_ports",
+			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+		},
+		{
+			testDirName:   "one_ingress_multiple_ports",
+			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+		},
+		{
+			testDirName:   "one_ingress_multiple_services",
+			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+		},
+	}
+
+	for _, entry := range testingEntries {
+		dirPath := filepath.Join(testutils.GetTestsDir(), entry.testDirName)
+		for _, format := range entry.outputFormats {
+			analyzer := NewConnlistAnalyzer(WithOutputFormat(format))
+			res, err := analyzer.ConnlistFromDirPath(dirPath)
+			require.Nil(t, err)
+			output, err := analyzer.ConnectionsListToString(res)
+			require.Nil(t, err)
+			expectedOutputFileName := expectedOutputFileNamePrefix + format
+			expectedOutputFile := filepath.Join(dirPath, expectedOutputFileName)
+			if entry.generateActualOutput {
+				// update expected output: override expected output with actual output
+				err := os.WriteFile(expectedOutputFile, []byte(output), 0o600)
+				require.Nil(t, err)
+			} else {
+				expectedOutput, err := os.ReadFile(expectedOutputFile)
+				require.Nil(t, err)
+				require.Equal(t, string(expectedOutput), output)
 			}
 		}
 	}
@@ -179,71 +225,6 @@ func TestConnlistAnalyzerBadDirNoYamls(t *testing.T) {
 	require.True(t, errors.As(errs[1].Error(), &secondErr))
 	require.True(t, errors.As(errs1[0].Error(), &firstErr))
 	require.True(t, errors.As(errs1[1].Error(), &secondErr))
-}
-
-func TestWithTextOutputFormat(t *testing.T) {
-	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
-	analyzer := NewConnlistAnalyzer(WithOutputFormat("txt"))
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
-	require.Nil(t, err)
-	txtRes, err := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err)
-	expectedOutputFile := filepath.Join(dirPath, "connlist_output.txt")
-	expectedOutput, err := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err)
-	require.Equal(t, string(expectedOutput), txtRes)
-}
-
-func TestWithJSONOutputFormat(t *testing.T) {
-	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
-	analyzer := NewConnlistAnalyzer(WithOutputFormat("json"))
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
-	require.Nil(t, err)
-	jsonRes, err := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err)
-	expectedOutputFile := filepath.Join(dirPath, "connlist_output.json")
-	expectedOutput, err := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err)
-	require.Equal(t, string(expectedOutput), jsonRes)
-}
-
-func TestWithDOTOutputFormat(t *testing.T) {
-	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
-	analyzer := NewConnlistAnalyzer(WithOutputFormat("dot"))
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
-	require.Nil(t, err)
-	dotRes, err := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err)
-	expectedOutputFile := filepath.Join(dirPath, "connlist_output.dot")
-	expectedOutput, err := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err)
-	require.Equal(t, string(expectedOutput), dotRes)
-}
-
-func TestWithMDOutputFormat(t *testing.T) {
-	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
-	analyzer := NewConnlistAnalyzer(WithOutputFormat("md"))
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
-	require.Nil(t, err)
-	mdRes, err := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err)
-	expectedOutputFile := filepath.Join(dirPath, "connlist_output.md")
-	expectedOutput, err := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err)
-	require.Equal(t, string(expectedOutput), mdRes)
-}
-
-func TestWithCSVOutputFormat(t *testing.T) {
-	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
-	analyzer := NewConnlistAnalyzer(WithOutputFormat("csv"))
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
-	require.Nil(t, err)
-	csvRes, err := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err)
-	expectedOutputFile := filepath.Join(dirPath, "connlist_output.csv")
-	expectedOutput, err := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err)
-	require.Equal(t, string(expectedOutput), csvRes)
 }
 
 func TestConnlistAnalyzerBadOutputFormat(t *testing.T) {
