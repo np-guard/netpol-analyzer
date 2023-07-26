@@ -59,7 +59,7 @@ func newCommandList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list",
 		Short: "Lists all allowed connections",
-		Long: `Lists all allowed connections based on the workloads and network policies
+		Long: `Lists all allowed connections based on the workloads, network policies, and Ingress/Route resources
 defined`,
 		Example: `  # Get list of allowed connections from resources dir path
   k8snetpolicy list --dirpath ./resources_dir/ 

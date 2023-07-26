@@ -24,6 +24,8 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 )
 
 // NetworkPolicy is an alias for k8s network policy object
@@ -55,13 +57,11 @@ func getProtocolStr(p *v1.Protocol) string {
 }
 
 func (np *NetworkPolicy) convertNamedPort(namedPort string, pod *Pod) (int32, error) {
-	for _, containerPort := range pod.Ports {
-		if namedPort == containerPort.Name {
-			return containerPort.ContainerPort, nil
-		}
+	port, err := pod.ConvertPodNamedPort(namedPort)
+	if err != nil {
+		return 0, np.netpolErr(namedPortErrTitle, err.Error())
 	}
-	errStr := fmt.Sprintf("named port is not defined in a selected workload %s", pod.Owner.Name)
-	return 0, np.netpolErr(namedPortErrTitle, errStr)
+	return port, nil
 }
 
 func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (startNum, endNum int32, err error) {
@@ -86,19 +86,20 @@ func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32,
 	return start, end, nil
 }
 
-func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) (ConnectionSet, error) {
+func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) (*common.ConnectionSet, error) {
 	if len(rulePorts) == 0 {
-		return MakeConnectionSet(true), nil // If this field is empty or missing, this rule matches all ports (traffic not restricted by port)
+		return common.MakeConnectionSet(true), nil // If this field is empty or missing, this rule matches all ports
+		// (traffic not restricted by port)
 	}
-	res := MakeConnectionSet(false)
+	res := common.MakeConnectionSet(false)
 	for i := range rulePorts {
 		protocol := v1.ProtocolTCP
 		if rulePorts[i].Protocol != nil {
 			protocol = *rulePorts[i].Protocol
 		}
-		ports := PortSet{}
+		ports := common.PortSet{}
 		if rulePorts[i].Port == nil {
-			ports = MakePortSet(true)
+			ports = common.MakePortSet(true)
 		} else {
 			startPort, endPort, err := np.getPortsRange(rulePorts[i].Port, rulePorts[i].EndPort, dst)
 			if err != nil {
@@ -255,8 +256,8 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 }
 
 // GetEgressAllowedConns returns the set of allowed connetions from any captured pod to the destination peer
-func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (ConnectionSet, error) {
-	res := MakeConnectionSet(false)
+func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet, error) {
+	res := common.MakeConnectionSet(false)
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
@@ -280,8 +281,8 @@ func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (ConnectionSet, error) 
 }
 
 // GetIngressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer
-func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (ConnectionSet, error) {
-	res := MakeConnectionSet(false)
+func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (*common.ConnectionSet, error) {
+	res := common.MakeConnectionSet(false)
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports

@@ -8,14 +8,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 )
 
 type serviceMapping struct {
 	serviceName      string
 	serviceNamespace string
-	numPods          int
+	numWorkloads     int
 	expectedError    error
 }
 
@@ -25,48 +24,48 @@ func TestServiceMappingToPods(t *testing.T) {
 		{
 			serviceName:      "demo",
 			serviceNamespace: "default",
-			numPods:          1,
+			numWorkloads:     1,
 			expectedError:    nil,
 		},
 		{
 			serviceName:      "ingress-nginx-controller",
 			serviceNamespace: "ingress-nginx",
-			numPods:          1,
+			numWorkloads:     1,
 			expectedError:    nil,
 		},
 		{
 			serviceName:      "ingress-nginx-controller-admission",
 			serviceNamespace: "ingress-nginx",
-			numPods:          2,
+			numWorkloads:     2,
 			expectedError:    nil,
 		},
 		{
 			serviceName:      "kube-dns",
 			serviceNamespace: "kube-system",
-			numPods:          1,
+			numWorkloads:     1,
 			expectedError:    nil,
 		},
 		{
 			serviceName:      "no-pods-selected",
 			serviceNamespace: "default",
-			numPods:          0,
+			numWorkloads:     0,
 			expectedError:    nil,
 		},
 		{
 			serviceName:      "not-existing-svc",
 			serviceNamespace: "default",
-			numPods:          0,
+			numWorkloads:     0,
 			expectedError:    errors.New("service does not exist: default/not-existing-svc"),
 		},
 		{
 			serviceName:      "not-existing-svc",
 			serviceNamespace: "not-existing-ns",
-			numPods:          0,
+			numWorkloads:     0,
 			expectedError:    errors.New("service does not exist: not-existing-ns/not-existing-svc"),
 		},
 	}
 
-	path := filepath.Join(testutils.GetTestsDir(), "services", "services_with_selectors")
+	path := filepath.Join(getTestsDir(), "services", "services_with_selectors")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
 	require.Len(t, processingErrs, 1) // no policies
 	require.Len(t, objects, 16)       // found 5 services and 11 pods
@@ -76,15 +75,17 @@ func TestServiceMappingToPods(t *testing.T) {
 	require.Empty(t, err)
 
 	for _, serviceMappingItem := range serviceMappingList {
-		require.Len(t, ia.servicesToPeersMap[serviceMappingItem.serviceNamespace][serviceMappingItem.serviceName], serviceMappingItem.numPods)
+		require.Len(t, ia.servicesToPortsAndPeersMap[serviceMappingItem.serviceNamespace][serviceMappingItem.serviceName].peers,
+			serviceMappingItem.numWorkloads)
 	}
 }
 
 func TestNotSupportedService(t *testing.T) {
-	path := filepath.Join(testutils.GetTestsDir(), "services", "services_without_selector")
+	path := filepath.Join(getTestsDir(), "services", "services_without_selector")
 	objects, processingErrs := scanner.FilesToObjectsList(path)
-	require.Len(t, objects, 1)
+	require.Len(t, objects, 1)        // 1 service object
 	require.Len(t, processingErrs, 2) // no policies nor workloads
-	_, err := NewIngressAnalyzerWithObjects(objects, nil, logger.NewDefaultLogger())
-	require.Contains(t, err.Error(), missingSelectorError)
+	ia, err := NewIngressAnalyzerWithObjects(objects, nil, logger.NewDefaultLogger())
+	require.Empty(t, err)
+	require.Len(t, ia.servicesToPortsAndPeersMap, 0) // service was ignored
 }

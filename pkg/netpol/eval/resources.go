@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"errors"
 	"fmt"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -71,9 +72,7 @@ func NewPolicyEngineWithObjects(objects []scan.K8sObject) (*PolicyEngine, error)
 			err = pe.UpsertObject(obj.Job)
 		case scan.CronJob:
 			err = pe.UpsertObject(obj.CronJob)
-		case scan.Service:
-			continue
-		case scan.Route:
+		case scan.Service, scan.Route, scan.Ingress:
 			continue
 		default:
 			err = fmt.Errorf("unsupported kind: %s", obj.Kind)
@@ -90,19 +89,26 @@ func (pe *PolicyEngine) resolveMissingNamespaces() error {
 	for _, pod := range pe.podsMap {
 		ns := pod.Namespace
 		if _, ok := pe.namspacesMap[ns]; !ok {
-			// create a ns object and upsert to PolicyEngine
-			nsObj := &corev1.Namespace{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: ns,
-					Labels: map[string]string{
-						"kubernetes.io/metadata.name": ns,
-					},
-				},
-			}
-			if err := pe.upsertNamespace(nsObj); err != nil {
+			if err := pe.resolveSingleMissingNamespace(ns); err != nil {
 				return err
 			}
 		}
+	}
+	return nil
+}
+
+// resolveSingleMissingNamespace create a ns object and upsert to PolicyEngine
+func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string) error {
+	nsObj := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: ns,
+			Labels: map[string]string{
+				"kubernetes.io/metadata.name": ns,
+			},
+		},
+	}
+	if err := pe.upsertNamespace(nsObj); err != nil {
+		return err
 	}
 	return nil
 }
@@ -340,4 +346,31 @@ func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace st
 		}
 	}
 	return res
+}
+
+// ConvertPeerNamedPort returns the peer.pod.containerPort matching the named port of the peer
+func (pe *PolicyEngine) ConvertPeerNamedPort(namedPort string, peer Peer) (int32, error) {
+	switch currPeer := peer.(type) {
+	case *k8s.WorkloadPeer:
+		return currPeer.Pod.ConvertPodNamedPort(namedPort)
+	case *k8s.PodPeer:
+		return currPeer.Pod.ConvertPodNamedPort(namedPort)
+	default:
+		return 0, errors.New("peer type does not have ports") // should not get here
+	}
+}
+
+// AddPodByNameAndNamespace adds a new fake pod to the pe.podsMap
+func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string) (Peer, error) {
+	podStr := types.NamespacedName{Namespace: ns, Name: name}.String()
+	newPod := &k8s.Pod{
+		Name:      name,
+		Namespace: ns,
+		FakePod:   true,
+	}
+	if err := pe.resolveSingleMissingNamespace(ns); err != nil {
+		return nil, err
+	}
+	pe.podsMap[podStr] = newPod
+	return &k8s.WorkloadPeer{Pod: newPod}, nil
 }

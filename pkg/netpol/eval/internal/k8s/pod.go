@@ -25,6 +25,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
@@ -34,6 +35,7 @@ const defaultPortsListSize = 8
 type Pod struct {
 	Name      string
 	Namespace string
+	FakePod   bool // this flag is used to indicate if the pod is created from scanner objects or fake (ingress-controller)
 	Labels    map[string]string
 	IPs       []corev1.PodIP
 	Ports     []corev1.ContainerPort
@@ -66,6 +68,7 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		Ports:     make([]corev1.ContainerPort, 0, defaultPortsListSize),
 		HostIP:    p.Status.HostIP,
 		Owner:     Owner{},
+		FakePod:   false,
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -187,6 +190,7 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.Ports = make([]corev1.ContainerPort, 0, defaultPortsListSize)
 		pod.HostIP = getFakePodIP()
 		pod.Owner = Owner{Name: workloadName, Kind: kind, APIVersion: APIVersion}
+		pod.FakePod = false
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
 		}
@@ -212,16 +216,26 @@ func getFakePodIP() string {
 	return scan.IPv4LoopbackAddr
 }
 
-func (pod *Pod) PodExposedProtocolsAndPorts() ConnectionSet {
-	res := MakeConnectionSet(false)
+// PodExposedTCPConnections returns TCP connections exposed by a pod
+func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
+	res := common.MakeConnectionSet(false)
 	for _, cPort := range pod.Ports {
 		protocol := corev1.ProtocolTCP
-		if cPort.Protocol != "" {
-			protocol = cPort.Protocol
+		if cPort.Protocol == "" || protocol == corev1.ProtocolTCP {
+			ports := common.PortSet{}
+			ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort))
+			res.AddConnection(protocol, ports)
 		}
-		ports := PortSet{}
-		ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort))
-		res.AddConnection(protocol, ports)
 	}
 	return res
+}
+
+// ConvertPodNamedPort returns the ContainerPort number that matches the named port
+func (pod *Pod) ConvertPodNamedPort(namedPort string) (int32, error) {
+	for _, containerPort := range pod.Ports {
+		if namedPort == containerPort.Name {
+			return containerPort.ContainerPort, nil
+		}
+	}
+	return 0, errors.New("named port is not defined in a selected workload " + pod.Owner.Name)
 }

@@ -7,6 +7,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 )
 
 const (
@@ -20,7 +22,7 @@ const (
 
 // IPBlock captures a set of ip ranges
 type IPBlock struct {
-	ipRange CanonicalIntervalSet
+	ipRange common.CanonicalIntervalSet
 }
 
 // ToIPRanges returns a string of the ip ranges in the current IPBlock object
@@ -64,7 +66,7 @@ func (b *IPBlock) split() []*IPBlock {
 	res := make([]*IPBlock, len(b.ipRange.IntervalSet))
 	for index, ipr := range b.ipRange.IntervalSet {
 		newBlock := IPBlock{}
-		newBlock.ipRange.IntervalSet = append(newBlock.ipRange.IntervalSet, Interval{Start: ipr.Start, End: ipr.End})
+		newBlock.ipRange.IntervalSet = append(newBlock.ipRange.IntervalSet, common.Interval{Start: ipr.Start, End: ipr.End})
 		res[index] = &newBlock
 	}
 	return res
@@ -132,7 +134,7 @@ func addIntervalToList(ipbNew *IPBlock, ipbList []*IPBlock) []*IPBlock {
 
 // NewIPBlock returns an IPBlock object from input cidr str an exceptions cidr str
 func NewIPBlock(cidr string, exceptions []string) (*IPBlock, error) {
-	res := IPBlock{ipRange: CanonicalIntervalSet{}}
+	res := IPBlock{ipRange: common.CanonicalIntervalSet{}}
 	interval, err := cidrToInterval(cidr)
 	if err != nil {
 		return nil, err
@@ -170,10 +172,10 @@ func cidrToIPRange(cidr string) (beginning, end int64, err error) {
 	return int64(start), int64(finish), nil
 }
 
-func cidrToInterval(cidr string) (*Interval, error) {
+func cidrToInterval(cidr string) (*common.Interval, error) {
 	start, end, err := cidrToIPRange(cidr)
 	if err != nil {
 		return nil, err
 	}
-	return &Interval{Start: start, End: end}, nil
+	return &common.Interval{Start: start, End: end}, nil
 }
