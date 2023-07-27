@@ -39,7 +39,7 @@ routeworld/route-world[Deployment] => ingressworld/ingress-world[Deployment] : A
 
 ```
 
-Possible warning:
+### Possible warning
 `Route/Ingress specified workload as a backend, but network policies are blocking ingress connections from an arbitrary in-cluster source to this workload. Connectivity map will not include a possibly allowed connection between the ingress controller and this workload.`
 
 Since the analysis assumes the manifest of the ingress controller is unknown, it checks whether an arbitrary workload can access the destination workloads specified in Ingress/Route rules. If such access is not permitted by network policies, this connection is removed from the report. It may be an allowed connection if a network policy specifically allows ingress access to that workload from a specific workload/namespace of the actual ingress controller installed.
