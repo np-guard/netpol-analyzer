@@ -488,7 +488,7 @@ func portsString(ports []common.PortRange) string {
 func (ca *ConnlistAnalyzer) warnBlockedIngress(peerStr string, ingressObjs map[string][]string) {
 	warningMsg := ""
 	if len(ingressObjs[scan.Ingress]) > 0 {
-		warningMsg = "K8s-Ingress resource: " + ingressObjs[scan.Ingress][0]
+		warningMsg = "K8s-Ingress resource " + ingressObjs[scan.Ingress][0]
 	} else if len(ingressObjs[scan.Route]) > 0 {
 		warningMsg = "Route resource " + ingressObjs[scan.Route][0]
 	}
