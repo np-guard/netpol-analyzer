@@ -84,6 +84,10 @@ func TestConnList(t *testing.T) {
 			testDirName:   "one_ingress_multiple_services",
 			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
 		},
+		{
+			testDirName:   "acs-security-demos",
+			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+		},
 	}
 
 	for _, entry := range testingEntries {
