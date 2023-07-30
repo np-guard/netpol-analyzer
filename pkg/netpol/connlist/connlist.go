@@ -500,5 +500,6 @@ func (ca *ConnlistAnalyzer) warnBlockedIngress(peerStr string, ingressObjs map[s
 	warningMsg += " specified workload " + peerStr + " as a backend, but network policies are blocking " +
 		"ingress connections from an arbitrary in-cluster source to this workload." +
 		"Connectivity map will not include a possibly allowed connection between the ingress controller and this workload."
+	ca.errors = append(ca.errors, newIngressAnalyzerConnsBlockedWarning(errors.New(warningMsg)))
 	ca.logger.Warnf(warningMsg)
 }
