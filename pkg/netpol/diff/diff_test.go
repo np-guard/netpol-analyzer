@@ -26,7 +26,7 @@ func TestDiff(t *testing.T) {
 		{
 			firstDirName:  "onlineboutique_workloads",
 			secondDirName: "onlineboutique_workloads_changed_netpols",
-			formats:       []string{connlist.TextFormat, connlist.MDFormat},
+			formats:       []string{connlist.TextFormat, connlist.MDFormat, connlist.CSVFormat},
 			isErr:         false,
 		},
 		{
@@ -47,6 +47,12 @@ func TestDiff(t *testing.T) {
 			formats:           []string{"png"},
 			isErr:             true,
 			expectedOutputErr: "png output format is not supported.",
+		},
+		{
+			firstDirName:  "k8s_ingress_test",
+			secondDirName: "k8s_ingress_test_new",
+			formats:       []string{connlist.TextFormat, connlist.MDFormat, connlist.CSVFormat},
+			isErr:         false,
 		},
 	}
 
