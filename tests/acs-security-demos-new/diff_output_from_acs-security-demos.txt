@@ -1,0 +1,13 @@
+Connectivity diff:
+source: backend/reports[Deployment], destination: backend/catalog[Deployment], dir1:  TCP 8080, dir2: TCP 9080, diff-type: changed
+source: 0.0.0.0-255.255.255.255, destination: external/unicorn[Deployment], dir1:  No Connections, dir2: All Connections, diff-type: added
+source: backend/checkout[Deployment], destination: external/unicorn[Deployment], dir1:  No Connections, dir2: UDP 5353, diff-type: added
+source: backend/recommendation[Deployment], destination: external/unicorn[Deployment], dir1:  No Connections, dir2: UDP 5353, diff-type: added
+source: backend/reports[Deployment], destination: external/unicorn[Deployment], dir1:  No Connections, dir2: UDP 5353, diff-type: added
+source: external/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:  No Connections, dir2: All Connections, diff-type: added
+source: external/unicorn[Deployment], destination: frontend/webapp[Deployment], dir1:  No Connections, dir2: TCP 8080, diff-type: added
+source: frontend/webapp[Deployment], destination: external/unicorn[Deployment], dir1:  No Connections, dir2: UDP 5353, diff-type: added
+source: payments/gateway[Deployment], destination: external/unicorn[Deployment], dir1:  No Connections, dir2: UDP 5353, diff-type: added
+source: frontend/webapp[Deployment], destination: backend/shipping[Deployment], dir1:  TCP 8080, dir2: No Connections, diff-type: removed
+source: payments/gateway[Deployment], destination: payments/mastercard-processor[Deployment], dir1:  TCP 8080, dir2: No Connections, diff-type: removed
+source: {ingress-controller}, destination: frontend/asset-cache[Deployment], dir1:  TCP 8080, dir2: No Connections, diff-type: removed

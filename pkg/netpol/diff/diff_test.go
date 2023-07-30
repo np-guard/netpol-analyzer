@@ -54,6 +54,12 @@ func TestDiff(t *testing.T) {
 			formats:       []string{connlist.TextFormat, connlist.MDFormat, connlist.CSVFormat},
 			isErr:         false,
 		},
+		{
+			firstDirName:  "acs-security-demos",
+			secondDirName: "acs-security-demos-new",
+			formats:       []string{connlist.TextFormat, connlist.MDFormat, connlist.CSVFormat},
+			isErr:         false,
+		},
 	}
 
 	for _, entry := range testingEntries {
