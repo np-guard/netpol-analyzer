@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/spf13/cobra"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
@@ -96,7 +97,7 @@ defined`,
 	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "", "Focus connections of specified workload name in the output")
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
-	c.Flags().StringVarP(&output, "output", "o", connlist.DefaultFormat, "Required output format ("+supportedFormats+")")
+	c.Flags().StringVarP(&output, "output", "o", common.DefaultFormat, "Required output format ("+supportedFormats+")")
 
 	return c
 }

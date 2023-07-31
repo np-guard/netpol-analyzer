@@ -18,9 +18,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/spf13/cobra"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/diff"
 )
 
@@ -81,7 +81,7 @@ func newCommandDiff() *cobra.Command {
 	c.Flags().StringVarP(&dir1, "dir1", "", "", "Original Resources path to be compared")
 	c.Flags().StringVarP(&dir2, "dir2", "", "", "New Resources path to compare with original resources path")
 	supportedDiffFormats := strings.Join(diff.ValidDiffFormats, ",")
-	c.Flags().StringVarP(&outFormat, "output", "o", connlist.DefaultFormat, "Required output format ("+supportedDiffFormats+")")
+	c.Flags().StringVarP(&outFormat, "output", "o", common.DefaultFormat, "Required output format ("+supportedDiffFormats+")")
 
 	return c
 }

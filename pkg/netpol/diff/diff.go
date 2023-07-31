@@ -4,6 +4,7 @@ import (
 	"errors"
 	"path/filepath"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
@@ -28,7 +29,7 @@ type DiffAnalyzer struct {
 	outputFormat string
 }
 
-var ValidDiffFormats = []string{connlist.TextFormat, connlist.CSVFormat, connlist.MDFormat}
+var ValidDiffFormats = []string{common.TextFormat, common.CSVFormat, common.MDFormat}
 
 // DiffAnalyzerOption is the type for specifying options for DiffAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
@@ -64,7 +65,7 @@ func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 		stopOnError:  false,
 		errors:       []DiffError{},
 		walkFn:       filepath.WalkDir,
-		outputFormat: connlist.DefaultFormat,
+		outputFormat: common.DefaultFormat,
 	}
 	for _, o := range options {
 		o(da)
@@ -238,11 +239,11 @@ func getFormatter(format string) (diffFormatter, error) {
 		return nil, err
 	}
 	switch format {
-	case connlist.TextFormat:
+	case common.TextFormat:
 		return &diffFormatText{}, nil
-	case connlist.CSVFormat:
+	case common.CSVFormat:
 		return &diffFormatCSV{}, nil
-	case connlist.MDFormat:
+	case common.MDFormat:
 		return &diffFormatMD{}, nil
 	default:
 		return &diffFormatText{}, nil
