@@ -18,8 +18,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/spf13/cobra"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/diff"
 )

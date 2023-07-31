@@ -52,9 +52,9 @@ func WithOutputFormat(outputFormat string) DiffAnalyzerOption {
 
 // WithStopOnError is a functional option which directs DiffAnalyzer to stop any processing after the
 // first severe error.
-func WithStopOnError() DiffAnalyzerOption {
+func WithStopOnError(stopOnError bool) DiffAnalyzerOption {
 	return func(d *DiffAnalyzer) {
-		d.stopOnError = true
+		d.stopOnError = stopOnError
 	}
 }
 
@@ -81,7 +81,8 @@ func (da *DiffAnalyzer) Errors() []DiffError {
 
 // ConnDiffFromDirPaths returns the connectivity diffs from two dir paths containing k8s resources
 func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (ConnectivityDiff, error) {
-	caAnalyzer := connlist.NewConnlistAnalyzer()
+	caAnalyzer := connlist.NewConnlistAnalyzer(connlist.WithLogger(da.logger), connlist.WithWalkFn(da.walkFn),
+		connlist.WithStopOnError(da.stopOnError))
 	var conns1, conns2 []connlist.Peer2PeerConnection
 	var err error
 	if conns1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {

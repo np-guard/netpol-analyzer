@@ -15,12 +15,7 @@ import (
 )
 
 func getConnlistFromDirPathRes(stopOnErr bool, path string) (*ConnlistAnalyzer, []Peer2PeerConnection, error) {
-	var analyzer *ConnlistAnalyzer
-	if stopOnErr {
-		analyzer = NewConnlistAnalyzer(WithStopOnError())
-	} else {
-		analyzer = NewConnlistAnalyzer()
-	}
+	analyzer := NewConnlistAnalyzer(WithStopOnError(stopOnErr))
 
 	res, err := analyzer.ConnlistFromDirPath(path)
 	return analyzer, res, err

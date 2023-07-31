@@ -67,9 +67,9 @@ func WithLogger(l logger.Logger) ConnlistAnalyzerOption {
 
 // WithStopOnError is a functional option which directs ConnlistAnalyzer to stop any processing after the
 // first severe error.
-func WithStopOnError() ConnlistAnalyzerOption {
+func WithStopOnError(stopOnError bool) ConnlistAnalyzerOption {
 	return func(c *ConnlistAnalyzer) {
-		c.stopOnError = true
+		c.stopOnError = stopOnError
 	}
 }
 
