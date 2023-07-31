@@ -221,6 +221,11 @@ func ValidateDiffOutputFormat(format string) error {
 
 // ConnectivityDiffToString returns a string of connections diff from connectivityDiff object in the required output format
 func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDiff) (string, error) {
+	if connectivityDiff.isEmpty() {
+		da.logger.Infof("No connections diff")
+		return "", nil
+	}
+	da.logger.Infof("Found connections diffs")
 	diffFormatter, err := getFormatter(da.outputFormat)
 	if err != nil {
 		da.errors = append(da.errors, newResultFormattingError(err))
@@ -270,9 +275,14 @@ func (c *connectivityDiff) ChangedConnections() []*ConnsPair {
 	return c.changedConns
 }
 
+func (c *connectivityDiff) isEmpty() bool {
+	return len(c.removedConns) == 0 && len(c.addedConns) == 0 && len(c.changedConns) == 0
+}
+
 // ConnectivityDiff captures differences in terms of connectivity between two input resource sets
 type ConnectivityDiff interface {
 	RemovedConnections() []connlist.Peer2PeerConnection // only first conn exists between peers
 	AddedConnections() []connlist.Peer2PeerConnection   // only second conn exists between peers
 	ChangedConnections() []*ConnsPair                   // both first & second conn exists between peers
+	isEmpty() bool
 }
