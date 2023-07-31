@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 
@@ -33,60 +34,62 @@ type testEntry struct {
 
 const expectedOutputFileNamePrefix = "connlist_output."
 
+var allFormats = []string{common.TextFormat, common.JSONFormat, common.CSVFormat, common.MDFormat, common.DOTFormat}
+
 // TestConnList tests the output of ConnlistFromDirPath() for valid input resources
 func TestConnList(t *testing.T) {
 	testingEntries := []testEntry{
 		{
 			testDirName:   "ipblockstest",
-			outputFormats: []string{TextFormat},
+			outputFormats: []string{common.TextFormat},
 		},
 		{
 			testDirName:   "onlineboutique",
-			outputFormats: []string{JSONFormat, MDFormat, TextFormat},
+			outputFormats: []string{common.JSONFormat, common.MDFormat, common.TextFormat},
 		},
 		{
 			testDirName:   "onlineboutique_workloads",
-			outputFormats: []string{CSVFormat, DOTFormat, TextFormat},
+			outputFormats: []string{common.CSVFormat, common.DOTFormat, common.TextFormat},
 		},
 		{
 			testDirName:   "minikube_resources",
-			outputFormats: []string{TextFormat},
+			outputFormats: []string{common.TextFormat},
 		},
 		{
 			testDirName:   "online_boutique_workloads_no_ns",
-			outputFormats: []string{TextFormat},
+			outputFormats: []string{common.TextFormat},
 		},
 		{
 			testDirName:   "core_pods_without_host_ip",
-			outputFormats: []string{TextFormat},
+			outputFormats: []string{common.TextFormat},
 		},
 		{
 			testDirName:   "acs_security_frontend_demos",
-			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "demo_app_with_routes_and_ingress",
-			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "k8s_ingress_test",
-			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "multiple_ingress_objects_with_different_ports",
-			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "one_ingress_multiple_ports",
-			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "one_ingress_multiple_services",
-			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "acs-security-demos",
-			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
+			outputFormats: allFormats,
 		},
 	}
 

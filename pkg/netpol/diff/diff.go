@@ -4,6 +4,7 @@ import (
 	"errors"
 	"path/filepath"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
@@ -28,7 +29,7 @@ type DiffAnalyzer struct {
 	outputFormat string
 }
 
-var ValidDiffFormats = []string{connlist.TextFormat, connlist.CSVFormat, connlist.MDFormat}
+var ValidDiffFormats = []string{common.TextFormat, common.CSVFormat, common.MDFormat}
 
 // DiffAnalyzerOption is the type for specifying options for DiffAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
@@ -64,7 +65,7 @@ func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 		stopOnError:  false,
 		errors:       []DiffError{},
 		walkFn:       filepath.WalkDir,
-		outputFormat: connlist.DefaultFormat,
+		outputFormat: common.DefaultFormat,
 	}
 	for _, o := range options {
 		o(da)
@@ -80,7 +81,13 @@ func (da *DiffAnalyzer) Errors() []DiffError {
 
 // ConnDiffFromDirPaths returns the connectivity diffs from two dir paths containing k8s resources
 func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (ConnectivityDiff, error) {
-	caAnalyzer := connlist.NewConnlistAnalyzer()
+	var caAnalyzer *connlist.ConnlistAnalyzer
+	if da.stopOnError {
+		caAnalyzer = connlist.NewConnlistAnalyzer(connlist.WithLogger(da.logger), connlist.WithWalkFn(da.walkFn),
+			connlist.WithStopOnError())
+	} else {
+		caAnalyzer = connlist.NewConnlistAnalyzer(connlist.WithLogger(da.logger), connlist.WithWalkFn(da.walkFn))
+	}
 	var conns1, conns2 []connlist.Peer2PeerConnection
 	var err error
 	if conns1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
@@ -219,6 +226,11 @@ func ValidateDiffOutputFormat(format string) error {
 
 // ConnectivityDiffToString returns a string of connections diff from connectivityDiff object in the required output format
 func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDiff) (string, error) {
+	if connectivityDiff.isEmpty() {
+		da.logger.Infof("No connections diff")
+		return "", nil
+	}
+	da.logger.Infof("Found connections diffs")
 	diffFormatter, err := getFormatter(da.outputFormat)
 	if err != nil {
 		da.errors = append(da.errors, newResultFormattingError(err))
@@ -238,11 +250,11 @@ func getFormatter(format string) (diffFormatter, error) {
 		return nil, err
 	}
 	switch format {
-	case connlist.TextFormat:
+	case common.TextFormat:
 		return &diffFormatText{}, nil
-	case connlist.CSVFormat:
+	case common.CSVFormat:
 		return &diffFormatCSV{}, nil
-	case connlist.MDFormat:
+	case common.MDFormat:
 		return &diffFormatMD{}, nil
 	default:
 		return &diffFormatText{}, nil
@@ -268,9 +280,14 @@ func (c *connectivityDiff) ChangedConnections() []*ConnsPair {
 	return c.changedConns
 }
 
+func (c *connectivityDiff) isEmpty() bool {
+	return len(c.removedConns) == 0 && len(c.addedConns) == 0 && len(c.changedConns) == 0
+}
+
 // ConnectivityDiff captures differences in terms of connectivity between two input resource sets
 type ConnectivityDiff interface {
 	RemovedConnections() []connlist.Peer2PeerConnection // only first conn exists between peers
 	AddedConnections() []connlist.Peer2PeerConnection   // only second conn exists between peers
 	ChangedConnections() []*ConnsPair                   // both first & second conn exists between peers
+	isEmpty() bool
 }
