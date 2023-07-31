@@ -1,5 +1,6 @@
 package common
 
+// formats supported for output of various commands
 const (
 	DefaultFormat = "txt"
 	TextFormat    = "txt"
