@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 )
 
@@ -21,24 +21,26 @@ type testEntry struct {
 
 const expectedOutputFilePrefix = "diff_output_from_"
 
+var allFormats = []string{common.TextFormat, common.MDFormat, common.CSVFormat}
+
 func TestDiff(t *testing.T) {
 	testingEntries := []testEntry{
 		{
 			firstDirName:  "onlineboutique_workloads",
 			secondDirName: "onlineboutique_workloads_changed_netpols",
-			formats:       []string{connlist.TextFormat, connlist.MDFormat, connlist.CSVFormat},
+			formats:       allFormats,
 			isErr:         false,
 		},
 		{
 			firstDirName:  "onlineboutique_workloads",
 			secondDirName: "onlineboutique_workloads_changed_netpols_and_workloads",
-			formats:       []string{connlist.TextFormat, connlist.MDFormat, connlist.CSVFormat},
+			formats:       allFormats,
 			isErr:         false,
 		},
 		{
 			firstDirName:  "onlineboutique_workloads",
 			secondDirName: "onlineboutique_workloads_changed_workloads",
-			formats:       []string{connlist.TextFormat, connlist.MDFormat, connlist.CSVFormat},
+			formats:       allFormats,
 			isErr:         false,
 		},
 		{
@@ -51,13 +53,13 @@ func TestDiff(t *testing.T) {
 		{
 			firstDirName:  "k8s_ingress_test",
 			secondDirName: "k8s_ingress_test_new",
-			formats:       []string{connlist.TextFormat, connlist.MDFormat, connlist.CSVFormat},
+			formats:       allFormats,
 			isErr:         false,
 		},
 		{
 			firstDirName:  "acs-security-demos",
 			secondDirName: "acs-security-demos-new",
-			formats:       []string{connlist.TextFormat, connlist.MDFormat, connlist.CSVFormat},
+			formats:       allFormats,
 			isErr:         false,
 		},
 		{
