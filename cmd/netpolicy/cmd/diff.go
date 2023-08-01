@@ -51,8 +51,8 @@ func runDiffCommand() error {
 func newCommandDiff() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "diff",
-		Short: "Reports changed connections",
-		Long:  `Reports all changd connections between different networkpolicies sets`,
+		Short: "Reports semantic-diff of allowed connectivity ",
+		Long:  `Reports all differences in allowed connections between two different directories of YAML manifests.`,
 		Example: ` # Get list of different allowed connections between two resources dir paths
 		k8snetpolicy diff --dir1 ./resources_dir/ --dir2 ./other_resources_dir/`,
 
