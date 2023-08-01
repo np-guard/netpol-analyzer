@@ -1,3 +1,8 @@
+// The diff package of netpol-analyzer allows producing a k8s connectivity semantic-diff report based on several resources:
+// k8s NetworkPolicy, k8s Ingress, openshift Route
+// It lists the set of changed/removed/added connections between pair of peers (k8s workloads or ip-blocks).
+// The resources can be extracted from two directories containing YAML manifests.
+// For more information, see https://github.com/np-guard/netpol-analyzer.
 package diff
 
 import (
@@ -11,15 +16,8 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
-// DiffError holds information about a single error/warning that occurred during
-// the generating connectivity diff report
-type DiffError interface {
-	IsFatal() bool
-	IsSevere() bool
-	Error() error
-	Location() string
-}
-
+// A DiffAnalyzer provides API to recursively scan two directories for Kubernetes resources including network policies,
+// and get the difference of permitted connectivity between the workloads of the K8s application managed in theses directories.
 type DiffAnalyzer struct {
 	logger       logger.Logger
 	stopOnError  bool
@@ -29,6 +27,16 @@ type DiffAnalyzer struct {
 	outputFormat string
 }
 
+// DiffError holds information about a single error/warning that occurred during
+// the generating connectivity diff report
+type DiffError interface {
+	IsFatal() bool
+	IsSevere() bool
+	Error() error
+	Location() string
+}
+
+// ValidDiffFormats are the supported formats for output generation of the diff command
 var ValidDiffFormats = []string{common.TextFormat, common.CSVFormat, common.MDFormat}
 
 // DiffAnalyzerOption is the type for specifying options for DiffAnalyzer,
@@ -58,6 +66,7 @@ func WithStopOnError() DiffAnalyzerOption {
 	}
 }
 
+// NewDiffAnalyzer creates a new instance of DiffAnalyzer, and applies the provided functional options.
 func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 	// object with default behavior options
 	da := &DiffAnalyzer{
@@ -100,7 +109,6 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 	}
 
 	// get disjoint ip-blocks from both configs
-	// TODO: avoid duplications of ip-blocks
 	ipPeers1, ipPeers2 := getIPblocksFromConnList(conns1), getIPblocksFromConnList(conns2)
 	disjointPeerIPMap, err := eval.DisjointPeerIPMap(ipPeers1, ipPeers2)
 	if err != nil {
@@ -124,6 +132,7 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 	return diffConnectionsLists(conns1Refined, conns2Refined)
 }
 
+// getIPblocksFromConnList returns the list of peers of IP type from Peer2PeerConnection slice
 func getIPblocksFromConnList(conns []connlist.Peer2PeerConnection) []eval.Peer {
 	peersMap := map[string]eval.Peer{}
 	for _, p2p := range conns {
@@ -143,18 +152,21 @@ func getIPblocksFromConnList(conns []connlist.Peer2PeerConnection) []eval.Peer {
 	return res
 }
 
+// getKeyFromP2PConn returns the form of `src;dst“ from Peer2PeerConnection object, to be used as key in diffMap
 func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
 	src := c.Src()
 	dst := c.Dst()
-	return src.String() + ";" + dst.String()
+	return src.String() + keyElemSep + dst.String()
 }
 
-// ConnsPair pairs of Peer2PeerConnection from two dir paths
+// ConnsPair captures a pair of Peer2PeerConnection from two dir paths
+// the src,dst of firstConn and secondConn are assumed to be the same
 type ConnsPair struct {
 	firstConn  connlist.Peer2PeerConnection
 	secondConn connlist.Peer2PeerConnection
 }
 
+// update func of ConnsPair obj, updates the pair with input Peer2PeerConnection, at first or second conn
 func (c *ConnsPair) update(isFirst bool, conn connlist.Peer2PeerConnection) {
 	if isFirst {
 		c.firstConn = conn
@@ -163,8 +175,23 @@ func (c *ConnsPair) update(isFirst bool, conn connlist.Peer2PeerConnection) {
 	}
 }
 
+// isSrcOrDstPeerIPType returns whether src (if checkSrc is true) or dst (if checkSrc is false) is of IP type
+func (c *ConnsPair) isSrcOrDstPeerIPType(checkSrc bool) bool {
+	var src, dst eval.Peer
+	if c.firstConn != nil {
+		src = c.firstConn.Src()
+		dst = c.firstConn.Dst()
+	} else {
+		src = c.secondConn.Src()
+		dst = c.secondConn.Dst()
+	}
+	return (checkSrc && src.IsPeerIPType()) || (!checkSrc && dst.IsPeerIPType())
+}
+
+// diffMap captures connectivity-diff as a map from src-dst key to ConnsPair object
 type diffMap map[string]*ConnsPair
 
+// update func of diffMap, updates the map input key and Peer2PeerConnection, at first or second conn
 func (d diffMap) update(key string, isFirst bool, c connlist.Peer2PeerConnection) {
 	if _, ok := d[key]; !ok {
 		d[key] = &ConnsPair{}
@@ -172,16 +199,189 @@ func (d diffMap) update(key string, isFirst bool, c connlist.Peer2PeerConnection
 	d[key].update(isFirst, c)
 }
 
-// TODO: should modify the keys for ip-blocks, should work with disjoint ip-blocks from both results .
+// type mapListConnPairs is a map from key (src-or-dst)+conns1+conns2 to []ConnsPair (where dst-or-src is ip-block)
+// it is used to group disjoint ip-blocks and merge overlapping/touching ip-blocks when possible
+type mapListConnPairs map[string][]*ConnsPair
+
+const keyElemSep = ";"
+
+// addConnsPair is given ConnsPair with src or dst as ip-block, and updates mapListConnPairs
+func (m mapListConnPairs) addConnsPair(c *ConnsPair, isSrcAnIP bool) error {
+	// new key is src+conns1+conns2 if dst is ip, and dst+conns1+conns2 if src is ip
+	var srcOrDstKey string
+	var p connlist.Peer2PeerConnection
+	var peerIP eval.Peer
+	if c.firstConn != nil {
+		p = c.firstConn
+	} else {
+		p = c.secondConn
+	}
+	if isSrcAnIP {
+		peerIP = p.Src()
+		srcOrDstKey = p.Dst().String()
+	} else {
+		peerIP = p.Dst()
+		srcOrDstKey = p.Src().String()
+	}
+	if !peerIP.IsPeerIPType() {
+		return errors.New("src/dst is not IP type as expected")
+	}
+
+	conn1, conn2, err := getConnStringsFromConnsPair(c)
+	if err != nil {
+		return err
+	}
+
+	newKey := srcOrDstKey + keyElemSep + conn1 + keyElemSep + conn2
+
+	if _, ok := m[newKey]; !ok {
+		m[newKey] = []*ConnsPair{}
+	}
+	m[newKey] = append(m[newKey], c)
+
+	return nil
+}
+
+// getConnStringsFromConnsPair returns string representation of connections from the pair at ConnsPair
+func getConnStringsFromConnsPair(c *ConnsPair) (conn1, conn2 string, err error) {
+	switch {
+	case c.firstConn != nil && c.secondConn != nil:
+		conn1 = connlist.GetConnectionSetFromP2PConnection(c.firstConn).String()
+		conn2 = connlist.GetConnectionSetFromP2PConnection(c.secondConn).String()
+	case c.firstConn != nil:
+		conn1 = connlist.GetConnectionSetFromP2PConnection(c.firstConn).String()
+	case c.secondConn != nil:
+		conn2 = connlist.GetConnectionSetFromP2PConnection(c.secondConn).String()
+	default:
+		return conn1, conn2, errors.New("unexpected empty ConnsPair")
+	}
+	return conn1, conn2, nil
+}
+
+// getDstOrSrcFromConnsPair returns the src or dst Peer from ConnsPair object
+func getDstOrSrcFromConnsPair(c *ConnsPair, isDst bool) eval.Peer {
+	var p connlist.Peer2PeerConnection
+	if c.firstConn != nil {
+		p = c.firstConn
+	} else {
+		p = c.secondConn
+	}
+	if isDst {
+		return p.Dst()
+	}
+	return p.Src()
+}
+
+func (m mapListConnPairs) mergeBySrcOrDstIPPeers(isDstAnIP bool, d diffMap) error {
+	for _, srcOrdstIPgroup := range m {
+		ipPeersList := make([]eval.Peer, len(srcOrdstIPgroup))
+		for i, c := range srcOrdstIPgroup {
+			ipPeersList[i] = getDstOrSrcFromConnsPair(c, isDstAnIP)
+		}
+
+		// get a merged set of eval.Peer
+		mergedIPblocks, err := eval.MergePeerIPList(ipPeersList)
+		if err != nil {
+			return err
+		}
+
+		// add to res the merged entries
+		for _, srcOrdstIP := range mergedIPblocks {
+			var conns1, conns2 connlist.Peer2PeerConnection
+			if srcOrdstIPgroup[0].firstConn != nil {
+				if isDstAnIP {
+					conns1 = connlist.NewPeer2PeerConnection(
+						srcOrdstIPgroup[0].firstConn.Src(),
+						srcOrdstIP,
+						srcOrdstIPgroup[0].firstConn.AllProtocolsAndPorts(),
+						srcOrdstIPgroup[0].firstConn.ProtocolsAndPorts())
+				} else {
+					conns1 = connlist.NewPeer2PeerConnection(
+						srcOrdstIP,
+						srcOrdstIPgroup[0].firstConn.Dst(),
+						srcOrdstIPgroup[0].firstConn.AllProtocolsAndPorts(),
+						srcOrdstIPgroup[0].firstConn.ProtocolsAndPorts())
+				}
+				d.update(getKeyFromP2PConn(conns1), true, conns1)
+			}
+			if srcOrdstIPgroup[0].secondConn != nil {
+				if isDstAnIP {
+					conns2 = connlist.NewPeer2PeerConnection(
+						srcOrdstIPgroup[0].secondConn.Src(),
+						srcOrdstIP,
+						srcOrdstIPgroup[0].secondConn.AllProtocolsAndPorts(),
+						srcOrdstIPgroup[0].secondConn.ProtocolsAndPorts())
+				} else {
+					conns2 = connlist.NewPeer2PeerConnection(
+						srcOrdstIP,
+						srcOrdstIPgroup[0].secondConn.Dst(),
+						srcOrdstIPgroup[0].secondConn.AllProtocolsAndPorts(),
+						srcOrdstIPgroup[0].secondConn.ProtocolsAndPorts())
+				}
+				d.update(getKeyFromP2PConn(conns2), false, conns2)
+			}
+		}
+	}
+	return nil
+}
+
+// mergeIPblocks updates d by merging touching disjoint ip-blocks where possible
+func (d diffMap) mergeIPblocks() (diffMap, error) {
+	dstIP := mapListConnPairs{} // map from key src+conns1+conns2 to []ConnsPair (where dst is ip-block)
+	srcIP := mapListConnPairs{} // map from ket dst+conns1+conns2 to []ConnsPair (where src is ip-block)
+	res := diffMap{}
+	for k, connsPair := range d {
+		switch {
+		// neither src nor dst is ip-block => keep connsPair as is
+		case !connsPair.isSrcOrDstPeerIPType(false) && !connsPair.isSrcOrDstPeerIPType(true):
+			res.update(k, true, connsPair.firstConn)
+			res.update(k, false, connsPair.secondConn)
+			continue
+		case connsPair.isSrcOrDstPeerIPType(false): // dst is ip-block
+			if err := dstIP.addConnsPair(connsPair, false); err != nil {
+				return nil, err
+			}
+		case connsPair.isSrcOrDstPeerIPType(true):
+			if err := srcIP.addConnsPair(connsPair, true); err != nil {
+				return nil, err
+			}
+		default:
+			continue // not expecting to get here
+		}
+	}
+
+	// next, merge lines from dstIP / srcIP where possible, and add to res
+	if err := dstIP.mergeBySrcOrDstIPPeers(true, res); err != nil {
+		return nil, err
+	}
+	if err := srcIP.mergeBySrcOrDstIPPeers(false, res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+// diffConnectionsLists returns ConnectivityDiff given two Peer2PeerConnection slices
+// it assumes that the input has been refined with disjoint ip-blocks, and merges
+// touching ip-blocks in the output where possible
+// currently not including info about added/removed workloads, and not including diff of workloads with no connections
 func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection) (ConnectivityDiff, error) {
 	// convert to a map from src-dst full name, to its connections pair (conns1, conns2)
 	diffsMap := diffMap{}
+	var err error
 	for _, c := range conns1 {
 		diffsMap.update(getKeyFromP2PConn(c), true, c)
 	}
 	for _, c := range conns2 {
 		diffsMap.update(getKeyFromP2PConn(c), false, c)
 	}
+
+	// merge ip-blocks
+	diffsMap, err = diffsMap.mergeIPblocks()
+	if err != nil {
+		return nil, err
+	}
+
 	res := &connectivityDiff{
 		removedConns: []connlist.Peer2PeerConnection{},
 		addedConns:   []connlist.Peer2PeerConnection{},
