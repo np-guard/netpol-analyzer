@@ -26,18 +26,29 @@ var allFormats = []string{common.TextFormat, common.MDFormat, common.CSVFormat}
 func TestDiff(t *testing.T) {
 	testingEntries := []testEntry{
 		{
+			// description:
+			// **changed netpols: default/frontend-netpol, default/adservice-netpol, default/checkoutservice-netpol,
+			// 		default/cartservice-netpol, default/currencyservice-netpol, default/emailservice-netpol
+			// **added netpols : default/redis-cart-netpol
 			firstDirName:  "onlineboutique_workloads",
 			secondDirName: "onlineboutique_workloads_changed_netpols",
 			formats:       allFormats,
 			isErr:         false,
 		},
 		{
+			// description:
+			// **changed netpols: default/frontend-netpol, default/adservice-netpol, default/checkoutservice-netpol,
+			// 		default/cartservice-netpol, default/currencyservice-netpol, default/emailservice-netpol
+			// **added netpols : default/redis-cart-netpol
+			// **added workloads: default/unicorn
 			firstDirName:  "onlineboutique_workloads",
 			secondDirName: "onlineboutique_workloads_changed_netpols_and_workloads",
 			formats:       allFormats,
 			isErr:         false,
 		},
 		{
+			// description:
+			// **added workloads: default/unicorn
 			firstDirName:  "onlineboutique_workloads",
 			secondDirName: "onlineboutique_workloads_changed_workloads",
 			formats:       allFormats,
@@ -51,12 +62,23 @@ func TestDiff(t *testing.T) {
 			expectedOutputErr: "png output format is not supported.",
 		},
 		{
+			// description:
+			// ** changed Ingress:  default/ingress-policy
+			// ** added netpols: default/productpage-netpol, default/details-netpol, default/reviews-netpol,
+			//		 default/ratings-netpol
+			// **added workloads: default/unicorn
 			firstDirName:  "k8s_ingress_test",
 			secondDirName: "k8s_ingress_test_new",
 			formats:       allFormats,
 			isErr:         false,
 		},
 		{
+			// description:
+			// **changed workloads : backend/catalog (removed port)
+			// **added workloads: external/unicorn
+			// **removed workloads: payments/mastercard-processor
+			// **changed netpols: frontend/asset-cache-netpol (blocked ingress), backend/catalog-netpol, backend/reports-netpol,
+			//			backend/shipping-netpol, frontend/webapp-netpol,
 			firstDirName:  "acs-security-demos",
 			secondDirName: "acs-security-demos-new",
 			formats:       allFormats,

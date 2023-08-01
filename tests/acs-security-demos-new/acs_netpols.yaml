@@ -38,7 +38,7 @@ spec:
         matchLabels:
           app: reports
     ports:
-    - port: 9080       # chsnged to the new port
+    - port: 9080       # changed to the new port
       protocol: TCP
   podSelector:
     matchLabels:
