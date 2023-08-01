@@ -159,6 +159,13 @@ func TestDiffErrors(t *testing.T) {
 			isCaOtherErr: true,
 		},
 		{
+			name:         "dir 1 warning, has no netpols",
+			dir1:         "k8s_ingress_test",
+			dir2:         "k8s_ingress_test_new",
+			errStr:       "no relevant Kubernetes network policy resources found",
+			isCaOtherErr: true,
+		},
+		{
 			name: "dir 2 warning, ingress conns are blocked by netpols",
 			dir1: "acs-security-demos",
 			dir2: "acs-security-demos-new",
