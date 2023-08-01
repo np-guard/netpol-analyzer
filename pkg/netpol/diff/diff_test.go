@@ -76,8 +76,9 @@ type testErrEntry struct {
 	dir1            string
 	dir2            string
 	errStr          string
-	isCaErr         bool
-	isFormatingErr  bool
+	isCaFatalErr    bool
+	isCaOtherErr    bool // not fatal
+	isFormattingErr bool
 	isIPHandlingErr bool
 	format          string
 }
@@ -90,19 +91,19 @@ func TestDiffErrors(t *testing.T) {
 	// following tests will be run with stopOnError, testing err string and diff err type
 	testingErrEntries := []testErrEntry{
 		{
-			name:           "unsupported format",
-			dir1:           "onlineboutique_workloads",
-			dir2:           "onlineboutique_workloads_changed_netpols",
-			format:         "png",
-			errStr:         "png output format is not supported.",
-			isFormatingErr: true,
+			name:            "unsupported format",
+			dir1:            "onlineboutique_workloads",
+			dir2:            "onlineboutique_workloads_changed_netpols",
+			format:          "png",
+			errStr:          "png output format is not supported.",
+			isFormattingErr: true,
 		},
 		{
-			name:    "dir 1 with bad netpol - CIDR error",
-			dir1:    filepath.Join("bad_netpols", "subdir1"),
-			dir2:    "ipblockstest",
-			errStr:  "network policy default/shippingservice-netpol CIDR error: invalid CIDR address: A",
-			isCaErr: true,
+			name:         "dir 1 with bad netpol - CIDR error",
+			dir1:         filepath.Join("bad_netpols", "subdir1"),
+			dir2:         "ipblockstest",
+			errStr:       "network policy default/shippingservice-netpol CIDR error: invalid CIDR address: A",
+			isCaFatalErr: true,
 		},
 		{
 			name: "dir 2 with bad netpol - label key error",
@@ -111,7 +112,7 @@ func TestDiffErrors(t *testing.T) {
 			errStr: "network policy default/shippingservice-netpol selector error: key: Invalid value: \"app@b\": " +
 				"name part must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric" +
 				" character (e.g. 'MyName',  or 'my.name',  or '123-abc', regex used for validation is '([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]')",
-			isCaErr: true,
+			isCaFatalErr: true,
 		},
 		{
 			name: "dir 1 with bad netpol - bad rule",
@@ -119,14 +120,14 @@ func TestDiffErrors(t *testing.T) {
 			dir2: "ipblockstest",
 			errStr: "network policy default/shippingservice-netpol rule NetworkPolicyPeer error: " +
 				"cannot have both IPBlock and PodSelector/NamespaceSelector set",
-			isCaErr: true,
+			isCaFatalErr: true,
 		},
 		{
-			name:    "dir 2 with bad netpol - empty rule",
-			dir1:    "ipblockstest",
-			dir2:    filepath.Join("bad_netpols", "subdir4"),
-			errStr:  "network policy default/shippingservice-netpol rule NetworkPolicyPeer error: cannot have empty rule peer",
-			isCaErr: true,
+			name:         "dir 2 with bad netpol - empty rule",
+			dir1:         "ipblockstest",
+			dir2:         filepath.Join("bad_netpols", "subdir4"),
+			errStr:       "network policy default/shippingservice-netpol rule NetworkPolicyPeer error: cannot have empty rule peer",
+			isCaFatalErr: true,
 		},
 		{
 			name: "dir 1 with bad netpol - named port error",
@@ -134,21 +135,36 @@ func TestDiffErrors(t *testing.T) {
 			dir2: "ipblockstest",
 			errStr: "network policy default/shippingservice-netpol named port error: " +
 				"named port is not defined in a selected workload shippingservice",
-			isCaErr: true,
+			isCaFatalErr: true,
 		},
 		{
-			name:    "dir 2 with bad netpol - named port on ipblock error",
-			dir1:    "ipblockstest",
-			dir2:    filepath.Join("bad_netpols", "subdir6"),
-			errStr:  "network policy default/shippingservice-netpol named port error: cannot convert named port for an IP destination",
-			isCaErr: true,
+			name:         "dir 2 with bad netpol - named port on ipblock error",
+			dir1:         "ipblockstest",
+			dir2:         filepath.Join("bad_netpols", "subdir6"),
+			errStr:       "network policy default/shippingservice-netpol named port error: cannot convert named port for an IP destination",
+			isCaFatalErr: true,
 		},
 		{
-			name:    "dir 1 does not exists",
-			dir1:    filepath.Join("bad_yamls", "subdir3"),
-			dir2:    "ipblockstest",
-			errStr:  "error accessing directory:",
-			isCaErr: true,
+			name:         "dir 1 does not exists",
+			dir1:         filepath.Join("bad_yamls", "subdir3"),
+			dir2:         "ipblockstest",
+			errStr:       "error accessing directory:",
+			isCaFatalErr: true,
+		},
+		{
+			name:         "dir 1 warning, has no yamls",
+			dir1:         filepath.Join("bad_yamls", "subdir2"),
+			dir2:         "ipblockstest",
+			errStr:       "no yaml files found",
+			isCaOtherErr: true,
+		},
+		{
+			name: "dir 2 warning, ingress conns are blocked by netpols",
+			dir1: "acs-security-demos",
+			dir2: "acs-security-demos-new",
+			errStr: "Route resource frontend/asset-cache specified workload frontend/asset-cache[Deployment] as a backend," +
+				" but network policies are blocking ingress connections from an arbitrary in-cluster source to this workload.",
+			isCaOtherErr: true,
 		},
 	}
 
@@ -162,10 +178,16 @@ func TestDiffErrors(t *testing.T) {
 		firstDirPath := filepath.Join(testutils.GetTestsDir(), entry.dir1)
 		secondDirPath := filepath.Join(testutils.GetTestsDir(), entry.dir2)
 		connsDiff, err := diffAnalyzer.ConnDiffFromDirPaths(firstDirPath, secondDirPath)
-		if entry.isCaErr {
+		diffErrors := diffAnalyzer.Errors()
+		if entry.isCaFatalErr {
 			require.Nil(t, connsDiff)
 			require.Contains(t, err.Error(), entry.errStr)
-			diffErrors := diffAnalyzer.Errors()
+			require.Contains(t, diffErrors[0].Error().Error(), entry.errStr)
+			require.True(t, errors.As(diffErrors[0].Error(), &caErrType))
+			continue
+		}
+		if entry.isCaOtherErr {
+			require.Nil(t, err) // no fatal error
 			require.Contains(t, diffErrors[0].Error().Error(), entry.errStr)
 			require.True(t, errors.As(diffErrors[0].Error(), &caErrType))
 			continue
@@ -173,7 +195,6 @@ func TestDiffErrors(t *testing.T) {
 		if entry.isIPHandlingErr {
 			require.Nil(t, connsDiff)
 			require.Equal(t, err.Error(), entry.errStr)
-			diffErrors := diffAnalyzer.Errors()
 			require.Equal(t, diffErrors[0].Error().Error(), entry.errStr)
 			require.True(t, errors.As(diffErrors[0].Error(), &ipErrType))
 			continue
@@ -181,9 +202,9 @@ func TestDiffErrors(t *testing.T) {
 		require.Nil(t, err)
 		require.NotNil(t, connsDiff)
 		_, err = diffAnalyzer.ConnectivityDiffToString(connsDiff)
-		if entry.isFormatingErr {
+		diffErrors = diffAnalyzer.Errors()
+		if entry.isFormattingErr {
 			require.Equal(t, err.Error(), entry.errStr)
-			diffErrors := diffAnalyzer.Errors()
 			require.Equal(t, diffErrors[0].Error().Error(), entry.errStr)
 			require.True(t, errors.As(diffErrors[0].Error(), &formattingErrType))
 			continue
