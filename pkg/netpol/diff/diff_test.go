@@ -79,12 +79,10 @@ type testErrEntry struct {
 	isCaFatalErr    bool
 	isCaOtherErr    bool // not fatal
 	isFormattingErr bool
-	isIPHandlingErr bool
 	format          string
 }
 
 var caErrType = &connectionsAnalyzingError{}     // error returned from a func on the ConnlistAnalyzer object
-var ipErrType = &handlingIPpeersError{}          // error returned from a func handling IP disjoint/merge
 var formattingErrType = &resultFormattingError{} // error returned from getting/writing output format
 
 func TestDiffErrors(t *testing.T) {
@@ -197,13 +195,6 @@ func TestDiffErrors(t *testing.T) {
 			require.Nil(t, err) // no fatal error
 			require.Contains(t, diffErrors[0].Error().Error(), entry.errStr)
 			require.True(t, errors.As(diffErrors[0].Error(), &caErrType))
-			continue
-		}
-		if entry.isIPHandlingErr {
-			require.Nil(t, connsDiff)
-			require.Equal(t, err.Error(), entry.errStr)
-			require.Equal(t, diffErrors[0].Error().Error(), entry.errStr)
-			require.True(t, errors.As(diffErrors[0].Error(), &ipErrType))
 			continue
 		}
 		require.Nil(t, err)
