@@ -65,7 +65,7 @@ func TestDiff(t *testing.T) {
 		{
 			firstDirName:  "with_end_port_example",
 			secondDirName: "with_end_port_example_new",
-			formats:       []string{connlist.TextFormat, connlist.MDFormat, connlist.CSVFormat},
+			formats:       allFormats,
 			isErr:         false,
 		},
 	}
