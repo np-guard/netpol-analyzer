@@ -73,7 +73,7 @@ Global Flags:
 
 ### Diff command
 ```
-Reports all different allowed connections between different networkpolicies sets.
+Reports all differences in allowed connections between two different directories of YAML manifests.
 
 Usage:
   k8snetpolicy diff [flags]
@@ -87,9 +87,10 @@ Flags:
       --dir2  string  Second resources dir path to be compared with the first dir path
   -o, --output string Required output format (txt, csv, md) (default "txt")  
   -h, --help   help for diff
-
+```
 
 ### Example outputs:
+
 ```
 $ k8snetpolicy eval --dirpath tests/onlineboutique -s adservice-77d5cd745d-t8mx4 -d emailservice-54c7c5d9d-vp27n -p 80
 
@@ -119,8 +120,7 @@ default/redis-cart[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
 
 
 
-$ k8snetpolicy diff --dir1 tests/onlineboutique_workloads --dir2 tests/onlineboutique_workloads_changed_netpols
-
+$ ./bin/k8snetpolicy diff --dir1 tests/onlineboutique_workloads --dir2 tests/onlineboutique_workloads_changed_netpols
 Connectivity diff:
 source: default/checkoutservice[Deployment], destination: default/cartservice[Deployment], dir1:  TCP 7070, dir2: TCP 8000, diff-type: changed
 source: default/checkoutservice[Deployment], destination: default/emailservice[Deployment], dir1:  TCP 8080, dir2: TCP 8080,9555, diff-type: changed
@@ -129,8 +129,8 @@ source: default/checkoutservice[Deployment], destination: default/adservice[Depl
 source: 128.0.0.0-255.255.255.255, destination: default/redis-cart[Deployment], dir1:  All Connections, dir2: No Connections, diff-type: removed
 source: default/checkoutservice[Deployment], destination: default/currencyservice[Deployment], dir1:  TCP 7000, dir2: No Connections, diff-type: removed
 source: default/frontend[Deployment], destination: default/adservice[Deployment], dir1:  TCP 9555, dir2: No Connections, diff-type: removed
-source: default/redis-cart[Deployment], destination: 0.0.0.0-127.255.255.255, dir1:  All Connections, dir2: No Connections, diff-type: removed
-source: default/redis-cart[Deployment], destination: 128.0.0.0-255.255.255.255, dir1:  All Connections, dir2: No Connections, diff-type: removed
+source: default/redis-cart[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:  All Connections, dir2: No Connections, diff-type: removed
+
 
 ```
 

@@ -23,7 +23,9 @@ type Peer interface {
 	Kind() string
 }
 
-// given two sets of IP type peers, get a map from peer-str to its disjoint peers, considering both sets
+// DisjointPeerIPMap is given two sets of IP type peers, and returns a map from peer-str to its disjoint peers, considering both sets
+// for example, if ip-range A from set1 is split to ranges (A1, S2) in the disjoint-blocks computation,
+// then in the result map there would be entries for (str(A), str(A1), A1) and for (str(A), str(A2), A2)
 func DisjointPeerIPMap(set1, set2 []Peer) (map[string]map[string]Peer, error) {
 	res := map[string]map[string]Peer{}
 	var ipSet1, ipSet2 []*common.IPBlock
@@ -44,6 +46,7 @@ func DisjointPeerIPMap(set1, set2 []Peer) (map[string]map[string]Peer, error) {
 	return res, nil
 }
 
+// addDisjointIPBlockToMap updates input map (from peer-str to its disjoint peers) by adding a new disjoint ip
 func addDisjointIPBlockToMap(ipSet []*common.IPBlock, disjointIP *common.IPBlock, m map[string]map[string]Peer) {
 	for _, ipb1 := range ipSet {
 		if disjointIP.ContainedIn(ipb1) {
@@ -53,6 +56,8 @@ func addDisjointIPBlockToMap(ipSet []*common.IPBlock, disjointIP *common.IPBlock
 	}
 }
 
+// updatePeerIPMap updates input map (from peer-str to its disjoint peers), given a new disjoint ip (ipb), and its
+// associated original ip-range key from the map (ipb1)
 func updatePeerIPMap(m map[string]map[string]Peer, ipb1, ipb *common.IPBlock) {
 	ipb1Str := ipb1.ToIPRanges()
 	if _, ok := m[ipb1Str]; !ok {
@@ -61,6 +66,7 @@ func updatePeerIPMap(m map[string]map[string]Peer, ipb1, ipb *common.IPBlock) {
 	m[ipb1Str][ipb.ToIPRanges()] = &k8s.IPBlockPeer{IPBlock: ipb}
 }
 
+// peerIPSetToIPBlockSet is given as input a list of peers of type ip-block, and returns a list matching IPBlock objects
 func peerIPSetToIPBlockSet(peerSet []Peer) ([]*common.IPBlock, error) {
 	res := make([]*common.IPBlock, len(peerSet))
 	for i, p := range peerSet {
@@ -73,10 +79,26 @@ func peerIPSetToIPBlockSet(peerSet []Peer) ([]*common.IPBlock, error) {
 	return res, nil
 }
 
+// peerIPToIPBlock returns an IPBlock object from a Peer object of IP type
 func peerIPToIPBlock(p Peer) (*common.IPBlock, error) {
 	peerIP, ok := p.(*k8s.IPBlockPeer)
 	if !ok {
 		return nil, fmt.Errorf("input peer not IP block: %s", p.String())
 	}
 	return peerIP.IPBlock, nil
+}
+
+// MergePeerIPList is given as input a list of peers of type ip-blocks, and returns a new list of peers
+// after merging overlapping/touching ip-blocks
+func MergePeerIPList(ipPeers []Peer) ([]Peer, error) {
+	ipbList, err := peerIPSetToIPBlockSet(ipPeers)
+	if err != nil {
+		return nil, err
+	}
+	mergedList := common.MergeIPBlocksList(ipbList)
+	res := make([]Peer, len(mergedList))
+	for i := range mergedList {
+		res[i] = &k8s.IPBlockPeer{IPBlock: mergedList[i]}
+	}
+	return res, nil
 }
