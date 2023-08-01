@@ -181,3 +181,14 @@ func cidrToInterval(cidr string) (*Interval, error) {
 func (b *IPBlock) ContainedIn(other *IPBlock) bool {
 	return b.ipRange.ContainedIn(other.ipRange)
 }
+
+func MergeIPBlocksList(inputList []*IPBlock) []*IPBlock {
+	if len(inputList) == 0 {
+		return inputList
+	}
+	union := inputList[0].Copy()
+	for i := 1; i < len(inputList); i++ {
+		union.ipRange.Union(inputList[i].ipRange)
+	}
+	return union.Split()
+}

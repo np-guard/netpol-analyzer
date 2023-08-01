@@ -6,5 +6,4 @@ source: default/checkoutservice[Deployment], destination: default/adservice[Depl
 source: 128.0.0.0-255.255.255.255, destination: default/redis-cart[Deployment], dir1:  All Connections, dir2: No Connections, diff-type: removed
 source: default/checkoutservice[Deployment], destination: default/currencyservice[Deployment], dir1:  TCP 7000, dir2: No Connections, diff-type: removed
 source: default/frontend[Deployment], destination: default/adservice[Deployment], dir1:  TCP 9555, dir2: No Connections, diff-type: removed
-source: default/redis-cart[Deployment], destination: 0.0.0.0-127.255.255.255, dir1:  All Connections, dir2: No Connections, diff-type: removed
-source: default/redis-cart[Deployment], destination: 128.0.0.0-255.255.255.255, dir1:  All Connections, dir2: No Connections, diff-type: removed
+source: default/redis-cart[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:  All Connections, dir2: No Connections, diff-type: removed
