@@ -2,7 +2,9 @@ package diff
 
 // diffGeneratingError - DiffError that may arise while producing the connectivity diff report
 type diffGeneratingError struct {
-	err error
+	err    error
+	fatal  bool
+	severe bool
 }
 
 type connectionsAnalyzingError struct {
@@ -55,13 +57,13 @@ func (e *handlingIPpeersError) Error() string {
 
 // constructors
 func newResultFormattingError(err error) *diffGeneratingError {
-	return &diffGeneratingError{&resultFormattingError{err}}
+	return &diffGeneratingError{err: &resultFormattingError{err}, fatal: true, severe: false}
 }
 
-func newConnectionsAnalyzingError(err error) *diffGeneratingError {
-	return &diffGeneratingError{&connectionsAnalyzingError{err}}
+func newConnectionsAnalyzingError(err error, fatal, severe bool) *diffGeneratingError {
+	return &diffGeneratingError{err: &connectionsAnalyzingError{err}, fatal: fatal, severe: severe}
 }
 
 func newHandlingIPpeersError(err error) *diffGeneratingError {
-	return &diffGeneratingError{&handlingIPpeersError{err}}
+	return &diffGeneratingError{err: &handlingIPpeersError{err}, fatal: true, severe: false}
 }

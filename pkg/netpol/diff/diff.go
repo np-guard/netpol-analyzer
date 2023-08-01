@@ -91,12 +91,16 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 	var conns1, conns2 []connlist.Peer2PeerConnection
 	var err error
 	if conns1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
-		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
+		da.errors = append(da.errors, newConnectionsAnalyzingError(err, true, false))
 		return nil, err
 	}
 	if conns2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
-		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
+		da.errors = append(da.errors, newConnectionsAnalyzingError(err, true, false))
 		return nil, err
+	}
+	// appending connlist warnings and severe errors to diff_errors
+	for _, e := range caAnalyzer.Errors() {
+		da.errors = append(da.errors, newConnectionsAnalyzingError(e.Error(), e.IsFatal(), e.IsSevere()))
 	}
 
 	// get disjoint ip-blocks from both configs
