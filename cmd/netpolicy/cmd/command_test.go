@@ -310,9 +310,9 @@ func TestCommands(t *testing.T) {
 			// expected first 3 rows
 			expectedOutput: "Connectivity diff:\n" +
 				"source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], " +
-				"dir1:  No Connections, dir2: All Connections, diff-type: added\n" +
+				"dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)\n" +
 				"source: default/redis-cart[Deployment], destination: default/unicorn[Deployment], " +
-				"dir1:  No Connections, dir2: All Connections, diff-type: added",
+				"dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)",
 			containment: true,
 			isErr:       false,
 		},
@@ -329,8 +329,10 @@ func TestCommands(t *testing.T) {
 			},
 			// expected first 3 rows
 			expectedOutput: "source,destination,dir1,dir2,diff-type\n" +
-				"0.0.0.0-255.255.255.255,default/unicorn[Deployment],No Connections,All Connections,added\n" +
-				"default/redis-cart[Deployment],default/unicorn[Deployment],No Connections,All Connections,added",
+				"0.0.0.0-255.255.255.255,default/unicorn[Deployment],No Connections," +
+				"All Connections,added (workload default/unicorn[Deployment] added)\n" +
+				"default/redis-cart[Deployment],default/unicorn[Deployment],No Connections,All Connections," +
+				"added (workload default/unicorn[Deployment] added)",
 			containment: true,
 			isErr:       false,
 		},
@@ -348,7 +350,8 @@ func TestCommands(t *testing.T) {
 			// expected first 3 rows
 			expectedOutput: "| source | destination | dir1 | dir2 | diff-type |\n" +
 				"|--------|-------------|------|------|-----------|\n" +
-				"| 0.0.0.0-255.255.255.255 | default/unicorn[Deployment] | No Connections | All Connections | added |",
+				"| 0.0.0.0-255.255.255.255 | default/unicorn[Deployment] | No Connections | All Connections |" +
+				" added (workload default/unicorn[Deployment] added) |",
 			containment: true,
 			isErr:       false,
 		},

@@ -5,9 +5,9 @@ source: default/reviews-v2-7bf8c9648f[ReplicaSet], destination: default/productp
 source: default/reviews-v2-7bf8c9648f[ReplicaSet], destination: default/ratings-v1-b6994bb9[ReplicaSet], dir1:  All Connections, dir2: TCP 9080, diff-type: changed
 source: default/reviews-v3-84779c7bbc[ReplicaSet], destination: default/productpage-v1-6b746f74dc[ReplicaSet], dir1:  All Connections, dir2: TCP 9080, diff-type: changed
 source: default/reviews-v3-84779c7bbc[ReplicaSet], destination: default/ratings-v1-b6994bb9[ReplicaSet], dir1:  All Connections, dir2: TCP 9080, diff-type: changed
-source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], dir1:  No Connections, dir2: All Connections, diff-type: added
-source: default/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:  No Connections, dir2: All Connections, diff-type: added
-source: default/unicorn[Deployment], destination: default/details-v1-79f774bdb9[ReplicaSet], dir1:  No Connections, dir2: TCP 9080, diff-type: added
+source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)
+source: default/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)
+source: default/unicorn[Deployment], destination: default/details-v1-79f774bdb9[ReplicaSet], dir1:  No Connections, dir2: TCP 9080, diff-type: added (workload default/unicorn[Deployment] added)
 source: 0.0.0.0-255.255.255.255, destination: default/details-v1-79f774bdb9[ReplicaSet], dir1:  All Connections, dir2: No Connections, diff-type: removed
 source: 0.0.0.0-255.255.255.255, destination: default/productpage-v1-6b746f74dc[ReplicaSet], dir1:  All Connections, dir2: No Connections, diff-type: removed
 source: 0.0.0.0-255.255.255.255, destination: default/ratings-v1-b6994bb9[ReplicaSet], dir1:  All Connections, dir2: No Connections, diff-type: removed
@@ -44,4 +44,4 @@ source: default/reviews-v3-84779c7bbc[ReplicaSet], destination: 0.0.0.0-255.255.
 source: default/reviews-v3-84779c7bbc[ReplicaSet], destination: default/details-v1-79f774bdb9[ReplicaSet], dir1:  All Connections, dir2: No Connections, diff-type: removed
 source: default/reviews-v3-84779c7bbc[ReplicaSet], destination: default/reviews-v1-545db77b95[ReplicaSet], dir1:  All Connections, dir2: No Connections, diff-type: removed
 source: default/reviews-v3-84779c7bbc[ReplicaSet], destination: default/reviews-v2-7bf8c9648f[ReplicaSet], dir1:  All Connections, dir2: No Connections, diff-type: removed
-source: {ingress-controller}, destination: default/unicorn[Deployment], dir1:  No Connections, dir2: TCP 8080, diff-type: added
+source: {ingress-controller}, destination: default/unicorn[Deployment], dir1:  No Connections, dir2: TCP 8080, diff-type: added (workload default/unicorn[Deployment] added)

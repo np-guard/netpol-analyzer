@@ -22,6 +22,9 @@ const (
 	changedType = "changed"
 	removedType = "removed"
 	addedType   = "added"
+	infoPrefix  = " (workload "
+	infoSuffix  = ")"
+	space       = " "
 )
 
 var newLine = fmt.Sprintln("")
@@ -54,16 +57,24 @@ func formDiffFieldsDataOfChangedConns(changedConns []*ConnsPair) (netpolsChanged
 	return netpolsRes, ingressRes
 }
 
-func formDiffFieldsDataOfRemovedConns(removedConns []connlist.Peer2PeerConnection) (netpolsRemoved, ingressRemoved []*singleDiffFields) {
+func formDiffFieldsDataOfRemovedConns(removedConns []RemovedConnsPeers) (netpolsRemoved, ingressRemoved []*singleDiffFields) {
 	netpolsRes := make([]*singleDiffFields, 0) // connections removed based on netpols rules
 	ingressRes := make([]*singleDiffFields, 0) // removed ingress connections
-	for _, p2pConn := range removedConns {
+	for _, removedData := range removedConns {
+		p2pConn := removedData.removedConn
+		diffInfo := removedType
+		if removedData.removedSrc {
+			diffInfo += infoPrefix + p2pConn.Src().String() + space + removedType + infoSuffix
+		}
+		if removedData.removedDst {
+			diffInfo += infoPrefix + p2pConn.Dst().String() + space + removedType + infoSuffix
+		}
 		diffData := &singleDiffFields{
 			src:      p2pConn.Src().String(),
 			dst:      p2pConn.Dst().String(),
 			dir1Conn: connlist.GetProtocolsAndPortsStr(p2pConn),
 			dir2Conn: noConns,
-			diffType: removedType,
+			diffType: diffInfo,
 		}
 		if eval.IsFakePeer(p2pConn.Src()) {
 			ingressRes = append(ingressRes, diffData)
@@ -74,16 +85,24 @@ func formDiffFieldsDataOfRemovedConns(removedConns []connlist.Peer2PeerConnectio
 	return netpolsRes, ingressRes
 }
 
-func formDiffFieldsDataOfAddedConns(addedConns []connlist.Peer2PeerConnection) (netpolsAdded, ingressAdded []*singleDiffFields) {
+func formDiffFieldsDataOfAddedConns(addedConns []AddedConnsPeers) (netpolsAdded, ingressAdded []*singleDiffFields) {
 	netpolsRes := make([]*singleDiffFields, 0) // added connections based on netpols rules
 	ingressRes := make([]*singleDiffFields, 0) // added ingress connections
-	for _, p2pConn := range addedConns {
+	for _, addedData := range addedConns {
+		p2pConn := addedData.addedConn
+		diffInfo := addedType
+		if addedData.addedSrc {
+			diffInfo += infoPrefix + p2pConn.Src().String() + space + addedType + infoSuffix
+		}
+		if addedData.addedDst {
+			diffInfo += infoPrefix + p2pConn.Dst().String() + space + addedType + infoSuffix
+		}
 		diffData := &singleDiffFields{
 			src:      p2pConn.Src().String(),
 			dst:      p2pConn.Dst().String(),
 			dir1Conn: noConns,
 			dir2Conn: connlist.GetProtocolsAndPortsStr(p2pConn),
-			diffType: addedType,
+			diffType: diffInfo,
 		}
 		if eval.IsFakePeer(p2pConn.Src()) {
 			ingressRes = append(ingressRes, diffData)

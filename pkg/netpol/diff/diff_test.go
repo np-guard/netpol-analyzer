@@ -126,7 +126,7 @@ func TestDiff(t *testing.T) {
 				require.Empty(t, err)
 				expectedOutputStr, err := os.ReadFile(expectedOutputFilePath)
 				require.Empty(t, err)
-				require.Equal(t, actualOutput, string(expectedOutputStr))
+				require.Equal(t, string(expectedOutputStr), actualOutput)
 			}
 		}
 	}
