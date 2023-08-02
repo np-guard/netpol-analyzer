@@ -25,6 +25,7 @@ const (
 	infoPrefix  = " (workload "
 	infoSuffix  = ")"
 	space       = " "
+	and         = " and "
 )
 
 var newLine = fmt.Sprintln("")
@@ -63,11 +64,20 @@ func formDiffFieldsDataOfRemovedConns(removedConns []RemovedConnsPeers) (netpols
 	for _, removedData := range removedConns {
 		p2pConn := removedData.removedConn
 		diffInfo := removedType
-		if removedData.removedSrc {
-			diffInfo += infoPrefix + p2pConn.Src().String() + space + removedType + infoSuffix
-		}
-		if removedData.removedDst {
-			diffInfo += infoPrefix + p2pConn.Dst().String() + space + removedType + infoSuffix
+		removedSrcFlag := false
+		if removedData.removedSrc || removedData.removedDst {
+			diffInfo += infoPrefix
+			if removedData.removedSrc {
+				diffInfo += p2pConn.Src().String()
+				removedSrcFlag = true
+			}
+			if removedData.removedDst {
+				if removedSrcFlag {
+					diffInfo += and
+				}
+				diffInfo += p2pConn.Dst().String()
+			}
+			diffInfo += space + removedType + infoSuffix
 		}
 		diffData := &singleDiffFields{
 			src:      p2pConn.Src().String(),
@@ -91,11 +101,20 @@ func formDiffFieldsDataOfAddedConns(addedConns []AddedConnsPeers) (netpolsAdded,
 	for _, addedData := range addedConns {
 		p2pConn := addedData.addedConn
 		diffInfo := addedType
-		if addedData.addedSrc {
-			diffInfo += infoPrefix + p2pConn.Src().String() + space + addedType + infoSuffix
-		}
-		if addedData.addedDst {
-			diffInfo += infoPrefix + p2pConn.Dst().String() + space + addedType + infoSuffix
+		addedSrcFlag := false
+		if addedData.addedSrc || addedData.addedDst {
+			diffInfo += infoPrefix
+			if addedData.addedSrc {
+				diffInfo += p2pConn.Src().String()
+				addedSrcFlag = true
+			}
+			if addedData.addedDst {
+				if addedSrcFlag {
+					diffInfo += and
+				}
+				diffInfo += p2pConn.Dst().String()
+			}
+			diffInfo += space + addedType + infoSuffix
 		}
 		diffData := &singleDiffFields{
 			src:      p2pConn.Src().String(),
