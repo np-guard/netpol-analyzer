@@ -192,9 +192,8 @@ func TestDiffErrors(t *testing.T) {
 			continue
 		}
 		if entry.isCaOtherErr {
-			require.Nil(t, err) // no fatal error
+			require.Nil(t, err) // no fatal error, connlist.ConnlistError which is warning
 			require.Contains(t, diffErrors[0].Error().Error(), entry.errStr)
-			require.True(t, errors.As(diffErrors[0].Error(), &caErrType))
 			continue
 		}
 		require.Nil(t, err)

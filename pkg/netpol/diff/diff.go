@@ -11,15 +11,6 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
-// DiffError holds information about a single error/warning that occurred during
-// the generating connectivity diff report
-type DiffError interface {
-	IsFatal() bool
-	IsSevere() bool
-	Error() error
-	Location() string
-}
-
 type DiffAnalyzer struct {
 	logger       logger.Logger
 	stopOnError  bool
@@ -100,7 +91,7 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 	}
 	// appending connlist warnings and severe errors to diff_errors
 	for _, e := range caAnalyzer.Errors() {
-		da.errors = append(da.errors, newConnectionsAnalyzingError(e.Error(), e.IsFatal(), e.IsSevere()))
+		da.errors = append(da.errors, e)
 	}
 
 	// get disjoint ip-blocks from both configs
