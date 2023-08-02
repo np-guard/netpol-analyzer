@@ -63,6 +63,14 @@ func TestDiff(t *testing.T) {
 		},
 		{
 			// description:
+			// **changed netpols: default/frontend-netpol
+			// **added Ingress: default/onlineboutique-ingress
+			firstDirName:  "onlineboutique_workloads",
+			secondDirName: "onlineboutique_workloads_with_ingress",
+			formats:       []string{common.CSVFormat},
+		},
+		{
+			// description:
 			// ** changed Ingress:  default/ingress-policy
 			// ** added netpols: default/productpage-netpol, default/details-netpol, default/reviews-netpol,
 			//		 default/ratings-netpol
@@ -83,6 +91,21 @@ func TestDiff(t *testing.T) {
 			secondDirName: "acs-security-demos-new",
 			formats:       allFormats,
 			isErr:         false,
+		},
+		{
+			// description:
+			// **removed Routes: frontend/asset-cache, frontend/webapp
+			firstDirName:  "acs-security-demos",
+			secondDirName: "acs-security-demos-no-routes",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **removed Ingress: ingressworld/ingress-2
+			// **added Route: ingressworld/route-1
+			firstDirName:  "multiple_ingress_objects_with_different_ports",
+			secondDirName: "multiple_ingress_objects_with_different_ports_new",
+			formats:       allFormats,
 		},
 	}
 
