@@ -122,7 +122,8 @@ type testErrEntry struct {
 	dir2            string
 	errStr          string
 	isCaFatalErr    bool
-	isCaOtherErr    bool // not fatal
+	isCaSevereErr   bool
+	isCaWarning     bool
 	isFormattingErr bool
 	format          string
 }
@@ -188,6 +189,13 @@ func TestDiffErrors(t *testing.T) {
 			isCaFatalErr: true,
 		},
 		{
+			name:        "dir 1 warning, has no yamls",
+			dir1:        filepath.Join("bad_yamls", "subdir2"),
+			dir2:        "ipblockstest",
+			errStr:      "no yaml files found",
+			isCaWarning: true,
+		},
+		{
 			name:         "dir 1 does not exists",
 			dir1:         filepath.Join("bad_yamls", "subdir3"),
 			dir2:         "ipblockstest",
@@ -195,18 +203,25 @@ func TestDiffErrors(t *testing.T) {
 			isCaFatalErr: true,
 		},
 		{
-			name:         "dir 1 warning, has no yamls",
-			dir1:         filepath.Join("bad_yamls", "subdir2"),
-			dir2:         "ipblockstest",
-			errStr:       "no yaml files found",
-			isCaOtherErr: true,
+			name:          "dir 1 has no k8s resources",
+			dir1:          filepath.Join("bad_yamls", "not_a_k8s_resource.yaml"),
+			dir2:          "ipblockstest",
+			errStr:        "Yaml document is not a K8s resource",
+			isCaSevereErr: true, // severe error, stops only if stopOnError = true
 		},
 		{
-			name:         "dir 1 warning, has no netpols",
-			dir1:         "k8s_ingress_test",
-			dir2:         "k8s_ingress_test_new",
-			errStr:       "no relevant Kubernetes network policy resources found",
-			isCaOtherErr: true,
+			name:          "dir 1 has malformed yaml",
+			dir1:          filepath.Join("bad_yamls", "document_with_syntax_error.yaml"),
+			dir2:          "ipblockstest",
+			errStr:        "YAML document is malformed",
+			isCaSevereErr: true, // severe error, stops only if stopOnError = true
+		},
+		{
+			name:        "dir 1 warning, has no netpols",
+			dir1:        "k8s_ingress_test",
+			dir2:        "k8s_ingress_test_new",
+			errStr:      "no relevant Kubernetes network policy resources found",
+			isCaWarning: true,
 		},
 		{
 			name: "dir 2 warning, ingress conns are blocked by netpols",
@@ -214,43 +229,67 @@ func TestDiffErrors(t *testing.T) {
 			dir2: "acs-security-demos-new",
 			errStr: "Route resource frontend/asset-cache specified workload frontend/asset-cache[Deployment] as a backend," +
 				" but network policies are blocking ingress connections from an arbitrary in-cluster source to this workload.",
-			isCaOtherErr: true,
+			isCaWarning: true,
 		},
 	}
 
 	for _, entry := range testingErrEntries {
-		var diffAnalyzer *DiffAnalyzer
+		var diffAnalyzer, diffAnalyzerStopsOnError *DiffAnalyzer
 		if entry.format != "" {
-			diffAnalyzer = NewDiffAnalyzer(WithOutputFormat(entry.format), WithStopOnError())
+			diffAnalyzer = NewDiffAnalyzer(WithOutputFormat(entry.format))
+			diffAnalyzerStopsOnError = NewDiffAnalyzer(WithStopOnError(), WithOutputFormat(entry.format))
 		} else {
-			diffAnalyzer = NewDiffAnalyzer(WithStopOnError())
+			diffAnalyzer = NewDiffAnalyzer()
+			diffAnalyzerStopsOnError = NewDiffAnalyzer(WithStopOnError())
 		}
+
 		firstDirPath := filepath.Join(testutils.GetTestsDir(), entry.dir1)
 		secondDirPath := filepath.Join(testutils.GetTestsDir(), entry.dir2)
-		connsDiff, err := diffAnalyzer.ConnDiffFromDirPaths(firstDirPath, secondDirPath)
-		diffErrors := diffAnalyzer.Errors()
-		if entry.isCaFatalErr {
-			require.Nil(t, connsDiff)
-			require.Contains(t, err.Error(), entry.errStr)
-			require.Contains(t, diffErrors[0].Error().Error(), entry.errStr)
-			require.True(t, errors.As(diffErrors[0].Error(), &caErrType))
+		connsDiff1, err1 := diffAnalyzer.ConnDiffFromDirPaths(firstDirPath, secondDirPath)
+		connsDiff2, err2 := diffAnalyzerStopsOnError.ConnDiffFromDirPaths(firstDirPath, secondDirPath)
+		diffErrors1 := diffAnalyzer.Errors()
+		diffErrors2 := diffAnalyzerStopsOnError.Errors()
+		if entry.isCaFatalErr { // fatal err , both analyzers behave the same, nil res, not nil err
+			require.Nil(t, connsDiff1)
+			require.Nil(t, connsDiff2)
+			require.Contains(t, err1.Error(), entry.errStr)
+			require.Contains(t, err2.Error(), entry.errStr)
+			require.Contains(t, diffErrors1[0].Error().Error(), entry.errStr)
+			require.Contains(t, diffErrors2[0].Error().Error(), entry.errStr)
+			// check err type
+			require.True(t, errors.As(diffErrors1[0].Error(), &caErrType))
+			require.True(t, errors.As(diffErrors2[0].Error(), &caErrType))
 			continue
 		}
-		if entry.isCaOtherErr {
-			require.Nil(t, err) // no fatal error, connlist.ConnlistError which is warning
-			require.Contains(t, diffErrors[0].Error().Error(), entry.errStr)
+		if entry.isCaSevereErr { // severe error not returned in err, but with stopOnError, empty res with it in the errors
+			require.Nil(t, err1)
+			require.Nil(t, err2)
+			require.False(t, connsDiff1.isEmpty()) // diffAnalyzer did not stop, result not empty
+			require.True(t, connsDiff2.isEmpty())  // diffAnalyzerStopsOnError stops running, returns empty res
+			// error appended to diffAnalyzerErrors in both
+			require.Contains(t, diffErrors2[0].Error().Error(), entry.errStr)
+			require.Contains(t, diffErrors1[0].Error().Error(), entry.errStr)
 			continue
 		}
-		require.Nil(t, err)
-		require.NotNil(t, connsDiff)
-		_, err = diffAnalyzer.ConnectivityDiffToString(connsDiff)
-		diffErrors = diffAnalyzer.Errors()
-		if entry.isFormattingErr {
-			require.Equal(t, err.Error(), entry.errStr)
-			require.Equal(t, diffErrors[0].Error().Error(), entry.errStr)
-			require.True(t, errors.As(diffErrors[0].Error(), &formattingErrType))
+		if entry.isCaWarning { // both don't stop
+			require.Nil(t, err1)
+			require.NotNil(t, connsDiff1)
+			require.Nil(t, err2)
+			require.NotNil(t, connsDiff2)
+			// warning appended to diffAnalyzerErrors in both
+			require.Contains(t, diffErrors2[0].Error().Error(), entry.errStr)
+			require.Contains(t, diffErrors1[0].Error().Error(), entry.errStr)
+		}
+		_, err1 = diffAnalyzer.ConnectivityDiffToString(connsDiff1)
+		_, err2 = diffAnalyzerStopsOnError.ConnectivityDiffToString(connsDiff2)
+		diffErrors1 = diffAnalyzer.Errors()
+		if entry.isFormattingErr { // formating error is fatal , stops both analyzers
+			require.Equal(t, err1.Error(), entry.errStr)
+			require.Equal(t, err2.Error(), entry.errStr)
+			require.True(t, errors.As(diffErrors1[0].Error(), &formattingErrType))
 			continue
 		}
-		require.Nil(t, err)
+		require.Nil(t, err1)
+		require.Nil(t, err2)
 	}
 }
