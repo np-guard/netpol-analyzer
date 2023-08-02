@@ -367,6 +367,8 @@ func (d diffMap) mergeIPblocks() (diffMap, error) {
 // it assumes that the input has been refined with disjoint ip-blocks, and merges
 // touching ip-blocks in the output where possible
 // currently not including diff of workloads with no connections
+//
+//gocyclo:ignore
 func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 	peers1, peers2 map[string]bool) (ConnectivityDiff, error) {
 	// convert to a map from src-dst full name, to its connections pair (conns1, conns2)
@@ -399,13 +401,13 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 		case d.firstConn != nil:
 			// removed conn means both Src and Dst exist in peers1, just check if they are not in peers2 too, ignore ips
 			res.removedConns = append(res.removedConns, RemovedConnsPeers{d.firstConn,
-				!d.firstConn.Src().IsPeerIPType() && !peers2[d.firstConn.Src().String()],
-				!d.firstConn.Dst().IsPeerIPType() && !peers2[d.firstConn.Dst().String()]})
+				!(d.firstConn.Src().IsPeerIPType() || eval.IsFakePeer(d.firstConn.Src())) && !peers2[d.firstConn.Src().String()],
+				!(d.firstConn.Dst().IsPeerIPType() || eval.IsFakePeer(d.firstConn.Dst())) && !peers2[d.firstConn.Dst().String()]})
 		case d.secondConn != nil:
-			// added conns means Src and Dst are in peers2, check if they didn't exist in peers1 too, , ignore ips
+			// added conns means Src and Dst are in peers2, check if they didn't exist in peers1 too, , ignore ips/ingress-controller pod
 			res.addedConns = append(res.addedConns, AddedConnsPeers{d.secondConn,
-				!d.secondConn.Src().IsPeerIPType() && !peers1[d.secondConn.Src().String()],
-				!d.secondConn.Dst().IsPeerIPType() && !peers1[d.secondConn.Dst().String()]})
+				!(d.secondConn.Src().IsPeerIPType() || eval.IsFakePeer(d.secondConn.Src())) && !peers1[d.secondConn.Src().String()],
+				!(d.secondConn.Dst().IsPeerIPType() || eval.IsFakePeer(d.secondConn.Dst())) && !peers1[d.secondConn.Dst().String()]})
 		default:
 			continue
 		}

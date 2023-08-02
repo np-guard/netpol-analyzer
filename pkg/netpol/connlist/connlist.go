@@ -458,8 +458,6 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 	if err != nil {
 		return nil, err
 	}
-	// save the ingressControllerPod in the map ca.dirToPeersNamesSet
-	ca.dirToPeersNamesSet[ca.currentDir][ingressControllerPod.String()] = true
 	for peerStr, peerAndConn := range ingressConns {
 		// compute allowed connections based on pe.policies to the peer, then intersect the conns with
 		// ingress connections to the peer -> the intersection will be appended to the result
