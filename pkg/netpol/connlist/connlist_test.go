@@ -88,6 +88,10 @@ func TestConnList(t *testing.T) {
 			testDirName:   "acs-security-demos",
 			outputFormats: []string{TextFormat, JSONFormat, CSVFormat, MDFormat, DOTFormat},
 		},
+		{
+			testDirName:   "acs-security-demos-with-netpol-list",
+			outputFormats: []string{TextFormat},
+		},
 	}
 
 	for _, entry := range testingEntries {
