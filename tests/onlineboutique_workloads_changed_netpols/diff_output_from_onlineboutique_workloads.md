@@ -7,5 +7,4 @@
 | 128.0.0.0-255.255.255.255 | default/redis-cart[Deployment] | All Connections | No Connections | removed |
 | default/checkoutservice[Deployment] | default/currencyservice[Deployment] | TCP 7000 | No Connections | removed |
 | default/frontend[Deployment] | default/adservice[Deployment] | TCP 9555 | No Connections | removed |
-| default/redis-cart[Deployment] | 0.0.0.0-127.255.255.255 | All Connections | No Connections | removed |
-| default/redis-cart[Deployment] | 128.0.0.0-255.255.255.255 | All Connections | No Connections | removed |
+| default/redis-cart[Deployment] | 0.0.0.0-255.255.255.255 | All Connections | No Connections | removed |

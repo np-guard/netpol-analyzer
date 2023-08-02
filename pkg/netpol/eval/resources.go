@@ -361,7 +361,7 @@ func (pe *PolicyEngine) ConvertPeerNamedPort(namedPort string, peer Peer) (int32
 	}
 }
 
-// AddPodByNameAndNamespace adds a new fake pod to the pe.podsMap
+// AddPodByNameAndNamespace adds a new fake pod to the pe.podsMap, used for adding ingress-controller pod
 func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string) (Peer, error) {
 	podStr := types.NamespacedName{Namespace: ns, Name: name}.String()
 	newPod := &k8s.Pod{
@@ -374,4 +374,16 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string) (Peer, error) 
 	}
 	pe.podsMap[podStr] = newPod
 	return &k8s.WorkloadPeer{Pod: newPod}, nil
+}
+
+// returns if the given peer is a fake - i.e. ingress-controller peer (pod)
+func IsFakePeer(peer Peer) bool {
+	switch currPeer := peer.(type) {
+	case *k8s.WorkloadPeer:
+		return currPeer.Pod.FakePod
+	case *k8s.PodPeer:
+		return currPeer.Pod.FakePod
+	default:
+		return false
+	}
 }
