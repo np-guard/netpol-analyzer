@@ -9,6 +9,8 @@ import (
 	"errors"
 	"path/filepath"
 
+	"k8s.io/utils/strings/slices"
+
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
@@ -98,17 +100,16 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 		caAnalyzer = connlist.NewConnlistAnalyzer(connlist.WithLogger(da.logger), connlist.WithWalkFn(da.walkFn))
 	}
 	var conns1, conns2 []connlist.Peer2PeerConnection
+	var workloadsNames1, workloadsNames2 []string
 	var err error
-	if conns1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
+	if conns1, workloadsNames1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
 		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
 		return nil, err
 	}
-	if conns2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
+	if conns2, workloadsNames2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
 		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
 		return nil, err
 	}
-	// peers names found in the dirs (some peers may not appear in the conns, so we need to list all peers in the resources)
-	workloadsNames1, workloadsNames2 := caAnalyzer.GetPeersNamesFromDirPath(dirPath1), caAnalyzer.GetPeersNamesFromDirPath(dirPath2)
 
 	// get disjoint ip-blocks from both configs
 	ipPeers1, ipPeers2 := getIPblocksFromConnList(conns1), getIPblocksFromConnList(conns2)
@@ -370,7 +371,7 @@ func (d diffMap) mergeIPblocks() (diffMap, error) {
 //
 //gocyclo:ignore
 func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
-	peers1, peers2 map[string]bool) (ConnectivityDiff, error) {
+	peers1, peers2 []string) (ConnectivityDiff, error) {
 	// convert to a map from src-dst full name, to its connections pair (conns1, conns2)
 	diffsMap := diffMap{}
 	var err error
@@ -400,14 +401,15 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 			}
 		case d.firstConn != nil:
 			// removed conn means both Src and Dst exist in peers1, just check if they are not in peers2 too, ignore ips
-			res.removedConns = append(res.removedConns, RemovedConnsPeers{d.firstConn,
-				!(d.firstConn.Src().IsPeerIPType() || eval.IsFakePeer(d.firstConn.Src())) && !peers2[d.firstConn.Src().String()],
-				!(d.firstConn.Dst().IsPeerIPType() || eval.IsFakePeer(d.firstConn.Dst())) && !peers2[d.firstConn.Dst().String()]})
+			res.removedConns = append(res.removedConns, RemovedConnsPeers{
+				d.firstConn,
+				!(d.firstConn.Src().IsPeerIPType() || eval.IsFakePeer(d.firstConn.Src())) && !slices.Contains(peers2, d.firstConn.Src().String()),
+				!(d.firstConn.Dst().IsPeerIPType() || eval.IsFakePeer(d.firstConn.Dst())) && !slices.Contains(peers2, d.firstConn.Dst().String())})
 		case d.secondConn != nil:
 			// added conns means Src and Dst are in peers2, check if they didn't exist in peers1 too, , ignore ips/ingress-controller pod
 			res.addedConns = append(res.addedConns, AddedConnsPeers{d.secondConn,
-				!(d.secondConn.Src().IsPeerIPType() || eval.IsFakePeer(d.secondConn.Src())) && !peers1[d.secondConn.Src().String()],
-				!(d.secondConn.Dst().IsPeerIPType() || eval.IsFakePeer(d.secondConn.Dst())) && !peers1[d.secondConn.Dst().String()]})
+				!(d.secondConn.Src().IsPeerIPType() || eval.IsFakePeer(d.secondConn.Src())) && !slices.Contains(peers1, d.secondConn.Src().String()),
+				!(d.secondConn.Dst().IsPeerIPType() || eval.IsFakePeer(d.secondConn.Dst())) && !slices.Contains(peers1, d.secondConn.Dst().String())})
 		default:
 			continue
 		}

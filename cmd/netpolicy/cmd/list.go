@@ -40,9 +40,9 @@ func runListCommand() error {
 		connlist.WithOutputFormat(output))
 
 	if dirPath != "" {
-		conns, err = analyzer.ConnlistFromDirPath(dirPath)
+		conns, _, err = analyzer.ConnlistFromDirPath(dirPath)
 	} else {
-		conns, err = analyzer.ConnlistFromK8sCluster(clientset)
+		conns, _, err = analyzer.ConnlistFromK8sCluster(clientset)
 	}
 	if err != nil {
 		return err

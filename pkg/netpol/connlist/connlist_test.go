@@ -22,7 +22,7 @@ func getConnlistFromDirPathRes(stopOnErr bool, path string) (*ConnlistAnalyzer, 
 		analyzer = NewConnlistAnalyzer()
 	}
 
-	res, err := analyzer.ConnlistFromDirPath(path)
+	res, _, err := analyzer.ConnlistFromDirPath(path)
 	return analyzer, res, err
 }
 
@@ -97,7 +97,7 @@ func TestConnList(t *testing.T) {
 		dirPath := filepath.Join(testutils.GetTestsDir(), entry.testDirName)
 		for _, format := range entry.outputFormats {
 			analyzer := NewConnlistAnalyzer(WithOutputFormat(format))
-			res, err := analyzer.ConnlistFromDirPath(dirPath)
+			res, _, err := analyzer.ConnlistFromDirPath(dirPath)
 			require.Nil(t, err)
 			output, err := analyzer.ConnectionsListToString(res)
 			require.Nil(t, err)
@@ -119,7 +119,7 @@ func TestConnList(t *testing.T) {
 func TestWithFocusWorkload(t *testing.T) {
 	analyzer1 := NewConnlistAnalyzer(WithFocusWorkload("emailservice"))
 	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
-	res, err := analyzer1.ConnlistFromDirPath(dirPath)
+	res, _, err := analyzer1.ConnlistFromDirPath(dirPath)
 	require.Len(t, res, 1)
 	require.Nil(t, err)
 }
@@ -237,7 +237,7 @@ func TestConnlistAnalyzerBadDirNoYamls(t *testing.T) {
 func TestConnlistAnalyzerBadOutputFormat(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
 	analyzer := NewConnlistAnalyzer(WithOutputFormat("jpeg"))
-	res, err1 := analyzer.ConnlistFromDirPath(dirPath)
+	res, _, err1 := analyzer.ConnlistFromDirPath(dirPath)
 	require.Nil(t, err1)
 	_, err2 := analyzer.ConnectionsListToString(res)
 	require.NotNil(t, err2)
@@ -249,7 +249,7 @@ func TestConnlistAnalyzerBadOutputFormat(t *testing.T) {
 func TestWithFocusWorkloadWithReplicasConnections(t *testing.T) {
 	analyzer1 := NewConnlistAnalyzer(WithFocusWorkload("calico-node"))
 	dirPath := filepath.Join(testutils.GetTestsDir(), "ipblockstest")
-	res, err := analyzer1.ConnlistFromDirPath(dirPath)
+	res, _, err := analyzer1.ConnlistFromDirPath(dirPath)
 	require.Len(t, res, 49)
 	require.Nil(t, err)
 	out, err := analyzer1.ConnectionsListToString(res)
@@ -260,7 +260,7 @@ func TestWithFocusWorkloadWithReplicasConnections(t *testing.T) {
 func TestWithFocusWorkloadWithIngressObjects(t *testing.T) {
 	analyzer := NewConnlistAnalyzer(WithFocusWorkload("details-v1-79f774bdb9"))
 	dirPath := filepath.Join(testutils.GetTestsDir(), "k8s_ingress_test")
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	res, _, err := analyzer.ConnlistFromDirPath(dirPath)
 	require.Len(t, res, 13)
 	require.Nil(t, err)
 	out, err := analyzer.ConnectionsListToString(res)
