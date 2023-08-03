@@ -416,29 +416,31 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 	}
 
 	res := &connectivityDiff{
-		diffConns: []*ConnsPair{},
+		removedConns: []*ConnsPair{},
+		addedConns:   []*ConnsPair{},
+		changedConns: []*ConnsPair{},
 	}
 	for _, d := range diffsMap {
 		switch {
 		case d.firstConn != nil && d.secondConn != nil:
-			if equalConns(d.firstConn, d.secondConn) {
-				continue
+			if !equalConns(d.firstConn, d.secondConn) {
+				d.diffType = changedType
+				d.newOrLostSrc, d.newOrLostDst = false, false
+				res.changedConns = append(res.changedConns, d)
 			}
-			// not equal
-			d.diffType = changedType
-			d.newOrLostSrc, d.newOrLostDst = false, false
 		case d.firstConn != nil:
 			// removed conn means both Src and Dst exist in peers1, just check if they are not in peers2 too
 			d.diffType = removedType
 			d.updateNewOrLostFields(true, peers2)
+			res.removedConns = append(res.removedConns, d)
 		case d.secondConn != nil:
 			// added conns means Src and Dst are in peers2, check if they didn't exist in peers1 too
 			d.diffType = addedType
 			d.updateNewOrLostFields(false, peers1)
+			res.addedConns = append(res.addedConns, d)
 		default:
 			continue
 		}
-		res.diffConns = append(res.diffConns, d)
 	}
 
 	return res, nil
@@ -502,34 +504,25 @@ func getFormatter(format string) (diffFormatter, error) {
 
 // connectivityDiff implements the ConnectivityDiff interface
 type connectivityDiff struct {
-	diffConns []*ConnsPair
+	removedConns []*ConnsPair
+	addedConns   []*ConnsPair
+	changedConns []*ConnsPair
 }
 
 func (c *connectivityDiff) RemovedConnections() []*ConnsPair {
-	return c.diffConnectionsByType(removedType)
+	return c.removedConns
 }
 
 func (c *connectivityDiff) AddedConnections() []*ConnsPair {
-	return c.diffConnectionsByType(addedType)
+	return c.addedConns
 }
 
 func (c *connectivityDiff) ChangedConnections() []*ConnsPair {
-	return c.diffConnectionsByType(changedType)
+	return c.changedConns
 }
 
 func (c *connectivityDiff) isEmpty() bool {
-	return len(c.diffConns) == 0
-}
-
-// returns list of diff connections of the given type
-func (c *connectivityDiff) diffConnectionsByType(diffType string) []*ConnsPair {
-	res := make([]*ConnsPair, 0)
-	for _, d := range c.diffConns {
-		if d.diffType == diffType {
-			res = append(res, d)
-		}
-	}
-	return res
+	return len(c.removedConns) == 0 && len(c.addedConns) == 0 && len(c.changedConns) == 0
 }
 
 // ConnectivityDiff captures differences in terms of connectivity between two input resource sets
