@@ -162,11 +162,23 @@ func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
 	return src.String() + keyElemSep + dst.String()
 }
 
+const (
+	// diff types
+	changedType = "changed"
+	removedType = "removed"
+	addedType   = "added"
+)
+
 // ConnsPair captures a pair of Peer2PeerConnection from two dir paths
 // the src,dst of firstConn and secondConn are assumed to be the same
+// with info on the diffType and if any of the peers is lost/new
+// (exists only in one dir for cases of removed/added connections)
 type ConnsPair struct {
-	firstConn  connlist.Peer2PeerConnection
-	secondConn connlist.Peer2PeerConnection
+	firstConn    connlist.Peer2PeerConnection
+	secondConn   connlist.Peer2PeerConnection
+	diffType     string
+	newOrLostSrc bool
+	newOrLostDst bool
 }
 
 // update func of ConnsPair obj, updates the pair with input Peer2PeerConnection, at first or second conn
@@ -189,6 +201,23 @@ func (c *ConnsPair) isSrcOrDstPeerIPType(checkSrc bool) bool {
 		dst = c.secondConn.Dst()
 	}
 	return (checkSrc && src.IsPeerIPType()) || (!checkSrc && dst.IsPeerIPType())
+}
+
+// updateNewOrLostFields updates ConnsPair's newOrLostSrc and newOrLostDst values
+func (c *ConnsPair) updateNewOrLostFields(isFirst bool, peersList []string) {
+	var src, dst eval.Peer
+	if isFirst {
+		src, dst = c.firstConn.Src(), c.firstConn.Dst()
+	} else {
+		src, dst = c.secondConn.Src(), c.secondConn.Dst()
+	}
+	// update src/dst status based on the peerList , ignore ips/ingress-controller pod
+	if !(src.IsPeerIPType() || src.IsFakePeer()) && !slices.Contains(peersList, src.String()) {
+		c.newOrLostSrc = true
+	}
+	if !(dst.IsPeerIPType() || dst.IsFakePeer()) && !slices.Contains(peersList, dst.String()) {
+		c.newOrLostDst = true
+	}
 }
 
 // diffMap captures connectivity-diff as a map from src-dst key to ConnsPair object
@@ -368,8 +397,6 @@ func (d diffMap) mergeIPblocks() (diffMap, error) {
 // it assumes that the input has been refined with disjoint ip-blocks, and merges
 // touching ip-blocks in the output where possible
 // currently not including diff of workloads with no connections
-//
-//gocyclo:ignore
 func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 	peers1, peers2 []string) (ConnectivityDiff, error) {
 	// convert to a map from src-dst full name, to its connections pair (conns1, conns2)
@@ -389,30 +416,29 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 	}
 
 	res := &connectivityDiff{
-		removedConns: []RemovedConnsPeers{},
-		addedConns:   []AddedConnsPeers{},
-		changedConns: []*ConnsPair{},
+		diffConns: []*ConnsPair{},
 	}
 	for _, d := range diffsMap {
 		switch {
 		case d.firstConn != nil && d.secondConn != nil:
-			if !equalConns(d.firstConn, d.secondConn) {
-				res.changedConns = append(res.changedConns, d)
+			if equalConns(d.firstConn, d.secondConn) {
+				continue
 			}
+			// not equal
+			d.diffType = changedType
+			d.newOrLostSrc, d.newOrLostDst = false, false
 		case d.firstConn != nil:
-			// removed conn means both Src and Dst exist in peers1, just check if they are not in peers2 too, ignore ips
-			res.removedConns = append(res.removedConns, RemovedConnsPeers{
-				d.firstConn,
-				!(d.firstConn.Src().IsPeerIPType() || eval.IsFakePeer(d.firstConn.Src())) && !slices.Contains(peers2, d.firstConn.Src().String()),
-				!(d.firstConn.Dst().IsPeerIPType() || eval.IsFakePeer(d.firstConn.Dst())) && !slices.Contains(peers2, d.firstConn.Dst().String())})
+			// removed conn means both Src and Dst exist in peers1, just check if they are not in peers2 too
+			d.diffType = removedType
+			d.updateNewOrLostFields(true, peers2)
 		case d.secondConn != nil:
-			// added conns means Src and Dst are in peers2, check if they didn't exist in peers1 too, , ignore ips/ingress-controller pod
-			res.addedConns = append(res.addedConns, AddedConnsPeers{d.secondConn,
-				!(d.secondConn.Src().IsPeerIPType() || eval.IsFakePeer(d.secondConn.Src())) && !slices.Contains(peers1, d.secondConn.Src().String()),
-				!(d.secondConn.Dst().IsPeerIPType() || eval.IsFakePeer(d.secondConn.Dst())) && !slices.Contains(peers1, d.secondConn.Dst().String())})
+			// added conns means Src and Dst are in peers2, check if they didn't exist in peers1 too
+			d.diffType = addedType
+			d.updateNewOrLostFields(false, peers1)
 		default:
 			continue
 		}
+		res.diffConns = append(res.diffConns, d)
 	}
 
 	return res, nil
@@ -474,47 +500,42 @@ func getFormatter(format string) (diffFormatter, error) {
 	}
 }
 
-// RemovedConnsPeers encapsulates a removed connection between two peers and indications if any of the peers was removed
-type RemovedConnsPeers struct {
-	removedConn connlist.Peer2PeerConnection
-	removedSrc  bool
-	removedDst  bool
-}
-
-// AddedConnsPeers encapsulates an added connection between two peers and indications if any of the peers is new
-type AddedConnsPeers struct {
-	addedConn connlist.Peer2PeerConnection
-	addedSrc  bool
-	addedDst  bool
-}
-
 // connectivityDiff implements the ConnectivityDiff interface
 type connectivityDiff struct {
-	removedConns []RemovedConnsPeers
-	addedConns   []AddedConnsPeers
-	changedConns []*ConnsPair
+	diffConns []*ConnsPair
 }
 
-func (c *connectivityDiff) RemovedConnections() []RemovedConnsPeers {
-	return c.removedConns
+func (c *connectivityDiff) RemovedConnections() []*ConnsPair {
+	return c.diffConnectionsByType(removedType)
 }
 
-func (c *connectivityDiff) AddedConnections() []AddedConnsPeers {
-	return c.addedConns
+func (c *connectivityDiff) AddedConnections() []*ConnsPair {
+	return c.diffConnectionsByType(addedType)
 }
 
 func (c *connectivityDiff) ChangedConnections() []*ConnsPair {
-	return c.changedConns
+	return c.diffConnectionsByType(changedType)
 }
 
 func (c *connectivityDiff) isEmpty() bool {
-	return len(c.removedConns) == 0 && len(c.addedConns) == 0 && len(c.changedConns) == 0
+	return len(c.diffConns) == 0
+}
+
+// returns list of diff connections of the given type
+func (c *connectivityDiff) diffConnectionsByType(diffType string) []*ConnsPair {
+	res := make([]*ConnsPair, 0)
+	for _, d := range c.diffConns {
+		if d.diffType == diffType {
+			res = append(res, d)
+		}
+	}
+	return res
 }
 
 // ConnectivityDiff captures differences in terms of connectivity between two input resource sets
 type ConnectivityDiff interface {
-	RemovedConnections() []RemovedConnsPeers // only first conn exists between peers, plus indications if any of the peers removed
-	AddedConnections() []AddedConnsPeers     // only second conn exists between peers, plus indications if any of the peers is new
-	ChangedConnections() []*ConnsPair        // both first & second conn exists between peers
+	RemovedConnections() []*ConnsPair // only first conn exists between peers, plus indications if any of the peers removed
+	AddedConnections() []*ConnsPair   // only second conn exists between peers, plus indications if any of the peers is new
+	ChangedConnections() []*ConnsPair // both first & second conn exists between peers
 	isEmpty() bool
 }

@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
 // diffFormatter implements diff output formatting in the required output format
@@ -18,14 +17,11 @@ type diffFormatter interface {
 }
 
 const (
-	noConns     = "No Connections"
-	changedType = "changed"
-	removedType = "removed"
-	addedType   = "added"
-	infoPrefix  = " (workload "
-	infoSuffix  = ")"
-	space       = " "
-	and         = " and "
+	noConns    = "No Connections"
+	infoPrefix = " (workload "
+	infoSuffix = ")"
+	space      = " "
+	and        = " and "
 )
 
 var newLine = fmt.Sprintln("")
@@ -38,18 +34,20 @@ type singleDiffFields struct {
 	diffType string
 }
 
-func formDiffFieldsDataOfChangedConns(changedConns []*ConnsPair) (netpolsChanged, ingressChanged []*singleDiffFields) {
-	netpolsRes := make([]*singleDiffFields, 0) // changes in connections from netpols
-	ingressRes := make([]*singleDiffFields, 0) // changes in connections from ingress-controller
-	for _, pair := range changedConns {
+func formDiffFieldsDataOfDiffConns(diffConns []*ConnsPair) (netpolsDiff, ingressDiff []*singleDiffFields) {
+	netpolsRes := make([]*singleDiffFields, 0) // diff in connections from netpols
+	ingressRes := make([]*singleDiffFields, 0) // diff in connections from ingress-controller
+	for _, d := range diffConns {
+		firstDirConn, secondDirConn := getDirsConnsStrings(d)
+		srcStr, dstStr, isSrcIngress := getConnPeersStrings(d)
 		diffData := &singleDiffFields{
-			src:      pair.firstConn.Src().String(),
-			dst:      pair.firstConn.Dst().String(),
-			dir1Conn: connlist.GetProtocolsAndPortsStr(pair.firstConn),
-			dir2Conn: connlist.GetProtocolsAndPortsStr(pair.secondConn),
-			diffType: changedType,
+			src:      srcStr,
+			dst:      dstStr,
+			dir1Conn: firstDirConn,
+			dir2Conn: secondDirConn,
+			diffType: getDiffInfo(d),
 		}
-		if eval.IsFakePeer(pair.firstConn.Src()) {
+		if isSrcIngress {
 			ingressRes = append(ingressRes, diffData)
 		} else {
 			netpolsRes = append(netpolsRes, diffData)
@@ -58,92 +56,67 @@ func formDiffFieldsDataOfChangedConns(changedConns []*ConnsPair) (netpolsChanged
 	return netpolsRes, ingressRes
 }
 
-func formDiffFieldsDataOfRemovedConns(removedConns []RemovedConnsPeers) (netpolsRemoved, ingressRemoved []*singleDiffFields) {
-	netpolsRes := make([]*singleDiffFields, 0) // connections removed based on netpols rules
-	ingressRes := make([]*singleDiffFields, 0) // removed ingress connections
-	for _, removedData := range removedConns {
-		p2pConn := removedData.removedConn
-		diffInfo := removedType
-		removedSrcFlag := false
-		if removedData.removedSrc || removedData.removedDst {
-			diffInfo += infoPrefix
-			if removedData.removedSrc {
-				diffInfo += p2pConn.Src().String()
-				removedSrcFlag = true
-			}
-			if removedData.removedDst {
-				if removedSrcFlag {
-					diffInfo += and
-				}
-				diffInfo += p2pConn.Dst().String()
-			}
-			diffInfo += space + removedType + infoSuffix
-		}
-		diffData := &singleDiffFields{
-			src:      p2pConn.Src().String(),
-			dst:      p2pConn.Dst().String(),
-			dir1Conn: connlist.GetProtocolsAndPortsStr(p2pConn),
-			dir2Conn: noConns,
-			diffType: diffInfo,
-		}
-		if eval.IsFakePeer(p2pConn.Src()) {
-			ingressRes = append(ingressRes, diffData)
-		} else {
-			netpolsRes = append(netpolsRes, diffData)
-		}
+func getConnPeersStrings(c *ConnsPair) (srcStr, dstStr string, isSrcIngress bool) {
+	switch c.diffType {
+	case changedType, removedType:
+		return c.firstConn.Src().String(), c.firstConn.Dst().String(), c.firstConn.Src().IsFakePeer()
+	case addedType:
+		return c.secondConn.Src().String(), c.secondConn.Dst().String(), c.secondConn.Src().IsFakePeer()
+	default:
+		return "", "", false // should not get here
 	}
-	return netpolsRes, ingressRes
+}
+func getDirsConnsStrings(c *ConnsPair) (dir1Str, dir2Str string) {
+	switch c.diffType {
+	case changedType:
+		return connlist.GetProtocolsAndPortsStr(c.firstConn), connlist.GetProtocolsAndPortsStr(c.secondConn)
+	case addedType:
+		return noConns, connlist.GetProtocolsAndPortsStr(c.secondConn)
+	case removedType:
+		return connlist.GetProtocolsAndPortsStr(c.firstConn), noConns
+	default:
+		return "", "" // should not get here ever
+	}
 }
 
-func formDiffFieldsDataOfAddedConns(addedConns []AddedConnsPeers) (netpolsAdded, ingressAdded []*singleDiffFields) {
-	netpolsRes := make([]*singleDiffFields, 0) // added connections based on netpols rules
-	ingressRes := make([]*singleDiffFields, 0) // added ingress connections
-	for _, addedData := range addedConns {
-		p2pConn := addedData.addedConn
-		diffInfo := addedType
-		addedSrcFlag := false
-		if addedData.addedSrc || addedData.addedDst {
-			diffInfo += infoPrefix
-			if addedData.addedSrc {
-				diffInfo += p2pConn.Src().String()
-				addedSrcFlag = true
-			}
-			if addedData.addedDst {
-				if addedSrcFlag {
-					diffInfo += and
-				}
-				diffInfo += p2pConn.Dst().String()
-			}
-			diffInfo += space + addedType + infoSuffix
-		}
-		diffData := &singleDiffFields{
-			src:      p2pConn.Src().String(),
-			dst:      p2pConn.Dst().String(),
-			dir1Conn: noConns,
-			dir2Conn: connlist.GetProtocolsAndPortsStr(p2pConn),
-			diffType: diffInfo,
-		}
-		if eval.IsFakePeer(p2pConn.Src()) {
-			ingressRes = append(ingressRes, diffData)
-		} else {
-			netpolsRes = append(netpolsRes, diffData)
-		}
+// computes the diff string (if to include added/removed workloads)
+func getDiffInfo(c *ConnsPair) string {
+	if c.diffType == changedType {
+		return changedType
 	}
-	return netpolsRes, ingressRes
+	srcStr, dstStr, _ := getConnPeersStrings(c)
+	// handling added or removed diff data
+	diffInfo := c.diffType
+	includedSrcFlag := false
+	if c.newOrLostSrc || c.newOrLostDst {
+		diffInfo += infoPrefix
+		if c.newOrLostSrc {
+			diffInfo += srcStr
+			includedSrcFlag = true
+		}
+		if c.newOrLostDst {
+			if includedSrcFlag {
+				diffInfo += and
+			}
+			diffInfo += dstStr
+		}
+		diffInfo += space + c.diffType + infoSuffix
+	}
+	return diffInfo
 }
 
 func writeDiffLinesOrderedByCategory(connsDiff ConnectivityDiff, df diffFormatter) []string {
 	res := make([]string, 0)
 	// changed lines
-	netpolsChanged, ingressChanged := formDiffFieldsDataOfChangedConns(connsDiff.ChangedConnections())
+	netpolsChanged, ingressChanged := formDiffFieldsDataOfDiffConns(connsDiff.ChangedConnections())
 	changedNetpolsLines := writeDiffLines(netpolsChanged, df)
 	changedIngressLines := writeDiffLines(ingressChanged, df)
 	// added lines
-	netpolsAdded, ingressAdded := formDiffFieldsDataOfAddedConns(connsDiff.AddedConnections())
+	netpolsAdded, ingressAdded := formDiffFieldsDataOfDiffConns(connsDiff.AddedConnections())
 	addedNetpolsLines := writeDiffLines(netpolsAdded, df)
 	addedIngressLines := writeDiffLines(ingressAdded, df)
 	// removed lines
-	netpolsRemoved, ingressRemoved := formDiffFieldsDataOfRemovedConns(connsDiff.RemovedConnections())
+	netpolsRemoved, ingressRemoved := formDiffFieldsDataOfDiffConns(connsDiff.RemovedConnections())
 	removedNetpolsLines := writeDiffLines(netpolsRemoved, df)
 	removedIngressLines := writeDiffLines(ingressRemoved, df)
 
