@@ -107,6 +107,15 @@ func TestDiff(t *testing.T) {
 			secondDirName: "multiple_ingress_objects_with_different_ports_new",
 			formats:       allFormats,
 		},
+		{
+			// description:
+			// changed netpols : default/limit-app1-traffic
+			// in first dir connlist, default/deployment1 does not appear even it exists, since the netpol denies all traffic from/to it
+			// in second dir , the netpol limits the ingress of it , so it appears in the diff
+			firstDirName:  "deny_all_to_from_a_deployment",
+			secondDirName: "deny_all_to_from_a_deployment_changed_netpol",
+			formats:       []string{common.DefaultFormat},
+		},
 	}
 
 	for _, entry := range testingEntries {

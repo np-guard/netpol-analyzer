@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: limit-app1-traffic  # allows ingress only from app2 
+spec:
+  podSelector:
+    matchLabels:
+      app: app1
+  policyTypes:
+  - Egress
+  - Ingress
+  ingress: 
+  - from:
+      - podSelector:
+          matchLabels:
+            app: app2
+  egress: []
