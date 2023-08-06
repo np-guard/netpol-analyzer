@@ -19,12 +19,13 @@ import (
 // A DiffAnalyzer provides API to recursively scan two directories for Kubernetes resources including network policies,
 // and get the difference of permitted connectivity between the workloads of the K8s application managed in theses directories.
 type DiffAnalyzer struct {
-	logger       logger.Logger
-	stopOnError  bool
-	errors       []DiffError
-	walkFn       scan.WalkFunction
-	scanner      *scan.ResourcesScanner
-	outputFormat string
+	logger               logger.Logger
+	stopOnError          bool
+	errors               []DiffError
+	walkFn               scan.WalkFunction
+	scanner              *scan.ResourcesScanner
+	outputFormat         string
+	includeJSONManifests bool
 }
 
 // ValidDiffFormats are the supported formats for output generation of the diff command
@@ -57,6 +58,13 @@ func WithStopOnError() DiffAnalyzerOption {
 	}
 }
 
+// WithIncludeJSONManifests is a functional option which directs ConnlistAnalyzer to include JSON manifests in the analysis
+func WithIncludeJSONManifests() DiffAnalyzerOption {
+	return func(d *DiffAnalyzer) {
+		d.includeJSONManifests = true
+	}
+}
+
 // NewDiffAnalyzer creates a new instance of DiffAnalyzer, and applies the provided functional options.
 func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 	// object with default behavior options
@@ -70,7 +78,7 @@ func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 	for _, o := range options {
 		o(da)
 	}
-	da.scanner = scan.NewResourcesScanner(da.logger, da.stopOnError, da.walkFn)
+	da.scanner = scan.NewResourcesScanner(da.logger, da.stopOnError, da.walkFn, da.includeJSONManifests)
 	return da
 }
 

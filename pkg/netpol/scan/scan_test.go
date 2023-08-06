@@ -18,7 +18,7 @@ import (
 var podList string
 
 // global scanner object for testing
-var scanner = NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir)
+var scanner = NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir, false)
 
 func TestParseList(t *testing.T) {
 	testName := "TestParseList"
@@ -100,7 +100,7 @@ func TestFilesToObjectsListBadYamlDocument(t *testing.T) {
 }
 func TestFilesToObjectsListBadYamlDocumentFailFast(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_yamls", "document_with_syntax_error.yaml")
-	scannerNew := NewResourcesScanner(logger.NewDefaultLogger(), true, filepath.WalkDir)
+	scannerNew := NewResourcesScanner(logger.NewDefaultLogger(), true, filepath.WalkDir, false)
 	objs, errs := scannerNew.FilesToObjectsList(dirPath)
 	require.Len(t, errs, 1)
 	badDoc := &MalformedYamlDocError{}
@@ -168,7 +168,7 @@ func nonRecursiveWalk(root string, fn fs.WalkDirFunc) error {
 
 func TestSearchForManifestsNonRecursiveWalk(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_yamls")
-	scannerNew := NewResourcesScanner(logger.NewDefaultLogger(), false, nonRecursiveWalk)
+	scannerNew := NewResourcesScanner(logger.NewDefaultLogger(), false, nonRecursiveWalk, false)
 	objs, errs := scannerNew.FilesToObjectsList(dirPath)
 
 	require.Len(t, errs, 2) // malformed yaml + not a k8s resource  - errors
