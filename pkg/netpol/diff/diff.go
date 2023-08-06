@@ -27,15 +27,6 @@ type DiffAnalyzer struct {
 	outputFormat string
 }
 
-// DiffError holds information about a single error/warning that occurred during
-// the generating connectivity diff report
-type DiffError interface {
-	IsFatal() bool
-	IsSevere() bool
-	Error() error
-	Location() string
-}
-
 // ValidDiffFormats are the supported formats for output generation of the diff command
 var ValidDiffFormats = []string{common.TextFormat, common.CSVFormat, common.MDFormat}
 
@@ -100,12 +91,16 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 	var conns1, conns2 []connlist.Peer2PeerConnection
 	var err error
 	if conns1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
-		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
+		da.errors = append(da.errors, newConnectionsAnalyzingError(err, true, false))
 		return nil, err
 	}
 	if conns2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
-		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
+		da.errors = append(da.errors, newConnectionsAnalyzingError(err, true, false))
 		return nil, err
+	}
+	// appending connlist warnings and severe errors to diff_errors
+	for _, e := range caAnalyzer.Errors() {
+		da.errors = append(da.errors, e)
 	}
 
 	// get disjoint ip-blocks from both configs

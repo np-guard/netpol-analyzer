@@ -1,5 +1,14 @@
 package connlist
 
+// ConnlistError holds information about a single error/warning that occurred during
+// the parsing and connectivity analysis of k8s-app with network policies
+type ConnlistError interface {
+	IsFatal() bool
+	IsSevere() bool
+	Error() error
+	Location() string
+}
+
 // connlistGeneratingError - ConnlistError that may arrise while producing the connections list
 type connlistGeneratingError struct {
 	err    error
