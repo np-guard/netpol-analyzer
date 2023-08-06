@@ -36,34 +36,27 @@ const expectedOutputFileNamePrefix = "connlist_output."
 
 var allFormats = []string{common.TextFormat, common.JSONFormat, common.CSVFormat, common.MDFormat, common.DOTFormat}
 
-var allFormats = []string{common.TextFormat, common.JSONFormat, common.CSVFormat, common.MDFormat, common.DOTFormat}
-
 // TestConnList tests the output of ConnlistFromDirPath() for valid input resources
 func TestConnList(t *testing.T) {
 	testingEntries := []testEntry{
 		{
 			testDirName:   "ipblockstest",
 			outputFormats: []string{common.TextFormat},
-			outputFormats: []string{common.TextFormat},
 		},
 		{
 			testDirName:   "onlineboutique",
-			outputFormats: []string{common.JSONFormat, common.MDFormat, common.TextFormat},
 			outputFormats: []string{common.JSONFormat, common.MDFormat, common.TextFormat},
 		},
 		{
 			testDirName:   "onlineboutique_workloads",
 			outputFormats: []string{common.CSVFormat, common.DOTFormat, common.TextFormat},
-			outputFormats: []string{common.CSVFormat, common.DOTFormat, common.TextFormat},
 		},
 		{
 			testDirName:   "minikube_resources",
 			outputFormats: []string{common.TextFormat},
-			outputFormats: []string{common.TextFormat},
 		},
 		{
 			testDirName:   "online_boutique_workloads_no_ns",
-			outputFormats: []string{common.TextFormat},
 			outputFormats: []string{common.TextFormat},
 		},
 		{
@@ -73,31 +66,25 @@ func TestConnList(t *testing.T) {
 		{
 			testDirName:   "acs_security_frontend_demos",
 			outputFormats: allFormats,
-			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "demo_app_with_routes_and_ingress",
-			outputFormats: allFormats,
 			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "k8s_ingress_test",
 			outputFormats: allFormats,
-			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "multiple_ingress_objects_with_different_ports",
-			outputFormats: allFormats,
 			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "one_ingress_multiple_ports",
 			outputFormats: allFormats,
-			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "one_ingress_multiple_services",
-			outputFormats: allFormats,
 			outputFormats: allFormats,
 		},
 		{

@@ -88,7 +88,6 @@ type cmdTest struct {
 }
 
 func TestCommands(t *testing.T) {
-func TestCommands(t *testing.T) {
 	tests := []cmdTest{
 		{
 			name:           "test_illegal_command",
