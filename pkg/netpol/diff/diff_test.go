@@ -182,14 +182,6 @@ func TestDiffErrors(t *testing.T) {
 			errStr:       "network policy default/shippingservice-netpol rule NetworkPolicyPeer error: cannot have empty rule peer",
 			isCaFatalErr: true,
 		},
-		/*{
-			name: "dir 1 with bad netpol - named port error",
-			dir1: filepath.Join("bad_netpols", "subdir5"),
-			dir2: "ipblockstest",
-			errStr: "network policy default/shippingservice-netpol named port error: " +
-				"named port is not defined in a selected workload shippingservice",
-			isCaFatalErr: true,
-		},*/
 		{
 			name:         "dir 2 with bad netpol - named port on ipblock error",
 			dir1:         "ipblockstest",

@@ -164,14 +164,6 @@ func TestErrNetpolBadNetpolRulePeerEmpty(t *testing.T) {
 	require.NotNil(t, err)
 }
 
-/*func TestErrNetpolBadNetpolNamedPortErr(t *testing.T) {
-	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir5")
-	_, res, err := getConnlistFromDirPathRes(false, dirPath)
-	fmt.Printf("%v %v", res, err)
-	require.Nil(t, res)
-	require.NotNil(t, err)
-}*/
-
 func TestErrNetpolBadNetpolNamedPortErrOnIpBlock(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir6")
 	_, res, err := getConnlistFromDirPathRes(false, dirPath)
