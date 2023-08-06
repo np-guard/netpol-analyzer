@@ -37,7 +37,8 @@ Flags:
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
-  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster 
+      --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
+  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
   -q, --quiet               Runs quietly, reports only severe errors and results
   -v, --verbose             Runs with more informative messages printed to log
 ```
@@ -66,6 +67,7 @@ Flags:
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
+      --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
   -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
   -q, --quiet               Runs quietly, reports only severe errors and results
   -v, --verbose             Runs with more informative messages printed to log
@@ -87,6 +89,14 @@ Flags:
       --dir2  string  Second resources dir path to be compared with the first dir path
   -o, --output string Required output format (txt, csv, md) (default "txt")  
   -h, --help   help for diff
+
+Global Flags:
+  -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
+      --dirpath string      Resources dir path when evaluating connections from a dir
+      --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
+  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
+  -q, --quiet               Runs quietly, reports only severe errors and results
+  -v, --verbose             Runs with more informative messages printed to log  
 ```
 
 ### Example outputs:
