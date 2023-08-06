@@ -1,0 +1,5 @@
+Connectivity diff:
+source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)
+source: default/redis-cart[Deployment], destination: default/unicorn[Deployment], dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)
+source: default/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)
+source: default/unicorn[Deployment], destination: default/redis-cart[Deployment], dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)

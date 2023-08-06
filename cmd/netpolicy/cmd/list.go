@@ -19,6 +19,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
+
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 )
@@ -38,9 +40,9 @@ func runListCommand() error {
 		connlist.WithOutputFormat(output))
 
 	if dirPath != "" {
-		conns, err = analyzer.ConnlistFromDirPath(dirPath)
+		conns, _, err = analyzer.ConnlistFromDirPath(dirPath)
 	} else {
-		conns, err = analyzer.ConnlistFromK8sCluster(clientset)
+		conns, _, err = analyzer.ConnlistFromK8sCluster(clientset)
 	}
 	if err != nil {
 		return err
@@ -96,7 +98,7 @@ defined`,
 	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "", "Focus connections of specified workload name in the output")
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
-	c.Flags().StringVarP(&output, "output", "o", connlist.DefaultFormat, "Required output format ("+supportedFormats+")")
+	c.Flags().StringVarP(&output, "output", "o", common.DefaultFormat, "Required output format ("+supportedFormats+")")
 
 	return c
 }

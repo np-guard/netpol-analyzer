@@ -1,0 +1,2 @@
+Connectivity diff:
+source: default/deployment2[Deployment], destination: default/deployment1[Deployment], dir1:  No Connections, dir2: All Connections, diff-type: added

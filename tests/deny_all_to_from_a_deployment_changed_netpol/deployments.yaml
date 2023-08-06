@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment1
+  labels:
+    app: app1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app1
+  template:
+    metadata:
+      labels:
+        app: app1
+    spec:
+      containers:
+      - name: app1-container
+        image: gcr.io/shfa/app1-app:1.0
+        ports:
+        - name: http   
+          containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment2
+  labels:
+    app: app2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app2
+  template:
+    metadata:
+      labels:
+        app: app2
+    spec:
+      containers:
+      - name: app2-container
+        image: gcr.io/shfa/app2-app:1.0
+        ports:
+        - name: http   
+          containerPort: 8080

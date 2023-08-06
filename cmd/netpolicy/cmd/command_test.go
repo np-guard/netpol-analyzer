@@ -87,7 +87,7 @@ type cmdTest struct {
 	isErr          bool
 }
 
-func TestCommannds(t *testing.T) {
+func TestCommands(t *testing.T) {
 	tests := []cmdTest{
 		{
 			name:           "test_illegal_command",
@@ -105,6 +105,34 @@ func TestCommannds(t *testing.T) {
 			isErr:          true,
 		},
 
+		{
+			name:           "test_illegal_diff_no_args",
+			args:           []string{"diff"},
+			expectedOutput: "both directory paths dir1 and dir2 are required",
+			containment:    true,
+			isErr:          true,
+		},
+		{
+			name:           "test_illegal_diff_unsupported_args",
+			args:           []string{"diff", "--dirpath", filepath.Join(getTestsDir(), "onlineboutique")},
+			expectedOutput: "dirpath flag is not used with diff command",
+			containment:    true,
+			isErr:          true,
+		},
+		{
+			name: "test_illegal_diff_output_format",
+			args: []string{
+				"diff",
+				"--dir1",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				"--dir2",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
+				"-o",
+				"png"},
+			expectedOutput: "png output format is not supported.",
+			containment:    true,
+			isErr:          true,
+		},
 		{
 			name: "test_illegal_eval_peer_not_found",
 			args: []string{
@@ -267,6 +295,65 @@ func TestCommannds(t *testing.T) {
 			expectedOutput: "-q and -v cannot be specified together",
 			containment:    true,
 			isErr:          true,
+		},
+		{
+			name: "test_legal_diff_txt_output",
+			args: []string{
+				"diff",
+				"--dir1",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				"--dir2",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
+				"--output",
+				"txt",
+			},
+			// expected first 3 rows
+			expectedOutput: "Connectivity diff:\n" +
+				"source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], " +
+				"dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)\n" +
+				"source: default/redis-cart[Deployment], destination: default/unicorn[Deployment], " +
+				"dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)",
+			containment: true,
+			isErr:       false,
+		},
+		{
+			name: "test_legal_diff_csv_output",
+			args: []string{
+				"diff",
+				"--dir1",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				"--dir2",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
+				"--output",
+				"csv",
+			},
+			// expected first 3 rows
+			expectedOutput: "source,destination,dir1,dir2,diff-type\n" +
+				"0.0.0.0-255.255.255.255,default/unicorn[Deployment],No Connections," +
+				"All Connections,added (workload default/unicorn[Deployment] added)\n" +
+				"default/redis-cart[Deployment],default/unicorn[Deployment],No Connections,All Connections," +
+				"added (workload default/unicorn[Deployment] added)",
+			containment: true,
+			isErr:       false,
+		},
+		{
+			name: "test_legal_diff_md_output",
+			args: []string{
+				"diff",
+				"--dir1",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				"--dir2",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
+				"--output",
+				"md",
+			},
+			// expected first 3 rows
+			expectedOutput: "| source | destination | dir1 | dir2 | diff-type |\n" +
+				"|--------|-------------|------|------|-----------|\n" +
+				"| 0.0.0.0-255.255.255.255 | default/unicorn[Deployment] | No Connections | All Connections |" +
+				" added (workload default/unicorn[Deployment] added) |",
+			containment: true,
+			isErr:       false,
 		},
 	}
 

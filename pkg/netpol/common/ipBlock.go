@@ -1,4 +1,4 @@
-package k8s
+package common
 
 import (
 	"encoding/binary"
@@ -7,8 +7,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 )
 
 const (
@@ -22,7 +20,7 @@ const (
 
 // IPBlock captures a set of ip ranges
 type IPBlock struct {
-	ipRange common.CanonicalIntervalSet
+	ipRange CanonicalIntervalSet
 }
 
 // ToIPRanges returns a string of the ip ranges in the current IPBlock object
@@ -61,12 +59,12 @@ func (b *IPBlock) ipCount() int {
 	return res
 }
 
-// split returns a set of IpBlock objects, each with a single range of ips
-func (b *IPBlock) split() []*IPBlock {
+// Split returns a set of IpBlock objects, each with a single range of ips
+func (b *IPBlock) Split() []*IPBlock {
 	res := make([]*IPBlock, len(b.ipRange.IntervalSet))
 	for index, ipr := range b.ipRange.IntervalSet {
 		newBlock := IPBlock{}
-		newBlock.ipRange.IntervalSet = append(newBlock.ipRange.IntervalSet, common.Interval{Start: ipr.Start, End: ipr.End})
+		newBlock.ipRange.IntervalSet = append(newBlock.ipRange.IntervalSet, Interval{Start: ipr.Start, End: ipr.End})
 		res[index] = &newBlock
 	}
 	return res
@@ -127,14 +125,14 @@ func addIntervalToList(ipbNew *IPBlock, ipbList []*IPBlock) []*IPBlock {
 			break
 		}
 	}
-	ipbList = append(ipbList, ipbNew.split()...)
+	ipbList = append(ipbList, ipbNew.Split()...)
 	ipbList = append(ipbList, toAdd...)
 	return ipbList
 }
 
 // NewIPBlock returns an IPBlock object from input cidr str an exceptions cidr str
 func NewIPBlock(cidr string, exceptions []string) (*IPBlock, error) {
-	res := IPBlock{ipRange: common.CanonicalIntervalSet{}}
+	res := IPBlock{ipRange: CanonicalIntervalSet{}}
 	interval, err := cidrToInterval(cidr)
 	if err != nil {
 		return nil, err
@@ -172,10 +170,25 @@ func cidrToIPRange(cidr string) (beginning, end int64, err error) {
 	return int64(start), int64(finish), nil
 }
 
-func cidrToInterval(cidr string) (*common.Interval, error) {
+func cidrToInterval(cidr string) (*Interval, error) {
 	start, end, err := cidrToIPRange(cidr)
 	if err != nil {
 		return nil, err
 	}
-	return &common.Interval{Start: start, End: end}, nil
+	return &Interval{Start: start, End: end}, nil
+}
+
+func (b *IPBlock) ContainedIn(other *IPBlock) bool {
+	return b.ipRange.ContainedIn(other.ipRange)
+}
+
+func MergeIPBlocksList(inputList []*IPBlock) []*IPBlock {
+	if len(inputList) == 0 {
+		return inputList
+	}
+	union := inputList[0].Copy()
+	for i := 1; i < len(inputList); i++ {
+		union.ipRange.Union(inputList[i].ipRange)
+	}
+	return union.Split()
 }

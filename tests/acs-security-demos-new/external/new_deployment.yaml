@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unicorn
+  namespace: external
+spec:
+  selector:
+    matchLabels:
+      app: unicorn
+  template:
+    metadata:
+      labels:
+        app: unicorn
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: server
+        image: gcr.io/google-samples/microservices-demo/unicorn:v0.1.3
+        ports:
+        - containerPort: 5353
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: unicorn
+  namespace: external
+spec:
+  type: ClusterIP
+  selector:
+    app: unicorn
+  ports:
+  - name: udp
+    port: 5000
+    targetPort: 5353
+---
