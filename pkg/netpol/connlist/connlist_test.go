@@ -92,7 +92,6 @@ func TestConnList(t *testing.T) {
 			outputFormats: allFormats,
 		},
 	}
-
 	for _, entry := range testingEntries {
 		dirPath := filepath.Join(testutils.GetTestsDir(), entry.testDirName)
 		for _, format := range entry.outputFormats {
