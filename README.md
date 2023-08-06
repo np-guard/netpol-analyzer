@@ -60,6 +60,7 @@ Examples:
   k8snetpolicy list -k ./kube/config
 
 Flags:
+  -f, --file string            Write output to specified file
       --focusworkload       Focus connections of specified workload name in the output
   -o, --output string       Required output format (txt, json, dot, csv, md) (default "txt")
   -h, --help   help for list
@@ -87,6 +88,7 @@ Examples:
 Flags:
       --dir1  string  First resources dir path
       --dir2  string  Second resources dir path to be compared with the first dir path
+  -f, --file string            Write output to specified file
   -o, --output string Required output format (txt, csv, md) (default "txt")  
   -h, --help   help for diff
 

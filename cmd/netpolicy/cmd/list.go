@@ -15,6 +15,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -27,8 +28,8 @@ import (
 
 var (
 	focusWorkload string
-	// output format
-	output string
+	output        string // output format
+	outFile       string // output file
 )
 
 func runListCommand() error {
@@ -52,6 +53,23 @@ func runListCommand() error {
 	}
 	fmt.Printf("%s", out)
 
+	if outFile != "" {
+		return writeBufToFile(outFile, []byte(out))
+	}
+
+	return nil
+}
+
+func writeBufToFile(filepath string, buf []byte) error {
+	fp, err := os.Create(filepath)
+	if err != nil {
+		return fmt.Errorf("error creating file %s: %w", filepath, err)
+	}
+	_, err = fp.Write(buf)
+	if err != nil {
+		return fmt.Errorf("error writing to file %s: %w", filepath, err)
+	}
+	fp.Close()
 	return nil
 }
 
@@ -110,6 +128,7 @@ defined`,
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
 	c.Flags().StringVarP(&output, "output", "o", common.DefaultFormat, "Required output format ("+supportedFormats+")")
-
+	// out file
+	c.Flags().StringVarP(&outFile, "file", "f", "", "Write output to specified file")
 	return c
 }

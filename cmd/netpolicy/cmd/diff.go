@@ -48,6 +48,9 @@ func runDiffCommand() error {
 		return err
 	}
 	fmt.Printf("%s", out)
+	if outFile != "" {
+		return writeBufToFile(outFile, []byte(out))
+	}
 	return nil
 }
 
@@ -93,6 +96,7 @@ func newCommandDiff() *cobra.Command {
 	c.Flags().StringVarP(&dir2, "dir2", "", "", "New Resources path to compare with original resources path")
 	supportedDiffFormats := strings.Join(diff.ValidDiffFormats, ",")
 	c.Flags().StringVarP(&outFormat, "output", "o", common.DefaultFormat, "Required output format ("+supportedDiffFormats+")")
-
+	// out file
+	c.Flags().StringVarP(&outFile, "file", "f", "", "Write output to specified file")
 	return c
 }
