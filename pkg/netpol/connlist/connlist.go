@@ -28,15 +28,6 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
-// ConnlistError holds information about a single error/warning that occurred during
-// the parsing and connectivity analysis of k8s-app with network policies
-type ConnlistError interface {
-	IsFatal() bool
-	IsSevere() bool
-	Error() error
-	Location() string
-}
-
 // A ConnlistAnalyzer provides API to recursively scan a directory for Kubernetes resources including network policies,
 // and get the list of permitted connectivity between the workloads of the K8s application managed in this directory.
 type ConnlistAnalyzer struct {
@@ -136,7 +127,8 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 }
 
 // ConnlistFromDirPath returns the allowed connections list from dir path containing k8s resources
-func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConnection, error) {
+// and list of all workloads from the parsed resources
+func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConnection, []eval.Peer, error) {
 	objectsList, processingErrs := ca.scanner.FilesToObjectsList(dirPath)
 	for i := range processingErrs {
 		ca.errors = append(ca.errors, &processingErrs[i])
@@ -144,15 +136,16 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 
 	if ca.stopProcessing() {
 		if err := ca.hasFatalError(); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		return []Peer2PeerConnection{}, nil
+		return []Peer2PeerConnection{}, []eval.Peer{}, nil
 	}
 	return ca.connslistFromParsedResources(objectsList)
 }
 
 // ConnlistFromYAMLManifests returns the allowed connections list from input YAML manifests
-func (ca *ConnlistAnalyzer) ConnlistFromYAMLManifests(manifests []scan.YAMLDocumentIntf) ([]Peer2PeerConnection, error) {
+// and list of all workloads from the parsed resources
+func (ca *ConnlistAnalyzer) ConnlistFromYAMLManifests(manifests []scan.YAMLDocumentIntf) ([]Peer2PeerConnection, []eval.Peer, error) {
 	objectsList, processingErrs := ca.scanner.YAMLDocumentsToObjectsList(manifests)
 	for i := range processingErrs {
 		ca.errors = append(ca.errors, &processingErrs[i])
@@ -160,31 +153,31 @@ func (ca *ConnlistAnalyzer) ConnlistFromYAMLManifests(manifests []scan.YAMLDocum
 
 	if ca.stopProcessing() {
 		if err := ca.hasFatalError(); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		return []Peer2PeerConnection{}, nil
+		return []Peer2PeerConnection{}, []eval.Peer{}, nil
 	}
 
 	return ca.connslistFromParsedResources(objectsList)
 }
 
-func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []scan.K8sObject) ([]Peer2PeerConnection, error) {
+func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []scan.K8sObject) ([]Peer2PeerConnection, []eval.Peer, error) {
 	// TODO: do we need logger in policyEngine?
 	pe, err := eval.NewPolicyEngineWithObjects(objectsList)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
-		return nil, err
+		return nil, nil, err
 	}
 	ia, err := ingressanalyzer.NewIngressAnalyzerWithObjects(objectsList, pe, ca.logger)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
-		return nil, err
+		return nil, nil, err
 	}
 	return ca.getConnectionsList(pe, ia)
 }
 
-// ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources
-func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, error) {
+// ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources and a list of all peers names
+func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []eval.Peer, error) {
 	pe := eval.NewPolicyEngine()
 
 	// get all resources from k8s cluster
@@ -195,34 +188,34 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 	// get all namespaces
 	nsList, apierr := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	if apierr != nil {
-		return nil, apierr
+		return nil, nil, apierr
 	}
 	for i := range nsList.Items {
 		ns := &nsList.Items[i]
 		if err := pe.UpsertObject(ns); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
 
 	// get all pods
 	podList, apierr := clientset.CoreV1().Pods(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	if apierr != nil {
-		return nil, apierr
+		return nil, nil, apierr
 	}
 	for i := range podList.Items {
 		if err := pe.UpsertObject(&podList.Items[i]); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
 
 	// get all netpols
 	npList, apierr := clientset.NetworkingV1().NetworkPolicies(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	if apierr != nil {
-		return nil, apierr
+		return nil, nil, apierr
 	}
 	for i := range npList.Items {
 		if err := pe.UpsertObject(&npList.Items[i]); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
 	return ca.getConnectionsList(pe, nil)
@@ -363,59 +356,60 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 }
 
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
-func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingressanalyzer.IngressAnalyzer) ([]Peer2PeerConnection, error) {
-	res := make([]Peer2PeerConnection, 0)
+func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingressanalyzer.IngressAnalyzer) ([]Peer2PeerConnection,
+	[]eval.Peer, error) {
+	connsRes := make([]Peer2PeerConnection, 0)
 	if !pe.HasPodPeers() {
-		return res, nil
+		return connsRes, []eval.Peer{}, nil
 	}
 
 	// compute connections between peers based on pe analysis of network policies
-	peersAllowedConns, err := ca.getConnectionsBetweenPeers(pe)
+	peersAllowedConns, peersRes, err := ca.getConnectionsBetweenPeers(pe)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
-		return nil, err
+		return nil, nil, err
 	}
-	res = peersAllowedConns
+	connsRes = peersAllowedConns
 
 	if ia == nil || ia.IsEmpty() {
-		return res, nil
+		return connsRes, peersRes, nil
 	}
 
 	// analyze ingress connections - create connection objects for relevant ingress analyzer connections
 	ingressAllowedConns, err := ca.getIngressAllowedConnections(ia, pe)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
-		return nil, err
+		return nil, nil, err
 	}
-	res = append(res, ingressAllowedConns...)
+	connsRes = append(connsRes, ingressAllowedConns...)
 
 	if len(peersAllowedConns) == 0 {
 		ca.logger.Warnf("connectivity analysis found no allowed connectivity between pairs from the configured workloads or external IP-blocks")
 	}
 
-	return res, nil
+	return connsRes, peersRes, nil
 }
 
-// getConnectionsList returns connections list from PolicyEngine object
-func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
+// getConnectionsBetweenPeers returns connections list from PolicyEngine object
+func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine) ([]Peer2PeerConnection, []eval.Peer, error) {
 	// get workload peers and ip blocks
 	peerList, err := pe.GetPeersList()
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
-		return nil, err
+		return nil, nil, err
 	}
 
-	res := make([]Peer2PeerConnection, 0)
+	connsRes := make([]Peer2PeerConnection, 0)
 	for i := range peerList {
+		srcPeer := peerList[i]
 		for j := range peerList {
-			srcPeer := peerList[i]
 			dstPeer := peerList[j]
 			if !ca.includePairOfWorkloads(srcPeer, dstPeer) {
 				continue
 			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			// skip empty connections
 			if allowedConnections.IsEmpty() {
@@ -427,10 +421,11 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine) ([
 				allConnections:    allowedConnections.AllConnections(),
 				protocolsAndPorts: allowedConnections.ProtocolsAndPortsMap(),
 			}
-			res = append(res, p2pConnection)
+			connsRes = append(connsRes, p2pConnection)
 		}
 	}
-	return res, nil
+
+	return connsRes, peerList, nil
 }
 
 // getIngressAllowedConnections returns connections list from IngressAnalyzer intersected with PolicyEngine's connections

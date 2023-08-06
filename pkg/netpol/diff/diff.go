@@ -27,15 +27,6 @@ type DiffAnalyzer struct {
 	outputFormat string
 }
 
-// DiffError holds information about a single error/warning that occurred during
-// the generating connectivity diff report
-type DiffError interface {
-	IsFatal() bool
-	IsSevere() bool
-	Error() error
-	Location() string
-}
-
 // ValidDiffFormats are the supported formats for output generation of the diff command
 var ValidDiffFormats = []string{common.TextFormat, common.CSVFormat, common.MDFormat}
 
@@ -98,14 +89,22 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 		caAnalyzer = connlist.NewConnlistAnalyzer(connlist.WithLogger(da.logger), connlist.WithWalkFn(da.walkFn))
 	}
 	var conns1, conns2 []connlist.Peer2PeerConnection
+	var workloads1, workloads2 []eval.Peer
+	var workloadsNames1, workloadsNames2 map[string]bool
 	var err error
-	if conns1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
-		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
+	if conns1, workloads1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
+		da.errors = append(da.errors, newConnectionsAnalyzingError(err, true, false))
 		return nil, err
 	}
-	if conns2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
-		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
+	if conns2, workloads2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
+		da.errors = append(da.errors, newConnectionsAnalyzingError(err, true, false))
 		return nil, err
+	}
+	workloadsNames1, workloadsNames2 = getPeersNamesFromPeersList(workloads1), getPeersNamesFromPeersList(workloads2)
+
+	// appending connlist warnings and severe errors to diff_errors
+	for _, e := range caAnalyzer.Errors() {
+		da.errors = append(da.errors, e)
 	}
 
 	// get disjoint ip-blocks from both configs
@@ -129,7 +128,18 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 	}
 
 	// get the diff w.r.t refined sets of connectivity
-	return diffConnectionsLists(conns1Refined, conns2Refined)
+	return diffConnectionsLists(conns1Refined, conns2Refined, workloadsNames1, workloadsNames2)
+}
+
+// create set from peers-strings
+func getPeersNamesFromPeersList(peers []eval.Peer) map[string]bool {
+	peersSet := make(map[string]bool, 0)
+	for _, peer := range peers {
+		if !peer.IsPeerIPType() {
+			peersSet[peer.String()] = true
+		}
+	}
+	return peersSet
 }
 
 // getIPblocksFromConnList returns the list of peers of IP type from Peer2PeerConnection slice
@@ -159,15 +169,27 @@ func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
 	return src.String() + keyElemSep + dst.String()
 }
 
+const (
+	// diff types
+	changedType = "changed"
+	removedType = "removed"
+	addedType   = "added"
+)
+
 // ConnsPair captures a pair of Peer2PeerConnection from two dir paths
 // the src,dst of firstConn and secondConn are assumed to be the same
+// with info on the diffType and if any of the peers is lost/new
+// (exists only in one dir for cases of removed/added connections)
 type ConnsPair struct {
-	firstConn  connlist.Peer2PeerConnection
-	secondConn connlist.Peer2PeerConnection
+	firstConn    connlist.Peer2PeerConnection
+	secondConn   connlist.Peer2PeerConnection
+	diffType     string
+	newOrLostSrc bool
+	newOrLostDst bool
 }
 
 // update func of ConnsPair obj, updates the pair with input Peer2PeerConnection, at first or second conn
-func (c *ConnsPair) update(isFirst bool, conn connlist.Peer2PeerConnection) {
+func (c *ConnsPair) updateConn(isFirst bool, conn connlist.Peer2PeerConnection) {
 	if isFirst {
 		c.firstConn = conn
 	} else {
@@ -188,6 +210,30 @@ func (c *ConnsPair) isSrcOrDstPeerIPType(checkSrc bool) bool {
 	return (checkSrc && src.IsPeerIPType()) || (!checkSrc && dst.IsPeerIPType())
 }
 
+// helpers to check if a peer is ingress-controller (a peer created while ingress analysis)
+const ingressControllerPodName = "{ingress-controller}"
+
+func isIngressControllerPeer(peer eval.Peer) bool {
+	return peer.String() == ingressControllerPodName
+}
+
+// updateNewOrLostFields updates ConnsPair's newOrLostSrc and newOrLostDst values
+func (c *ConnsPair) updateNewOrLostFields(isFirst bool, peersSet map[string]bool) {
+	var src, dst eval.Peer
+	if isFirst {
+		src, dst = c.firstConn.Src(), c.firstConn.Dst()
+	} else {
+		src, dst = c.secondConn.Src(), c.secondConn.Dst()
+	}
+	// update src/dst status based on the peersSet , ignore ips/ingress-controller pod
+	if !(src.IsPeerIPType() || isIngressControllerPeer(src)) && !peersSet[src.String()] {
+		c.newOrLostSrc = true
+	}
+	if !(dst.IsPeerIPType() || isIngressControllerPeer(dst)) && !peersSet[dst.String()] {
+		c.newOrLostDst = true
+	}
+}
+
 // diffMap captures connectivity-diff as a map from src-dst key to ConnsPair object
 type diffMap map[string]*ConnsPair
 
@@ -196,7 +242,7 @@ func (d diffMap) update(key string, isFirst bool, c connlist.Peer2PeerConnection
 	if _, ok := d[key]; !ok {
 		d[key] = &ConnsPair{}
 	}
-	d[key].update(isFirst, c)
+	d[key].updateConn(isFirst, c)
 }
 
 // type mapListConnPairs is a map from key (src-or-dst)+conns1+conns2 to []ConnsPair (where dst-or-src is ip-block)
@@ -361,11 +407,12 @@ func (d diffMap) mergeIPblocks() (diffMap, error) {
 	return res, nil
 }
 
-// diffConnectionsLists returns ConnectivityDiff given two Peer2PeerConnection slices
+// diffConnectionsLists returns ConnectivityDiff given two Peer2PeerConnection slices and two peers names sets
 // it assumes that the input has been refined with disjoint ip-blocks, and merges
 // touching ip-blocks in the output where possible
-// currently not including info about added/removed workloads, and not including diff of workloads with no connections
-func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection) (ConnectivityDiff, error) {
+// currently not including diff of workloads with no connections
+func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
+	peers1, peers2 map[string]bool) (ConnectivityDiff, error) {
 	// convert to a map from src-dst full name, to its connections pair (conns1, conns2)
 	diffsMap := diffMap{}
 	var err error
@@ -383,20 +430,28 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection) (Connec
 	}
 
 	res := &connectivityDiff{
-		removedConns: []connlist.Peer2PeerConnection{},
-		addedConns:   []connlist.Peer2PeerConnection{},
+		removedConns: []*ConnsPair{},
+		addedConns:   []*ConnsPair{},
 		changedConns: []*ConnsPair{},
 	}
 	for _, d := range diffsMap {
 		switch {
 		case d.firstConn != nil && d.secondConn != nil:
 			if !equalConns(d.firstConn, d.secondConn) {
+				d.diffType = changedType
+				d.newOrLostSrc, d.newOrLostDst = false, false
 				res.changedConns = append(res.changedConns, d)
 			}
 		case d.firstConn != nil:
-			res.removedConns = append(res.removedConns, d.firstConn)
+			// removed conn means both Src and Dst exist in peers1, just check if they are not in peers2 too
+			d.diffType = removedType
+			d.updateNewOrLostFields(true, peers2)
+			res.removedConns = append(res.removedConns, d)
 		case d.secondConn != nil:
-			res.addedConns = append(res.addedConns, d.secondConn)
+			// added conns means Src and Dst are in peers2, check if they didn't exist in peers1 too
+			d.diffType = addedType
+			d.updateNewOrLostFields(false, peers1)
+			res.addedConns = append(res.addedConns, d)
 		default:
 			continue
 		}
@@ -463,16 +518,16 @@ func getFormatter(format string) (diffFormatter, error) {
 
 // connectivityDiff implements the ConnectivityDiff interface
 type connectivityDiff struct {
-	removedConns []connlist.Peer2PeerConnection
-	addedConns   []connlist.Peer2PeerConnection
+	removedConns []*ConnsPair
+	addedConns   []*ConnsPair
 	changedConns []*ConnsPair
 }
 
-func (c *connectivityDiff) RemovedConnections() []connlist.Peer2PeerConnection {
+func (c *connectivityDiff) RemovedConnections() []*ConnsPair {
 	return c.removedConns
 }
 
-func (c *connectivityDiff) AddedConnections() []connlist.Peer2PeerConnection {
+func (c *connectivityDiff) AddedConnections() []*ConnsPair {
 	return c.addedConns
 }
 
@@ -486,8 +541,8 @@ func (c *connectivityDiff) isEmpty() bool {
 
 // ConnectivityDiff captures differences in terms of connectivity between two input resource sets
 type ConnectivityDiff interface {
-	RemovedConnections() []connlist.Peer2PeerConnection // only first conn exists between peers
-	AddedConnections() []connlist.Peer2PeerConnection   // only second conn exists between peers
-	ChangedConnections() []*ConnsPair                   // both first & second conn exists between peers
+	RemovedConnections() []*ConnsPair // only first conn exists between peers, plus indications if any of the peers removed
+	AddedConnections() []*ConnsPair   // only second conn exists between peers, plus indications if any of the peers is new
+	ChangedConnections() []*ConnsPair // both first & second conn exists between peers
 	isEmpty() bool
 }

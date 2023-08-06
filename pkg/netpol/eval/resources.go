@@ -361,7 +361,7 @@ func (pe *PolicyEngine) ConvertPeerNamedPort(namedPort string, peer Peer) (int32
 	}
 }
 
-// AddPodByNameAndNamespace adds a new fake pod to the pe.podsMap
+// AddPodByNameAndNamespace adds a new fake pod to the pe.podsMap, used for adding ingress-controller pod
 func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string) (Peer, error) {
 	podStr := types.NamespacedName{Namespace: ns, Name: name}.String()
 	newPod := &k8s.Pod{

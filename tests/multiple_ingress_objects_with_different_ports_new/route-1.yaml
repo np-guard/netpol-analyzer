@@ -1,0 +1,15 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: route-1
+  namespace: ingressworld 
+  labels:
+    app: ingress-world
+spec:
+  to:
+    kind: Service
+    name: ingress-world
+    weight: 100
+  port:
+    targetPort: 8000
+  wildcardPolicy: None

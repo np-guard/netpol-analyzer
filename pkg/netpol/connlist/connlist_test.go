@@ -22,7 +22,7 @@ func getConnlistFromDirPathRes(stopOnErr bool, path string) (*ConnlistAnalyzer, 
 		analyzer = NewConnlistAnalyzer()
 	}
 
-	res, err := analyzer.ConnlistFromDirPath(path)
+	res, _, err := analyzer.ConnlistFromDirPath(path)
 	return analyzer, res, err
 }
 
@@ -36,27 +36,34 @@ const expectedOutputFileNamePrefix = "connlist_output."
 
 var allFormats = []string{common.TextFormat, common.JSONFormat, common.CSVFormat, common.MDFormat, common.DOTFormat}
 
+var allFormats = []string{common.TextFormat, common.JSONFormat, common.CSVFormat, common.MDFormat, common.DOTFormat}
+
 // TestConnList tests the output of ConnlistFromDirPath() for valid input resources
 func TestConnList(t *testing.T) {
 	testingEntries := []testEntry{
 		{
 			testDirName:   "ipblockstest",
 			outputFormats: []string{common.TextFormat},
+			outputFormats: []string{common.TextFormat},
 		},
 		{
 			testDirName:   "onlineboutique",
+			outputFormats: []string{common.JSONFormat, common.MDFormat, common.TextFormat},
 			outputFormats: []string{common.JSONFormat, common.MDFormat, common.TextFormat},
 		},
 		{
 			testDirName:   "onlineboutique_workloads",
 			outputFormats: []string{common.CSVFormat, common.DOTFormat, common.TextFormat},
+			outputFormats: []string{common.CSVFormat, common.DOTFormat, common.TextFormat},
 		},
 		{
 			testDirName:   "minikube_resources",
 			outputFormats: []string{common.TextFormat},
+			outputFormats: []string{common.TextFormat},
 		},
 		{
 			testDirName:   "online_boutique_workloads_no_ns",
+			outputFormats: []string{common.TextFormat},
 			outputFormats: []string{common.TextFormat},
 		},
 		{
@@ -66,30 +73,40 @@ func TestConnList(t *testing.T) {
 		{
 			testDirName:   "acs_security_frontend_demos",
 			outputFormats: allFormats,
+			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "demo_app_with_routes_and_ingress",
+			outputFormats: allFormats,
 			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "k8s_ingress_test",
 			outputFormats: allFormats,
+			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "multiple_ingress_objects_with_different_ports",
+			outputFormats: allFormats,
 			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "one_ingress_multiple_ports",
 			outputFormats: allFormats,
+			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "one_ingress_multiple_services",
+			outputFormats: allFormats,
 			outputFormats: allFormats,
 		},
 		{
 			testDirName:   "acs-security-demos",
 			outputFormats: allFormats,
+		},
+		{
+			testDirName:   "acs-security-demos-with-netpol-list",
+			outputFormats: []string{common.TextFormat},
 		},
 	}
 
@@ -97,7 +114,7 @@ func TestConnList(t *testing.T) {
 		dirPath := filepath.Join(testutils.GetTestsDir(), entry.testDirName)
 		for _, format := range entry.outputFormats {
 			analyzer := NewConnlistAnalyzer(WithOutputFormat(format))
-			res, err := analyzer.ConnlistFromDirPath(dirPath)
+			res, _, err := analyzer.ConnlistFromDirPath(dirPath)
 			require.Nil(t, err)
 			output, err := analyzer.ConnectionsListToString(res)
 			require.Nil(t, err)
@@ -119,7 +136,7 @@ func TestConnList(t *testing.T) {
 func TestWithFocusWorkload(t *testing.T) {
 	analyzer1 := NewConnlistAnalyzer(WithFocusWorkload("emailservice"))
 	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
-	res, err := analyzer1.ConnlistFromDirPath(dirPath)
+	res, _, err := analyzer1.ConnlistFromDirPath(dirPath)
 	require.Len(t, res, 1)
 	require.Nil(t, err)
 }
@@ -237,7 +254,7 @@ func TestConnlistAnalyzerBadDirNoYamls(t *testing.T) {
 func TestConnlistAnalyzerBadOutputFormat(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
 	analyzer := NewConnlistAnalyzer(WithOutputFormat("jpeg"))
-	res, err1 := analyzer.ConnlistFromDirPath(dirPath)
+	res, _, err1 := analyzer.ConnlistFromDirPath(dirPath)
 	require.Nil(t, err1)
 	_, err2 := analyzer.ConnectionsListToString(res)
 	require.NotNil(t, err2)
@@ -249,7 +266,7 @@ func TestConnlistAnalyzerBadOutputFormat(t *testing.T) {
 func TestWithFocusWorkloadWithReplicasConnections(t *testing.T) {
 	analyzer1 := NewConnlistAnalyzer(WithFocusWorkload("calico-node"))
 	dirPath := filepath.Join(testutils.GetTestsDir(), "ipblockstest")
-	res, err := analyzer1.ConnlistFromDirPath(dirPath)
+	res, _, err := analyzer1.ConnlistFromDirPath(dirPath)
 	require.Len(t, res, 49)
 	require.Nil(t, err)
 	out, err := analyzer1.ConnectionsListToString(res)
@@ -260,7 +277,7 @@ func TestWithFocusWorkloadWithReplicasConnections(t *testing.T) {
 func TestWithFocusWorkloadWithIngressObjects(t *testing.T) {
 	analyzer := NewConnlistAnalyzer(WithFocusWorkload("details-v1-79f774bdb9"))
 	dirPath := filepath.Join(testutils.GetTestsDir(), "k8s_ingress_test")
-	res, err := analyzer.ConnlistFromDirPath(dirPath)
+	res, _, err := analyzer.ConnlistFromDirPath(dirPath)
 	require.Len(t, res, 13)
 	require.Nil(t, err)
 	out, err := analyzer.ConnectionsListToString(res)

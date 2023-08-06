@@ -226,9 +226,9 @@ func (sc *ResourcesScanner) FilesToObjectsListFiltered(path string, podNames []t
 }
 
 var (
-	acceptedK8sTypesRegex = fmt.Sprintf("(^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$)",
+	acceptedK8sTypesRegex = fmt.Sprintf("(^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$|^%s$)",
 		Pod, ReplicaSet, ReplicationController, Deployment, Daemonset, Statefulset, Job, CronJob,
-		Networkpolicy, Namespace, Service, Route, Ingress, List, NamespaceList, PodList)
+		Networkpolicy, Namespace, Service, Route, Ingress, List, NamespaceList, PodList, NetworkpolicyList)
 	acceptedK8sTypes = regexp.MustCompile(acceptedK8sTypesRegex)
 	yamlSuffix       = regexp.MustCompile(".ya?ml$")
 )
@@ -247,6 +247,7 @@ const (
 	CronJob               string = "CronJob"
 	List                  string = "List"
 	NamespaceList         string = "NamespaceList"
+	NetworkpolicyList     string = "NetworkPolicyList"
 	PodList               string = "PodList"
 	Service               string = "Service"
 	Route                 string = "Route"
@@ -367,6 +368,8 @@ func manifestToK8sObjects(yamlDoc YAMLDocumentIntf, kind string) ([]K8sObject, e
 		res = parsePodList(objDataBuf)
 	case NamespaceList:
 		res = parseNamespaceList(objDataBuf)
+	case NetworkpolicyList:
+		res = parseNetworkpolicyList(objDataBuf)
 	// TODO: support other specific list types, other than PodList and NamespaceList
 	default:
 		return res, fmt.Errorf("unsupported kind: %s", kind)
@@ -420,6 +423,13 @@ func parseNamespaceList(objDataBuf []byte) []K8sObject {
 // given YAML of kind "PodList" , parse and convert to slice of K8sObject
 func parsePodList(objDataBuf []byte) []K8sObject {
 	if isKind, resList := parseListOfKind(objDataBuf, Pod); isKind {
+		return resList
+	}
+	return nil
+}
+
+func parseNetworkpolicyList(objDataBuf []byte) []K8sObject {
+	if isKind, resList := parseListOfKind(objDataBuf, Networkpolicy); isKind {
 		return resList
 	}
 	return nil
