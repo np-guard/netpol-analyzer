@@ -211,10 +211,10 @@ func (c *ConnsPair) isSrcOrDstPeerIPType(checkSrc bool) bool {
 }
 
 // helpers to check if a peer is ingress-controller (a peer created while ingress analysis)
-const ingressPodName = "ingress-controller"
+const ingressPodString = "{ingress-controller}"
 
 func isIngressControllerPeer(peer eval.Peer) bool {
-	return peer.String() == "{"+ingressPodName+"}"
+	return peer.String() == ingressPodString
 }
 
 // updateNewOrLostFields updates ConnsPair's newOrLostSrc and newOrLostDst values
