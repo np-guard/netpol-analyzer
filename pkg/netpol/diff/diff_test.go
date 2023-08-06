@@ -97,12 +97,20 @@ func TestDiff(t *testing.T) {
 		},
 		{
 			// description:
-			// changed netpols : default/limit-app1-traffic
-			// in first dir connlist, default/deployment1 does not appear even it exists, since the netpol denies all traffic from/to it
+			// **changed netpols : default/limit-app1-traffic
+			// **in first dir connlist, default/deployment1 does not appear even it exists, since the netpol denies all traffic from/to it
 			// in second dir , the netpol limits the ingress of it , so it appears in the diff
 			firstDirName:  "deny_all_to_from_a_deployment",
 			secondDirName: "deny_all_to_from_a_deployment_changed_netpol",
 			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **removed netpol: enable-all-protocols-with-all-ports
+			// **added netpol: enable-all-traffic
+			firstDirName:  "with_end_port_example",
+			secondDirName: "with_end_port_example_new",
+			formats:       allFormats,
 		},
 	}
 
