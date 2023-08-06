@@ -8,7 +8,6 @@ package diff
 import (
 	"errors"
 	"path/filepath"
-	"strings"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
@@ -215,7 +214,7 @@ func (c *ConnsPair) isSrcOrDstPeerIPType(checkSrc bool) bool {
 const ingressPodName = "ingress-controller"
 
 func isIngressControllerPeer(peer eval.Peer) bool {
-	return strings.Contains(peer.String(), ingressPodName) // peer.String() == "{"+ingressPodName+"}"
+	return peer.String() == "{"+ingressPodName+"}"
 }
 
 // updateNewOrLostFields updates ConnsPair's newOrLostSrc and newOrLostDst values
