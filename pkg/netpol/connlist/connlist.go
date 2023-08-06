@@ -409,7 +409,6 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine) ([
 	}
 
 	connsRes := make([]Peer2PeerConnection, 0)
-	peers := make([]eval.Peer, 0)
 	for i := range peerList {
 		srcPeer := peerList[i]
 		for j := range peerList {
@@ -433,13 +432,9 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine) ([
 			}
 			connsRes = append(connsRes, p2pConnection)
 		}
-		// save the src peerName in the map ca.dirToPeersNamesSet
-		if !srcPeer.IsPeerIPType() {
-			peers = append(peers, srcPeer)
-		}
 	}
 
-	return connsRes, peers, nil
+	return connsRes, peerList, nil
 }
 
 // getIngressAllowedConnections returns connections list from IngressAnalyzer intersected with PolicyEngine's connections

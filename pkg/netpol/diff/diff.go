@@ -10,8 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"k8s.io/utils/strings/slices"
-
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
@@ -102,7 +100,7 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 	}
 	var conns1, conns2 []connlist.Peer2PeerConnection
 	var workloads1, workloads2 []eval.Peer
-	var workloadsNames1, workloadsNames2 []string
+	var workloadsNames1, workloadsNames2 map[string]bool
 	var err error
 	if conns1, workloads1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
 		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
@@ -137,20 +135,15 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 	return diffConnectionsLists(conns1Refined, conns2Refined, workloadsNames1, workloadsNames2)
 }
 
-func getPeersNamesFromPeersList(peers []eval.Peer) []string {
-	// create set from peers-strings
+// create set from peers-strings
+func getPeersNamesFromPeersList(peers []eval.Peer) map[string]bool {
 	peersSet := make(map[string]bool, 0)
 	for _, peer := range peers {
-		peersSet[peer.String()] = true
+		if !peer.IsPeerIPType() {
+			peersSet[peer.String()] = true
+		}
 	}
-	// list of unique names
-	peersRes := make([]string, len(peersSet))
-	i := 0
-	for peerName := range peersSet {
-		peersRes[i] = peerName
-		i++
-	}
-	return peersRes
+	return peersSet
 }
 
 // getIPblocksFromConnList returns the list of peers of IP type from Peer2PeerConnection slice
@@ -229,18 +222,18 @@ func isIngressControllerPeer(peer eval.Peer) bool {
 }
 
 // updateNewOrLostFields updates ConnsPair's newOrLostSrc and newOrLostDst values
-func (c *ConnsPair) updateNewOrLostFields(isFirst bool, peersList []string) {
+func (c *ConnsPair) updateNewOrLostFields(isFirst bool, peersSet map[string]bool) {
 	var src, dst eval.Peer
 	if isFirst {
 		src, dst = c.firstConn.Src(), c.firstConn.Dst()
 	} else {
 		src, dst = c.secondConn.Src(), c.secondConn.Dst()
 	}
-	// update src/dst status based on the peerList , ignore ips/ingress-controller pod
-	if !(src.IsPeerIPType() || isIngressControllerPeer(src)) && !slices.Contains(peersList, src.String()) {
+	// update src/dst status based on the peersSet , ignore ips/ingress-controller pod
+	if !(src.IsPeerIPType() || isIngressControllerPeer(src)) && !peersSet[src.String()] {
 		c.newOrLostSrc = true
 	}
-	if !(dst.IsPeerIPType() || isIngressControllerPeer(dst)) && !slices.Contains(peersList, dst.String()) {
+	if !(dst.IsPeerIPType() || isIngressControllerPeer(dst)) && !peersSet[dst.String()] {
 		c.newOrLostDst = true
 	}
 }
@@ -418,12 +411,12 @@ func (d diffMap) mergeIPblocks() (diffMap, error) {
 	return res, nil
 }
 
-// diffConnectionsLists returns ConnectivityDiff given two Peer2PeerConnection slices and two peers sets
+// diffConnectionsLists returns ConnectivityDiff given two Peer2PeerConnection slices and two peers names sets
 // it assumes that the input has been refined with disjoint ip-blocks, and merges
 // touching ip-blocks in the output where possible
 // currently not including diff of workloads with no connections
 func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
-	peers1, peers2 []string) (ConnectivityDiff, error) {
+	peers1, peers2 map[string]bool) (ConnectivityDiff, error) {
 	// convert to a map from src-dst full name, to its connections pair (conns1, conns2)
 	diffsMap := diffMap{}
 	var err error
