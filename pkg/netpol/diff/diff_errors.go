@@ -1,8 +1,19 @@
 package diff
 
+// DiffError holds information about a single error/warning that occurred during
+// the generating connectivity diff report
+type DiffError interface {
+	IsFatal() bool
+	IsSevere() bool
+	Error() error
+	Location() string
+}
+
 // diffGeneratingError - DiffError that may arise while producing the connectivity diff report
 type diffGeneratingError struct {
-	err error
+	err    error
+	fatal  bool
+	severe bool
 }
 
 type connectionsAnalyzingError struct {
@@ -23,12 +34,12 @@ type handlingIPpeersError struct {
 // IsFatal returns whether the error is considered fatal (no further processing is possible)
 // diffGeneratingError errors are always fatal
 func (e *diffGeneratingError) IsFatal() bool {
-	return true
+	return e.fatal
 }
 
 // IsSevere returns whether the error is considered severe
 func (e *diffGeneratingError) IsSevere() bool {
-	return false
+	return e.severe
 }
 
 func (e *diffGeneratingError) Location() string {
@@ -55,13 +66,13 @@ func (e *handlingIPpeersError) Error() string {
 
 // constructors
 func newResultFormattingError(err error) *diffGeneratingError {
-	return &diffGeneratingError{&resultFormattingError{err}}
+	return &diffGeneratingError{err: &resultFormattingError{err}, fatal: true, severe: false}
 }
 
-func newConnectionsAnalyzingError(err error) *diffGeneratingError {
-	return &diffGeneratingError{&connectionsAnalyzingError{err}}
+func newConnectionsAnalyzingError(err error, fatal, severe bool) *diffGeneratingError {
+	return &diffGeneratingError{err: &connectionsAnalyzingError{err}, fatal: fatal, severe: severe}
 }
 
 func newHandlingIPpeersError(err error) *diffGeneratingError {
-	return &diffGeneratingError{&handlingIPpeersError{err}}
+	return &diffGeneratingError{err: &handlingIPpeersError{err}, fatal: true, severe: false}
 }
