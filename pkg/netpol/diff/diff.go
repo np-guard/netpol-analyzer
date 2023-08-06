@@ -101,8 +101,9 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 		da.errors = append(da.errors, newConnectionsAnalyzingError(err, true, false))
 		return nil, err
 	}
-	workloadsNames1, workloadsNames2 = getPeersNamesFromPeersList(workloads1), getPeersNamesFromPeersList(workloads2) // appending connlist warnings and severe errors to diff_errors
+	workloadsNames1, workloadsNames2 = getPeersNamesFromPeersList(workloads1), getPeersNamesFromPeersList(workloads2)
 
+	// appending connlist warnings and severe errors to diff_errors
 	for _, e := range caAnalyzer.Errors() {
 		da.errors = append(da.errors, e)
 	}
