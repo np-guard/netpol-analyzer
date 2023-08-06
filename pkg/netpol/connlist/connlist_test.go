@@ -93,7 +93,7 @@ func TestConnList(t *testing.T) {
 		},
 		{
 			testDirName:   "acs-security-demos-with-netpol-list",
-			outputFormats: []string{TextFormat},
+			outputFormats: []string{common.TextFormat},
 		},
 	}
 
