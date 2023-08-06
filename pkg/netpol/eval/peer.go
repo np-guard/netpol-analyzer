@@ -17,8 +17,6 @@ type Peer interface {
 	IP() string
 	// IsPeerIPType returns true if  peer is IP address
 	IsPeerIPType() bool
-	// IsFakePeer returns true if the peer was added for analysis goals (not IP neither parsed pod/workload)
-	IsFakePeer() bool
 	// String returns a string representation of the Peer object
 	String() string
 	// Kind returns a string of the peer kind in case the peer is a pod/workload, else it returns an empty string

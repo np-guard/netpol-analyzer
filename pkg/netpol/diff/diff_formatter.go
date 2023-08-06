@@ -59,9 +59,9 @@ func formDiffFieldsDataOfDiffConns(diffConns []*ConnsPair) (netpolsDiff, ingress
 func getConnPeersStrings(c *ConnsPair) (srcStr, dstStr string, isSrcIngress bool) {
 	switch c.diffType {
 	case changedType, removedType:
-		return c.firstConn.Src().String(), c.firstConn.Dst().String(), c.firstConn.Src().IsFakePeer()
+		return c.firstConn.Src().String(), c.firstConn.Dst().String(), isIngressControllerPeer(c.firstConn.Src())
 	case addedType:
-		return c.secondConn.Src().String(), c.secondConn.Dst().String(), c.secondConn.Src().IsFakePeer()
+		return c.secondConn.Src().String(), c.secondConn.Dst().String(), isIngressControllerPeer(c.secondConn.Src())
 	default:
 		return "", "", false // should not get here
 	}

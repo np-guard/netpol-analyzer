@@ -96,10 +96,6 @@ func (p *WorkloadPeer) IsPeerIPType() bool {
 	return false
 }
 
-func (p *WorkloadPeer) IsFakePeer() bool {
-	return p.Pod.FakePod
-}
-
 ////////////////////////////////////////////////////
 
 func (p *PodPeer) PeerType() PeerType {
@@ -136,10 +132,6 @@ func (p *PodPeer) IP() string {
 
 func (p *PodPeer) IsPeerIPType() bool {
 	return false
-}
-
-func (p *PodPeer) IsFakePeer() bool {
-	return p.Pod.FakePod
 }
 
 func (p *PodPeer) Kind() string {
@@ -182,10 +174,6 @@ func (p *IPBlockPeer) IP() string {
 
 func (p *IPBlockPeer) IsPeerIPType() bool {
 	return true
-}
-
-func (p *IPBlockPeer) IsFakePeer() bool {
-	return false
 }
 
 func (p *IPBlockPeer) Kind() string {

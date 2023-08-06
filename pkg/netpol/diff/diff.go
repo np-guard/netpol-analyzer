@@ -8,6 +8,7 @@ package diff
 import (
 	"errors"
 	"path/filepath"
+	"strings"
 
 	"k8s.io/utils/strings/slices"
 
@@ -100,17 +101,18 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 		caAnalyzer = connlist.NewConnlistAnalyzer(connlist.WithLogger(da.logger), connlist.WithWalkFn(da.walkFn))
 	}
 	var conns1, conns2 []connlist.Peer2PeerConnection
+	var workloads1, workloads2 []eval.Peer
 	var workloadsNames1, workloadsNames2 []string
 	var err error
-	if conns1, workloadsNames1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
+	if conns1, workloads1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
 		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
 		return nil, err
 	}
-	if conns2, workloadsNames2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
+	if conns2, workloads2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
 		da.errors = append(da.errors, newConnectionsAnalyzingError(err))
 		return nil, err
 	}
-
+	workloadsNames1, workloadsNames2 = getPeersNamesFromPeersList(workloads1), getPeersNamesFromPeersList(workloads2)
 	// get disjoint ip-blocks from both configs
 	ipPeers1, ipPeers2 := getIPblocksFromConnList(conns1), getIPblocksFromConnList(conns2)
 	disjointPeerIPMap, err := eval.DisjointPeerIPMap(ipPeers1, ipPeers2)
@@ -133,6 +135,22 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 
 	// get the diff w.r.t refined sets of connectivity
 	return diffConnectionsLists(conns1Refined, conns2Refined, workloadsNames1, workloadsNames2)
+}
+
+func getPeersNamesFromPeersList(peers []eval.Peer) []string {
+	// create set from peers-strings
+	peersSet := make(map[string]bool, 0)
+	for _, peer := range peers {
+		peersSet[peer.String()] = true
+	}
+	// list of unique names
+	peersRes := make([]string, len(peersSet))
+	i := 0
+	for peerName := range peersSet {
+		peersRes[i] = peerName
+		i++
+	}
+	return peersRes
 }
 
 // getIPblocksFromConnList returns the list of peers of IP type from Peer2PeerConnection slice
@@ -182,7 +200,7 @@ type ConnsPair struct {
 }
 
 // update func of ConnsPair obj, updates the pair with input Peer2PeerConnection, at first or second conn
-func (c *ConnsPair) update(isFirst bool, conn connlist.Peer2PeerConnection) {
+func (c *ConnsPair) updateConn(isFirst bool, conn connlist.Peer2PeerConnection) {
 	if isFirst {
 		c.firstConn = conn
 	} else {
@@ -203,6 +221,13 @@ func (c *ConnsPair) isSrcOrDstPeerIPType(checkSrc bool) bool {
 	return (checkSrc && src.IsPeerIPType()) || (!checkSrc && dst.IsPeerIPType())
 }
 
+// helpers to check if a peer is ingress-controller (a peer created while ingress analysis)
+const ingressPodName = "ingress-controller"
+
+func isIngressControllerPeer(peer eval.Peer) bool {
+	return strings.Contains(peer.String(), ingressPodName) // peer.String() == "{"+ingressPodName+"}"
+}
+
 // updateNewOrLostFields updates ConnsPair's newOrLostSrc and newOrLostDst values
 func (c *ConnsPair) updateNewOrLostFields(isFirst bool, peersList []string) {
 	var src, dst eval.Peer
@@ -212,10 +237,10 @@ func (c *ConnsPair) updateNewOrLostFields(isFirst bool, peersList []string) {
 		src, dst = c.secondConn.Src(), c.secondConn.Dst()
 	}
 	// update src/dst status based on the peerList , ignore ips/ingress-controller pod
-	if !(src.IsPeerIPType() || src.IsFakePeer()) && !slices.Contains(peersList, src.String()) {
+	if !(src.IsPeerIPType() || isIngressControllerPeer(src)) && !slices.Contains(peersList, src.String()) {
 		c.newOrLostSrc = true
 	}
-	if !(dst.IsPeerIPType() || dst.IsFakePeer()) && !slices.Contains(peersList, dst.String()) {
+	if !(dst.IsPeerIPType() || isIngressControllerPeer(dst)) && !slices.Contains(peersList, dst.String()) {
 		c.newOrLostDst = true
 	}
 }
@@ -228,7 +253,7 @@ func (d diffMap) update(key string, isFirst bool, c connlist.Peer2PeerConnection
 	if _, ok := d[key]; !ok {
 		d[key] = &ConnsPair{}
 	}
-	d[key].update(isFirst, c)
+	d[key].updateConn(isFirst, c)
 }
 
 // type mapListConnPairs is a map from key (src-or-dst)+conns1+conns2 to []ConnsPair (where dst-or-src is ip-block)
