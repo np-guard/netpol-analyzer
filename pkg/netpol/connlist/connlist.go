@@ -28,15 +28,6 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
-// ConnlistError holds information about a single error/warning that occurred during
-// the parsing and connectivity analysis of k8s-app with network policies
-type ConnlistError interface {
-	IsFatal() bool
-	IsSevere() bool
-	Error() error
-	Location() string
-}
-
 // A ConnlistAnalyzer provides API to recursively scan a directory for Kubernetes resources including network policies,
 // and get the list of permitted connectivity between the workloads of the K8s application managed in this directory.
 type ConnlistAnalyzer struct {
