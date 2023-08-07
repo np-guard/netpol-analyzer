@@ -183,14 +183,6 @@ func TestDiffErrors(t *testing.T) {
 			isCaFatalErr: true,
 		},
 		{
-			name: "dir 1 with bad netpol - named port error",
-			dir1: filepath.Join("bad_netpols", "subdir5"),
-			dir2: "ipblockstest",
-			errStr: "network policy default/shippingservice-netpol named port error: " +
-				"named port is not defined in a selected workload shippingservice",
-			isCaFatalErr: true,
-		},
-		{
 			name:         "dir 2 with bad netpol - named port on ipblock error",
 			dir1:         "ipblockstest",
 			dir2:         filepath.Join("bad_netpols", "subdir6"),
@@ -259,46 +251,46 @@ func TestDiffErrors(t *testing.T) {
 		diffErrors1 := diffAnalyzer.Errors()
 		diffErrors2 := diffAnalyzerStopsOnError.Errors()
 		if entry.isCaFatalErr { // fatal err , both analyzers behave the same, nil res, not nil err
-			require.Nil(t, connsDiff1)
-			require.Nil(t, connsDiff2)
-			require.Contains(t, err1.Error(), entry.errStr)
-			require.Contains(t, err2.Error(), entry.errStr)
-			require.Contains(t, diffErrors1[0].Error().Error(), entry.errStr)
-			require.Contains(t, diffErrors2[0].Error().Error(), entry.errStr)
+			require.Nil(t, connsDiff1, "test: %s", entry.name)
+			require.Nil(t, connsDiff2, "test: %s", entry.name)
+			require.Contains(t, err1.Error(), entry.errStr, "test: %s", entry.name)
+			require.Contains(t, err2.Error(), entry.errStr, "test: %s", entry.name)
+			require.Contains(t, diffErrors1[0].Error().Error(), entry.errStr, "test: %s", entry.name)
+			require.Contains(t, diffErrors2[0].Error().Error(), entry.errStr, "test: %s", entry.name)
 			// check err type
-			require.True(t, errors.As(diffErrors1[0].Error(), &caErrType))
-			require.True(t, errors.As(diffErrors2[0].Error(), &caErrType))
+			require.True(t, errors.As(diffErrors1[0].Error(), &caErrType), "test: %s", entry.name)
+			require.True(t, errors.As(diffErrors2[0].Error(), &caErrType), "test: %s", entry.name)
 			continue
 		}
 		if entry.isCaSevereErr { // severe error not returned in err, but with stopOnError, empty res with it in the errors
-			require.Nil(t, err1)
-			require.Nil(t, err2)
-			require.False(t, connsDiff1.isEmpty()) // diffAnalyzer did not stop, result not empty
-			require.True(t, connsDiff2.isEmpty())  // diffAnalyzerStopsOnError stops running, returns empty res
+			require.Nil(t, err1, "test: %s", entry.name)
+			require.Nil(t, err2, "test: %s", entry.name)
+			require.False(t, connsDiff1.isEmpty(), "test: %s", entry.name) // diffAnalyzer did not stop, result not empty
+			require.True(t, connsDiff2.isEmpty(), "test: %s", entry.name)  // diffAnalyzerStopsOnError stops running, returns empty res
 			// error appended to diffAnalyzerErrors in both
-			require.Contains(t, diffErrors2[0].Error().Error(), entry.errStr)
-			require.Contains(t, diffErrors1[0].Error().Error(), entry.errStr)
+			require.Contains(t, diffErrors2[0].Error().Error(), entry.errStr, "test: %s", entry.name)
+			require.Contains(t, diffErrors1[0].Error().Error(), entry.errStr, "test: %s", entry.name)
 			continue
 		}
 		if entry.isCaWarning { // both don't stop
-			require.Nil(t, err1)
-			require.NotNil(t, connsDiff1)
-			require.Nil(t, err2)
-			require.NotNil(t, connsDiff2)
+			require.Nil(t, err1, "test: %s", entry.name)
+			require.NotNil(t, connsDiff1, "test: %s", entry.name)
+			require.Nil(t, err2, "test: %s", entry.name)
+			require.NotNil(t, connsDiff2, "test: %s", entry.name)
 			// warning appended to diffAnalyzerErrors in both
-			require.Contains(t, diffErrors2[0].Error().Error(), entry.errStr)
-			require.Contains(t, diffErrors1[0].Error().Error(), entry.errStr)
+			require.Contains(t, diffErrors2[0].Error().Error(), entry.errStr, "test: %s", entry.name)
+			require.Contains(t, diffErrors1[0].Error().Error(), entry.errStr, "test: %s", entry.name)
 		}
 		_, err1 = diffAnalyzer.ConnectivityDiffToString(connsDiff1)
 		_, err2 = diffAnalyzerStopsOnError.ConnectivityDiffToString(connsDiff2)
 		diffErrors1 = diffAnalyzer.Errors()
 		if entry.isFormattingErr { // formating error is fatal , stops both analyzers
-			require.Equal(t, err1.Error(), entry.errStr)
-			require.Equal(t, err2.Error(), entry.errStr)
-			require.True(t, errors.As(diffErrors1[0].Error(), &formattingErrType))
+			require.Equal(t, err1.Error(), entry.errStr, "test: %s", entry.name)
+			require.Equal(t, err2.Error(), entry.errStr, "test: %s", entry.name)
+			require.True(t, errors.As(diffErrors1[0].Error(), &formattingErrType), "test: %s", entry.name)
 			continue
 		}
-		require.Nil(t, err1)
-		require.Nil(t, err2)
+		require.Nil(t, err1, "test: %s", entry.name)
+		require.Nil(t, err2, "test: %s", entry.name)
 	}
 }

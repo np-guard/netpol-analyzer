@@ -56,24 +56,20 @@ func getProtocolStr(p *v1.Protocol) string {
 	return string(*p)
 }
 
-func (np *NetworkPolicy) convertNamedPort(namedPort string, pod *Pod) (int32, error) {
-	port, err := pod.ConvertPodNamedPort(namedPort)
-	if err != nil {
-		return 0, np.netpolErr(namedPortErrTitle, err.Error())
-	}
-	return port, nil
+func (np *NetworkPolicy) convertNamedPort(namedPort string, pod *Pod) int32 {
+	return pod.ConvertPodNamedPort(namedPort)
 }
 
+// getPortsRange returns the start and end port numbers given input port, endPort and dest peer
+// if input port is a named port, and the dst peer does not have a matching named port defined, return
+// an empty range represented by (-1,-1)
 func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (startNum, endNum int32, err error) {
 	var start, end int32
 	if port.Type == intstr.String {
 		if dst.PeerType() != PodType {
 			return start, end, np.netpolErr(namedPortErrTitle, "cannot convert named port for an IP destination")
 		}
-		portNum, err := np.convertNamedPort(port.StrVal, dst.GetPeerPod())
-		if err != nil {
-			return start, end, err
-		}
+		portNum := np.convertNamedPort(port.StrVal, dst.GetPeerPod())
 		start = portNum
 		end = portNum
 	} else {
@@ -84,6 +80,10 @@ func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32,
 		}
 	}
 	return start, end, nil
+}
+
+func isEmptyPortRange(start, end int32) bool {
+	return start == noPort && end == noPort
 }
 
 func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) (*common.ConnectionSet, error) {
@@ -105,6 +105,10 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 			if err != nil {
 				return res, err
 			}
+			if isEmptyPortRange(startPort, endPort) {
+				continue
+			}
+
 			ports.AddPortRange(int64(startPort), int64(endPort))
 		}
 		res.AddConnection(protocol, ports)
@@ -127,6 +131,9 @@ func (np *NetworkPolicy) ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, p
 		startPort, endPort, err := np.getPortsRange(rulePorts[i].Port, rulePorts[i].EndPort, dst)
 		if err != nil {
 			return false, err
+		}
+		if isEmptyPortRange(startPort, endPort) {
+			return false, nil
 		}
 		intPort, err := strconv.ParseInt(port, portBase, portBits)
 		if err != nil {

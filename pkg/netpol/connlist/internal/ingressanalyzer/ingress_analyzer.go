@@ -370,6 +370,9 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 			if err != nil {
 				return nil, err
 			}
+			if portInt < 0 { // no matching port for the given named port
+				continue
+			}
 			portNum = int(portInt)
 		}
 

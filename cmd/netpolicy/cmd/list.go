@@ -36,8 +36,7 @@ func runListCommand() error {
 	var err error
 
 	clogger := logger.NewDefaultLoggerWithVerbosity(detrmineLogVerbosity())
-	analyzer := connlist.NewConnlistAnalyzer(connlist.WithLogger(clogger), connlist.WithFocusWorkload(focusWorkload),
-		connlist.WithOutputFormat(output))
+	analyzer := connlist.NewConnlistAnalyzer(getConnlistOptions(clogger)...)
 
 	if dirPath != "" {
 		conns, _, err = analyzer.ConnlistFromDirPath(dirPath)
@@ -54,6 +53,18 @@ func runListCommand() error {
 	fmt.Printf("%s", out)
 
 	return nil
+}
+
+func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOption {
+	res := []connlist.ConnlistAnalyzerOption{
+		connlist.WithLogger(l),
+		connlist.WithFocusWorkload(focusWorkload),
+		connlist.WithOutputFormat(output),
+	}
+	if includeJSONManifests {
+		res = append(res, connlist.WithIncludeJSONManifests())
+	}
+	return res
 }
 
 // newCommandList returns a cobra command with the appropriate configuration and flags to run list command
