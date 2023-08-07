@@ -104,6 +104,17 @@ func TestDiff(t *testing.T) {
 			secondDirName: "deny_all_to_from_a_deployment_changed_netpol",
 			formats:       []string{common.DefaultFormat},
 		},
+		{
+			// description:
+			// **added workloads: frontend/blog, payments/visa-processor-v2, zeroday/zeroday
+			// **added routes: frontend/blog, zeroday/zeroday
+			// **added netpols: frontend/blog-netpol, payments/visa-processor-v2-netpol, zeroday/zeroday-netpol,
+			// zeroday/default-deny-in-namespace-zeroday
+			// **changed netpols : payments/gateway-netpol,
+			firstDirName:  "acs-security-demos",
+			secondDirName: "acs-security-demos-added-workloads",
+			formats:       allFormats,
+		},
 	}
 
 	for _, entry := range testingEntries {
