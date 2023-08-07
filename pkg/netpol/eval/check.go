@@ -251,7 +251,7 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 	}
 
 	if len(netpols) == 0 {
-		return common.MakeConnectionSet(true), nil // all connections allowed - no networkpolicy captures the relevant pod
+		return common.MakeConnectionSet(true), nil // all connections allowed - no network policy captures the relevant pod
 		// on the required direction
 	}
 

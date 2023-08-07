@@ -95,12 +95,16 @@ func TestConnList(t *testing.T) {
 			testDirName:   "acs-security-demos-with-netpol-list",
 			outputFormats: []string{common.TextFormat},
 		},
+		{
+			testDirName:   "test_with_named_ports",
+			outputFormats: []string{common.TextFormat},
+		},
 	}
 
 	for _, entry := range testingEntries {
 		dirPath := filepath.Join(testutils.GetTestsDir(), entry.testDirName)
 		for _, format := range entry.outputFormats {
-			analyzer := NewConnlistAnalyzer(WithOutputFormat(format))
+			analyzer := NewConnlistAnalyzer(WithOutputFormat(format), WithIncludeJSONManifests())
 			res, _, err := analyzer.ConnlistFromDirPath(dirPath)
 			require.Nil(t, err)
 			output, err := analyzer.ConnectionsListToString(res)
@@ -154,14 +158,6 @@ func TestErrNetpolBadNetpolRulePeer(t *testing.T) {
 
 func TestErrNetpolBadNetpolRulePeerEmpty(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir4")
-	_, res, err := getConnlistFromDirPathRes(false, dirPath)
-	fmt.Printf("%v %v", res, err)
-	require.Nil(t, res)
-	require.NotNil(t, err)
-}
-
-func TestErrNetpolBadNetpolNamedPortErr(t *testing.T) {
-	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_netpols", "subdir5")
 	_, res, err := getConnlistFromDirPathRes(false, dirPath)
 	fmt.Printf("%v %v", res, err)
 	require.Nil(t, res)

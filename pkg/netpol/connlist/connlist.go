@@ -31,13 +31,14 @@ import (
 // A ConnlistAnalyzer provides API to recursively scan a directory for Kubernetes resources including network policies,
 // and get the list of permitted connectivity between the workloads of the K8s application managed in this directory.
 type ConnlistAnalyzer struct {
-	logger        logger.Logger
-	stopOnError   bool
-	errors        []ConnlistError
-	walkFn        scan.WalkFunction
-	scanner       *scan.ResourcesScanner
-	focusWorkload string
-	outputFormat  string
+	logger               logger.Logger
+	stopOnError          bool
+	errors               []ConnlistError
+	walkFn               scan.WalkFunction
+	scanner              *scan.ResourcesScanner
+	focusWorkload        string
+	outputFormat         string
+	includeJSONManifests bool
 }
 
 // ValidFormats array of possible values of output format
@@ -61,6 +62,13 @@ func WithLogger(l logger.Logger) ConnlistAnalyzerOption {
 func WithStopOnError() ConnlistAnalyzerOption {
 	return func(c *ConnlistAnalyzer) {
 		c.stopOnError = true
+	}
+}
+
+// WithIncludeJSONManifests is a functional option which directs ConnlistAnalyzer to include JSON manifests in the analysis
+func WithIncludeJSONManifests() ConnlistAnalyzerOption {
+	return func(c *ConnlistAnalyzer) {
+		c.includeJSONManifests = true
 	}
 }
 
@@ -98,7 +106,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	for _, o := range options {
 		o(ca)
 	}
-	ca.scanner = scan.NewResourcesScanner(ca.logger, ca.stopOnError, ca.walkFn)
+	ca.scanner = scan.NewResourcesScanner(ca.logger, ca.stopOnError, ca.walkFn, ca.includeJSONManifests)
 	return ca
 }
 

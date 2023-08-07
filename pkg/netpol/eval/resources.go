@@ -350,12 +350,13 @@ func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace st
 }
 
 // ConvertPeerNamedPort returns the peer.pod.containerPort matching the named port of the peer
+// if there is no match for the input named port, return -1
 func (pe *PolicyEngine) ConvertPeerNamedPort(namedPort string, peer Peer) (int32, error) {
 	switch currPeer := peer.(type) {
 	case *k8s.WorkloadPeer:
-		return currPeer.Pod.ConvertPodNamedPort(namedPort)
+		return currPeer.Pod.ConvertPodNamedPort(namedPort), nil
 	case *k8s.PodPeer:
-		return currPeer.Pod.ConvertPodNamedPort(namedPort)
+		return currPeer.Pod.ConvertPodNamedPort(namedPort), nil
 	default:
 		return 0, errors.New("peer type does not have ports") // should not get here
 	}
