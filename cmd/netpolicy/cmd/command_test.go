@@ -50,6 +50,23 @@ func postTestRun(isErr bool) string {
 	return actualOutput
 }
 
+// check that expected is the same as actual
+func sameOutput(t *testing.T, actual, expected, testName string, isFile bool) {
+	assert.Equal(t, expected, actual, "error - unexpected output for test %s, isFile: %d", testName, isFile)
+}
+
+// check that expected is contained in actual
+func containedOutput(t *testing.T, actual, expected, testName string, isFile bool) {
+	isContained := strings.Contains(actual, expected)
+	assert.True(t, isContained, "test %s error: %s not contained in %s, isFile: %d", testName, expected, actual, isFile)
+}
+
+func clean(test cmdTest) {
+	if test.hasFile {
+		os.Remove(outFileName)
+	}
+}
+
 func runTest(test cmdTest, t *testing.T) {
 	// run the test and get its output
 	preTestRun()
@@ -63,15 +80,29 @@ func runTest(test cmdTest, t *testing.T) {
 	}
 	actual := postTestRun(test.isErr)
 
+	// check if has file and if it exists
+	var fileContent []byte
+	if test.hasFile {
+		_, err := os.Stat(outFileName)
+		require.Nil(t, err)
+		fileContent, err = os.ReadFile(outFileName)
+		require.Nil(t, err)
+	}
+
 	// compare actual to test.expectedOutput
 	if test.exact {
-		assert.Equal(t, test.expectedOutput, actual, "error - unexpected output")
+		sameOutput(t, actual, test.expectedOutput, test.name, false)
+		if test.hasFile {
+			sameOutput(t, string(fileContent), test.expectedOutput, test.name, true)
+		}
 		return
 	}
 
 	if test.containment {
-		isContained := strings.Contains(actual, test.expectedOutput)
-		assert.True(t, isContained, "test %s error: %s not contained in %s", test.name, test.expectedOutput, actual)
+		containedOutput(t, actual, test.expectedOutput, test.name, false)
+		if test.hasFile {
+			containedOutput(t, string(fileContent), test.expectedOutput, test.name, true)
+		}
 		return
 	}
 
@@ -85,7 +116,10 @@ type cmdTest struct {
 	exact          bool
 	containment    bool
 	isErr          bool
+	hasFile        bool
 }
+
+const outFileName = "test_out.txt"
 
 func TestCommands(t *testing.T) {
 	tests := []cmdTest{
@@ -177,6 +211,21 @@ func TestCommands(t *testing.T) {
 			expectedOutput: testLegalListOutput,
 			exact:          true,
 			isErr:          false,
+		},
+
+		{
+			name: "test_legal_list_with_out_file",
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "onlineboutique"),
+				"-f",
+				outFileName,
+			},
+			expectedOutput: testLegalListOutput,
+			exact:          true,
+			isErr:          false,
+			hasFile:        true,
 		},
 
 		{
@@ -317,6 +366,29 @@ func TestCommands(t *testing.T) {
 			isErr:       false,
 		},
 		{
+			name: "test_legal_diff_txt_output_with_file",
+			args: []string{
+				"diff",
+				"--dir1",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				"--dir2",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
+				"--output",
+				"txt",
+				"-f",
+				outFileName,
+			},
+			// expected first 3 rows
+			expectedOutput: "Connectivity diff:\n" +
+				"source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], " +
+				"dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)\n" +
+				"source: default/redis-cart[Deployment], destination: default/unicorn[Deployment], " +
+				"dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)",
+			containment: true,
+			isErr:       false,
+			hasFile:     true,
+		},
+		{
 			name: "test_legal_diff_csv_output",
 			args: []string{
 				"diff",
@@ -359,6 +431,7 @@ func TestCommands(t *testing.T) {
 
 	for _, test := range tests {
 		runTest(test, t)
+		clean(test)
 	}
 }
 
