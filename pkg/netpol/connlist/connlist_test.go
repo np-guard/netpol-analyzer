@@ -99,6 +99,10 @@ func TestConnList(t *testing.T) {
 			testDirName:   "test_with_named_ports",
 			outputFormats: []string{common.TextFormat},
 		},
+		{
+			testDirName:   "netpol-analysis-example-minimal",
+			outputFormats: []string{common.TextFormat},
+		},
 	}
 
 	for _, entry := range testingEntries {
