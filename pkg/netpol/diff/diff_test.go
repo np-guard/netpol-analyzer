@@ -115,6 +115,13 @@ func TestDiff(t *testing.T) {
 			secondDirName: "acs-security-demos-added-workloads",
 			formats:       allFormats,
 		},
+		{
+			// description:
+			// **changed netpols : default/backend-netpol,
+			firstDirName:  "netpol-analysis-example-minimal",
+			secondDirName: "netpol-diff-example-minimal",
+			formats:       allFormats,
+		},
 	}
 
 	for _, entry := range testingEntries {
