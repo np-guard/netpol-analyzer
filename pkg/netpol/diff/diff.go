@@ -97,7 +97,7 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 		caAnalyzer = connlist.NewConnlistAnalyzer(connlist.WithLogger(da.logger), connlist.WithWalkFn(da.walkFn))
 	}
 	var conns1, conns2 []connlist.Peer2PeerConnection
-	var workloads1, workloads2 []eval.Peer
+	var workloads1, workloads2 []connlist.Peer
 	var workloadsNames1, workloadsNames2 map[string]bool
 	var err error
 	if conns1, workloads1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
@@ -140,7 +140,7 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 }
 
 // create set from peers-strings
-func getPeersNamesFromPeersList(peers []eval.Peer) map[string]bool {
+func getPeersNamesFromPeersList(peers []connlist.Peer) map[string]bool {
 	peersSet := make(map[string]bool, 0)
 	for _, peer := range peers {
 		if !peer.IsPeerIPType() {
