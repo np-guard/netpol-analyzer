@@ -134,20 +134,18 @@ func TestConnListWithFocusWorkload(t *testing.T) {
 		focusWorkload       string
 		testDirName         string
 		expectedConnsOutput string
-		focusedConnsLen     int // result len
+		notExistingWorkload bool
 	}{
 		{
 			name:                "focus workload from netpols",
 			focusWorkload:       "emailservice",
 			testDirName:         "onlineboutique_workloads",
-			focusedConnsLen:     1,
 			expectedConnsOutput: "default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080",
 		},
 		{
-			name:            "test with external ingress conns enabled to a single workload in addition to its p2p conns",
-			focusWorkload:   "details-v1-79f774bdb9",
-			testDirName:     "k8s_ingress_test",
-			focusedConnsLen: 13,
+			name:          "test with external ingress conns enabled to a single workload in addition to its p2p conns",
+			focusWorkload: "details-v1-79f774bdb9",
+			testDirName:   "k8s_ingress_test",
 			expectedConnsOutput: "0.0.0.0-255.255.255.255 => default/details-v1-79f774bdb9[ReplicaSet] : All Connections\n" +
 				"default/details-v1-79f774bdb9[ReplicaSet] => 0.0.0.0-255.255.255.255 : All Connections\n" +
 				"default/details-v1-79f774bdb9[ReplicaSet] => default/productpage-v1-6b746f74dc[ReplicaSet] : All Connections\n" +
@@ -163,10 +161,9 @@ func TestConnListWithFocusWorkload(t *testing.T) {
 				"{ingress-controller} => default/details-v1-79f774bdb9[ReplicaSet] : TCP 9080",
 		},
 		{
-			name:            "test focus workload with <workload-namespace>/<workload-name> format",
-			testDirName:     "acs-security-demos-added-workloads",
-			focusWorkload:   "backend/recommendation",
-			focusedConnsLen: 4,
+			name:          "test focus workload with <workload-namespace>/<workload-name> format",
+			testDirName:   "acs-security-demos-added-workloads",
+			focusWorkload: "backend/recommendation",
 			expectedConnsOutput: "backend/checkout[Deployment] => backend/recommendation[Deployment] : TCP 8080\n" +
 				"backend/recommendation[Deployment] => backend/catalog[Deployment] : TCP 8080\n" +
 				"backend/reports[Deployment] => backend/recommendation[Deployment] : TCP 8080\n" +
@@ -176,25 +173,36 @@ func TestConnListWithFocusWorkload(t *testing.T) {
 			name:                "test with external ingress conns enabled to multiple workloads, refined by one workload name",
 			testDirName:         "acs-security-demos-added-workloads",
 			focusWorkload:       "asset-cache",
-			focusedConnsLen:     1,
 			expectedConnsOutput: "{ingress-controller} => frontend/asset-cache[Deployment] : TCP 8080",
 		},
 		{
 			name:                "test with external ingress conns enabled to multiple workloads, refined by one workload with ns/name format",
 			testDirName:         "acs-security-demos-added-workloads",
 			focusWorkload:       "frontend/asset-cache",
-			focusedConnsLen:     1,
 			expectedConnsOutput: "{ingress-controller} => frontend/asset-cache[Deployment] : TCP 8080",
 		},
 		{
-			name:            "test with external ingress conns enabled to multiple workloads, refined by ingress-controller",
-			testDirName:     "acs-security-demos-added-workloads",
-			focusWorkload:   "ingress-controller",
-			focusedConnsLen: 4,
+			name:          "test with external ingress conns enabled to multiple workloads, refined by ingress-controller",
+			testDirName:   "acs-security-demos-added-workloads",
+			focusWorkload: "ingress-controller",
 			expectedConnsOutput: "{ingress-controller} => frontend/asset-cache[Deployment] : TCP 8080\n" +
 				"{ingress-controller} => frontend/blog[Deployment] : TCP 8080\n" +
 				"{ingress-controller} => frontend/webapp[Deployment] : TCP 8080\n" +
 				"{ingress-controller} => zeroday/zeroday[Deployment] : TCP 8080",
+		},
+		{
+			name:                "focus workload-name does not exist",
+			focusWorkload:       "abcd",
+			testDirName:         "onlineboutique_workloads", // this dir contains only warning of the non existing workload
+			expectedConnsOutput: "",
+			notExistingWorkload: true,
+		},
+		{
+			name:                "focus ns/workload-name does not exist",
+			focusWorkload:       "default/abcd",
+			testDirName:         "onlineboutique_workloads", // this dir contains only warning of the non existing workload
+			expectedConnsOutput: "",
+			notExistingWorkload: true,
 		},
 	}
 
@@ -202,11 +210,19 @@ func TestConnListWithFocusWorkload(t *testing.T) {
 		analyzerWithFocusWorkload := NewConnlistAnalyzer(WithFocusWorkload(entry.focusWorkload))
 		dirPath := filepath.Join(testutils.GetTestsDir(), entry.testDirName)
 		res, _, err := analyzerWithFocusWorkload.ConnlistFromDirPath(dirPath)
-		require.Nil(t, err)
-		require.Len(t, res, entry.focusedConnsLen)
+		require.Nil(t, err, "test: %s", entry.name)
 		out, err := analyzerWithFocusWorkload.ConnectionsListToString(res)
-		require.Nil(t, err)
-		require.Equal(t, entry.expectedConnsOutput, out)
+		require.Nil(t, err, "test: %s", entry.name)
+		require.Equal(t, entry.expectedConnsOutput, out, "test: %s", entry.name)
+		if entry.notExistingWorkload {
+			// at least one error, one is the warning error on not existing workload
+			caErrors := analyzerWithFocusWorkload.Errors()
+			require.GreaterOrEqual(t, len(caErrors), 1, "test: %s", entry.name)
+			warnType := &connlistAnalyzerWarning{}
+			if len(caErrors) == 1 {
+				require.True(t, errors.As(caErrors[0].Error(), &warnType), "test: %s", entry.name)
+			}
+		}
 	}
 }
 
