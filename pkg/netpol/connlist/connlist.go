@@ -415,7 +415,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	}
 	connsRes = append(connsRes, ingressAllowedConns...)
 
-	if len(peersAllowedConns) == 0 {
+	if ca.focusWorkload == "" && len(peersAllowedConns) == 0 {
 		ca.logger.Warnf("connectivity analysis found no allowed connectivity between pairs from the configured workloads or external IP-blocks")
 	}
 
