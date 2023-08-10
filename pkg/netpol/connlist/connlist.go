@@ -455,6 +455,10 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		return nil, err
 	}
 	for peerStr, peerAndConn := range ingressConns {
+		// refines to only relevant connections if ca.focusWorkload is not empty
+		if !ca.includePairOfWorkloads(ingressControllerPod, peerAndConn.Peer) {
+			continue
+		}
 		// compute allowed connections based on pe.policies to the peer, then intersect the conns with
 		// ingress connections to the peer -> the intersection will be appended to the result
 		peConn, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(ingressControllerPod, peerAndConn.Peer)
