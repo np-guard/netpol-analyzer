@@ -163,9 +163,26 @@ func TestConnListWithFocusWorkload(t *testing.T) {
 				"{ingress-controller} => default/details-v1-79f774bdb9[ReplicaSet] : TCP 9080",
 		},
 		{
+			name:            "test focus workload with <workload-namespace>/<workload-name> format",
+			testDirName:     "acs-security-demos-added-workloads",
+			focusWorkload:   "backend/recommendation",
+			focusedConnsLen: 4,
+			expectedConnsOutput: "backend/checkout[Deployment] => backend/recommendation[Deployment] : TCP 8080\n" +
+				"backend/recommendation[Deployment] => backend/catalog[Deployment] : TCP 8080\n" +
+				"backend/reports[Deployment] => backend/recommendation[Deployment] : TCP 8080\n" +
+				"frontend/webapp[Deployment] => backend/recommendation[Deployment] : TCP 8080",
+		},
+		{
 			name:                "test with external ingress conns enabled to multiple workloads, refined by one workload name",
 			testDirName:         "acs-security-demos-added-workloads",
 			focusWorkload:       "asset-cache",
+			focusedConnsLen:     1,
+			expectedConnsOutput: "{ingress-controller} => frontend/asset-cache[Deployment] : TCP 8080",
+		},
+		{
+			name:                "test with external ingress conns enabled to multiple workloads, refined by one workload with ns/name format",
+			testDirName:         "acs-security-demos-added-workloads",
+			focusWorkload:       "frontend/asset-cache",
 			focusedConnsLen:     1,
 			expectedConnsOutput: "{ingress-controller} => frontend/asset-cache[Deployment] : TCP 8080",
 		},

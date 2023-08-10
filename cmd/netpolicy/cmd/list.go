@@ -124,7 +124,8 @@ defined`,
 
 	// define any flags and configuration settings.
 	// Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
-	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "", "Focus connections of specified workload name in the output")
+	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "",
+		"Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)")
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
 	c.Flags().StringVarP(&output, "output", "o", common.DefaultFormat, "Required output format ("+supportedFormats+")")

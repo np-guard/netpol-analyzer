@@ -17,6 +17,7 @@ import (
 	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 
 	v1 "k8s.io/api/core/v1"
@@ -354,10 +355,12 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 		return true
 	}
 	// at least one of src/dst should be the focus workload
-	if !src.IsPeerIPType() && src.Name() == ca.focusWorkload {
+	srcNsNameFormat := types.NamespacedName{Namespace: src.Namespace(), Name: src.Name()}.String()
+	if !src.IsPeerIPType() && (src.Name() == ca.focusWorkload || ca.focusWorkload == srcNsNameFormat) {
 		return true
 	}
-	if !dst.IsPeerIPType() && dst.Name() == ca.focusWorkload {
+	dstNsNameFormat := types.NamespacedName{Namespace: dst.Namespace(), Name: dst.Name()}.String()
+	if !dst.IsPeerIPType() && (dst.Name() == ca.focusWorkload || ca.focusWorkload == dstNsNameFormat) {
 		return true
 	}
 	return false
