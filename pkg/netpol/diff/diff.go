@@ -87,6 +87,24 @@ func (da *DiffAnalyzer) Errors() []DiffError {
 	return da.errors
 }
 
+// return true if has fatal error or severe with flag stopOnError
+func (da *DiffAnalyzer) stopProcessing() bool {
+	for idx := range da.errors {
+		if da.errors[idx].IsFatal() || da.stopOnError && da.errors[idx].IsSevere() {
+			return true
+		}
+	}
+	return false
+}
+
+// appending connlist warnings and severe errors to diff_errors
+func (da *DiffAnalyzer) appendConnlistErrorsToDiffErrors(caErrors []connlist.ConnlistError) {
+	for _, e := range caErrors {
+		// interfaces ConnlistError and DiffError has same functionality, so we can append to each other implicitly
+		da.errors = append(da.errors, e)
+	}
+}
+
 // ConnDiffFromDirPaths returns the connectivity diffs from two dir paths containing k8s resources
 func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (ConnectivityDiff, error) {
 	var caAnalyzer *connlist.ConnlistAnalyzer
@@ -104,16 +122,19 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 		da.errors = append(da.errors, newConnectionsAnalyzingError(err, true, false))
 		return nil, err
 	}
+	da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
+	if da.stopProcessing() {
+		return &connectivityDiff{}, nil
+	}
 	if conns2, workloads2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
 		da.errors = append(da.errors, newConnectionsAnalyzingError(err, true, false))
 		return nil, err
 	}
-	workloadsNames1, workloadsNames2 = getPeersNamesFromPeersList(workloads1), getPeersNamesFromPeersList(workloads2)
-
-	// appending connlist warnings and severe errors to diff_errors
-	for _, e := range caAnalyzer.Errors() {
-		da.errors = append(da.errors, e)
+	da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
+	if da.stopProcessing() {
+		return &connectivityDiff{}, nil
 	}
+	workloadsNames1, workloadsNames2 = getPeersNamesFromPeersList(workloads1), getPeersNamesFromPeersList(workloads2)
 
 	// get disjoint ip-blocks from both configs
 	ipPeers1, ipPeers2 := getIPblocksFromConnList(conns1), getIPblocksFromConnList(conns2)
