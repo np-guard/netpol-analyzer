@@ -50,7 +50,6 @@ func TestDiff(t *testing.T) {
 			secondDirName: "onlineboutique_workloads_changed_workloads",
 			formats:       allFormats,
 		},
-
 		{
 			// description:
 			// **changed netpols: default/frontend-netpol

@@ -18,8 +18,7 @@ type diffFormatter interface {
 
 const (
 	noConns    = "No Connections"
-	infoPrefix = " (workload "
-	infoSuffix = ")"
+	infoPrefix = "workload "
 	space      = " "
 	and        = " and "
 )
@@ -27,11 +26,12 @@ const (
 var newLine = fmt.Sprintln("")
 
 type singleDiffFields struct {
-	src      string
-	dst      string
-	dir1Conn string
-	dir2Conn string
-	diffType string
+	diffType         string
+	src              string
+	dst              string
+	dir1Conn         string
+	dir2Conn         string
+	workloadDiffInfo string
 }
 
 func formDiffFieldsDataOfDiffConns(diffConns []*ConnsPair) (netpolsDiff, ingressDiff []*singleDiffFields) {
@@ -41,11 +41,12 @@ func formDiffFieldsDataOfDiffConns(diffConns []*ConnsPair) (netpolsDiff, ingress
 		firstDirConn, secondDirConn := getDirsConnsStrings(d)
 		srcStr, dstStr, isSrcIngress := getConnPeersStrings(d)
 		diffData := &singleDiffFields{
-			src:      srcStr,
-			dst:      dstStr,
-			dir1Conn: firstDirConn,
-			dir2Conn: secondDirConn,
-			diffType: getDiffInfo(d),
+			diffType:         d.diffType,
+			src:              srcStr,
+			dst:              dstStr,
+			dir1Conn:         firstDirConn,
+			dir2Conn:         secondDirConn,
+			workloadDiffInfo: getDiffInfo(d),
 		}
 		if isSrcIngress {
 			ingressRes = append(ingressRes, diffData)
@@ -81,12 +82,9 @@ func getDirsConnsStrings(c *ConnsPair) (dir1Str, dir2Str string) {
 
 // computes the diff string (if to include added/removed workloads)
 func getDiffInfo(c *ConnsPair) string {
-	if c.diffType == changedType {
-		return changedType
-	}
 	srcStr, dstStr, _ := getConnPeersStrings(c)
+	diffInfo := ""
 	// handling added or removed diff data
-	diffInfo := c.diffType
 	includedSrcFlag := false
 	if c.newOrLostSrc || c.newOrLostDst {
 		diffInfo += infoPrefix
@@ -100,7 +98,7 @@ func getDiffInfo(c *ConnsPair) string {
 			}
 			diffInfo += dstStr
 		}
-		diffInfo += space + c.diffType + infoSuffix
+		diffInfo += space + c.diffType
 	}
 	return diffInfo
 }
@@ -160,8 +158,12 @@ func (t *diffFormatText) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 }
 
 func (t *diffFormatText) singleDiffLine(d *singleDiffFields) string {
-	return fmt.Sprintf("source: %s, destination: %s, dir1:  %s, dir2: %s, diff-type: %s",
-		d.src, d.dst, d.dir1Conn, d.dir2Conn, d.diffType)
+	diffLine := fmt.Sprintf("diff-type: %s, source: %s, destination: %s, dir1:  %s, dir2: %s", d.diffType,
+		d.src, d.dst, d.dir1Conn, d.dir2Conn)
+	if d.workloadDiffInfo != "" {
+		return diffLine + ", workloads-diff-info: " + d.workloadDiffInfo
+	}
+	return diffLine
 }
 
 // /////////////////////////
@@ -169,7 +171,8 @@ func (t *diffFormatText) singleDiffLine(d *singleDiffFields) string {
 type diffFormatMD struct {
 }
 
-var mdHeader = "| source | destination | dir1 | dir2 | diff-type |\n|--------|-------------|------|------|-----------|"
+var mdHeader = "| diff-type | source | destination | dir1 | dir2 | workloads-diff-info |\n" +
+	"|-----------|--------|-------------|------|------|---------------------|"
 
 // returns md string format of connections diff from connectivityDiff object
 func (md *diffFormatMD) writeDiffOutput(connsDiff ConnectivityDiff) (string, error) {
@@ -180,8 +183,8 @@ func (md *diffFormatMD) writeDiffOutput(connsDiff ConnectivityDiff) (string, err
 }
 
 func (md *diffFormatMD) singleDiffLine(d *singleDiffFields) string {
-	return fmt.Sprintf("| %s | %s | %s | %s | %s |",
-		d.src, d.dst, d.dir1Conn, d.dir2Conn, d.diffType)
+	return fmt.Sprintf("| %s | %s | %s | %s | %s | %s |",
+		d.diffType, d.src, d.dst, d.dir1Conn, d.dir2Conn, d.workloadDiffInfo)
 }
 
 // /////////////////////////
@@ -189,7 +192,7 @@ func (md *diffFormatMD) singleDiffLine(d *singleDiffFields) string {
 type diffFormatCSV struct {
 }
 
-var csvHeader = []string{"source", "destination", "dir1", "dir2", "diff-type"}
+var csvHeader = []string{"diff-type", "source", "destination", "dir1", "dir2", "workloads-diff-info"}
 
 func (cs *diffFormatCSV) writeDiffOutput(connsDiff ConnectivityDiff) (string, error) {
 	changesSortedByCategory := writeDiffLinesOrderedByCategory(connsDiff, cs)
@@ -210,5 +213,5 @@ func (cs *diffFormatCSV) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 }
 
 func (cs *diffFormatCSV) singleDiffLine(d *singleDiffFields) string {
-	return fmt.Sprintf("%s;%s;%s;%s;%s", d.src, d.dst, d.dir1Conn, d.dir2Conn, d.diffType)
+	return fmt.Sprintf("%s;%s;%s;%s;%s;%s", d.diffType, d.src, d.dst, d.dir1Conn, d.dir2Conn, d.workloadDiffInfo)
 }

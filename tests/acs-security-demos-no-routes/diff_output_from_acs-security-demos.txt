@@ -1,3 +1,3 @@
 Connectivity diff:
-source: {ingress-controller}, destination: frontend/asset-cache[Deployment], dir1:  TCP 8080, dir2: No Connections, diff-type: removed
-source: {ingress-controller}, destination: frontend/webapp[Deployment], dir1:  TCP 8080, dir2: No Connections, diff-type: removed
+diff-type: removed, source: {ingress-controller}, destination: frontend/asset-cache[Deployment], dir1:  TCP 8080, dir2: No Connections
+diff-type: removed, source: {ingress-controller}, destination: frontend/webapp[Deployment], dir1:  TCP 8080, dir2: No Connections
