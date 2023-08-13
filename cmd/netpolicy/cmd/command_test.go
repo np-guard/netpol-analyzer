@@ -241,7 +241,33 @@ func TestCommands(t *testing.T) {
 			exact:          true,
 			isErr:          false,
 		},
-
+		{
+			name: "test_legal_list_with_focus_workload_format_of_ns_and_name",
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				"--focusworkload",
+				"default/emailservice",
+			},
+			expectedOutput: "default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080",
+			exact:          true,
+			isErr:          false,
+		},
+		{
+			name: "test_legal_list_with_focus_workload_of_ingress_controller",
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "acs-security-demos"),
+				"--focusworkload",
+				"ingress-controller",
+			},
+			expectedOutput: "{ingress-controller} => frontend/asset-cache[Deployment] : TCP 8080\n" +
+				"{ingress-controller} => frontend/webapp[Deployment] : TCP 8080",
+			exact: true,
+			isErr: false,
+		},
 		{
 			name: "test_legal_list_with_focus_workload_json_output",
 			args: []string{

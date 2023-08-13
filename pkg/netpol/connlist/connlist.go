@@ -17,6 +17,7 @@ import (
 	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 
 	v1 "k8s.io/api/core/v1"
@@ -354,13 +355,15 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 		return true
 	}
 	// at least one of src/dst should be the focus workload
-	if !src.IsPeerIPType() && src.Name() == ca.focusWorkload {
-		return true
-	}
-	if !dst.IsPeerIPType() && dst.Name() == ca.focusWorkload {
-		return true
-	}
-	return false
+	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
+}
+
+func getPeerNsNameFormat(peer eval.Peer) string {
+	return types.NamespacedName{Namespace: peer.Namespace(), Name: peer.Name()}.String()
+}
+
+func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer eval.Peer) bool {
+	return !peer.IsPeerIPType() && (peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload)
 }
 
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
@@ -371,16 +374,38 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		return connsRes, []Peer{}, nil
 	}
 
+	// get workload peers and ip blocks
+	peerList, err := pe.GetPeersList()
+	if err != nil {
+		ca.errors = append(ca.errors, newResourceEvaluationError(err))
+		return nil, nil, err
+	}
+	// represent peerList as []connlist.Peer list to be returned
+	peers := make([]Peer, len(peerList))
+	for i, p := range peerList {
+		peers[i] = p
+	}
+
+	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
+
+	// if ca.focusWorkload is not empty, check if it exists in the peers before proceeding
+	existFocusWorkload, warningMsg := ca.existsFocusWorkload(peers, excludeIngressAnalysis)
+	if ca.focusWorkload != "" && !existFocusWorkload {
+		ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
+		ca.logger.Warnf(warningMsg)
+		return nil, nil, nil
+	}
+
 	// compute connections between peers based on pe analysis of network policies
-	peersAllowedConns, peersRes, err := ca.getConnectionsBetweenPeers(pe)
+	peersAllowedConns, err := ca.getConnectionsBetweenPeers(pe, peers)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
 	}
 	connsRes = peersAllowedConns
 
-	if ia == nil || ia.IsEmpty() {
-		return connsRes, peersRes, nil
+	if excludeIngressAnalysis {
+		return connsRes, peers, nil
 	}
 
 	// analyze ingress connections - create connection objects for relevant ingress analyzer connections
@@ -391,38 +416,48 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	}
 	connsRes = append(connsRes, ingressAllowedConns...)
 
-	if len(peersAllowedConns) == 0 {
-		ca.logger.Warnf("connectivity analysis found no allowed connectivity between pairs from the configured workloads or external IP-blocks")
+	if ca.focusWorkload == "" && len(peersAllowedConns) == 0 {
+		ca.logger.Warnf("Connectivity analysis found no allowed connectivity between pairs from the configured workloads or external IP-blocks")
 	}
 
-	return connsRes, peersRes, nil
+	return connsRes, peers, nil
+}
+
+// existsFocusWorkload checks if the provided focus workload is ingress-controller
+// or if it exists in the peers list from the parsed resources
+// if not returns a suitable warning message
+func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnalysis bool) (existFocusWorkload bool, warning string) {
+	if ca.focusWorkload == ingressanalyzer.IngressPodName {
+		if excludeIngressAnalysis { // if the ingress-analyzer is empty,
+			// then no routes/k8s-ingress objects -> ingrss-controller pod will not be added
+			return false, "The ingress-controller workload was not added to the analysis, since Ingress/Route resources were not found." +
+				" Connectivity map report will be empty."
+		}
+		return true, ""
+	}
+
+	// check if the focusworkload is in the peers
+	for _, peer := range peers {
+		if ca.focusWorkload == peer.Name() || ca.focusWorkload == getPeerNsNameFormat(peer) {
+			return true, ""
+		}
+	}
+	return false, "Workload " + ca.focusWorkload + " does not exist in the input resources. Connectivity map report will be empty."
 }
 
 // getConnectionsBetweenPeers returns connections list from PolicyEngine object
-func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine) ([]Peer2PeerConnection, []Peer, error) {
-	// get workload peers and ip blocks
-	peerList, err := pe.GetPeersList()
-	if err != nil {
-		ca.errors = append(ca.errors, newResourceEvaluationError(err))
-		return nil, nil, err
-	}
-
-	peers := make([]Peer, len(peerList))
-	for i, p := range peerList {
-		peers[i] = p
-	}
-
+func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, peers []Peer) ([]Peer2PeerConnection, error) {
 	connsRes := make([]Peer2PeerConnection, 0)
-	for i := range peerList {
-		srcPeer := peerList[i]
-		for j := range peerList {
-			dstPeer := peerList[j]
+	for i := range peers {
+		srcPeer := peers[i]
+		for j := range peers {
+			dstPeer := peers[j]
 			if !ca.includePairOfWorkloads(srcPeer, dstPeer) {
 				continue
 			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
 			// skip empty connections
 			if allowedConnections.IsEmpty() {
@@ -438,7 +473,7 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine) ([
 		}
 	}
 
-	return connsRes, peers, nil
+	return connsRes, nil
 }
 
 // getIngressAllowedConnections returns connections list from IngressAnalyzer intersected with PolicyEngine's connections
@@ -455,6 +490,10 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		return nil, err
 	}
 	for peerStr, peerAndConn := range ingressConns {
+		// refines to only relevant connections if ca.focusWorkload is not empty
+		if !ca.includePairOfWorkloads(ingressControllerPod, peerAndConn.Peer) {
+			continue
+		}
 		// compute allowed connections based on pe.policies to the peer, then intersect the conns with
 		// ingress connections to the peer -> the intersection will be appended to the result
 		peConn, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(ingressControllerPod, peerAndConn.Peer)
@@ -494,8 +533,8 @@ func (ca *ConnlistAnalyzer) warnBlockedIngress(peerStr string, ingressObjs map[s
 		warningMsg = "Route resource " + ingressObjs[scan.Route][0]
 	}
 	warningMsg += " specified workload " + peerStr + " as a backend, but network policies are blocking " +
-		"ingress connections from an arbitrary in-cluster source to this workload." +
+		"ingress connections from an arbitrary in-cluster source to this workload. " +
 		"Connectivity map will not include a possibly allowed connection between the ingress controller and this workload."
-	ca.errors = append(ca.errors, newIngressAnalyzerConnsBlockedWarning(errors.New(warningMsg)))
+	ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
 	ca.logger.Warnf(warningMsg)
 }

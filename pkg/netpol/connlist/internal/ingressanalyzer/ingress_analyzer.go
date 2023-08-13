@@ -126,7 +126,7 @@ func (ia *IngressAnalyzer) mapServiceToPeers(svc *corev1.Service) error {
 func (ia *IngressAnalyzer) getServiceSelectedPeers(svc *corev1.Service) ([]eval.Peer, error) {
 	svcStr := types.NamespacedName{Name: svc.Name, Namespace: svc.Namespace}.String()
 	if svc.Spec.Selector == nil {
-		ia.logger.Warnf("ignoring " + scan.Service + whiteSpace + svcStr + colon + missingSelectorWarning)
+		ia.logger.Warnf("Ignoring " + scan.Service + whiteSpace + svcStr + colon + missingSelectorWarning)
 		return nil, nil
 	}
 	svcLabelsSelector, err := convertServiceSelectorToLabelSelector(svc.Spec.Selector)
@@ -337,7 +337,7 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string,
 	for _, svc := range svcList {
 		peersAndPorts, ok := ia.servicesToPortsAndPeersMap[ns][svc.serviceName]
 		if !ok {
-			ia.logger.Warnf("ignoring target service " + svc.serviceName + " : service not found")
+			ia.logger.Warnf("Ignoring target service " + svc.serviceName + " : service not found")
 		}
 		for _, peer := range peersAndPorts.peers {
 			currIngressPeerConn, err := ia.getIngressPeerConnection(peer, peersAndPorts.ports, svc.servicePort)
