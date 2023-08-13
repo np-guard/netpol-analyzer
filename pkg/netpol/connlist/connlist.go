@@ -358,8 +358,8 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
 }
 
-func getPeerNsNameFormat(eval.Peer) string {
-  return types.NamespacedName{Namespace: peer.Namespace(), Name: peer.Name()}.String()
+func getPeerNsNameFormat(peer eval.Peer) string {
+	return types.NamespacedName{Namespace: peer.Namespace(), Name: peer.Name()}.String()
 }
 
 func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer eval.Peer) bool {
@@ -437,8 +437,7 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(peerList []eval.Peer, excludeIA 
 
 	// check if the focusworkload is in the peerList
 	for _, peer := range peerList {
-		peerNsNameFormat := types.NamespacedName{Namespace: peer.Namespace(), Name: peer.Name()}.String()
-		if ca.focusWorkload == peer.Name() || ca.focusWorkload == peerNsNameFormat {
+		if ca.focusWorkload == peer.Name() || ca.focusWorkload == getPeerNsNameFormat(peer) {
 			return true
 		}
 	}
