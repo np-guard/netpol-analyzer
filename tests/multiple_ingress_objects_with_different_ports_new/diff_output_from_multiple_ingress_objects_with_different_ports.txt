@@ -1,2 +1,2 @@
 Connectivity diff:
-source: {ingress-controller}, destination: ingressworld/ingress-world-multiple-ports[Deployment], dir1:  TCP 8050,8090, dir2: TCP 8000,8090, diff-type: changed
+diff-type: changed, source: {ingress-controller}, destination: ingressworld/ingress-world-multiple-ports[Deployment], dir1:  TCP 8050,8090, dir2: TCP 8000,8090, workloads-diff-info: 

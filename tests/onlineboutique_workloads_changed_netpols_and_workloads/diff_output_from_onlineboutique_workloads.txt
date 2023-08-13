@@ -1,11 +1,11 @@
 Connectivity diff:
-source: default/checkoutservice[Deployment], destination: default/cartservice[Deployment], dir1:  TCP 7070, dir2: TCP 8000, diff-type: changed
-source: default/checkoutservice[Deployment], destination: default/emailservice[Deployment], dir1:  TCP 8080, dir2: TCP 8080,9555, diff-type: changed
-source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)
-source: default/cartservice[Deployment], destination: default/emailservice[Deployment], dir1:  No Connections, dir2: TCP 9555, diff-type: added
-source: default/checkoutservice[Deployment], destination: default/adservice[Deployment], dir1:  No Connections, dir2: TCP 9555, diff-type: added
-source: default/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:  No Connections, dir2: All Connections, diff-type: added (workload default/unicorn[Deployment] added)
-source: 128.0.0.0-255.255.255.255, destination: default/redis-cart[Deployment], dir1:  All Connections, dir2: No Connections, diff-type: removed
-source: default/checkoutservice[Deployment], destination: default/currencyservice[Deployment], dir1:  TCP 7000, dir2: No Connections, diff-type: removed
-source: default/frontend[Deployment], destination: default/adservice[Deployment], dir1:  TCP 9555, dir2: No Connections, diff-type: removed
-source: default/redis-cart[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:  All Connections, dir2: No Connections, diff-type: removed
+diff-type: changed, source: default/checkoutservice[Deployment], destination: default/cartservice[Deployment], dir1:  TCP 7070, dir2: TCP 8000, workloads-diff-info: 
+diff-type: changed, source: default/checkoutservice[Deployment], destination: default/emailservice[Deployment], dir1:  TCP 8080, dir2: TCP 8080,9555, workloads-diff-info: 
+diff-type: added, source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], dir1:  No Connections, dir2: All Connections, workloads-diff-info: added default/unicorn[Deployment]
+diff-type: added, source: default/cartservice[Deployment], destination: default/emailservice[Deployment], dir1:  No Connections, dir2: TCP 9555, workloads-diff-info: 
+diff-type: added, source: default/checkoutservice[Deployment], destination: default/adservice[Deployment], dir1:  No Connections, dir2: TCP 9555, workloads-diff-info: 
+diff-type: added, source: default/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:  No Connections, dir2: All Connections, workloads-diff-info: added default/unicorn[Deployment]
+diff-type: removed, source: 128.0.0.0-255.255.255.255, destination: default/redis-cart[Deployment], dir1:  All Connections, dir2: No Connections, workloads-diff-info: 
+diff-type: removed, source: default/checkoutservice[Deployment], destination: default/currencyservice[Deployment], dir1:  TCP 7000, dir2: No Connections, workloads-diff-info: 
+diff-type: removed, source: default/frontend[Deployment], destination: default/adservice[Deployment], dir1:  TCP 9555, dir2: No Connections, workloads-diff-info: 
+diff-type: removed, source: default/redis-cart[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:  All Connections, dir2: No Connections, workloads-diff-info: 

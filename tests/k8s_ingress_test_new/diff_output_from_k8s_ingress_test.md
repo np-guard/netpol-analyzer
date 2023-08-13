@@ -1,48 +1,48 @@
-| source | destination | dir1 | dir2 | diff-type |
-|--------|-------------|------|------|-----------|
-| default/reviews-v1-545db77b95[ReplicaSet] | default/productpage-v1-6b746f74dc[ReplicaSet] | All Connections | TCP 9080 | changed |
-| default/reviews-v1-545db77b95[ReplicaSet] | default/ratings-v1-b6994bb9[ReplicaSet] | All Connections | TCP 9080 | changed |
-| default/reviews-v2-7bf8c9648f[ReplicaSet] | default/productpage-v1-6b746f74dc[ReplicaSet] | All Connections | TCP 9080 | changed |
-| default/reviews-v2-7bf8c9648f[ReplicaSet] | default/ratings-v1-b6994bb9[ReplicaSet] | All Connections | TCP 9080 | changed |
-| default/reviews-v3-84779c7bbc[ReplicaSet] | default/productpage-v1-6b746f74dc[ReplicaSet] | All Connections | TCP 9080 | changed |
-| default/reviews-v3-84779c7bbc[ReplicaSet] | default/ratings-v1-b6994bb9[ReplicaSet] | All Connections | TCP 9080 | changed |
-| 0.0.0.0-255.255.255.255 | default/unicorn[Deployment] | No Connections | All Connections | added (workload default/unicorn[Deployment] added) |
-| default/unicorn[Deployment] | 0.0.0.0-255.255.255.255 | No Connections | All Connections | added (workload default/unicorn[Deployment] added) |
-| default/unicorn[Deployment] | default/details-v1-79f774bdb9[ReplicaSet] | No Connections | TCP 9080 | added (workload default/unicorn[Deployment] added) |
-| 0.0.0.0-255.255.255.255 | default/details-v1-79f774bdb9[ReplicaSet] | All Connections | No Connections | removed |
-| 0.0.0.0-255.255.255.255 | default/productpage-v1-6b746f74dc[ReplicaSet] | All Connections | No Connections | removed |
-| 0.0.0.0-255.255.255.255 | default/ratings-v1-b6994bb9[ReplicaSet] | All Connections | No Connections | removed |
-| 0.0.0.0-255.255.255.255 | default/reviews-v1-545db77b95[ReplicaSet] | All Connections | No Connections | removed |
-| 0.0.0.0-255.255.255.255 | default/reviews-v2-7bf8c9648f[ReplicaSet] | All Connections | No Connections | removed |
-| 0.0.0.0-255.255.255.255 | default/reviews-v3-84779c7bbc[ReplicaSet] | All Connections | No Connections | removed |
-| default/details-v1-79f774bdb9[ReplicaSet] | 0.0.0.0-255.255.255.255 | All Connections | No Connections | removed |
-| default/details-v1-79f774bdb9[ReplicaSet] | default/productpage-v1-6b746f74dc[ReplicaSet] | All Connections | No Connections | removed |
-| default/details-v1-79f774bdb9[ReplicaSet] | default/ratings-v1-b6994bb9[ReplicaSet] | All Connections | No Connections | removed |
-| default/details-v1-79f774bdb9[ReplicaSet] | default/reviews-v1-545db77b95[ReplicaSet] | All Connections | No Connections | removed |
-| default/details-v1-79f774bdb9[ReplicaSet] | default/reviews-v2-7bf8c9648f[ReplicaSet] | All Connections | No Connections | removed |
-| default/details-v1-79f774bdb9[ReplicaSet] | default/reviews-v3-84779c7bbc[ReplicaSet] | All Connections | No Connections | removed |
-| default/productpage-v1-6b746f74dc[ReplicaSet] | 0.0.0.0-255.255.255.255 | All Connections | No Connections | removed |
-| default/productpage-v1-6b746f74dc[ReplicaSet] | default/details-v1-79f774bdb9[ReplicaSet] | All Connections | No Connections | removed |
-| default/productpage-v1-6b746f74dc[ReplicaSet] | default/ratings-v1-b6994bb9[ReplicaSet] | All Connections | No Connections | removed |
-| default/productpage-v1-6b746f74dc[ReplicaSet] | default/reviews-v1-545db77b95[ReplicaSet] | All Connections | No Connections | removed |
-| default/productpage-v1-6b746f74dc[ReplicaSet] | default/reviews-v2-7bf8c9648f[ReplicaSet] | All Connections | No Connections | removed |
-| default/productpage-v1-6b746f74dc[ReplicaSet] | default/reviews-v3-84779c7bbc[ReplicaSet] | All Connections | No Connections | removed |
-| default/ratings-v1-b6994bb9[ReplicaSet] | 0.0.0.0-255.255.255.255 | All Connections | No Connections | removed |
-| default/ratings-v1-b6994bb9[ReplicaSet] | default/details-v1-79f774bdb9[ReplicaSet] | All Connections | No Connections | removed |
-| default/ratings-v1-b6994bb9[ReplicaSet] | default/productpage-v1-6b746f74dc[ReplicaSet] | All Connections | No Connections | removed |
-| default/ratings-v1-b6994bb9[ReplicaSet] | default/reviews-v1-545db77b95[ReplicaSet] | All Connections | No Connections | removed |
-| default/ratings-v1-b6994bb9[ReplicaSet] | default/reviews-v2-7bf8c9648f[ReplicaSet] | All Connections | No Connections | removed |
-| default/ratings-v1-b6994bb9[ReplicaSet] | default/reviews-v3-84779c7bbc[ReplicaSet] | All Connections | No Connections | removed |
-| default/reviews-v1-545db77b95[ReplicaSet] | 0.0.0.0-255.255.255.255 | All Connections | No Connections | removed |
-| default/reviews-v1-545db77b95[ReplicaSet] | default/details-v1-79f774bdb9[ReplicaSet] | All Connections | No Connections | removed |
-| default/reviews-v1-545db77b95[ReplicaSet] | default/reviews-v2-7bf8c9648f[ReplicaSet] | All Connections | No Connections | removed |
-| default/reviews-v1-545db77b95[ReplicaSet] | default/reviews-v3-84779c7bbc[ReplicaSet] | All Connections | No Connections | removed |
-| default/reviews-v2-7bf8c9648f[ReplicaSet] | 0.0.0.0-255.255.255.255 | All Connections | No Connections | removed |
-| default/reviews-v2-7bf8c9648f[ReplicaSet] | default/details-v1-79f774bdb9[ReplicaSet] | All Connections | No Connections | removed |
-| default/reviews-v2-7bf8c9648f[ReplicaSet] | default/reviews-v1-545db77b95[ReplicaSet] | All Connections | No Connections | removed |
-| default/reviews-v2-7bf8c9648f[ReplicaSet] | default/reviews-v3-84779c7bbc[ReplicaSet] | All Connections | No Connections | removed |
-| default/reviews-v3-84779c7bbc[ReplicaSet] | 0.0.0.0-255.255.255.255 | All Connections | No Connections | removed |
-| default/reviews-v3-84779c7bbc[ReplicaSet] | default/details-v1-79f774bdb9[ReplicaSet] | All Connections | No Connections | removed |
-| default/reviews-v3-84779c7bbc[ReplicaSet] | default/reviews-v1-545db77b95[ReplicaSet] | All Connections | No Connections | removed |
-| default/reviews-v3-84779c7bbc[ReplicaSet] | default/reviews-v2-7bf8c9648f[ReplicaSet] | All Connections | No Connections | removed |
-| {ingress-controller} | default/unicorn[Deployment] | No Connections | TCP 8080 | added (workload default/unicorn[Deployment] added) |
+| diff-type | source | destination | dir1 | dir2 | workloads-diff-info |
+|-----------|--------|-------------|------|------|---------------------|
+| changed | default/reviews-v1-545db77b95[ReplicaSet] | default/productpage-v1-6b746f74dc[ReplicaSet] | All Connections | TCP 9080 |  |
+| changed | default/reviews-v1-545db77b95[ReplicaSet] | default/ratings-v1-b6994bb9[ReplicaSet] | All Connections | TCP 9080 |  |
+| changed | default/reviews-v2-7bf8c9648f[ReplicaSet] | default/productpage-v1-6b746f74dc[ReplicaSet] | All Connections | TCP 9080 |  |
+| changed | default/reviews-v2-7bf8c9648f[ReplicaSet] | default/ratings-v1-b6994bb9[ReplicaSet] | All Connections | TCP 9080 |  |
+| changed | default/reviews-v3-84779c7bbc[ReplicaSet] | default/productpage-v1-6b746f74dc[ReplicaSet] | All Connections | TCP 9080 |  |
+| changed | default/reviews-v3-84779c7bbc[ReplicaSet] | default/ratings-v1-b6994bb9[ReplicaSet] | All Connections | TCP 9080 |  |
+| added | 0.0.0.0-255.255.255.255 | default/unicorn[Deployment] | No Connections | All Connections | added default/unicorn[Deployment] |
+| added | default/unicorn[Deployment] | 0.0.0.0-255.255.255.255 | No Connections | All Connections | added default/unicorn[Deployment] |
+| added | default/unicorn[Deployment] | default/details-v1-79f774bdb9[ReplicaSet] | No Connections | TCP 9080 | added default/unicorn[Deployment] |
+| removed | 0.0.0.0-255.255.255.255 | default/details-v1-79f774bdb9[ReplicaSet] | All Connections | No Connections |  |
+| removed | 0.0.0.0-255.255.255.255 | default/productpage-v1-6b746f74dc[ReplicaSet] | All Connections | No Connections |  |
+| removed | 0.0.0.0-255.255.255.255 | default/ratings-v1-b6994bb9[ReplicaSet] | All Connections | No Connections |  |
+| removed | 0.0.0.0-255.255.255.255 | default/reviews-v1-545db77b95[ReplicaSet] | All Connections | No Connections |  |
+| removed | 0.0.0.0-255.255.255.255 | default/reviews-v2-7bf8c9648f[ReplicaSet] | All Connections | No Connections |  |
+| removed | 0.0.0.0-255.255.255.255 | default/reviews-v3-84779c7bbc[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/details-v1-79f774bdb9[ReplicaSet] | 0.0.0.0-255.255.255.255 | All Connections | No Connections |  |
+| removed | default/details-v1-79f774bdb9[ReplicaSet] | default/productpage-v1-6b746f74dc[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/details-v1-79f774bdb9[ReplicaSet] | default/ratings-v1-b6994bb9[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/details-v1-79f774bdb9[ReplicaSet] | default/reviews-v1-545db77b95[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/details-v1-79f774bdb9[ReplicaSet] | default/reviews-v2-7bf8c9648f[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/details-v1-79f774bdb9[ReplicaSet] | default/reviews-v3-84779c7bbc[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/productpage-v1-6b746f74dc[ReplicaSet] | 0.0.0.0-255.255.255.255 | All Connections | No Connections |  |
+| removed | default/productpage-v1-6b746f74dc[ReplicaSet] | default/details-v1-79f774bdb9[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/productpage-v1-6b746f74dc[ReplicaSet] | default/ratings-v1-b6994bb9[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/productpage-v1-6b746f74dc[ReplicaSet] | default/reviews-v1-545db77b95[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/productpage-v1-6b746f74dc[ReplicaSet] | default/reviews-v2-7bf8c9648f[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/productpage-v1-6b746f74dc[ReplicaSet] | default/reviews-v3-84779c7bbc[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/ratings-v1-b6994bb9[ReplicaSet] | 0.0.0.0-255.255.255.255 | All Connections | No Connections |  |
+| removed | default/ratings-v1-b6994bb9[ReplicaSet] | default/details-v1-79f774bdb9[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/ratings-v1-b6994bb9[ReplicaSet] | default/productpage-v1-6b746f74dc[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/ratings-v1-b6994bb9[ReplicaSet] | default/reviews-v1-545db77b95[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/ratings-v1-b6994bb9[ReplicaSet] | default/reviews-v2-7bf8c9648f[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/ratings-v1-b6994bb9[ReplicaSet] | default/reviews-v3-84779c7bbc[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/reviews-v1-545db77b95[ReplicaSet] | 0.0.0.0-255.255.255.255 | All Connections | No Connections |  |
+| removed | default/reviews-v1-545db77b95[ReplicaSet] | default/details-v1-79f774bdb9[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/reviews-v1-545db77b95[ReplicaSet] | default/reviews-v2-7bf8c9648f[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/reviews-v1-545db77b95[ReplicaSet] | default/reviews-v3-84779c7bbc[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/reviews-v2-7bf8c9648f[ReplicaSet] | 0.0.0.0-255.255.255.255 | All Connections | No Connections |  |
+| removed | default/reviews-v2-7bf8c9648f[ReplicaSet] | default/details-v1-79f774bdb9[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/reviews-v2-7bf8c9648f[ReplicaSet] | default/reviews-v1-545db77b95[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/reviews-v2-7bf8c9648f[ReplicaSet] | default/reviews-v3-84779c7bbc[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/reviews-v3-84779c7bbc[ReplicaSet] | 0.0.0.0-255.255.255.255 | All Connections | No Connections |  |
+| removed | default/reviews-v3-84779c7bbc[ReplicaSet] | default/details-v1-79f774bdb9[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/reviews-v3-84779c7bbc[ReplicaSet] | default/reviews-v1-545db77b95[ReplicaSet] | All Connections | No Connections |  |
+| removed | default/reviews-v3-84779c7bbc[ReplicaSet] | default/reviews-v2-7bf8c9648f[ReplicaSet] | All Connections | No Connections |  |
+| added | {ingress-controller} | default/unicorn[Deployment] | No Connections | TCP 8080 | added default/unicorn[Deployment] |
