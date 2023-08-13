@@ -61,7 +61,8 @@ Examples:
 
 Flags:
   -f, --file string            Write output to specified file
-      --focusworkload       Focus connections of specified workload name in the output
+      --focusworkload       Focus connections of specified workload in the output (supported formats: <workload-name>, <workload-namespace>/<workload-name>)
+                            (to focus connections from Ingress/Route only, use `ingress-controller` as <workload-name>)
   -o, --output string       Required output format (txt, json, dot, csv, md) (default "txt")
   -h, --help   help for list
 

@@ -24,7 +24,7 @@ type resourceEvaluationError struct {
 	origErr error
 }
 
-type ingressAnalyzerConnsBlockedWarning struct {
+type connlistAnalyzerWarning struct {
 	origErr error
 }
 
@@ -36,7 +36,7 @@ func (e *resourceEvaluationError) Error() string {
 	return e.origErr.Error()
 }
 
-func (e *ingressAnalyzerConnsBlockedWarning) Error() string {
+func (e *connlistAnalyzerWarning) Error() string {
 	return e.origErr.Error()
 }
 
@@ -70,6 +70,6 @@ func newResourceEvaluationError(err error) *connlistGeneratingError {
 	return &connlistGeneratingError{err: &resourceEvaluationError{err}, fatal: true, severe: false}
 }
 
-func newIngressAnalyzerConnsBlockedWarning(err error) *connlistGeneratingError {
-	return &connlistGeneratingError{err: &ingressAnalyzerConnsBlockedWarning{err}, fatal: false, severe: false}
+func newConnlistAnalyzerWarning(err error) *connlistGeneratingError {
+	return &connlistGeneratingError{err: &connlistAnalyzerWarning{err}, fatal: false, severe: false}
 }

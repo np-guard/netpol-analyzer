@@ -128,12 +128,102 @@ func TestConnList(t *testing.T) {
 	}
 }
 
-func TestWithFocusWorkload(t *testing.T) {
-	analyzer1 := NewConnlistAnalyzer(WithFocusWorkload("emailservice"))
-	dirPath := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
-	res, _, err := analyzer1.ConnlistFromDirPath(dirPath)
-	require.Len(t, res, 1)
-	require.Nil(t, err)
+func TestConnListWithFocusWorkload(t *testing.T) {
+	cases := []struct {
+		name                string
+		focusWorkload       string
+		testDirName         string
+		expectedConnsOutput string
+		notExistingWorkload bool
+	}{
+		{
+			name:                "focus workload from netpols",
+			focusWorkload:       "emailservice",
+			testDirName:         "onlineboutique_workloads",
+			expectedConnsOutput: "default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080",
+		},
+		{
+			name:          "test with external ingress conns enabled to a single workload in addition to its p2p conns",
+			focusWorkload: "details-v1-79f774bdb9",
+			testDirName:   "k8s_ingress_test",
+			expectedConnsOutput: "0.0.0.0-255.255.255.255 => default/details-v1-79f774bdb9[ReplicaSet] : All Connections\n" +
+				"default/details-v1-79f774bdb9[ReplicaSet] => 0.0.0.0-255.255.255.255 : All Connections\n" +
+				"default/details-v1-79f774bdb9[ReplicaSet] => default/productpage-v1-6b746f74dc[ReplicaSet] : All Connections\n" +
+				"default/details-v1-79f774bdb9[ReplicaSet] => default/ratings-v1-b6994bb9[ReplicaSet] : All Connections\n" +
+				"default/details-v1-79f774bdb9[ReplicaSet] => default/reviews-v1-545db77b95[ReplicaSet] : All Connections\n" +
+				"default/details-v1-79f774bdb9[ReplicaSet] => default/reviews-v2-7bf8c9648f[ReplicaSet] : All Connections\n" +
+				"default/details-v1-79f774bdb9[ReplicaSet] => default/reviews-v3-84779c7bbc[ReplicaSet] : All Connections\n" +
+				"default/productpage-v1-6b746f74dc[ReplicaSet] => default/details-v1-79f774bdb9[ReplicaSet] : All Connections\n" +
+				"default/ratings-v1-b6994bb9[ReplicaSet] => default/details-v1-79f774bdb9[ReplicaSet] : All Connections\n" +
+				"default/reviews-v1-545db77b95[ReplicaSet] => default/details-v1-79f774bdb9[ReplicaSet] : All Connections\n" +
+				"default/reviews-v2-7bf8c9648f[ReplicaSet] => default/details-v1-79f774bdb9[ReplicaSet] : All Connections\n" +
+				"default/reviews-v3-84779c7bbc[ReplicaSet] => default/details-v1-79f774bdb9[ReplicaSet] : All Connections\n" +
+				"{ingress-controller} => default/details-v1-79f774bdb9[ReplicaSet] : TCP 9080",
+		},
+		{
+			name:          "test focus workload with <workload-namespace>/<workload-name> format",
+			testDirName:   "acs-security-demos-added-workloads",
+			focusWorkload: "backend/recommendation",
+			expectedConnsOutput: "backend/checkout[Deployment] => backend/recommendation[Deployment] : TCP 8080\n" +
+				"backend/recommendation[Deployment] => backend/catalog[Deployment] : TCP 8080\n" +
+				"backend/reports[Deployment] => backend/recommendation[Deployment] : TCP 8080\n" +
+				"frontend/webapp[Deployment] => backend/recommendation[Deployment] : TCP 8080",
+		},
+		{
+			name:                "test with external ingress conns enabled to multiple workloads, refined by one workload name",
+			testDirName:         "acs-security-demos-added-workloads",
+			focusWorkload:       "asset-cache",
+			expectedConnsOutput: "{ingress-controller} => frontend/asset-cache[Deployment] : TCP 8080",
+		},
+		{
+			name:                "test with external ingress conns enabled to multiple workloads, refined by one workload with ns/name format",
+			testDirName:         "acs-security-demos-added-workloads",
+			focusWorkload:       "frontend/asset-cache",
+			expectedConnsOutput: "{ingress-controller} => frontend/asset-cache[Deployment] : TCP 8080",
+		},
+		{
+			name:          "test with external ingress conns enabled to multiple workloads, refined by ingress-controller",
+			testDirName:   "acs-security-demos-added-workloads",
+			focusWorkload: "ingress-controller",
+			expectedConnsOutput: "{ingress-controller} => frontend/asset-cache[Deployment] : TCP 8080\n" +
+				"{ingress-controller} => frontend/blog[Deployment] : TCP 8080\n" +
+				"{ingress-controller} => frontend/webapp[Deployment] : TCP 8080\n" +
+				"{ingress-controller} => zeroday/zeroday[Deployment] : TCP 8080",
+		},
+		{
+			name:                "focus workload-name does not exist",
+			focusWorkload:       "abcd",
+			testDirName:         "onlineboutique_workloads", // this dir contains only warning of the non existing workload
+			expectedConnsOutput: "",
+			notExistingWorkload: true,
+		},
+		{
+			name:                "focus ns/workload-name does not exist",
+			focusWorkload:       "default/abcd",
+			testDirName:         "onlineboutique_workloads", // this dir contains only warning of the non existing workload
+			expectedConnsOutput: "",
+			notExistingWorkload: true,
+		},
+	}
+
+	for _, entry := range cases {
+		analyzerWithFocusWorkload := NewConnlistAnalyzer(WithFocusWorkload(entry.focusWorkload))
+		dirPath := filepath.Join(testutils.GetTestsDir(), entry.testDirName)
+		res, _, err := analyzerWithFocusWorkload.ConnlistFromDirPath(dirPath)
+		require.Nil(t, err, "test: %s", entry.name)
+		out, err := analyzerWithFocusWorkload.ConnectionsListToString(res)
+		require.Nil(t, err, "test: %s", entry.name)
+		require.Equal(t, entry.expectedConnsOutput, out, "test: %s", entry.name)
+		if entry.notExistingWorkload {
+			// at least one error, one is the warning error on not existing workload
+			caErrors := analyzerWithFocusWorkload.Errors()
+			require.GreaterOrEqual(t, len(caErrors), 1, "test: %s", entry.name)
+			warnType := &connlistAnalyzerWarning{}
+			if len(caErrors) == 1 {
+				require.True(t, errors.As(caErrors[0].Error(), &warnType), "test: %s", entry.name)
+			}
+		}
+	}
 }
 
 func TestErrNetpolBadCIDR(t *testing.T) {
@@ -259,15 +349,4 @@ func TestWithFocusWorkloadWithReplicasConnections(t *testing.T) {
 	out, err := analyzer1.ConnectionsListToString(res)
 	require.Nil(t, err)
 	require.NotContains(t, out, "kube-system/calico-node[DaemonSet] => kube-system/calico-node[DaemonSet] : All Connections")
-}
-
-func TestWithFocusWorkloadWithIngressObjects(t *testing.T) {
-	analyzer := NewConnlistAnalyzer(WithFocusWorkload("details-v1-79f774bdb9"))
-	dirPath := filepath.Join(testutils.GetTestsDir(), "k8s_ingress_test")
-	res, _, err := analyzer.ConnlistFromDirPath(dirPath)
-	require.Len(t, res, 13)
-	require.Nil(t, err)
-	out, err := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err)
-	require.Contains(t, out, "{ingress-controller} => default/details-v1-79f774bdb9[ReplicaSet] : TCP 9080")
 }
