@@ -430,7 +430,7 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnal
 	if ca.focusWorkload == ingressanalyzer.IngressPodName {
 		if excludeIngressAnalysis { // if the ingress-analyzer is empty,
 			// then no routes/k8s-ingress objects -> ingrss-controller pod will not be added
-			return false, "Pod ingress-controller was not added to the analysis, since Ingress/Route resources were not found."
+			return false, "The ingress-controller workload was not added to the analysis, since Ingress/Route resources were not found. Connectivity map report will be empty."
 		}
 		return true, ""
 	}
