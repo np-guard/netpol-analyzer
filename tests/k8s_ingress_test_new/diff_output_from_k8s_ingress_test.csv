@@ -5,9 +5,9 @@ changed,default/reviews-v2-7bf8c9648f[ReplicaSet],default/productpage-v1-6b746f7
 changed,default/reviews-v2-7bf8c9648f[ReplicaSet],default/ratings-v1-b6994bb9[ReplicaSet],All Connections,TCP 9080,
 changed,default/reviews-v3-84779c7bbc[ReplicaSet],default/productpage-v1-6b746f74dc[ReplicaSet],All Connections,TCP 9080,
 changed,default/reviews-v3-84779c7bbc[ReplicaSet],default/ratings-v1-b6994bb9[ReplicaSet],All Connections,TCP 9080,
-added,0.0.0.0-255.255.255.255,default/unicorn[Deployment],No Connections,All Connections,added default/unicorn[Deployment]
-added,default/unicorn[Deployment],0.0.0.0-255.255.255.255,No Connections,All Connections,added default/unicorn[Deployment]
-added,default/unicorn[Deployment],default/details-v1-79f774bdb9[ReplicaSet],No Connections,TCP 9080,added default/unicorn[Deployment]
+added,0.0.0.0-255.255.255.255,default/unicorn[Deployment],No Connections,All Connections,workload default/unicorn[Deployment] added
+added,default/unicorn[Deployment],0.0.0.0-255.255.255.255,No Connections,All Connections,workload default/unicorn[Deployment] added
+added,default/unicorn[Deployment],default/details-v1-79f774bdb9[ReplicaSet],No Connections,TCP 9080,workload default/unicorn[Deployment] added
 removed,0.0.0.0-255.255.255.255,default/details-v1-79f774bdb9[ReplicaSet],All Connections,No Connections,
 removed,0.0.0.0-255.255.255.255,default/productpage-v1-6b746f74dc[ReplicaSet],All Connections,No Connections,
 removed,0.0.0.0-255.255.255.255,default/ratings-v1-b6994bb9[ReplicaSet],All Connections,No Connections,
@@ -44,4 +44,4 @@ removed,default/reviews-v3-84779c7bbc[ReplicaSet],0.0.0.0-255.255.255.255,All Co
 removed,default/reviews-v3-84779c7bbc[ReplicaSet],default/details-v1-79f774bdb9[ReplicaSet],All Connections,No Connections,
 removed,default/reviews-v3-84779c7bbc[ReplicaSet],default/reviews-v1-545db77b95[ReplicaSet],All Connections,No Connections,
 removed,default/reviews-v3-84779c7bbc[ReplicaSet],default/reviews-v2-7bf8c9648f[ReplicaSet],All Connections,No Connections,
-added,{ingress-controller},default/unicorn[Deployment],No Connections,TCP 8080,added default/unicorn[Deployment]
+added,{ingress-controller},default/unicorn[Deployment],No Connections,TCP 8080,workload default/unicorn[Deployment] added

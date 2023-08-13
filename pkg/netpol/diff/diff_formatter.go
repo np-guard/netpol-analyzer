@@ -17,9 +17,10 @@ type diffFormatter interface {
 }
 
 const (
-	noConns = "No Connections"
-	space   = " "
-	and     = " and "
+	noConns    = "No Connections"
+	infoPrefix = "workload "
+	space      = " "
+	and        = " and "
 )
 
 var newLine = fmt.Sprintln("")
@@ -86,7 +87,7 @@ func getDiffInfo(c *ConnsPair) string {
 	// handling added or removed diff data
 	includedSrcFlag := false
 	if c.newOrLostSrc || c.newOrLostDst {
-		diffInfo += c.diffType + space
+		diffInfo += infoPrefix
 		if c.newOrLostSrc {
 			diffInfo += srcStr
 			includedSrcFlag = true
@@ -97,6 +98,7 @@ func getDiffInfo(c *ConnsPair) string {
 			}
 			diffInfo += dstStr
 		}
+		diffInfo += space + c.diffType
 	}
 	return diffInfo
 }
