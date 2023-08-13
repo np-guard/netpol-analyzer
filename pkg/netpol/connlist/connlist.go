@@ -358,9 +358,12 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
 }
 
+func getPeerNsNameFormat(eval.Peer) string {
+  return types.NamespacedName{Namespace: peer.Namespace(), Name: peer.Name()}.String()
+}
+
 func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer eval.Peer) bool {
-	peerNsNameFormat := types.NamespacedName{Namespace: peer.Namespace(), Name: peer.Name()}.String()
-	return !peer.IsPeerIPType() && (peer.Name() == ca.focusWorkload || ca.focusWorkload == peerNsNameFormat)
+	return !peer.IsPeerIPType() && (peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload)
 }
 
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
