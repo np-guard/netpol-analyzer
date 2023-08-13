@@ -100,6 +100,7 @@ func (da *DiffAnalyzer) stopProcessing() bool {
 // appending connlist warnings and severe errors to diff_errors
 func (da *DiffAnalyzer) appendConnlistErrorsToDiffErrors(caErrors []connlist.ConnlistError) {
 	for _, e := range caErrors {
+		// interfaces ConnlistError and DiffError has same functionality, so we can append to each other implicitly
 		da.errors = append(da.errors, e)
 	}
 }
