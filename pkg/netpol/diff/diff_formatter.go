@@ -158,8 +158,12 @@ func (t *diffFormatText) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 }
 
 func (t *diffFormatText) singleDiffLine(d *singleDiffFields) string {
-	return fmt.Sprintf("diff-type: %s, source: %s, destination: %s, dir1:  %s, dir2: %s, workloads-diff-info: %s",
-		d.diffType, d.src, d.dst, d.dir1Conn, d.dir2Conn, d.workloadDiffInfo)
+	diffLine := fmt.Sprintf("diff-type: %s, source: %s, destination: %s, dir1:  %s, dir2: %s", d.diffType,
+		d.src, d.dst, d.dir1Conn, d.dir2Conn)
+	if d.workloadDiffInfo != "" {
+		return diffLine + ", workloads-diff-info: " + d.workloadDiffInfo
+	}
+	return diffLine
 }
 
 // /////////////////////////
