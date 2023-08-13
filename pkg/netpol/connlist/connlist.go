@@ -355,15 +355,12 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 		return true
 	}
 	// at least one of src/dst should be the focus workload
-	srcNsNameFormat := types.NamespacedName{Namespace: src.Namespace(), Name: src.Name()}.String()
-	if !src.IsPeerIPType() && (src.Name() == ca.focusWorkload || ca.focusWorkload == srcNsNameFormat) {
-		return true
-	}
-	dstNsNameFormat := types.NamespacedName{Namespace: dst.Namespace(), Name: dst.Name()}.String()
-	if !dst.IsPeerIPType() && (dst.Name() == ca.focusWorkload || ca.focusWorkload == dstNsNameFormat) {
-		return true
-	}
-	return false
+	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
+}
+
+func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer eval.Peer) bool {
+	peerNsNameFormat := types.NamespacedName{Namespace: peer.Namespace(), Name: peer.Name()}.String()
+	return !peer.IsPeerIPType() && (peer.Name() == ca.focusWorkload || ca.focusWorkload == peerNsNameFormat)
 }
 
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
@@ -381,9 +378,11 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		return nil, nil, err
 	}
 
+	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
+
 	// if ca.focusWorkload is not empty, check if it exists in the peerList before proceeding
-	if ca.focusWorkload != "" && !ca.existsFocusWorkload(peerList) {
-		warnMsg := "workload: " + ca.focusWorkload + " does not exist in the resources. No output would be generated"
+	if ca.focusWorkload != "" && !ca.existsFocusWorkload(peerList, excludeIngressAnalysis) {
+		warnMsg := "workload " + ca.focusWorkload + " does not exist in the input resources. Connectivity map report will be empty."
 		ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warnMsg)))
 		ca.logger.Warnf(warnMsg)
 		return nil, nil, nil
@@ -403,7 +402,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	}
 	connsRes = peersAllowedConns
 
-	if ia == nil || ia.IsEmpty() {
+	if excludeIngressAnalysis {
 		return connsRes, peers, nil
 	}
 
@@ -424,12 +423,13 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 
 // existsFocusWorkload checks if the provided focus workload is ingress-controller
 // or if it exists in the peers list from the parsed resources
-func (ca *ConnlistAnalyzer) existsFocusWorkload(peerList []eval.Peer) bool {
+func (ca *ConnlistAnalyzer) existsFocusWorkload(peerList []eval.Peer, excludeIA bool) bool {
 	// if focus workload is ingress controller, it is okay to continue checking for connections
 	ingressPodNsNameFormat := types.NamespacedName{Namespace: ingressanalyzer.IngressPodNamespace,
 		Name: ingressanalyzer.IngressPodName}.String()
 	if ca.focusWorkload == ingressanalyzer.IngressPodName || ca.focusWorkload == ingressPodNsNameFormat {
-		return true
+		return !excludeIA // if the ingress-analyzer is empty,
+		// then no routes/k8s-ingress objects -> ingrss-controller pod will not be added
 	}
 
 	// check if the focusworkload is in the peerList
