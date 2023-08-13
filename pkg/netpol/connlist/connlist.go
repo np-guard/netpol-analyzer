@@ -380,25 +380,24 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
 	}
-
-	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
-
-	// if ca.focusWorkload is not empty, check if it exists in the peerList before proceeding
-	if ca.focusWorkload != "" && !ca.existsFocusWorkload(peerList, excludeIngressAnalysis) {
-		warnMsg := "workload " + ca.focusWorkload + " does not exist in the input resources. Connectivity map report will be empty."
-		ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warnMsg)))
-		ca.logger.Warnf(warnMsg)
-		return nil, nil, nil
-	}
-
 	// represent peerList as []connlist.Peer list to be returned
 	peers := make([]Peer, len(peerList))
 	for i, p := range peerList {
 		peers[i] = p
 	}
 
+	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
+
+	// if ca.focusWorkload is not empty, check if it exists in the peers before proceeding
+	existFocusWorkload, warningMsg := ca.existsFocusWorkload(peers, excludeIngressAnalysis)
+	if ca.focusWorkload != "" && !existFocusWorkload {
+		ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
+		ca.logger.Warnf(warningMsg)
+		return nil, nil, nil
+	}
+
 	// compute connections between peers based on pe analysis of network policies
-	peersAllowedConns, err := ca.getConnectionsBetweenPeers(pe, peerList)
+	peersAllowedConns, err := ca.getConnectionsBetweenPeers(pe, peers)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
@@ -418,7 +417,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	connsRes = append(connsRes, ingressAllowedConns...)
 
 	if ca.focusWorkload == "" && len(peersAllowedConns) == 0 {
-		ca.logger.Warnf("connectivity analysis found no allowed connectivity between pairs from the configured workloads or external IP-blocks")
+		ca.logger.Warnf("Connectivity analysis found no allowed connectivity between pairs from the configured workloads or external IP-blocks")
 	}
 
 	return connsRes, peers, nil
@@ -426,31 +425,32 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 
 // existsFocusWorkload checks if the provided focus workload is ingress-controller
 // or if it exists in the peers list from the parsed resources
-func (ca *ConnlistAnalyzer) existsFocusWorkload(peerList []eval.Peer, excludeIA bool) bool {
-	// if focus workload is ingress controller, it is okay to continue checking for connections
-	ingressPodNsNameFormat := types.NamespacedName{Namespace: ingressanalyzer.IngressPodNamespace,
-		Name: ingressanalyzer.IngressPodName}.String()
-	if ca.focusWorkload == ingressanalyzer.IngressPodName || ca.focusWorkload == ingressPodNsNameFormat {
-		return !excludeIA // if the ingress-analyzer is empty,
-		// then no routes/k8s-ingress objects -> ingrss-controller pod will not be added
+// if not returns a suitable warning message
+func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnalysis bool) (existFocusWorkload bool, warning string) {
+	if ca.focusWorkload == ingressanalyzer.IngressPodName {
+		if excludeIngressAnalysis { // if the ingress-analyzer is empty,
+			// then no routes/k8s-ingress objects -> ingrss-controller pod will not be added
+			return false, "Pod ingress-controller was not added to the analysis, since Ingress/Route resources were not found."
+		}
+		return true, ""
 	}
 
-	// check if the focusworkload is in the peerList
-	for _, peer := range peerList {
+	// check if the focusworkload is in the peers
+	for _, peer := range peers {
 		if ca.focusWorkload == peer.Name() || ca.focusWorkload == getPeerNsNameFormat(peer) {
-			return true
+			return true, ""
 		}
 	}
-	return false
+	return false, "Workload " + ca.focusWorkload + " does not exist in the input resources. Connectivity map report will be empty."
 }
 
 // getConnectionsBetweenPeers returns connections list from PolicyEngine object
-func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, peerList []eval.Peer) ([]Peer2PeerConnection, error) {
+func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, peers []Peer) ([]Peer2PeerConnection, error) {
 	connsRes := make([]Peer2PeerConnection, 0)
-	for i := range peerList {
-		srcPeer := peerList[i]
-		for j := range peerList {
-			dstPeer := peerList[j]
+	for i := range peers {
+		srcPeer := peers[i]
+		for j := range peers {
+			dstPeer := peers[j]
 			if !ca.includePairOfWorkloads(srcPeer, dstPeer) {
 				continue
 			}
