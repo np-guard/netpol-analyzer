@@ -93,7 +93,7 @@ func (da *DiffAnalyzer) Errors() []DiffError {
 // if it has fatal error , means it returned before calling this,
 func (da *DiffAnalyzer) stopProcessing(caErrors []connlist.ConnlistError) bool {
 	for _, e := range caErrors {
-		if da.stopOnError && e.IsSevere() {
+		if e.IsFatal() || da.stopOnError && e.IsSevere() {
 			return true
 		}
 	}
