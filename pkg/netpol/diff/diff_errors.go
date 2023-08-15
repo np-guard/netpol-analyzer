@@ -16,10 +16,6 @@ type diffGeneratingError struct {
 	severe bool
 }
 
-type connectionsAnalyzingError struct {
-	origErr error
-}
-
 type resultFormattingError struct {
 	origErr error
 }
@@ -56,10 +52,6 @@ func (e *resultFormattingError) Error() string {
 	return e.origErr.Error()
 }
 
-func (e *connectionsAnalyzingError) Error() string {
-	return e.origErr.Error()
-}
-
 func (e *handlingIPpeersError) Error() string {
 	return e.origErr.Error()
 }
@@ -67,10 +59,6 @@ func (e *handlingIPpeersError) Error() string {
 // constructors
 func newResultFormattingError(err error) *diffGeneratingError {
 	return &diffGeneratingError{err: &resultFormattingError{err}, fatal: true, severe: false}
-}
-
-func newConnectionsAnalyzingError(err error, fatal, severe bool) *diffGeneratingError {
-	return &diffGeneratingError{err: &connectionsAnalyzingError{err}, fatal: fatal, severe: severe}
 }
 
 func newHandlingIPpeersError(err error) *diffGeneratingError {

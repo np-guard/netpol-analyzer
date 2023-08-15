@@ -87,10 +87,13 @@ func (da *DiffAnalyzer) Errors() []DiffError {
 	return da.errors
 }
 
-// return true if has fatal error or severe with flag stopOnError
-func (da *DiffAnalyzer) stopProcessing() bool {
-	for idx := range da.errors {
-		if da.errors[idx].IsFatal() || da.stopOnError && da.errors[idx].IsSevere() {
+// loops the errors that were returned from the connlistAnalyzer
+// (as only connlistAnalyzer.Errors() may contain severe errors; all other DiffAnalyzer errors are fatal),
+// returns true if has severe error with flag stopOnError
+// if it has fatal error , means it returned before calling this,
+func (da *DiffAnalyzer) stopProcessing(caErrors []connlist.ConnlistError) bool {
+	for _, e := range caErrors {
+		if da.stopOnError && e.IsSevere() {
 			return true
 		}
 	}
@@ -119,19 +122,22 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 	var workloadsNames1, workloadsNames2 map[string]bool
 	var err error
 	if conns1, workloads1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
-		da.errors = append(da.errors, newConnectionsAnalyzingError(err, true, false))
+		// append all fatal/severe errors and warnings returned by caAnalyzer then return because of the fatal err
+		da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
 		return nil, err
 	}
-	da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
-	if da.stopProcessing() {
+	if da.stopProcessing(caAnalyzer.Errors()) {
+		// if true, before returning, append the caAnalyzer.Errors to DiffAnalyzer.Errors() to be exported
+		da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
 		return &connectivityDiff{}, nil
 	}
 	if conns2, workloads2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
-		da.errors = append(da.errors, newConnectionsAnalyzingError(err, true, false))
+		// append all fatal/severe errors and warnings returned by caAnalyzer then return because of the fatal err
+		da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
 		return nil, err
 	}
-	da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
-	if da.stopProcessing() {
+	da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors()) // append all caAnalyzer.Errors() as we finished calling its funcs
+	if da.stopProcessing(caAnalyzer.Errors()) {              // checks if the second dirPath raised any severe errors
 		return &connectivityDiff{}, nil
 	}
 	workloadsNames1, workloadsNames2 = getPeersNamesFromPeersList(workloads1), getPeersNamesFromPeersList(workloads2)

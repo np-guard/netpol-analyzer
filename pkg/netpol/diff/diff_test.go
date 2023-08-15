@@ -152,9 +152,9 @@ type testErrEntry struct {
 	isCaWarning     bool
 	isFormattingErr bool
 	format          string
+	emptyRes        bool
 }
 
-var caErrType = &connectionsAnalyzingError{}     // error returned from a func on the ConnlistAnalyzer object
 var formattingErrType = &resultFormattingError{} // error returned from getting/writing output format
 
 func TestDiffErrors(t *testing.T) {
@@ -225,14 +225,16 @@ func TestDiffErrors(t *testing.T) {
 			dir1:          filepath.Join("bad_yamls", "not_a_k8s_resource.yaml"),
 			dir2:          "ipblockstest",
 			errStr:        "Yaml document is not a K8s resource",
-			isCaSevereErr: true, // severe error, stops only if stopOnError = true
+			isCaSevereErr: true,  // severe error, stops only if stopOnError = true
+			emptyRes:      false, // only one dir contains severe error
 		},
 		{
 			name:          "dir 1 has malformed yaml",
 			dir1:          filepath.Join("bad_yamls", "document_with_syntax_error.yaml"),
 			dir2:          "ipblockstest",
 			errStr:        "YAML document is malformed",
-			isCaSevereErr: true, // severe error, stops only if stopOnError = true
+			isCaSevereErr: true,  // severe error, stops only if stopOnError = true
+			emptyRes:      false, // only one dir contains severe error
 		},
 		{
 			name:        "dir 1 warning, has no netpols",
@@ -248,6 +250,14 @@ func TestDiffErrors(t *testing.T) {
 			errStr: "Route resource frontend/asset-cache specified workload frontend/asset-cache[Deployment] as a backend," +
 				" but network policies are blocking ingress connections from an arbitrary in-cluster source to this workload.",
 			isCaWarning: true,
+		},
+		{
+			name:          "both dirs return severe errors on their malformed yaml files",
+			dir1:          "dirty",
+			dir2:          "dirty",
+			errStr:        "YAML document is malformed",
+			isCaSevereErr: true,
+			emptyRes:      true, // both dirs contain severe errors, no computations
 		},
 	}
 
@@ -274,16 +284,16 @@ func TestDiffErrors(t *testing.T) {
 			require.Contains(t, err2.Error(), entry.errStr, "test: %s", entry.name)
 			require.Contains(t, diffErrors1[0].Error().Error(), entry.errStr, "test: %s", entry.name)
 			require.Contains(t, diffErrors2[0].Error().Error(), entry.errStr, "test: %s", entry.name)
-			// check err type
-			require.True(t, errors.As(diffErrors1[0].Error(), &caErrType), "test: %s", entry.name)
-			require.True(t, errors.As(diffErrors2[0].Error(), &caErrType), "test: %s", entry.name)
 			continue
 		}
 		if entry.isCaSevereErr { // severe error not returned in err, but with stopOnError, empty res with it in the errors
 			require.Nil(t, err1, "test: %s", entry.name)
 			require.Nil(t, err2, "test: %s", entry.name)
-			require.False(t, connsDiff1.isEmpty(), "test: %s", entry.name) // diffAnalyzer did not stop, result not empty
-			require.True(t, connsDiff2.isEmpty(), "test: %s", entry.name)  // diffAnalyzerStopsOnError stops running, returns empty res
+			if !entry.emptyRes {
+				// diffAnalyzer did not stop, result not empty unless no computations could be done, both dirs are not good
+				require.False(t, connsDiff1.isEmpty(), "test: %s", entry.name)
+			}
+			require.True(t, connsDiff2.isEmpty(), "test: %s", entry.name) // diffAnalyzerStopsOnError stops running, returns empty res
 			// error appended to diffAnalyzerErrors in both
 			require.Contains(t, diffErrors2[0].Error().Error(), entry.errStr, "test: %s", entry.name)
 			require.Contains(t, diffErrors1[0].Error().Error(), entry.errStr, "test: %s", entry.name)
