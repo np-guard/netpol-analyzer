@@ -59,6 +59,9 @@ func getDiffOptions(l *logger.DefaultLogger) []diff.DiffAnalyzerOption {
 	if includeJSONManifests {
 		res = append(res, diff.WithIncludeJSONManifests())
 	}
+	if stopOnFirstError {
+		res = append(res, diff.WithStopOnError())
+	}
 	return res
 }
 
