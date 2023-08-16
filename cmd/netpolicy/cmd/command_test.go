@@ -468,6 +468,45 @@ func TestCommands(t *testing.T) {
 			exact: true,
 			isErr: false,
 		},
+		{
+			name: "test with severe error and produces legal output",
+			// the test contains malformed yaml beside to legal yaml.
+			//  MalformedYamlDocError is not fatal, thus not returned
+			// analysis is able to parse some deployments, thus can produce connectivity output
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "bad_yamls", "document_with_syntax_error.yaml"),
+			},
+			expectedOutput: "0.0.0.0-255.255.255.255 => default/checkoutservice[Deployment] : All Connections\n" +
+				"0.0.0.0-255.255.255.255 => default/emailservice[Deployment] : All Connections\n" +
+				"0.0.0.0-255.255.255.255 => default/recommendationservice[Deployment] : All Connections\n" +
+				"default/checkoutservice[Deployment] => 0.0.0.0-255.255.255.255 : All Connections\n" +
+				"default/checkoutservice[Deployment] => default/emailservice[Deployment] : All Connections\n" +
+				"default/checkoutservice[Deployment] => default/recommendationservice[Deployment] : All Connections\n" +
+				"default/emailservice[Deployment] => 0.0.0.0-255.255.255.255 : All Connections\n" +
+				"default/emailservice[Deployment] => default/checkoutservice[Deployment] : All Connections\n" +
+				"default/emailservice[Deployment] => default/recommendationservice[Deployment] : All Connections\n" +
+				"default/recommendationservice[Deployment] => 0.0.0.0-255.255.255.255 : All Connections\n" +
+				"default/recommendationservice[Deployment] => default/checkoutservice[Deployment] : All Connections\n" +
+				"default/recommendationservice[Deployment] => default/emailservice[Deployment] : All Connections",
+			exact: true,
+			isErr: false,
+		},
+		{
+			name: "test with severe error, running with --fail , stops and return empty output",
+			//  MalformedYamlDocError is not fatal, but severe, thus stops the run if --fail is on
+			// as we saw in a previous test on same path, when --fail is not used, the test produces connectivity map
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "bad_yamls", "document_with_syntax_error.yaml"),
+				"--fail",
+			},
+			expectedOutput: "",
+			exact:          true,
+			isErr:          false, // not fatal error but severe
+		},
 	}
 
 	for _, test := range tests {
