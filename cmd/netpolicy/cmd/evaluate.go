@@ -73,7 +73,7 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 	scanner := scan.NewResourcesScanner(elogger, stopOnFirstError, filepath.WalkDir, includeJSONManifests)
 	objectsList, processingErrs := scanner.FilesToObjectsListFiltered(dirPath, podNames)
 	for _, err := range processingErrs {
-		if err.IsFatal() || err.IsSevere() {
+		if err.IsFatal() || (stopOnFirstError && err.IsSevere()) {
 			return fmt.Errorf("scan dir path %s had processing errors: %v", dirPath, err.Error())
 		}
 	}
