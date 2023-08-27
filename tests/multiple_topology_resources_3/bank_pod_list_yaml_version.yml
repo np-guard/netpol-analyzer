@@ -1,0 +1,394 @@
+---
+kind: PodList
+apiVersion: v1
+metadata:
+  selfLink: "/api/v1/pods"
+  resourceVersion: '2996123'
+items:
+- metadata:
+    name: bank-ui
+    generateName: cog-agents-
+    namespace: demo
+    selfLink: "/api/v1/namespaces/default/pods/cog-agents-d54st"
+    uid: 14282859-301f-11e8-865c-52075433990e
+    resourceVersion: '2820503'
+    creationTimestamp: '2018-03-25T11:24:27Z'
+    labels:
+      app: bank-ui-selector
+      controller-revision-hash: '1317571478'
+      pod-template-generation: '1'
+      tier: agent
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"default","name":"cog-agents","uid":"14265cc3-301f-11e8-865c-52075433990e","apiVersion":"extensions","resourceVersion":"508656"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: cog-agents
+      uid: 14265cc3-301f-11e8-865c-52075433990e
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: skydive-config
+      configMap:
+        name: skydive-config
+        defaultMode: 420
+    - name: docker
+      hostPath:
+        path: "/var/run/docker.sock"
+        type: ''
+    - name: run
+      hostPath:
+        path: "/var/run/netns"
+        type: ''
+    - name: ovsdb
+      hostPath:
+        path: "/var/run/openvswitch/db.sock"
+        type: ''
+    - name: default-token-hszmd
+      secret:
+        secretName: default-token-hszmd
+        defaultMode: 420
+    containers:
+    - name: cognetive
+      image: registry.ng.net/demo_k8s/cognetive
+      command:
+      - skydive
+      - agent
+      - "-c"
+      - "/config/skydive.yml"
+      resources: {}
+      volumeMounts:
+      - name: skydive-config
+        mountPath: "/config"
+      - name: docker
+        mountPath: "/var/run/docker.sock"
+      - name: run
+        mountPath: "/host/run"
+      - name: ovsdb
+        mountPath: "/var/run/openvswitch/db.sock"
+      - name: default-token-hszmd
+        readOnly: true
+        mountPath: "/var/run/secrets/kubernetes.io/serviceaccount"
+      terminationMessagePath: "/dev/termination-log"
+      terminationMessagePolicy: File
+      imagePullPolicy: Always
+      securityContext:
+        privileged: true
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.174
+    hostNetwork: true
+    hostPID: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: default-secret
+    - name: default-secret-regional
+    - name: default-secret-international
+    schedulerName: default-scheduler
+    tolerations:
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime:
+      lastTransitionTime: '2018-03-25T11:24:27Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime:
+      lastTransitionTime: '2018-03-25T11:24:36Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime:
+      lastTransitionTime: '2018-03-25T11:24:36Z'
+    hostIP: 10.186.164.174
+    podIP: 10.186.164.174
+    startTime: '2018-03-25T11:24:27Z'
+    containerStatuses:
+    - name: cognetive
+      state:
+        running:
+          startedAt: '2018-03-25T11:24:36Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.net/demo_k8s/cognetive:latest
+      imageID: docker-pullable://registry.ng.net/demo_k8s/cognetive@sha256:372e1d50ba8cf32859460bf3083d4f96887b5af737ffc96f53434dd1ad0a8fb4
+      containerID: docker://1c0af4ca575d346faf48d507dfe0d67227d7a6c2ebde5d4a0674c7e8a2dee61e
+    qosClass: BestEffort
+- metadata:
+    name: account-query
+    generateName: cog-agents-
+    namespace: demo
+    selfLink: "/api/v1/namespaces/default/pods/cog-agents-js4qc"
+    uid: 14279eb3-301f-11e8-865c-52075433990e
+    resourceVersion: '2820601'
+    creationTimestamp: '2018-03-25T11:24:27Z'
+    labels:
+      controller-revision-hash: '1317571478'
+      pod-template-generation: '1'
+      tier: agent
+      app: account-query-selector
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"default","name":"cog-agents","uid":"14265cc3-301f-11e8-865c-52075433990e","apiVersion":"extensions","resourceVersion":"508656"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: cog-agents
+      uid: 14265cc3-301f-11e8-865c-52075433990e
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: skydive-config
+      configMap:
+        name: skydive-config
+        defaultMode: 420
+    - name: docker
+      hostPath:
+        path: "/var/run/docker.sock"
+        type: ''
+    - name: run
+      hostPath:
+        path: "/var/run/netns"
+        type: ''
+    - name: ovsdb
+      hostPath:
+        path: "/var/run/openvswitch/db.sock"
+        type: ''
+    - name: default-token-hszmd
+      secret:
+        secretName: default-token-hszmd
+        defaultMode: 420
+    containers:
+    - name: cognetive
+      image: registry.ng.net/demo_k8s/cognetive
+      command:
+      - skydive
+      - agent
+      - "-c"
+      - "/config/skydive.yml"
+      resources: {}
+      volumeMounts:
+      - name: skydive-config
+        mountPath: "/config"
+      - name: docker
+        mountPath: "/var/run/docker.sock"
+      - name: run
+        mountPath: "/host/run"
+      - name: ovsdb
+        mountPath: "/var/run/openvswitch/db.sock"
+      - name: default-token-hszmd
+        readOnly: true
+        mountPath: "/var/run/secrets/kubernetes.io/serviceaccount"
+      terminationMessagePath: "/dev/termination-log"
+      terminationMessagePolicy: File
+      imagePullPolicy: Always
+      securityContext:
+        privileged: true
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.166
+    hostNetwork: true
+    hostPID: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: default-secret
+    - name: default-secret-regional
+    - name: default-secret-international
+    schedulerName: default-scheduler
+    tolerations:
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime:
+      lastTransitionTime: '2018-03-25T11:24:27Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime:
+      lastTransitionTime: '2018-03-25T11:24:35Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime:
+      lastTransitionTime: '2018-03-25T11:24:35Z'
+    hostIP: 10.186.164.166
+    podIP: 10.186.164.166
+    startTime: '2018-03-25T11:24:27Z'
+    containerStatuses:
+    - name: cognetive
+      state:
+        running:
+          startedAt: '2018-03-25T11:24:34Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.net/demo_k8s/cognetive:latest
+      imageID: docker-pullable://registry.ng.net/demo_k8s/cognetive@sha256:372e1d50ba8cf32859460bf3083d4f96887b5af737ffc96f53434dd1ad0a8fb4
+      containerID: docker://1139bfae3e069e76d2f1502fd0c51f5985f64fd9b14a90311620147fc588900c
+    qosClass: BestEffort
+- metadata:
+    name: account-command
+    generateName: cog-agents-
+    namespace: demo
+    selfLink: "/api/v1/namespaces/default/pods/cog-agents-js4qc"
+    uid: 14279eb3-301f-11e8-865c-52075433990e
+    resourceVersion: '2820601'
+    creationTimestamp: '2018-03-25T11:24:27Z'
+    labels:
+      controller-revision-hash: '1317571478'
+      pod-template-generation: '1'
+      tier: agent
+      app: account-command-selector
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"default","name":"cog-agents","uid":"14265cc3-301f-11e8-865c-52075433990e","apiVersion":"extensions","resourceVersion":"508656"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: cog-agents
+      uid: 14265cc3-301f-11e8-865c-52075433990e
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: skydive-config
+      configMap:
+        name: skydive-config
+        defaultMode: 420
+    - name: docker
+      hostPath:
+        path: "/var/run/docker.sock"
+        type: ''
+    - name: run
+      hostPath:
+        path: "/var/run/netns"
+        type: ''
+    - name: ovsdb
+      hostPath:
+        path: "/var/run/openvswitch/db.sock"
+        type: ''
+    - name: default-token-hszmd
+      secret:
+        secretName: default-token-hszmd
+        defaultMode: 420
+    containers:
+    - name: cognetive
+      image: registry.ng.net/demo_k8s/cognetive
+      command:
+      - skydive
+      - agent
+      - "-c"
+      - "/config/skydive.yml"
+      resources: {}
+      volumeMounts:
+      - name: skydive-config
+        mountPath: "/config"
+      - name: docker
+        mountPath: "/var/run/docker.sock"
+      - name: run
+        mountPath: "/host/run"
+      - name: ovsdb
+        mountPath: "/var/run/openvswitch/db.sock"
+      - name: default-token-hszmd
+        readOnly: true
+        mountPath: "/var/run/secrets/kubernetes.io/serviceaccount"
+      terminationMessagePath: "/dev/termination-log"
+      terminationMessagePolicy: File
+      imagePullPolicy: Always
+      securityContext:
+        privileged: true
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.166
+    hostNetwork: true
+    hostPID: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: default-secret
+    - name: default-secret-regional
+    - name: default-secret-international
+    schedulerName: default-scheduler
+    tolerations:
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime:
+      lastTransitionTime: '2018-03-25T11:24:27Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime:
+      lastTransitionTime: '2018-03-25T11:24:35Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime:
+      lastTransitionTime: '2018-03-25T11:24:35Z'
+    hostIP: 10.186.164.166
+    podIP: 10.186.164.166
+    startTime: '2018-03-25T11:24:27Z'
+    containerStatuses:
+    - name: cognetive
+      state:
+        running:
+          startedAt: '2018-03-25T11:24:34Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.net/demo_k8s/cognetive:latest
+      imageID: docker-pullable://registry.ng.net/demo_k8s/cognetive@sha256:372e1d50ba8cf32859460bf3083d4f96887b5af737ffc96f53434dd1ad0a8fb4
+      containerID: docker://1139bfae3e069e76d2f1502fd0c51f5985f64fd9b14a90311620147fc588900c
+    qosClass: BestEffort

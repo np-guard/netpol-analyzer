@@ -1,0 +1,1008 @@
+{
+  "apiVersion": "v1",
+  "kind": "PodList",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "cog-agents-d54st",
+        "namespace": "default",
+        "labels": {
+          "app": "skydive",
+          "controller-revision-hash": "1317571478",
+          "pod-template-generation": "1",
+          "tier": "agent"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "cog-agents",
+            "uid": "14265cc3-301f-11e8-865c-52075433990e",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "cog-agents-js4qc",
+        "namespace": "default",
+        "labels": {
+          "controller-revision-hash": "1317571478",
+          "pod-template-generation": "1",
+          "tier": "agent",
+          "app": "skydive"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "cog-agents",
+            "uid": "14265cc3-301f-11e8-865c-52075433990e",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "cog-agents-qr8gp",
+        "namespace": "default",
+        "labels": {
+          "tier": "analyzer",
+          "app": "skydive",
+          "controller-revision-hash": "1317571478",
+          "pod-template-generation": "1"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "cog-agents",
+            "uid": "14265cc3-301f-11e8-865c-52075433990e",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "cog-local-analyzer-7d77fb55cc-bs8rc",
+        "namespace": "default",
+        "labels": {
+          "app": "skydive",
+          "pod-template-hash": "3833961177",
+          "tier": "analyzer"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "cog-local-analyzer-7d77fb55cc",
+            "uid": "13c04c1a-301f-11e8-865c-52075433990e",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "barbar-app-r66p2",
+        "namespace": "vendor-system",
+        "labels": {
+          "provider-ip": "1-1-1-10",
+          "weird-lb-app-name": "keepalived",
+          "somehash": "a8bba512021e211e8a8d432799206ac6",
+          "pod-template-hash": "175883757"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "barbar-app",
+            "uid": "82429751-7587-11e8-82cc-fe87d4819862",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "barbar-app-zv2ch",
+        "namespace": "vendor-system",
+        "labels": {
+          "pod-template-hash": "175883757",
+          "provider-ip": "1-1-1-10",
+          "weird-lb-app-name": "keepalived",
+          "somehash": "a8bba512021e211e8a8d432799206ac6"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "barbar-app",
+            "uid": "82429751-7587-11e8-82cc-fe87d4819862",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "foofoo-app-lp6tw",
+        "namespace": "vendor-system",
+        "labels": {
+          "provider-ip": "1-1-1-14",
+          "weird-lb-app-name": "keepalived",
+          "somehash": "a25265535216311e8a8d432799206ac6",
+          "pod-template-hash": "2800444089"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "foofoo-app",
+            "uid": "82392068-7587-11e8-82cc-fe87d4819862",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "foofoo-app-vsh47",
+        "namespace": "vendor-system",
+        "labels": {
+          "provider-ip": "1-1-1-14",
+          "weird-lb-app-name": "keepalived",
+          "somehash": "a25265535216311e8a8d432799206ac6",
+          "pod-template-hash": "2800444089"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "foofoo-app",
+            "uid": "82392068-7587-11e8-82cc-fe87d4819862",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "calico-kube-controllers-7694668c77-t6slc",
+        "namespace": "kube-system-dummy-to-ignore",
+        "labels": {
+          "k8s-app": "calico-kube-controllers",
+          "pod-template-hash": "3250224733"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "calico-kube-controllers-7694668c77",
+            "uid": "bd0924a5-2134-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "calico-node-mgdlr",
+        "namespace": "kube-system",
+        "labels": {
+          "controller-revision-hash": "3852388844",
+          "k8s-app": "calico-node",
+          "tier": "frontend",
+          "pod-template-generation": "1"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "calico-node",
+            "uid": "bd04ac9e-2134-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          },
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "calico-node-ns8kw",
+        "namespace": "kube-system",
+        "labels": {
+          "controller-revision-hash": "3852388844",
+          "k8s-app": "calico-node",
+          "pod-template-generation": "1"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "calico-node",
+            "uid": "bd04ac9e-2134-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          },
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "calico-node-ptdgj",
+        "namespace": "kube-system",
+        "labels": {
+          "controller-revision-hash": "3852388844",
+          "k8s-app": "calico-node",
+          "pod-template-generation": "1"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "calico-node",
+            "uid": "bd04ac9e-2134-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          },
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "heapster-7df8cb8c66-zxkk2",
+        "namespace": "kube-system",
+        "labels": {
+          "pod-template-hash": "3894764722",
+          "version": "v1.4.3",
+          "k8s-app": "heapster"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "heapster-7df8cb8c66",
+            "uid": "97d144ee-2136-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          },
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "file-plugin-7bfb8b69bf-p86gk",
+        "namespace": "kube-system",
+        "labels": {
+          "app": "file-plugin",
+          "pod-template-hash": "3696462569",
+          "tier": "frontend"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "file-plugin-7bfb8b69bf",
+            "uid": "dda3a270-53a0-11e8-a909-4e37e9ec47cc",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "keepalived-watcher-57ghx",
+        "namespace": "kube-system",
+        "labels": {
+          "app": "keepalived-watcher",
+          "tier": "frontend",
+          "controller-revision-hash": "1304143331",
+          "pod-template-generation": "3"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "keepalived-watcher",
+            "uid": "3254bea7-2135-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "keepalived-watcher-gzdfm",
+        "namespace": "kube-system",
+        "labels": {
+          "app": "keepalived-watcher",
+          "tier": "frontend",
+          "controller-revision-hash": "1304143331",
+          "pod-template-generation": "3"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "keepalived-watcher",
+            "uid": "3254bea7-2135-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "keepalived-watcher-wczq8",
+        "namespace": "kube-system",
+        "labels": {
+          "controller-revision-hash": "1304143331",
+          "pod-template-generation": "3",
+          "app": "keepalived-watcher",
+          "tier": "not_frontend_for_demo"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "keepalived-watcher",
+            "uid": "3254bea7-2135-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "kube-fluentd-2qw2g",
+        "namespace": "kube-system",
+        "labels": {
+          "pod-template-generation": "20",
+          "app": "kube-fluentd",
+          "controller-revision-hash": "2787683658"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "kube-fluentd",
+            "uid": "aa09f313-2162-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "kube-fluentd-h6rjg",
+        "namespace": "kube-system",
+        "labels": {
+          "app": "kube-fluentd",
+          "tier": "frontend",
+          "controller-revision-hash": "2787683658",
+          "pod-template-generation": "20"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "kube-fluentd",
+            "uid": "aa09f313-2162-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "kube-fluentd-qmp4w",
+        "namespace": "kube-system",
+        "labels": {
+          "controller-revision-hash": "2787683658",
+          "pod-template-generation": "20",
+          "app": "kube-fluentd"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "kube-fluentd",
+            "uid": "aa09f313-2162-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "storage-watcher-8494b4b8bb-f8csd",
+        "namespace": "kube-system",
+        "labels": {
+          "app": "storage-watcher",
+          "pod-template-hash": "4050606466",
+          "tier": "frontend"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "storage-watcher-8494b4b8bb",
+            "uid": "12bda406-539e-11e8-a909-4e37e9ec47cc",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "kube-dns-amd64-d66bf76db-9s486",
+        "namespace": "kube-system-dummy-to-ignore",
+        "labels": {
+          "k8s-app": "kube-dns",
+          "pod-template-hash": "822693286"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "kube-dns-amd64-d66bf76db",
+            "uid": "b6245fc0-7589-11e8-bd75-ce1115ac0d30",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": [
+              {
+                "name": "dns-local",
+                "containerPort": 10053,
+                "protocol": "UDP"
+              },
+              {
+                "name": "dns-tcp-local",
+                "containerPort": 10053,
+                "protocol": "TCP"
+              }
+            ]
+          },
+          {
+            "ports": [
+              {
+                "name": "dns",
+                "containerPort": 53,
+                "protocol": "UDP"
+              },
+              {
+                "name": "dns-tcp",
+                "containerPort": 53,
+                "protocol": "TCP"
+              }
+            ]
+          },
+          {
+            "ports": [
+              {
+                "name": "metrics",
+                "containerPort": 10054,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "kube-dns-amd64-d66bf76db-bbvts",
+        "namespace": "kube-system-dummy-to-ignore",
+        "labels": {
+          "k8s-app": "kube-dns",
+          "pod-template-hash": "822693286"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "kube-dns-amd64-d66bf76db",
+            "uid": "b6245fc0-7589-11e8-bd75-ce1115ac0d30",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": [
+              {
+                "name": "dns-local",
+                "containerPort": 10053,
+                "protocol": "UDP"
+              },
+              {
+                "name": "dns-tcp-local",
+                "containerPort": 10053,
+                "protocol": "TCP"
+              }
+            ]
+          },
+          {
+            "ports": [
+              {
+                "name": "dns",
+                "containerPort": 53,
+                "protocol": "UDP"
+              },
+              {
+                "name": "dns-tcp",
+                "containerPort": 53,
+                "protocol": "TCP"
+              }
+            ]
+          },
+          {
+            "ports": [
+              {
+                "name": "metrics",
+                "containerPort": 10054,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "kube-dns-autoscaler-78f5fdbd46-zt2sf",
+        "namespace": "kube-system-dummy-to-ignore",
+        "labels": {
+          "k8s-app": "kube-dns-autoscaler",
+          "pod-template-hash": "3491986802"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "kube-dns-autoscaler-78f5fdbd46",
+            "uid": "32674c78-2135-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "kubernetes-dashboard-5b5f985bcf-cvg7r",
+        "namespace": "kube-system-dummy-to-ignore",
+        "labels": {
+          "k8s-app": "kubernetes-dashboard",
+          "pod-template-hash": "1619541679"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "kubernetes-dashboard-5b5f985bcf",
+            "uid": "3392f895-2135-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": [
+              {
+                "containerPort": 9090,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f-b9j42",
+        "namespace": "kube-system-dummy-to-ignore",
+        "labels": {
+          "app": "public-cre08b89c167414305a1afb205d0bd346f-alb1",
+          "pod-template-hash": "4045640149"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f",
+            "uid": "505e0425-78a5-11e8-bd75-ce1115ac0d30",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": [
+              {
+                "containerPort": 8080,
+                "protocol": "TCP"
+              }
+            ]
+          },
+          {
+            "ports": [
+              {
+                "containerPort": 80,
+                "protocol": "TCP"
+              },
+              {
+                "containerPort": 443,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f-hctcv",
+        "namespace": "kube-system-dummy-to-ignore",
+        "labels": {
+          "app": "public-cre08b89c167414305a1afb205d0bd346f-alb1",
+          "pod-template-hash": "4045640149"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f",
+            "uid": "505e0425-78a5-11e8-bd75-ce1115ac0d30",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": [
+              {
+                "containerPort": 8080,
+                "protocol": "TCP"
+              }
+            ]
+          },
+          {
+            "ports": [
+              {
+                "containerPort": 80,
+                "protocol": "TCP"
+              },
+              {
+                "containerPort": 443,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "tiller-deploy-5c45c9966b-nqwz6",
+        "namespace": "kube-system",
+        "labels": {
+          "app": "helm",
+          "tier": "frontend",
+          "name": "tiller",
+          "pod-template-hash": "1701755226"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "tiller-deploy-5c45c9966b",
+            "uid": "5c5a70db-21e2-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": [
+              {
+                "name": "tiller",
+                "containerPort": 44134,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "vpn-858f6d9777-2bw5m",
+        "namespace": "kube-system",
+        "labels": {
+          "app": "vpn",
+          "kubernetes-dashboard-policy": "allow",
+          "tier": "frontend",
+          "pod-template-hash": "4149285333"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "vpn-858f6d9777",
+            "uid": "55520b9b-7589-11e8-bd75-ce1115ac0d30",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    }
+  ]
+}

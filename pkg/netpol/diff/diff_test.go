@@ -136,6 +136,13 @@ func TestDiff(t *testing.T) {
 			secondDirName: "test_with_named_ports_changed_netpol",
 			formats:       []string{common.DefaultFormat},
 		},
+		{
+			// description:
+			// **added netpol: default/policy-from2-to1
+			firstDirName:  "multiple_topology_resources_3",
+			secondDirName: "multiple_topology_resources_4",
+			formats:       []string{common.DefaultFormat},
+		},
 	}
 
 	for _, entry := range testingEntries {
