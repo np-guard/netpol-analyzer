@@ -20,7 +20,7 @@ type testEntry struct {
 
 const expectedOutputFilePrefix = "diff_output_from_"
 
-var allFormats = []string{common.TextFormat, common.MDFormat, common.CSVFormat}
+var allFormats = []string{common.TextFormat, common.MDFormat, common.CSVFormat, common.DOTFormat}
 
 func TestDiff(t *testing.T) {
 	testingEntries := []testEntry{
