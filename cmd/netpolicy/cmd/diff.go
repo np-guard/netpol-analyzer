@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/diff"
 )
@@ -35,7 +36,8 @@ func runDiffCommand() error {
 	var connsDiff diff.ConnectivityDiff
 	var err error
 
-	diffAnalyzer := diff.NewDiffAnalyzer(diff.WithOutputFormat(outFormat))
+	clogger := logger.NewDefaultLoggerWithVerbosity(detrmineLogVerbosity())
+	diffAnalyzer := diff.NewDiffAnalyzer(getDiffOptions(clogger)...)
 
 	connsDiff, err = diffAnalyzer.ConnDiffFromDirPaths(dir1, dir2)
 	if err != nil {
@@ -46,7 +48,18 @@ func runDiffCommand() error {
 		return err
 	}
 	fmt.Printf("%s", out)
+	if outFile != "" {
+		return writeBufToFile(outFile, []byte(out))
+	}
 	return nil
+}
+
+func getDiffOptions(l *logger.DefaultLogger) []diff.DiffAnalyzerOption {
+	res := []diff.DiffAnalyzerOption{diff.WithLogger(l), diff.WithOutputFormat(outFormat)}
+	if includeJSONManifests {
+		res = append(res, diff.WithIncludeJSONManifests())
+	}
+	return res
 }
 
 func newCommandDiff() *cobra.Command {
@@ -83,6 +96,7 @@ func newCommandDiff() *cobra.Command {
 	c.Flags().StringVarP(&dir2, "dir2", "", "", "New Resources path to compare with original resources path")
 	supportedDiffFormats := strings.Join(diff.ValidDiffFormats, ",")
 	c.Flags().StringVarP(&outFormat, "output", "o", common.DefaultFormat, "Required output format ("+supportedDiffFormats+")")
-
+	// out file
+	c.Flags().StringVarP(&outFile, "file", "f", "", "Write output to specified file")
 	return c
 }

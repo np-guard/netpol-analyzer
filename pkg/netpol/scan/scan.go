@@ -9,6 +9,9 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
+
+	"encoding/json"
 
 	yamlv3 "gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
@@ -31,14 +34,19 @@ import (
 const IPv4LoopbackAddr = "127.0.0.1"
 
 type ResourcesScanner struct {
-	logger          logger.Logger
-	stopOnError     bool
-	walkFn          WalkFunction
-	resourceDecoder runtime.Decoder
+	logger               logger.Logger
+	stopOnError          bool
+	walkFn               WalkFunction
+	resourceDecoder      runtime.Decoder
+	includeJSONManifests bool
 }
 
-func NewResourcesScanner(l logger.Logger, stopOnError bool, walkFn WalkFunction) *ResourcesScanner {
-	res := ResourcesScanner{logger: l, stopOnError: stopOnError, walkFn: walkFn}
+func NewResourcesScanner(
+	l logger.Logger,
+	stopOnError bool,
+	walkFn WalkFunction,
+	includeJSONManifests bool) *ResourcesScanner {
+	res := ResourcesScanner{logger: l, stopOnError: stopOnError, walkFn: walkFn, includeJSONManifests: includeJSONManifests}
 
 	scheme := runtime.NewScheme()
 	Codecs := serializer.NewCodecFactory(scheme)
@@ -144,18 +152,18 @@ func (yd *yamlDocument) DocID() int {
 // GetYAMLDocumentsFromPath returns a list of YAML documents from input dir path
 func (sc *ResourcesScanner) GetYAMLDocumentsFromPath(repoDir string) ([]YAMLDocumentIntf, []FileProcessingError) {
 	res := make([]YAMLDocumentIntf, 0)
-	manifestFiles, fileScanErrors := sc.searchYamlFiles(repoDir)
+	manifestFilesMap, fileScanErrors := sc.searchYamlFiles(repoDir)
 	if stopProcessing(sc.stopOnError, fileScanErrors) {
 		return nil, fileScanErrors
 	}
 
-	if len(manifestFiles) == 0 {
+	if len(manifestFilesMap) == 0 {
 		fileScanErrors = appendAndLogNewError(fileScanErrors, noYamlsFound(), sc.logger)
 		return nil, fileScanErrors
 	}
 
-	for _, mfp := range manifestFiles {
-		yamlDocs, errs := sc.splitByYamlDocuments(mfp)
+	for mfp, isYAML := range manifestFilesMap {
+		yamlDocs, errs := sc.splitByYamlDocuments(mfp, isYAML)
 		res = append(res, yamlDocs...)
 		fileScanErrors = append(fileScanErrors, errs...)
 		if stopProcessing(sc.stopOnError, errs) {
@@ -231,6 +239,7 @@ var (
 		Networkpolicy, Namespace, Service, Route, Ingress, List, NamespaceList, PodList, NetworkpolicyList)
 	acceptedK8sTypes = regexp.MustCompile(acceptedK8sTypesRegex)
 	yamlSuffix       = regexp.MustCompile(".ya?ml$")
+	jsonSuffix       = regexp.MustCompile(".json$")
 )
 
 // relevant K8s resource kinds as string values
@@ -271,11 +280,36 @@ var singleResourceK8sKinds = map[string]bool{
 	Ingress:               false,
 }
 
-// given a YAML file content, split to a list of YAML documents
-func (sc *ResourcesScanner) splitByYamlDocuments(mfp string) ([]YAMLDocumentIntf, []FileProcessingError) {
+func convertJSONInputToYAML(srcBytes []byte) ([]byte, error) {
+	var data interface{}
+	if err := json.Unmarshal(srcBytes, &data); err != nil {
+		return nil, err
+	}
+
+	out, err := yamlv3.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	// TODO: temporary work around (see issue with test_with_named_ports/pod_list.json)
+	outString := strings.ReplaceAll(string(out), "ports: {}", "ports: []")
+
+	return []byte(outString), nil
+}
+
+// given a YAML file content, split to a list of YAML documents. if isYAML is false, the input file is JSON
+// and should be converted to YAML, and then split to its documents
+func (sc *ResourcesScanner) splitByYamlDocuments(mfp string, isYAML bool) ([]YAMLDocumentIntf, []FileProcessingError) {
 	fileBuf, err := os.ReadFile(mfp)
 	if err != nil {
 		return []YAMLDocumentIntf{}, appendAndLogNewError(nil, failedReadingFile(mfp, err), sc.logger)
+	}
+
+	if !isYAML && sc.includeJSONManifests {
+		// convert JSON to YAML
+		fileBuf, err = convertJSONInputToYAML(fileBuf)
+		if err != nil {
+			return []YAMLDocumentIntf{}, appendAndLogNewError(nil, failedReadingFile(mfp, err), sc.logger)
+		}
 	}
 
 	decoder := yamlv3.NewDecoder(bytes.NewBuffer(fileBuf))
@@ -379,9 +413,9 @@ func manifestToK8sObjects(yamlDoc YAMLDocumentIntf, kind string) ([]K8sObject, e
 
 const yamlParseBufferSize = 200
 
-// return a list of paths for yaml files in the input dir path
-func (sc *ResourcesScanner) searchYamlFiles(repoDir string) ([]string, []FileProcessingError) {
-	yamls := make([]string, 0)
+// return a map from manifest file paths to bool flag indicating if it is YAML (true) or JSON (false)
+func (sc *ResourcesScanner) searchYamlFiles(repoDir string) (map[string]bool, []FileProcessingError) {
+	res := map[string]bool{}
 	processingErrors := make([]FileProcessingError, 0)
 	err := sc.walkFn(repoDir, func(path string, f os.DirEntry, err error) error {
 		if err != nil {
@@ -392,14 +426,16 @@ func (sc *ResourcesScanner) searchYamlFiles(repoDir string) ([]string, []FilePro
 			return filepath.SkipDir
 		}
 		if f != nil && !f.IsDir() && yamlSuffix.MatchString(f.Name()) {
-			yamls = append(yamls, path)
+			res[path] = true
+		} else if sc.includeJSONManifests && f != nil && !f.IsDir() && jsonSuffix.MatchString(f.Name()) {
+			res[path] = false
 		}
 		return nil
 	})
 	if err != nil {
 		sc.logger.Errorf(err, "Error walking directory")
 	}
-	return yamls, processingErrors
+	return res, processingErrors
 }
 
 // given YAML of kind "List" , parse and convert to slice of K8sObject

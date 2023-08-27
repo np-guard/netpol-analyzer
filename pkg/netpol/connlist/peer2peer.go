@@ -12,14 +12,16 @@ import (
 // Peer2PeerConnection encapsulates the allowed connectivity result between two peers.
 type Peer2PeerConnection interface {
 	// Src returns the source peer
-	Src() eval.Peer
+	Src() Peer
 	// Dst returns the destination peer
-	Dst() eval.Peer
+	Dst() Peer
 	// AllProtocolsAndPorts returns true if all ports are allowed for all protocols
 	AllProtocolsAndPorts() bool
 	// ProtocolsAndPorts returns the set of allowed connections
 	ProtocolsAndPorts() map[v1.Protocol][]common.PortRange
 }
+
+type Peer eval.Peer
 
 // RefineConnListByDisjointPeers is given as input Peer2PeerConnection slice and a map from peer-str to its disjoint peers,
 // and returns a new Peer2PeerConnection slice with refined ip-blocks from their disjoint peers

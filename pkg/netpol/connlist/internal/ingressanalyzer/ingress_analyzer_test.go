@@ -17,7 +17,7 @@ import (
 )
 
 // global scanner object for testing
-var scanner = scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir)
+var scanner = scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir, false)
 
 func TestIngressAnalyzerWithRoutes(t *testing.T) {
 	routesNamespace := "frontend"

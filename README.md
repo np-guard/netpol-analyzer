@@ -37,7 +37,8 @@ Flags:
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
-  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster 
+      --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
+  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
   -q, --quiet               Runs quietly, reports only severe errors and results
   -v, --verbose             Runs with more informative messages printed to log
 ```
@@ -59,13 +60,16 @@ Examples:
   k8snetpolicy list -k ./kube/config
 
 Flags:
-      --focusworkload       Focus connections of specified workload name in the output
+  -f, --file string            Write output to specified file
+      --focusworkload       Focus connections of specified workload in the output (supported formats: <workload-name>, <workload-namespace>/<workload-name>)
+                            (to focus connections from Ingress/Route only, use `ingress-controller` as <workload-name>)
   -o, --output string       Required output format (txt, json, dot, csv, md) (default "txt")
   -h, --help   help for list
 
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
+      --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
   -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
   -q, --quiet               Runs quietly, reports only severe errors and results
   -v, --verbose             Runs with more informative messages printed to log
@@ -85,8 +89,17 @@ Examples:
 Flags:
       --dir1  string  First resources dir path
       --dir2  string  Second resources dir path to be compared with the first dir path
+  -f, --file string            Write output to specified file
   -o, --output string Required output format (txt, csv, md) (default "txt")  
   -h, --help   help for diff
+
+Global Flags:
+  -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
+      --dirpath string      Resources dir path when evaluating connections from a dir
+      --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
+  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
+  -q, --quiet               Runs quietly, reports only severe errors and results
+  -v, --verbose             Runs with more informative messages printed to log  
 ```
 
 ### Example outputs:

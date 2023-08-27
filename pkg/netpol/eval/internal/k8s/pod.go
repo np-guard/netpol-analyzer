@@ -230,12 +230,15 @@ func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 	return res
 }
 
+const noPort = -1
+
 // ConvertPodNamedPort returns the ContainerPort number that matches the named port
-func (pod *Pod) ConvertPodNamedPort(namedPort string) (int32, error) {
+// if there is no match, returns -1
+func (pod *Pod) ConvertPodNamedPort(namedPort string) int32 {
 	for _, containerPort := range pod.Ports {
 		if namedPort == containerPort.Name {
-			return containerPort.ContainerPort, nil
+			return containerPort.ContainerPort
 		}
 	}
-	return 0, errors.New("named port is not defined in a selected workload " + pod.Owner.Name)
+	return noPort
 }

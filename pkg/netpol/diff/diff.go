@@ -19,12 +19,13 @@ import (
 // A DiffAnalyzer provides API to recursively scan two directories for Kubernetes resources including network policies,
 // and get the difference of permitted connectivity between the workloads of the K8s application managed in theses directories.
 type DiffAnalyzer struct {
-	logger       logger.Logger
-	stopOnError  bool
-	errors       []DiffError
-	walkFn       scan.WalkFunction
-	scanner      *scan.ResourcesScanner
-	outputFormat string
+	logger               logger.Logger
+	stopOnError          bool
+	errors               []DiffError
+	walkFn               scan.WalkFunction
+	scanner              *scan.ResourcesScanner
+	outputFormat         string
+	includeJSONManifests bool
 }
 
 // ValidDiffFormats are the supported formats for output generation of the diff command
@@ -57,6 +58,13 @@ func WithStopOnError() DiffAnalyzerOption {
 	}
 }
 
+// WithIncludeJSONManifests is a functional option which directs ConnlistAnalyzer to include JSON manifests in the analysis
+func WithIncludeJSONManifests() DiffAnalyzerOption {
+	return func(d *DiffAnalyzer) {
+		d.includeJSONManifests = true
+	}
+}
+
 // NewDiffAnalyzer creates a new instance of DiffAnalyzer, and applies the provided functional options.
 func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 	// object with default behavior options
@@ -70,13 +78,31 @@ func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 	for _, o := range options {
 		o(da)
 	}
-	da.scanner = scan.NewResourcesScanner(da.logger, da.stopOnError, da.walkFn)
+	da.scanner = scan.NewResourcesScanner(da.logger, da.stopOnError, da.walkFn, da.includeJSONManifests)
 	return da
 }
 
 // Errors returns a slice of DiffError with all warnings and errors encountered during processing.
 func (da *DiffAnalyzer) Errors() []DiffError {
 	return da.errors
+}
+
+// return true if has fatal error or severe with flag stopOnError
+func (da *DiffAnalyzer) stopProcessing() bool {
+	for idx := range da.errors {
+		if da.errors[idx].IsFatal() || da.stopOnError && da.errors[idx].IsSevere() {
+			return true
+		}
+	}
+	return false
+}
+
+// appending connlist warnings and severe errors to diff_errors
+func (da *DiffAnalyzer) appendConnlistErrorsToDiffErrors(caErrors []connlist.ConnlistError) {
+	for _, e := range caErrors {
+		// interfaces ConnlistError and DiffError has same functionality, so we can append to each other implicitly
+		da.errors = append(da.errors, e)
+	}
 }
 
 // ConnDiffFromDirPaths returns the connectivity diffs from two dir paths containing k8s resources
@@ -89,23 +115,26 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 		caAnalyzer = connlist.NewConnlistAnalyzer(connlist.WithLogger(da.logger), connlist.WithWalkFn(da.walkFn))
 	}
 	var conns1, conns2 []connlist.Peer2PeerConnection
-	var workloads1, workloads2 []eval.Peer
+	var workloads1, workloads2 []connlist.Peer
 	var workloadsNames1, workloadsNames2 map[string]bool
 	var err error
 	if conns1, workloads1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
 		da.errors = append(da.errors, newConnectionsAnalyzingError(err, true, false))
 		return nil, err
 	}
+	da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
+	if da.stopProcessing() {
+		return &connectivityDiff{}, nil
+	}
 	if conns2, workloads2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
 		da.errors = append(da.errors, newConnectionsAnalyzingError(err, true, false))
 		return nil, err
 	}
-	workloadsNames1, workloadsNames2 = getPeersNamesFromPeersList(workloads1), getPeersNamesFromPeersList(workloads2)
-
-	// appending connlist warnings and severe errors to diff_errors
-	for _, e := range caAnalyzer.Errors() {
-		da.errors = append(da.errors, e)
+	da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
+	if da.stopProcessing() {
+		return &connectivityDiff{}, nil
 	}
+	workloadsNames1, workloadsNames2 = getPeersNamesFromPeersList(workloads1), getPeersNamesFromPeersList(workloads2)
 
 	// get disjoint ip-blocks from both configs
 	ipPeers1, ipPeers2 := getIPblocksFromConnList(conns1), getIPblocksFromConnList(conns2)
@@ -132,7 +161,7 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 }
 
 // create set from peers-strings
-func getPeersNamesFromPeersList(peers []eval.Peer) map[string]bool {
+func getPeersNamesFromPeersList(peers []connlist.Peer) map[string]bool {
 	peersSet := make(map[string]bool, 0)
 	for _, peer := range peers {
 		if !peer.IsPeerIPType() {

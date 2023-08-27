@@ -15,6 +15,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -27,8 +28,8 @@ import (
 
 var (
 	focusWorkload string
-	// output format
-	output string
+	output        string // output format
+	outFile       string // output file
 )
 
 func runListCommand() error {
@@ -36,8 +37,7 @@ func runListCommand() error {
 	var err error
 
 	clogger := logger.NewDefaultLoggerWithVerbosity(detrmineLogVerbosity())
-	analyzer := connlist.NewConnlistAnalyzer(connlist.WithLogger(clogger), connlist.WithFocusWorkload(focusWorkload),
-		connlist.WithOutputFormat(output))
+	analyzer := connlist.NewConnlistAnalyzer(getConnlistOptions(clogger)...)
 
 	if dirPath != "" {
 		conns, _, err = analyzer.ConnlistFromDirPath(dirPath)
@@ -53,7 +53,36 @@ func runListCommand() error {
 	}
 	fmt.Printf("%s", out)
 
+	if outFile != "" {
+		return writeBufToFile(outFile, []byte(out))
+	}
+
 	return nil
+}
+
+func writeBufToFile(filepath string, buf []byte) error {
+	fp, err := os.Create(filepath)
+	if err != nil {
+		return fmt.Errorf("error creating file %s: %w", filepath, err)
+	}
+	_, err = fp.Write(buf)
+	if err != nil {
+		return fmt.Errorf("error writing to file %s: %w", filepath, err)
+	}
+	fp.Close()
+	return nil
+}
+
+func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOption {
+	res := []connlist.ConnlistAnalyzerOption{
+		connlist.WithLogger(l),
+		connlist.WithFocusWorkload(focusWorkload),
+		connlist.WithOutputFormat(output),
+	}
+	if includeJSONManifests {
+		res = append(res, connlist.WithIncludeJSONManifests())
+	}
+	return res
 }
 
 // newCommandList returns a cobra command with the appropriate configuration and flags to run list command
@@ -95,10 +124,12 @@ defined`,
 
 	// define any flags and configuration settings.
 	// Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
-	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "", "Focus connections of specified workload name in the output")
+	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "",
+		"Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)")
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
 	c.Flags().StringVarP(&output, "output", "o", common.DefaultFormat, "Required output format ("+supportedFormats+")")
-
+	// out file
+	c.Flags().StringVarP(&outFile, "file", "f", "", "Write output to specified file")
 	return c
 }
