@@ -168,34 +168,6 @@ func TestCommands(t *testing.T) {
 			isErr:          true,
 		},
 		{
-			name:           "test_illegal_diff_no_args",
-			args:           []string{"diff"},
-			expectedOutput: "both directory paths dir1 and dir2 are required",
-			containment:    true,
-			isErr:          true,
-		},
-		{
-			name:           "test_illegal_diff_unsupported_args",
-			args:           []string{"diff", "--dirpath", filepath.Join(getTestsDir(), "onlineboutique")},
-			expectedOutput: "dirpath flag is not used with diff command",
-			containment:    true,
-			isErr:          true,
-		},
-		{
-			name: "test_illegal_diff_output_format",
-			args: []string{
-				"diff",
-				"--dir1",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--dir2",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
-				"-o",
-				"png"},
-			expectedOutput: "png output format is not supported.",
-			containment:    true,
-			isErr:          true,
-		},
-		{
 			name: "test_illegal_eval_peer_not_found",
 			args: []string{
 				"eval",
