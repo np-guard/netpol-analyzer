@@ -143,16 +143,16 @@ func TestDiff(t *testing.T) {
 }
 
 type testErrEntry struct {
-	name            string
-	dir1            string
-	dir2            string
-	errStr          string
-	isCaFatalErr    bool
-	isCaSevereErr   bool
-	isCaWarning     bool
-	isFormattingErr bool
-	format          string
-	emptyRes        bool
+	name              string
+	dir1              string
+	dir2              string
+	errStr            string
+	isCaFatalErr      bool
+	isCaSevereErr     bool
+	isCaWarning       bool
+	isFormattingErr   bool
+	format            string
+	expectNonEmptyRes bool
 }
 
 var formattingErrType = &resultFormattingError{} // error returned from getting/writing output format
@@ -221,20 +221,20 @@ func TestDiffErrors(t *testing.T) {
 			isCaFatalErr: true,
 		},
 		{
-			name:          "dir 1 has no k8s resources",
-			dir1:          filepath.Join("bad_yamls", "not_a_k8s_resource.yaml"),
-			dir2:          "ipblockstest",
-			errStr:        "Yaml document is not a K8s resource",
-			isCaSevereErr: true,  // severe error, stops only if stopOnError = true
-			emptyRes:      false, // only one dir contains severe error
+			name:              "dir 1 has no k8s resources",
+			dir1:              filepath.Join("bad_yamls", "not_a_k8s_resource.yaml"),
+			dir2:              "ipblockstest",
+			errStr:            "Yaml document is not a K8s resource",
+			isCaSevereErr:     true, // severe error, stops only if stopOnError = true
+			expectNonEmptyRes: true, // only one dir contains severe error, so if we run without stopOnError, the analyzer generates a diff report
 		},
 		{
-			name:          "dir 1 has malformed yaml",
-			dir1:          filepath.Join("bad_yamls", "document_with_syntax_error.yaml"),
-			dir2:          "ipblockstest",
-			errStr:        "YAML document is malformed",
-			isCaSevereErr: true,  // severe error, stops only if stopOnError = true
-			emptyRes:      false, // only one dir contains severe error
+			name:              "dir 1 has malformed yaml",
+			dir1:              filepath.Join("bad_yamls", "document_with_syntax_error.yaml"),
+			dir2:              "ipblockstest",
+			errStr:            "YAML document is malformed",
+			isCaSevereErr:     true, // severe error, stops only if stopOnError = true
+			expectNonEmptyRes: true, // only one dir contains severe error, so if we run without stopOnError, the analyzer generates a diff report
 		},
 		{
 			name:        "dir 1 warning, has no netpols",
@@ -252,12 +252,12 @@ func TestDiffErrors(t *testing.T) {
 			isCaWarning: true,
 		},
 		{
-			name:          "both dirs return severe errors on their malformed yaml files",
-			dir1:          "dirty",
-			dir2:          "dirty",
-			errStr:        "YAML document is malformed",
-			isCaSevereErr: true,
-			emptyRes:      true, // both dirs contain severe errors, no computations
+			name:              "both dirs return severe errors on their malformed yaml files",
+			dir1:              "dirty",
+			dir2:              "dirty",
+			errStr:            "YAML document is malformed",
+			isCaSevereErr:     true,
+			expectNonEmptyRes: false, // both dirs contain severe errors, no computations with/without stopOnError
 		},
 	}
 
@@ -289,7 +289,7 @@ func TestDiffErrors(t *testing.T) {
 		if entry.isCaSevereErr { // severe error not returned in err, but with stopOnError, empty res with it in the errors
 			require.Nil(t, err1, "test: %s", entry.name)
 			require.Nil(t, err2, "test: %s", entry.name)
-			if !entry.emptyRes {
+			if entry.expectNonEmptyRes {
 				// diffAnalyzer did not stop, result not empty unless no computations could be done, both dirs are not good
 				require.False(t, connsDiff1.isEmpty(), "test: %s", entry.name)
 			}

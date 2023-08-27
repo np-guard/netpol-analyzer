@@ -89,8 +89,7 @@ func (da *DiffAnalyzer) Errors() []DiffError {
 
 // loops the errors that were returned from the connlistAnalyzer
 // (as only connlistAnalyzer.Errors() may contain severe errors; all other DiffAnalyzer errors are fatal),
-// returns true if has severe error with flag stopOnError
-// if it has fatal error , means it returned before calling this,
+// returns true if has fatal error or severe error with flag stopOnError
 func (da *DiffAnalyzer) stopProcessing(caErrors []connlist.ConnlistError) bool {
 	for _, e := range caErrors {
 		if e.IsFatal() || da.stopOnError && e.IsSevere() {
