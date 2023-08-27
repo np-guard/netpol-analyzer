@@ -129,6 +129,13 @@ func TestDiff(t *testing.T) {
 			secondDirName: "with_end_port_example_new",
 			formats:       allFormats,
 		},
+		{
+			// description:
+			// **changed netpol: kube-system-dummy-to-ignore/ingress-based-on-named-ports
+			firstDirName:  "test_with_named_ports",
+			secondDirName: "test_with_named_ports_changed_netpol",
+			formats:       []string{common.DefaultFormat},
+		},
 	}
 
 	for _, entry := range testingEntries {
@@ -138,7 +145,7 @@ func TestDiff(t *testing.T) {
 			expectedOutputFileName := expectedOutputFilePrefix + entry.firstDirName + "." + format
 			expectedOutputFilePath := filepath.Join(secondDirPath, expectedOutputFileName)
 
-			diffAnalyzer := NewDiffAnalyzer(WithOutputFormat(format))
+			diffAnalyzer := NewDiffAnalyzer(WithOutputFormat(format), WithIncludeJSONManifests())
 			connsDiff, err := diffAnalyzer.ConnDiffFromDirPaths(firstDirPath, secondDirPath)
 			require.Empty(t, err)
 			actualOutput, err := diffAnalyzer.ConnectivityDiffToString(connsDiff)
