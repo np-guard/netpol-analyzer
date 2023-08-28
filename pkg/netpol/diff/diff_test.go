@@ -143,6 +143,13 @@ func TestDiff(t *testing.T) {
 			secondDirName: "multiple_topology_resources_4",
 			formats:       []string{common.DefaultFormat},
 		},
+		{
+			// description:
+			// **changed netpols: limited egress in all policies , and limited ingress for loadgenerator
+			firstDirName:  "new_online_boutique",
+			secondDirName: "new_online_boutique_synthesis",
+			formats:       []string{common.DefaultFormat},
+		},
 	}
 
 	for _, entry := range testingEntries {
