@@ -82,6 +82,9 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 	if includeJSONManifests {
 		res = append(res, connlist.WithIncludeJSONManifests())
 	}
+	if stopOnFirstError {
+		res = append(res, connlist.WithStopOnError())
+	}
 	return res
 }
 
