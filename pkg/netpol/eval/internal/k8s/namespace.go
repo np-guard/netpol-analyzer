@@ -23,6 +23,8 @@ type Namespace struct {
 	Labels map[string]string
 }
 
+const K8sNsNameLabelKey = "kubernetes.io/metadata.name"
+
 // @todo need a Namespace collection type along with convenience methods?
 // 	if so, also consider concurrent access (or declare not goroutine safe?)
 
@@ -36,5 +38,10 @@ func NamespaceFromCoreObject(ns *corev1.Namespace) (*Namespace, error) {
 	for k, v := range ns.Labels {
 		n.Labels[k] = v
 	}
+
+	if _, ok := n.Labels[K8sNsNameLabelKey]; !ok {
+		n.Labels[K8sNsNameLabelKey] = ns.Name
+	}
+
 	return n, nil
 }
