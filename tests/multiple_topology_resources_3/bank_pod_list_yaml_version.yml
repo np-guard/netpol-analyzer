@@ -25,7 +25,7 @@ items:
     ownerReferences:
     - apiVersion: extensions/v1beta1
       kind: DaemonSet
-      name: cog-agents
+      name: cog-agents-bank-ui
       uid: 14265cc3-301f-11e8-865c-52075433990e
       controller: true
       blockOwnerDeletion: true
@@ -154,7 +154,7 @@ items:
     ownerReferences:
     - apiVersion: extensions/v1beta1
       kind: DaemonSet
-      name: cog-agents
+      name: cog-agents-account-query
       uid: 14265cc3-301f-11e8-865c-52075433990e
       controller: true
       blockOwnerDeletion: true
@@ -283,7 +283,7 @@ items:
     ownerReferences:
     - apiVersion: extensions/v1beta1
       kind: DaemonSet
-      name: cog-agents
+      name: cog-agents-account-command
       uid: 14265cc3-301f-11e8-865c-52075433990e
       controller: true
       blockOwnerDeletion: true

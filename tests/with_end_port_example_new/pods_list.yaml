@@ -55,7 +55,7 @@ items:
               blockOwnerDeletion: true
               controller: true
               kind: DaemonSet
-              name: cog-agents
+              name: cog-agents-analyzer
               uid: 14265cc3-301f-11e8-865c-52075433990e
       spec:
         containers:
@@ -192,7 +192,7 @@ items:
               blockOwnerDeletion: true
               controller: true
               kind: DaemonSet
-              name: calico-node
+              name: calico-node-frontend
               uid: bd04ac9e-2134-11e8-a8d4-32799206ac60
       spec:
         containers:
@@ -332,7 +332,7 @@ items:
               blockOwnerDeletion: true
               controller: true
               kind: DaemonSet
-              name: keepalived-watcher
+              name: keepalived-watcher-not-frontend
               uid: 3254bea7-2135-11e8-a8d4-32799206ac60
       spec:
         containers:
@@ -371,7 +371,7 @@ items:
               blockOwnerDeletion: true
               controller: true
               kind: DaemonSet
-              name: kube-fluentd
+              name: kube-fluentd-frontend
               uid: aa09f313-2162-11e8-a8d4-32799206ac60
       spec:
         containers:
