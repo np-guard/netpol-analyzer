@@ -40,6 +40,7 @@ func NamespaceFromCoreObject(ns *corev1.Namespace) (*Namespace, error) {
 		n.Labels[k] = v
 	}
 
+	// if missing, the label set by k8s API server must be added to the namespace labels
 	if _, ok := n.Labels[K8sNsNameLabelKey]; !ok {
 		n.Labels[K8sNsNameLabelKey] = ns.Name
 	}
