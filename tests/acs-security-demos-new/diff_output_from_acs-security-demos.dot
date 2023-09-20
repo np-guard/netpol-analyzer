@@ -20,7 +20,7 @@ digraph {
 	"backend/checkout[Deployment]" -> "payments/gateway[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
 	"backend/recommendation[Deployment]" -> "backend/catalog[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
 	"backend/recommendation[Deployment]" -> "external/unicorn[Deployment]" [label="UDP 5353" color="green" fontcolor="green"]
-	"backend/reports[Deployment]" -> "backend/catalog[Deployment]" [label="TCP 8080->TCP 9080" color="gold2" fontcolor="gold2"]
+	"backend/reports[Deployment]" -> "backend/catalog[Deployment]" [label="TCP 9080 (was: TCP 8080)" color="gold2" fontcolor="gold2"]
 	"backend/reports[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
 	"backend/reports[Deployment]" -> "external/unicorn[Deployment]" [label="UDP 5353" color="green" fontcolor="green"]
 	"external/unicorn[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="green" fontcolor="green"]

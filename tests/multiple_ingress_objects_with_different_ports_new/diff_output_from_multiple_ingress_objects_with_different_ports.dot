@@ -4,5 +4,5 @@ digraph {
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
 	"0.0.0.0-255.255.255.255" -> "ingressworld/ingress-world-multiple-ports[Deployment]" [label="All Connections" color="grey" fontcolor="grey"]
 	"ingressworld/ingress-world-multiple-ports[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="grey" fontcolor="grey"]
-	"{ingress-controller}" -> "ingressworld/ingress-world-multiple-ports[Deployment]" [label="TCP 8050,8090->TCP 8000,8090" color="gold2" fontcolor="gold2"]
+	"{ingress-controller}" -> "ingressworld/ingress-world-multiple-ports[Deployment]" [label="TCP 8000,8090 (was: TCP 8050,8090)" color="gold2" fontcolor="gold2"]
 }

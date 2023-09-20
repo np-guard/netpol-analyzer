@@ -67,6 +67,7 @@ func getConnPeersStrings(c *ConnsPair) (srcStr, dstStr string, isSrcIngress bool
 		return "", "", false // should not get here
 	}
 }
+
 func getDirsConnsStrings(c *ConnsPair) (dir1Str, dir2Str string) {
 	switch c.diffType {
 	case changedType, nonChangedType:
@@ -264,10 +265,10 @@ func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 	return strings.Join(allLines, newLine), nil
 }
 
-func getEdgesAndPeersLinesByCategory(connsPairs []*ConnsPair, peersSet map[string]bool) (pLines, cEdges, iEdges []string) {
-	peersLines := make([]string, 0)
-	connsEdges := make([]string, 0)
-	ingressEdges := make([]string, 0)
+func getEdgesAndPeersLinesByCategory(connsPairs []*ConnsPair, peersSet map[string]bool) (peersLines, connsEdges, ingressEdges []string) {
+	peersLines = make([]string, 0)
+	connsEdges = make([]string, 0)
+	ingressEdges = make([]string, 0)
 	for _, connsPair := range connsPairs {
 		src, dst, isIngress := getConnPeersStrings(connsPair)
 		// add peers lines (which are still not in the set)
@@ -324,7 +325,8 @@ func addEdgesLines(connsPair *ConnsPair) string {
 	case nonChangedType:
 		return getEdgeLine(src, dst, firstConn, nonChangedConnColor)
 	case changedType:
-		return getEdgeLine(src, dst, firstConn+"->"+secondConn, changedConnColor)
+		changedEdgeLabel := secondConn + " (was: " + firstConn + ")"
+		return getEdgeLine(src, dst, changedEdgeLabel, changedConnColor)
 	case removedType:
 		return getEdgeLine(src, dst, firstConn, removedConnColor)
 	case addedType:
