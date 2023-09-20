@@ -270,7 +270,7 @@ func getEdgesAndPeersLinesByCategory(connsPairs []*ConnsPair, peersSet map[strin
 	ingressEdges := make([]string, 0)
 	for _, connsPair := range connsPairs {
 		src, dst, isIngress := getConnPeersStrings(connsPair)
-		// add peers lines (which still not in the set)
+		// add peers lines (which are still not in the set)
 		if !peersSet[src] {
 			peersSet[src] = true
 			peersLines = append(peersLines, addPeerLine(src, connsPair.diffType, connsPair.newOrLostSrc))
