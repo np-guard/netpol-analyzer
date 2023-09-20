@@ -131,6 +131,10 @@ func TestConnList(t *testing.T) {
 			testDirName:   "multiple_topology_resources_4",
 			outputFormats: []string{common.TextFormat},
 		},
+		{
+			testDirName:   "minimal_test_in_ns",
+			outputFormats: []string{common.TextFormat},
+		},
 	}
 
 	for _, entry := range testingEntries {
