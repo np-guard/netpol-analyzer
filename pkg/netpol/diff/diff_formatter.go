@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 )
 
@@ -222,11 +223,6 @@ func (cs *diffFormatCSV) singleDiffLine(d *singleDiffFields) string {
 type diffFormatDOT struct {
 }
 
-const (
-	dotHeader  = "digraph {"
-	dotClosing = "}"
-)
-
 func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, error) {
 	var edgeLines, peersLines, ingressAnalyzerEdges []string
 	peersVisited := make(map[string]bool, 0) // set of peers
@@ -257,11 +253,11 @@ func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 	sort.Strings(ingressAnalyzerEdges)
 
 	// write graph
-	allLines := []string{dotHeader}
+	allLines := []string{common.DotHeader}
 	allLines = append(allLines, peersLines...)
 	allLines = append(allLines, edgeLines...)
 	allLines = append(allLines, ingressAnalyzerEdges...)
-	allLines = append(allLines, dotClosing)
+	allLines = append(allLines, common.DotClosing)
 	return strings.Join(allLines, newLine), nil
 }
 
