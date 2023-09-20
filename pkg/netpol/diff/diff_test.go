@@ -96,8 +96,8 @@ func TestDiff(t *testing.T) {
 		},
 		{
 			// description:
-			// changed netpols : default/limit-app1-traffic
-			// in first dir connlist, default/deployment1 does not appear even it exists, since the netpol denies all traffic from/to it
+			// **changed netpols : default/limit-app1-traffic
+			// **in first dir connlist, default/deployment1 does not appear even it exists, since the netpol denies all traffic from/to it
 			// in second dir , the netpol limits the ingress of it , so it appears in the diff
 			firstDirName:  "deny_all_to_from_a_deployment",
 			secondDirName: "deny_all_to_from_a_deployment_changed_netpol",
@@ -121,6 +121,35 @@ func TestDiff(t *testing.T) {
 			secondDirName: "netpol-diff-example-minimal",
 			formats:       allFormats,
 		},
+		{
+			// description:
+			// **removed netpol: enable-all-protocols-with-all-ports
+			// **added netpol: enable-all-traffic
+			firstDirName:  "with_end_port_example",
+			secondDirName: "with_end_port_example_new",
+			formats:       allFormats,
+		},
+		{
+			// description:
+			// **changed netpol: kube-system-dummy-to-ignore/ingress-based-on-named-ports
+			firstDirName:  "test_with_named_ports",
+			secondDirName: "test_with_named_ports_changed_netpol",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **added netpol: default/policy-from2-to1
+			firstDirName:  "multiple_topology_resources_3",
+			secondDirName: "multiple_topology_resources_4",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **changed netpols: limited egress in all policies , and limited ingress for loadgenerator
+			firstDirName:  "new_online_boutique",
+			secondDirName: "new_online_boutique_synthesis",
+			formats:       []string{common.DefaultFormat},
+		},
 	}
 
 	for _, entry := range testingEntries {
@@ -130,7 +159,7 @@ func TestDiff(t *testing.T) {
 			expectedOutputFileName := expectedOutputFilePrefix + entry.firstDirName + "." + format
 			expectedOutputFilePath := filepath.Join(secondDirPath, expectedOutputFileName)
 
-			diffAnalyzer := NewDiffAnalyzer(WithOutputFormat(format))
+			diffAnalyzer := NewDiffAnalyzer(WithOutputFormat(format), WithIncludeJSONManifests())
 			connsDiff, err := diffAnalyzer.ConnDiffFromDirPaths(firstDirPath, secondDirPath)
 			require.Empty(t, err)
 			actualOutput, err := diffAnalyzer.ConnectivityDiffToString(connsDiff)

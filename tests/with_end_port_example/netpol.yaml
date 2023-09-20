@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-all-protocols-with-all-ports
+  namespace: kube-system
+spec:
+  podSelector: {}
+  #podSelector:
+  #  matchLabels:
+  #    tier: frontend
+  policyTypes:
+  - Ingress
+  ingress:
+    - ports:
+        - port: 1
+          endPort: 65535
+          protocol: UDP
+        - port: 1
+          endPort: 65535
+          protocol: TCP
+        - port: 1
+          endPort: 65535
+          protocol: SCTP
