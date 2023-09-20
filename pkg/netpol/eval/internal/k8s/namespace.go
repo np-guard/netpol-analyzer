@@ -23,6 +23,7 @@ type Namespace struct {
 	Labels map[string]string
 }
 
+// The Kubernetes API server sets this label on all namespaces
 const K8sNsNameLabelKey = "kubernetes.io/metadata.name"
 
 // @todo need a Namespace collection type along with convenience methods?
