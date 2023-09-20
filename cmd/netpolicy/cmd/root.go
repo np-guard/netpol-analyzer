@@ -35,6 +35,7 @@ var (
 	quiet                bool
 	verbose              bool
 	includeJSONManifests bool
+	stopOnFirstError     bool
 )
 
 // returns verbosity level based on the -q and -v switches
@@ -98,6 +99,7 @@ func newCommandRoot() *cobra.Command {
 	c.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "runs with more informative messages printed to log")
 	c.PersistentFlags().BoolVarP(&includeJSONManifests, "include-json", "", false,
 		"consider JSON manifests (in addition to YAML) when analyzing from dir")
+	c.PersistentFlags().BoolVarP(&stopOnFirstError, "fail", "", false, "fail on the first encountered error")
 
 	// add sub-commands
 	c.AddCommand(newCommandEvaluate())

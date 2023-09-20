@@ -1,0 +1,47 @@
+{
+  "kind": "NamespaceList",
+  "apiVersion": "v1",
+  "metadata": {
+    "selfLink": "/api/v1/namespaces",
+    "resourceVersion": "2996488"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "default",
+        "selfLink": "/api/v1/namespaces/default",
+        "uid": "7a9b0f05-2134-11e8-a8d4-32799206ac60",
+        "resourceVersion": "11",
+        "creationTimestamp": "2018-03-06T11:49:51Z",
+        "labels": {
+          "unique-label": "defaultNameSpace"
+        }
+      },
+      "spec": {
+        "finalizers": [
+          "kubernetes"
+        ]
+      },
+      "status": {
+        "phase": "Active"
+      }
+    },
+    {
+      "metadata": {
+        "name": "demo",
+        "selfLink": "/api/v1/namespaces/dlaas",
+        "uid": "7a9b0f05-2134-11e8-a8d4-32799206ac64",
+        "resourceVersion": "11",
+        "creationTimestamp": "2018-03-06T11:49:51Z"
+      },
+      "spec": {
+        "finalizers": [
+          "kubernetes"
+        ]
+      },
+      "status": {
+        "phase": "Active"
+      }
+    }
+  ]
+}
