@@ -23,7 +23,6 @@ type DiffAnalyzer struct {
 	stopOnError          bool
 	errors               []DiffError
 	walkFn               scan.WalkFunction
-	scanner              *scan.ResourcesScanner
 	outputFormat         string
 	includeJSONManifests bool
 }
@@ -78,7 +77,6 @@ func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 	for _, o := range options {
 		o(da)
 	}
-	da.scanner = scan.NewResourcesScanner(da.logger, da.stopOnError, da.walkFn, da.includeJSONManifests)
 	return da
 }
 
@@ -105,15 +103,20 @@ func (da *DiffAnalyzer) appendConnlistErrorsToDiffErrors(caErrors []connlist.Con
 	}
 }
 
+func (da *DiffAnalyzer) determineConnlistAnalyzerOptionsForDiffAnalysis() []connlist.ConnlistAnalyzerOption {
+	res := []connlist.ConnlistAnalyzerOption{connlist.WithLogger(da.logger), connlist.WithWalkFn(da.walkFn)}
+	if da.includeJSONManifests {
+		res = append(res, connlist.WithIncludeJSONManifests())
+	}
+	if da.stopOnError {
+		res = append(res, connlist.WithStopOnError())
+	}
+	return res
+}
+
 // ConnDiffFromDirPaths returns the connectivity diffs from two dir paths containing k8s resources
 func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (ConnectivityDiff, error) {
-	var caAnalyzer *connlist.ConnlistAnalyzer
-	if da.stopOnError {
-		caAnalyzer = connlist.NewConnlistAnalyzer(connlist.WithLogger(da.logger), connlist.WithWalkFn(da.walkFn),
-			connlist.WithStopOnError())
-	} else {
-		caAnalyzer = connlist.NewConnlistAnalyzer(connlist.WithLogger(da.logger), connlist.WithWalkFn(da.walkFn))
-	}
+	caAnalyzer := connlist.NewConnlistAnalyzer(da.determineConnlistAnalyzerOptionsForDiffAnalysis()...)
 	var conns1, conns2 []connlist.Peer2PeerConnection
 	var workloads1, workloads2 []connlist.Peer
 	var workloadsNames1, workloadsNames2 map[string]bool
