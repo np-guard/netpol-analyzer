@@ -1,20 +1,16 @@
 package diff
 
 import (
-	"bytes"
-	"encoding/csv"
 	"fmt"
 	"sort"
-	"strings"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 )
 
 // diffFormatter implements diff output formatting in the required output format
 type diffFormatter interface {
-	writeDiffOutput(connsDiff ConnectivityDiff) (string, error)
-	singleDiffLine(d *singleDiffFields) string
+	writeDiffOutput(connsDiff ConnectivityDiff) (string, error) // writes the diff output in the required format
+	singleDiffLine(d *singleDiffFields) string                  // forms a single diff line in the required format
 }
 
 const (
@@ -35,6 +31,9 @@ type singleDiffFields struct {
 	workloadDiffInfo string
 }
 
+// formDiffFieldsDataOfDiffConns for each conn pair, forms the required fields of diff data.
+// getting array of ConnsPair , returning an array of singleDiffFields
+// splits the result into two arrays, one for policy conns the other ingress conns
 func formDiffFieldsDataOfDiffConns(diffConns []*ConnsPair) (netpolsDiff, ingressDiff []*singleDiffFields) {
 	netpolsRes := make([]*singleDiffFields, 0) // diff in connections from netpols
 	ingressRes := make([]*singleDiffFields, 0) // diff in connections from ingress-controller
@@ -58,6 +57,8 @@ func formDiffFieldsDataOfDiffConns(diffConns []*ConnsPair) (netpolsDiff, ingress
 	return netpolsRes, ingressRes
 }
 
+// getConnPeersStrings returns the string form of the peers names, src and dst for the given conns pair,
+// and an indication if the src is an ingress-controller
 func getConnPeersStrings(c *ConnsPair) (srcStr, dstStr string, isSrcIngress bool) {
 	switch c.diffType {
 	case changedType, removedType, nonChangedType:
@@ -69,6 +70,7 @@ func getConnPeersStrings(c *ConnsPair) (srcStr, dstStr string, isSrcIngress bool
 	}
 }
 
+// getDirsConnsStrings returns the string forms of the connections in a single diff connsPair
 func getDirsConnsStrings(c *ConnsPair) (dir1Str, dir2Str string) {
 	switch c.diffType {
 	case changedType, nonChangedType:
@@ -82,7 +84,7 @@ func getDirsConnsStrings(c *ConnsPair) (dir1Str, dir2Str string) {
 	}
 }
 
-// computes the diff string (if to include added/removed workloads)
+// getDiffInfo computes the diff description string (if to include added/removed workloads)
 func getDiffInfo(c *ConnsPair) string {
 	srcStr, dstStr, _ := getConnPeersStrings(c)
 	diffInfo := ""
@@ -105,6 +107,8 @@ func getDiffInfo(c *ConnsPair) string {
 	return diffInfo
 }
 
+// writeDiffLinesOrderedByCategory returns a list of diff lines ordered by categories : changed, added, removed.
+// relevant ingress-controller connections are at the end of each category
 func writeDiffLinesOrderedByCategory(connsDiff ConnectivityDiff, df diffFormatter) []string {
 	res := make([]string, 0)
 	// changed lines
@@ -132,6 +136,7 @@ func writeDiffLinesOrderedByCategory(connsDiff ConnectivityDiff, df diffFormatte
 	return res
 }
 
+// writeDiffLines returns the diff lines formed in the required format
 func writeDiffLines(diffData []*singleDiffFields, df diffFormatter) []string {
 	res := make([]string, len(diffData))
 	for i, singleDiffData := range diffData {
@@ -139,204 +144,4 @@ func writeDiffLines(diffData []*singleDiffFields, df diffFormatter) []string {
 	}
 	sort.Strings(res)
 	return res
-}
-
-// /////////////////////////
-// diffFormatText: implements the diffFormatter interface for txt output format
-type diffFormatText struct {
-}
-
-const (
-	// txt output header
-	connectivityDiffHeader = "Connectivity diff:"
-)
-
-// returns a textual string format of connections diff from connectivityDiff object
-func (t *diffFormatText) writeDiffOutput(connsDiff ConnectivityDiff) (string, error) {
-	res := make([]string, 0)
-	res = append(res, connectivityDiffHeader)
-	res = append(res, writeDiffLinesOrderedByCategory(connsDiff, t)...)
-	return strings.Join(res, newLine), nil
-}
-
-func (t *diffFormatText) singleDiffLine(d *singleDiffFields) string {
-	diffLine := fmt.Sprintf("diff-type: %s, source: %s, destination: %s, dir1:  %s, dir2: %s", d.diffType,
-		d.src, d.dst, d.dir1Conn, d.dir2Conn)
-	if d.workloadDiffInfo != "" {
-		return diffLine + ", workloads-diff-info: " + d.workloadDiffInfo
-	}
-	return diffLine
-}
-
-// /////////////////////////
-// diffFormatMD: implements the diffFormatter interface for md output format
-type diffFormatMD struct {
-}
-
-var mdHeader = "| diff-type | source | destination | dir1 | dir2 | workloads-diff-info |\n" +
-	"|-----------|--------|-------------|------|------|---------------------|"
-
-// returns md string format of connections diff from connectivityDiff object
-func (md *diffFormatMD) writeDiffOutput(connsDiff ConnectivityDiff) (string, error) {
-	res := make([]string, 0)
-	res = append(res, mdHeader)
-	res = append(res, writeDiffLinesOrderedByCategory(connsDiff, md)...)
-	return strings.Join(res, newLine), nil
-}
-
-func (md *diffFormatMD) singleDiffLine(d *singleDiffFields) string {
-	return fmt.Sprintf("| %s | %s | %s | %s | %s | %s |",
-		d.diffType, d.src, d.dst, d.dir1Conn, d.dir2Conn, d.workloadDiffInfo)
-}
-
-// /////////////////////////
-// diffFormatCSV: implements the diffFormatter interface for csv output format
-type diffFormatCSV struct {
-}
-
-var csvHeader = []string{"diff-type", "source", "destination", "dir1", "dir2", "workloads-diff-info"}
-
-func (cs *diffFormatCSV) writeDiffOutput(connsDiff ConnectivityDiff) (string, error) {
-	changesSortedByCategory := writeDiffLinesOrderedByCategory(connsDiff, cs)
-	// writing csv rows into a buffer
-	buf := new(bytes.Buffer)
-	writer := csv.NewWriter(buf)
-	if err := writer.Write(csvHeader); err != nil {
-		return "", err
-	}
-	for _, diffData := range changesSortedByCategory {
-		row := strings.Split(diffData, ";")
-		if err := writer.Write(row); err != nil {
-			return "", err
-		}
-	}
-	writer.Flush()
-	return buf.String(), nil
-}
-
-func (cs *diffFormatCSV) singleDiffLine(d *singleDiffFields) string {
-	return fmt.Sprintf("%s;%s;%s;%s;%s;%s", d.diffType, d.src, d.dst, d.dir1Conn, d.dir2Conn, d.workloadDiffInfo)
-}
-
-// /////////////////////////
-// diffFormatDOT: implements the diffFormatter interface for dot output format
-type diffFormatDOT struct {
-}
-
-func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, error) {
-	var edgeLines, peersLines, ingressAnalyzerEdges []string
-	peersVisited := make(map[string]bool, 0) // set of peers
-	// non changed
-	ncPeers, nonChangedEdges, nonChangedIngressEdges := getEdgesAndPeersLinesByCategory(connsDiff.nonChangedConnections(), peersVisited)
-	peersLines = append(peersLines, ncPeers...)
-	edgeLines = append(edgeLines, nonChangedEdges...)
-	ingressAnalyzerEdges = append(ingressAnalyzerEdges, nonChangedIngressEdges...)
-	// changed
-	cPeers, changedEedges, changedIngressEdges := getEdgesAndPeersLinesByCategory(connsDiff.ChangedConnections(), peersVisited)
-	peersLines = append(peersLines, cPeers...)
-	edgeLines = append(edgeLines, changedEedges...)
-	ingressAnalyzerEdges = append(ingressAnalyzerEdges, changedIngressEdges...)
-	// added
-	nPeers, newEdges, newIngressEdges := getEdgesAndPeersLinesByCategory(connsDiff.AddedConnections(), peersVisited)
-	peersLines = append(peersLines, nPeers...)
-	edgeLines = append(edgeLines, newEdges...)
-	ingressAnalyzerEdges = append(ingressAnalyzerEdges, newIngressEdges...)
-	// removed
-	lPeers, lostEdges, lostIngressEdges := getEdgesAndPeersLinesByCategory(connsDiff.RemovedConnections(), peersVisited)
-	peersLines = append(peersLines, lPeers...)
-	edgeLines = append(edgeLines, lostEdges...)
-	ingressAnalyzerEdges = append(ingressAnalyzerEdges, lostIngressEdges...)
-
-	// sort lines
-	sort.Strings(peersLines)
-	sort.Strings(edgeLines)
-	sort.Strings(ingressAnalyzerEdges)
-
-	// write graph
-	allLines := []string{common.DotHeader}
-	allLines = append(allLines, peersLines...)
-	allLines = append(allLines, edgeLines...)
-	allLines = append(allLines, ingressAnalyzerEdges...)
-	allLines = append(allLines, common.DotClosing)
-	return strings.Join(allLines, newLine), nil
-}
-
-func getEdgesAndPeersLinesByCategory(connsPairs []*ConnsPair, peersSet map[string]bool) (peersLines, connsEdges, ingressEdges []string) {
-	peersLines = make([]string, 0)
-	connsEdges = make([]string, 0)
-	ingressEdges = make([]string, 0)
-	for _, connsPair := range connsPairs {
-		src, dst, isIngress := getConnPeersStrings(connsPair)
-		// add peers lines (which are still not in the set)
-		if !peersSet[src] {
-			peersSet[src] = true
-			peersLines = append(peersLines, addPeerLine(src, connsPair.diffType, connsPair.newOrLostSrc))
-		}
-		if !peersSet[dst] {
-			peersSet[dst] = true
-			peersLines = append(peersLines, addPeerLine(dst, connsPair.diffType, connsPair.newOrLostDst))
-		}
-		// add connections lines
-		if isIngress {
-			ingressEdges = append(ingressEdges, addEdgesLines(connsPair))
-		} else {
-			connsEdges = append(connsEdges, addEdgesLines(connsPair))
-		}
-	}
-	return peersLines, connsEdges, ingressEdges
-}
-
-const (
-	newPeerColor        = "green3"
-	removedPeerColor    = "red"
-	persistentPeerColor = "blue"
-)
-
-func addPeerLine(peerName, diffType string, isNewOrLost bool) string {
-	peerColor := persistentPeerColor
-	if isNewOrLost {
-		switch diffType {
-		case addedType:
-			peerColor = newPeerColor
-		case removedType:
-			peerColor = removedPeerColor
-		default: // will not get here
-			break
-		}
-	}
-	return fmt.Sprintf("\t%q [label=%q color=%q fontcolor=%q]", peerName, peerName, peerColor, peerColor)
-}
-
-const (
-	nonChangedConnColor = "grey"
-	changedConnColor    = "gold2"
-	removedConnColor    = "red2"
-	addedConnColor      = "green"
-)
-
-func addEdgesLines(connsPair *ConnsPair) string {
-	src, dst, _ := getConnPeersStrings(connsPair)
-	firstConn, secondConn := getDirsConnsStrings(connsPair)
-	switch connsPair.diffType {
-	case nonChangedType:
-		return getEdgeLine(src, dst, firstConn, nonChangedConnColor)
-	case changedType:
-		changedEdgeLabel := secondConn + " (was: " + firstConn + ")"
-		return getEdgeLine(src, dst, changedEdgeLabel, changedConnColor)
-	case removedType:
-		return getEdgeLine(src, dst, firstConn, removedConnColor)
-	case addedType:
-		return getEdgeLine(src, dst, secondConn, addedConnColor)
-	default:
-		return "" // should not get here
-	}
-}
-
-func getEdgeLine(src, dst, connStr, edgeColor string) string {
-	return fmt.Sprintf("\t%q -> %q [label=%q color=%q fontcolor=%q]", src, dst, connStr, edgeColor, edgeColor)
-}
-
-// kept empty for dot format, used to implement the diffFormatter interface in other formats
-func (df *diffFormatDOT) singleDiffLine(d *singleDiffFields) string {
-	return ""
 }
