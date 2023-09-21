@@ -92,7 +92,7 @@ Flags:
       --dir1  string  First resources dir path
       --dir2  string  Second resources dir path to be compared with the first dir path
   -f, --file string            Write output to specified file
-  -o, --output string Required output format (txt, csv, md) (default "txt")  
+  -o, --output string Required output format (txt, csv, md, dot) (default "txt")  
   -h, --help   help for diff
 
 Global Flags:
