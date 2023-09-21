@@ -1,13 +1,10 @@
 package diff
 
+import "github.com/np-guard/netpol-analyzer/pkg/netpol/common"
+
 // DiffError holds information about a single error/warning that occurred during
 // the generating connectivity diff report
-type DiffError interface {
-	IsFatal() bool
-	IsSevere() bool
-	Error() error
-	Location() string
-}
+type DiffError common.NetpolError
 
 // diffGeneratingError - DiffError that may arise while producing the connectivity diff report
 type diffGeneratingError struct {
