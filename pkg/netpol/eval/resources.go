@@ -104,7 +104,7 @@ func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string) error {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: ns,
 			Labels: map[string]string{
-				"kubernetes.io/metadata.name": ns,
+				k8s.K8sNsNameLabelKey: ns,
 			},
 		},
 	}

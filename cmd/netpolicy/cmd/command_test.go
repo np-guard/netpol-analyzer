@@ -468,6 +468,105 @@ func TestCommands(t *testing.T) {
 			exact: true,
 			isErr: false,
 		},
+		{
+			name: "test_legal_list_dir_with_severe_error_and_produces_legal_output",
+			// the test contains malformed yaml beside to legal yaml.
+			//  MalformedYamlDocError is not fatal, thus not returned
+			// analysis is able to parse some deployments, thus can produce connectivity output
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "bad_yamls", "document_with_syntax_error.yaml"),
+			},
+			expectedOutput: "0.0.0.0-255.255.255.255 => default/checkoutservice[Deployment] : All Connections\n" +
+				"0.0.0.0-255.255.255.255 => default/emailservice[Deployment] : All Connections\n" +
+				"0.0.0.0-255.255.255.255 => default/recommendationservice[Deployment] : All Connections\n" +
+				"default/checkoutservice[Deployment] => 0.0.0.0-255.255.255.255 : All Connections\n" +
+				"default/checkoutservice[Deployment] => default/emailservice[Deployment] : All Connections\n" +
+				"default/checkoutservice[Deployment] => default/recommendationservice[Deployment] : All Connections\n" +
+				"default/emailservice[Deployment] => 0.0.0.0-255.255.255.255 : All Connections\n" +
+				"default/emailservice[Deployment] => default/checkoutservice[Deployment] : All Connections\n" +
+				"default/emailservice[Deployment] => default/recommendationservice[Deployment] : All Connections\n" +
+				"default/recommendationservice[Deployment] => 0.0.0.0-255.255.255.255 : All Connections\n" +
+				"default/recommendationservice[Deployment] => default/checkoutservice[Deployment] : All Connections\n" +
+				"default/recommendationservice[Deployment] => default/emailservice[Deployment] : All Connections",
+			exact: true,
+			isErr: false,
+		},
+		{
+			name: "test_list_dir_with_severe_error_running_with_fail_stops_and_return_empty_output",
+			//  MalformedYamlDocError is not fatal, but severe, thus stops the run if --fail is on
+			// as we saw in a previous test on same path, when --fail is not used, the test produces connectivity map
+			args: []string{
+				"list",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "bad_yamls", "document_with_syntax_error.yaml"),
+				"--fail",
+			},
+			expectedOutput: "",
+			exact:          true,
+			isErr:          false, // not fatal error but severe
+		},
+		{
+			name: "test_eval_on_dir_with_severe_error_without_fail_produces_output",
+			args: []string{
+				"eval",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error"),
+				"-s",
+				"adservice-77d5cd745d-t8mx4",
+				"-d",
+				"emailservice-54c7c5d9d-vp27n",
+				"-p",
+				"80"},
+			expectedOutput: "default/adservice-77d5cd745d-t8mx4 => default/emailservice-54c7c5d9d-vp27n over tcp/80: false\n",
+			exact:          true,
+			isErr:          false,
+		},
+		{
+			name: "test_eval_on_dir_with_severe_error_wit_fail_returns_err_output",
+			args: []string{
+				"eval",
+				"--dirpath",
+				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error"),
+				"-s",
+				"adservice-77d5cd745d-t8mx4",
+				"-d",
+				"emailservice-54c7c5d9d-vp27n",
+				"-p",
+				"80",
+				"--fail"},
+			expectedOutput: "had processing errors: YAML document is malformed: yaml: line 1828: found character that cannot start any token\n",
+			exact:          false,
+			isErr:          true, // eval command returns err if stopOnFirstError & severe
+		},
+		{
+			name: "test_diff_one_dir_with_severe_error_without_fail_produces_output",
+			args: []string{
+				"diff",
+				"--dir1",
+				filepath.Join(getTestsDir(), "onlineboutique"),
+				"--dir2",
+				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error")},
+			expectedOutput: "Connectivity diff:\n" +
+				"diff-type: changed, source: default/frontend-99684f7f8[ReplicaSet], " +
+				"destination: default/adservice-77d5cd745d[ReplicaSet], dir1:  TCP 9555, dir2: TCP 8080",
+			exact: true,
+			isErr: false,
+		},
+		{
+			name: "test_diff_one_dir_with_severe_error_with_fail_returns_empty_output",
+			args: []string{
+				"diff",
+				"--dir1",
+				filepath.Join(getTestsDir(), "onlineboutique"),
+				"--dir2",
+				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error"),
+				"--fail"},
+			expectedOutput: "",
+			exact:          true,
+			isErr:          false,
+		},
 	}
 
 	for _, test := range tests {

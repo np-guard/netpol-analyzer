@@ -9,3 +9,9 @@ const (
 	CSVFormat     = "csv"
 	MDFormat      = "md"
 )
+
+// diff format common const
+const (
+	DotHeader  = "digraph {"
+	DotClosing = "}"
+)

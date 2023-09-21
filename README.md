@@ -37,6 +37,7 @@ Flags:
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
+      --fail                fail on the first encountered error
       --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
   -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
   -q, --quiet               Runs quietly, reports only severe errors and results
@@ -69,6 +70,7 @@ Flags:
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
+      --fail                fail on the first encountered error
       --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
   -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
   -q, --quiet               Runs quietly, reports only severe errors and results
@@ -90,12 +92,13 @@ Flags:
       --dir1  string  First resources dir path
       --dir2  string  Second resources dir path to be compared with the first dir path
   -f, --file string            Write output to specified file
-  -o, --output string Required output format (txt, csv, md) (default "txt")  
+  -o, --output string Required output format (txt, csv, md, dot) (default "txt")  
   -h, --help   help for diff
 
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
+      --fail                fail on the first encountered error
       --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
   -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
   -q, --quiet               Runs quietly, reports only severe errors and results

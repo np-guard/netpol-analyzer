@@ -1,0 +1,9 @@
+digraph {
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
+	"default/backend[Deployment]" [label="default/backend[Deployment]" color="blue" fontcolor="blue"]
+	"default/frontend[Deployment]" [label="default/frontend[Deployment]" color="blue" fontcolor="blue"]
+	"0.0.0.0-255.255.255.255" -> "default/backend[Deployment]" [label="TCP 9090" color="green" fontcolor="green"]
+	"0.0.0.0-255.255.255.255" -> "default/frontend[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"default/frontend[Deployment]" -> "0.0.0.0-255.255.255.255" [label="UDP 53" color="grey" fontcolor="grey"]
+	"default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090,UDP 53 (old: TCP 9090)" color="gold2" fontcolor="gold2"]
+}

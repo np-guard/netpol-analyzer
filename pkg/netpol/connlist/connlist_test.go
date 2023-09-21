@@ -100,7 +100,39 @@ func TestConnList(t *testing.T) {
 			outputFormats: []string{common.TextFormat},
 		},
 		{
+			testDirName:   "test_with_named_ports_changed_netpol",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
 			testDirName:   "netpol-analysis-example-minimal",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "with_end_port_example",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "with_end_port_example_new",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "new_online_boutique",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "new_online_boutique_synthesis",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "multiple_topology_resources_3",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "multiple_topology_resources_4",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "minimal_test_in_ns",
 			outputFormats: []string{common.TextFormat},
 		},
 	}

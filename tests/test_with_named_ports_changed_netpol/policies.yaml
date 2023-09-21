@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ingress-based-on-named-ports
+  namespace: kube-system-dummy-to-ignore
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - ports:
+        - port: dns-local
+          protocol: UDP
+        - port: dns-tcp-local
+          protocol: TCP
+        - port: metrics
+          protocol: TCP

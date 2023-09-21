@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
@@ -85,11 +86,6 @@ func (j formatJSON) writeOutput(conns []Peer2PeerConnection) (string, error) {
 type formatDOT struct {
 }
 
-const (
-	dotHeader  = "digraph {"
-	dotClosing = "}"
-)
-
 // formats an edge line from a singleConnFields struct , to be used for dot graph
 func getEdgeLine(c singleConnFields) string {
 	return fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\"]", c.Src, c.Dst, c.ConnString)
@@ -128,10 +124,10 @@ func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	sort.Strings(peerLines)
 	sort.Strings(edgeLines)
 	// collect all lines by order
-	allLines := []string{dotHeader}
+	allLines := []string{common.DotHeader}
 	allLines = append(allLines, peerLines...)
 	allLines = append(allLines, edgeLines...)
-	allLines = append(allLines, dotClosing)
+	allLines = append(allLines, common.DotClosing)
 	return strings.Join(allLines, newLineChar), nil
 }
 

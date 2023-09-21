@@ -1,0 +1,88 @@
+apiVersion: v1
+items:
+    - metadata:
+        labels:
+            unique-label: defaultNameSpace
+        name: default
+        resourceVersion: "11"
+        selfLink: /api/v1/namespaces/default
+      spec:
+        finalizers:
+            - kubernetes
+      status:
+        phase: Active
+    - metadata:
+        name: dlaas
+        resourceVersion: "11"
+        selfLink: /api/v1/namespaces/dlaas
+      spec:
+        finalizers:
+            - kubernetes
+      status:
+        phase: Active
+    - metadata:
+        name: url-fetcher-ns
+        resourceVersion: "11"
+      spec:
+        finalizers:
+            - kubernetes
+      status:
+        phase: Active
+    - metadata:
+        name: vendor-cert-store
+      spec:
+        finalizers:
+            - kubernetes
+      status:
+        phase: Active
+    - metadata:
+        labels:
+            unique-label: vendor-systemNameSpace
+        name: vendor-system
+      spec:
+        finalizers:
+            - kubernetes
+      status:
+        phase: Active
+    - metadata:
+        creationTimestamp: "2018-03-06T11:49:51Z"
+        name: kube-public
+        selfLink: /api/v1/namespaces/kube-public
+      spec:
+        finalizers:
+            - kubernetes
+      status:
+        phase: Active
+    - metadata:
+        annotations:
+            kubectl.kubernetes.io/last-applied-configuration: |
+                {"apiVersion":"v1","kind":"Namespace","metadata":{"annotations":{},"name":"kube-system","namespace":""}}
+        labels:
+            unique-label: kubeSystemNameSpace
+        name: kube-system
+        resourceVersion: "127"
+        selfLink: /api/v1/namespaces/kube-system
+      spec:
+        finalizers:
+            - kubernetes
+      status:
+        phase: Active
+    - metadata:
+        annotations:
+            kubectl.kubernetes.io/last-applied-configuration: |
+                {"apiVersion":"v1","kind":"Namespace","metadata":{"annotations":{},"name":"kube-system","namespace":""}}
+        creationTimestamp: "2018-03-06T11:49:51Z"
+        labels:
+            unique-label: dummy
+        name: kube-system-dummy-to-ignore
+        resourceVersion: "127"
+        selfLink: /api/v1/namespaces/kube-system-dummy-to-ignore
+      spec:
+        finalizers:
+            - kubernetes
+      status:
+        phase: Active
+kind: NamespaceList
+metadata:
+    resourceVersion: "2996488"
+    selfLink: /api/v1/namespaces
