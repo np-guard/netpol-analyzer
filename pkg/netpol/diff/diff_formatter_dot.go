@@ -17,7 +17,7 @@ func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 	var edgeLines, peersLines, ingressAnalyzerEdges []string
 	peersVisited := make(map[string]bool, 0) // set of peers
 	// non changed
-	ncPeers, nonChangedEdges, nonChangedIngressEdges := getEdgesAndPeersLinesByCategory(connsDiff.nonChangedConnections(), peersVisited)
+	ncPeers, nonChangedEdges, nonChangedIngressEdges := getEdgesAndPeersLinesByCategory(connsDiff.NonChangedConnections(), peersVisited)
 	peersLines = append(peersLines, ncPeers...)
 	edgeLines = append(edgeLines, nonChangedEdges...)
 	ingressAnalyzerEdges = append(ingressAnalyzerEdges, nonChangedIngressEdges...)

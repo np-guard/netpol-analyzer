@@ -519,7 +519,7 @@ func ValidateDiffOutputFormat(format string) error {
 
 // ConnectivityDiffToString returns a string of connections diff from connectivityDiff object in the required output format
 func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDiff) (string, error) {
-	if connectivityDiff.isEmpty() {
+	if connectivityDiff.IsEmpty() {
 		da.logger.Infof("No connections diff")
 		return "", nil
 	}
@@ -576,19 +576,19 @@ func (c *connectivityDiff) ChangedConnections() []*ConnsPair {
 	return c.changedConns
 }
 
-func (c *connectivityDiff) isEmpty() bool {
+func (c *connectivityDiff) IsEmpty() bool {
 	return len(c.removedConns) == 0 && len(c.addedConns) == 0 && len(c.changedConns) == 0
 }
 
-func (c *connectivityDiff) nonChangedConnections() []*ConnsPair {
+func (c *connectivityDiff) NonChangedConnections() []*ConnsPair {
 	return c.nonChangedConns
 }
 
 // ConnectivityDiff captures differences in terms of connectivity between two input resource sets
 type ConnectivityDiff interface {
-	RemovedConnections() []*ConnsPair // only first conn exists between peers, plus indications if any of the peers removed
-	AddedConnections() []*ConnsPair   // only second conn exists between peers, plus indications if any of the peers is new
-	ChangedConnections() []*ConnsPair // both first & second conn exists between peers
-	isEmpty() bool
-	nonChangedConnections() []*ConnsPair // for internal use only, returning non changed conns
+	RemovedConnections() []*ConnsPair    // only first conn exists between peers, plus indications if any of the peers removed
+	AddedConnections() []*ConnsPair      // only second conn exists between peers, plus indications if any of the peers is new
+	ChangedConnections() []*ConnsPair    // both first & second conn exists between peers
+	IsEmpty() bool                       // indicates if no diff between connections, i.e. removed, added and changed connections are empty
+	NonChangedConnections() []*ConnsPair // non changed conns, both first & second conn exists and equal between the peers
 }
