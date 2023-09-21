@@ -115,7 +115,7 @@ func addEdgesLines(connsPair *ConnsPair) string {
 	case nonChangedType:
 		return getEdgeLine(src, dst, firstConn, nonChangedConnColor)
 	case changedType:
-		changedEdgeLabel := secondConn + " (was: " + firstConn + ")"
+		changedEdgeLabel := secondConn + " (old: " + firstConn + ")"
 		return getEdgeLine(src, dst, changedEdgeLabel, changedConnColor)
 	case removedType:
 		return getEdgeLine(src, dst, firstConn, removedConnColor)
