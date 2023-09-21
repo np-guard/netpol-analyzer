@@ -28,7 +28,7 @@ type DiffAnalyzer struct {
 }
 
 // ValidDiffFormats are the supported formats for output generation of the diff command
-var ValidDiffFormats = []string{common.TextFormat, common.CSVFormat, common.MDFormat}
+var ValidDiffFormats = []string{common.TextFormat, common.CSVFormat, common.MDFormat, common.DOTFormat}
 
 // DiffAnalyzerOption is the type for specifying options for DiffAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
@@ -203,9 +203,10 @@ func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
 
 const (
 	// diff types
-	changedType = "changed"
-	removedType = "removed"
-	addedType   = "added"
+	changedType    = "changed"
+	removedType    = "removed"
+	addedType      = "added"
+	nonChangedType = "nonChanged"
 )
 
 // ConnsPair captures a pair of Peer2PeerConnection from two dir paths
@@ -462,9 +463,10 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 	}
 
 	res := &connectivityDiff{
-		removedConns: []*ConnsPair{},
-		addedConns:   []*ConnsPair{},
-		changedConns: []*ConnsPair{},
+		removedConns:    []*ConnsPair{},
+		addedConns:      []*ConnsPair{},
+		changedConns:    []*ConnsPair{},
+		nonChangedConns: []*ConnsPair{},
 	}
 	for _, d := range diffsMap {
 		switch {
@@ -473,6 +475,10 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 				d.diffType = changedType
 				d.newOrLostSrc, d.newOrLostDst = false, false
 				res.changedConns = append(res.changedConns, d)
+			} else { // equal - non changed
+				d.diffType = nonChangedType
+				d.newOrLostSrc, d.newOrLostDst = false, false
+				res.nonChangedConns = append(res.nonChangedConns, d)
 			}
 		case d.firstConn != nil:
 			// removed conn means both Src and Dst exist in peers1, just check if they are not in peers2 too
@@ -513,7 +519,7 @@ func ValidateDiffOutputFormat(format string) error {
 
 // ConnectivityDiffToString returns a string of connections diff from connectivityDiff object in the required output format
 func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDiff) (string, error) {
-	if connectivityDiff.isEmpty() {
+	if connectivityDiff.IsEmpty() {
 		da.logger.Infof("No connections diff")
 		return "", nil
 	}
@@ -543,6 +549,8 @@ func getFormatter(format string) (diffFormatter, error) {
 		return &diffFormatCSV{}, nil
 	case common.MDFormat:
 		return &diffFormatMD{}, nil
+	case common.DOTFormat:
+		return &diffFormatDOT{}, nil
 	default:
 		return &diffFormatText{}, nil
 	}
@@ -550,9 +558,10 @@ func getFormatter(format string) (diffFormatter, error) {
 
 // connectivityDiff implements the ConnectivityDiff interface
 type connectivityDiff struct {
-	removedConns []*ConnsPair
-	addedConns   []*ConnsPair
-	changedConns []*ConnsPair
+	removedConns    []*ConnsPair
+	addedConns      []*ConnsPair
+	changedConns    []*ConnsPair
+	nonChangedConns []*ConnsPair
 }
 
 func (c *connectivityDiff) RemovedConnections() []*ConnsPair {
@@ -567,14 +576,19 @@ func (c *connectivityDiff) ChangedConnections() []*ConnsPair {
 	return c.changedConns
 }
 
-func (c *connectivityDiff) isEmpty() bool {
+func (c *connectivityDiff) IsEmpty() bool {
 	return len(c.removedConns) == 0 && len(c.addedConns) == 0 && len(c.changedConns) == 0
+}
+
+func (c *connectivityDiff) NonChangedConnections() []*ConnsPair {
+	return c.nonChangedConns
 }
 
 // ConnectivityDiff captures differences in terms of connectivity between two input resource sets
 type ConnectivityDiff interface {
-	RemovedConnections() []*ConnsPair // only first conn exists between peers, plus indications if any of the peers removed
-	AddedConnections() []*ConnsPair   // only second conn exists between peers, plus indications if any of the peers is new
-	ChangedConnections() []*ConnsPair // both first & second conn exists between peers
-	isEmpty() bool
+	RemovedConnections() []*ConnsPair    // only first conn exists between peers, plus indications if any of the peers removed
+	AddedConnections() []*ConnsPair      // only second conn exists between peers, plus indications if any of the peers is new
+	ChangedConnections() []*ConnsPair    // both first & second conn exists between peers
+	IsEmpty() bool                       // indicates if no diff between connections, i.e. removed, added and changed connections are empty
+	NonChangedConnections() []*ConnsPair // non changed conns, both first & second conn exists and equal between the peers
 }

@@ -20,7 +20,7 @@ type testEntry struct {
 
 const expectedOutputFilePrefix = "diff_output_from_"
 
-var allFormats = []string{common.TextFormat, common.MDFormat, common.CSVFormat}
+var allFormats = []string{common.TextFormat, common.MDFormat, common.CSVFormat, common.DOTFormat}
 
 func TestDiff(t *testing.T) {
 	testingEntries := []testEntry{
@@ -311,8 +311,8 @@ func TestDiffErrors(t *testing.T) {
 		if entry.isCaSevereErr { // severe error not returned in err, but with stopOnError, empty res with it in the errors
 			require.Nil(t, err1, "test: %s", entry.name)
 			require.Nil(t, err2, "test: %s", entry.name)
-			require.False(t, connsDiff1.isEmpty(), "test: %s", entry.name) // diffAnalyzer did not stop, result not empty
-			require.True(t, connsDiff2.isEmpty(), "test: %s", entry.name)  // diffAnalyzerStopsOnError stops running, returns empty res
+			require.False(t, connsDiff1.IsEmpty(), "test: %s", entry.name) // diffAnalyzer did not stop, result not empty
+			require.True(t, connsDiff2.IsEmpty(), "test: %s", entry.name)  // diffAnalyzerStopsOnError stops running, returns empty res
 			// error appended to diffAnalyzerErrors in both
 			require.Contains(t, diffErrors2[0].Error().Error(), entry.errStr, "test: %s", entry.name)
 			require.Contains(t, diffErrors1[0].Error().Error(), entry.errStr, "test: %s", entry.name)
