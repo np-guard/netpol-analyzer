@@ -116,6 +116,19 @@ func (da *DiffAnalyzer) determineConnlistAnalyzerOptionsForDiffAnalysis() []conn
 	return res
 }
 
+// returns results from calling connlist analyzer ConnlistFromDirPath for the given dir path
+// and appends the connlist analyzers' errors to diffError
+func (da *DiffAnalyzer) getConnsAndWorkloadsFromDir(caAnalyzer *connlist.ConnlistAnalyzer, dirPath string) ([]connlist.Peer2PeerConnection,
+	[]connlist.Peer, error) {
+	conns, workloads, err := caAnalyzer.ConnlistFromDirPath(dirPath)
+	if err != nil {
+		// append all fatal/severe errors and warnings returned by caAnalyzer then return because of the fatal err
+		da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
+		return nil, nil, err
+	}
+	return conns, workloads, nil
+}
+
 // ConnDiffFromDirPaths returns the connectivity diffs from two dir paths containing k8s resources
 func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (ConnectivityDiff, error) {
 	caAnalyzer := connlist.NewConnlistAnalyzer(da.determineConnlistAnalyzerOptionsForDiffAnalysis()...)
@@ -123,19 +136,15 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 	var workloads1, workloads2 []connlist.Peer
 	var workloadsNames1, workloadsNames2 map[string]bool
 	var err error
-	if conns1, workloads1, err = caAnalyzer.ConnlistFromDirPath(dirPath1); err != nil {
-		// append all fatal/severe errors and warnings returned by caAnalyzer then return because of the fatal err
-		da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
+	if conns1, workloads1, err = da.getConnsAndWorkloadsFromDir(caAnalyzer, dirPath1); err != nil {
 		return nil, err
 	}
-	if da.stopProcessing(caAnalyzer.Errors()) {
+	if da.stopProcessing(caAnalyzer.Errors()) { // check if first dir analysis raised severe error
 		// if true, before returning, append the caAnalyzer.Errors to DiffAnalyzer.Errors() to be exported
 		da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
 		return &connectivityDiff{}, nil
 	}
-	if conns2, workloads2, err = caAnalyzer.ConnlistFromDirPath(dirPath2); err != nil {
-		// append all fatal/severe errors and warnings returned by caAnalyzer then return because of the fatal err
-		da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
+	if conns2, workloads2, err = da.getConnsAndWorkloadsFromDir(caAnalyzer, dirPath2); err != nil {
 		return nil, err
 	}
 	da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors()) // append all caAnalyzer.Errors() as we finished calling its funcs
