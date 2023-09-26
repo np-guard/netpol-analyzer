@@ -186,7 +186,7 @@ var formattingErrType = &resultFormattingError{} // error returned from getting/
 
 // constructs diffAnalyzer with required options and computes the connectivity diff from the dir paths
 func constructAnalyzerAndGetDiffFromDirPaths(stopOnErr bool, format, dir1, dir2 string) (*DiffAnalyzer, ConnectivityDiff, error) {
-	diffAnalyzerOptions := []DiffAnalyzerOption{}
+	diffAnalyzerOptions := []DiffAnalyzerOption{WithIncludeJSONManifests()}
 	if format != "" {
 		diffAnalyzerOptions = append(diffAnalyzerOptions, WithOutputFormat(format))
 	}
@@ -254,6 +254,12 @@ func TestFatalErrors(t *testing.T) {
 			dir1:        filepath.Join("bad_yamls", "subdir3"),
 			dir2:        "ipblockstest",
 			firstErrStr: "error accessing directory:",
+		},
+		{
+			name:        "dir 1 includes illegal pods list",
+			dir1:        "semanticDiff-same-topologies-illegal-podlist",
+			dir2:        "semanticDiff-same-topologies-old1",
+			firstErrStr: "pods with same ownerReferences but different labels are not supported",
 		},
 	}
 	for _, entry := range cases {

@@ -382,3 +382,11 @@ func TestWithFocusWorkloadWithReplicasConnections(t *testing.T) {
 	require.Nil(t, err)
 	require.NotContains(t, out, "kube-system/calico-node[DaemonSet] => kube-system/calico-node[DaemonSet] : All Connections")
 }
+
+func TestConnlistAnalyzerIllegalPodList(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "semanticDiff-same-topologies-illegal-podlist")
+	analyzer := NewConnlistAnalyzer(WithIncludeJSONManifests())
+	res, _, err := analyzer.ConnlistFromDirPath(dirPath)
+	require.Nil(t, res)
+	require.Contains(t, err.Error(), "pods with same ownerReferences but different labels are not supported")
+}
