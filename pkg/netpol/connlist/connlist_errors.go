@@ -1,13 +1,12 @@
 package connlist
 
+import (
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
+)
+
 // ConnlistError holds information about a single error/warning that occurred during
 // the parsing and connectivity analysis of k8s-app with network policies
-type ConnlistError interface {
-	IsFatal() bool
-	IsSevere() bool
-	Error() error
-	Location() string
-}
+type ConnlistError common.NetpolError
 
 // connlistGeneratingError - ConnlistError that may arrise while producing the connections list
 type connlistGeneratingError struct {
