@@ -1,0 +1,4701 @@
+kind: PodList
+apiVersion: v1
+metadata:
+  selfLink: /api/v1/pods
+  resourceVersion: '2996123'
+items:
+- metadata:
+    name: cognetive-agents-d54st
+    generateName: cognetive-agents-
+    namespace: default
+    selfLink: /api/v1/namespaces/default/pods/cognetive-agents-d54st
+    uid: 14282859-301f-11e8-865c-52075433990e
+    resourceVersion: '2820503'
+    creationTimestamp: '2018-03-25T11:24:27Z'
+    labels:
+      app: skydive
+      controller-revision-hash: '1317571478'
+      pod-template-generation: '1'
+      tier: agent
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"default","name":"cognetive-agents","uid":"14265cc3-301f-11e8-865c-52075433990e","apiVersion":"extensions","resourceVersion":"508656"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: cognetive-agents
+      uid: 14265cc3-301f-11e8-865c-52075433990e
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: skydive-config
+      configMap:
+        name: skydive-config
+        defaultMode: 420
+    - name: docker
+      hostPath:
+        path: /var/run/docker.sock
+        type: ''
+    - name: run
+      hostPath:
+        path: /var/run/netns
+        type: ''
+    - name: ovsdb
+      hostPath:
+        path: /var/run/openvswitch/db.sock
+        type: ''
+    - name: default-token-hszmd
+      secret:
+        secretName: default-token-hszmd
+        defaultMode: 420
+    containers:
+    - name: cognetive
+      image: registry.ng.bluemix.net/demo_k8s/cognetive
+      command:
+      - skydive
+      - agent
+      - -c
+      - /config/skydive.yml
+      resources: {}
+      volumeMounts:
+      - name: skydive-config
+        mountPath: /config
+      - name: docker
+        mountPath: /var/run/docker.sock
+      - name: run
+        mountPath: /host/run
+      - name: ovsdb
+        mountPath: /var/run/openvswitch/db.sock
+      - name: default-token-hszmd
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: Always
+      securityContext:
+        privileged: true
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.174
+    hostNetwork: true
+    hostPID: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    schedulerName: default-scheduler
+    tolerations:
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-25T11:24:27Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-25T11:24:36Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-25T11:24:36Z'
+    hostIP: 10.186.164.174
+    podIP: 10.186.164.174
+    startTime: '2018-03-25T11:24:27Z'
+    containerStatuses:
+    - name: cognetive
+      state:
+        running:
+          startedAt: '2018-03-25T11:24:36Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/demo_k8s/cognetive:latest
+      imageID: docker-pullable://registry.ng.bluemix.net/demo_k8s/cognetive@sha256:372e1d50ba8cf32859460bf3083d4f96887b5af737ffc96f53434dd1ad0a8fb4
+      containerID: docker://1c0af4ca575d346faf48d507dfe0d67227d7a6c2ebde5d4a0674c7e8a2dee61e
+    qosClass: BestEffort
+    podIPs:
+    - ip: 10.186.164.174
+- metadata:
+    name: cognetive-agents-js4qc
+    generateName: cognetive-agents-
+    namespace: default
+    selfLink: /api/v1/namespaces/default/pods/cognetive-agents-js4qc
+    uid: 14279eb3-301f-11e8-865c-52075433990e
+    resourceVersion: '2820601'
+    creationTimestamp: '2018-03-25T11:24:27Z'
+    labels:
+      controller-revision-hash: '1317571478'
+      pod-template-generation: '1'
+      tier: agent
+      app: skydive
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"default","name":"cognetive-agents","uid":"14265cc3-301f-11e8-865c-52075433990e","apiVersion":"extensions","resourceVersion":"508656"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: cognetive-agents-agent
+      uid: 14265cc3-301f-11e8-865c-52075433990e
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: skydive-config
+      configMap:
+        name: skydive-config
+        defaultMode: 420
+    - name: docker
+      hostPath:
+        path: /var/run/docker.sock
+        type: ''
+    - name: run
+      hostPath:
+        path: /var/run/netns
+        type: ''
+    - name: ovsdb
+      hostPath:
+        path: /var/run/openvswitch/db.sock
+        type: ''
+    - name: default-token-hszmd
+      secret:
+        secretName: default-token-hszmd
+        defaultMode: 420
+    containers:
+    - name: cognetive
+      image: registry.ng.bluemix.net/demo_k8s/cognetive
+      command:
+      - skydive
+      - agent
+      - -c
+      - /config/skydive.yml
+      resources: {}
+      volumeMounts:
+      - name: skydive-config
+        mountPath: /config
+      - name: docker
+        mountPath: /var/run/docker.sock
+      - name: run
+        mountPath: /host/run
+      - name: ovsdb
+        mountPath: /var/run/openvswitch/db.sock
+      - name: default-token-hszmd
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: Always
+      securityContext:
+        privileged: true
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.166
+    hostNetwork: true
+    hostPID: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    schedulerName: default-scheduler
+    tolerations:
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-25T11:24:27Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-25T11:24:35Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-25T11:24:35Z'
+    hostIP: 10.186.164.166
+    podIP: 10.186.164.166
+    startTime: '2018-03-25T11:24:27Z'
+    containerStatuses:
+    - name: cognetive
+      state:
+        running:
+          startedAt: '2018-03-25T11:24:34Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/demo_k8s/cognetive:latest
+      imageID: docker-pullable://registry.ng.bluemix.net/demo_k8s/cognetive@sha256:372e1d50ba8cf32859460bf3083d4f96887b5af737ffc96f53434dd1ad0a8fb4
+      containerID: docker://1139bfae3e069e76d2f1502fd0c51f5985f64fd9b14a90311620147fc588900c
+    qosClass: BestEffort
+    podIPs:
+    - ip: 10.186.164.166
+- metadata:
+    name: cognetive-agents-qr8gp
+    generateName: cognetive-agents-
+    namespace: default
+    selfLink: /api/v1/namespaces/default/pods/cognetive-agents-qr8gp
+    uid: 14281f9d-301f-11e8-865c-52075433990e
+    resourceVersion: '2911958'
+    creationTimestamp: '2018-03-25T11:24:27Z'
+    labels:
+      tier: analyzer
+      app: skydive
+      controller-revision-hash: '1317571478'
+      pod-template-generation: '1'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"default","name":"cognetive-agents","uid":"14265cc3-301f-11e8-865c-52075433990e","apiVersion":"extensions","resourceVersion":"508656"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: cognetive-agents-analyzer
+      uid: 14265cc3-301f-11e8-865c-52075433990e
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: skydive-config
+      configMap:
+        name: skydive-config
+        defaultMode: 420
+    - name: docker
+      hostPath:
+        path: /var/run/docker.sock
+        type: ''
+    - name: run
+      hostPath:
+        path: /var/run/netns
+        type: ''
+    - name: ovsdb
+      hostPath:
+        path: /var/run/openvswitch/db.sock
+        type: ''
+    - name: default-token-hszmd
+      secret:
+        secretName: default-token-hszmd
+        defaultMode: 420
+    containers:
+    - name: cognetive
+      image: registry.ng.bluemix.net/demo_k8s/cognetive
+      command:
+      - skydive
+      - agent
+      - -c
+      - /config/skydive.yml
+      resources: {}
+      volumeMounts:
+      - name: skydive-config
+        mountPath: /config
+      - name: docker
+        mountPath: /var/run/docker.sock
+      - name: run
+        mountPath: /host/run
+      - name: ovsdb
+        mountPath: /var/run/openvswitch/db.sock
+      - name: default-token-hszmd
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: Always
+      securityContext:
+        privileged: true
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.173
+    hostNetwork: true
+    hostPID: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    schedulerName: default-scheduler
+    tolerations:
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-25T11:24:27Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-25T11:24:36Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-25T11:24:36Z'
+    hostIP: 10.186.164.173
+    podIP: 10.186.164.173
+    startTime: '2018-03-25T11:24:27Z'
+    containerStatuses:
+    - name: cognetive
+      state:
+        running:
+          startedAt: '2018-03-25T11:24:35Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/demo_k8s/cognetive:latest
+      imageID: docker-pullable://registry.ng.bluemix.net/demo_k8s/cognetive@sha256:372e1d50ba8cf32859460bf3083d4f96887b5af737ffc96f53434dd1ad0a8fb4
+      containerID: docker://4c3bea2535a8e3228ba83c6dc1bee638a75ec92d8a1b0b4dfaaaadf055bbf101
+    qosClass: BestEffort
+    podIPs:
+    - ip: 10.186.164.173
+- metadata:
+    name: cognetive-local-analyzer-7d77fb55cc-bs8rc
+    generateName: cognetive-local-analyzer-7d77fb55cc-
+    namespace: default
+    selfLink: /api/v1/namespaces/default/pods/cognetive-local-analyzer-7d77fb55cc-bs8rc
+    uid: 13c1467f-301f-11e8-865c-52075433990e
+    resourceVersion: '2820588'
+    creationTimestamp: '2018-03-25T11:24:26Z'
+    labels:
+      app: skydive
+      pod-template-hash: '3833961177'
+      tier: analyzer
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"default","name":"cognetive-local-analyzer-7d77fb55cc","uid":"13c04c1a-301f-11e8-865c-52075433990e","apiVersion":"extensions","resourceVersion":"508638"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: cognetive-local-analyzer-7d77fb55cc
+      uid: 13c04c1a-301f-11e8-865c-52075433990e
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: skydive-config
+      configMap:
+        name: skydive-config
+        defaultMode: 420
+    - name: docker
+      hostPath:
+        path: /var/run/docker.sock
+        type: ''
+    - name: run
+      hostPath:
+        path: /var/run/netns
+        type: ''
+    - name: ovsdb
+      hostPath:
+        path: /var/run/openvswitch/db.sock
+        type: ''
+    - name: default-token-hszmd
+      secret:
+        secretName: default-token-hszmd
+        defaultMode: 420
+    containers:
+    - name: cognetive
+      image: registry.ng.bluemix.net/demo_k8s/cognetive
+      command:
+      - skydive
+      - analyzer
+      - -c
+      - /config/skydive.yml
+      resources: {}
+      volumeMounts:
+      - name: skydive-config
+        mountPath: /config
+      - name: docker
+        mountPath: /var/run/docker.sock
+      - name: run
+        mountPath: /host/run
+      - name: ovsdb
+        mountPath: /var/run/openvswitch/db.sock
+      - name: default-token-hszmd
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: Always
+      securityContext:
+        privileged: true
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.166
+    hostNetwork: true
+    hostPID: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    schedulerName: default-scheduler
+    tolerations:
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-25T11:24:26Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-25T11:24:35Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-25T11:24:26Z'
+    hostIP: 10.186.164.166
+    podIP: 10.186.164.166
+    startTime: '2018-03-25T11:24:26Z'
+    containerStatuses:
+    - name: cognetive
+      state:
+        running:
+          startedAt: '2018-03-25T11:24:34Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/demo_k8s/cognetive:latest
+      imageID: docker-pullable://registry.ng.bluemix.net/demo_k8s/cognetive@sha256:372e1d50ba8cf32859460bf3083d4f96887b5af737ffc96f53434dd1ad0a8fb4
+      containerID: docker://4c41ac9b28b07552fe171c8eb6309b12e9f7cba135e51b17178e2ab9b004c26b
+    qosClass: BestEffort
+    podIPs:
+    - ip: 10.186.164.166
+- metadata:
+    name: ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-r66p2
+    generateName: ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-
+    namespace: ibm-system
+    selfLink: /api/v1/namespaces/ibm-system/pods/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-r66p2
+    uid: 1aafd6fb-7588-11e8-bd75-ce1115ac0d30
+    resourceVersion: '2911969'
+    creationTimestamp: '2018-06-21T19:20:05Z'
+    labels:
+      ibm-cloud-provider-ip: 169-60-164-10
+      ibm-cloud-provider-lb-app: keepalived
+      ibm-cloud-provider-lb-name: a8bba512021e211e8a8d432799206ac6
+      pod-template-hash: '175883757'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"ibm-system","name":"ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c","uid":"82429751-7587-11e8-82cc-fe87d4819862","apiVersion":"extensions","resourceVersion":"2820115"}}
+
+        '
+      kubernetes.io/psp: ibm-privileged-psp
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c
+      uid: 82429751-7587-11e8-82cc-fe87d4819862
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: keepalived-status
+      hostPath:
+        path: /tmp/keepalived
+        type: ''
+    - name: default-token-cfzk4
+      secret:
+        secretName: default-token-cfzk4
+        defaultMode: 420
+    containers:
+    - name: ibm-cloud-provider-ip-169-60-164-10
+      image: registry.ng.bluemix.net/armada-master/keepalived:115
+      env:
+      - name: VIRTUAL_IP
+        value: 169.60.164.10
+      resources: {}
+      volumeMounts:
+      - name: keepalived-status
+        mountPath: /status
+      - name: default-token-cfzk4
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        capabilities:
+          add:
+          - NET_ADMIN
+        privileged: false
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.173
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: publicVLAN
+              operator: In
+              values:
+              - '2176535'
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              ibm-cloud-provider-ip: 169-60-164-10
+              ibm-cloud-provider-lb-name: a8bba512021e211e8a8d432799206ac6
+          topologyKey: kubernetes.io/hostname
+    schedulerName: default-scheduler
+    tolerations:
+    - key: dedicated
+      value: edge
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:21:00Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:21:02Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:20:05Z'
+    hostIP: 10.186.164.173
+    podIP: 10.186.164.173
+    startTime: '2018-06-21T19:21:00Z'
+    containerStatuses:
+    - name: ibm-cloud-provider-ip-169-60-164-10
+      state:
+        running:
+          startedAt: '2018-06-21T19:21:02Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/keepalived:115
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/keepalived@sha256:f21245307dd5d3bb287751c2582f33e78176caf4275c814af21f3fdb699ac431
+      containerID: docker://54cf08592988801a055dc6fede11c17e8822c15a57b4013aa19e2dab6cefc66b
+    qosClass: BestEffort
+    podIPs:
+    - ip: 10.186.164.173
+- metadata:
+    name: ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-zv2ch
+    generateName: ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-
+    namespace: ibm-system
+    selfLink: /api/v1/namespaces/ibm-system/pods/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-zv2ch
+    uid: 1ab0731e-7588-11e8-bd75-ce1115ac0d30
+    resourceVersion: '2820581'
+    creationTimestamp: '2018-06-21T19:20:05Z'
+    labels:
+      pod-template-hash: '175883757'
+      ibm-cloud-provider-ip: 169-60-164-10
+      ibm-cloud-provider-lb-app: keepalived
+      ibm-cloud-provider-lb-name: a8bba512021e211e8a8d432799206ac6
+    annotations:
+      kubernetes.io/psp: ibm-privileged-psp
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"ibm-system","name":"ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c","uid":"82429751-7587-11e8-82cc-fe87d4819862","apiVersion":"extensions","resourceVersion":"2820115"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c
+      uid: 82429751-7587-11e8-82cc-fe87d4819862
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: keepalived-status
+      hostPath:
+        path: /tmp/keepalived
+        type: ''
+    - name: default-token-cfzk4
+      secret:
+        secretName: default-token-cfzk4
+        defaultMode: 420
+    containers:
+    - name: ibm-cloud-provider-ip-169-60-164-10
+      image: registry.ng.bluemix.net/armada-master/keepalived:115
+      env:
+      - name: VIRTUAL_IP
+        value: 169.60.164.10
+      resources: {}
+      volumeMounts:
+      - name: keepalived-status
+        mountPath: /status
+      - name: default-token-cfzk4
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        capabilities:
+          add:
+          - NET_ADMIN
+        privileged: false
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.166
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: publicVLAN
+              operator: In
+              values:
+              - '2176535'
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              ibm-cloud-provider-lb-name: a8bba512021e211e8a8d432799206ac6
+              ibm-cloud-provider-ip: 169-60-164-10
+          topologyKey: kubernetes.io/hostname
+    schedulerName: default-scheduler
+    tolerations:
+    - key: dedicated
+      value: edge
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:21:24Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:21:26Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:20:05Z'
+    hostIP: 10.186.164.166
+    podIP: 10.186.164.166
+    startTime: '2018-06-21T19:21:24Z'
+    containerStatuses:
+    - name: ibm-cloud-provider-ip-169-60-164-10
+      state:
+        running:
+          startedAt: '2018-06-21T19:21:26Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/keepalived:115
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/keepalived@sha256:f21245307dd5d3bb287751c2582f33e78176caf4275c814af21f3fdb699ac431
+      containerID: docker://f5148f08b548ac7bd9e930f43b1a4767102675b4b820f77446b54261d4790a63
+    qosClass: BestEffort
+    podIPs:
+    - ip: 10.186.164.166
+- metadata:
+    name: ibm-cloud-provider-ip-169-60-164-14-6d448884df-lp6tw
+    generateName: ibm-cloud-provider-ip-169-60-164-14-6d448884df-
+    namespace: ibm-system
+    selfLink: /api/v1/namespaces/ibm-system/pods/ibm-cloud-provider-ip-169-60-164-14-6d448884df-lp6tw
+    uid: 1ab09fe4-7588-11e8-bd75-ce1115ac0d30
+    resourceVersion: '2911943'
+    creationTimestamp: '2018-06-21T19:20:05Z'
+    labels:
+      ibm-cloud-provider-ip: 169-60-164-14
+      ibm-cloud-provider-lb-app: keepalived
+      ibm-cloud-provider-lb-name: a25265535216311e8a8d432799206ac6
+      pod-template-hash: '2800444089'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"ibm-system","name":"ibm-cloud-provider-ip-169-60-164-14-6d448884df","uid":"82392068-7587-11e8-82cc-fe87d4819862","apiVersion":"extensions","resourceVersion":"2820088"}}
+
+        '
+      kubernetes.io/psp: ibm-privileged-psp
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: ibm-cloud-provider-ip-169-60-164-14-6d448884df
+      uid: 82392068-7587-11e8-82cc-fe87d4819862
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: keepalived-status
+      hostPath:
+        path: /tmp/keepalived
+        type: ''
+    - name: default-token-cfzk4
+      secret:
+        secretName: default-token-cfzk4
+        defaultMode: 420
+    containers:
+    - name: ibm-cloud-provider-ip-169-60-164-14
+      image: registry.ng.bluemix.net/armada-master/keepalived:115
+      env:
+      - name: VIRTUAL_IP
+        value: 169.60.164.14
+      resources: {}
+      volumeMounts:
+      - name: keepalived-status
+        mountPath: /status
+      - name: default-token-cfzk4
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        capabilities:
+          add:
+          - NET_ADMIN
+        privileged: false
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.173
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: publicVLAN
+              operator: In
+              values:
+              - '2176535'
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              ibm-cloud-provider-ip: 169-60-164-14
+              ibm-cloud-provider-lb-name: a25265535216311e8a8d432799206ac6
+          topologyKey: kubernetes.io/hostname
+    schedulerName: default-scheduler
+    tolerations:
+    - key: dedicated
+      value: edge
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:21:00Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:21:02Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:20:05Z'
+    hostIP: 10.186.164.173
+    podIP: 10.186.164.173
+    startTime: '2018-06-21T19:21:00Z'
+    containerStatuses:
+    - name: ibm-cloud-provider-ip-169-60-164-14
+      state:
+        running:
+          startedAt: '2018-06-21T19:21:02Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/keepalived:115
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/keepalived@sha256:f21245307dd5d3bb287751c2582f33e78176caf4275c814af21f3fdb699ac431
+      containerID: docker://68c56731fa983d5e71ece7064fea6b171495aff4e30b52274cde40397e844a5f
+    qosClass: BestEffort
+    podIPs:
+    - ip: 10.186.164.173
+- metadata:
+    name: ibm-cloud-provider-ip-169-60-164-14-6d448884df-vsh47
+    generateName: ibm-cloud-provider-ip-169-60-164-14-6d448884df-
+    namespace: ibm-system
+    selfLink: /api/v1/namespaces/ibm-system/pods/ibm-cloud-provider-ip-169-60-164-14-6d448884df-vsh47
+    uid: 1aafdd41-7588-11e8-bd75-ce1115ac0d30
+    resourceVersion: '2820570'
+    creationTimestamp: '2018-06-21T19:20:05Z'
+    labels:
+      ibm-cloud-provider-ip: 169-60-164-14
+      ibm-cloud-provider-lb-app: keepalived
+      ibm-cloud-provider-lb-name: a25265535216311e8a8d432799206ac6
+      pod-template-hash: '2800444089'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"ibm-system","name":"ibm-cloud-provider-ip-169-60-164-14-6d448884df","uid":"82392068-7587-11e8-82cc-fe87d4819862","apiVersion":"extensions","resourceVersion":"2820088"}}
+
+        '
+      kubernetes.io/psp: ibm-privileged-psp
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: ibm-cloud-provider-ip-169-60-164-14-6d448884df
+      uid: 82392068-7587-11e8-82cc-fe87d4819862
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: keepalived-status
+      hostPath:
+        path: /tmp/keepalived
+        type: ''
+    - name: default-token-cfzk4
+      secret:
+        secretName: default-token-cfzk4
+        defaultMode: 420
+    containers:
+    - name: ibm-cloud-provider-ip-169-60-164-14
+      image: registry.ng.bluemix.net/armada-master/keepalived:115
+      env:
+      - name: VIRTUAL_IP
+        value: 169.60.164.14
+      resources: {}
+      volumeMounts:
+      - name: keepalived-status
+        mountPath: /status
+      - name: default-token-cfzk4
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        capabilities:
+          add:
+          - NET_ADMIN
+        privileged: false
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.166
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: publicVLAN
+              operator: In
+              values:
+              - '2176535'
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              ibm-cloud-provider-ip: 169-60-164-14
+              ibm-cloud-provider-lb-name: a25265535216311e8a8d432799206ac6
+          topologyKey: kubernetes.io/hostname
+    schedulerName: default-scheduler
+    tolerations:
+    - key: dedicated
+      value: edge
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:21:24Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:21:26Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:20:05Z'
+    hostIP: 10.186.164.166
+    podIP: 10.186.164.166
+    startTime: '2018-06-21T19:21:24Z'
+    containerStatuses:
+    - name: ibm-cloud-provider-ip-169-60-164-14
+      state:
+        running:
+          startedAt: '2018-06-21T19:21:26Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/keepalived:115
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/keepalived@sha256:f21245307dd5d3bb287751c2582f33e78176caf4275c814af21f3fdb699ac431
+      containerID: docker://30ddfc59961f333afc97da7fa0db603cf3389bf07af4a102c2c17a895b662f25
+    qosClass: BestEffort
+    podIPs:
+    - ip: 10.186.164.166
+- metadata:
+    name: calico-kube-controllers-7694668c77-t6slc
+    generateName: calico-kube-controllers-7694668c77-
+    namespace: kube-system-dummy-to-ignore
+    selfLink: /api/v1/namespaces/kube-system/pods/calico-kube-controllers-7694668c77-t6slc
+    uid: 34bf3063-361a-11e8-865c-52075433990e
+    resourceVersion: '2820577'
+    creationTimestamp: '2018-04-02T02:04:41Z'
+    labels:
+      k8s-app: calico-kube-controllers
+      pod-template-hash: '3250224733'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"kube-system","name":"calico-kube-controllers-7694668c77","uid":"bd0924a5-2134-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"708003"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: calico-kube-controllers-7694668c77
+      uid: bd0924a5-2134-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: etcd-certs
+      secret:
+        secretName: calico-etcd-secrets
+        defaultMode: 420
+    - name: calico-kube-controllers-token-klzrl
+      secret:
+        secretName: calico-kube-controllers-token-klzrl
+        defaultMode: 420
+    containers:
+    - name: calico-kube-controllers
+      image: registry.ng.bluemix.net/armada-master/kube-controllers:v1.0.2
+      env:
+      - name: ETCD_ENDPOINTS
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_endpoints
+      - name: ETCD_CA_CERT_FILE
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_ca
+      - name: ETCD_KEY_FILE
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_key
+      - name: ETCD_CERT_FILE
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_cert
+      - name: ENABLED_CONTROLLERS
+        value: policy,profile,workloadendpoint
+      resources: {}
+      volumeMounts:
+      - name: etcd-certs
+        mountPath: /calico-secrets
+      - name: calico-kube-controllers-token-klzrl
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: calico-kube-controllers
+    serviceAccount: calico-kube-controllers
+    nodeName: 10.186.164.166
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    schedulerName: default-scheduler
+    tolerations:
+    - operator: Exists
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-04-02T02:04:41Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:21:26Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-04-02T02:04:41Z'
+    hostIP: 10.186.164.166
+    podIP: 10.186.164.166
+    startTime: '2018-04-02T02:04:41Z'
+    containerStatuses:
+    - name: calico-kube-controllers
+      state:
+        running:
+          startedAt: '2018-06-21T19:21:26Z'
+      lastState:
+        terminated:
+          exitCode: 2
+          reason: Error
+          startedAt: '2018-04-02T02:04:45Z'
+          finishedAt: '2018-06-21T19:21:24Z'
+          containerID: docker://2ec98edd1d702368dce790d1e5622a43d50e2b110ca4ff3db2961cfb8b88585a
+      ready: true
+      restartCount: 1
+      image: registry.ng.bluemix.net/armada-master/kube-controllers:v1.0.2
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/kube-controllers@sha256:bfe5356fabed7e58cff34d3c44364479c3305b8b48617ec433b1012f7cdabf34
+      containerID: docker://6f3a4809f97d3b435f42919d35dcdb712b4e4fda3bc2920d23e6d93ba40c2250
+    qosClass: BestEffort
+    podIPs:
+    - ip: 10.186.164.166
+- metadata:
+    name: calico-node-mgdlr
+    generateName: calico-node-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/calico-node-mgdlr
+    uid: c0cf5728-2135-11e8-a8d4-32799206ac60
+    resourceVersion: '2820591'
+    creationTimestamp: '2018-03-06T11:58:58Z'
+    labels:
+      controller-revision-hash: '3852388844'
+      k8s-app: calico-node
+      tier: frontend
+      pod-template-generation: '1'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"kube-system","name":"calico-node","uid":"bd04ac9e-2134-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"487"}}
+
+        '
+      scheduler.alpha.kubernetes.io/critical-pod: ''
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: calico-node-tier
+      uid: bd04ac9e-2134-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: lib-modules
+      hostPath:
+        path: /lib/modules
+        type: ''
+    - name: var-run-calico
+      hostPath:
+        path: /var/run/calico
+        type: ''
+    - name: cni-bin-dir
+      hostPath:
+        path: /opt/cni/bin
+        type: ''
+    - name: cni-net-dir
+      hostPath:
+        path: /etc/cni/net.d
+        type: ''
+    - name: etcd-certs
+      secret:
+        secretName: calico-etcd-secrets
+        defaultMode: 420
+    - name: calico-node-token-t5mr4
+      secret:
+        secretName: calico-node-token-t5mr4
+        defaultMode: 420
+    containers:
+    - name: calico-node
+      image: registry.ng.bluemix.net/armada-master/node:v2.6.5
+      env:
+      - name: ETCD_ENDPOINTS
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_endpoints
+      - name: CALICO_NETWORKING_BACKEND
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: calico_backend
+      - name: CLUSTER_TYPE
+        value: k8s,bgp
+      - name: CALICO_DISABLE_FILE_LOGGING
+        value: 'true'
+      - name: FELIX_DEFAULTENDPOINTTOHOSTACTION
+        value: ACCEPT
+      - name: FELIX_IPTABLESREFRESHINTERVAL
+        value: '60'
+      - name: FELIX_PROMETHEUSMETRICSENABLED
+        value: 'true'
+      - name: FELIX_PROMETHEUSMETRICSPORT
+        value: '9091'
+      - name: IP
+        value: autodetect
+      - name: IP_AUTODETECTION_METHOD
+        value: interface=(^bond0$|^eth0$|^ens6$)
+      - name: CALICO_IPV4POOL_CIDR
+        value: 172.30.0.0/16
+      - name: CALICO_IPV4POOL_IPIP
+        value: cross-subnet
+      - name: CALICO_K8S_NODE_REF
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: spec.nodeName
+      - name: FELIX_IPV6SUPPORT
+        value: 'false'
+      - name: FELIX_LOGSEVERITYSCREEN
+        value: info
+      - name: FELIX_IPINIPMTU
+        value: '1480'
+      - name: ETCD_CA_CERT_FILE
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_ca
+      - name: ETCD_KEY_FILE
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_key
+      - name: ETCD_CERT_FILE
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_cert
+      - name: FELIX_HEALTHENABLED
+        value: 'true'
+      resources:
+        requests:
+          cpu: 250m
+      volumeMounts:
+      - name: lib-modules
+        readOnly: true
+        mountPath: /lib/modules
+      - name: var-run-calico
+        mountPath: /var/run/calico
+      - name: etcd-certs
+        mountPath: /calico-secrets
+      - name: calico-node-token-t5mr4
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      livenessProbe:
+        httpGet:
+          path: /liveness
+          port: 9099
+          scheme: HTTP
+        initialDelaySeconds: 10
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 6
+      readinessProbe:
+        httpGet:
+          path: /readiness
+          port: 9099
+          scheme: HTTP
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        privileged: true
+    - name: install-cni
+      image: registry.ng.bluemix.net/armada-master/cni:v1.11.2
+      command:
+      - /install-cni.sh
+      env:
+      - name: ETCD_ENDPOINTS
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_endpoints
+      - name: CNI_NETWORK_CONFIG
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: cni_network_config
+      resources: {}
+      volumeMounts:
+      - name: cni-bin-dir
+        mountPath: /host/opt/cni/bin
+      - name: cni-net-dir
+        mountPath: /host/etc/cni/net.d
+      - name: etcd-certs
+        mountPath: /calico-secrets
+      - name: calico-node-token-t5mr4
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 0
+    dnsPolicy: ClusterFirst
+    serviceAccountName: calico-node
+    serviceAccount: calico-node
+    nodeName: 10.186.164.166
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: ibmcloud.io/systemd-calico-node
+              operator: DoesNotExist
+    schedulerName: default-scheduler
+    tolerations:
+    - operator: Exists
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-06T11:59:03Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T13:40:19Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-06T12:00:46Z'
+    hostIP: 10.186.164.166
+    podIP: 10.186.164.166
+    startTime: '2018-03-06T11:59:03Z'
+    containerStatuses:
+    - name: calico-node
+      state:
+        running:
+          startedAt: '2018-03-07T13:40:07Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/node:v2.6.5
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/node@sha256:d79a25b3ef899332f9de73536634c9a3ce3fa12b3e77e504cff1e2d2a8d536e6
+      containerID: docker://766a63a0dc11532ef029a787710b9a27f2f7fccf54b01a1bd0a72fa6d31bfc48
+    - name: install-cni
+      state:
+        running:
+          startedAt: '2018-03-07T13:40:17Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/cni:v1.11.2
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/cni@sha256:df0606795dc43a5f9f0823db26661a722107b93cfc88c1e20ba80bec45634023
+      containerID: docker://fcfe6f1d63699268037b98d8ce7f8866ac974b48abe83e7eed7ae09634586208
+    qosClass: Burstable
+    podIPs:
+    - ip: 10.186.164.166
+- metadata:
+    name: calico-node-ns8kw
+    generateName: calico-node-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/calico-node-ns8kw
+    uid: c0d6035d-2135-11e8-a8d4-32799206ac60
+    resourceVersion: '2911977'
+    creationTimestamp: '2018-03-06T11:58:58Z'
+    labels:
+      controller-revision-hash: '3852388844'
+      k8s-app: calico-node
+      pod-template-generation: '1'
+    annotations:
+      scheduler.alpha.kubernetes.io/critical-pod: ''
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"kube-system","name":"calico-node","uid":"bd04ac9e-2134-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"511"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: calico-node
+      uid: bd04ac9e-2134-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: lib-modules
+      hostPath:
+        path: /lib/modules
+        type: ''
+    - name: var-run-calico
+      hostPath:
+        path: /var/run/calico
+        type: ''
+    - name: cni-bin-dir
+      hostPath:
+        path: /opt/cni/bin
+        type: ''
+    - name: cni-net-dir
+      hostPath:
+        path: /etc/cni/net.d
+        type: ''
+    - name: etcd-certs
+      secret:
+        secretName: calico-etcd-secrets
+        defaultMode: 420
+    - name: calico-node-token-t5mr4
+      secret:
+        secretName: calico-node-token-t5mr4
+        defaultMode: 420
+    containers:
+    - name: calico-node
+      image: registry.ng.bluemix.net/armada-master/node:v2.6.5
+      env:
+      - name: ETCD_ENDPOINTS
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_endpoints
+      - name: CALICO_NETWORKING_BACKEND
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: calico_backend
+      - name: CLUSTER_TYPE
+        value: k8s,bgp
+      - name: CALICO_DISABLE_FILE_LOGGING
+        value: 'true'
+      - name: FELIX_DEFAULTENDPOINTTOHOSTACTION
+        value: ACCEPT
+      - name: FELIX_IPTABLESREFRESHINTERVAL
+        value: '60'
+      - name: FELIX_PROMETHEUSMETRICSENABLED
+        value: 'true'
+      - name: FELIX_PROMETHEUSMETRICSPORT
+        value: '9091'
+      - name: IP
+        value: autodetect
+      - name: IP_AUTODETECTION_METHOD
+        value: interface=(^bond0$|^eth0$|^ens6$)
+      - name: CALICO_IPV4POOL_CIDR
+        value: 172.30.0.0/16
+      - name: CALICO_IPV4POOL_IPIP
+        value: cross-subnet
+      - name: CALICO_K8S_NODE_REF
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: spec.nodeName
+      - name: FELIX_IPV6SUPPORT
+        value: 'false'
+      - name: FELIX_LOGSEVERITYSCREEN
+        value: info
+      - name: FELIX_IPINIPMTU
+        value: '1480'
+      - name: ETCD_CA_CERT_FILE
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_ca
+      - name: ETCD_KEY_FILE
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_key
+      - name: ETCD_CERT_FILE
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_cert
+      - name: FELIX_HEALTHENABLED
+        value: 'true'
+      resources:
+        requests:
+          cpu: 250m
+      volumeMounts:
+      - name: lib-modules
+        readOnly: true
+        mountPath: /lib/modules
+      - name: var-run-calico
+        mountPath: /var/run/calico
+      - name: etcd-certs
+        mountPath: /calico-secrets
+      - name: calico-node-token-t5mr4
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      livenessProbe:
+        httpGet:
+          path: /liveness
+          port: 9099
+          scheme: HTTP
+        initialDelaySeconds: 10
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 6
+      readinessProbe:
+        httpGet:
+          path: /readiness
+          port: 9099
+          scheme: HTTP
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        privileged: true
+    - name: install-cni
+      image: registry.ng.bluemix.net/armada-master/cni:v1.11.2
+      command:
+      - /install-cni.sh
+      env:
+      - name: ETCD_ENDPOINTS
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_endpoints
+      - name: CNI_NETWORK_CONFIG
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: cni_network_config
+      resources: {}
+      volumeMounts:
+      - name: cni-bin-dir
+        mountPath: /host/opt/cni/bin
+      - name: cni-net-dir
+        mountPath: /host/etc/cni/net.d
+      - name: etcd-certs
+        mountPath: /calico-secrets
+      - name: calico-node-token-t5mr4
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 0
+    dnsPolicy: ClusterFirst
+    serviceAccountName: calico-node
+    serviceAccount: calico-node
+    nodeName: 10.186.164.173
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: ibmcloud.io/systemd-calico-node
+              operator: DoesNotExist
+    schedulerName: default-scheduler
+    tolerations:
+    - operator: Exists
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-06T11:59:03Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T13:37:54Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-06T12:00:25Z'
+    hostIP: 10.186.164.173
+    podIP: 10.186.164.173
+    startTime: '2018-03-06T11:59:03Z'
+    containerStatuses:
+    - name: calico-node
+      state:
+        running:
+          startedAt: '2018-03-07T13:34:58Z'
+      lastState:
+        terminated:
+          exitCode: 0
+          reason: Completed
+          startedAt: '2018-03-06T17:14:46Z'
+          finishedAt: '2018-03-07T13:34:54Z'
+          containerID: docker://3a6d2e59c159db0ea1a066baedc3572f6a73b49db24ad4573e8276d04cefd573
+      ready: true
+      restartCount: 1
+      image: registry.ng.bluemix.net/armada-master/node:v2.6.5
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/node@sha256:d79a25b3ef899332f9de73536634c9a3ce3fa12b3e77e504cff1e2d2a8d536e6
+      containerID: docker://cd5b83ac0d78c84113070cfac357f46872f25c80c611403dbd774da94e0e583c
+    - name: install-cni
+      state:
+        running:
+          startedAt: '2018-03-06T17:14:57Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/cni:v1.11.2
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/cni@sha256:df0606795dc43a5f9f0823db26661a722107b93cfc88c1e20ba80bec45634023
+      containerID: docker://a771403f6dbf8f39d30fa0d9a7438804eeabf928ad4d6e27d7074b6202f2a067
+    qosClass: Burstable
+    podIPs:
+    - ip: 10.186.164.173
+- metadata:
+    name: calico-node-ptdgj
+    generateName: calico-node-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/calico-node-ptdgj
+    uid: a720c7c6-2212-11e8-a8d4-32799206ac60
+    resourceVersion: '2820501'
+    creationTimestamp: '2018-03-07T14:20:14Z'
+    labels:
+      controller-revision-hash: '3852388844'
+      k8s-app: calico-node
+      pod-template-generation: '1'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"kube-system","name":"calico-node","uid":"bd04ac9e-2134-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"37571"}}
+
+        '
+      scheduler.alpha.kubernetes.io/critical-pod: ''
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: calico-node
+      uid: bd04ac9e-2134-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: lib-modules
+      hostPath:
+        path: /lib/modules
+        type: ''
+    - name: var-run-calico
+      hostPath:
+        path: /var/run/calico
+        type: ''
+    - name: cni-bin-dir
+      hostPath:
+        path: /opt/cni/bin
+        type: ''
+    - name: cni-net-dir
+      hostPath:
+        path: /etc/cni/net.d
+        type: ''
+    - name: etcd-certs
+      secret:
+        secretName: calico-etcd-secrets
+        defaultMode: 420
+    - name: calico-node-token-t5mr4
+      secret:
+        secretName: calico-node-token-t5mr4
+        defaultMode: 420
+    containers:
+    - name: calico-node
+      image: registry.ng.bluemix.net/armada-master/node:v2.6.5
+      env:
+      - name: ETCD_ENDPOINTS
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_endpoints
+      - name: CALICO_NETWORKING_BACKEND
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: calico_backend
+      - name: CLUSTER_TYPE
+        value: k8s,bgp
+      - name: CALICO_DISABLE_FILE_LOGGING
+        value: 'true'
+      - name: FELIX_DEFAULTENDPOINTTOHOSTACTION
+        value: ACCEPT
+      - name: FELIX_IPTABLESREFRESHINTERVAL
+        value: '60'
+      - name: FELIX_PROMETHEUSMETRICSENABLED
+        value: 'true'
+      - name: FELIX_PROMETHEUSMETRICSPORT
+        value: '9091'
+      - name: IP
+        value: autodetect
+      - name: IP_AUTODETECTION_METHOD
+        value: interface=(^bond0$|^eth0$|^ens6$)
+      - name: CALICO_IPV4POOL_CIDR
+        value: 172.30.0.0/16
+      - name: CALICO_IPV4POOL_IPIP
+        value: cross-subnet
+      - name: CALICO_K8S_NODE_REF
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: spec.nodeName
+      - name: FELIX_IPV6SUPPORT
+        value: 'false'
+      - name: FELIX_LOGSEVERITYSCREEN
+        value: info
+      - name: FELIX_IPINIPMTU
+        value: '1480'
+      - name: ETCD_CA_CERT_FILE
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_ca
+      - name: ETCD_KEY_FILE
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_key
+      - name: ETCD_CERT_FILE
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_cert
+      - name: FELIX_HEALTHENABLED
+        value: 'true'
+      resources:
+        requests:
+          cpu: 250m
+      volumeMounts:
+      - name: lib-modules
+        readOnly: true
+        mountPath: /lib/modules
+      - name: var-run-calico
+        mountPath: /var/run/calico
+      - name: etcd-certs
+        mountPath: /calico-secrets
+      - name: calico-node-token-t5mr4
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      livenessProbe:
+        httpGet:
+          path: /liveness
+          port: 9099
+          scheme: HTTP
+        initialDelaySeconds: 10
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 6
+      readinessProbe:
+        httpGet:
+          path: /readiness
+          port: 9099
+          scheme: HTTP
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        privileged: true
+    - name: install-cni
+      image: registry.ng.bluemix.net/armada-master/cni:v1.11.2
+      command:
+      - /install-cni.sh
+      env:
+      - name: ETCD_ENDPOINTS
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: etcd_endpoints
+      - name: CNI_NETWORK_CONFIG
+        valueFrom:
+          configMapKeyRef:
+            name: calico-config
+            key: cni_network_config
+      resources: {}
+      volumeMounts:
+      - name: cni-bin-dir
+        mountPath: /host/opt/cni/bin
+      - name: cni-net-dir
+        mountPath: /host/etc/cni/net.d
+      - name: etcd-certs
+        mountPath: /calico-secrets
+      - name: calico-node-token-t5mr4
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 0
+    dnsPolicy: ClusterFirst
+    serviceAccountName: calico-node
+    serviceAccount: calico-node
+    nodeName: 10.186.164.174
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: ibmcloud.io/systemd-calico-node
+              operator: DoesNotExist
+    schedulerName: default-scheduler
+    tolerations:
+    - operator: Exists
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T14:20:19Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T14:20:48Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T14:20:30Z'
+    hostIP: 10.186.164.174
+    podIP: 10.186.164.174
+    startTime: '2018-03-07T14:20:19Z'
+    containerStatuses:
+    - name: calico-node
+      state:
+        running:
+          startedAt: '2018-03-07T14:20:38Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/node:v2.6.5
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/node@sha256:d79a25b3ef899332f9de73536634c9a3ce3fa12b3e77e504cff1e2d2a8d536e6
+      containerID: docker://859a0a2f155d7b287c8c638b5e0df0516b8e308260b45a67cf440870f6737cd9
+    - name: install-cni
+      state:
+        running:
+          startedAt: '2018-03-07T14:20:44Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/cni:v1.11.2
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/cni@sha256:df0606795dc43a5f9f0823db26661a722107b93cfc88c1e20ba80bec45634023
+      containerID: docker://cf80bcefc7e2f15f99ddd450a2d132229be448da83c03d6b796eba9ecd03dc58
+    qosClass: Burstable
+    podIPs:
+    - ip: 10.186.164.174
+- metadata:
+    name: heapster-7df8cb8c66-zxkk2
+    generateName: heapster-7df8cb8c66-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/heapster-7df8cb8c66-zxkk2
+    uid: 5bf4c5d6-220b-11e8-a8d4-32799206ac60
+    resourceVersion: '2911965'
+    creationTimestamp: '2018-03-07T13:28:01Z'
+    labels:
+      pod-template-hash: '3894764722'
+      version: v1.4.3
+      k8s-app: heapster
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"kube-system","name":"heapster-7df8cb8c66","uid":"97d144ee-2136-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"35375"}}
+
+        '
+      scheduler.alpha.kubernetes.io/critical-pod: ''
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: heapster-7df8cb8c66
+      uid: 97d144ee-2136-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: heapster-config
+      hostPath:
+        path: /etc/kubernetes
+        type: ''
+    - name: heapster-token-rsf8w
+      secret:
+        secretName: heapster-token-rsf8w
+        defaultMode: 420
+    containers:
+    - name: heapster
+      image: registry.ng.bluemix.net/armada-master/heapster-amd64:v1.4.3
+      command:
+      - /heapster
+      - --source=kubernetes.summary_api:''?inClusterConfig=false&kubeletPort=10250&kubeletHttps=true&auth=/etc/kubernetes/heapster-kubeconfig
+      resources:
+        limits:
+          cpu: 88m
+          memory: 204Mi
+        requests:
+          cpu: 88m
+          memory: 204Mi
+      volumeMounts:
+      - name: heapster-config
+        readOnly: true
+        mountPath: /etc/kubernetes
+      - name: heapster-token-rsf8w
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      livenessProbe:
+        httpGet:
+          path: /healthz
+          port: 8082
+          scheme: HTTP
+        initialDelaySeconds: 180
+        timeoutSeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    - name: heapster-nanny
+      image: registry.ng.bluemix.net/armada-master/addon-resizer:1.7
+      command:
+      - /pod_nanny
+      - --cpu=80m
+      - --extra-cpu=0.5m
+      - --memory=140Mi
+      - --extra-memory=4Mi
+      - --threshold=5
+      - --deployment=heapster
+      - --container=heapster
+      - --poll-period=300000
+      - --estimator=exponential
+      env:
+      - name: MY_POD_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
+      - name: MY_POD_NAMESPACE
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.namespace
+      resources:
+        limits:
+          cpu: 50m
+          memory: 90Mi
+        requests:
+          cpu: 50m
+          memory: 90Mi
+      volumeMounts:
+      - name: heapster-token-rsf8w
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: heapster
+    serviceAccount: heapster
+    nodeName: 10.186.164.173
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    schedulerName: default-scheduler
+    tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T13:29:42Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T13:37:51Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T13:28:01Z'
+    hostIP: 10.186.164.173
+    podIP: 172.30.86.160
+    startTime: '2018-03-07T13:29:42Z'
+    containerStatuses:
+    - name: heapster
+      state:
+        running:
+          startedAt: '2018-03-07T13:34:54Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/heapster-amd64:v1.4.3
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/heapster-amd64@sha256:8e04183590f937c274fb95c1397ea0c6b919645c765862e2cc9cb80f097a8fb4
+      containerID: docker://a64d08befd5d39361c7c7a62d63ab11ad03ec6c40fa0be227470e08d9469120d
+    - name: heapster-nanny
+      state:
+        running:
+          startedAt: '2018-03-07T13:37:50Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/addon-resizer:1.7
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/addon-resizer@sha256:dcec9a5c2e20b8df19f3e9eeb87d9054a9e94e71479b935d5cfdbede9ce15895
+      containerID: docker://6d0e39d0f8478c46902271ec96e4a249c228fe8c0444057562b76f7a492bb33f
+    qosClass: Guaranteed
+    podIPs:
+    - ip: 172.30.86.160
+- metadata:
+    name: ibm-file-plugin-7bfb8b69bf-p86gk
+    generateName: ibm-file-plugin-7bfb8b69bf-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/ibm-file-plugin-7bfb8b69bf-p86gk
+    uid: dda607ab-53a0-11e8-a909-4e37e9ec47cc
+    resourceVersion: '2820603'
+    creationTimestamp: '2018-05-09T15:51:41Z'
+    labels:
+      app: ibm-file-plugin
+      pod-template-hash: '3696462569'
+      tier: frontend
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"kube-system","name":"ibm-file-plugin-7bfb8b69bf","uid":"dda3a270-53a0-11e8-a909-4e37e9ec47cc","apiVersion":"extensions","resourceVersion":"1693495"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: ibm-file-plugin-7bfb8b69bf
+      uid: dda3a270-53a0-11e8-a909-4e37e9ec47cc
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: storage-plugin-secret
+      secret:
+        secretName: storage-secret-store
+        defaultMode: 420
+    - name: crn-info-ibmc
+      configMap:
+        name: crn-info-ibmc
+        defaultMode: 420
+    - name: default-token-fcdh9
+      secret:
+        secretName: default-token-fcdh9
+        defaultMode: 420
+    containers:
+    - name: ibm-file-plugin-container
+      image: registry.ng.bluemix.net/armada-master/storage-file-plugin:320
+      args:
+      - -provisioner=ibm.io/ibmc-file
+      env:
+      - name: POD_NAMESPACE
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.namespace
+      - name: POD_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
+      - name: PLUGIN_IMAGE
+        value: registry.ng.bluemix.net/armada-master/storage-file-plugin:320
+      - name: CLUSTER_ID
+        value: e08b89c167414305a1afb205d0bd346f
+      - name: CM_SUBNET
+        value: subnet-config
+      - name: WATCHER
+        value: 'false'
+      - name: STORAGE_CONFIG_PATH
+        value: /etc/storage_ibmc
+      - name: CRN_CONFIGMAP_PATH
+        value: /etc/ibm_crn_info
+      resources:
+        limits:
+          cpu: '1'
+        requests:
+          cpu: 500m
+          memory: 100Mi
+      volumeMounts:
+      - name: storage-plugin-secret
+        mountPath: /etc/storage_ibmc
+      - name: crn-info-ibmc
+        mountPath: /etc/ibm_crn_info
+      - name: default-token-fcdh9
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.166
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    schedulerName: default-scheduler
+    tolerations:
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-05-09T15:51:41Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-05-09T15:51:43Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-05-09T15:51:41Z'
+    hostIP: 10.186.164.166
+    podIP: 172.30.206.148
+    startTime: '2018-05-09T15:51:41Z'
+    containerStatuses:
+    - name: ibm-file-plugin-container
+      state:
+        running:
+          startedAt: '2018-05-09T15:51:42Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/storage-file-plugin:320
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/storage-file-plugin@sha256:a0213ab36d07ecbef9be2299c1f5240c181d9e3b1cb9a4b5dac8411b87fe1aef
+      containerID: docker://7d28030ab2e01b0ca6efc3a16d38e411422f56d1c136cb02b914ed61856da725
+    qosClass: Burstable
+    podIPs:
+    - ip: 172.30.206.148
+- metadata:
+    name: ibm-keepalived-watcher-57ghx
+    generateName: ibm-keepalived-watcher-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/ibm-keepalived-watcher-57ghx
+    uid: bbc4b83b-7589-11e8-bd75-ce1115ac0d30
+    resourceVersion: '2820927'
+    creationTimestamp: '2018-06-21T19:31:45Z'
+    labels:
+      app: ibm-keepalived-watcher
+      tier: frontend
+      controller-revision-hash: '1304143331'
+      pod-template-generation: '3'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"kube-system","name":"ibm-keepalived-watcher","uid":"3254bea7-2135-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"2820827"}}
+
+        '
+      kubernetes.io/psp: ibm-privileged-psp
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: ibm-keepalived-watcher
+      uid: 3254bea7-2135-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: keepalived-status
+      hostPath:
+        path: /tmp/keepalived
+        type: ''
+    - name: ibm-keepalived-watcher-token-dmxg4
+      secret:
+        secretName: ibm-keepalived-watcher-token-dmxg4
+        defaultMode: 420
+    containers:
+    - name: keepalived-watcher
+      image: registry.ng.bluemix.net/armada-master/keepalived-watcher:115
+      resources: {}
+      volumeMounts:
+      - name: keepalived-status
+        mountPath: /status
+      - name: ibm-keepalived-watcher-token-dmxg4
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        capabilities:
+          add:
+          - NET_ADMIN
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: ibm-keepalived-watcher
+    serviceAccount: ibm-keepalived-watcher
+    nodeName: 10.186.164.174
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    schedulerName: default-scheduler
+    tolerations:
+    - operator: Exists
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:31:45Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:31:48Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:31:48Z'
+    hostIP: 10.186.164.174
+    podIP: 10.186.164.174
+    startTime: '2018-06-21T19:31:45Z'
+    containerStatuses:
+    - name: keepalived-watcher
+      state:
+        running:
+          startedAt: '2018-06-21T19:31:48Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/keepalived-watcher:115
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/keepalived-watcher@sha256:b1c40c8a65e504158cb9b947696987be1459a99ed87921dd4f912709c46e5066
+      containerID: docker://72bb576456ceb5224cd8bcc254921d0e54118f314a594763b3f997c57af5f969
+    qosClass: BestEffort
+    podIPs:
+    - ip: 10.186.164.174
+- metadata:
+    name: ibm-keepalived-watcher-gzdfm
+    generateName: ibm-keepalived-watcher-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/ibm-keepalived-watcher-gzdfm
+    uid: c6a01302-7589-11e8-bd75-ce1115ac0d30
+    resourceVersion: '2820975'
+    creationTimestamp: '2018-06-21T19:32:03Z'
+    labels:
+      app: ibm-keepalived-watcher
+      tier: frontend
+      controller-revision-hash: '1304143331'
+      pod-template-generation: '3'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"kube-system","name":"ibm-keepalived-watcher","uid":"3254bea7-2135-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"2820951"}}
+
+        '
+      kubernetes.io/psp: ibm-privileged-psp
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: ibm-keepalived-watcher
+      uid: 3254bea7-2135-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: keepalived-status
+      hostPath:
+        path: /tmp/keepalived
+        type: ''
+    - name: ibm-keepalived-watcher-token-dmxg4
+      secret:
+        secretName: ibm-keepalived-watcher-token-dmxg4
+        defaultMode: 420
+    containers:
+    - name: keepalived-watcher
+      image: registry.ng.bluemix.net/armada-master/keepalived-watcher:115
+      resources: {}
+      volumeMounts:
+      - name: keepalived-status
+        mountPath: /status
+      - name: ibm-keepalived-watcher-token-dmxg4
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        capabilities:
+          add:
+          - NET_ADMIN
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: ibm-keepalived-watcher
+    serviceAccount: ibm-keepalived-watcher
+    nodeName: 10.186.164.166
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    schedulerName: default-scheduler
+    tolerations:
+    - operator: Exists
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:32:03Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:32:06Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:32:06Z'
+    hostIP: 10.186.164.166
+    podIP: 10.186.164.166
+    startTime: '2018-06-21T19:32:03Z'
+    containerStatuses:
+    - name: keepalived-watcher
+      state:
+        running:
+          startedAt: '2018-06-21T19:32:06Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/keepalived-watcher:115
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/keepalived-watcher@sha256:b1c40c8a65e504158cb9b947696987be1459a99ed87921dd4f912709c46e5066
+      containerID: docker://28d73248417cd43bffb2baf9d139a543415b5cef77ae4a6cc159a4db15689466
+    qosClass: BestEffort
+    podIPs:
+    - ip: 10.186.164.166
+- metadata:
+    name: ibm-keepalived-watcher-wczq8
+    generateName: ibm-keepalived-watcher-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/ibm-keepalived-watcher-wczq8
+    uid: be703158-7589-11e8-bd75-ce1115ac0d30
+    resourceVersion: '2911956'
+    creationTimestamp: '2018-06-21T19:31:50Z'
+    labels:
+      controller-revision-hash: '1304143331'
+      pod-template-generation: '3'
+      app: ibm-keepalived-watcher
+      tier: not_frontend_for_demo
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"kube-system","name":"ibm-keepalived-watcher","uid":"3254bea7-2135-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"2820926"}}
+
+        '
+      kubernetes.io/psp: ibm-privileged-psp
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: ibm-keepalived-watcher-for-demo
+      uid: 3254bea7-2135-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: keepalived-status
+      hostPath:
+        path: /tmp/keepalived
+        type: ''
+    - name: ibm-keepalived-watcher-token-dmxg4
+      secret:
+        secretName: ibm-keepalived-watcher-token-dmxg4
+        defaultMode: 420
+    containers:
+    - name: keepalived-watcher
+      image: registry.ng.bluemix.net/armada-master/keepalived-watcher:115
+      resources: {}
+      volumeMounts:
+      - name: keepalived-status
+        mountPath: /status
+      - name: ibm-keepalived-watcher-token-dmxg4
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        capabilities:
+          add:
+          - NET_ADMIN
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: ibm-keepalived-watcher
+    serviceAccount: ibm-keepalived-watcher
+    nodeName: 10.186.164.173
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    schedulerName: default-scheduler
+    tolerations:
+    - operator: Exists
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:31:50Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:31:53Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:31:53Z'
+    hostIP: 10.186.164.173
+    podIP: 10.186.164.173
+    startTime: '2018-06-21T19:31:50Z'
+    containerStatuses:
+    - name: keepalived-watcher
+      state:
+        running:
+          startedAt: '2018-06-21T19:31:52Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/keepalived-watcher:115
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/keepalived-watcher@sha256:b1c40c8a65e504158cb9b947696987be1459a99ed87921dd4f912709c46e5066
+      containerID: docker://8b45713d837421761b068ae0c7f2e5744ebd20d36df1eb4095a3303b4312053f
+    qosClass: BestEffort
+    podIPs:
+    - ip: 10.186.164.173
+- metadata:
+    name: ibm-kube-fluentd-2qw2g
+    generateName: ibm-kube-fluentd-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/ibm-kube-fluentd-2qw2g
+    uid: b54772e9-7008-11e8-973c-c277fb0e1353
+    resourceVersion: '2820595'
+    creationTimestamp: '2018-06-14T19:25:33Z'
+    labels:
+      pod-template-generation: '20'
+      app: ibm-kube-fluentd
+      controller-revision-hash: '2787683658'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"kube-system","name":"ibm-kube-fluentd","uid":"aa09f313-2162-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"2640520"}}
+
+        '
+      version: '26404638771908161908163908164'
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: ibm-kube-fluentd
+      uid: aa09f313-2162-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: host-volume
+      hostPath:
+        path: /
+        type: ''
+    - name: kube
+      hostPath:
+        path: /etc/kubernetes/
+        type: ''
+    - name: log
+      hostPath:
+        path: /var/log/
+        type: ''
+    - name: dockercontainers
+      hostPath:
+        path: /var/lib/docker
+        type: ''
+    - name: persist
+      hostPath:
+        path: /mnt/ibm-kube-fluentd-persist
+        type: ''
+    - name: dockersock
+      hostPath:
+        path: /var/run/docker.sock
+        type: ''
+    - name: fluentd-config
+      configMap:
+        name: ibm-kube-fluentd-config
+        defaultMode: 272
+    - name: at-fluentd-config
+      configMap:
+        name: at-fluentd-config
+        defaultMode: 272
+        optional: true
+    - name: logmet-secrets-volume
+      secret:
+        secretName: logmet-secrets
+        defaultMode: 272
+    - name: data-volume
+      hostPath:
+        path: /var/data
+        type: ''
+    - name: activity-tracker-secrets-volume
+      secret:
+        secretName: activity-tracker-secrets
+        defaultMode: 272
+        optional: true
+    - name: activity-tracker-log-path-volume
+      hostPath:
+        path: /var/log/at
+        type: ''
+    - name: activity-tracker-no-rotate-volume
+      hostPath:
+        path: /var/log/at-no-rotate
+        type: ''
+    - name: ibm-kube-fluentd-token-fvk94
+      secret:
+        secretName: ibm-kube-fluentd-token-fvk94
+        defaultMode: 420
+    containers:
+    - name: fluentd
+      image: registry.ng.bluemix.net/armada-master/ibm-kube-fluentd-collector:6c3c9f9b532ab250c1362fc2edf96cbb76b2647c
+      env:
+      - name: HOST_IP
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: spec.nodeName
+      resources:
+        limits:
+          cpu: '1'
+          memory: 800M
+        requests:
+          cpu: 25m
+          memory: 50Mi
+      volumeMounts:
+      - name: kube
+        readOnly: true
+        mountPath: /etc/kubernetes
+      - name: host-volume
+        readOnly: true
+        mountPath: /host
+      - name: log
+        readOnly: true
+        mountPath: /var/log
+      - name: dockercontainers
+        readOnly: true
+        mountPath: /var/lib/docker
+      - name: dockersock
+        readOnly: true
+        mountPath: /var/run/docker.sock
+      - name: persist
+        mountPath: /mnt/ibm-kube-fluentd-persist
+      - name: logmet-secrets-volume
+        readOnly: true
+        mountPath: /mnt/logmet/secrets
+      - name: fluentd-config
+        readOnly: true
+        mountPath: /fluentd/etc/config.d/logmet/
+      - name: data-volume
+        readOnly: true
+        mountPath: /var/data
+      - name: at-fluentd-config
+        readOnly: true
+        mountPath: /fluentd/etc/config.d/at/
+      - name: activity-tracker-secrets-volume
+        readOnly: true
+        mountPath: /mnt/activity-tracker/secrets/
+      - name: activity-tracker-log-path-volume
+        readOnly: true
+        mountPath: /var/log/at
+      - name: activity-tracker-no-rotate-volume
+        readOnly: true
+        mountPath: /var/log/at-no-rotate
+      - name: ibm-kube-fluentd-token-fvk94
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: ibm-kube-fluentd
+    serviceAccount: ibm-kube-fluentd
+    nodeName: 10.186.164.166
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    schedulerName: default-scheduler
+    tolerations:
+    - operator: Exists
+    - operator: Exists
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-14T19:25:33Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-14T19:26:25Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-14T19:26:25Z'
+    hostIP: 10.186.164.166
+    podIP: 10.186.164.166
+    startTime: '2018-06-14T19:25:33Z'
+    containerStatuses:
+    - name: fluentd
+      state:
+        running:
+          startedAt: '2018-06-14T19:26:25Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/ibm-kube-fluentd-collector:6c3c9f9b532ab250c1362fc2edf96cbb76b2647c
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/ibm-kube-fluentd-collector@sha256:7f35892ebfed0aadc2ac7e7930a60c7f97dcd01788c94dd4542d8a825d7574a9
+      containerID: docker://862e60f5736bf5373fbbe4eb1d89e531c7fd5f4f368fa429809e431bc9f85159
+    qosClass: Burstable
+    podIPs:
+    - ip: 10.186.164.166
+- metadata:
+    name: ibm-kube-fluentd-h6rjg
+    generateName: ibm-kube-fluentd-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/ibm-kube-fluentd-h6rjg
+    uid: 9ab3d78e-7008-11e8-973c-c277fb0e1353
+    resourceVersion: '2911949'
+    creationTimestamp: '2018-06-14T19:24:49Z'
+    labels:
+      app: ibm-kube-fluentd
+      tier: frontend
+      controller-revision-hash: '2787683658'
+      pod-template-generation: '20'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"kube-system","name":"ibm-kube-fluentd","uid":"aa09f313-2162-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"2640475"}}
+
+        '
+      version: '26404638771908161908163908164'
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: ibm-kube-fluentd-with-tier
+      uid: aa09f313-2162-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: host-volume
+      hostPath:
+        path: /
+        type: ''
+    - name: kube
+      hostPath:
+        path: /etc/kubernetes/
+        type: ''
+    - name: log
+      hostPath:
+        path: /var/log/
+        type: ''
+    - name: dockercontainers
+      hostPath:
+        path: /var/lib/docker
+        type: ''
+    - name: persist
+      hostPath:
+        path: /mnt/ibm-kube-fluentd-persist
+        type: ''
+    - name: dockersock
+      hostPath:
+        path: /var/run/docker.sock
+        type: ''
+    - name: fluentd-config
+      configMap:
+        name: ibm-kube-fluentd-config
+        defaultMode: 272
+    - name: at-fluentd-config
+      configMap:
+        name: at-fluentd-config
+        defaultMode: 272
+        optional: true
+    - name: logmet-secrets-volume
+      secret:
+        secretName: logmet-secrets
+        defaultMode: 272
+    - name: data-volume
+      hostPath:
+        path: /var/data
+        type: ''
+    - name: activity-tracker-secrets-volume
+      secret:
+        secretName: activity-tracker-secrets
+        defaultMode: 272
+        optional: true
+    - name: activity-tracker-log-path-volume
+      hostPath:
+        path: /var/log/at
+        type: ''
+    - name: activity-tracker-no-rotate-volume
+      hostPath:
+        path: /var/log/at-no-rotate
+        type: ''
+    - name: ibm-kube-fluentd-token-fvk94
+      secret:
+        secretName: ibm-kube-fluentd-token-fvk94
+        defaultMode: 420
+    containers:
+    - name: fluentd
+      image: registry.ng.bluemix.net/armada-master/ibm-kube-fluentd-collector:6c3c9f9b532ab250c1362fc2edf96cbb76b2647c
+      env:
+      - name: HOST_IP
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: spec.nodeName
+      resources:
+        limits:
+          cpu: '1'
+          memory: 800M
+        requests:
+          cpu: 25m
+          memory: 50Mi
+      volumeMounts:
+      - name: kube
+        readOnly: true
+        mountPath: /etc/kubernetes
+      - name: host-volume
+        readOnly: true
+        mountPath: /host
+      - name: log
+        readOnly: true
+        mountPath: /var/log
+      - name: dockercontainers
+        readOnly: true
+        mountPath: /var/lib/docker
+      - name: dockersock
+        readOnly: true
+        mountPath: /var/run/docker.sock
+      - name: persist
+        mountPath: /mnt/ibm-kube-fluentd-persist
+      - name: logmet-secrets-volume
+        readOnly: true
+        mountPath: /mnt/logmet/secrets
+      - name: fluentd-config
+        readOnly: true
+        mountPath: /fluentd/etc/config.d/logmet/
+      - name: data-volume
+        readOnly: true
+        mountPath: /var/data
+      - name: at-fluentd-config
+        readOnly: true
+        mountPath: /fluentd/etc/config.d/at/
+      - name: activity-tracker-secrets-volume
+        readOnly: true
+        mountPath: /mnt/activity-tracker/secrets/
+      - name: activity-tracker-log-path-volume
+        readOnly: true
+        mountPath: /var/log/at
+      - name: activity-tracker-no-rotate-volume
+        readOnly: true
+        mountPath: /var/log/at-no-rotate
+      - name: ibm-kube-fluentd-token-fvk94
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: ibm-kube-fluentd
+    serviceAccount: ibm-kube-fluentd
+    nodeName: 10.186.164.173
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    schedulerName: default-scheduler
+    tolerations:
+    - operator: Exists
+    - operator: Exists
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-14T19:24:49Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-14T19:25:21Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-14T19:25:21Z'
+    hostIP: 10.186.164.173
+    podIP: 10.186.164.173
+    startTime: '2018-06-14T19:24:49Z'
+    containerStatuses:
+    - name: fluentd
+      state:
+        running:
+          startedAt: '2018-06-14T19:25:21Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/ibm-kube-fluentd-collector:6c3c9f9b532ab250c1362fc2edf96cbb76b2647c
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/ibm-kube-fluentd-collector@sha256:7f35892ebfed0aadc2ac7e7930a60c7f97dcd01788c94dd4542d8a825d7574a9
+      containerID: docker://eed5a2a90da7434a63316264a7c0576f8791f88bc9fd7b390e83fee42122775e
+    qosClass: Burstable
+    podIPs:
+    - ip: 10.186.164.173
+- metadata:
+    name: ibm-kube-fluentd-qmp4w
+    generateName: ibm-kube-fluentd-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/ibm-kube-fluentd-qmp4w
+    uid: e00bc85d-7008-11e8-973c-c277fb0e1353
+    resourceVersion: '2820499'
+    creationTimestamp: '2018-06-14T19:26:45Z'
+    labels:
+      controller-revision-hash: '2787683658'
+      pod-template-generation: '20'
+      app: ibm-kube-fluentd
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"DaemonSet","namespace":"kube-system","name":"ibm-kube-fluentd","uid":"aa09f313-2162-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"2640574"}}
+
+        '
+      version: '26404638771908161908163908164'
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: DaemonSet
+      name: ibm-kube-fluentd
+      uid: aa09f313-2162-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: host-volume
+      hostPath:
+        path: /
+        type: ''
+    - name: kube
+      hostPath:
+        path: /etc/kubernetes/
+        type: ''
+    - name: log
+      hostPath:
+        path: /var/log/
+        type: ''
+    - name: dockercontainers
+      hostPath:
+        path: /var/lib/docker
+        type: ''
+    - name: persist
+      hostPath:
+        path: /mnt/ibm-kube-fluentd-persist
+        type: ''
+    - name: dockersock
+      hostPath:
+        path: /var/run/docker.sock
+        type: ''
+    - name: fluentd-config
+      configMap:
+        name: ibm-kube-fluentd-config
+        defaultMode: 272
+    - name: at-fluentd-config
+      configMap:
+        name: at-fluentd-config
+        defaultMode: 272
+        optional: true
+    - name: logmet-secrets-volume
+      secret:
+        secretName: logmet-secrets
+        defaultMode: 272
+    - name: data-volume
+      hostPath:
+        path: /var/data
+        type: ''
+    - name: activity-tracker-secrets-volume
+      secret:
+        secretName: activity-tracker-secrets
+        defaultMode: 272
+        optional: true
+    - name: activity-tracker-log-path-volume
+      hostPath:
+        path: /var/log/at
+        type: ''
+    - name: activity-tracker-no-rotate-volume
+      hostPath:
+        path: /var/log/at-no-rotate
+        type: ''
+    - name: ibm-kube-fluentd-token-fvk94
+      secret:
+        secretName: ibm-kube-fluentd-token-fvk94
+        defaultMode: 420
+    containers:
+    - name: fluentd
+      image: registry.ng.bluemix.net/armada-master/ibm-kube-fluentd-collector:6c3c9f9b532ab250c1362fc2edf96cbb76b2647c
+      env:
+      - name: HOST_IP
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: spec.nodeName
+      resources:
+        limits:
+          cpu: '1'
+          memory: 800M
+        requests:
+          cpu: 25m
+          memory: 50Mi
+      volumeMounts:
+      - name: kube
+        readOnly: true
+        mountPath: /etc/kubernetes
+      - name: host-volume
+        readOnly: true
+        mountPath: /host
+      - name: log
+        readOnly: true
+        mountPath: /var/log
+      - name: dockercontainers
+        readOnly: true
+        mountPath: /var/lib/docker
+      - name: dockersock
+        readOnly: true
+        mountPath: /var/run/docker.sock
+      - name: persist
+        mountPath: /mnt/ibm-kube-fluentd-persist
+      - name: logmet-secrets-volume
+        readOnly: true
+        mountPath: /mnt/logmet/secrets
+      - name: fluentd-config
+        readOnly: true
+        mountPath: /fluentd/etc/config.d/logmet/
+      - name: data-volume
+        readOnly: true
+        mountPath: /var/data
+      - name: at-fluentd-config
+        readOnly: true
+        mountPath: /fluentd/etc/config.d/at/
+      - name: activity-tracker-secrets-volume
+        readOnly: true
+        mountPath: /mnt/activity-tracker/secrets/
+      - name: activity-tracker-log-path-volume
+        readOnly: true
+        mountPath: /var/log/at
+      - name: activity-tracker-no-rotate-volume
+        readOnly: true
+        mountPath: /var/log/at-no-rotate
+      - name: ibm-kube-fluentd-token-fvk94
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: ibm-kube-fluentd
+    serviceAccount: ibm-kube-fluentd
+    nodeName: 10.186.164.174
+    hostNetwork: true
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    schedulerName: default-scheduler
+    tolerations:
+    - operator: Exists
+    - operator: Exists
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/disk-pressure
+      operator: Exists
+      effect: NoSchedule
+    - key: node.kubernetes.io/memory-pressure
+      operator: Exists
+      effect: NoSchedule
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-14T19:26:45Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-14T19:27:11Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-14T19:27:11Z'
+    hostIP: 10.186.164.174
+    podIP: 10.186.164.174
+    startTime: '2018-06-14T19:26:45Z'
+    containerStatuses:
+    - name: fluentd
+      state:
+        running:
+          startedAt: '2018-06-14T19:27:11Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/ibm-kube-fluentd-collector:6c3c9f9b532ab250c1362fc2edf96cbb76b2647c
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/ibm-kube-fluentd-collector@sha256:7f35892ebfed0aadc2ac7e7930a60c7f97dcd01788c94dd4542d8a825d7574a9
+      containerID: docker://0940b2a2f3aa5c29f2ae0bbaa21a470774f7b1382d98cc1d8b78dbf0849bcf43
+    qosClass: Burstable
+    podIPs:
+    - ip: 10.186.164.174
+- metadata:
+    name: ibm-storage-watcher-8494b4b8bb-f8csd
+    generateName: ibm-storage-watcher-8494b4b8bb-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/ibm-storage-watcher-8494b4b8bb-f8csd
+    uid: 12bf00fa-539e-11e8-a909-4e37e9ec47cc
+    resourceVersion: '2820505'
+    creationTimestamp: '2018-05-09T15:31:41Z'
+    labels:
+      app: ibm-storage-watcher
+      pod-template-hash: '4050606466'
+      tier: frontend
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"kube-system","name":"ibm-storage-watcher-8494b4b8bb","uid":"12bda406-539e-11e8-a909-4e37e9ec47cc","apiVersion":"extensions","resourceVersion":"1693098"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: ibm-storage-watcher-8494b4b8bb
+      uid: 12bda406-539e-11e8-a909-4e37e9ec47cc
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: storage-plugin-secret
+      secret:
+        secretName: storage-secret-store
+        defaultMode: 420
+    - name: crn-info-ibmc
+      configMap:
+        name: crn-info-ibmc
+        defaultMode: 420
+    - name: default-token-fcdh9
+      secret:
+        secretName: default-token-fcdh9
+        defaultMode: 420
+    containers:
+    - name: ibm-storage-watcher-container
+      image: registry.ng.bluemix.net/armada-master/storage-file-plugin:320
+      args:
+      - -provisioner=ibm.io/ibmc-file
+      env:
+      - name: POD_NAMESPACE
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.namespace
+      - name: POD_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
+      - name: PLUGIN_IMAGE
+        value: registry.ng.bluemix.net/armada-master/storage-file-plugin:320
+      - name: CLUSTER_ID
+        value: e08b89c167414305a1afb205d0bd346f
+      - name: CM_SUBNET
+        value: subnet-config
+      - name: WATCHER
+        value: 'true'
+      - name: STORAGE_CONFIG_PATH
+        value: /etc/storage_ibmc
+      - name: CRN_CONFIGMAP_PATH
+        value: /etc/ibm_crn_info
+      resources:
+        limits:
+          cpu: '1'
+        requests:
+          cpu: 500m
+          memory: 100Mi
+      volumeMounts:
+      - name: storage-plugin-secret
+        mountPath: /etc/storage_ibmc
+      - name: crn-info-ibmc
+        mountPath: /etc/ibm_crn_info
+      - name: default-token-fcdh9
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.174
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    schedulerName: default-scheduler
+    tolerations:
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-05-09T15:31:41Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-05-09T15:31:45Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-05-09T15:31:41Z'
+    hostIP: 10.186.164.174
+    podIP: 172.30.231.214
+    startTime: '2018-05-09T15:31:41Z'
+    containerStatuses:
+    - name: ibm-storage-watcher-container
+      state:
+        running:
+          startedAt: '2018-05-09T15:31:45Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/storage-file-plugin:320
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/storage-file-plugin@sha256:a0213ab36d07ecbef9be2299c1f5240c181d9e3b1cb9a4b5dac8411b87fe1aef
+      containerID: docker://574fa62edda1bb11c09016e861cc3b59089de068e2d6662e76351d1c3e9d9409
+    qosClass: Burstable
+    podIPs:
+    - ip: 172.30.231.214
+- metadata:
+    name: kube-dns-amd64-d66bf76db-9s486
+    generateName: kube-dns-amd64-d66bf76db-
+    namespace: kube-system-dummy-to-ignore
+    selfLink: /api/v1/namespaces/kube-system/pods/kube-dns-amd64-d66bf76db-9s486
+    uid: b92b386c-7589-11e8-bd75-ce1115ac0d30
+    resourceVersion: '2911979'
+    creationTimestamp: '2018-06-21T19:31:41Z'
+    labels:
+      k8s-app: kube-dns
+      pod-template-hash: '822693286'
+    annotations:
+      scheduler.alpha.kubernetes.io/critical-pod: ''
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"kube-system","name":"kube-dns-amd64-d66bf76db","uid":"b6245fc0-7589-11e8-bd75-ce1115ac0d30","apiVersion":"extensions","resourceVersion":"2820865"}}
+
+        '
+      kubernetes.io/psp: ibm-privileged-psp
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: kube-dns-amd64-d66bf76db
+      uid: b6245fc0-7589-11e8-bd75-ce1115ac0d30
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: kube-dns-config
+      configMap:
+        name: kube-dns
+        defaultMode: 420
+        optional: true
+    - name: kube-dns-token-j7gjz
+      secret:
+        secretName: kube-dns-token-j7gjz
+        defaultMode: 420
+    containers:
+    - name: kubedns
+      image: registry.ng.bluemix.net/armada-master/k8s-dns-kube-dns-amd64:1.14.5
+      args:
+      - --domain=cluster.local.
+      - --dns-port=10053
+      - --config-dir=/kube-dns-config
+      - --v=2
+      ports:
+      - name: dns-local
+        containerPort: 10053
+        protocol: UDP
+      - name: dns-tcp-local
+        containerPort: 10053
+        protocol: TCP
+      env:
+      - name: PROMETHEUS_PORT
+        value: '10055'
+      resources:
+        limits:
+          memory: 170Mi
+        requests:
+          memory: 70Mi
+          cpu: 100m
+      volumeMounts:
+      - name: kube-dns-config
+        mountPath: /kube-dns-config
+      - name: kube-dns-token-j7gjz
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      livenessProbe:
+        httpGet:
+          path: /healthcheck/kubedns
+          port: 10054
+          scheme: HTTP
+        initialDelaySeconds: 60
+        timeoutSeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 5
+      readinessProbe:
+        httpGet:
+          path: /readiness
+          port: 8081
+          scheme: HTTP
+        initialDelaySeconds: 3
+        timeoutSeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    - name: dnsmasq
+      image: registry.ng.bluemix.net/armada-master/k8s-dns-dnsmasq-nanny-amd64:1.14.5
+      args:
+      - -v=2
+      - -logtostderr
+      - -configDir=/etc/k8s/dns/dnsmasq-nanny
+      - -restartDnsmasq=true
+      - --
+      - -k
+      - --cache-size=1000
+      - --no-negcache
+      - --log-facility=-
+      - --server=/cluster.local/127.0.0.1#10053
+      - --server=/in-addr.arpa/127.0.0.1#10053
+      - --server=/ip6.arpa/127.0.0.1#10053
+      ports:
+      - name: dns
+        containerPort: 53
+        protocol: UDP
+      - name: dns-tcp
+        containerPort: 53
+        protocol: TCP
+      resources:
+        requests:
+          cpu: 150m
+          memory: 20Mi
+      volumeMounts:
+      - name: kube-dns-config
+        mountPath: /etc/k8s/dns/dnsmasq-nanny
+      - name: kube-dns-token-j7gjz
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      livenessProbe:
+        httpGet:
+          path: /healthcheck/dnsmasq
+          port: 10054
+          scheme: HTTP
+        initialDelaySeconds: 60
+        timeoutSeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 5
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    - name: sidecar
+      image: registry.ng.bluemix.net/armada-master/k8s-dns-sidecar-amd64:1.14.5
+      args:
+      - --v=2
+      - --logtostderr
+      - --probe=kubedns,127.0.0.1:10053,kubernetes.default.svc.cluster.local,5,A
+      - --probe=dnsmasq,127.0.0.1:53,kubernetes.default.svc.cluster.local,5,A
+      ports:
+      - name: metrics
+        containerPort: 10054
+        protocol: TCP
+      resources:
+        requests:
+          cpu: 10m
+          memory: 20Mi
+      volumeMounts:
+      - name: kube-dns-token-j7gjz
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      livenessProbe:
+        httpGet:
+          path: /metrics
+          port: 10054
+          scheme: HTTP
+        initialDelaySeconds: 60
+        timeoutSeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 5
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: Default
+    serviceAccountName: kube-dns
+    serviceAccount: kube-dns
+    nodeName: 10.186.164.173
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 50
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: k8s-app
+                operator: In
+                values:
+                - kube-dns
+            topologyKey: kubernetes.io/hostname
+    schedulerName: default-scheduler
+    tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - key: dedicated
+      value: gpu-task
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:31:41Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:31:45Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:31:41Z'
+    hostIP: 10.186.164.173
+    podIP: 172.30.86.185
+    startTime: '2018-06-21T19:31:41Z'
+    containerStatuses:
+    - name: dnsmasq
+      state:
+        running:
+          startedAt: '2018-06-21T19:31:42Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/k8s-dns-dnsmasq-nanny-amd64:1.14.5
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/k8s-dns-dnsmasq-nanny-amd64@sha256:46b933bb70270c8a02fa6b6f87d440f6f1fce1a5a2a719e164f83f7b109f7544
+      containerID: docker://ecc58b6607c0ca578e703149e05d983d1366876cae83e00da2b1c13564321c53
+    - name: kubedns
+      state:
+        running:
+          startedAt: '2018-06-21T19:31:42Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/k8s-dns-kube-dns-amd64:1.14.5
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/k8s-dns-kube-dns-amd64@sha256:1a3fc069de481ae690188f6f1ba4664b5cc7760af37120f70c86505c79eea61d
+      containerID: docker://c60543044f4e832cc7ca949e5adc9a3dad219f81bf29173add5177d798d38251
+    - name: sidecar
+      state:
+        running:
+          startedAt: '2018-06-21T19:31:42Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/k8s-dns-sidecar-amd64:1.14.5
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/k8s-dns-sidecar-amd64@sha256:9aab42bf6a2a068b797fe7d91a5d8d915b10dbbc3d6f2b10492848debfba6044
+      containerID: docker://7a8a98f352cc297f5b8562cc0c5a0764adf5f3edd1621b7430a129f0e3225b11
+    qosClass: Burstable
+    podIPs:
+    - ip: 172.30.86.185
+- metadata:
+    name: kube-dns-amd64-d66bf76db-bbvts
+    generateName: kube-dns-amd64-d66bf76db-
+    namespace: kube-system-dummy-to-ignore
+    selfLink: /api/v1/namespaces/kube-system/pods/kube-dns-amd64-d66bf76db-bbvts
+    uid: b625da99-7589-11e8-bd75-ce1115ac0d30
+    resourceVersion: '2820855'
+    creationTimestamp: '2018-06-21T19:31:36Z'
+    labels:
+      k8s-app: kube-dns
+      pod-template-hash: '822693286'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"kube-system","name":"kube-dns-amd64-d66bf76db","uid":"b6245fc0-7589-11e8-bd75-ce1115ac0d30","apiVersion":"extensions","resourceVersion":"2820829"}}
+
+        '
+      kubernetes.io/psp: ibm-privileged-psp
+      scheduler.alpha.kubernetes.io/critical-pod: ''
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: kube-dns-amd64-d66bf76db
+      uid: b6245fc0-7589-11e8-bd75-ce1115ac0d30
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: kube-dns-config
+      configMap:
+        name: kube-dns
+        defaultMode: 420
+        optional: true
+    - name: kube-dns-token-j7gjz
+      secret:
+        secretName: kube-dns-token-j7gjz
+        defaultMode: 420
+    containers:
+    - name: kubedns
+      image: registry.ng.bluemix.net/armada-master/k8s-dns-kube-dns-amd64:1.14.5
+      args:
+      - --domain=cluster.local.
+      - --dns-port=10053
+      - --config-dir=/kube-dns-config
+      - --v=2
+      ports:
+      - name: dns-local
+        containerPort: 10053
+        protocol: UDP
+      - name: dns-tcp-local
+        containerPort: 10053
+        protocol: TCP
+      env:
+      - name: PROMETHEUS_PORT
+        value: '10055'
+      resources:
+        limits:
+          memory: 170Mi
+        requests:
+          cpu: 100m
+          memory: 70Mi
+      volumeMounts:
+      - name: kube-dns-config
+        mountPath: /kube-dns-config
+      - name: kube-dns-token-j7gjz
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      livenessProbe:
+        httpGet:
+          path: /healthcheck/kubedns
+          port: 10054
+          scheme: HTTP
+        initialDelaySeconds: 60
+        timeoutSeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 5
+      readinessProbe:
+        httpGet:
+          path: /readiness
+          port: 8081
+          scheme: HTTP
+        initialDelaySeconds: 3
+        timeoutSeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    - name: dnsmasq
+      image: registry.ng.bluemix.net/armada-master/k8s-dns-dnsmasq-nanny-amd64:1.14.5
+      args:
+      - -v=2
+      - -logtostderr
+      - -configDir=/etc/k8s/dns/dnsmasq-nanny
+      - -restartDnsmasq=true
+      - --
+      - -k
+      - --cache-size=1000
+      - --no-negcache
+      - --log-facility=-
+      - --server=/cluster.local/127.0.0.1#10053
+      - --server=/in-addr.arpa/127.0.0.1#10053
+      - --server=/ip6.arpa/127.0.0.1#10053
+      ports:
+      - name: dns
+        containerPort: 53
+        protocol: UDP
+      - name: dns-tcp
+        containerPort: 53
+        protocol: TCP
+      resources:
+        requests:
+          cpu: 150m
+          memory: 20Mi
+      volumeMounts:
+      - name: kube-dns-config
+        mountPath: /etc/k8s/dns/dnsmasq-nanny
+      - name: kube-dns-token-j7gjz
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      livenessProbe:
+        httpGet:
+          path: /healthcheck/dnsmasq
+          port: 10054
+          scheme: HTTP
+        initialDelaySeconds: 60
+        timeoutSeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 5
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    - name: sidecar
+      image: registry.ng.bluemix.net/armada-master/k8s-dns-sidecar-amd64:1.14.5
+      args:
+      - --v=2
+      - --logtostderr
+      - --probe=kubedns,127.0.0.1:10053,kubernetes.default.svc.cluster.local,5,A
+      - --probe=dnsmasq,127.0.0.1:53,kubernetes.default.svc.cluster.local,5,A
+      ports:
+      - name: metrics
+        containerPort: 10054
+        protocol: TCP
+      resources:
+        requests:
+          cpu: 10m
+          memory: 20Mi
+      volumeMounts:
+      - name: kube-dns-token-j7gjz
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      livenessProbe:
+        httpGet:
+          path: /metrics
+          port: 10054
+          scheme: HTTP
+        initialDelaySeconds: 60
+        timeoutSeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 5
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: Default
+    serviceAccountName: kube-dns
+    serviceAccount: kube-dns
+    nodeName: 10.186.164.166
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 50
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: k8s-app
+                operator: In
+                values:
+                - kube-dns
+            topologyKey: kubernetes.io/hostname
+    schedulerName: default-scheduler
+    tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - key: dedicated
+      value: gpu-task
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:31:36Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:31:41Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:31:36Z'
+    hostIP: 10.186.164.166
+    podIP: 172.30.206.149
+    startTime: '2018-06-21T19:31:36Z'
+    containerStatuses:
+    - name: dnsmasq
+      state:
+        running:
+          startedAt: '2018-06-21T19:31:37Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/k8s-dns-dnsmasq-nanny-amd64:1.14.5
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/k8s-dns-dnsmasq-nanny-amd64@sha256:46b933bb70270c8a02fa6b6f87d440f6f1fce1a5a2a719e164f83f7b109f7544
+      containerID: docker://db6bfc397ab63236997744f45c849e4f736e9330b952347e7f56d66923d41830
+    - name: kubedns
+      state:
+        running:
+          startedAt: '2018-06-21T19:31:37Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/k8s-dns-kube-dns-amd64:1.14.5
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/k8s-dns-kube-dns-amd64@sha256:1a3fc069de481ae690188f6f1ba4664b5cc7760af37120f70c86505c79eea61d
+      containerID: docker://5a13376548e9772e310c7ba42faaab16a90b286763856c4a56138f1824f2d563
+    - name: sidecar
+      state:
+        running:
+          startedAt: '2018-06-21T19:31:37Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/k8s-dns-sidecar-amd64:1.14.5
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/k8s-dns-sidecar-amd64@sha256:9aab42bf6a2a068b797fe7d91a5d8d915b10dbbc3d6f2b10492848debfba6044
+      containerID: docker://b73c96a80f0c5f3c9d822f782d8a0c647e486cc1fe8476228cae9927c7e9cb21
+    qosClass: Burstable
+    podIPs:
+    - ip: 172.30.206.149
+- metadata:
+    name: kube-dns-autoscaler-78f5fdbd46-zt2sf
+    generateName: kube-dns-autoscaler-78f5fdbd46-
+    namespace: kube-system-dummy-to-ignore
+    selfLink: /api/v1/namespaces/kube-system/pods/kube-dns-autoscaler-78f5fdbd46-zt2sf
+    uid: e650e1cf-220e-11e8-a8d4-32799206ac60
+    resourceVersion: '2911946'
+    creationTimestamp: '2018-03-07T13:53:22Z'
+    labels:
+      k8s-app: kube-dns-autoscaler
+      pod-template-hash: '3491986802'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"kube-system","name":"kube-dns-autoscaler-78f5fdbd46","uid":"32674c78-2135-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"36756"}}
+
+        '
+      scheduler.alpha.kubernetes.io/critical-pod: ''
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: kube-dns-autoscaler-78f5fdbd46
+      uid: 32674c78-2135-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: kube-dns-autoscaler-token-b6xzd
+      secret:
+        secretName: kube-dns-autoscaler-token-b6xzd
+        defaultMode: 420
+    containers:
+    - name: autoscaler
+      image: registry.ng.bluemix.net/armada-master/cluster-proportional-autoscaler-amd64:1.1.2-r2
+      command:
+      - /cluster-proportional-autoscaler
+      - --namespace=kube-system
+      - --configmap=kube-dns-autoscaler
+      - --target=Deployment/kube-dns-amd64
+      - --default-params={"linear":{"coresPerReplica":256,"nodesPerReplica":16,"preventSinglePointFailure":true}}
+      - --logtostderr=true
+      - --v=2
+      resources:
+        requests:
+          cpu: 20m
+          memory: 10Mi
+      volumeMounts:
+      - name: kube-dns-autoscaler-token-b6xzd
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: kube-dns-autoscaler
+    serviceAccount: kube-dns-autoscaler
+    nodeName: 10.186.164.173
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    schedulerName: default-scheduler
+    tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T13:53:22Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T13:53:25Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T13:53:22Z'
+    hostIP: 10.186.164.173
+    podIP: 172.30.86.164
+    startTime: '2018-03-07T13:53:22Z'
+    containerStatuses:
+    - name: autoscaler
+      state:
+        running:
+          startedAt: '2018-03-07T13:53:25Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/cluster-proportional-autoscaler-amd64:1.1.2-r2
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/cluster-proportional-autoscaler-amd64@sha256:003f98d9f411ddfa6ff6d539196355e03ddd69fa4ed38c7ffb8fec6f729afe2d
+      containerID: docker://f7e61f0321b7cb5fa7b5d21ff63a5e568b405f05e9257d2611d10edcc243d966
+    qosClass: Burstable
+    podIPs:
+    - ip: 172.30.86.164
+- metadata:
+    name: kubernetes-dashboard-5b5f985bcf-cvg7r
+    generateName: kubernetes-dashboard-5b5f985bcf-
+    namespace: kube-system-dummy-to-ignore
+    selfLink: /api/v1/namespaces/kube-system/pods/kubernetes-dashboard-5b5f985bcf-cvg7r
+    uid: 5c0f5201-220b-11e8-a8d4-32799206ac60
+    resourceVersion: '2911973'
+    creationTimestamp: '2018-03-07T13:28:01Z'
+    labels:
+      k8s-app: kubernetes-dashboard
+      pod-template-hash: '1619541679'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"kube-system","name":"kubernetes-dashboard-5b5f985bcf","uid":"3392f895-2135-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"35392"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: kubernetes-dashboard-5b5f985bcf
+      uid: 3392f895-2135-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: kubernetes-dashboard-certs
+      secret:
+        secretName: kubernetes-dashboard-certs
+        defaultMode: 420
+    - name: tmp-volume
+      emptyDir: {}
+    - name: kubernetes-dashboard-token-hg66m
+      secret:
+        secretName: kubernetes-dashboard-token-hg66m
+        defaultMode: 420
+    initContainers:
+    - name: kubernetes-dashboard-init
+      image: registry.ng.bluemix.net/armada-master/kubernetes-dashboard-init-amd64:v1.0.0
+      resources: {}
+      volumeMounts:
+      - name: kubernetes-dashboard-certs
+        mountPath: /certs
+      - name: kubernetes-dashboard-token-hg66m
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    containers:
+    - name: kubernetes-dashboard
+      image: registry.ng.bluemix.net/armada-master/kubernetes-dashboard-amd64:v1.7.1
+      args:
+      - --tls-key-file=/certs/dashboard.key
+      - --tls-cert-file=/certs/dashboard.crt
+      ports:
+      - containerPort: 9090
+        protocol: TCP
+      resources: {}
+      volumeMounts:
+      - name: kubernetes-dashboard-certs
+        readOnly: true
+        mountPath: /certs
+      - name: tmp-volume
+        mountPath: /tmp
+      - name: kubernetes-dashboard-token-hg66m
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 8443
+          scheme: HTTPS
+        initialDelaySeconds: 30
+        timeoutSeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: kubernetes-dashboard
+    serviceAccount: kubernetes-dashboard
+    nodeName: 10.186.164.173
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    schedulerName: default-scheduler
+    tolerations:
+    - key: node-role.kubernetes.io/master
+      effect: NoSchedule
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T13:37:59Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T13:38:14Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T13:28:01Z'
+    hostIP: 10.186.164.173
+    podIP: 172.30.86.162
+    startTime: '2018-03-07T13:29:54Z'
+    initContainerStatuses:
+    - name: kubernetes-dashboard-init
+      state:
+        terminated:
+          exitCode: 0
+          reason: Completed
+          startedAt: '2018-03-07T13:37:59Z'
+          finishedAt: '2018-03-07T13:37:59Z'
+          containerID: docker://f3a012c059d187408920a8bb33a19d53703ad6b12a1bbc67de00be7cc887eb0d
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/kubernetes-dashboard-init-amd64:v1.0.0
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/kubernetes-dashboard-init-amd64@sha256:02d092b6bcc102dc9686ae6259e55818ed1f4f444f663b81528fe11bce0cd89b
+      containerID: docker://f3a012c059d187408920a8bb33a19d53703ad6b12a1bbc67de00be7cc887eb0d
+    containerStatuses:
+    - name: kubernetes-dashboard
+      state:
+        running:
+          startedAt: '2018-03-07T13:38:13Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/kubernetes-dashboard-amd64:v1.7.1
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/kubernetes-dashboard-amd64@sha256:7b7e5f6c2ad4ff4618741e3345fb79318787b05c84b2da28d85a9f10d3ca6019
+      containerID: docker://da2570fca2ed2904b3b8618c0543b3403b801b245bce735ad867a9a05ac2013b
+    qosClass: BestEffort
+    podIPs:
+    - ip: 172.30.86.162
+- metadata:
+    name: public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f-b9j42
+    generateName: public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f-
+    namespace: kube-system-dummy-to-ignore
+    selfLink: /api/v1/namespaces/kube-system/pods/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f-b9j42
+    uid: 506a6706-78a5-11e8-bd75-ce1115ac0d30
+    resourceVersion: '2924768'
+    creationTimestamp: '2018-06-25T18:26:44Z'
+    labels:
+      app: public-cre08b89c167414305a1afb205d0bd346f-alb1
+      pod-template-hash: '4045640149'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"kube-system","name":"public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f","uid":"505e0425-78a5-11e8-bd75-ce1115ac0d30","apiVersion":"extensions","resourceVersion":"2924689"}}
+
+        '
+      kubernetes.io/psp: ibm-privileged-psp
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f
+      uid: 505e0425-78a5-11e8-bd75-ce1115ac0d30
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: ingressctl-at-log
+      hostPath:
+        path: /var/log/at
+        type: ''
+    - name: nginx-customer-log
+      hostPath:
+        path: /var/log/alb/customerlogs
+        type: ''
+    - name: default-token-fcdh9
+      secret:
+        secretName: default-token-fcdh9
+        defaultMode: 420
+    containers:
+    - name: ingress-auth
+      image: registry.ng.bluemix.net/armada-master/ingress-auth:166
+      ports:
+      - containerPort: 8080
+        protocol: TCP
+      env:
+      - name: ARMADA_POD_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
+      - name: API_PORT
+        value: '8080'
+      - name: LOG_LEVEL
+        value: info
+      - name: APPID_SERVICE_NAME
+        value: appIDService
+      - name: IAM_GLOBAL_URL
+        value: https://iam.bluemix.net/identity/.well-known/openid-configuration
+      resources: {}
+      volumeMounts:
+      - name: default-token-fcdh9
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: Always
+    - name: nginx-ingress
+      image: registry.ng.bluemix.net/armada-master/ingress:320
+      args:
+      - -v=3
+      - --nginx-configmaps=kube-system/ibm-cloud-provider-ingress-cm
+      - -logtostderr=true
+      ports:
+      - containerPort: 80
+        protocol: TCP
+      - containerPort: 443
+        protocol: TCP
+      env:
+      - name: ARMADA_POD_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
+      - name: ARMADA_CLUSTER_ID
+        value: e08b89c167414305a1afb205d0bd346f
+      - name: ALB_ID
+        value: public-cre08b89c167414305a1afb205d0bd346f-alb1
+      - name: SECURED_NAMESPACE
+        value: ibm-cert-store
+      resources: {}
+      volumeMounts:
+      - name: ingressctl-at-log
+        mountPath: /var/log/nginx/activitytracker
+      - name: nginx-customer-log
+        mountPath: /var/log/nginx/customerlogs
+      - name: default-token-fcdh9
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      lifecycle:
+        postStart:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - chown -R nginx:nginx /var/log/nginx/customerlogs; chown -R nginx:nginx
+              /var/log/nginx/activitytracker
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: Always
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    nodeSelector:
+      publicVLAN: '2176535'
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.173
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: dedicated
+              operator: NotIn
+              values:
+              - internal
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: dedicated
+              operator: In
+              values:
+              - edge
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - public-cre08b89c167414305a1afb205d0bd346f-alb1
+          topologyKey: kubernetes.io/hostname
+    schedulerName: default-scheduler
+    tolerations:
+    - key: dedicated
+      value: edge
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-25T18:26:47Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-25T18:27:00Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-25T18:26:47Z'
+    hostIP: 10.186.164.173
+    podIP: 172.30.86.186
+    startTime: '2018-06-25T18:26:47Z'
+    containerStatuses:
+    - name: ingress-auth
+      state:
+        running:
+          startedAt: '2018-06-25T18:26:50Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/ingress-auth:166
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/ingress-auth@sha256:fda9d6bc7e6a90a8a3eca5ef6bae52aaae30d284a41cb4ca79a1b9121f8ee464
+      containerID: docker://bc01294fc24e5a17c8e2af31e6b1d0668ea36811096171512d7c4295e4404a5f
+    - name: nginx-ingress
+      state:
+        running:
+          startedAt: '2018-06-25T18:27:00Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/ingress:320
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/ingress@sha256:4589b9bd8fd12b8dbd8eebb0989190eb77e2d4400188553df05865e078bc8e19
+      containerID: docker://13cba9819bbaeb68ea04c2f1f98cd446ea519a14d0ea531437e6ddf9330bce70
+    qosClass: BestEffort
+    podIPs:
+    - ip: 172.30.86.186
+- metadata:
+    name: public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f-hctcv
+    generateName: public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f-
+    namespace: kube-system-dummy-to-ignore
+    selfLink: /api/v1/namespaces/kube-system/pods/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f-hctcv
+    uid: 5061285e-78a5-11e8-bd75-ce1115ac0d30
+    resourceVersion: '2924741'
+    creationTimestamp: '2018-06-25T18:26:44Z'
+    labels:
+      app: public-cre08b89c167414305a1afb205d0bd346f-alb1
+      pod-template-hash: '4045640149'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"kube-system","name":"public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f","uid":"505e0425-78a5-11e8-bd75-ce1115ac0d30","apiVersion":"extensions","resourceVersion":"2924672"}}
+
+        '
+      kubernetes.io/psp: ibm-privileged-psp
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f
+      uid: 505e0425-78a5-11e8-bd75-ce1115ac0d30
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: ingressctl-at-log
+      hostPath:
+        path: /var/log/at
+        type: ''
+    - name: nginx-customer-log
+      hostPath:
+        path: /var/log/alb/customerlogs
+        type: ''
+    - name: default-token-fcdh9
+      secret:
+        secretName: default-token-fcdh9
+        defaultMode: 420
+    containers:
+    - name: ingress-auth
+      image: registry.ng.bluemix.net/armada-master/ingress-auth:166
+      ports:
+      - containerPort: 8080
+        protocol: TCP
+      env:
+      - name: ARMADA_POD_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
+      - name: API_PORT
+        value: '8080'
+      - name: LOG_LEVEL
+        value: info
+      - name: APPID_SERVICE_NAME
+        value: appIDService
+      - name: IAM_GLOBAL_URL
+        value: https://iam.bluemix.net/identity/.well-known/openid-configuration
+      resources: {}
+      volumeMounts:
+      - name: default-token-fcdh9
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: Always
+    - name: nginx-ingress
+      image: registry.ng.bluemix.net/armada-master/ingress:320
+      args:
+      - -v=3
+      - --nginx-configmaps=kube-system/ibm-cloud-provider-ingress-cm
+      - -logtostderr=true
+      ports:
+      - containerPort: 80
+        protocol: TCP
+      - containerPort: 443
+        protocol: TCP
+      env:
+      - name: ARMADA_POD_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
+      - name: ARMADA_CLUSTER_ID
+        value: e08b89c167414305a1afb205d0bd346f
+      - name: ALB_ID
+        value: public-cre08b89c167414305a1afb205d0bd346f-alb1
+      - name: SECURED_NAMESPACE
+        value: ibm-cert-store
+      resources: {}
+      volumeMounts:
+      - name: ingressctl-at-log
+        mountPath: /var/log/nginx/activitytracker
+      - name: nginx-customer-log
+        mountPath: /var/log/nginx/customerlogs
+      - name: default-token-fcdh9
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      lifecycle:
+        postStart:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - chown -R nginx:nginx /var/log/nginx/customerlogs; chown -R nginx:nginx
+              /var/log/nginx/activitytracker
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: Always
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    nodeSelector:
+      publicVLAN: '2176535'
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.174
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: dedicated
+              operator: NotIn
+              values:
+              - internal
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: dedicated
+              operator: In
+              values:
+              - edge
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - public-cre08b89c167414305a1afb205d0bd346f-alb1
+          topologyKey: kubernetes.io/hostname
+    schedulerName: default-scheduler
+    tolerations:
+    - key: dedicated
+      value: edge
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-25T18:26:44Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-25T18:26:57Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-25T18:26:44Z'
+    hostIP: 10.186.164.174
+    podIP: 172.30.231.218
+    startTime: '2018-06-25T18:26:44Z'
+    containerStatuses:
+    - name: ingress-auth
+      state:
+        running:
+          startedAt: '2018-06-25T18:26:47Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/ingress-auth:166
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/ingress-auth@sha256:fda9d6bc7e6a90a8a3eca5ef6bae52aaae30d284a41cb4ca79a1b9121f8ee464
+      containerID: docker://89aff724d45bc577b482e6a984b3f208f243eccb9bed3960e4fa3ca0ab9f6777
+    - name: nginx-ingress
+      state:
+        running:
+          startedAt: '2018-06-25T18:26:57Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/ingress:320
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/ingress@sha256:4589b9bd8fd12b8dbd8eebb0989190eb77e2d4400188553df05865e078bc8e19
+      containerID: docker://f0809351c651065e6ec76db020b60b26573c1dbe874dca6c3771274e3d8fa27d
+    qosClass: BestEffort
+    podIPs:
+    - ip: 172.30.231.218
+- metadata:
+    name: tiller-deploy-5c45c9966b-nqwz6
+    generateName: tiller-deploy-5c45c9966b-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/tiller-deploy-5c45c9966b-nqwz6
+    uid: 5c5ba41f-21e2-11e8-a8d4-32799206ac60
+    resourceVersion: '2911960'
+    creationTimestamp: '2018-03-07T08:34:33Z'
+    labels:
+      app: helm
+      tier: frontend
+      name: tiller
+      pod-template-hash: '1701755226'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"kube-system","name":"tiller-deploy-5c45c9966b","uid":"5c5a70db-21e2-11e8-a8d4-32799206ac60","apiVersion":"extensions","resourceVersion":"26571"}}
+
+        '
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: tiller-deploy-5c45c9966b
+      uid: 5c5a70db-21e2-11e8-a8d4-32799206ac60
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: default-token-fcdh9
+      secret:
+        secretName: default-token-fcdh9
+        defaultMode: 420
+    containers:
+    - name: tiller
+      image: gcr.io/kubernetes-helm/tiller:v2.8.1
+      ports:
+      - name: tiller
+        containerPort: 44134
+        protocol: TCP
+      env:
+      - name: TILLER_NAMESPACE
+        value: kube-system
+      resources: {}
+      volumeMounts:
+      - name: default-token-fcdh9
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      livenessProbe:
+        httpGet:
+          path: /liveness
+          port: 44135
+          scheme: HTTP
+        initialDelaySeconds: 1
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      readinessProbe:
+        httpGet:
+          path: /readiness
+          port: 44135
+          scheme: HTTP
+        initialDelaySeconds: 1
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    nodeSelector:
+      beta.kubernetes.io/os: linux
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.173
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    schedulerName: default-scheduler
+    tolerations:
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T08:34:33Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T13:37:49Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-03-07T08:34:33Z'
+    hostIP: 10.186.164.173
+    podIP: 172.30.86.137
+    startTime: '2018-03-07T08:34:33Z'
+    containerStatuses:
+    - name: tiller
+      state:
+        running:
+          startedAt: '2018-03-07T13:34:54Z'
+      lastState:
+        terminated:
+          exitCode: 2
+          reason: Error
+          startedAt: '2018-03-07T13:30:09Z'
+          finishedAt: '2018-03-07T13:33:40Z'
+          containerID: docker://b5213a06ba8e4b66dc04804886094f625498a4b47e2e7261f5344bc16beef32d
+      ready: true
+      restartCount: 4
+      image: gcr.io/kubernetes-helm/tiller:v2.8.1
+      imageID: docker-pullable://gcr.io/kubernetes-helm/tiller@sha256:394fb7d5f2fbaca54f6a0dec387cef926f6ae359786c89f7da67db173b97a322
+      containerID: docker://d0d5671d67f5c415f9df08f9fa7c4347f5c40ead2309f45d255c94d0d5dc3562
+    qosClass: BestEffort
+    podIPs:
+    - ip: 172.30.86.137
+- metadata:
+    name: vpn-858f6d9777-2bw5m
+    generateName: vpn-858f6d9777-
+    namespace: kube-system
+    selfLink: /api/v1/namespaces/kube-system/pods/vpn-858f6d9777-2bw5m
+    uid: 555399fd-7589-11e8-bd75-ce1115ac0d30
+    resourceVersion: '2820764'
+    creationTimestamp: '2018-06-21T19:28:53Z'
+    labels:
+      app: vpn
+      kubernetes-dashboard-policy: allow
+      tier: frontend
+      pod-template-hash: '4149285333'
+    annotations:
+      kubernetes.io/created-by: '{"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"kube-system","name":"vpn-858f6d9777","uid":"55520b9b-7589-11e8-bd75-ce1115ac0d30","apiVersion":"extensions","resourceVersion":"2820739"}}
+
+        '
+      kubernetes.io/psp: ibm-privileged-psp
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      kind: ReplicaSet
+      name: vpn-858f6d9777
+      uid: 55520b9b-7589-11e8-bd75-ce1115ac0d30
+      controller: true
+      blockOwnerDeletion: true
+  spec:
+    volumes:
+    - name: vpn-config
+      hostPath:
+        path: /etc/kubernetes/cert
+        type: ''
+    - name: default-token-fcdh9
+      secret:
+        secretName: default-token-fcdh9
+        defaultMode: 420
+    containers:
+    - name: vpn
+      image: registry.ng.bluemix.net/armada-master/vpn-client:2.4.4-r1
+      env:
+      - name: K8S_CERT_DIR
+        value: /etc/kubernetes/cert
+      resources: {}
+      volumeMounts:
+      - name: vpn-config
+        readOnly: true
+        mountPath: /etc/kubernetes/cert
+      - name: default-token-fcdh9
+        readOnly: true
+        mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      livenessProbe:
+        exec:
+          command:
+          - /bin/sh
+          - -c
+          - ping -w 3 192.168.255.1
+        initialDelaySeconds: 120
+        timeoutSeconds: 30
+        periodSeconds: 60
+        successThreshold: 1
+        failureThreshold: 5
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        privileged: true
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    dnsPolicy: ClusterFirst
+    serviceAccountName: default
+    serviceAccount: default
+    nodeName: 10.186.164.174
+    securityContext: {}
+    imagePullSecrets:
+    - name: bluemix-default-secret
+    - name: bluemix-default-secret-regional
+    - name: bluemix-default-secret-international
+    schedulerName: default-scheduler
+    tolerations:
+    - key: node.alpha.kubernetes.io/notReady
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+    - key: node.alpha.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300
+  status:
+    phase: Running
+    conditions:
+    - type: Initialized
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:28:53Z'
+    - type: Ready
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:28:56Z'
+    - type: PodScheduled
+      status: 'True'
+      lastProbeTime: null
+      lastTransitionTime: '2018-06-21T19:28:53Z'
+    hostIP: 10.186.164.174
+    podIP: 172.30.231.217
+    startTime: '2018-06-21T19:28:53Z'
+    containerStatuses:
+    - name: vpn
+      state:
+        running:
+          startedAt: '2018-06-21T19:28:56Z'
+      lastState: {}
+      ready: true
+      restartCount: 0
+      image: registry.ng.bluemix.net/armada-master/vpn-client:2.4.4-r1
+      imageID: docker-pullable://registry.ng.bluemix.net/armada-master/vpn-client@sha256:14f3e0d4a3649605bd5d5f7e66a59b85abb0f8405903b8bc07145bb34c4ba205
+      containerID: docker://6045faeb1371411c64bfd14b1f54fa236b3ee716c0554c6a833f855bea721728
+    qosClass: BestEffort
+    podIPs:
+    - ip: 172.30.231.217

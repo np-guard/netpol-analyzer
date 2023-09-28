@@ -1,0 +1,26 @@
+# UI -> Command
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ui-to-command
+  namespace: demo
+spec:
+  podSelector:
+    matchLabels:
+      app: account-command-selector
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: bank-ui-selector
+      ports:
+        - port: 8080
+          protocol: TCP
+        - port: 8081
+          protocol: TCP
+        - port: 9090
+          protocol: UDP
+        - port: 7070
+          protocol: SCTP
