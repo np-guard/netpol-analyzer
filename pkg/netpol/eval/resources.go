@@ -26,7 +26,7 @@ type (
 		namspacesMap      map[string]*k8s.Namespace                // map from ns name to ns object
 		podsMap           map[string]*k8s.Pod                      // map from pod name to pod object
 		netpolsMap        map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
-		ownersToLabelsMap map[string]map[string]string             // map from ownerReference name to its labels map
+		ownersToLabelsMap map[string]map[string]string             // map from pods' ownerReference name to its labels map
 		cache             *evalCache
 	}
 
