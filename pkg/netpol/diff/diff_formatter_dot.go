@@ -171,7 +171,7 @@ const (
 	addedEdgeLabel       = "added connection"
 	removedEdgeLabel     = "removed connection"
 	changedEdgeLabel     = "changed connection"
-	nonChangedEdgeLabel  = "non-changed connection"
+	nonChangedEdgeLabel  = "unchanged connection"
 	newPeerLabel         = "new peer"
 	lostPeerLabel        = "lost peer"
 	persistentPeerLabel  = "persistent peer"

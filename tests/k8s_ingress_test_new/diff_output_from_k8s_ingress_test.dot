@@ -73,7 +73,7 @@ digraph {
 		a -> b [label="added connection", color="#008000" fontcolor="#008000" fontsize = 10 arrowsize=0.2]
 		c -> d [label="removed connection", color="red2" fontcolor="red2" fontsize = 10 arrowsize=0.2]
 		e -> f [label="changed connection", color="magenta" fontcolor="magenta" fontsize = 10 arrowsize=0.2]
-		g -> h [label="non-changed connection", color="grey" fontcolor="grey" fontsize = 10 arrowsize=0.2]
+		g -> h [label="unchanged connection", color="grey" fontcolor="grey" fontsize = 10 arrowsize=0.2]
 		np [label="new peer" color="#008000" fontcolor="#008000" fontsize = 10]
 		lp [label="lost peer" color="red" fontcolor="red" fontsize = 10]
 		pp [label="persistent peer" color="blue" fontcolor="blue" fontsize = 10]
