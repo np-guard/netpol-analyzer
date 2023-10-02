@@ -47,6 +47,7 @@ func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 	allLines = append(allLines, peersLines...)
 	allLines = append(allLines, edgeLines...)
 	allLines = append(allLines, ingressAnalyzerEdges...)
+	allLines = append(allLines, addLegend()...)
 	allLines = append(allLines, common.DotClosing)
 	return strings.Join(allLines, newLine), nil
 }
@@ -79,7 +80,7 @@ func getEdgesAndPeersLinesByCategory(connsPairs []*ConnsPair, peersSet map[strin
 }
 
 const (
-	newPeerColor        = "green3"
+	newPeerColor        = "#008000" // svg green
 	removedPeerColor    = "red"
 	persistentPeerColor = "blue"
 )
@@ -102,9 +103,9 @@ func addPeerLine(peerName, diffType string, isNewOrLost bool) string {
 
 const (
 	nonChangedConnColor = "grey"
-	changedConnColor    = "gold2"
+	changedConnColor    = "magenta"
 	removedConnColor    = "red2"
-	addedConnColor      = "green"
+	addedConnColor      = "#008000"
 )
 
 // addEdgesLines forms the appropriate edge line of the given conns pair
@@ -134,4 +135,109 @@ func getEdgeLine(src, dst, connStr, edgeColor string) string {
 // kept empty for dot format, used to implement the diffFormatter interface in other formats
 func (df *diffFormatDOT) singleDiffLine(d *singleDiffFields) string {
 	return ""
+}
+
+// writing a legend
+// all functions in this section are const and uses const variables
+
+// creates legend lines
+func addLegend() []string { // const
+	legendLines := []string{}
+	legendLines = append(legendLines, addLegendDetails()...)
+	legendLines = append(legendLines, addInvisibleCharsLines()...)
+	legendLines = append(legendLines, addEdgeKeyLines()...)
+	legendLines = append(legendLines, addNodeKeyLines()...)
+	legendLines = append(legendLines, legendClosing)
+	return legendLines
+}
+
+const (
+	graphNodeSep         = "\tnodesep=0.5"
+	legendHeader         = "\tsubgraph cluster_legend {"
+	legendClosing        = "\t}"
+	legendLabel          = "Legend"
+	legendRankSinkLine   = "rank=sink"
+	legendRankSameLine   = "rank=same"
+	legendRankSourceLine = "rank=source"
+	legendColorLine      = "node [ color=\"white\" ]"
+	legendFontSize       = "fontsize = 10"
+	legendMargin         = "margin=0"
+	invisibleStr         = "style=invis"
+	heightStr            = "height=0"
+	widthStr             = "width=0"
+	linePrefix           = "\t\t"
+	colorStr             = "color"
+	labelStr             = "label"
+	addedEdgeLabel       = "added connection"
+	removedEdgeLabel     = "removed connection"
+	changedEdgeLabel     = "changed connection"
+	nonChangedEdgeLabel  = "non-changed connection"
+	newPeerLabel         = "new peer"
+	lostPeerLabel        = "lost peer"
+	persistentPeerLabel  = "persistent peer"
+	fontColorStr         = "fontcolor"
+	legendArrowSize      = "arrowsize=0.2"
+	listOpen             = "{"
+	listClose            = "}"
+)
+
+func addLegendDetails() []string {
+	res := []string{
+		graphNodeSep,
+		legendHeader,
+		fmt.Sprintf(linePrefix+"%s=%q", labelStr, legendLabel),
+		linePrefix + legendFontSize,
+		linePrefix + legendMargin,
+	}
+	return res
+}
+
+var invisibleNodes = []string{"a", "b", "c", "d", "e", "f", "g", "h"}
+
+func addInvisibleCharsLines() []string { // const
+	res := []string{}
+	for _, val := range invisibleNodes {
+		res = append(res, fmt.Sprintf(linePrefix+"%s [%s %s %s]", val, invisibleStr, heightStr, widthStr))
+	}
+	return res
+}
+
+func addSingleEdgeKey(src, dst, edgeLabel, edgeColor string) string {
+	return fmt.Sprintf(linePrefix+"%s -> %s [%s=%q, %s=%q %s=%q %s %s]", src, dst, labelStr, edgeLabel, colorStr,
+		edgeColor, fontColorStr, edgeColor, legendFontSize, legendArrowSize)
+}
+
+func addEdgeKeyLines() []string { // const
+	res := []string{
+		linePrefix + listOpen + legendRankSourceLine + space + strings.Join(invisibleNodes[0:4], space) + listClose,
+		linePrefix + listOpen + legendRankSameLine + space + strings.Join(invisibleNodes[4:], space) + listClose,
+		addSingleEdgeKey(invisibleNodes[0], invisibleNodes[1], addedEdgeLabel, addedConnColor),
+		addSingleEdgeKey(invisibleNodes[2], invisibleNodes[3], removedEdgeLabel, removedConnColor),
+		addSingleEdgeKey(invisibleNodes[4], invisibleNodes[5], changedEdgeLabel, changedConnColor),
+		addSingleEdgeKey(invisibleNodes[6], invisibleNodes[7], nonChangedEdgeLabel, nonChangedConnColor)}
+	return res
+}
+
+var pNodesNames = []string{"np", "lp", "pp"}
+
+func addSingleNodeLine(nodeName, nodeLabel, nodeColor string) string {
+	return fmt.Sprintf(linePrefix+"%s [%s=%q %s=%q %s=%q %s]", nodeName, labelStr, nodeLabel, colorStr,
+		nodeColor, fontColorStr, nodeColor, legendFontSize)
+}
+
+func addInvisibleEdges() []string {
+	res := []string{}
+	for i := 0; i < len(pNodesNames)-1; i++ {
+		res = append(res, fmt.Sprintf(linePrefix+"%s->%s [%s]", pNodesNames[i], pNodesNames[i+1], invisibleStr))
+	}
+	return res
+}
+
+func addNodeKeyLines() []string { // const
+	res := []string{addSingleNodeLine(pNodesNames[0], newPeerLabel, newPeerColor),
+		addSingleNodeLine(pNodesNames[1], lostPeerLabel, removedPeerColor),
+		addSingleNodeLine(pNodesNames[2], persistentPeerLabel, persistentPeerColor),
+		linePrefix + listOpen + legendRankSinkLine + space + strings.Join(pNodesNames, space) + listClose}
+	res = append(res, addInvisibleEdges()...)
+	return res
 }

@@ -12,9 +12,9 @@ digraph {
 	"default/recommendationservice[Deployment]" [label="default/recommendationservice[Deployment]" color="blue" fontcolor="blue"]
 	"default/redis-cart[Deployment]" [label="default/redis-cart[Deployment]" color="blue" fontcolor="blue"]
 	"default/shippingservice[Deployment]" [label="default/shippingservice[Deployment]" color="blue" fontcolor="blue"]
-	"default/unicorn[Deployment]" [label="default/unicorn[Deployment]" color="green3" fontcolor="green3"]
+	"default/unicorn[Deployment]" [label="default/unicorn[Deployment]" color="#008000" fontcolor="#008000"]
 	"0.0.0.0-255.255.255.255" -> "default/redis-cart[Deployment]" [label="All Connections" color="grey" fontcolor="grey"]
-	"0.0.0.0-255.255.255.255" -> "default/unicorn[Deployment]" [label="All Connections" color="green" fontcolor="green"]
+	"0.0.0.0-255.255.255.255" -> "default/unicorn[Deployment]" [label="All Connections" color="#008000" fontcolor="#008000"]
 	"default/checkoutservice[Deployment]" -> "default/cartservice[Deployment]" [label="TCP 7070" color="grey" fontcolor="grey"]
 	"default/checkoutservice[Deployment]" -> "default/currencyservice[Deployment]" [label="TCP 7000" color="grey" fontcolor="grey"]
 	"default/checkoutservice[Deployment]" -> "default/emailservice[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
@@ -31,7 +31,33 @@ digraph {
 	"default/loadgenerator[Deployment]" -> "default/frontend[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
 	"default/recommendationservice[Deployment]" -> "default/productcatalogservice[Deployment]" [label="TCP 3550" color="grey" fontcolor="grey"]
 	"default/redis-cart[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="grey" fontcolor="grey"]
-	"default/redis-cart[Deployment]" -> "default/unicorn[Deployment]" [label="All Connections" color="green" fontcolor="green"]
-	"default/unicorn[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="green" fontcolor="green"]
-	"default/unicorn[Deployment]" -> "default/redis-cart[Deployment]" [label="All Connections" color="green" fontcolor="green"]
+	"default/redis-cart[Deployment]" -> "default/unicorn[Deployment]" [label="All Connections" color="#008000" fontcolor="#008000"]
+	"default/unicorn[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="#008000" fontcolor="#008000"]
+	"default/unicorn[Deployment]" -> "default/redis-cart[Deployment]" [label="All Connections" color="#008000" fontcolor="#008000"]
+	nodesep=0.5
+	subgraph cluster_legend {
+		label="Legend"
+		fontsize = 10
+		margin=0
+		a [style=invis height=0 width=0]
+		b [style=invis height=0 width=0]
+		c [style=invis height=0 width=0]
+		d [style=invis height=0 width=0]
+		e [style=invis height=0 width=0]
+		f [style=invis height=0 width=0]
+		g [style=invis height=0 width=0]
+		h [style=invis height=0 width=0]
+		{rank=source a b c d}
+		{rank=same e f g h}
+		a -> b [label="added connection", color="#008000" fontcolor="#008000" fontsize = 10 arrowsize=0.2]
+		c -> d [label="removed connection", color="red2" fontcolor="red2" fontsize = 10 arrowsize=0.2]
+		e -> f [label="changed connection", color="magenta" fontcolor="magenta" fontsize = 10 arrowsize=0.2]
+		g -> h [label="non-changed connection", color="grey" fontcolor="grey" fontsize = 10 arrowsize=0.2]
+		np [label="new peer" color="#008000" fontcolor="#008000" fontsize = 10]
+		lp [label="lost peer" color="red" fontcolor="red" fontsize = 10]
+		pp [label="persistent peer" color="blue" fontcolor="blue" fontsize = 10]
+		{rank=sink np lp pp}
+		np->lp [style=invis]
+		lp->pp [style=invis]
+	}
 }
