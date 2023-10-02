@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -26,8 +27,9 @@ type (
 		namspacesMap      map[string]*k8s.Namespace                // map from ns name to ns object
 		podsMap           map[string]*k8s.Pod                      // map from pod name to pod object
 		netpolsMap        map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
-		ownersToLabelsMap map[string]map[string]string             // map from pods' ownerReference name to its labels map
-		cache             *evalCache
+		ownersToLabelsMap map[string]map[string]map[string]string  // map from namespace to map from pods' ownerReference name
+		// to its labels map
+		cache *evalCache
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -46,7 +48,7 @@ func NewPolicyEngine() *PolicyEngine {
 		namspacesMap:      make(map[string]*k8s.Namespace),
 		podsMap:           make(map[string]*k8s.Pod),
 		netpolsMap:        make(map[string]map[string]*k8s.NetworkPolicy),
-		ownersToLabelsMap: make(map[string]map[string]string),
+		ownersToLabelsMap: make(map[string]map[string]map[string]string),
 		cache:             newEvalCache(),
 	}
 }
@@ -194,7 +196,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.namspacesMap = make(map[string]*k8s.Namespace)
 	pe.podsMap = make(map[string]*k8s.Pod)
 	pe.netpolsMap = make(map[string]map[string]*k8s.NetworkPolicy)
-	pe.ownersToLabelsMap = make(map[string]map[string]string)
+	pe.ownersToLabelsMap = make(map[string]map[string]map[string]string)
 	pe.cache = newEvalCache()
 }
 
@@ -208,20 +210,38 @@ func (pe *PolicyEngine) upsertNamespace(ns *corev1.Namespace) error {
 }
 
 // checkLegalOwnerRefNameToPodLabels returns error if there are pod resources with same ownerReferences name but different labels
-func (pe *PolicyEngine) checkLegalOwnerRefNameToPodLabels(ownerRefName string, podLabels map[string]string) error {
+func (pe *PolicyEngine) checkLegalOwnerRefNameToPodLabels(namespace, ownerRefName string, podLabels map[string]string) error {
 	if ownerRefName == "" { // pod does not have owner references
 		return nil
 	}
-	ownerLabels, ok := pe.ownersToLabelsMap[ownerRefName]
+	if _, ok := pe.ownersToLabelsMap[namespace]; !ok { // add the namespace to the map
+		pe.ownersToLabelsMap[namespace] = make(map[string]map[string]string)
+	}
+	ownerLabels, ok := pe.ownersToLabelsMap[namespace][ownerRefName]
 	if !ok { // add the new ownerReference with pod labels to the map
-		pe.ownersToLabelsMap[ownerRefName] = podLabels
+		pe.ownersToLabelsMap[namespace][ownerRefName] = podLabels
 		return nil
 	}
 	// compare ownerLabels with podLabels
 	if !reflect.DeepEqual(ownerLabels, podLabels) {
-		return errors.New("pods with same ownerReferences but different labels are not supported")
+		return errors.New("Resources not supported for connectivity analysis. Pods with the ownerReferences' Name: " + ownerRefName +
+			" have different labels. Some labels' keys with different values: " + strings.Join(diffBetweenLabels(podLabels, ownerLabels), ","))
 	}
 	return nil
+}
+
+// helper: finds some diffs between two pods' labels maps
+func diffBetweenLabels(podLabels, ownerLabels map[string]string) []string {
+	res := make([]string, 0)
+	for key, value := range podLabels {
+		if _, ok := ownerLabels[key]; !ok {
+			res = append(res, key)
+		}
+		if ownerLabels[key] != value {
+			res = append(res, key)
+		}
+	}
+	return res
 }
 
 func (pe *PolicyEngine) upsertWorkload(rs interface{}, kind string) error {
@@ -229,12 +249,7 @@ func (pe *PolicyEngine) upsertWorkload(rs interface{}, kind string) error {
 	if err != nil {
 		return err
 	}
-	for index, podObj := range pods {
-		if index < 1 { // check only once, as all replicas has same ownerReference and same labels
-			if err := pe.checkLegalOwnerRefNameToPodLabels(podObj.Owner.Name, podObj.Labels); err != nil {
-				return err
-			}
-		}
+	for _, podObj := range pods {
 		podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
 		pe.podsMap[podStr.String()] = podObj
 		// update cache with new pod associated to to its owner
@@ -249,9 +264,6 @@ func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
 		return err
 	}
 	podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
-	if err := pe.checkLegalOwnerRefNameToPodLabels(podObj.Owner.Name, podObj.Labels); err != nil {
-		return err
-	}
 	pe.podsMap[podStr.String()] = podObj
 	// update cache with new pod associated to to its owner
 	pe.cache.addPod(podObj, podStr.String())
@@ -315,20 +327,25 @@ func (pe *PolicyEngine) HasPodPeers() bool {
 }
 
 // createPodOwnersMap creates map from workload str to workload peer object
-func (pe *PolicyEngine) createPodOwnersMap() map[string]Peer {
+func (pe *PolicyEngine) createPodOwnersMap() (map[string]Peer, error) {
 	res := make(map[string]Peer, 0)
 	for _, pod := range pe.podsMap {
+		if err := pe.checkLegalOwnerRefNameToPodLabels(pod.Namespace, pod.Owner.Name, pod.Labels); err != nil {
+			return nil, err
+		}
 		workload := &k8s.WorkloadPeer{Pod: pod}
 		res[workload.String()] = workload
 	}
-	return res
+	return res, nil
 }
 
 // GetPeersList returns a slice of peers from all PolicyEngine resources
 // get peers in level of workloads (pod owners) of type WorkloadPeer, and ip-blocks
 func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
-	podOwnersMap := pe.createPodOwnersMap()
-
+	podOwnersMap, err := pe.createPodOwnersMap()
+	if err != nil {
+		return nil, err
+	}
 	ipBlocks, err := pe.getDisjointIPBlocks()
 	if err != nil {
 		return nil, err
@@ -366,9 +383,13 @@ func (pe *PolicyEngine) getDisjointIPBlocks() ([]*common.IPBlock, error) {
 }
 
 // GetSelectedPeers returns list of workload peers in the given namespace which match the given labels selector
-func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace string) []Peer {
+func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace string) ([]Peer, error) {
 	res := make([]Peer, 0)
-	for _, peer := range pe.createPodOwnersMap() {
+	peers, err := pe.createPodOwnersMap()
+	if err != nil {
+		return nil, err
+	}
+	for _, peer := range peers {
 		if peer.Namespace() != namespace {
 			continue
 		}
@@ -376,7 +397,7 @@ func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace st
 			res = append(res, peer)
 		}
 	}
-	return res
+	return res, nil
 }
 
 // ConvertPeerNamedPort returns the peer.pod.containerPort matching the named port of the peer
