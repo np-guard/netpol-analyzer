@@ -955,6 +955,7 @@ items:
     labels:
       app: loadgenerator
       pod-template-hash: 555fbdc87d
+      unhealthy: "true"
     name: loadgenerator-555fbdc87d-rfvfm
     namespace: default
     ownerReferences:
