@@ -464,6 +464,6 @@ func TestConnlistAnalyzerIllegalPodList(t *testing.T) {
 	analyzer := NewConnlistAnalyzer(WithIncludeJSONManifests())
 	res, _, err := analyzer.ConnlistFromDirPath(dirPath)
 	require.Nil(t, res)
-	require.Contains(t, err.Error(),
-		"Resources not supported for connectivity analysis. Pods with the ownerReferences' Name: cog-agents have different labels. Some labels' keys with different values: app")
+	require.Contains(t, err.Error(), "Resources not supported for connectivity analysis. Pods with the ownerReferences'"+
+		" Name: cog-agents have different labels. Some labels' keys with different values: app")
 }

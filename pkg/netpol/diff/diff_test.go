@@ -383,8 +383,8 @@ func TestFatalErrors(t *testing.T) {
 			name: "dir 1 includes illegal pods list",
 			dir1: "semanticDiff-same-topologies-illegal-podlist",
 			dir2: "semanticDiff-same-topologies-old1",
-			firstErrStr: "Resources not supported for connectivity analysis. Pods with the ownerReferences' Name: cog-agents have different labels." +
-				" Some labels' keys with different values: app",
+			firstErrStr: "Resources not supported for connectivity analysis. Pods with the ownerReferences' " +
+				"Name: cog-agents have different labels. Some labels' keys with different values: app",
 		},
 	}
 	for _, entry := range cases {
