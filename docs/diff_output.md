@@ -51,7 +51,7 @@ digraph {
 `svg` graph from `dot` format output can be produced using `graphviz` as following:
 
 ```
-$ dot -Tsvg tests/netpol-diff-example-minimal/diff_output_from_netpol-analysis-example-minimal.dot -o tests/netpol-diff-example-minimal/diff_output_from_netpol-analysis-example.svg
+$ dot -Tsvg tests/netpol-diff-example-minimal/diff_output_from_netpol-analysis-example-minimal.dot -o tests/netpol-diff-example-minimal/diff_output_from_netpol-analysis-example-minimal.svg
 
 ```
 ![svg graph](./diff_example_svg.svg)
