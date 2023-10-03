@@ -3,8 +3,6 @@ package eval
 import (
 	"errors"
 	"fmt"
-	"reflect"
-	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -27,8 +25,8 @@ type (
 		namspacesMap      map[string]*k8s.Namespace                // map from ns name to ns object
 		podsMap           map[string]*k8s.Pod                      // map from pod name to pod object
 		netpolsMap        map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
-		ownersToLabelsMap map[string]map[string]map[string]string  // map from namespace to map from pods' ownerReference name
-		// to its labels map
+		ownersToLabelsMap map[string]map[string]*k8s.Pod           // map from namespace to map from pods' ownerReference name
+		// to its first pod
 		cache *evalCache
 	}
 
@@ -48,7 +46,7 @@ func NewPolicyEngine() *PolicyEngine {
 		namspacesMap:      make(map[string]*k8s.Namespace),
 		podsMap:           make(map[string]*k8s.Pod),
 		netpolsMap:        make(map[string]map[string]*k8s.NetworkPolicy),
-		ownersToLabelsMap: make(map[string]map[string]map[string]string),
+		ownersToLabelsMap: make(map[string]map[string]*k8s.Pod),
 		cache:             newEvalCache(),
 	}
 }
@@ -196,7 +194,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.namspacesMap = make(map[string]*k8s.Namespace)
 	pe.podsMap = make(map[string]*k8s.Pod)
 	pe.netpolsMap = make(map[string]map[string]*k8s.NetworkPolicy)
-	pe.ownersToLabelsMap = make(map[string]map[string]map[string]string)
+	pe.ownersToLabelsMap = make(map[string]map[string]*k8s.Pod)
 	pe.cache = newEvalCache()
 }
 
@@ -210,38 +208,51 @@ func (pe *PolicyEngine) upsertNamespace(ns *corev1.Namespace) error {
 }
 
 // checkLegalOwnerRefNameToPodLabels returns error if there are pod resources with same ownerReferences name but different labels
-func (pe *PolicyEngine) checkLegalOwnerRefNameToPodLabels(namespace, ownerRefName string, podLabels map[string]string) error {
-	if ownerRefName == "" { // pod does not have owner references
+func (pe *PolicyEngine) checkLegalOwnerRefNameToPodLabels(newPod *k8s.Pod) error {
+	if newPod.Owner.Name == "" { // the new pod does not have owner references
 		return nil
 	}
-	if _, ok := pe.ownersToLabelsMap[namespace]; !ok { // add the namespace to the map
-		pe.ownersToLabelsMap[namespace] = make(map[string]map[string]string)
+	if _, ok := pe.ownersToLabelsMap[newPod.Namespace]; !ok { // add the new namespace to the map
+		pe.ownersToLabelsMap[newPod.Namespace] = make(map[string]*k8s.Pod)
 	}
-	ownerLabels, ok := pe.ownersToLabelsMap[namespace][ownerRefName]
-	if !ok { // add the new ownerReference with pod labels to the map
-		pe.ownersToLabelsMap[namespace][ownerRefName] = podLabels
+	firstPod, ok := pe.ownersToLabelsMap[newPod.Namespace][newPod.Owner.Name]
+	if !ok { // add the new ownerReference with this new pod
+		pe.ownersToLabelsMap[newPod.Namespace][newPod.Owner.Name] = newPod
 		return nil
 	}
-	// compare ownerLabels with podLabels
-	if !reflect.DeepEqual(ownerLabels, podLabels) {
-		return errors.New("Resources not supported for connectivity analysis. Pods with the ownerReferences' Name: " + ownerRefName +
-			" have different labels. Some labels' keys with different values: " + strings.Join(diffBetweenLabels(podLabels, ownerLabels), ","))
-	}
-	return nil
+	// compare the owner first pod's labels with new pod's Labels
+	return diffBetweenPodsLabels(firstPod, newPod)
 }
 
-// helper: finds some diffs between two pods' labels maps
-func diffBetweenLabels(podLabels, ownerLabels map[string]string) []string {
-	res := make([]string, 0)
-	for key, value := range podLabels {
-		if _, ok := ownerLabels[key]; !ok {
-			res = append(res, key)
+// helper: given two pods of same owner, returns an error if there are diffs between the pods' labels maps
+func diffBetweenPodsLabels(firstPod, newPod *k8s.Pod) error {
+	// helping vars declarations to avoid duplicates
+	errMsgPart1 := "Input Pod resources are not supported for connectivity analysis. Found Pods of the same owner but different set of labels."
+	errMsgPart2 := ""
+	keyMissingErr := " Pod %s has label %s with value %s, and Pod %s does not have label %s"
+	differentValuesErr := " Pod %s has label %s with value %s, and Pod %s has label %s with value %s"
+	newPodStr := types.NamespacedName{Namespace: newPod.Namespace, Name: newPod.Name}.String()
+	firstPodStr := types.NamespacedName{Namespace: firstPod.Namespace, Name: firstPod.Name}.String()
+
+	// try to find diffs by looping new pod's labels first
+	for key, value := range newPod.Labels {
+		if _, ok := firstPod.Labels[key]; !ok {
+			errMsgPart2 = fmt.Sprintf(keyMissingErr, newPodStr, key, value, firstPodStr, key)
+			return errors.New(errMsgPart1 + errMsgPart2)
 		}
-		if ownerLabels[key] != value {
-			res = append(res, key)
+		if firstPod.Labels[key] != value {
+			errMsgPart2 = fmt.Sprintf(differentValuesErr, newPodStr, key, value, firstPodStr, key, firstPod.Labels[key])
+			return errors.New(errMsgPart1 + errMsgPart2)
 		}
 	}
-	return res
+	// check if first pod's labels contains keys which are not in the new pod's labels
+	for key, val := range firstPod.Labels {
+		if _, ok := newPod.Labels[key]; !ok {
+			errMsgPart2 = fmt.Sprintf(keyMissingErr, firstPodStr, key, val, newPodStr, key)
+			return errors.New(errMsgPart1 + errMsgPart2)
+		}
+	}
+	return nil
 }
 
 func (pe *PolicyEngine) upsertWorkload(rs interface{}, kind string) error {
@@ -331,7 +342,7 @@ func (pe *PolicyEngine) HasPodPeers() bool {
 func (pe *PolicyEngine) createPodOwnersMap() (map[string]Peer, error) {
 	res := make(map[string]Peer, 0)
 	for _, pod := range pe.podsMap {
-		if err := pe.checkLegalOwnerRefNameToPodLabels(pod.Namespace, pod.Owner.Name, pod.Labels); err != nil {
+		if err := pe.checkLegalOwnerRefNameToPodLabels(pod); err != nil {
 			return nil, err
 		}
 		workload := &k8s.WorkloadPeer{Pod: pod}
