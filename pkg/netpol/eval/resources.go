@@ -327,6 +327,7 @@ func (pe *PolicyEngine) HasPodPeers() bool {
 }
 
 // createPodOwnersMap creates map from workload str to workload peer object
+// returns error if there are two pods of same owner but different set of labels, since cannot map inconsistent pods to a workload
 func (pe *PolicyEngine) createPodOwnersMap() (map[string]Peer, error) {
 	res := make(map[string]Peer, 0)
 	for _, pod := range pe.podsMap {
