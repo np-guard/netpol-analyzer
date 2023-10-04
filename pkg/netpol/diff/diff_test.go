@@ -384,7 +384,7 @@ func TestFatalErrors(t *testing.T) {
 			dir1: "semanticDiff-same-topologies-illegal-podlist",
 			dir2: "semanticDiff-same-topologies-old1",
 			firstErrStr: "Input Pod resources are not supported for connectivity analysis." +
-				" Found Pods of the same owner but different set of labels.",
+				" Found Pods of the same owner demo/cog-agents but with different set of labels.",
 		},
 	}
 	for _, entry := range cases {

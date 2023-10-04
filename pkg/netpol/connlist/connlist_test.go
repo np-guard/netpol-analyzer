@@ -465,5 +465,5 @@ func TestConnlistAnalyzerIllegalPodList(t *testing.T) {
 	res, _, err := analyzer.ConnlistFromDirPath(dirPath)
 	require.Nil(t, res)
 	require.Contains(t, err.Error(), "Input Pod resources are not supported for connectivity analysis."+
-		" Found Pods of the same owner but different set of labels.")
+		" Found Pods of the same owner demo/cog-agents but with different set of labels.")
 }
