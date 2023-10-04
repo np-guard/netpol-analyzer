@@ -222,13 +222,13 @@ func (pe *PolicyEngine) checkConsistentLabelsForPodsOfSameOwner(newPod *k8s.Pod)
 	}
 	// compare the owner first pod's labels with new pod's Labels
 	if key, firstVal, newVal := diffBetweenPodsLabels(firstPod, newPod); key != "" {
-		return writeLabelsDifferencesError(firstPod, newPod, key, firstVal, newVal) // err
+		return generateLabelsDiffError(firstPod, newPod, key, firstVal, newVal) // err
 	}
 	return nil
 }
 
-// helper: writeLabelsDifferencesError computes the error message of the pod's different labels
-func writeLabelsDifferencesError(firstPod, newPod *k8s.Pod, key, firstVal, newVal string) error {
+// helper: generateLabelsDiffError generates the error message of the gap between two pods' labels
+func generateLabelsDiffError(firstPod, newPod *k8s.Pod, key, firstVal, newVal string) error {
 	// helping vars declarations to avoid duplicates
 	ownerName := types.NamespacedName{Namespace: firstPod.Namespace, Name: firstPod.Owner.Name}.String()
 	newPodStr := types.NamespacedName{Namespace: newPod.Namespace, Name: newPod.Name}.String()
@@ -250,7 +250,8 @@ func writeLabelsDifferencesError(firstPod, newPod *k8s.Pod, key, firstVal, newVa
 }
 
 // helper: given two pods of same owner, if there are diffs between the pods' labels maps returns first captured diff components,
-// i.e. the different label's key and the different values / empty val if the key is missing in one pod's labels
+// i.e. the different label's key and the different values / empty val if the key is missing in one pod's labels;
+// if there is no diff, returns empty key (with empty values)
 func diffBetweenPodsLabels(firstPod, newPod *k8s.Pod) (key, firstVal, newVal string) {
 	// try to find diffs by looping new pod's labels first
 	for key, value := range newPod.Labels {
