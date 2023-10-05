@@ -138,6 +138,13 @@ func TestDiff(t *testing.T) {
 		},
 		{
 			// description:
+			// **changed netpols: demo/ui-to-command, demo/query-to-ui
+			firstDirName:  "multiple_topology_resources_1",
+			secondDirName: "multiple_topology_resources_2",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
 			// **added netpol: default/policy-from2-to1
 			firstDirName:  "multiple_topology_resources_3",
 			secondDirName: "multiple_topology_resources_4",
@@ -148,6 +155,123 @@ func TestDiff(t *testing.T) {
 			// **changed netpols: limited egress in all policies , and limited ingress for loadgenerator
 			firstDirName:  "new_online_boutique",
 			secondDirName: "new_online_boutique_synthesis",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **changed netpols: demo/ui-to-command, demo/query-to-ui
+			firstDirName:  "semanticDiff-same-topologies-old1",
+			secondDirName: "semanticDiff-same-topologies-new1",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **changed netpols: demo/ui-to-command, demo/query-to-ui
+			firstDirName:  "semanticDiff-same-topologies-old1",
+			secondDirName: "semanticDiff-same-topologies-new1a",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **changed netpols: demo/ui-to-command
+			firstDirName:  "semanticDiff-same-topologies-old2",
+			secondDirName: "semanticDiff-same-topologies-new2",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **changed netpols: demo/query-to-ui
+			// **removed netpols: demo/capture-ui
+			// **added netpols: demo/capture-query
+			firstDirName:  "semanticDiff-same-topologies-old3",
+			secondDirName: "semanticDiff-same-topologies-new3",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **added netpols: default/policy-from2-to1
+			firstDirName:  "semanticDiff-orig-topologies-no-policy",
+			secondDirName: "semanticDiff-orig-topologies-policy-a",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **added ns: namespace-b
+			// **removed ns: namespace-a
+			// **removed pods: default/pod-3, default/pod-4
+			// **added pods: default/pod-5, default/pod-6
+			// **removed netpol: policy-from1-to2
+			// **added netpol: policy-from2-to1
+			firstDirName:  "semanticDiff-different-topologies-policy-a",
+			secondDirName: "semanticDiff-different-topologies-policy-b",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **added ns: namespace-a
+			// **removed ns: namespace-b
+			// **added pods: default/pod-3, default/pod-4
+			// **removed pods: default/pod-5, default/pod-6
+			// **removed netpol: policy-from2-to1
+			// **added netpol: policy-from1-to2
+			firstDirName:  "semanticDiff-different-topologies-policy-b",
+			secondDirName: "semanticDiff-different-topologies-policy-a",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **different topologies
+			// **different policies
+			firstDirName:  "semanticDiff-same-topologies-old1",
+			secondDirName: "semanticDiff-different-topologies-policy-a",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **changed netpols: kube-system/enable-from-ipblock-to-isolated-by-tier
+			firstDirName:  "ipblockstest",
+			secondDirName: "ipblockstest_2",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **changed netpols: kube-system/enable-from-ipblock-to-isolated-by-tier
+			firstDirName:  "ipblockstest",
+			secondDirName: "ipblockstest_3",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **changed netpols: kube-system/enable-from-ipblock-to-isolated-by-tier
+			firstDirName:  "ipblockstest_2",
+			secondDirName: "ipblockstest_3",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **changed netpols: kube-system/enable-from-ipblock-to-isolated-by-tier
+			firstDirName:  "ipblockstest",
+			secondDirName: "ipblockstest_4",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **added ns: namespace-a
+			// **removed ns: namespace-b
+			// **added pods: default/pod-3, default/pod-4
+			// **removed pods: default/pod-5, default/pod-6
+			// **removed netpol: default/policy-from2-to1, default/policy-from-ip-block-to1
+			// **added netpol: default/policy-from1-to2, default/policy-from-ip-block-to2
+			firstDirName:  "semanticDiff-different-topologies-policy-a-with-ipblock",
+			secondDirName: "semanticDiff-different-topologies-policy-b-with-ipblock",
+			formats:       []string{common.DefaultFormat},
+		},
+		{
+			// description:
+			// **removed netpol: kube-system/ingress-based-on-named-ports
+			// **added netpol: kube-system/ingress-based-on-port-number
+			firstDirName:  "test_with_named_ports_changed_netpol_2",
+			secondDirName: "test_with_named_ports_changed_netpol_3",
 			formats:       []string{common.DefaultFormat},
 		},
 	}
@@ -186,7 +310,7 @@ var formattingErrType = &resultFormattingError{} // error returned from getting/
 
 // constructs diffAnalyzer with required options and computes the connectivity diff from the dir paths
 func constructAnalyzerAndGetDiffFromDirPaths(stopOnErr bool, format, dir1, dir2 string) (*DiffAnalyzer, ConnectivityDiff, error) {
-	diffAnalyzerOptions := []DiffAnalyzerOption{}
+	diffAnalyzerOptions := []DiffAnalyzerOption{WithIncludeJSONManifests()}
 	if format != "" {
 		diffAnalyzerOptions = append(diffAnalyzerOptions, WithOutputFormat(format))
 	}
@@ -254,6 +378,13 @@ func TestFatalErrors(t *testing.T) {
 			dir1:        filepath.Join("bad_yamls", "subdir3"),
 			dir2:        "ipblockstest",
 			firstErrStr: "error accessing directory:",
+		},
+		{
+			name: "dir 1 includes illegal pods list",
+			dir1: "semanticDiff-same-topologies-illegal-podlist",
+			dir2: "semanticDiff-same-topologies-old1",
+			firstErrStr: "Input Pod resources are not supported for connectivity analysis." +
+				" Found Pods of the same owner demo/cog-agents but with different set of labels.",
 		},
 	}
 	for _, entry := range cases {

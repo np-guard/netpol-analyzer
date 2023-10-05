@@ -1,0 +1,37 @@
+# Query to UI
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: query-to-ui
+  namespace: demo
+spec:
+  podSelector:
+    matchLabels:
+      app: account-query-selector
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            app: bank-ui-selector
+      ports:
+        - port: 8080
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: capture-ui
+  namespace: demo
+spec:
+  podSelector:
+    matchLabels:
+      app: bank-ui-selector
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: account-query-selector

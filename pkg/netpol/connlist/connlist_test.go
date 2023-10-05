@@ -124,6 +124,14 @@ func TestConnList(t *testing.T) {
 			outputFormats: []string{common.TextFormat},
 		},
 		{
+			testDirName:   "multiple_topology_resources_1",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "multiple_topology_resources_2",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
 			testDirName:   "multiple_topology_resources_3",
 			outputFormats: []string{common.TextFormat},
 		},
@@ -133,6 +141,74 @@ func TestConnList(t *testing.T) {
 		},
 		{
 			testDirName:   "minimal_test_in_ns",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "semanticDiff-same-topologies-old1",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "semanticDiff-same-topologies-old2",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "semanticDiff-same-topologies-old3",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "semanticDiff-same-topologies-new1",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "semanticDiff-same-topologies-new1a",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "semanticDiff-same-topologies-new2",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "semanticDiff-same-topologies-new3",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "semanticDiff-orig-topologies-no-policy",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "semanticDiff-orig-topologies-policy-a",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "semanticDiff-different-topologies-policy-a",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "semanticDiff-different-topologies-policy-b",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "ipblockstest_2",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "ipblockstest_3",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "ipblockstest_4",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "semanticDiff-different-topologies-policy-a-with-ipblock",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "semanticDiff-different-topologies-policy-b-with-ipblock",
+			outputFormats: []string{common.TextFormat},
+		},
+		{
+			testDirName:   "test_with_named_ports_changed_netpol_2",
 			outputFormats: []string{common.TextFormat},
 		},
 	}
@@ -381,4 +457,13 @@ func TestWithFocusWorkloadWithReplicasConnections(t *testing.T) {
 	out, err := analyzer1.ConnectionsListToString(res)
 	require.Nil(t, err)
 	require.NotContains(t, out, "kube-system/calico-node[DaemonSet] => kube-system/calico-node[DaemonSet] : All Connections")
+}
+
+func TestConnlistAnalyzerIllegalPodList(t *testing.T) {
+	dirPath := filepath.Join(testutils.GetTestsDir(), "semanticDiff-same-topologies-illegal-podlist")
+	analyzer := NewConnlistAnalyzer(WithIncludeJSONManifests())
+	res, _, err := analyzer.ConnlistFromDirPath(dirPath)
+	require.Nil(t, res)
+	require.Contains(t, err.Error(), "Input Pod resources are not supported for connectivity analysis."+
+		" Found Pods of the same owner demo/cog-agents but with different set of labels.")
 }
