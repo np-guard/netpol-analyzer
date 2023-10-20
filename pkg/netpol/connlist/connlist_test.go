@@ -1,6 +1,7 @@
 package connlist
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -31,15 +32,16 @@ func getConnlistFromDirPathRes(opts []ConnlistAnalyzerOption, dirName string) (*
 
 // helping func - creates the analyzer , gets connlist and writes it to string and verifies results
 func verifyConnlistAnalyzeOutputVsExpectedOutput(t *testing.T, analyzerOptions []ConnlistAnalyzerOption, dirName,
-	expectedOutputFileName, testName string) {
+	expectedOutputFileName, testName, format string) {
+	debugMsg := fmt.Sprintf("test: %q, output format: %q", testName, format)
 	analyzer, res, err := getConnlistFromDirPathRes(analyzerOptions, dirName)
-	require.Nil(t, err, "test: %q", testName)
+	require.Nil(t, err, debugMsg)
 	output, err := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err, "test: %q", testName)
+	require.Nil(t, err, debugMsg)
 	expectedOutputFile := filepath.Join(getDirPathFromDirName(dirName), expectedOutputFileName)
 	expectedOutput, err := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err, "test: %q", testName)
-	require.Equal(t, string(expectedOutput), output, "test: %q", testName)
+	require.Nil(t, err, debugMsg)
+	require.Equal(t, string(expectedOutput), output, debugMsg)
 }
 
 // helping func - if focus workload is not empty append it to ConnlistAnalyzerOption list
@@ -55,234 +57,190 @@ func appendFocusWorkloadOptIfRequired(focusWorkload string) []ConnlistAnalyzerOp
 func TestConnList(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		name          string
 		testDirName   string
 		outputFormats []string
 	}{
 		{
-			name:          "dir_ipblockstest_output_txt_format",
 			testDirName:   "ipblockstest",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_onlineboutique_output_json_md_txt_formats",
 			testDirName:   "onlineboutique",
 			outputFormats: []string{common.JSONFormat, common.MDFormat, common.TextFormat},
 		},
 		{
-			name:          "dir_onlineboutique_workloads_output_csv_dot_txt_formats",
 			testDirName:   "onlineboutique_workloads",
 			outputFormats: []string{common.CSVFormat, common.DOTFormat, common.TextFormat},
 		},
 		{
-			name:          "dir_minikube_resources_output_txt_format",
 			testDirName:   "minikube_resources",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_online_boutique_workloads_no_ns_output_txt_format",
 			testDirName:   "online_boutique_workloads_no_ns",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_core_pods_without_host_ip_output_txt_format",
 			testDirName:   "core_pods_without_host_ip",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_acs_security_frontend_demos_output_all_valid_formats",
 			testDirName:   "acs_security_frontend_demos",
 			outputFormats: allFormats,
 		},
 		{
-			name:          "dir_demo_app_with_routes_and_ingress_output_all_valid_formats",
 			testDirName:   "demo_app_with_routes_and_ingress",
 			outputFormats: allFormats,
 		},
 		{
-			name:          "dir_k8s_ingress_test_output_all_valid_formats",
 			testDirName:   "k8s_ingress_test",
 			outputFormats: allFormats,
 		},
 		{
-			name:          "dir_multiple_ingress_objects_with_different_ports_output_all_valid_formats",
 			testDirName:   "multiple_ingress_objects_with_different_ports",
 			outputFormats: allFormats,
 		},
 		{
-			name:          "dir_one_ingress_multiple_ports_output_all_valid_formats",
 			testDirName:   "one_ingress_multiple_ports",
 			outputFormats: allFormats,
 		},
 		{
-			name:          "dir_one_ingress_multiple_services_output_all_valid_formats",
 			testDirName:   "one_ingress_multiple_services",
 			outputFormats: allFormats,
 		},
 		{
-			name:          "dir_acs-security-demos_output_all_valid_formats",
 			testDirName:   "acs-security-demos",
 			outputFormats: allFormats,
 		},
 		{
-			name:          "dir_acs-security-demos-with-netpol-list_output_txt_format",
 			testDirName:   "acs-security-demos-with-netpol-list",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_test_with_named_ports_output_txt_format",
 			testDirName:   "test_with_named_ports",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_test_with_named_ports_changed_netpol_output_txt_format",
 			testDirName:   "test_with_named_ports_changed_netpol",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_netpol-analysis-example-minimal_output_txt_format",
 			testDirName:   "netpol-analysis-example-minimal",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_with_end_port_example_output_txt_format",
 			testDirName:   "with_end_port_example",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_with_end_port_example_new_output_txt_format",
 			testDirName:   "with_end_port_example_new",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_new_online_boutique_output_txt_format",
 			testDirName:   "new_online_boutique",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_new_online_boutique_synthesis_output_txt_format",
 			testDirName:   "new_online_boutique_synthesis",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_multiple_topology_resources_1_output_txt_format",
 			testDirName:   "multiple_topology_resources_1",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_multiple_topology_resources_2_output_txt_format",
 			testDirName:   "multiple_topology_resources_2",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_multiple_topology_resources_3_output_txt_format",
 			testDirName:   "multiple_topology_resources_3",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_multiple_topology_resources_4_output_txt_format",
 			testDirName:   "multiple_topology_resources_4",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_minimal_test_in_ns_output_txt_format",
 			testDirName:   "minimal_test_in_ns",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_semanticDiff-same-topologies-old1_output_txt_format",
 			testDirName:   "semanticDiff-same-topologies-old1",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_semanticDiff-same-topologies-old2_output_txt_format",
 			testDirName:   "semanticDiff-same-topologies-old2",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_semanticDiff-same-topologies-old3_output_txt_format",
 			testDirName:   "semanticDiff-same-topologies-old3",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_semanticDiff-same-topologies-new1_output_txt_format",
 			testDirName:   "semanticDiff-same-topologies-new1",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_semanticDiff-same-topologies-new1a_output_txt_format",
 			testDirName:   "semanticDiff-same-topologies-new1a",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_semanticDiff-same-topologies-new2_output_txt_format",
 			testDirName:   "semanticDiff-same-topologies-new2",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_semanticDiff-same-topologies-new3_output_txt_format",
 			testDirName:   "semanticDiff-same-topologies-new3",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_semanticDiff-orig-topologies-no-policy_output_txt_format",
 			testDirName:   "semanticDiff-orig-topologies-no-policy",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_semanticDiff-orig-topologies-policy-a_output_txt_format",
 			testDirName:   "semanticDiff-orig-topologies-policy-a",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_semanticDiff-different-topologies-policy-a_output_txt_format",
 			testDirName:   "semanticDiff-different-topologies-policy-a",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_semanticDiff-different-topologies-policy-b_output_txt_format",
 			testDirName:   "semanticDiff-different-topologies-policy-b",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_ipblockstest_2_output_txt_format",
 			testDirName:   "ipblockstest_2",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_ipblockstest_3_output_txt_format",
 			testDirName:   "ipblockstest_3",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_ipblockstest_4_output_txt_format",
 			testDirName:   "ipblockstest_4",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_semanticDiff-different-topologies-policy-a-with-ipblock_output_txt_format",
 			testDirName:   "semanticDiff-different-topologies-policy-a-with-ipblock",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_semanticDiff-different-topologies-policy-b-with-ipblock_output_txt_format",
 			testDirName:   "semanticDiff-different-topologies-policy-b-with-ipblock",
 			outputFormats: []string{common.TextFormat},
 		},
 		{
-			name:          "dir_test_with_named_ports_changed_netpol_2_output_txt_format",
 			testDirName:   "test_with_named_ports_changed_netpol_2",
 			outputFormats: []string{common.TextFormat},
 		},
 	}
 	for _, tt := range cases {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
 				analyzerOpts := []ConnlistAnalyzerOption{WithOutputFormat(format), WithIncludeJSONManifests()}
 				expectedOutputFileName := connlistExpectedOutputFileNamePrefix + format
-				verifyConnlistAnalyzeOutputVsExpectedOutput(t, analyzerOpts, tt.testDirName, expectedOutputFileName, tt.name)
+				verifyConnlistAnalyzeOutputVsExpectedOutput(t, analyzerOpts, tt.testDirName, expectedOutputFileName, tt.testDirName, format)
 			}
 		})
 	}
@@ -292,49 +250,43 @@ func TestConnList(t *testing.T) {
 func TestConnListWithFocusWorkload(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		name          string
 		dirName       string
 		focusWorkload string
 	}{
 		{
-			name:          "dir_onlineboutique_workloads_focus_workload_emailservice",
 			dirName:       "onlineboutique_workloads",
 			focusWorkload: "emailservice",
 		},
 		{
-			name:          "dir_k8s_ingress_test_focus_workload_details-v1-79f774bdb9",
 			dirName:       "k8s_ingress_test",
 			focusWorkload: "details-v1-79f774bdb9",
 		},
 		{
-			name:          "dir_acs-security-demos-added-workloads_focus_workload_ns_backend_name_recommendation",
 			dirName:       "acs-security-demos-added-workloads",
 			focusWorkload: "backend/recommendation",
 		},
 		{
-			name:          "dir_acs-security-demos-added-workloads_focus_workload_asset-cache",
 			dirName:       "acs-security-demos-added-workloads",
 			focusWorkload: "asset-cache",
 		},
 		{
-			name:          "dir_acs-security-demos-added-workloads_focus_workload_ns_frontend_name_asset-cache",
 			dirName:       "acs-security-demos-added-workloads",
 			focusWorkload: "frontend/asset-cache",
 		},
 		{
-			name:          "dir_acs-security-demos-added-workloads_focus_workload_ingress-controller",
 			dirName:       "acs-security-demos-added-workloads",
 			focusWorkload: "ingress-controller",
 		},
 	}
 	for _, tt := range cases {
 		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
+		focusWorkloadStr := strings.Replace(tt.focusWorkload, "/", underscore, 1)
+		testName := "dir_" + tt.dirName + "_focus_workload_" + focusWorkloadStr
+		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
-			expectedOutputFileName := strings.Replace(tt.focusWorkload, "/", underscore, 1) + underscore + connlistExpectedOutputFileNamePrefix +
-				common.DefaultFormat
+			expectedOutputFileName := focusWorkloadStr + underscore + connlistExpectedOutputFileNamePrefix + common.DefaultFormat
 			analyzerOpts := []ConnlistAnalyzerOption{WithFocusWorkload(tt.focusWorkload)}
-			verifyConnlistAnalyzeOutputVsExpectedOutput(t, analyzerOpts, tt.dirName, expectedOutputFileName, tt.name)
+			verifyConnlistAnalyzeOutputVsExpectedOutput(t, analyzerOpts, tt.dirName, expectedOutputFileName, testName, common.DefaultFormat)
 		})
 	}
 }
