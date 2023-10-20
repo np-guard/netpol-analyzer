@@ -33,15 +33,36 @@ func getConnlistFromDirPathRes(opts []ConnlistAnalyzerOption, dirName string) (*
 // helping func - creates the analyzer , gets connlist and writes it to string and verifies results
 func verifyConnlistAnalyzeOutputVsExpectedOutput(t *testing.T, analyzerOptions []ConnlistAnalyzerOption, dirName,
 	expectedOutputFileName, testName, format string) {
-	debugMsg := fmt.Sprintf("test: %q, output format: %q", testName, format)
 	analyzer, res, err := getConnlistFromDirPathRes(analyzerOptions, dirName)
-	require.Nil(t, err, debugMsg)
+	require.Nil(t, err, getDebugMsgWithTestNameAndFormat)
 	output, err := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err, debugMsg)
+	require.Nil(t, err, getDebugMsgWithTestNameAndFormat)
+	checkActualVsExpectedOutputMatch(t, testName, dirName, expectedOutputFileName, output, format)
+}
+
+// helping func - writes debug message for good path tests
+func getDebugMsgWithTestNameAndFormat(testName, format string) string {
+	return fmt.Sprintf("test: %q, output format: %q", testName, format)
+}
+
+// helping func - checks if actual output matches expected output, if not generates actual output file
+func checkActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedOutputFileName, actualOutput, format string) {
+	actualOutputFileName := "actual_" + expectedOutputFileName
+	// read expected output file
 	expectedOutputFile := filepath.Join(getDirPathFromDirName(dirName), expectedOutputFileName)
 	expectedOutput, err := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err, debugMsg)
-	require.Equal(t, string(expectedOutput), output, debugMsg)
+	require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
+	if string(expectedOutput) != actualOutput {
+		// generate actual output file
+		actualOutputFile := filepath.Join(getDirPathFromDirName(dirName), actualOutputFileName)
+		fp, err := os.Create(actualOutputFile)
+		require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
+		_, err = fp.WriteString(actualOutput)
+		require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
+		t.Fatalf("output mismatch for %s, actual output file %q vs expected output file: %q", getDebugMsgWithTestNameAndFormat(testName, format),
+			actualOutputFile, expectedOutputFile)
+	}
+	require.Equal(t, string(expectedOutput), actualOutput, getDebugMsgWithTestNameAndFormat(testName, format))
 }
 
 // helping func - if focus workload is not empty append it to ConnlistAnalyzerOption list
