@@ -53,6 +53,25 @@ func appendFocusWorkloadOptIfRequired(focusWorkload string) []ConnlistAnalyzerOp
 	return analyzerOptions
 }
 
+// helping func - if the actual error/warning message does not contain the expected error, fail the test with relevant info
+func checkErrorContainment(t *testing.T, testName, expectedErrorMsg, actualErrMsg string, isErr bool) {
+	errType := "error"
+	if !isErr {
+		errType = "warning"
+	}
+	if !strings.Contains(actualErrMsg, expectedErrorMsg) {
+		t.Fatalf("%s message mismatch for test %q, actual: %q, expected contains: %q", errType, testName, actualErrMsg, expectedErrorMsg)
+	}
+	require.Contains(t, actualErrMsg, expectedErrorMsg, "test: %q", testName)
+}
+
+func checkExtractedLineContainment(t *testing.T, testName, extractedLine, actualOutput string) {
+	if strings.Contains(actualOutput, extractedLine) {
+		t.Fatalf("test: %q, output should not contain %q", testName, extractedLine)
+	}
+	require.NotContains(t, actualOutput, extractedLine, "test: %q", testName)
+}
+
 // TestConnList tests the output of ConnlistFromDirPath() for valid input resources
 func TestConnList(t *testing.T) {
 	t.Parallel()
@@ -343,7 +362,7 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 			analyzerOpts := []ConnlistAnalyzerOption{WithIncludeJSONManifests()}
 			_, res, err := getConnlistFromDirPathRes(analyzerOpts, tt.dirName)
 			require.Empty(t, res, "test: %q", tt.name)
-			require.Contains(t, err.Error(), tt.errorStrContains, "test: %q", tt.name)
+			checkErrorContainment(t, tt.name, tt.errorStrContains, err.Error(), true)
 		})
 	}
 }
@@ -373,7 +392,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			require.Nil(t, err, "test: %q", tt.name)
 			output, err := analyzer.ConnectionsListToString(res)
 			require.Empty(t, output, "test: %q", tt.name)
-			require.Contains(t, err.Error(), tt.errorStrContains, "test: %q", tt.name)
+			checkErrorContainment(t, tt.name, tt.errorStrContains, err.Error(), true)
 		})
 	}
 }
@@ -416,14 +435,14 @@ func TestConnlistAnalyzeSevereErrors(t *testing.T) {
 			resErrors1 := analyzer.Errors()
 			require.Nil(t, err1, "test: %q", tt.name)
 			require.Equal(t, tt.expectedErrNumWithoutStopOnErr, len(resErrors1), "test: %q", tt.name)
-			require.Contains(t, resErrors1[0].Error().Error(), tt.firstErrStrContains, "test: %q", tt.name)
+			checkErrorContainment(t, tt.name, tt.firstErrStrContains, resErrors1[0].Error().Error(), true)
 			// second analyzer (with stopOnError):
 			analyzerWithStopOnError, res, err2 := getConnlistFromDirPathRes(analyzerOpts2, tt.dirName)
 			resErrors2 := analyzerWithStopOnError.Errors()
 			require.Nil(t, err2, "test: %q", tt.name)
 			require.Empty(t, res, "test: %q", tt.name) // the run stopped on first severe error, no result computed
 			require.Equal(t, tt.expectedErrNumWithStopOnErr, len(resErrors2), "test: %q", tt.name)
-			require.Contains(t, resErrors2[0].Error().Error(), tt.firstErrStrContains, "test: %q", tt.name)
+			checkErrorContainment(t, tt.name, tt.firstErrStrContains, resErrors2[0].Error().Error(), true)
 		})
 	}
 }
@@ -464,7 +483,7 @@ func TestConnlistAnalyzeWarnings(t *testing.T) {
 			require.Nil(t, err, "test: %q", tt.name)
 			analyzerErrs := analyzer.Errors()
 			require.GreaterOrEqual(t, len(analyzerErrs), 1, "test: %q", tt.name) // at least 1 warning
-			require.Contains(t, analyzerErrs[0].Error().Error(), tt.firstWarningMsgContains, "test: %q", tt.name)
+			checkErrorContainment(t, tt.name, tt.firstWarningMsgContains, analyzerErrs[0].Error().Error(), false)
 		})
 	}
 }
@@ -505,7 +524,7 @@ func TestNotContainedOutputLines(t *testing.T) {
 			require.Nil(t, err, "test: %q", tt.name)
 			output, err := analyzer.ConnectionsListToString(res)
 			require.Nil(t, err, "test: %q", tt.name)
-			require.NotContains(t, output, tt.extractedLineExample, "test: %q", tt.name)
+			checkExtractedLineContainment(t, tt.name, tt.extractedLineExample, output)
 		})
 	}
 }
