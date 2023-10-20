@@ -101,7 +101,7 @@ func (err *FailedReadingFileError) Unwrap() error {
 
 func (err *FailedAccessingDirError) Error() string {
 	if errors.Is(err.origErr, os.ErrNotExist) {
-		return fmt.Sprintf("directory: <%s> was not found", err.dirPath)
+		return fmt.Sprintf("directory %s was not found", err.dirPath)
 	}
 
 	return fmt.Sprintf("failed reading contents of directory: <%s> ", err.dirPath)
