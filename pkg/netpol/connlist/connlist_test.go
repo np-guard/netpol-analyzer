@@ -36,7 +36,7 @@ func verifyConnlistAnalyzeOutputVsExpectedOutput(t *testing.T, analyzerOptions [
 	analyzer, res, err := getConnlistFromDirPathRes(analyzerOptions, dirName)
 	require.Nil(t, err, getDebugMsgWithTestNameAndFormat)
 	output, err := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err, getDebugMsgWithTestNameAndFormat)
+	require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
 	checkActualVsExpectedOutputMatch(t, testName, dirName, expectedOutputFileName, output, format)
 }
 
