@@ -1,5 +1,7 @@
 package common
 
+import "os"
+
 // NetpolError holds information about a single error/warning that occurred during running
 // connectivity analysis command (list or diff)
 type NetpolError interface {
@@ -24,3 +26,16 @@ const (
 	DotHeader  = "digraph {"
 	DotClosing = "}"
 )
+
+// WriteToFile generates output to given file
+func WriteToFile(output, filePath string) error {
+	fp, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	_, err = fp.WriteString(output)
+	if err != nil {
+		return err
+	}
+	return nil
+}
