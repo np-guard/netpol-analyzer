@@ -32,6 +32,10 @@ var (
 	outFile       string // output file
 )
 
+func getOutputFormatDescription(validFormats string) string {
+	return fmt.Sprintf("Required output format (%s)", validFormats)
+}
+
 func runListCommand() error {
 	var conns []connlist.Peer2PeerConnection
 	var err error
@@ -131,7 +135,7 @@ defined`,
 		"Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)")
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
-	c.Flags().StringVarP(&output, "output", "o", common.DefaultFormat, "Required output format ("+supportedFormats+")")
+	c.Flags().StringVarP(&output, "output", "o", common.DefaultFormat, getOutputFormatDescription(supportedFormats))
 	// out file
 	c.Flags().StringVarP(&outFile, "file", "f", "", "Write output to specified file")
 	return c
