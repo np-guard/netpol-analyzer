@@ -377,7 +377,7 @@ func TestFatalErrors(t *testing.T) {
 			name:        "dir 1 does not exists",
 			dir1:        filepath.Join("bad_yamls", "subdir3"),
 			dir2:        "ipblockstest",
-			firstErrStr: "error accessing directory:",
+			firstErrStr: "was not found",
 		},
 		{
 			name: "dir 1 includes illegal pods list",

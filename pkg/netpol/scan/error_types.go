@@ -3,6 +3,7 @@ package scan
 import (
 	"errors"
 	"fmt"
+	"os"
 )
 
 // FileProcessingError holds all information about a single error/warning that occurred during
@@ -47,6 +48,7 @@ type FailedReadingFileError struct {
 
 type FailedAccessingDirError struct {
 	origErr error
+	dirPath string
 }
 
 func (err *NoYamlsFoundError) Error() string {
@@ -98,7 +100,11 @@ func (err *FailedReadingFileError) Unwrap() error {
 }
 
 func (err *FailedAccessingDirError) Error() string {
-	return fmt.Sprintf("error accessing directory: %v", err.origErr)
+	if errors.Is(err.origErr, os.ErrNotExist) {
+		return fmt.Sprintf("directory %s was not found", err.dirPath)
+	}
+
+	return fmt.Sprintf("failed reading contents of directory %s ", err.dirPath)
 }
 
 func (err *FailedAccessingDirError) Unwrap() error {
@@ -190,5 +196,5 @@ func failedReadingFile(filePath string, err error) *FileProcessingError {
 }
 
 func failedAccessingDir(dirPath string, err error, isSubDir bool) *FileProcessingError {
-	return &FileProcessingError{&FailedAccessingDirError{err}, dirPath, 0, -1, !isSubDir, true}
+	return &FileProcessingError{&FailedAccessingDirError{origErr: err, dirPath: dirPath}, dirPath, 0, -1, !isSubDir, true}
 }
