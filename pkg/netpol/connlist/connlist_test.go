@@ -367,7 +367,7 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		{
 			name:             "Input_dir_does_not_exist_should_return_fatal_error_accessing_directory",
 			dirName:          filepath.Join("bad_yamls", "subdir3"),
-			errorStrContains: "error accessing directory",
+			errorStrContains: "was not found",
 		},
 		{
 			name:    "Input_dir_has_illegal_podlist_pods_with_same_owner_ref_name_has_different_labels_should_return_fatal_error",
