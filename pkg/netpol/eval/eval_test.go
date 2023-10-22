@@ -1038,19 +1038,6 @@ func addNewPod(namespace, name string, labels map[string]string) (*v1.Pod, error
 	return podObj, nil
 }
 
-func writeRes(res, fileName string) {
-	_, err := os.Create(fileName)
-	if err != nil {
-		fmt.Printf("error creating file: %v", err)
-		return
-	}
-	b := []byte(res)
-	err = os.WriteFile(fileName, b, 0o600)
-	if err != nil {
-		fmt.Printf("error WriteFile: %v", err)
-	}
-}
-
 func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) error {
 	objectsList, processingErrs := scanner.FilesToObjectsList(path)
 	if len(processingErrs) > 0 {
@@ -1182,9 +1169,9 @@ func TestGeneralPerformance(t *testing.T) {
 
 		pe.ClearResources()
 	}
-	writeRes(allResStr, "test_all.txt")
+	common.GenerateActualOutputFile(t, "TestGeneralPerformance", allResStr, "test_all.txt")
 	for funcName, res := range allResStrPerFunc {
-		writeRes(res, "all_res_"+funcName+".txt")
+		common.GenerateActualOutputFile(t, "TestGeneralPerformance", res, "all_res_"+funcName+".txt")
 	}
 	resAllFuncNumcallsPerSec := ""
 	for n, resMap := range allResPerFuncAndNetpolLimit {
@@ -1194,7 +1181,7 @@ func TestGeneralPerformance(t *testing.T) {
 		}
 		resAllFuncNumcallsPerSec += "\n"
 	}
-	writeRes(resAllFuncNumcallsPerSec, "all_res_all.txt")
+	common.GenerateActualOutputFile(t, "TestGeneralPerformance", resAllFuncNumcallsPerSec, "all_res_all.txt")
 }
 
 func TestFromFiles2(t *testing.T) {
@@ -1247,7 +1234,7 @@ func TestFromFiles2(t *testing.T) {
 		allResStr += fmt.Sprintf("%v, %s\n", i, runtime)
 	}
 	/*// allResStr += fmt.Sprintf("total runtime: %s\n", elapsed)*/
-	writeRes(allResStr, "test_check_if_allowed_func.txt")
+	common.GenerateActualOutputFile(t, "TestFromFiles2", allResStr, "test_check_if_allowed_func.txt")
 }
 
 func TestFromFiles(t *testing.T) {
@@ -1287,7 +1274,7 @@ func TestFromFiles(t *testing.T) {
 	for i, runtime := range runtimes {
 		allResStr += fmt.Sprintf("%v, %s\n", i, runtime)
 	}
-	writeRes(allResStr, "test_all_allowed_conns_func.txt")
+	common.GenerateActualOutputFile(t, "TestFromFiles", allResStr, "test_all_allowed_conns_func.txt")
 }
 
 func TestNew(t *testing.T) {

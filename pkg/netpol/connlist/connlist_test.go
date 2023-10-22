@@ -54,11 +54,7 @@ func checkActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 	require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
 	actualOutputFile := filepath.Join(getDirPathFromDirName(dirName), actualOutputFileName)
 	if string(expectedOutput) != actualOutput {
-		// generate actual output file
-		fp, err := os.Create(actualOutputFile)
-		require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
-		_, err = fp.WriteString(actualOutput)
-		require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
+		common.GenerateActualOutputFile(t, testName, actualOutput, actualOutputFile)
 	}
 	require.Equal(t, string(expectedOutput), actualOutput, "output mismatch for %s, actual output file %q vs expected output file: %q",
 		getDebugMsgWithTestNameAndFormat(testName, format),
