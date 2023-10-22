@@ -1169,9 +1169,13 @@ func TestGeneralPerformance(t *testing.T) {
 
 		pe.ClearResources()
 	}
-	common.GenerateActualOutputFile(t, "TestGeneralPerformance", allResStr, "test_all.txt")
+	if err := common.WriteToFile(allResStr, "test_all.txt"); err != nil {
+		fmt.Printf("error writing to file: %v", err)
+	}
 	for funcName, res := range allResStrPerFunc {
-		common.GenerateActualOutputFile(t, "TestGeneralPerformance", res, "all_res_"+funcName+".txt")
+		if err := common.WriteToFile(res, "all_res_"+funcName+".txt"); err != nil {
+			fmt.Printf("error writing to file: %v", err)
+		}
 	}
 	resAllFuncNumcallsPerSec := ""
 	for n, resMap := range allResPerFuncAndNetpolLimit {
@@ -1181,7 +1185,9 @@ func TestGeneralPerformance(t *testing.T) {
 		}
 		resAllFuncNumcallsPerSec += "\n"
 	}
-	common.GenerateActualOutputFile(t, "TestGeneralPerformance", resAllFuncNumcallsPerSec, "all_res_all.txt")
+	if err := common.WriteToFile(resAllFuncNumcallsPerSec, "all_res_all.txt"); err != nil {
+		fmt.Printf("error writing to file: %v", err)
+	}
 }
 
 func TestFromFiles2(t *testing.T) {
@@ -1234,7 +1240,9 @@ func TestFromFiles2(t *testing.T) {
 		allResStr += fmt.Sprintf("%v, %s\n", i, runtime)
 	}
 	/*// allResStr += fmt.Sprintf("total runtime: %s\n", elapsed)*/
-	common.GenerateActualOutputFile(t, "TestFromFiles2", allResStr, "test_check_if_allowed_func.txt")
+	if err := common.WriteToFile(allResStr, "test_check_if_allowed_func.txt"); err != nil {
+		fmt.Printf("error writing to file: %v", err)
+	}
 }
 
 func TestFromFiles(t *testing.T) {
@@ -1274,7 +1282,9 @@ func TestFromFiles(t *testing.T) {
 	for i, runtime := range runtimes {
 		allResStr += fmt.Sprintf("%v, %s\n", i, runtime)
 	}
-	common.GenerateActualOutputFile(t, "TestFromFiles", allResStr, "test_all_allowed_conns_func.txt")
+	if err := common.WriteToFile(allResStr, "test_all_allowed_conns_func.txt"); err != nil {
+		fmt.Printf("error writing to file: %v", err)
+	}
 }
 
 func TestNew(t *testing.T) {
