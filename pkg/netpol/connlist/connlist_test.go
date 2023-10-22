@@ -54,13 +54,14 @@ func checkActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 	require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
 	actualOutputFile := filepath.Join(getDirPathFromDirName(dirName), actualOutputFileName)
 	if string(expectedOutput) != actualOutput {
-		// generate actual output file		
+		// generate actual output file
 		fp, err := os.Create(actualOutputFile)
 		require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
 		_, err = fp.WriteString(actualOutput)
 		require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
 	}
-	require.Equal(t, string(expectedOutput), actualOutput, "output mismatch for %s, actual output file %q vs expected output file: %q", getDebugMsgWithTestNameAndFormat(testName, format),
+	require.Equal(t, string(expectedOutput), actualOutput, "output mismatch for %s, actual output file %q vs expected output file: %q",
+		getDebugMsgWithTestNameAndFormat(testName, format),
 		actualOutputFile, expectedOutputFile)
 }
 
@@ -79,17 +80,8 @@ func checkErrorContainment(t *testing.T, testName, expectedErrorMsg, actualErrMs
 	if !isErr {
 		errType = "warning"
 	}
-	if !strings.Contains(actualErrMsg, expectedErrorMsg) {
-		t.Fatalf("%s message mismatch for test %q, actual: %q, expected contains: %q", errType, testName, actualErrMsg, expectedErrorMsg)
-	}
-	require.Contains(t, actualErrMsg, expectedErrorMsg, "test: %q", testName)
-}
-
-func checkExtractedLineContainment(t *testing.T, testName, extractedLine, actualOutput string) {
-	if strings.Contains(actualOutput, extractedLine) {
-		t.Fatalf("test: %q, output should not contain %q", testName, extractedLine)
-	}
-	require.NotContains(t, actualOutput, extractedLine, "test: %q", testName)
+	require.Contains(t, actualErrMsg, expectedErrorMsg, "%s message mismatch for test %q, actual: %q, expected contains: %q",
+		errType, testName, actualErrMsg, expectedErrorMsg)
 }
 
 // TestConnList tests the output of ConnlistFromDirPath() for valid input resources
@@ -544,7 +536,7 @@ func TestNotContainedOutputLines(t *testing.T) {
 			require.Nil(t, err, "test: %q", tt.name)
 			output, err := analyzer.ConnectionsListToString(res)
 			require.Nil(t, err, "test: %q", tt.name)
-			checkExtractedLineContainment(t, tt.name, tt.extractedLineExample, output)
+			require.NotContains(t, output, tt.extractedLineExample, "test: %q, output should not contain %q", tt.name, tt.extractedLineExample)
 		})
 	}
 }
