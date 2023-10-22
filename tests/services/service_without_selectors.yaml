@@ -5,7 +5,7 @@ metadata:
   labels:
     component: apiserver
     provider: kubernetes
-  name: kubernetes
+  name: svc-without-selector
   namespace: default
   resourceVersion: "214"
   uid: 341d9e55-7c46-4072-b0b1-a521da5cc812
