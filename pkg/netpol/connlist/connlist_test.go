@@ -52,17 +52,16 @@ func checkActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 	expectedOutputFile := filepath.Join(getDirPathFromDirName(dirName), expectedOutputFileName)
 	expectedOutput, err := os.ReadFile(expectedOutputFile)
 	require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
+	actualOutputFile := filepath.Join(getDirPathFromDirName(dirName), actualOutputFileName)
 	if string(expectedOutput) != actualOutput {
-		// generate actual output file
-		actualOutputFile := filepath.Join(getDirPathFromDirName(dirName), actualOutputFileName)
+		// generate actual output file		
 		fp, err := os.Create(actualOutputFile)
 		require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
 		_, err = fp.WriteString(actualOutput)
 		require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
-		t.Fatalf("output mismatch for %s, actual output file %q vs expected output file: %q", getDebugMsgWithTestNameAndFormat(testName, format),
-			actualOutputFile, expectedOutputFile)
 	}
-	require.Equal(t, string(expectedOutput), actualOutput, getDebugMsgWithTestNameAndFormat(testName, format))
+	require.Equal(t, string(expectedOutput), actualOutput, "output mismatch for %s, actual output file %q vs expected output file: %q", getDebugMsgWithTestNameAndFormat(testName, format),
+		actualOutputFile, expectedOutputFile)
 }
 
 // helping func - if focus workload is not empty append it to ConnlistAnalyzerOption list
