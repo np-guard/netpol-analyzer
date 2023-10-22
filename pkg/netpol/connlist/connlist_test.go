@@ -34,7 +34,7 @@ func getConnlistFromDirPathRes(opts []ConnlistAnalyzerOption, dirName string) (*
 func verifyConnlistAnalyzeOutputVsExpectedOutput(t *testing.T, analyzerOptions []ConnlistAnalyzerOption, dirName,
 	expectedOutputFileName, testName, format string) {
 	analyzer, res, err := getConnlistFromDirPathRes(analyzerOptions, dirName)
-	require.Nil(t, err, getDebugMsgWithTestNameAndFormat)
+	require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
 	output, err := analyzer.ConnectionsListToString(res)
 	require.Nil(t, err, getDebugMsgWithTestNameAndFormat(testName, format))
 	checkActualVsExpectedOutputMatch(t, testName, dirName, expectedOutputFileName, output, format)
