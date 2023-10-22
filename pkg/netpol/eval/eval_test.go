@@ -1038,6 +1038,12 @@ func addNewPod(namespace, name string, labels map[string]string) (*v1.Pod, error
 	return podObj, nil
 }
 
+func writeRes(res, fileName string) {
+	if err := common.WriteToFile(res, fileName); err != nil {
+		fmt.Printf("error writing to file: %v", err)
+	}
+}
+
 func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) error {
 	objectsList, processingErrs := scanner.FilesToObjectsList(path)
 	if len(processingErrs) > 0 {
@@ -1169,13 +1175,9 @@ func TestGeneralPerformance(t *testing.T) {
 
 		pe.ClearResources()
 	}
-	if err := common.WriteToFile(allResStr, "test_all.txt"); err != nil {
-		fmt.Printf("error writing to file: %v", err)
-	}
+	writeRes(allResStr, "test_all.txt")
 	for funcName, res := range allResStrPerFunc {
-		if err := common.WriteToFile(res, "all_res_"+funcName+".txt"); err != nil {
-			fmt.Printf("error writing to file: %v", err)
-		}
+		writeRes(res, "all_res_"+funcName+".txt")
 	}
 	resAllFuncNumcallsPerSec := ""
 	for n, resMap := range allResPerFuncAndNetpolLimit {
@@ -1185,9 +1187,7 @@ func TestGeneralPerformance(t *testing.T) {
 		}
 		resAllFuncNumcallsPerSec += "\n"
 	}
-	if err := common.WriteToFile(resAllFuncNumcallsPerSec, "all_res_all.txt"); err != nil {
-		fmt.Printf("error writing to file: %v", err)
-	}
+	writeRes(resAllFuncNumcallsPerSec, "all_res_all.txt")
 }
 
 func TestFromFiles2(t *testing.T) {
@@ -1240,9 +1240,7 @@ func TestFromFiles2(t *testing.T) {
 		allResStr += fmt.Sprintf("%v, %s\n", i, runtime)
 	}
 	/*// allResStr += fmt.Sprintf("total runtime: %s\n", elapsed)*/
-	if err := common.WriteToFile(allResStr, "test_check_if_allowed_func.txt"); err != nil {
-		fmt.Printf("error writing to file: %v", err)
-	}
+	writeRes(allResStr, "test_check_if_allowed_func.txt")
 }
 
 func TestFromFiles(t *testing.T) {
@@ -1282,9 +1280,7 @@ func TestFromFiles(t *testing.T) {
 	for i, runtime := range runtimes {
 		allResStr += fmt.Sprintf("%v, %s\n", i, runtime)
 	}
-	if err := common.WriteToFile(allResStr, "test_all_allowed_conns_func.txt"); err != nil {
-		fmt.Printf("error writing to file: %v", err)
-	}
+	writeRes(allResStr, "test_all_allowed_conns_func.txt")
 }
 
 func TestNew(t *testing.T) {
