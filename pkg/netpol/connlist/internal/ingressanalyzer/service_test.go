@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
@@ -20,7 +21,7 @@ const servicesDirName = "services"
 func TestServiceMappingToPods(t *testing.T) {
 	t.Parallel()
 	scanner := scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir, false)
-	servicesDir := filepath.Join(getTestsDir(), servicesDirName)
+	servicesDir := filepath.Join(testutils.GetTestsDirFromInternalPkg(), servicesDirName)
 	cases := []struct {
 		name                             string
 		serviceName                      string
