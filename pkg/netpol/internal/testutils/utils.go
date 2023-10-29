@@ -22,6 +22,12 @@ func GetTestsDir() string {
 	return res
 }
 
+func GetTestsDirFromInternalPkg() string {
+	currentDir, _ := os.Getwd()
+	res := filepath.Join(currentDir, dirLevelUp, dirLevelUp, dirLevelUp, dirLevelUp, dirLevelUp, testsDirName)
+	return res
+}
+
 // GetDebugMsgWithTestNameAndFormat: testing helping func - writes debug message for good path tests
 func GetDebugMsgWithTestNameAndFormat(testName, format string) string {
 	return fmt.Sprintf("test: %q, output format: %q", testName, format)
