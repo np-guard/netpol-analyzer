@@ -2,7 +2,6 @@ package diff
 
 import (
 	"errors"
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -12,18 +11,29 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 )
 
-type testEntry struct {
-	firstDirName  string
-	secondDirName string
-	formats       []string
-}
-
 const expectedOutputFilePrefix = "diff_output_from_"
 
 var allFormats = []string{common.TextFormat, common.MDFormat, common.CSVFormat, common.DOTFormat}
 
+// helping func constructs diffAnalyzer with required options and computes the connectivity diff from the dir paths
+func constructAnalyzerAndGetDiffFromDirPaths(opts []DiffAnalyzerOption, dir1, dir2 string) (*DiffAnalyzer, ConnectivityDiff, error) {
+	diffAnalyzer := NewDiffAnalyzer(opts...)
+
+	firstDirPath := filepath.Join(testutils.GetTestsDir(), dir1)
+	secondDirPath := filepath.Join(testutils.GetTestsDir(), dir2)
+	connsDiff, err := diffAnalyzer.ConnDiffFromDirPaths(firstDirPath, secondDirPath)
+
+	return diffAnalyzer, connsDiff, err
+}
+
+// TestDiff tests the output of ConnDiffFromDirPaths() for valid input resources
 func TestDiff(t *testing.T) {
-	testingEntries := []testEntry{
+	t.Parallel()
+	cases := []struct {
+		firstDirName  string
+		secondDirName string
+		formats       []string
+	}{
 		{
 			// description:
 			// **changed netpols: default/frontend-netpol, default/adservice-netpol, default/checkoutservice-netpol,
@@ -275,161 +285,158 @@ func TestDiff(t *testing.T) {
 			formats:       []string{common.DefaultFormat},
 		},
 	}
-
-	for _, entry := range testingEntries {
-		firstDirPath := filepath.Join(testutils.GetTestsDir(), entry.firstDirName)
-		secondDirPath := filepath.Join(testutils.GetTestsDir(), entry.secondDirName)
-		for _, format := range entry.formats {
-			expectedOutputFileName := expectedOutputFilePrefix + entry.firstDirName + "." + format
-			expectedOutputFilePath := filepath.Join(secondDirPath, expectedOutputFileName)
-
-			diffAnalyzer := NewDiffAnalyzer(WithOutputFormat(format), WithIncludeJSONManifests())
-			connsDiff, err := diffAnalyzer.ConnDiffFromDirPaths(firstDirPath, secondDirPath)
-			require.Empty(t, err)
-			actualOutput, err := diffAnalyzer.ConnectivityDiffToString(connsDiff)
-			require.Empty(t, err)
-			expectedOutputStr, err := os.ReadFile(expectedOutputFilePath)
-			require.Empty(t, err)
-			require.Equal(t, string(expectedOutputStr), actualOutput)
-		}
+	for _, tt := range cases {
+		tt := tt
+		testName := "diff_between_" + tt.secondDirName + "_and_" + tt.firstDirName
+		t.Run(testName, func(t *testing.T) {
+			t.Parallel()
+			for _, format := range tt.formats {
+				expectedOutputFileName := expectedOutputFilePrefix + tt.firstDirName + "." + format
+				analyzerOpts := []DiffAnalyzerOption{WithOutputFormat(format), WithIncludeJSONManifests()}
+				diffAnalyzer, connsDiff, err := constructAnalyzerAndGetDiffFromDirPaths(analyzerOpts, tt.firstDirName, tt.secondDirName)
+				require.Nil(t, err, testutils.GetDebugMsgWithTestNameAndFormat(testName, format))
+				actualOutput, err := diffAnalyzer.ConnectivityDiffToString(connsDiff)
+				require.Nil(t, err, testutils.GetDebugMsgWithTestNameAndFormat(testName, format))
+				testutils.CheckActualVsExpectedOutputMatch(t, testName, tt.secondDirName, expectedOutputFileName, actualOutput, format)
+			}
+		})
 	}
 }
 
-type testErrEntry struct {
-	name                           string
-	dir1                           string
-	dir2                           string
-	firstErrStr                    string
-	isFormattingErr                bool
-	format                         string
-	expectedErrNumWithoutStopOnErr int
-	expectedErrNumWithStopOnErr    int
-}
-
-var formattingErrType = &resultFormattingError{} // error returned from getting/writing output format
-
-// constructs diffAnalyzer with required options and computes the connectivity diff from the dir paths
-func constructAnalyzerAndGetDiffFromDirPaths(stopOnErr bool, format, dir1, dir2 string) (*DiffAnalyzer, ConnectivityDiff, error) {
-	diffAnalyzerOptions := []DiffAnalyzerOption{WithIncludeJSONManifests()}
-	if format != "" {
-		diffAnalyzerOptions = append(diffAnalyzerOptions, WithOutputFormat(format))
-	}
-	if stopOnErr {
-		diffAnalyzerOptions = append(diffAnalyzerOptions, WithStopOnError())
-	}
-
-	diffAnalyzer := NewDiffAnalyzer(diffAnalyzerOptions...)
-
-	firstDirPath := filepath.Join(testutils.GetTestsDir(), dir1)
-	secondDirPath := filepath.Join(testutils.GetTestsDir(), dir2)
-	connsDiff, err := diffAnalyzer.ConnDiffFromDirPaths(firstDirPath, secondDirPath)
-
-	return diffAnalyzer, connsDiff, err
-}
-
-// following testing funcs will run on two diff analyzers , one analyzer runs with stopOnFirstError flag, the other without it.
-
-func TestFatalErrors(t *testing.T) {
-	// testing behavior with fatal errors, it always should stop running for both analyzers
-	cases := []testErrEntry{
+// TestDiffAnalyzeFatalErrors tests fatal errors returned while computing the connectivity diff
+func TestDiffAnalyzeFatalErrors(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name             string
+		dir1             string
+		dir2             string
+		errorStrContains string
+	}{
 		{
-			name:            "unsupported format",
-			dir1:            "onlineboutique_workloads",
-			dir2:            "onlineboutique_workloads_changed_netpols",
-			format:          "png",
-			firstErrStr:     "png output format is not supported.",
-			isFormattingErr: true,
+			name:             "first_input_dir_has_netpol_with_invalid_cidr_should_return_fatal_error_of_invalid_CIDR_address",
+			dir1:             filepath.Join("bad_netpols", "subdir1"),
+			dir2:             "ipblockstest",
+			errorStrContains: "network policy default/shippingservice-netpol CIDR error: invalid CIDR address: A",
 		},
 		{
-			name:        "dir 1 with bad netpol - CIDR error",
-			dir1:        filepath.Join("bad_netpols", "subdir1"),
-			dir2:        "ipblockstest",
-			firstErrStr: "network policy default/shippingservice-netpol CIDR error: invalid CIDR address: A",
-		},
-		{
-			name: "dir 2 with bad netpol - label key error",
+			name: "second_input_dir_has_netpol_with_bad_label_key_should_return_fatal_selector_error",
 			dir1: "ipblockstest",
 			dir2: filepath.Join("bad_netpols", "subdir2"),
-			firstErrStr: "network policy default/shippingservice-netpol selector error: key: Invalid value: \"app@b\": " +
+			errorStrContains: "network policy default/shippingservice-netpol selector error: key: Invalid value: \"app@b\": " +
 				"name part must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric" +
 				" character (e.g. 'MyName',  or 'my.name',  or '123-abc', regex used for validation is '([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]')",
 		},
 		{
-			name: "dir 1 with bad netpol - bad rule",
+			name: "first_input_dir_has_netpol_with_invalid_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
 			dir1: filepath.Join("bad_netpols", "subdir3"),
 			dir2: "ipblockstest",
-			firstErrStr: "network policy default/shippingservice-netpol rule NetworkPolicyPeer error: " +
+			errorStrContains: "network policy default/shippingservice-netpol rule NetworkPolicyPeer error: " +
 				"cannot have both IPBlock and PodSelector/NamespaceSelector set",
 		},
 		{
-			name:        "dir 2 with bad netpol - empty rule",
-			dir1:        "ipblockstest",
-			dir2:        filepath.Join("bad_netpols", "subdir4"),
-			firstErrStr: "network policy default/shippingservice-netpol rule NetworkPolicyPeer error: cannot have empty rule peer",
+			name:             "second_input_dir_has_netpol_with_empty_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
+			dir1:             "ipblockstest",
+			dir2:             filepath.Join("bad_netpols", "subdir4"),
+			errorStrContains: "network policy default/shippingservice-netpol rule NetworkPolicyPeer error: cannot have empty rule peer",
 		},
 		{
-			name:        "dir 2 with bad netpol - named port on ipblock error",
-			dir1:        "ipblockstest",
-			dir2:        filepath.Join("bad_netpols", "subdir6"),
-			firstErrStr: "network policy default/shippingservice-netpol named port error: cannot convert named port for an IP destination",
+			name:             "second_input_dir_has_netpol_with_named_port_on_ipblock_peer_should_return_fatal_named_port_error",
+			dir1:             "ipblockstest",
+			dir2:             filepath.Join("bad_netpols", "subdir6"),
+			errorStrContains: "network policy default/shippingservice-netpol named port error: cannot convert named port for an IP destination",
 		},
 		{
-			name:        "dir 1 does not exists",
-			dir1:        filepath.Join("bad_yamls", "subdir3"),
-			dir2:        "ipblockstest",
-			firstErrStr: "was not found",
+			name:             "first_input_dir_does_not_exist_should_return_fatal_error_dir_not_found",
+			dir1:             filepath.Join("bad_yamls", "subdir3"),
+			dir2:             "ipblockstest",
+			errorStrContains: "was not found",
 		},
 		{
-			name: "dir 1 includes illegal pods list",
+			name: "first_input_dir_has_illegal_podlist_pods_with_same_owner_ref_name_has_different_labels_should_return_fatal_error",
 			dir1: "semanticDiff-same-topologies-illegal-podlist",
 			dir2: "semanticDiff-same-topologies-old1",
-			firstErrStr: "Input Pod resources are not supported for connectivity analysis." +
+			errorStrContains: "Input Pod resources are not supported for connectivity analysis." +
 				" Found Pods of the same owner demo/cog-agents but with different set of labels.",
 		},
 	}
-	for _, entry := range cases {
-		diffAnalyzer, connsDiff1, err1 := constructAnalyzerAndGetDiffFromDirPaths(false, entry.format, entry.dir1, entry.dir2)
-		diffAnalyzerStopsOnError, connsDiff2, err2 := constructAnalyzerAndGetDiffFromDirPaths(true, entry.format, entry.dir1, entry.dir2)
-
-		if !entry.isFormattingErr {
-			require.Nil(t, connsDiff1, "test: %s", entry.name)
-			require.Nil(t, connsDiff2, "test: %s", entry.name)
-			require.Contains(t, err1.Error(), entry.firstErrStr, "test: %s", entry.name)
-			require.Contains(t, err2.Error(), entry.firstErrStr, "test: %s", entry.name)
-			continue
-		}
-
-		// else - formatting error , try to write result to string to get the fatal err
-		_, err1 = diffAnalyzer.ConnectivityDiffToString(connsDiff1)
-		_, err2 = diffAnalyzerStopsOnError.ConnectivityDiffToString(connsDiff2)
-		diffErrors1 := diffAnalyzer.Errors()
-		require.Equal(t, err1.Error(), entry.firstErrStr, "test: %s", entry.name)
-		require.Equal(t, err2.Error(), entry.firstErrStr, "test: %s", entry.name)
-		require.True(t, errors.As(diffErrors1[0].Error(), &formattingErrType), "test: %s", entry.name)
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			analyzerOpts := []DiffAnalyzerOption{WithIncludeJSONManifests()}
+			_, connsDiff, err := constructAnalyzerAndGetDiffFromDirPaths(analyzerOpts, tt.dir1, tt.dir2)
+			require.Empty(t, connsDiff, "test: %q", tt.name)
+			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error(), true)
+		})
 	}
 }
 
-func TestSevereErrors(t *testing.T) {
-	// testing behavior with severe error, analyzer without stopOnError will continue running regularly,
-	// analyzer with stopOnError will stop on first severe error and return empty result
-	cases := []testErrEntry{
+// TestDiffOutputFatalErrors tests fatal errors returned while writing the diff to string in given output format
+func TestDiffOutputFatalErrors(t *testing.T) {
+	t.Parallel()
+	formattingErrType := &resultFormattingError{} // error returned from getting/writing output format
+	cases := []struct {
+		name             string
+		dir1             string
+		dir2             string
+		format           string
+		errorStrContains string
+	}{
+		{
+			name:             "giving_unsupported_output_format_option_should_return_fatal_error",
+			dir1:             "onlineboutique_workloads",
+			dir2:             "onlineboutique_workloads_changed_netpols",
+			format:           "png",
+			errorStrContains: "png output format is not supported.",
+		},
+	}
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			analyzerOpts := []DiffAnalyzerOption{WithOutputFormat(tt.format)}
+			analyzer, connsDiff, err := constructAnalyzerAndGetDiffFromDirPaths(analyzerOpts, tt.dir1, tt.dir2)
+			require.Nil(t, err, "test: %q", tt.name)
+			output, err := analyzer.ConnectivityDiffToString(connsDiff)
+			require.Empty(t, output, "test: %q", tt.name)
+			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error(), true)
+			// check error type
+			diffErrors := analyzer.Errors()
+			require.True(t, errors.As(diffErrors[0].Error(), &formattingErrType), "test: %q, mismatch in error type, should get %v",
+				tt.name, &formattingErrType)
+		})
+	}
+}
+
+// TestDiffAnalyzerSevereErrors tests diff analyzer behavior with severe error, analyzer without stopOnError
+// will continue running regularly, analyzer with stopOnError will stop on first severe error and return empty result
+func TestDiffAnalyzerSevereErrors(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name                           string
+		dir1                           string
+		dir2                           string
+		firstErrStrContains            string
+		expectedErrNumWithoutStopOnErr int
+		expectedErrNumWithStopOnErr    int
+	}{
 		{
 			// description: only first dir has severe error ,
 			// it also has a warning which was captured before the severe error so expected to appear in both
-			name:                           "dir 1 has no k8s resources",
+			name:                           "first_input_dir_has_no_k8s_resources_should_return_severe_error",
 			dir1:                           filepath.Join("bad_yamls", "not_a_k8s_resource.yaml"),
 			dir2:                           "ipblockstest", // no warnings, nor any severe/fatal errors
-			firstErrStr:                    "Yaml document is not a K8s resource",
+			firstErrStrContains:            "Yaml document is not a K8s resource",
 			expectedErrNumWithoutStopOnErr: 2,
 			expectedErrNumWithStopOnErr:    2,
 		},
 		{
 			// description: only first dir has severe error , it also has a warning
 			// the severe error is captured first, so we expect not to see the warning when running with stopOnError as it stops running
-			name:                           "dir 1 has malformed yaml",
+			name:                           "input_file_in_first_dir_has_malformed_yaml_doc_should_return_severe_error",
 			dir1:                           filepath.Join("bad_yamls", "document_with_syntax_error.yaml"),
 			dir2:                           "ipblockstest", // no warnings, nor any severe/fatal errors
-			firstErrStr:                    "YAML document is malformed",
+			firstErrStrContains:            "YAML document is malformed",
 			expectedErrNumWithoutStopOnErr: 2,
 			expectedErrNumWithStopOnErr:    1,
 		},
@@ -437,70 +444,80 @@ func TestSevereErrors(t *testing.T) {
 			// dirty directory, includes 3 severe errors
 			// when running without stopOnError we expect to see 6 severe errors (3 for each dir flag)
 			// but when running with stopOnError we expect to see only 1 , and then stops
-			name:                           "both dirs return severe errors on their malformed yaml files",
+			name:                           "both_input_dirs_contain_malformed_yaml_files_should_return_severe_errors",
 			dir1:                           "dirty",
 			dir2:                           "dirty",
-			firstErrStr:                    "YAML document is malformed",
+			firstErrStrContains:            "YAML document is malformed",
 			expectedErrNumWithoutStopOnErr: 6,
 			expectedErrNumWithStopOnErr:    1,
 		},
 	}
-	for _, entry := range cases {
-		diffAnalyzer, _, err1 := constructAnalyzerAndGetDiffFromDirPaths(false, entry.format, entry.dir1, entry.dir2)
-		require.Nil(t, err1, "test: %s", entry.name) // no fatal err
-		diffErrors1 := diffAnalyzer.Errors()
-		require.Equal(t, len(diffErrors1), entry.expectedErrNumWithoutStopOnErr, "test: %s", entry.name)
-		require.Contains(t, diffErrors1[0].Error().Error(), entry.firstErrStr, "test: %s", entry.name)
-
-		// run with stopOnError
-		diffAnalyzerStopsOnError, connsDiff2, err2 := constructAnalyzerAndGetDiffFromDirPaths(true, entry.format, entry.dir1, entry.dir2)
-		require.Nil(t, err2, "test: %s", entry.name)         // no fatal err
-		require.Empty(t, connsDiff2, "test: %s", entry.name) // when running with severe error and stopOnError the result must be empty
-		diffErrors2 := diffAnalyzerStopsOnError.Errors()
-		require.Equal(t, len(diffErrors2), entry.expectedErrNumWithStopOnErr, "test: %s", entry.name)
-		require.Contains(t, diffErrors2[0].Error().Error(), entry.firstErrStr, "test: %s", entry.name)
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			analyzerOpts1 := []DiffAnalyzerOption{}
+			analyzerOpts2 := []DiffAnalyzerOption{WithStopOnError()}
+			// severe is not fatal, thus not returned
+			// first analyzer:
+			analyzer, _, err1 := constructAnalyzerAndGetDiffFromDirPaths(analyzerOpts1, tt.dir1, tt.dir2)
+			diffErrors1 := analyzer.Errors()
+			require.Nil(t, err1, "test: %q", tt.name)
+			require.Equal(t, tt.expectedErrNumWithoutStopOnErr, len(diffErrors1),
+				"test: %q, mismatch in number of errors, expected %d, got %d", tt.name, tt.expectedErrNumWithoutStopOnErr, len(diffErrors1))
+			testutils.CheckErrorContainment(t, tt.name, tt.firstErrStrContains, diffErrors1[0].Error().Error(), true)
+			// second analyzer (with stopOnError):
+			analyzerWithStopOnError, res, err2 := constructAnalyzerAndGetDiffFromDirPaths(analyzerOpts2, tt.dir1, tt.dir2)
+			diffErrors2 := analyzerWithStopOnError.Errors()
+			require.Nil(t, err2, "test: %q", tt.name)
+			require.Empty(t, res, "test: %q", tt.name) // the run stopped on first severe error, no result computed
+			require.Equal(t, tt.expectedErrNumWithStopOnErr, len(diffErrors2),
+				"test: %q, mismatch in number of errors, expected %d, got %d", tt.name, tt.expectedErrNumWithStopOnErr, len(diffErrors2))
+			testutils.CheckErrorContainment(t, tt.name, tt.firstErrStrContains, diffErrors2[0].Error().Error(), true)
+		})
 	}
 }
 
-func TestWarningsOnly(t *testing.T) {
-	// testing behavior with warnings, both analyzer (with and without stopOnError) are expected to run regularly
-	// and produce a result, we expect to see same number in DiffErrors array (warnings in our case) for both analyzers
-	cases := []testErrEntry{
+// TestDiffAnalyzerWarnings tests diff analyzer behavior when there are warning messages - expected to run regularly
+func TestDiffAnalyzerWarnings(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name                string
+		dir1                string
+		dir2                string
+		firstErrStrContains string
+	}{
 		{
-			name:        "dir 1 warning, has no yamls",
-			dir1:        filepath.Join("bad_yamls", "subdir2"),
-			dir2:        "ipblockstest",
-			firstErrStr: "no yaml files found",
-		},
-
-		{
-			name:        "dir 1 warning, has no netpols",
-			dir1:        "k8s_ingress_test",
-			dir2:        "k8s_ingress_test_new",
-			firstErrStr: "no relevant Kubernetes network policy resources found",
+			name:                "first_input_dir_with_no_yamls_should_get_warnings_no_yamls_and_no_k8s_resources",
+			dir1:                filepath.Join("bad_yamls", "subdir2"),
+			dir2:                "ipblockstest",
+			firstErrStrContains: "no yaml files found",
 		},
 		{
-			name: "dir 2 warning, ingress conns are blocked by netpols",
+			name:                "first_input_dir_has_no_netpols_should_get_no_relevant_k8s_policies_found",
+			dir1:                "k8s_ingress_test",
+			dir2:                "k8s_ingress_test_new",
+			firstErrStrContains: "no relevant Kubernetes network policy resources found",
+		},
+		{
+			name: "in_second_input_dir_network_policies_block_ingress_conns_to_a_workload_should_get_warning_msg",
 			dir1: "acs-security-demos",
 			dir2: "acs-security-demos-new",
-			firstErrStr: "Route resource frontend/asset-cache specified workload frontend/asset-cache[Deployment] as a backend," +
+			firstErrStrContains: "Route resource frontend/asset-cache specified workload frontend/asset-cache[Deployment] as a backend," +
 				" but network policies are blocking ingress connections from an arbitrary in-cluster source to this workload.",
 		},
 	}
-
-	for _, entry := range cases {
-		diffAnalyzer, connsDiff1, err1 := constructAnalyzerAndGetDiffFromDirPaths(false, entry.format, entry.dir1, entry.dir2)
-		require.Nil(t, err1, "test: %s", entry.name)          // no fatal error
-		require.NotNil(t, connsDiff1, "test: %s", entry.name) // produced connectivityDiff
-
-		diffAnalyzerStopsOnError, connsDiff2, err2 := constructAnalyzerAndGetDiffFromDirPaths(true, entry.format, entry.dir1, entry.dir2)
-		require.Nil(t, err2, "test: %s", entry.name)          // no fatal error
-		require.NotNil(t, connsDiff2, "test: %s", entry.name) // produced connectivityDiff
-
-		diffErrors1 := diffAnalyzer.Errors()
-		diffErrors2 := diffAnalyzerStopsOnError.Errors()
-		require.Equal(t, len(diffErrors1), len(diffErrors2), "test: %s", entry.name)
-		require.Contains(t, diffErrors1[0].Error().Error(), entry.firstErrStr, "test: %s", entry.name)
-		require.Contains(t, diffErrors2[0].Error().Error(), entry.firstErrStr, "test: %s", entry.name)
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			analyzerOpts := []DiffAnalyzerOption{}
+			analyzer, connsDiff, err := constructAnalyzerAndGetDiffFromDirPaths(analyzerOpts, tt.dir1, tt.dir2)
+			require.NotNil(t, connsDiff, "test: %q", tt.name)
+			require.Nil(t, err, "test: %q", tt.name)
+			diffErrs := analyzer.Errors()
+			require.GreaterOrEqual(t, len(diffErrs), 1, "test: %q", tt.name) // at least 1 warning
+			testutils.CheckErrorContainment(t, tt.name, tt.firstErrStrContains, diffErrs[0].Error().Error(), false)
+		})
 	}
 }
