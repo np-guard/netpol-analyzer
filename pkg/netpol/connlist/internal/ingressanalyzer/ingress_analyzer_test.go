@@ -1,14 +1,12 @@
 package ingressanalyzer
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
-
-	"github.com/stretchr/testify/require"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
@@ -16,28 +14,64 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
-// global scanner object for testing
-var scanner = scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir, false)
-
-func TestIngressAnalyzerWithRoutes(t *testing.T) {
-	routesNamespace := "frontend"
-	routeNameExample := "webapp"
-	path := filepath.Join(getTestsDir(), "acs_security_frontend_demos")
+// helping func - scans the directory objects and returns the ingress analyzer built from them
+func getIngressAnalyzerFromDirObjects(t *testing.T, testName, dirName string, processingErrsNum int) *IngressAnalyzer {
+	scanner := scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir, false)
+	path := filepath.Join(testutils.GetTestsDirFromInternalPkg(), dirName)
 	objects, processingErrs := scanner.FilesToObjectsList(path)
-	require.Empty(t, processingErrs)
+	require.Len(t, processingErrs, processingErrsNum, "test: %q, expected %d processing errors but got %d",
+		testName, processingErrsNum, len(processingErrs))
 	pe, err := eval.NewPolicyEngineWithObjects(objects)
-	require.Empty(t, err)
+	require.Empty(t, err, "test: %q", testName)
 	ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger())
-	require.Empty(t, err)
-	// routes map includes 1 namespace
-	require.Len(t, ia.routesToServicesMap, 1)
-	// the routes namespace includes 2 different routes
-	require.Len(t, ia.routesToServicesMap[routesNamespace], 2)
-	// each route is mapped to 1 service - check 1 for example
-	require.Len(t, ia.routesToServicesMap[routesNamespace][routeNameExample], 1)
+	require.Empty(t, err, "test: %q", testName)
+	return ia
 }
 
-type ingressToPod struct {
+func TestRouteMappingToServices(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name                               string
+		routeName                          string
+		routeNamespace                     string
+		dirName                            string
+		processingErrorsNum                int
+		expectedLengthOfRouteToServicesMap int
+		expectedNumOfRoutesInNamespace     int
+		expectedNumOfRouteServices         int
+	}{
+		{
+			routeName:                          "webapp",
+			routeNamespace:                     "frontend",
+			dirName:                            "acs_security_frontend_demos",
+			processingErrorsNum:                0,
+			expectedLengthOfRouteToServicesMap: 1,
+			expectedNumOfRoutesInNamespace:     2,
+			expectedNumOfRouteServices:         1,
+		},
+	}
+	for _, tt := range cases {
+		tt := tt
+		testName := "route_" + tt.routeNamespace + "_" + tt.routeName
+		t.Run(testName, func(t *testing.T) {
+			t.Parallel()
+			ia := getIngressAnalyzerFromDirObjects(t, testName, tt.dirName, tt.processingErrorsNum)
+			require.Len(t, ia.routesToServicesMap, tt.expectedLengthOfRouteToServicesMap,
+				"test %q, mismatch in RouteToServicesMap length, expected %d, got %d", tt.name, tt.expectedLengthOfRouteToServicesMap,
+				len(ia.routesToServicesMap))
+			require.Len(t, ia.routesToServicesMap[tt.routeNamespace], tt.expectedNumOfRoutesInNamespace,
+				"test %q, mismatch in number of routes in namespace %q, expected %d, got %d", tt.name, tt.routeNamespace,
+				tt.expectedNumOfRoutesInNamespace, len(ia.routesToServicesMap[tt.routeNamespace]))
+			require.Len(t, ia.routesToServicesMap[tt.routeNamespace][tt.routeName], tt.expectedNumOfRouteServices,
+				"test %q, mismatch in number of services selected by route %q, expected %d, got %d", tt.name,
+				types.NamespacedName{Name: tt.routeName, Namespace: tt.routeNamespace},
+				tt.expectedNumOfRouteServices, len(ia.routesToServicesMap[tt.routeNamespace][tt.routeName]))
+		})
+	}
+}
+
+// helping struct to store ingress connection data to a specific peer in a directory
+type peerAndIngressConns struct {
 	peerName       string
 	peerNamespace  string
 	peerType       string
@@ -46,18 +80,40 @@ type ingressToPod struct {
 	protocol       string
 }
 
-type testEntry struct {
-	dirpath            string
-	processingErrs     int
-	testIngressEntries []ingressToPod
+// helping func - check if actual ingress connections to a single peer is as expected
+func checkConnsEquality(t *testing.T, testName string, ingressConns map[string]*PeerAndIngressConnSet,
+	expectedIngressToPeer *peerAndIngressConns) {
+	peerStr := types.NamespacedName{Name: expectedIngressToPeer.peerName, Namespace: expectedIngressToPeer.peerNamespace}.String() +
+		"[" + expectedIngressToPeer.peerType + "]"
+	require.Contains(t, ingressConns, peerStr, "test: %q, expected to get ingress connections to peer %q but did not.", testName, peerStr)
+	ingressConnsToPeer := ingressConns[peerStr]
+	require.Equal(t, ingressConnsToPeer.ConnSet.AllConnections(), expectedIngressToPeer.allConnections,
+		"test: %q, mismatch in ingress connections to %q", testName, peerStr)
+	// if all connections is false; check if actual conns are as expected
+	if !expectedIngressToPeer.allConnections {
+		require.Contains(t, ingressConnsToPeer.ConnSet.ProtocolsAndPortsMap(), v1.Protocol(expectedIngressToPeer.protocol),
+			"test: %q, mismatch in ingress connections to peer %q, should contain protocol %q", testName, peerStr, expectedIngressToPeer.protocol)
+		connPortRange := ingressConnsToPeer.ConnSet.ProtocolsAndPortsMap()[v1.Protocol(expectedIngressToPeer.protocol)]
+		require.Len(t, connPortRange, len(expectedIngressToPeer.ports),
+			"test: %q, mismatch in ingress connections to %q", testName, peerStr)
+		for i := range expectedIngressToPeer.ports {
+			require.Equal(t, connPortRange[i].Start(), expectedIngressToPeer.ports[i],
+				"test: %q, ingress connections to peer %q, should not contain port %d", testName, peerStr, connPortRange[i].Start())
+		}
+	}
 }
 
-func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
-	testingEntries := []testEntry{
+func TestIngressAnalyzerConnectivityToPodsInDir(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		dirName             string // used also as the test name
+		processingErrorsNum int
+		ingressToPeers      []*peerAndIngressConns
+	}{
 		{
-			dirpath:        "acs_security_frontend_demos",
-			processingErrs: 0,
-			testIngressEntries: []ingressToPod{
+			dirName:             "acs_security_frontend_demos",
+			processingErrorsNum: 0,
+			ingressToPeers: []*peerAndIngressConns{
 				{
 					peerName:       "asset-cache",
 					peerNamespace:  "frontend",
@@ -77,9 +133,9 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			},
 		},
 		{
-			dirpath:        "route_example_with_target_port",
-			processingErrs: 1, // no network-policies
-			testIngressEntries: []ingressToPod{
+			dirName:             "route_example_with_target_port",
+			processingErrorsNum: 1, // no network-policies
+			ingressToPeers: []*peerAndIngressConns{
 				{
 					peerName:       "workload-with-multiple-ports",
 					peerNamespace:  "routes-world",
@@ -91,9 +147,9 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			},
 		},
 		{
-			dirpath:        "k8s_ingress_test",
-			processingErrs: 1, // no network-policies
-			testIngressEntries: []ingressToPod{
+			dirName:             "k8s_ingress_test",
+			processingErrorsNum: 1, // no network-policies
+			ingressToPeers: []*peerAndIngressConns{
 				{
 					peerName:       "details-v1-79f774bdb9",
 					peerNamespace:  "default",
@@ -105,9 +161,9 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			},
 		},
 		{
-			dirpath:        "demo_app_with_routes_and_ingress",
-			processingErrs: 1, // no network-policies
-			testIngressEntries: []ingressToPod{
+			dirName:             "demo_app_with_routes_and_ingress",
+			processingErrorsNum: 1, // no network-policies
+			ingressToPeers: []*peerAndIngressConns{
 				{
 					peerName:       "hello-world", // this workload is selected by both Ingress and Route objects
 					peerNamespace:  "helloworld",
@@ -135,9 +191,9 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			},
 		},
 		{
-			dirpath:        "one_ingress_multiple_ports",
-			processingErrs: 1, // no network-policies
-			testIngressEntries: []ingressToPod{
+			dirName:             "one_ingress_multiple_ports",
+			processingErrorsNum: 1, // no network-policies
+			ingressToPeers: []*peerAndIngressConns{
 				{
 					peerName:       "ingress-world-multiple-ports",
 					peerNamespace:  "ingressworld",
@@ -149,9 +205,9 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			},
 		},
 		{
-			dirpath:        "one_ingress_multiple_services",
-			processingErrs: 1, // no network-policies
-			testIngressEntries: []ingressToPod{
+			dirName:             "one_ingress_multiple_services",
+			processingErrorsNum: 1, // no network-policies
+			ingressToPeers: []*peerAndIngressConns{
 				{
 					peerName:       "ingress-world-multiple-ports",
 					peerNamespace:  "ingressworld",
@@ -163,9 +219,9 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			},
 		},
 		{
-			dirpath:        "multiple_ingress_objects_with_different_ports",
-			processingErrs: 1, // no network-policies
-			testIngressEntries: []ingressToPod{
+			dirName:             "multiple_ingress_objects_with_different_ports",
+			processingErrorsNum: 1, // no network-policies
+			ingressToPeers: []*peerAndIngressConns{
 				{
 					peerName:       "ingress-world-multiple-ports",
 					peerNamespace:  "ingressworld",
@@ -177,9 +233,9 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			},
 		},
 		{
-			dirpath:        "ingress_example_with_named_port",
-			processingErrs: 1, // no network-policies
-			testIngressEntries: []ingressToPod{
+			dirName:             "ingress_example_with_named_port",
+			processingErrorsNum: 1, // no network-policies
+			ingressToPeers: []*peerAndIngressConns{
 				{
 					peerName:       "hello-deployment",
 					peerNamespace:  "hello",
@@ -191,41 +247,16 @@ func TestIngressAnalyzerConnectivityToAPod(t *testing.T) {
 			},
 		},
 	}
-
-	for _, testEntry := range testingEntries {
-		path := filepath.Join(getTestsDir(), testEntry.dirpath)
-		objects, processingErrs := scanner.FilesToObjectsList(path)
-		require.Len(t, processingErrs, testEntry.processingErrs)
-		pe, err := eval.NewPolicyEngineWithObjects(objects)
-		require.Empty(t, err)
-		ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger())
-		require.Empty(t, err)
-		ingressConns, err := ia.AllowedIngressConnections()
-		require.Empty(t, err)
-		for _, ingressEntry := range testEntry.testIngressEntries {
-			peerStr := types.NamespacedName{Name: ingressEntry.peerName, Namespace: ingressEntry.peerNamespace}.String() +
-				"[" + ingressEntry.peerType + "]"
-			require.Contains(t, ingressConns, peerStr)
-			peerAndConn := ingressConns[peerStr]
-			require.Equal(t, peerAndConn.ConnSet.AllConnections(), ingressEntry.allConnections)
-			if !peerAndConn.ConnSet.AllConnections() {
-				require.Contains(t, peerAndConn.ConnSet.ProtocolsAndPortsMap(), v1.Protocol(ingressEntry.protocol))
-				connPortRange := peerAndConn.ConnSet.ProtocolsAndPortsMap()[v1.Protocol(ingressEntry.protocol)]
-				require.Len(t, connPortRange, len(ingressEntry.ports))
-				for i := range ingressEntry.ports {
-					require.Equal(t, connPortRange[i].Start(), ingressEntry.ports[i])
-				}
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.dirName, func(t *testing.T) {
+			t.Parallel()
+			ia := getIngressAnalyzerFromDirObjects(t, tt.dirName, tt.dirName, tt.processingErrorsNum)
+			ingressConns, err := ia.AllowedIngressConnections()
+			require.Empty(t, err, "test: %q", tt.dirName)
+			for _, peerEntry := range tt.ingressToPeers {
+				checkConnsEquality(t, tt.dirName, ingressConns, peerEntry)
 			}
-		}
+		})
 	}
-}
-
-func getTestsDir() string {
-	currentDir, _ := os.Getwd()
-	// go two levels up since currentDir under internal
-	parentDir := filepath.Dir(filepath.Dir(currentDir))
-	os.Chdir(parentDir)
-	res := testutils.GetTestsDir()
-	os.Chdir(currentDir)
-	return res
 }

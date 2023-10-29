@@ -1,91 +1,97 @@
 package ingressanalyzer
 
 import (
-	"errors"
 	"path/filepath"
 	"testing"
+
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
-type serviceMapping struct {
-	serviceName      string
-	serviceNamespace string
-	numWorkloads     int
-	expectedError    error
-}
+const servicesDirName = "services"
 
+// TestServiceMappingToPods - tests the num of pods selected by a given service if any.
+// not existed services or not supported services (e.g. services without selectors are ignored, thus no pods are selected)
 func TestServiceMappingToPods(t *testing.T) {
-	// existing services to be tested
-	serviceMappingList := []serviceMapping{
+	t.Parallel()
+	scanner := scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir, false)
+	servicesDir := filepath.Join(testutils.GetTestsDirFromInternalPkg(), servicesDirName)
+	cases := []struct {
+		name                             string
+		serviceName                      string
+		serviceNamespace                 string
+		numWorkloadsSelectedByTheService int
+	}{
 		{
-			serviceName:      "demo",
-			serviceNamespace: "default",
-			numWorkloads:     1,
-			expectedError:    nil,
+			name:                             "default/demo_svc_in_services_dir_selects_1_pod",
+			serviceName:                      "demo",
+			serviceNamespace:                 "default",
+			numWorkloadsSelectedByTheService: 1,
 		},
 		{
-			serviceName:      "ingress-nginx-controller",
-			serviceNamespace: "ingress-nginx",
-			numWorkloads:     1,
-			expectedError:    nil,
+			name:                             "ingress-nginx/ingress-nginx-controller_svc_in_services_dir_selects_1_pod",
+			serviceName:                      "ingress-nginx-controller",
+			serviceNamespace:                 "ingress-nginx",
+			numWorkloadsSelectedByTheService: 1,
 		},
 		{
-			serviceName:      "ingress-nginx-controller-admission",
-			serviceNamespace: "ingress-nginx",
-			numWorkloads:     2,
-			expectedError:    nil,
+			name:                             "ingress-nginx/ingress-nginx-controller-admission_svc_exists_and_selects_2_pods",
+			serviceName:                      "ingress-nginx-controller-admission",
+			serviceNamespace:                 "ingress-nginx",
+			numWorkloadsSelectedByTheService: 2,
 		},
 		{
-			serviceName:      "kube-dns",
-			serviceNamespace: "kube-system",
-			numWorkloads:     1,
-			expectedError:    nil,
+			name:                             "kube-system/kube-dns_service_exists_and_selects_1_pod",
+			serviceName:                      "kube-dns",
+			serviceNamespace:                 "kube-system",
+			numWorkloadsSelectedByTheService: 1,
 		},
 		{
-			serviceName:      "no-pods-selected",
-			serviceNamespace: "default",
-			numWorkloads:     0,
-			expectedError:    nil,
+			name:                             "default/no-pods-selected_service_exists_and_selects_no_pods",
+			serviceName:                      "no-pods-selected",
+			serviceNamespace:                 "default",
+			numWorkloadsSelectedByTheService: 0,
 		},
 		{
-			serviceName:      "not-existing-svc",
-			serviceNamespace: "default",
-			numWorkloads:     0,
-			expectedError:    errors.New("service does not exist: default/not-existing-svc"),
+			name:                             "default/not-existing-svc_service_is_not_existing_should_be_ignored",
+			serviceName:                      "not-existing-svc",
+			serviceNamespace:                 "default",
+			numWorkloadsSelectedByTheService: 0,
 		},
 		{
-			serviceName:      "not-existing-svc",
-			serviceNamespace: "not-existing-ns",
-			numWorkloads:     0,
-			expectedError:    errors.New("service does not exist: not-existing-ns/not-existing-svc"),
+			name:                             "not-existing-ns/not-existing-svc_service_is_not_existing_should_be_ignored",
+			serviceName:                      "not-existing-svc",
+			serviceNamespace:                 "not-existing-ns",
+			numWorkloadsSelectedByTheService: 0,
+		},
+		{
+			name:                             "default/svc-without-selector_service_is_without_selectors_then_not_supported_should_be_ignored",
+			serviceName:                      "svc-without-selector",
+			serviceNamespace:                 "default",
+			numWorkloadsSelectedByTheService: 0,
 		},
 	}
-
-	path := filepath.Join(getTestsDir(), "services", "services_with_selectors")
-	objects, processingErrs := scanner.FilesToObjectsList(path)
-	require.Len(t, processingErrs, 1) // no policies
-	require.Len(t, objects, 16)       // found 5 services and 11 pods
-	pe, err := eval.NewPolicyEngineWithObjects(objects)
-	require.Empty(t, err)
-	ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger())
-	require.Empty(t, err)
-
-	for _, serviceMappingItem := range serviceMappingList {
-		require.Len(t, ia.servicesToPortsAndPeersMap[serviceMappingItem.serviceNamespace][serviceMappingItem.serviceName].peers,
-			serviceMappingItem.numWorkloads)
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			objects, processingErrs := scanner.FilesToObjectsList(servicesDir)
+			require.Len(t, processingErrs, 1, "test: %q", tt.name) // no policies
+			require.Len(t, objects, 17, "test: %q", tt.name)       // found 6 services and 11 pods
+			pe, err := eval.NewPolicyEngineWithObjects(objects)
+			require.Empty(t, err, "test: %q", tt.name)
+			ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger())
+			require.Empty(t, err, "test: %q", tt.name)
+			require.Len(t, ia.servicesToPortsAndPeersMap[tt.serviceNamespace][tt.serviceName].peers,
+				tt.numWorkloadsSelectedByTheService, "mismatch for test %q, service %q expected to map %d pods, got %d",
+				tt.name, types.NamespacedName{Name: tt.serviceName, Namespace: tt.serviceNamespace}, tt.numWorkloadsSelectedByTheService,
+				ia.servicesToPortsAndPeersMap[tt.serviceNamespace][tt.serviceName].peers)
+		})
 	}
-}
-
-func TestNotSupportedService(t *testing.T) {
-	path := filepath.Join(getTestsDir(), "services", "services_without_selector")
-	objects, processingErrs := scanner.FilesToObjectsList(path)
-	require.Len(t, objects, 1)        // 1 service object
-	require.Len(t, processingErrs, 2) // no policies nor workloads
-	ia, err := NewIngressAnalyzerWithObjects(objects, nil, logger.NewDefaultLogger())
-	require.Empty(t, err)
-	require.Len(t, ia.servicesToPortsAndPeersMap, 0) // service was ignored
 }
