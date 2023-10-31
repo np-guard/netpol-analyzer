@@ -31,13 +31,6 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
-const (
-	//  The actual ingress controller pod is usually unknown and not available in the input resources for the analysis.
-	// IngressPodName and IngressPodNamespace are used to represent  that pod with those placeholder values for name and namespace.
-	IngressPodName      = "ingress-controller"
-	IngressPodNamespace = "ingress-controller-ns"
-)
-
 type serviceInfo struct {
 	// used to populate routesToServicesMap and k8sIngressToServicesMap with their target services info
 	serviceName string
