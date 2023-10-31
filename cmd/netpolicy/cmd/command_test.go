@@ -77,7 +77,7 @@ func compareActualVsExpectedOutput(t *testing.T, dir, testName, expectedOutputFi
 	actualOutputFile := filepath.Join(getTestsDir(), dir, actualOutputFileName)
 	if string(expectedOutput) != actualOutput {
 		// generate actual file for self check
-		err := writeBufToFile(actualOutputFile, expectedOutput)
+		err := writeBufToFile(actualOutputFile, []byte(actualOutput))
 		require.Nil(t, err, "test: %q", testName)
 	}
 	require.Equal(t, string(expectedOutput), actualOutput,
