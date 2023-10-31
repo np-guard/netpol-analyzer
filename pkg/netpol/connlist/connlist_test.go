@@ -385,7 +385,7 @@ func TestConnlistAnalyzeSevereErrors(t *testing.T) {
 	}{
 		{
 			name:                           "input_file_has_malformed_yaml_doc_should_return_severe_error",
-			dirName:                        filepath.Join("bad_yamls", "document_with_syntax_error.yaml"),
+			dirName:                        filepath.Join("bad_yamls", "document_with_syntax_error"),
 			expectedErrNumWithoutStopOnErr: 2,
 			expectedErrNumWithStopOnErr:    1,
 			firstErrStrContains:            "YAML document is malformed",

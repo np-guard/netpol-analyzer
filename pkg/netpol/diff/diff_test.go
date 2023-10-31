@@ -434,7 +434,7 @@ func TestDiffAnalyzerSevereErrors(t *testing.T) {
 			// description: only first dir has severe error , it also has a warning
 			// the severe error is captured first, so we expect not to see the warning when running with stopOnError as it stops running
 			name:                           "input_file_in_first_dir_has_malformed_yaml_doc_should_return_severe_error",
-			dir1:                           filepath.Join("bad_yamls", "document_with_syntax_error.yaml"),
+			dir1:                           filepath.Join("bad_yamls", "document_with_syntax_error"),
 			dir2:                           "ipblockstest", // no warnings, nor any severe/fatal errors
 			firstErrStrContains:            "YAML document is malformed",
 			expectedErrNumWithoutStopOnErr: 2,

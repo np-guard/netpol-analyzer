@@ -80,7 +80,7 @@ func TestGetYAMLDocumentsFromPath(t *testing.T) {
 }
 
 func TestFilesToObjectsListBadYamlDocument(t *testing.T) {
-	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_yamls", "document_with_syntax_error.yaml")
+	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_yamls", "document_with_syntax_error")
 
 	objs, errs := scanner.FilesToObjectsList(dirPath)
 	require.Len(t, errs, 2)
@@ -99,7 +99,7 @@ func TestFilesToObjectsListBadYamlDocument(t *testing.T) {
 	require.Len(t, objs, 6) // 3 deployments + 3 services
 }
 func TestFilesToObjectsListBadYamlDocumentFailFast(t *testing.T) {
-	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_yamls", "document_with_syntax_error.yaml")
+	dirPath := filepath.Join(testutils.GetTestsDir(), "bad_yamls", "document_with_syntax_error")
 	scannerNew := NewResourcesScanner(logger.NewDefaultLogger(), true, filepath.WalkDir, false)
 	objs, errs := scannerNew.FilesToObjectsList(dirPath)
 	require.Len(t, errs, 1)
@@ -171,8 +171,8 @@ func TestSearchForManifestsNonRecursiveWalk(t *testing.T) {
 	scannerNew := NewResourcesScanner(logger.NewDefaultLogger(), false, nonRecursiveWalk, false)
 	objs, errs := scannerNew.FilesToObjectsList(dirPath)
 
-	require.Len(t, errs, 2) // malformed yaml + not a k8s resource  - errors
-	require.Len(t, objs, 9) // not including obj from subdir4
+	require.Len(t, errs, 1) //  not a k8s resource  - errors
+	require.Len(t, objs, 3) // not including obj from subdir4 and from document_with_syntax_error
 }
 
 func TestNoK8sWorkloadResourcesFoundError(t *testing.T) {
