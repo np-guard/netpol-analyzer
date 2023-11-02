@@ -51,10 +51,14 @@ func (ca *ConnlistAnalyzer) ConnlistFromResourceInfos(info []*resource.Info) ([]
 	objs, fpErrs := scan.ResourceInfoListToK8sObjectsList(info, ca.logger)
 	/*
 		Examples for possible errors (non fatal) returned from this call (ResourceInfoListToK8sObjectsList):
-		(1) (Warning) malformed k8s resource manifest: "in file: tests\malformed_pod_example\pod.yaml, YAML document is malformed: unrecognized type: int32"
-		(2) (Warning) malformed k8s resource manifest: "in file: tests\malformed-pod-example-2\pod_list.json,  YAML document is malformed: cannot restore slice from map"
-		(3) (Warning) no network policy resources found: (tests/malformed_pod_example):  "no relevant Kubernetes network policy resources found"
-		(4) (Error) no workload resources found: (tests/malformed_pod_example/) : "no relevant Kubernetes workload resources found"
+		(1) (Warning) malformed k8s resource manifest: "in file: tests\malformed_pod_example\pod.yaml,
+			 YAML document is malformed: unrecognized type: int32"
+		(2) (Warning) malformed k8s resource manifest: "in file: tests\malformed-pod-example-2\pod_list.json,
+			 YAML document is malformed:cannot restore slice from map"
+		(3) (Warning) no network policy resources found: (tests/malformed_pod_example):
+			"no relevant Kubernetes network policy resources found"
+		(4) (Error) no workload resources found: (tests/malformed_pod_example/) :
+			 "no relevant Kubernetes workload resources found"
 
 		Examples for Log Infos that can be printed from this call:
 		(1) (Info) in file: tests/bad_yamls/irrelevant_k8s_resources.yaml, skipping object with type: IngressClass
@@ -92,10 +96,14 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 		/*
 			Examples for possible errors returned from this call (GetResourceInfos):
 			(1) dir does not exist: "Error: the path "tests/bad_yamls/subdir5" does not exist"
-			(2) empty dir : "Error: error reading [tests/bad_yamls/subdir2/]: recognized file extensions are [.json .yaml .yml]"
-			(3) irrelevant JSON : "GetResourceInfos error: unable to decode "tests\\onlineboutique\\connlist_output.json": json: cannot unmarshal array into Go value of type unstructured.detector"
-			(4) bad JSON/YAML - missing kind : "Error: unable to decode "tests\\malformed-pod-example-4\\pods.json": Object 'Kind' is missing in '{ ... }"
-			(5) YAML doc with syntax error: "error parsing tests/bad_yamls/document_with_syntax_error.yaml: error converting YAML to JSON: yaml: line 19: found character that cannot start any token"
+			(2) empty dir : "Error: error reading [tests/bad_yamls/subdir2/]: recognized file
+			extensions are [.json .yaml .yml]"
+			(3) irrelevant JSON : "GetResourceInfos error: unable to decode "tests\\onlineboutique\\connlist_output.json":
+			 json: cannot unmarshal array into Go value of type unstructured.detector"
+			(4) bad JSON/YAML - missing kind : "Error: unable to decode "tests\\malformed-pod-example-4\\pods.json":
+			Object 'Kind' is missing in '{ ... }"
+			(5) YAML doc with syntax error: "error parsing tests/bad_yamls/document_with_syntax_error.yaml:
+			error converting YAML to JSON: yaml: line 19: found character that cannot start any token"
 
 		*/
 		if len(rList) == 0 || ca.stopOnError {
@@ -162,7 +170,6 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	for _, o := range options {
 		o(ca)
 	}
-	//ca.scanner = scan.NewResourcesScanner(ca.logger, ca.stopOnError, ca.walkFn)
 	return ca
 }
 

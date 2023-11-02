@@ -32,10 +32,14 @@ interfaces to  test:
 /*
 	ConnlistFromResourceInfos:
 	Examples for possible errors (non fatal) returned from this call (ResourceInfoListToK8sObjectsList):
-	(1) (Warning) malformed k8s resource manifest: "in file: tests\malformed_pod_example\pod.yaml, YAML document is malformed: unrecognized type: int32"
-	(2) (Warning) malformed k8s resource manifest: "in file: tests\malformed-pod-example-2\pod_list.json,  YAML document is malformed: cannot restore slice from map"
-	(3) (Warning) no network policy resources found: (tests/malformed_pod_example):  "no relevant Kubernetes network policy resources found"
-	(4) (Error) no workload resources found: (tests/malformed_pod_example/) : "no relevant Kubernetes workload resources found"
+	(1) (Warning) malformed k8s resource manifest: "in file: tests\malformed_pod_example\pod.yaml,
+	YAML document is malformed: unrecognized type: int32"
+	(2) (Warning) malformed k8s resource manifest: "in file: tests\malformed-pod-example-2\pod_list.json,
+	 YAML document is malformed: cannot restore slice from map"
+	(3) (Warning) no network policy resources found: (tests/malformed_pod_example):
+	"no relevant Kubernetes network policy resources found"
+	(4) (Error) no workload resources found: (tests/malformed_pod_example/) :
+	"no relevant Kubernetes workload resources found"
 
 	Examples for Log Infos that can be printed from this call:
 	(1) (Info) in file: tests/bad_yamls/irrelevant_k8s_resources.yaml, skipping object with type: IngressClass
@@ -51,10 +55,14 @@ interfaces to  test:
 	ConnlistFromDirPath:
 	Examples for possible errors returned from this call (GetResourceInfos):
 	(1) dir does not exist: "Error: the path "tests/bad_yamls/subdir5" does not exist"
-	(2) empty dir : "Error: error reading [tests/bad_yamls/subdir2/]: recognized file extensions are [.json .yaml .yml]"
-	(3) irrelevant JSON : "GetResourceInfos error: unable to decode "tests\\onlineboutique\\connlist_output.json": json: cannot unmarshal array into Go value of type unstructured.detector"
-	(4) bad JSON/YAML - missing kind : "Error: unable to decode "tests\\malformed-pod-example-4\\pods.json": Object 'Kind' is missing in '{ ... }"
-	(5) YAML doc with syntax error: "error parsing tests/bad_yamls/document_with_syntax_error.yaml: error converting YAML to JSON: yaml: line 19: found character that cannot start any token"
+	(2) empty dir : "Error: error reading [tests/bad_yamls/subdir2/]: recognized file
+	extensions are [.json .yaml .yml]"
+	(3) irrelevant JSON : "GetResourceInfos error: unable to decode "tests\\onlineboutique\\connlist_output.json":
+	json: cannot unmarshal array into Go value of type unstructured.detector"
+	(4) bad JSON/YAML - missing kind : "Error: unable to decode "tests\\malformed-pod-example-4\\pods.json":
+	 Object 'Kind' is missing in '{ ... }"
+	(5) YAML doc with syntax error: "error parsing tests/bad_yamls/document_with_syntax_error.yaml: error
+	converting YAML to JSON: yaml: line 19: found character that cannot start any token"
 
 */
 
@@ -68,12 +76,12 @@ func TestConnListFromDir(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
-				testName, testInfo, dirPath, expectedOutputFileName, analyzer := prepareTest(tt.testDirName, tt.focusWorkload, format)
-				res, _, err := analyzer.ConnlistFromDirPath(dirPath)
-				require.Nil(t, err, testInfo)
-				output, err := analyzer.ConnectionsListToString(res)
-				require.Nil(t, err, testInfo)
-				testutils.CheckActualVsExpectedOutputMatch(t, testName, tt.testDirName, expectedOutputFileName, output, format)
+				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format)
+				res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
+				require.Nil(t, err, pTest.testInfo)
+				output, err := pTest.analyzer.ConnectionsListToString(res)
+				require.Nil(t, err, pTest.testInfo)
+				testutils.CheckActualVsExpectedOutputMatch(t, pTest.testName, tt.testDirName, pTest.expectedOutputFileName, output, format)
 			}
 		})
 	}
@@ -86,16 +94,17 @@ func TestConnListFromResourceInfos(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
-				testName, testInfo, dirPath, expectedOutputFileName, analyzer := prepareTest(tt.testDirName, tt.focusWorkload, format)
-				infos, _ := manifests.GetResourceInfosFromDirPath([]string{dirPath}, true, false)
-				//require.Empty(t, errs, testInfo) - TODO: add info about expected errors from each test here (these errors do not stop the analysis or affect the output)
-				//more suitable to test this in a separate package (manifests) where  GetResourceInfosFromDirPath is implemented
-				res, _, err := analyzer.ConnlistFromResourceInfos(infos)
-				require.Nil(t, err, testInfo)
-				output, err := analyzer.ConnectionsListToString(res)
-				require.Nil(t, err, testInfo)
+				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format)
+				infos, _ := manifests.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
+				// require.Empty(t, errs, testInfo) - TODO: add info about expected errors
+				// from each test here (these errors do not stop the analysis or affect the output)
+				// more suitable to test this in a separate package (manifests) where  GetResourceInfosFromDirPath is implemented
+				res, _, err := pTest.analyzer.ConnlistFromResourceInfos(infos)
+				require.Nil(t, err, pTest.testInfo)
+				output, err := pTest.analyzer.ConnectionsListToString(res)
+				require.Nil(t, err, pTest.testInfo)
 				// TODO: send testInfo instead of format to CheckActualVsExpectedOutputMatch
-				testutils.CheckActualVsExpectedOutputMatch(t, testName, tt.testDirName, expectedOutputFileName, output, format)
+				testutils.CheckActualVsExpectedOutputMatch(t, pTest.testName, tt.testDirName, pTest.expectedOutputFileName, output, format)
 			}
 		})
 	}
@@ -165,7 +174,12 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 	}
 }
 
-func testFatalErr(t *testing.T, connsRes []Peer2PeerConnection, peersRes []Peer, err error, testName string, errStr string, analyzer *ConnlistAnalyzer) {
+func testFatalErr(t *testing.T,
+	connsRes []Peer2PeerConnection,
+	peersRes []Peer,
+	err error,
+	testName, errStr string,
+	analyzer *ConnlistAnalyzer) {
 	require.Empty(t, connsRes, testName)
 	require.Empty(t, peersRes, testName)
 	testutils.CheckErrorContainment(t, testName, errStr, err.Error(), true)
@@ -173,16 +187,17 @@ func testFatalErr(t *testing.T, connsRes []Peer2PeerConnection, peersRes []Peer,
 	testutils.CheckErrorContainment(t, testName, errStr, analyzer.errors[0].Error().Error(), true)
 }
 
-func getAnalysisResFromAPI(apiName, dirName, focusWorkload string) (analyzer *ConnlistAnalyzer, connsRes []Peer2PeerConnection, peersRes []Peer, err error) {
-	_, _, dirPath, _, analyzer := prepareTest(dirName, focusWorkload, common.DefaultFormat)
+func getAnalysisResFromAPI(apiName, dirName, focusWorkload string) (
+	analyzer *ConnlistAnalyzer, connsRes []Peer2PeerConnection, peersRes []Peer, err error) {
+	pTest := prepareTest(dirName, focusWorkload, common.DefaultFormat)
 	switch apiName {
-	case "ConnlistFromResourceInfos":
-		infos, _ := manifests.GetResourceInfosFromDirPath([]string{dirPath}, true, false)
-		connsRes, peersRes, err = analyzer.ConnlistFromResourceInfos(infos)
-	case "ConnlistFromDirPath":
-		connsRes, peersRes, err = analyzer.ConnlistFromDirPath(dirPath)
+	case ResourceInfosFunc:
+		infos, _ := manifests.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
+		connsRes, peersRes, err = pTest.analyzer.ConnlistFromResourceInfos(infos)
+	case DirPathFunc:
+		connsRes, peersRes, err = pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 	}
-	return analyzer, connsRes, peersRes, err
+	return pTest.analyzer, connsRes, peersRes, err
 }
 
 // severe errors and warnings, common for both interfaces (ConnlistFromDirPath & ConnlistFromResourceInfos)
@@ -193,13 +208,13 @@ func getAnalysisResFromAPI(apiName, dirName, focusWorkload string) (analyzer *Co
 func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		name    string
-		dirName string
-		//expectedErrNumWithoutStopOnErr int
-		//expectedErrNumWithStopOnErr    int
+		name                string
+		dirName             string
 		firstErrStrContains string
 		emptyRes            bool
 		focusWorkload       string
+		/*expectedErrNumWithoutStopOnErr int
+		expectedErrNumWithStopOnErr    int*/
 	}{
 
 		{
@@ -216,7 +231,8 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 		},
 		/*
 			$ ./bin/k8snetpolicy list --dirpath tests/malformed_pod_example/
-			2023/11/02 08:56:16 : err : in file: tests\malformed_pod_example\pod.yaml YAML document is malformed: error for resource with kind: Pod , name: nginx , :  unrecognized type: int32
+			2023/11/02 08:56:16 : err : in file: tests\malformed_pod_example\pod.yaml YAML document is malformed:
+			 error for resource with kind: Pod , name: nginx , :  unrecognized type: int32
 			2023/11/02 08:56:16 : no relevant Kubernetes workload resources found
 			2023/11/02 08:56:16 no relevant Kubernetes network policy resources found
 
@@ -458,7 +474,7 @@ func appendFocusWorkloadOptIfRequired(focusWorkload string) []ConnlistAnalyzerOp
 	return analyzerOptions
 }
 
-func testNameByTestType(dirName, focusWorkload, format string) (testName string, expectedOutputFileName string) {
+func testNameByTestType(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
 	switch {
 	case focusWorkload == "":
 		return dirName, connlistExpectedOutputFileNamePrefix + format
@@ -471,12 +487,21 @@ func testNameByTestType(dirName, focusWorkload, format string) (testName string,
 	return "", ""
 }
 
-func prepareTest(dirName, focusWorkload, format string) (testName, testInfo, dirPath, expectedOutputFileName string, analyzer *ConnlistAnalyzer) {
-	testName, expectedOutputFileName = testNameByTestType(dirName, focusWorkload, format)
-	testInfo = testutils.GetDebugMsgWithTestNameAndFormat(testName, format)
-	analyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload))
-	dirPath = getDirPathFromDirName(dirName)
-	return testName, testInfo, dirPath, expectedOutputFileName, analyzer
+type preparedTest struct {
+	testName               string
+	testInfo               string
+	dirPath                string
+	expectedOutputFileName string
+	analyzer               *ConnlistAnalyzer
+}
+
+func prepareTest(dirName, focusWorkload, format string) preparedTest {
+	res := preparedTest{}
+	res.testName, res.expectedOutputFileName = testNameByTestType(dirName, focusWorkload, format)
+	res.testInfo = testutils.GetDebugMsgWithTestNameAndFormat(res.testName, format)
+	res.analyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload))
+	res.dirPath = getDirPathFromDirName(dirName)
+	return res
 }
 
 // fatal errors for interface ConnectionsListToString
@@ -502,30 +527,30 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			_, _, dirPath, _, analyzer := prepareTest(tt.dirName, "", tt.format)
-			connsRes, peersRes, err := analyzer.ConnlistFromDirPath(dirPath)
+			preparedTest := prepareTest(tt.dirName, "", tt.format)
+			connsRes, peersRes, err := preparedTest.analyzer.ConnlistFromDirPath(preparedTest.dirPath)
 
 			require.Nil(t, err, tt.name)
 			// "unable to decode ... connlist_output.json"
-			require.Equal(t, len(analyzer.errors), 1, "expecting error since builder not able to parse connlist_output.json")
+			require.Equal(t, len(preparedTest.analyzer.errors), 1, "expecting error since builder not able to parse connlist_output.json")
 			require.NotEmpty(t, connsRes, "expecting non-empty analysis res")
 			require.NotEmpty(t, peersRes, "expecting non-empty analysis res")
 
-			output, err := analyzer.ConnectionsListToString(connsRes)
+			output, err := preparedTest.analyzer.ConnectionsListToString(connsRes)
 			require.Empty(t, output, tt.name)
 			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error(), true)
 
 			// re-run the test with new analyzer (to clear the analyzer.errors array )
-			_, _, dirPath, _, analyzer = prepareTest(tt.dirName, "", tt.format)
-			infos, _ := manifests.GetResourceInfosFromDirPath([]string{dirPath}, true, false)
-			connsRes2, peersRes2, err2 := analyzer.ConnlistFromResourceInfos(infos)
+			preparedTest = prepareTest(tt.dirName, "", tt.format)
+			infos, _ := manifests.GetResourceInfosFromDirPath([]string{preparedTest.dirPath}, true, false)
+			connsRes2, peersRes2, err2 := preparedTest.analyzer.ConnlistFromResourceInfos(infos)
 
 			require.Nil(t, err2, tt.name)
-			require.Empty(t, analyzer.errors, "expecting no errors from ConnlistFromResourceInfos")
+			require.Empty(t, preparedTest.analyzer.errors, "expecting no errors from ConnlistFromResourceInfos")
 			require.NotEmpty(t, connsRes2, "expecting non-empty analysis res")
 			require.NotEmpty(t, peersRes2, "expecting non-empty analysis res")
 
-			output, err2 = analyzer.ConnectionsListToString(connsRes)
+			output, err2 = preparedTest.analyzer.ConnectionsListToString(connsRes)
 			require.Empty(t, output, tt.name)
 			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err2.Error(), true)
 		})

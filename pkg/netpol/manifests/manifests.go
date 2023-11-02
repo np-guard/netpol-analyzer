@@ -6,7 +6,7 @@ import (
 )
 
 // GetResourceInfosFromDirPath returns a list of resource.Info objects from input paths to scan
-func GetResourceInfosFromDirPath(paths []string, recursive bool, stopOnErr bool) ([]*resource.Info, []error) {
+func GetResourceInfosFromDirPath(paths []string, recursive, stopOnErr bool) ([]*resource.Info, []error) {
 	fileOption := resource.FilenameOptions{Filenames: paths, Recursive: recursive}
 	builder := getResourceBuilder(stopOnErr, fileOption)
 	resourceResult := builder.Do()

@@ -79,7 +79,6 @@ func NewPolicyEngineWithObjects(objects []scan.K8sObject) (*PolicyEngine, error)
 		case scan.Service, scan.Route, scan.Ingress:
 			continue
 		default:
-			//err = fmt.Errorf("unsupported kind: %s", obj.Kind)
 			fmt.Printf("ignoring resource kind %s", obj.Kind)
 		}
 		if err != nil {

@@ -9,13 +9,14 @@ import (
 	"errors"
 	"path/filepath"
 
+	"k8s.io/cli-runtime/pkg/resource"
+
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
-	"k8s.io/cli-runtime/pkg/resource"
 
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 )
@@ -119,7 +120,8 @@ func (da *DiffAnalyzer) determineConnlistAnalyzerOptionsForDiffAnalysis() []conn
 
 // returns results from calling connlist analyzer ConnlistFromDirPath for the given dir path
 // and appends the connlist analyzers' errors to diffError
-/*func (da *DiffAnalyzer) getConnsAndWorkloadsFromDir(caAnalyzer *connlist.ConnlistAnalyzer, dirPath string) ([]connlist.Peer2PeerConnection,
+/*func (da *DiffAnalyzer) getConnsAndWorkloadsFromDir(
+	caAnalyzer *connlist.ConnlistAnalyzer, dirPath string) ([]connlist.Peer2PeerConnection,
 	[]connlist.Peer, error) {
 	conns, workloads, err := caAnalyzer.ConnlistFromDirPath(dirPath)
 	if err != nil {
@@ -130,8 +132,12 @@ func (da *DiffAnalyzer) determineConnlistAnalyzerOptionsForDiffAnalysis() []conn
 	return conns, workloads, nil
 }*/
 
-func (da *DiffAnalyzer) getConnsAndWorkloadsFromResourceInfos(caAnalyzer *connlist.ConnlistAnalyzer, infos []*resource.Info) ([]connlist.Peer2PeerConnection,
-	[]connlist.Peer, error) {
+func (da *DiffAnalyzer) getConnsAndWorkloadsFromResourceInfos(
+	caAnalyzer *connlist.ConnlistAnalyzer,
+	infos []*resource.Info) (
+	[]connlist.Peer2PeerConnection,
+	[]connlist.Peer,
+	error) {
 	conns, workloads, err := caAnalyzer.ConnlistFromResourceInfos(infos)
 	if err != nil {
 		// append all fatal/severe errors and warnings returned by caAnalyzer then return because of the fatal err
@@ -201,11 +207,11 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 
 		// split err if it's an aggregated error to a list of separate errors
 		for _, err := range errs1 {
-			da.logger.Warnf("GetResourceInfos error: %s", err)                   // print to log the error from builder
+			da.logger.Warnf(err.Error())                                         // print to log the error from builder
 			da.errors = append(da.errors, scan.FailedReadingFile(dirPath1, err)) // add the error from builder to accumulated errors
 		}
 		for _, err := range errs2 {
-			da.logger.Warnf("GetResourceInfos error: %s", err)                   // print to log the error from builder
+			da.logger.Warnf(err.Error())                                         // print to log the error from builder
 			da.errors = append(da.errors, scan.FailedReadingFile(dirPath1, err)) // add the error from builder to accumulated errors
 		}
 	}

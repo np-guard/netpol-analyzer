@@ -47,7 +47,8 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 		err := common.WriteToFile(actualOutput, actualOutputFile)
 		require.Nil(t, err, GetDebugMsgWithTestNameAndFormat(testName, format))
 	}
-	require.Equal(t, cleanStr(string(expectedOutput)), cleanStr(actualOutput), "output mismatch for %s, actual output file %q vs expected output file: %q",
+	require.Equal(t, cleanStr(string(expectedOutput)), cleanStr(actualOutput),
+		"output mismatch for %s, actual output file %q vs expected output file: %q",
 		GetDebugMsgWithTestNameAndFormat(testName, format),
 		actualOutputFile, expectedOutputFile)
 }
