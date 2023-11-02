@@ -205,6 +205,7 @@ func getAnalysisResFromAPI(apiName, dirName, focusWorkload string) (
 
 // TODO: test stopOnErr here?
 
+//nolint:gocritic //temporary commented-out code
 func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 	t.Parallel()
 	cases := []struct {

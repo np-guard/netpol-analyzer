@@ -207,6 +207,7 @@ func addSingleEdgeKey(src, dst, edgeLabel, edgeColor string) string {
 		edgeColor, fontColorStr, edgeColor, legendFontSize, legendArrowSize)
 }
 
+//nolint:revive // temporary work around
 func addEdgeKeyLines() []string { // const
 	res := []string{
 		linePrefix + listOpen + legendRankSourceLine + space + strings.Join(invisibleNodes[0:4], space) + listClose,

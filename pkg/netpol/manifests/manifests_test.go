@@ -12,6 +12,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
 )
 
+//nolint:gocritic //temporary commented-out code
 func TestBasic(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDir(), "basic")
 	rList, errs := GetResourceInfosFromDirPath([]string{dirPath}, true, false)
