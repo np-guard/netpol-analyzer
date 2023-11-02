@@ -18,10 +18,12 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
+	"k8s.io/cli-runtime/pkg/resource"
 
 	ocapiv1 "github.com/openshift/api"
 	ocroutev1 "github.com/openshift/api/route/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/apimachinery/pkg/types"
@@ -90,6 +92,168 @@ type K8sObject struct {
 	Daemonset             *appsv1.DaemonSet
 }
 
+// ResourceInfoListToK8sObjectsList returns a list of K8sObject and list of FileProcessingError objects from analyzing
+// an input list of resource.Info objects. Irrelevant resources are skipped.
+// Possible errs/warnings as FileProcessingError:
+// malformedYamlDoc , noK8sWorkloadResourcesFound, noK8sNetworkPolicyResourcesFound
+func ResourceInfoListToK8sObjectsList(infosList []*resource.Info, logger logger.Logger) ([]K8sObject, []FileProcessingError) {
+	res := make([]K8sObject, 0)
+	fpErrList := []FileProcessingError{}
+	var hasWorkloads, hasNetpols bool
+	for _, info := range infosList {
+		// fpErr can be  malformedYamlDoc
+		k8sObj, fpErr, isWorkload, isNetpol := resourceInfoToK8sObject(info, logger)
+		if fpErr != nil {
+			fpErrList = append(fpErrList, *fpErr)
+			// no need to stop if stopOnErr was set, since malformedYamlDoc is a warning
+		}
+		if k8sObj != nil && k8sObj.Kind != "" {
+			res = append(res, *k8sObj)
+			if isNetpol {
+				hasNetpols = true
+			}
+			if isWorkload {
+				hasWorkloads = true
+			}
+		}
+	}
+	if !hasWorkloads {
+		/*fpErrList = append(fpErrList, *MissingResources(true, false))
+		LogError(logger, MissingResources(true, false))*/
+		fpErrList = appendAndLogNewError(fpErrList, missingResources(true, false), logger)
+	}
+	if !hasNetpols {
+		fpErrList = appendAndLogNewError(fpErrList, missingResources(false, true), logger)
+		/*fpErrList = append(fpErrList, *MissingResources(false, true))
+		LogError(logger, MissingResources(false, true))*/
+	}
+
+	return res, fpErrList
+}
+
+// resourceInfoToK8sObject converts an input resource.Info object to a K8sObject
+func resourceInfoToK8sObject(info *resource.Info, logger logger.Logger) (*K8sObject, *FileProcessingError, bool, bool) {
+	resObject := K8sObject{}
+	if unstructured, ok := info.Object.(*unstructured.Unstructured); ok {
+		resObject.Kind = unstructured.GetKind()
+		var err error
+		switch resObject.Kind {
+		case Deployment:
+			resObject.Deployment = &appsv1.Deployment{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, resObject.Deployment)
+			if err == nil && resObject.Deployment.Namespace == "" {
+				resObject.Deployment.Namespace = "default"
+			}
+		case Daemonset:
+			resObject.Daemonset = &appsv1.DaemonSet{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, resObject.Daemonset)
+			if err == nil && resObject.Daemonset.Namespace == "" {
+				resObject.Daemonset.Namespace = "default"
+			}
+		case ReplicaSet:
+			resObject.Replicaset = &appsv1.ReplicaSet{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, resObject.Replicaset)
+			if err == nil && resObject.Replicaset.Namespace == "" {
+				resObject.Replicaset.Namespace = "default"
+			}
+		case Statefulset:
+			resObject.Statefulset = &appsv1.StatefulSet{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, resObject.Statefulset)
+			if err == nil && resObject.Statefulset.Namespace == "" {
+				resObject.Statefulset.Namespace = "default"
+			}
+		case ReplicationController:
+			resObject.ReplicationController = &v1.ReplicationController{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, resObject.ReplicationController)
+			if err == nil && resObject.ReplicationController.Namespace == "" {
+				resObject.ReplicationController.Namespace = "default"
+			}
+		case Job:
+			resObject.Job = &batchv1.Job{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, resObject.Job)
+			if err == nil && resObject.Job.Namespace == "" {
+				resObject.Job.Namespace = "default"
+			}
+		case CronJob:
+			resObject.CronJob = &batchv1.CronJob{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, resObject.CronJob)
+			if err == nil && resObject.CronJob.Namespace == "" {
+				resObject.CronJob.Namespace = "default"
+			}
+		case Route:
+			resObject.Route = &ocroutev1.Route{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, resObject.Route)
+			if err == nil && resObject.Route.Namespace == "" {
+				resObject.Route.Namespace = "default"
+			}
+		case Ingress:
+			resObject.Ingress = &netv1.Ingress{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, resObject.Ingress)
+			if err == nil && resObject.Ingress.Namespace == "" {
+				resObject.Ingress.Namespace = "default"
+			}
+		case Service:
+			resObject.Service = &v1.Service{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, resObject.Service)
+			if err == nil && resObject.Service.Namespace == "" {
+				resObject.Service.Namespace = "default"
+			}
+		case Pod:
+			resObject.Pod = &v1.Pod{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, resObject.Pod)
+			if err == nil && resObject.Pod.Namespace == "" {
+				resObject.Pod.Namespace = "default"
+			}
+			checkAndUpdatePodStatusIPsFields(resObject.Pod)
+		case Networkpolicy:
+			resObject.Networkpolicy = &netv1.NetworkPolicy{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, resObject.Networkpolicy)
+			if err == nil && resObject.Networkpolicy.Namespace == "" {
+				resObject.Networkpolicy.Namespace = "default"
+			}
+		case Namespace:
+			resObject.Namespace = &v1.Namespace{}
+			err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, resObject.Namespace)
+		default:
+			logger.Infof("in file: %s, skipping object with type: %s", info.Source, unstructured.GetKind())
+			return nil, nil, false, false
+		}
+		if err != nil {
+			kind := unstructured.GetKind()
+			name := unstructured.GetName()
+			namespace := unstructured.GetNamespace()
+			// malformed k8s resource
+			resourceStr := getResourceInfoStr(kind, name, namespace)
+			errStr := "error for resource"
+			if resourceStr != "" {
+				errStr += " with " + resourceStr
+			}
+			fpErr := malformedYamlDoc(info.Source, 0, -1, fmt.Errorf("%s:  %s", errStr, err))
+			logError(logger, fpErr)
+			return nil, fpErr, false, false
+		}
+	}
+
+	isNetpol := resObject.Kind == Networkpolicy
+	isWorkload := workloadKinds[resObject.Kind]
+	return &resObject, nil, isWorkload, isNetpol
+}
+
+// error for resource with kind: , name: ,namespace: ,
+func getResourceInfoStr(kind, name, namespace string) string {
+	res := ""
+	if kind != "" {
+		res += "kind: " + kind + " , "
+	}
+	if name != "" {
+		res += "name: " + name + " , "
+	}
+	if namespace != "" {
+		res += "namespace: " + namespace + " , "
+	}
+	return res
+}
+
 // YAMLDocumentsToObjectsList returns a list of K8sObject parsed from input YAML documents
 func (sc *ResourcesScanner) YAMLDocumentsToObjectsList(documents []YAMLDocumentIntf) ([]K8sObject, []FileProcessingError) {
 	res := make([]K8sObject, 0)
@@ -120,6 +284,16 @@ func (sc *ResourcesScanner) YAMLDocumentsToObjectsList(documents []YAMLDocumentI
 		}
 	}
 	return res, errs
+}
+
+func missingResources(isWorkload bool, isNetpol bool) *FileProcessingError {
+	if isWorkload {
+		return noK8sWorkloadResourcesFound()
+	}
+	if isNetpol {
+		return noK8sNetworkPolicyResourcesFound()
+	}
+	return nil
 }
 
 // YAMLDocumentIntf is an interface for holding YAML document
@@ -280,6 +454,17 @@ var singleResourceK8sKinds = map[string]bool{
 	Ingress:               false,
 }
 
+var workloadKinds = map[string]bool{
+	Pod:                   true,
+	ReplicaSet:            true,
+	Deployment:            true,
+	Statefulset:           true,
+	Daemonset:             true,
+	Job:                   true,
+	CronJob:               true,
+	ReplicationController: true,
+}
+
 func convertJSONInputToYAML(srcBytes []byte) ([]byte, error) {
 	var data interface{}
 	if err := json.Unmarshal(srcBytes, &data); err != nil {
@@ -301,14 +486,14 @@ func convertJSONInputToYAML(srcBytes []byte) ([]byte, error) {
 func (sc *ResourcesScanner) splitByYamlDocuments(mfp string, isYAML bool) ([]YAMLDocumentIntf, []FileProcessingError) {
 	fileBuf, err := os.ReadFile(mfp)
 	if err != nil {
-		return []YAMLDocumentIntf{}, appendAndLogNewError(nil, failedReadingFile(mfp, err), sc.logger)
+		return []YAMLDocumentIntf{}, appendAndLogNewError(nil, FailedReadingFile(mfp, err), sc.logger)
 	}
 
 	if !isYAML && sc.includeJSONManifests {
 		// convert JSON to YAML
 		fileBuf, err = convertJSONInputToYAML(fileBuf)
 		if err != nil {
-			return []YAMLDocumentIntf{}, appendAndLogNewError(nil, failedReadingFile(mfp, err), sc.logger)
+			return []YAMLDocumentIntf{}, appendAndLogNewError(nil, FailedReadingFile(mfp, err), sc.logger)
 		}
 	}
 
@@ -958,7 +1143,7 @@ func logError(l logger.Logger, fpe *FileProcessingError) {
 	logMsg := fpe.Error().Error()
 	location := fpe.Location()
 	if location != "" {
-		logMsg = fmt.Sprintf("%s %s", location, logMsg)
+		logMsg = fmt.Sprintf("err : %s %s", location, logMsg)
 	}
 	if fpe.IsSevere() || fpe.IsFatal() {
 		l.Errorf(errors.New(logMsg), "")

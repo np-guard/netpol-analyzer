@@ -191,7 +191,7 @@ func malformedYamlDoc(filePath string, lineNum, docID int, err error) *FileProce
 	return &FileProcessingError{&MalformedYamlDocError{err}, filePath, lineNum, docID, false, true}
 }
 
-func failedReadingFile(filePath string, err error) *FileProcessingError {
+func FailedReadingFile(filePath string, err error) *FileProcessingError {
 	return &FileProcessingError{&FailedReadingFileError{err}, filePath, 0, -1, false, true}
 }
 

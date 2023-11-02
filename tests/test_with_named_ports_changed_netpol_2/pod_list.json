@@ -28,7 +28,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -59,7 +59,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -90,7 +90,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -120,7 +120,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -151,7 +151,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -182,7 +182,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -213,7 +213,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -244,7 +244,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -273,7 +273,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -304,10 +304,10 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           },
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -337,10 +337,10 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           },
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -370,10 +370,10 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           },
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -403,10 +403,10 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           },
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -436,7 +436,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -467,7 +467,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -498,7 +498,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -529,7 +529,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -559,7 +559,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -590,7 +590,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -620,7 +620,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -650,7 +650,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -805,7 +805,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -999,7 +999,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }

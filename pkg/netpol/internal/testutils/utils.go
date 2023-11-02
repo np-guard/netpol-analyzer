@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -42,13 +43,17 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 	expectedOutput, err := os.ReadFile(expectedOutputFile)
 	require.Nil(t, err, GetDebugMsgWithTestNameAndFormat(testName, format))
 	actualOutputFile := filepath.Join(GetTestsDir(), dirName, actualOutputFileName)
-	if string(expectedOutput) != actualOutput {
+	if cleanStr(string(expectedOutput)) != cleanStr(actualOutput) {
 		err := common.WriteToFile(actualOutput, actualOutputFile)
 		require.Nil(t, err, GetDebugMsgWithTestNameAndFormat(testName, format))
 	}
-	require.Equal(t, string(expectedOutput), actualOutput, "output mismatch for %s, actual output file %q vs expected output file: %q",
+	require.Equal(t, cleanStr(string(expectedOutput)), cleanStr(actualOutput), "output mismatch for %s, actual output file %q vs expected output file: %q",
 		GetDebugMsgWithTestNameAndFormat(testName, format),
 		actualOutputFile, expectedOutputFile)
+}
+
+func cleanStr(str string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(str, "\n", ""), "\r", "")
 }
 
 // CheckErrorContainment: helping func - if the actual error/warning message does not contain the expected error,

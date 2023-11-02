@@ -10,7 +10,6 @@ package connlist
 import (
 	"context"
 	"errors"
-	"path/filepath"
 	"time"
 
 	"sort"
@@ -22,24 +21,96 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 
+	"k8s.io/cli-runtime/pkg/resource"
+
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist/internal/ingressanalyzer"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
+
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 )
 
 // A ConnlistAnalyzer provides API to recursively scan a directory for Kubernetes resources including network policies,
 // and get the list of permitted connectivity between the workloads of the K8s application managed in this directory.
 type ConnlistAnalyzer struct {
-	logger               logger.Logger
-	stopOnError          bool
-	errors               []ConnlistError
-	walkFn               scan.WalkFunction
-	scanner              *scan.ResourcesScanner
-	focusWorkload        string
-	outputFormat         string
-	includeJSONManifests bool
+	logger        logger.Logger
+	stopOnError   bool
+	errors        []ConnlistError
+	focusWorkload string
+	outputFormat  string
+}
+
+// The new interface
+// ConnlistFromResourceInfos returns the allowed-connections list from input slice of resource.Info objects,
+// and the list of all workloads from the parsed resources
+func (ca *ConnlistAnalyzer) ConnlistFromResourceInfos(info []*resource.Info) ([]Peer2PeerConnection, []Peer, error) {
+	// convert resource.Info objects to k8s resources, filter irrelevant resources
+	objs, fpErrs := scan.ResourceInfoListToK8sObjectsList(info, ca.logger)
+	/*
+		Examples for possible errors (non fatal) returned from this call (ResourceInfoListToK8sObjectsList):
+		(1) (Warning) malformed k8s resource manifest: "in file: tests\malformed_pod_example\pod.yaml, YAML document is malformed: unrecognized type: int32"
+		(2) (Warning) malformed k8s resource manifest: "in file: tests\malformed-pod-example-2\pod_list.json,  YAML document is malformed: cannot restore slice from map"
+		(3) (Warning) no network policy resources found: (tests/malformed_pod_example):  "no relevant Kubernetes network policy resources found"
+		(4) (Error) no workload resources found: (tests/malformed_pod_example/) : "no relevant Kubernetes workload resources found"
+
+		Examples for Log Infos that can be printed from this call:
+		(1) (Info) in file: tests/bad_yamls/irrelevant_k8s_resources.yaml, skipping object with type: IngressClass
+
+	*/
+	ca.copyFpErrs(fpErrs)
+	if ca.stopProcessing() {
+		if err := ca.hasFatalError(); err != nil {
+			return nil, nil, err
+		}
+		return []Peer2PeerConnection{}, []Peer{}, nil
+	}
+	/*
+		Example for possible fatal-Errors returned from the call below:
+		(1) (fatal-err) netpol-err: CIDR error (not a valid ipv4 CIDR)
+		(2) additional netpol-err... (e.g. LabelSelector error), and more..
+	*/
+	return ca.connslistFromParsedResources(objs)
+}
+
+func (ca *ConnlistAnalyzer) copyFpErrs(fpErrs []scan.FileProcessingError) {
+	for i := range fpErrs {
+		ca.errors = append(ca.errors, &fpErrs[i])
+	}
+}
+
+// ConnlistFromDirPath returns the allowed connections list from dir path containing k8s resources
+// and list of all workloads from the parsed resources
+func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConnection, []Peer, error) {
+	rList, errs := manifests.GetResourceInfosFromDirPath([]string{dirPath}, true, ca.stopOnError)
+	// instead of parsing the builder's string error to decide on error type (warning/error/fatal-err)
+	// return as fatal error if rList is empty or if stopOnError is on
+	// otherwise try to analyze and return as accumulated error
+	if errs != nil {
+		/*
+			Examples for possible errors returned from this call (GetResourceInfos):
+			(1) dir does not exist: "Error: the path "tests/bad_yamls/subdir5" does not exist"
+			(2) empty dir : "Error: error reading [tests/bad_yamls/subdir2/]: recognized file extensions are [.json .yaml .yml]"
+			(3) irrelevant JSON : "GetResourceInfos error: unable to decode "tests\\onlineboutique\\connlist_output.json": json: cannot unmarshal array into Go value of type unstructured.detector"
+			(4) bad JSON/YAML - missing kind : "Error: unable to decode "tests\\malformed-pod-example-4\\pods.json": Object 'Kind' is missing in '{ ... }"
+			(5) YAML doc with syntax error: "error parsing tests/bad_yamls/document_with_syntax_error.yaml: error converting YAML to JSON: yaml: line 19: found character that cannot start any token"
+
+		*/
+		if len(rList) == 0 || ca.stopOnError {
+			err := utilerrors.NewAggregate(errs)
+			ca.logger.Errorf(err, "Error getting resourceInfos from dir path")
+			ca.errors = append(ca.errors, scan.FailedReadingFile(dirPath, err))
+			return nil, nil, err // return as fatal error if rList is empty or if stopOnError is on
+		}
+		// split err if it's an aggregated error to a list of separate errors
+		for _, err := range errs {
+			ca.logger.Errorf(err, "Error reading file")                         // print to log the error from builder
+			ca.errors = append(ca.errors, scan.FailedReadingFile(dirPath, err)) // add the error from builder to accumulated errors
+		}
+	}
+	return ca.ConnlistFromResourceInfos(rList)
 }
 
 // ValidFormats array of possible values of output format
@@ -66,21 +137,6 @@ func WithStopOnError() ConnlistAnalyzerOption {
 	}
 }
 
-// WithIncludeJSONManifests is a functional option which directs ConnlistAnalyzer to include JSON manifests in the analysis
-func WithIncludeJSONManifests() ConnlistAnalyzerOption {
-	return func(c *ConnlistAnalyzer) {
-		c.includeJSONManifests = true
-	}
-}
-
-// WithWalkFn is a functional option, allowing user to provide their own dir-scanning function.
-// It is relevant when using ConnlistAnalyzer to analyze connectivity from scanned dir resources.
-func WithWalkFn(walkFn scan.WalkFunction) ConnlistAnalyzerOption {
-	return func(c *ConnlistAnalyzer) {
-		c.walkFn = walkFn
-	}
-}
-
 func WithFocusWorkload(workload string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
 		p.focusWorkload = workload
@@ -101,13 +157,12 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 		logger:       logger.NewDefaultLogger(),
 		stopOnError:  false,
 		errors:       []ConnlistError{},
-		walkFn:       filepath.WalkDir,
 		outputFormat: common.DefaultFormat,
 	}
 	for _, o := range options {
 		o(ca)
 	}
-	ca.scanner = scan.NewResourcesScanner(ca.logger, ca.stopOnError, ca.walkFn, ca.includeJSONManifests)
+	//ca.scanner = scan.NewResourcesScanner(ca.logger, ca.stopOnError, ca.walkFn)
 	return ca
 }
 
@@ -135,9 +190,7 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 	return nil
 }
 
-// ConnlistFromDirPath returns the allowed connections list from dir path containing k8s resources
-// and list of all workloads from the parsed resources
-func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConnection, []Peer, error) {
+/*func (ca *ConnlistAnalyzer) ConnlistFromDirPathOld(dirPath string) ([]Peer2PeerConnection, []Peer, error) {
 	objectsList, processingErrs := ca.scanner.FilesToObjectsList(dirPath)
 	for i := range processingErrs {
 		ca.errors = append(ca.errors, &processingErrs[i])
@@ -150,11 +203,11 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 		return []Peer2PeerConnection{}, []Peer{}, nil
 	}
 	return ca.connslistFromParsedResources(objectsList)
-}
+}*/
 
 // ConnlistFromYAMLManifests returns the allowed connections list from input YAML manifests
 // and list of all workloads from the parsed resources
-func (ca *ConnlistAnalyzer) ConnlistFromYAMLManifests(manifests []scan.YAMLDocumentIntf) ([]Peer2PeerConnection, []Peer, error) {
+/*func (ca *ConnlistAnalyzer) ConnlistFromYAMLManifests(manifests []scan.YAMLDocumentIntf) ([]Peer2PeerConnection, []Peer, error) {
 	objectsList, processingErrs := ca.scanner.YAMLDocumentsToObjectsList(manifests)
 	for i := range processingErrs {
 		ca.errors = append(ca.errors, &processingErrs[i])
@@ -168,7 +221,8 @@ func (ca *ConnlistAnalyzer) ConnlistFromYAMLManifests(manifests []scan.YAMLDocum
 	}
 
 	return ca.connslistFromParsedResources(objectsList)
-}
+
+}*/
 
 func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []scan.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
 	// TODO: do we need logger in policyEngine?

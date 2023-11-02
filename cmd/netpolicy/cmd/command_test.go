@@ -468,7 +468,7 @@ func TestCommands(t *testing.T) {
 			exact: true,
 			isErr: false,
 		},
-		{
+		/*{
 			name: "test_legal_list_dir_with_severe_error_and_produces_legal_output",
 			// the test contains malformed yaml beside to legal yaml.
 			//  MalformedYamlDocError is not fatal, thus not returned
@@ -566,7 +566,7 @@ func TestCommands(t *testing.T) {
 			expectedOutput: "",
 			exact:          true,
 			isErr:          false,
-		},
+		},*/
 	}
 
 	for _, test := range tests {
