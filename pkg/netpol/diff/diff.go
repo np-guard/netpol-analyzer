@@ -15,8 +15,8 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
 
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 )
@@ -54,8 +54,8 @@ func (da *DiffAnalyzer) ConnDiffFromResourceInfos(infos1, infos2 []*resource.Inf
 // representing two versions of manifest sets to compare
 func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (ConnectivityDiff, error) {
 	// attempt to read manifests from both dirs
-	infos1, errs1 := manifests.GetResourceInfosFromDirPath([]string{dirPath1}, true, da.stopOnError)
-	infos2, errs2 := manifests.GetResourceInfosFromDirPath([]string{dirPath2}, true, da.stopOnError)
+	infos1, errs1 := fsscanner.GetResourceInfosFromDirPath([]string{dirPath1}, true, da.stopOnError)
+	infos2, errs2 := fsscanner.GetResourceInfosFromDirPath([]string{dirPath2}, true, da.stopOnError)
 
 	if len(errs1) > 0 || len(errs2) > 0 {
 		if (len(infos1) == 0 && len(infos2) == 0) || da.stopOnError || !doBothInputDirsExist(dirPath1, dirPath2) {
@@ -65,7 +65,7 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 				dirPath = dirPath2
 			}
 			da.logger.Errorf(err, "Error getting resourceInfos from dir path "+dirPath)
-			da.errors = append(da.errors, scan.FailedReadingFile(dirPath, err))
+			da.errors = append(da.errors, parser.FailedReadingFile(dirPath, err))
 			return nil, err // return as fatal error if both infos-lists are empty, or if stopOnError is on,
 			// or if at least one input dir does not exist
 		}
@@ -73,12 +73,12 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 		// split err if it's an aggregated error to a list of separate errors
 		errReadingFile := "error reading file"
 		for _, err := range errs1 {
-			da.logger.Errorf(err, "at dir1: "+errReadingFile)                    // print to log the error from builder
-			da.errors = append(da.errors, scan.FailedReadingFile(dirPath1, err)) // add the error from builder to accumulated errors
+			da.logger.Errorf(err, "at dir1: "+errReadingFile)                      // print to log the error from builder
+			da.errors = append(da.errors, parser.FailedReadingFile(dirPath1, err)) // add the error from builder to accumulated errors
 		}
 		for _, err := range errs2 {
-			da.logger.Errorf(err, "at dir2: "+errReadingFile)                    // print to log the error from builder
-			da.errors = append(da.errors, scan.FailedReadingFile(dirPath2, err)) // add the error from builder to accumulated errors
+			da.logger.Errorf(err, "at dir2: "+errReadingFile)                      // print to log the error from builder
+			da.errors = append(da.errors, parser.FailedReadingFile(dirPath2, err)) // add the error from builder to accumulated errors
 		}
 	}
 	return da.ConnDiffFromResourceInfos(infos1, infos2)

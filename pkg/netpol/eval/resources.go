@@ -15,7 +15,7 @@ import (
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
 )
 
 type (
@@ -51,32 +51,32 @@ func NewPolicyEngine() *PolicyEngine {
 	}
 }
 
-func NewPolicyEngineWithObjects(objects []scan.K8sObject) (*PolicyEngine, error) {
+func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, error) {
 	pe := NewPolicyEngine()
 	var err error
 	for _, obj := range objects {
 		switch obj.Kind {
-		case scan.Namespace:
+		case parser.Namespace:
 			err = pe.UpsertObject(obj.Namespace)
-		case scan.Networkpolicy:
+		case parser.Networkpolicy:
 			err = pe.UpsertObject(obj.Networkpolicy)
-		case scan.Pod:
+		case parser.Pod:
 			err = pe.UpsertObject(obj.Pod)
-		case scan.ReplicaSet:
+		case parser.ReplicaSet:
 			err = pe.UpsertObject(obj.Replicaset)
-		case scan.Deployment:
+		case parser.Deployment:
 			err = pe.UpsertObject(obj.Deployment)
-		case scan.Daemonset:
+		case parser.Daemonset:
 			err = pe.UpsertObject(obj.Daemonset)
-		case scan.Statefulset:
+		case parser.Statefulset:
 			err = pe.UpsertObject(obj.Statefulset)
-		case scan.ReplicationController:
+		case parser.ReplicationController:
 			err = pe.UpsertObject(obj.ReplicationController)
-		case scan.Job:
+		case parser.Job:
 			err = pe.UpsertObject(obj.Job)
-		case scan.CronJob:
+		case parser.CronJob:
 			err = pe.UpsertObject(obj.CronJob)
-		case scan.Service, scan.Route, scan.Ingress:
+		case parser.Service, parser.Route, parser.Ingress:
 			continue
 		default:
 			fmt.Printf("ignoring resource kind %s", obj.Kind)
@@ -159,19 +159,19 @@ func (pe *PolicyEngine) UpsertObject(rtobj runtime.Object) error {
 		return pe.upsertNetworkPolicy(obj)
 	// workload object
 	case *appsv1.ReplicaSet:
-		return pe.upsertWorkload(obj, scan.ReplicaSet)
+		return pe.upsertWorkload(obj, parser.ReplicaSet)
 	case *appsv1.Deployment:
-		return pe.upsertWorkload(obj, scan.Deployment)
+		return pe.upsertWorkload(obj, parser.Deployment)
 	case *appsv1.StatefulSet:
-		return pe.upsertWorkload(obj, scan.Statefulset)
+		return pe.upsertWorkload(obj, parser.Statefulset)
 	case *appsv1.DaemonSet:
-		return pe.upsertWorkload(obj, scan.Daemonset)
+		return pe.upsertWorkload(obj, parser.Daemonset)
 	case *corev1.ReplicationController:
-		return pe.upsertWorkload(obj, scan.ReplicationController)
+		return pe.upsertWorkload(obj, parser.ReplicationController)
 	case *batchv1.CronJob:
-		return pe.upsertWorkload(obj, scan.CronJob)
+		return pe.upsertWorkload(obj, parser.CronJob)
 	case *batchv1.Job:
-		return pe.upsertWorkload(obj, scan.Job)
+		return pe.upsertWorkload(obj, parser.Job)
 	}
 	return nil
 }

@@ -13,20 +13,26 @@ import (
 )
 
 const (
-	dirLevelUp   = ".."
-	testsDirName = "tests"
+	dirLevelUp            = ".."
+	testsDirName          = "tests"
+	standardPkgLevelDepth = 3
+	internalPkgLevelDepth = 5
 )
 
 func GetTestsDir() string {
-	currentDir, _ := os.Getwd()
-	res := filepath.Join(currentDir, dirLevelUp, dirLevelUp, dirLevelUp, testsDirName)
-	return res
+	return GetTestsDirWithDepth(standardPkgLevelDepth)
 }
 
 func GetTestsDirFromInternalPkg() string {
-	currentDir, _ := os.Getwd()
-	res := filepath.Join(currentDir, dirLevelUp, dirLevelUp, dirLevelUp, dirLevelUp, dirLevelUp, testsDirName)
-	return res
+	return GetTestsDirWithDepth(internalPkgLevelDepth)
+}
+
+func GetTestsDirWithDepth(depth int) string {
+	res, _ := os.Getwd()
+	for i := 0; i < depth; i++ {
+		res = filepath.Join(res, dirLevelUp)
+	}
+	return filepath.Join(res, testsDirName)
 }
 
 // GetDebugMsgWithTestNameAndFormat: testing helping func - writes debug message for good path tests

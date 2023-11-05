@@ -1,4 +1,4 @@
-package manifests
+package fsscanner
 
 import (
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"

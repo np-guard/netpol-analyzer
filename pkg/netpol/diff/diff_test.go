@@ -10,7 +10,7 @@ import (
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/fsscanner"
 )
 
 const expectedOutputFilePrefix = "diff_output_from_"
@@ -255,8 +255,8 @@ func getAnalysisResFromAPI(apiName, firstDir, secondDir, format string) (
 	pTest = prepareTest(firstDir, secondDir, format, apiName)
 	switch apiName {
 	case ResourceInfosFunc:
-		infos1, _ := manifests.GetResourceInfosFromDirPath([]string{pTest.firstDirPath}, true, false)
-		infos2, _ := manifests.GetResourceInfosFromDirPath([]string{pTest.secondDirPath}, true, false)
+		infos1, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.firstDirPath}, true, false)
+		infos2, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.secondDirPath}, true, false)
 		diffRes, err = pTest.analyzer.ConnDiffFromResourceInfos(infos1, infos2)
 	case DirPathFunc:
 		diffRes, err = pTest.analyzer.ConnDiffFromDirPaths(pTest.firstDirPath, pTest.secondDirPath)

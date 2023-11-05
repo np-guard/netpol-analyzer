@@ -11,16 +11,17 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
 )
 
 // helping func - scans the directory objects and returns the ingress analyzer built from them
 func getIngressAnalyzerFromDirObjects(t *testing.T, testName, dirName string, processingErrsNum int) *IngressAnalyzer {
-	scanner := scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir, false)
 	path := filepath.Join(testutils.GetTestsDirFromInternalPkg(), dirName)
-	objects, processingErrs := scanner.FilesToObjectsList(path)
-	require.Len(t, processingErrs, processingErrsNum, "test: %q, expected %d processing errors but got %d",
-		testName, processingErrsNum, len(processingErrs))
+	rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{path}, true, false)
+	objects, fpErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
+	require.Len(t, fpErrs, processingErrsNum, "test: %q, expected %d processing errors but got %d",
+		testName, processingErrsNum, len(fpErrs))
 	pe, err := eval.NewPolicyEngineWithObjects(objects)
 	require.Empty(t, err, "test: %q", testName)
 	ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger(), false)
@@ -117,7 +118,7 @@ func TestIngressAnalyzerConnectivityToPodsInDir(t *testing.T) {
 				{
 					peerName:       "asset-cache",
 					peerNamespace:  "frontend",
-					peerType:       scan.Deployment,
+					peerType:       parser.Deployment,
 					allConnections: false,
 					ports:          []int64{8080},
 					protocol:       "TCP",
@@ -125,7 +126,7 @@ func TestIngressAnalyzerConnectivityToPodsInDir(t *testing.T) {
 				{
 					peerName:       "webapp",
 					peerNamespace:  "frontend",
-					peerType:       scan.Deployment,
+					peerType:       parser.Deployment,
 					allConnections: false,
 					ports:          []int64{8080},
 					protocol:       "TCP",
@@ -139,7 +140,7 @@ func TestIngressAnalyzerConnectivityToPodsInDir(t *testing.T) {
 				{
 					peerName:       "workload-with-multiple-ports",
 					peerNamespace:  "routes-world",
-					peerType:       scan.Deployment,
+					peerType:       parser.Deployment,
 					allConnections: false,
 					ports:          []int64{8000, 8090},
 					protocol:       "TCP",
@@ -153,7 +154,7 @@ func TestIngressAnalyzerConnectivityToPodsInDir(t *testing.T) {
 				{
 					peerName:       "details-v1-79f774bdb9",
 					peerNamespace:  "default",
-					peerType:       scan.ReplicaSet,
+					peerType:       parser.ReplicaSet,
 					allConnections: false,
 					ports:          []int64{9080},
 					protocol:       "TCP",
@@ -167,7 +168,7 @@ func TestIngressAnalyzerConnectivityToPodsInDir(t *testing.T) {
 				{
 					peerName:       "hello-world", // this workload is selected by both Ingress and Route objects
 					peerNamespace:  "helloworld",
-					peerType:       scan.Deployment,
+					peerType:       parser.Deployment,
 					allConnections: false,
 					ports:          []int64{8000},
 					protocol:       "TCP",
@@ -175,7 +176,7 @@ func TestIngressAnalyzerConnectivityToPodsInDir(t *testing.T) {
 				{
 					peerName:       "ingress-world", // this workload is selected by Ingress object only
 					peerNamespace:  "ingressworld",
-					peerType:       scan.Deployment,
+					peerType:       parser.Deployment,
 					allConnections: false,
 					ports:          []int64{8090},
 					protocol:       "TCP",
@@ -183,7 +184,7 @@ func TestIngressAnalyzerConnectivityToPodsInDir(t *testing.T) {
 				{
 					peerName:       "route-world", // this workload is selected by route object only
 					peerNamespace:  "routeworld",
-					peerType:       scan.Deployment,
+					peerType:       parser.Deployment,
 					allConnections: false,
 					ports:          []int64{8060},
 					protocol:       "TCP",
@@ -197,7 +198,7 @@ func TestIngressAnalyzerConnectivityToPodsInDir(t *testing.T) {
 				{
 					peerName:       "ingress-world-multiple-ports",
 					peerNamespace:  "ingressworld",
-					peerType:       scan.Deployment,
+					peerType:       parser.Deployment,
 					allConnections: false,
 					ports:          []int64{8000, 8090},
 					protocol:       "TCP",
@@ -211,7 +212,7 @@ func TestIngressAnalyzerConnectivityToPodsInDir(t *testing.T) {
 				{
 					peerName:       "ingress-world-multiple-ports",
 					peerNamespace:  "ingressworld",
-					peerType:       scan.Deployment,
+					peerType:       parser.Deployment,
 					allConnections: false,
 					ports:          []int64{8000, 8090},
 					protocol:       "TCP",
@@ -225,7 +226,7 @@ func TestIngressAnalyzerConnectivityToPodsInDir(t *testing.T) {
 				{
 					peerName:       "ingress-world-multiple-ports",
 					peerNamespace:  "ingressworld",
-					peerType:       scan.Deployment,
+					peerType:       parser.Deployment,
 					allConnections: false,
 					ports:          []int64{8050, 8090},
 					protocol:       "TCP",
@@ -239,7 +240,7 @@ func TestIngressAnalyzerConnectivityToPodsInDir(t *testing.T) {
 				{
 					peerName:       "hello-deployment",
 					peerNamespace:  "hello",
-					peerType:       scan.Deployment,
+					peerType:       parser.Deployment,
 					allConnections: false,
 					ports:          []int64{8080},
 					protocol:       "TCP",

@@ -562,7 +562,7 @@ func TestCommands(t *testing.T) {
 				"-p",
 				"80",
 				"--fail"},
-			expectedOutput: "had processing errors: YAML document is malformed: yaml: line 1828: found character that cannot start any token\n",
+			expectedOutput: "found character that cannot start any token",
 			exact:          false,
 			isErr:          true, // eval command returns err if stopOnFirstError & severe
 		},

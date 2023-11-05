@@ -17,16 +17,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
+
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
 )
 
 // TODO: consider using k8s.io/cli-runtime/pkg/genericclioptions to load kube config.
@@ -70,8 +72,23 @@ func validateEvalFlags() error {
 func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []types.NamespacedName) error {
 	// get relevant resources from dir path
 	elogger := logger.NewDefaultLoggerWithVerbosity(detrmineLogVerbosity())
-	scanner := scan.NewResourcesScanner(elogger, stopOnFirstError, filepath.WalkDir, false)
-	objectsList, processingErrs := scanner.FilesToObjectsListFiltered(dirPath, podNames)
+
+	rList, errs := fsscanner.GetResourceInfosFromDirPath([]string{dirPath}, true, false)
+	if errs != nil {
+		// TODO: consider avoid logging this error because it is already printed to log by the builder
+		if len(rList) == 0 || stopOnFirstError {
+			err := utilerrors.NewAggregate(errs)
+			elogger.Errorf(err, "Error getting resourceInfos from dir path")
+			return err // return as fatal error if rList is empty or if stopOnError is on
+		}
+		// split err if it's an aggregated error to a list of separate errors
+		for _, err := range errs {
+			elogger.Errorf(err, "Error reading file") // print to log the error from builder
+		}
+	}
+	objectsList, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, elogger, false)
+	// TODO: consider stopOnFirstError after processingErrs as well
+	objectsList = parser.FilterObjectsList(objectsList, processingErrs, podNames)
 	for _, err := range processingErrs {
 		if err.IsFatal() || (stopOnFirstError && err.IsSevere()) {
 			return fmt.Errorf("scan dir path %s had processing errors: %v", dirPath, err.Error())
@@ -81,11 +98,11 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 	var err error
 	for _, obj := range objectsList {
 		switch obj.Kind {
-		case scan.Pod:
+		case parser.Pod:
 			err = pe.UpsertObject(obj.Pod)
-		case scan.Namespace:
+		case parser.Namespace:
 			err = pe.UpsertObject(obj.Namespace)
-		case scan.Networkpolicy:
+		case parser.Networkpolicy:
 			err = pe.UpsertObject(obj.Networkpolicy)
 		default:
 			continue

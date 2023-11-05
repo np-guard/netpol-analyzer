@@ -27,8 +27,8 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist/internal/ingressanalyzer"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
 
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 )
@@ -49,22 +49,7 @@ type ConnlistAnalyzer struct {
 // and the list of all workloads from the parsed resources
 func (ca *ConnlistAnalyzer) ConnlistFromResourceInfos(info []*resource.Info) ([]Peer2PeerConnection, []Peer, error) {
 	// convert resource.Info objects to k8s resources, filter irrelevant resources
-	objs, fpErrs := scan.ResourceInfoListToK8sObjectsList(info, ca.logger, ca.muteErrsAndWarns)
-	/*
-		Examples for possible errors (non fatal) returned from this call (ResourceInfoListToK8sObjectsList):
-		(1) (Warning) malformed k8s resource manifest: "in file: tests\malformed_pod_example\pod.yaml,
-			 YAML document is malformed: unrecognized type: int32"
-		(2) (Warning) malformed k8s resource manifest: "in file: tests\malformed-pod-example-2\pod_list.json,
-			 YAML document is malformed:cannot restore slice from map"
-		(3) (Warning) no network policy resources found: (tests/malformed_pod_example):
-			"no relevant Kubernetes network policy resources found"
-		(4) (Error) no workload resources found: (tests/malformed_pod_example/) :
-			 "no relevant Kubernetes workload resources found"
-
-		Examples for Log Infos that can be printed from this call:
-		(1) (Info) in file: tests/bad_yamls/irrelevant_k8s_resources.yaml, skipping object with type: IngressClass
-
-	*/
+	objs, fpErrs := parser.ResourceInfoListToK8sObjectsList(info, ca.logger, ca.muteErrsAndWarns)
 	ca.copyFpErrs(fpErrs)
 	if ca.stopProcessing() {
 		if err := ca.hasFatalError(); err != nil {
@@ -72,15 +57,10 @@ func (ca *ConnlistAnalyzer) ConnlistFromResourceInfos(info []*resource.Info) ([]
 		}
 		return []Peer2PeerConnection{}, []Peer{}, nil
 	}
-	/*
-		Example for possible fatal-Errors returned from the call below:
-		(1) (fatal-err) netpol-err: CIDR error (not a valid ipv4 CIDR)
-		(2) additional netpol-err... (e.g. LabelSelector error), and more..
-	*/
 	return ca.connslistFromParsedResources(objs)
 }
 
-func (ca *ConnlistAnalyzer) copyFpErrs(fpErrs []scan.FileProcessingError) {
+func (ca *ConnlistAnalyzer) copyFpErrs(fpErrs []parser.FileProcessingError) {
 	for i := range fpErrs {
 		ca.errors = append(ca.errors, &fpErrs[i])
 	}
@@ -89,35 +69,22 @@ func (ca *ConnlistAnalyzer) copyFpErrs(fpErrs []scan.FileProcessingError) {
 // ConnlistFromDirPath returns the allowed connections list from dir path containing k8s resources
 // and list of all workloads from the parsed resources
 func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConnection, []Peer, error) {
-	rList, errs := manifests.GetResourceInfosFromDirPath([]string{dirPath}, true, ca.stopOnError)
+	rList, errs := fsscanner.GetResourceInfosFromDirPath([]string{dirPath}, true, ca.stopOnError)
 	// instead of parsing the builder's string error to decide on error type (warning/error/fatal-err)
 	// return as fatal error if rList is empty or if stopOnError is on
 	// otherwise try to analyze and return as accumulated error
 	if errs != nil {
-		/*
-			Examples for possible errors returned from this call (GetResourceInfos):
-			(1) dir does not exist: "Error: the path "tests/bad_yamls/subdir5" does not exist"
-			(2) empty dir : "Error: error reading [tests/bad_yamls/subdir2/]: recognized file
-			extensions are [.json .yaml .yml]"
-			(3) irrelevant JSON : "GetResourceInfos error: unable to decode "tests\\onlineboutique\\connlist_output.json":
-			 json: cannot unmarshal array into Go value of type unstructured.detector"
-			(4) bad JSON/YAML - missing kind : "Error: unable to decode "tests\\malformed-pod-example-4\\pods.json":
-			Object 'Kind' is missing in '{ ... }"
-			(5) YAML doc with syntax error: "error parsing tests/bad_yamls/document_with_syntax_error.yaml:
-			error converting YAML to JSON: yaml: line 19: found character that cannot start any token"
-
-		*/
 		// TODO: consider avoid logging this error because it is already printed to log by the builder
 		if len(rList) == 0 || ca.stopOnError {
 			err := utilerrors.NewAggregate(errs)
 			ca.logger.Errorf(err, "Error getting resourceInfos from dir path")
-			ca.errors = append(ca.errors, scan.FailedReadingFile(dirPath, err))
+			ca.errors = append(ca.errors, parser.FailedReadingFile(dirPath, err))
 			return nil, nil, err // return as fatal error if rList is empty or if stopOnError is on
 		}
 		// split err if it's an aggregated error to a list of separate errors
 		for _, err := range errs {
-			ca.logger.Errorf(err, "Error reading file")                         // print to log the error from builder
-			ca.errors = append(ca.errors, scan.FailedReadingFile(dirPath, err)) // add the error from builder to accumulated errors
+			ca.logger.Errorf(err, "Error reading file")                           // print to log the error from builder
+			ca.errors = append(ca.errors, parser.FailedReadingFile(dirPath, err)) // add the error from builder to accumulated errors
 		}
 	}
 	return ca.ConnlistFromResourceInfos(rList)
@@ -207,41 +174,7 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 	return nil
 }
 
-/*func (ca *ConnlistAnalyzer) ConnlistFromDirPathOld(dirPath string) ([]Peer2PeerConnection, []Peer, error) {
-	objectsList, processingErrs := ca.scanner.FilesToObjectsList(dirPath)
-	for i := range processingErrs {
-		ca.errors = append(ca.errors, &processingErrs[i])
-	}
-
-	if ca.stopProcessing() {
-		if err := ca.hasFatalError(); err != nil {
-			return nil, nil, err
-		}
-		return []Peer2PeerConnection{}, []Peer{}, nil
-	}
-	return ca.connslistFromParsedResources(objectsList)
-}*/
-
-// ConnlistFromYAMLManifests returns the allowed connections list from input YAML manifests
-// and list of all workloads from the parsed resources
-/*func (ca *ConnlistAnalyzer) ConnlistFromYAMLManifests(manifests []scan.YAMLDocumentIntf) ([]Peer2PeerConnection, []Peer, error) {
-	objectsList, processingErrs := ca.scanner.YAMLDocumentsToObjectsList(manifests)
-	for i := range processingErrs {
-		ca.errors = append(ca.errors, &processingErrs[i])
-	}
-
-	if ca.stopProcessing() {
-		if err := ca.hasFatalError(); err != nil {
-			return nil, nil, err
-		}
-		return []Peer2PeerConnection{}, []Peer{}, nil
-	}
-
-	return ca.connslistFromParsedResources(objectsList)
-
-}*/
-
-func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []scan.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
+func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
 	// TODO: do we need logger in policyEngine?
 	pe, err := eval.NewPolicyEngineWithObjects(objectsList)
 	if err != nil {
@@ -598,10 +531,10 @@ func portsString(ports []common.PortRange) string {
 
 func (ca *ConnlistAnalyzer) warnBlockedIngress(peerStr string, ingressObjs map[string][]string) {
 	warningMsg := ""
-	if len(ingressObjs[scan.Ingress]) > 0 {
-		warningMsg = "K8s-Ingress resource " + ingressObjs[scan.Ingress][0]
-	} else if len(ingressObjs[scan.Route]) > 0 {
-		warningMsg = "Route resource " + ingressObjs[scan.Route][0]
+	if len(ingressObjs[parser.Ingress]) > 0 {
+		warningMsg = "K8s-Ingress resource " + ingressObjs[parser.Ingress][0]
+	} else if len(ingressObjs[parser.Route]) > 0 {
+		warningMsg = "Route resource " + ingressObjs[parser.Route][0]
 	}
 	warningMsg += " specified workload " + peerStr + " as a backend, but network policies are blocking " +
 		"ingress connections from an arbitrary in-cluster source to this workload. " +

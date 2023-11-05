@@ -11,7 +11,8 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
 )
 
 const servicesDirName = "services"
@@ -20,7 +21,6 @@ const servicesDirName = "services"
 // not existed services or not supported services (e.g. services without selectors are ignored, thus no pods are selected)
 func TestServiceMappingToPods(t *testing.T) {
 	t.Parallel()
-	scanner := scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir, false)
 	servicesDir := filepath.Join(testutils.GetTestsDirFromInternalPkg(), servicesDirName)
 	cases := []struct {
 		name                             string
@@ -81,7 +81,8 @@ func TestServiceMappingToPods(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			objects, processingErrs := scanner.FilesToObjectsList(servicesDir)
+			rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{servicesDir}, true, false)
+			objects, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
 			require.Len(t, processingErrs, 1, "test: %q", tt.name) // no policies
 			require.Len(t, objects, 17, "test: %q", tt.name)       // found 6 services and 11 pods
 			pe, err := eval.NewPolicyEngineWithObjects(objects)

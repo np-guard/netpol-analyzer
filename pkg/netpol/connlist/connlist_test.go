@@ -7,7 +7,7 @@ import (
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/fsscanner"
 
 	"github.com/stretchr/testify/require"
 )
@@ -95,7 +95,7 @@ func TestConnListFromResourceInfos(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
 				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format)
-				infos, _ := manifests.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
+				infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
 				// require.Empty(t, errs, testInfo) - TODO: add info about expected errors
 				// from each test here (these errors do not stop the analysis or affect the output)
 				// more suitable to test this in a separate package (manifests) where  GetResourceInfosFromDirPath is implemented
@@ -192,7 +192,7 @@ func getAnalysisResFromAPI(apiName, dirName, focusWorkload string) (
 	pTest := prepareTest(dirName, focusWorkload, common.DefaultFormat)
 	switch apiName {
 	case ResourceInfosFunc:
-		infos, _ := manifests.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
+		infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
 		connsRes, peersRes, err = pTest.analyzer.ConnlistFromResourceInfos(infos)
 	case DirPathFunc:
 		connsRes, peersRes, err = pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
@@ -543,7 +543,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 
 			// re-run the test with new analyzer (to clear the analyzer.errors array )
 			preparedTest = prepareTest(tt.dirName, "", tt.format)
-			infos, _ := manifests.GetResourceInfosFromDirPath([]string{preparedTest.dirPath}, true, false)
+			infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{preparedTest.dirPath}, true, false)
 			connsRes2, peersRes2, err2 := preparedTest.analyzer.ConnlistFromResourceInfos(infos)
 
 			require.Nil(t, err2, tt.name)
