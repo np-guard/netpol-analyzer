@@ -71,15 +71,20 @@ func (e *handlingIPpeersError) Error() string {
 	return e.origErr.Error()
 }
 
+const (
+	atDir1Prefix = "at dir1: "
+	atDir2Prefix = "at dir2: "
+)
+
 func (e *connectivityAnalysisError) Error() string {
 	var prefix string
 	switch {
 	case e.dirPath != "":
 		prefix = "at " + e.dirPath + ": "
 	case e.dir1:
-		prefix = "at dir1: "
+		prefix = atDir1Prefix
 	case e.dir2:
-		prefix = "at dir2: "
+		prefix = atDir2Prefix
 	}
 	return prefix + e.origErr.Error()
 }

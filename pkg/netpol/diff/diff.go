@@ -74,11 +74,11 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 		// split err if it's an aggregated error to a list of separate errors
 		errReadingFile := "error reading file"
 		for _, err := range errs1 {
-			da.logger.Errorf(err, "at dir1: "+errReadingFile)                      // print to log the error from builder
+			da.logger.Errorf(err, atDir1Prefix+errReadingFile)                     // print to log the error from builder
 			da.errors = append(da.errors, parser.FailedReadingFile(dirPath1, err)) // add the error from builder to accumulated errors
 		}
 		for _, err := range errs2 {
-			da.logger.Errorf(err, "at dir2: "+errReadingFile)                      // print to log the error from builder
+			da.logger.Errorf(err, atDir2Prefix+errReadingFile)                     // print to log the error from builder
 			da.errors = append(da.errors, parser.FailedReadingFile(dirPath2, err)) // add the error from builder to accumulated errors
 		}
 	}
