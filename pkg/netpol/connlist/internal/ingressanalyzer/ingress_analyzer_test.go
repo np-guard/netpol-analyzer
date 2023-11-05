@@ -23,7 +23,7 @@ func getIngressAnalyzerFromDirObjects(t *testing.T, testName, dirName string, pr
 		testName, processingErrsNum, len(processingErrs))
 	pe, err := eval.NewPolicyEngineWithObjects(objects)
 	require.Empty(t, err, "test: %q", testName)
-	ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger())
+	ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger(), false)
 	require.Empty(t, err, "test: %q", testName)
 	return ia
 }

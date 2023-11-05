@@ -36,11 +36,12 @@ import (
 // A ConnlistAnalyzer provides API to recursively scan a directory for Kubernetes resources including network policies,
 // and get the list of permitted connectivity between the workloads of the K8s application managed in this directory.
 type ConnlistAnalyzer struct {
-	logger        logger.Logger
-	stopOnError   bool
-	errors        []ConnlistError
-	focusWorkload string
-	outputFormat  string
+	logger           logger.Logger
+	stopOnError      bool
+	errors           []ConnlistError
+	focusWorkload    string
+	outputFormat     string
+	muteErrsAndWarns bool
 }
 
 // The new interface
@@ -48,7 +49,7 @@ type ConnlistAnalyzer struct {
 // and the list of all workloads from the parsed resources
 func (ca *ConnlistAnalyzer) ConnlistFromResourceInfos(info []*resource.Info) ([]Peer2PeerConnection, []Peer, error) {
 	// convert resource.Info objects to k8s resources, filter irrelevant resources
-	objs, fpErrs := scan.ResourceInfoListToK8sObjectsList(info, ca.logger)
+	objs, fpErrs := scan.ResourceInfoListToK8sObjectsList(info, ca.logger, ca.muteErrsAndWarns)
 	/*
 		Examples for possible errors (non fatal) returned from this call (ResourceInfoListToK8sObjectsList):
 		(1) (Warning) malformed k8s resource manifest: "in file: tests\malformed_pod_example\pod.yaml,
@@ -106,6 +107,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 			error converting YAML to JSON: yaml: line 19: found character that cannot start any token"
 
 		*/
+		// TODO: consider avoid logging this error because it is already printed to log by the builder
 		if len(rList) == 0 || ca.stopOnError {
 			err := utilerrors.NewAggregate(errs)
 			ca.logger.Errorf(err, "Error getting resourceInfos from dir path")
@@ -155,6 +157,14 @@ func WithFocusWorkload(workload string) ConnlistAnalyzerOption {
 func WithOutputFormat(outputFormat string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
 		p.outputFormat = outputFormat
+	}
+}
+
+// WithStopOnError is a functional option which directs ConnlistAnalyzer to stop any processing after the
+// first severe error.
+func WithMuteErrsAndWarns() ConnlistAnalyzerOption {
+	return func(c *ConnlistAnalyzer) {
+		c.muteErrsAndWarns = true
 	}
 }
 
@@ -238,7 +248,7 @@ func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []scan.K8sO
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
 	}
-	ia, err := ingressanalyzer.NewIngressAnalyzerWithObjects(objectsList, pe, ca.logger)
+	ia, err := ingressanalyzer.NewIngressAnalyzerWithObjects(objectsList, pe, ca.logger, ca.muteErrsAndWarns)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
@@ -453,7 +463,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	existFocusWorkload, warningMsg := ca.existsFocusWorkload(peers, excludeIngressAnalysis)
 	if ca.focusWorkload != "" && !existFocusWorkload {
 		ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
-		ca.logger.Warnf(warningMsg)
+		ca.logWarning(warningMsg)
 		return nil, nil, nil
 	}
 
@@ -478,7 +488,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	connsRes = append(connsRes, ingressAllowedConns...)
 
 	if ca.focusWorkload == "" && len(peersAllowedConns) == 0 {
-		ca.logger.Warnf("Connectivity analysis found no allowed connectivity between pairs from the configured workloads or external IP-blocks")
+		ca.logWarning("Connectivity analysis found no allowed connectivity between pairs from the configured workloads or external IP-blocks")
 	}
 
 	return connsRes, peers, nil
@@ -597,5 +607,11 @@ func (ca *ConnlistAnalyzer) warnBlockedIngress(peerStr string, ingressObjs map[s
 		"ingress connections from an arbitrary in-cluster source to this workload. " +
 		"Connectivity map will not include a possibly allowed connection between the ingress controller and this workload."
 	ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
-	ca.logger.Warnf(warningMsg)
+	ca.logWarning(warningMsg)
+}
+
+func (ca *ConnlistAnalyzer) logWarning(msg string) {
+	if !ca.muteErrsAndWarns {
+		ca.logger.Warnf(msg)
+	}
 }

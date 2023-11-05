@@ -1,6 +1,10 @@
 package diff
 
-import "github.com/np-guard/netpol-analyzer/pkg/netpol/common"
+import (
+	"errors"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
+)
 
 // DiffError holds information about a single error/warning that occurred during
 // the generating connectivity diff report
@@ -21,6 +25,20 @@ type handlingIPpeersError struct {
 	origErr error
 }
 
+type connectivityAnalysisError struct {
+	origErr error
+	dir1    bool
+	dir2    bool
+	dirPath string
+}
+
+/*type connectivityAnalysisWarning struct {
+	origErr error
+	dir1    bool
+	dir2    bool
+	dirPath string
+}*/
+
 ///////////////////////////
 // diffGeneratingError implements DiffError interface
 
@@ -40,7 +58,7 @@ func (e *diffGeneratingError) Location() string {
 }
 
 func (e *diffGeneratingError) Error() error {
-	return e.err
+	return errors.New(e.err.Error()) // e.err
 }
 
 ///////////////
@@ -53,6 +71,19 @@ func (e *handlingIPpeersError) Error() string {
 	return e.origErr.Error()
 }
 
+func (e *connectivityAnalysisError) Error() string {
+	var prefix string
+	switch {
+	case e.dirPath != "":
+		prefix = "at " + e.dirPath + ": "
+	case e.dir1:
+		prefix = "at dir1: "
+	case e.dir2:
+		prefix = "at dir2: "
+	}
+	return prefix + e.origErr.Error()
+}
+
 // constructors
 func newResultFormattingError(err error) *diffGeneratingError {
 	return &diffGeneratingError{err: &resultFormattingError{err}, fatal: true, severe: false}
@@ -60,4 +91,9 @@ func newResultFormattingError(err error) *diffGeneratingError {
 
 func newHandlingIPpeersError(err error) *diffGeneratingError {
 	return &diffGeneratingError{err: &handlingIPpeersError{err}, fatal: true, severe: false}
+}
+
+func newConnectivityAnalysisError(err error, dir1, dir2 bool, dirPath string, isSevere, isFatal bool) *diffGeneratingError {
+	return &diffGeneratingError{err: &connectivityAnalysisError{
+		origErr: err, dir1: dir1, dir2: dir2, dirPath: dirPath}, fatal: isFatal, severe: isSevere}
 }

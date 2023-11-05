@@ -86,7 +86,7 @@ func TestServiceMappingToPods(t *testing.T) {
 			require.Len(t, objects, 17, "test: %q", tt.name)       // found 6 services and 11 pods
 			pe, err := eval.NewPolicyEngineWithObjects(objects)
 			require.Empty(t, err, "test: %q", tt.name)
-			ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger())
+			ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger(), false)
 			require.Empty(t, err, "test: %q", tt.name)
 			require.Len(t, ia.servicesToPortsAndPeersMap[tt.serviceNamespace][tt.serviceName].peers,
 				tt.numWorkloadsSelectedByTheService, "mismatch for test %q, service %q expected to map %d pods, got %d",

@@ -468,7 +468,7 @@ func TestCommands(t *testing.T) {
 			exact: true,
 			isErr: false,
 		},
-		/*{
+		{
 			name: "test_legal_list_dir_with_severe_error_and_produces_legal_output",
 			// the test contains malformed yaml beside to legal yaml.
 			//  MalformedYamlDocError is not fatal, thus not returned
@@ -495,7 +495,6 @@ func TestCommands(t *testing.T) {
 		},
 		{
 			name: "test_list_dir_with_severe_error_running_with_fail_stops_and_return_empty_output",
-			//  MalformedYamlDocError is not fatal, but severe, thus stops the run if --fail is on
 			// as we saw in a previous test on same path, when --fail is not used, the test produces connectivity map
 			args: []string{
 				"list",
@@ -503,9 +502,36 @@ func TestCommands(t *testing.T) {
 				filepath.Join(getTestsDir(), "bad_yamls", "document_with_syntax_error.yaml"),
 				"--fail",
 			},
-			expectedOutput: "",
-			exact:          true,
-			isErr:          false, // not fatal error but severe
+			expectedOutput: "found character that cannot start any token",
+			exact:          false,
+			isErr:          true, // fatal error because err is issued by the builder and uses stopOnErr
+		},
+		{
+			name: "test_diff_one_dir_with_severe_error_without_fail_produces_output",
+			args: []string{
+				"diff",
+				"--dir1",
+				filepath.Join(getTestsDir(), "onlineboutique"),
+				"--dir2",
+				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error")},
+			expectedOutput: "Connectivity diff:\n" +
+				"diff-type: changed, source: default/frontend-99684f7f8[ReplicaSet], " +
+				"destination: default/adservice-77d5cd745d[ReplicaSet], dir1:  TCP 9555, dir2: TCP 8080",
+			exact: true,
+			isErr: false,
+		},
+		{
+			name: "test_diff_one_dir_with_severe_error_with_fail_returns_empty_output",
+			args: []string{
+				"diff",
+				"--dir1",
+				filepath.Join(getTestsDir(), "onlineboutique"),
+				"--dir2",
+				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error"),
+				"--fail"},
+			expectedOutput: "found character that cannot start any token",
+			exact:          false,
+			isErr:          true,
 		},
 		{
 			name: "test_eval_on_dir_with_severe_error_without_fail_produces_output",
@@ -540,33 +566,6 @@ func TestCommands(t *testing.T) {
 			exact:          false,
 			isErr:          true, // eval command returns err if stopOnFirstError & severe
 		},
-		{
-			name: "test_diff_one_dir_with_severe_error_without_fail_produces_output",
-			args: []string{
-				"diff",
-				"--dir1",
-				filepath.Join(getTestsDir(), "onlineboutique"),
-				"--dir2",
-				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error")},
-			expectedOutput: "Connectivity diff:\n" +
-				"diff-type: changed, source: default/frontend-99684f7f8[ReplicaSet], " +
-				"destination: default/adservice-77d5cd745d[ReplicaSet], dir1:  TCP 9555, dir2: TCP 8080",
-			exact: true,
-			isErr: false,
-		},
-		{
-			name: "test_diff_one_dir_with_severe_error_with_fail_returns_empty_output",
-			args: []string{
-				"diff",
-				"--dir1",
-				filepath.Join(getTestsDir(), "onlineboutique"),
-				"--dir2",
-				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error"),
-				"--fail"},
-			expectedOutput: "",
-			exact:          true,
-			isErr:          false,
-		},*/
 	}
 
 	for _, test := range tests {

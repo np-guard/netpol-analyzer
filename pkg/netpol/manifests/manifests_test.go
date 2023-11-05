@@ -19,7 +19,7 @@ func TestBasic(t *testing.T) {
 	require.Empty(t, errs, "expecting no errors on basic dir")
 
 	// TODO: move the code below to scan pkg
-	oList, _ := scan.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger())
+	oList, _ := scan.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
 	// require.Nil(t, err, "err ResourceInfoToK8sObjects")
 	require.Equal(t, len(oList), len(rList), "expecting same length fot input and output lists")
 	fmt.Println("done")

@@ -196,13 +196,14 @@ func (k *K8sObject) initDefaultNamespace() {
 // an input list of resource.Info objects. Irrelevant resources are skipped.
 // Possible errs/warnings as FileProcessingError:
 // malformedYamlDoc , noK8sWorkloadResourcesFound, noK8sNetworkPolicyResourcesFound
-func ResourceInfoListToK8sObjectsList(infosList []*resource.Info, l logger.Logger) ([]K8sObject, []FileProcessingError) {
+func ResourceInfoListToK8sObjectsList(infosList []*resource.Info, l logger.Logger, muteErrsAndWarns bool) (
+	[]K8sObject, []FileProcessingError) {
 	res := make([]K8sObject, 0)
 	fpErrList := []FileProcessingError{}
 	var hasWorkloads, hasNetpols bool
 	for _, info := range infosList {
 		// fpErr can be  malformedYamlDoc
-		k8sObj, fpErr, isWorkload, isNetpol := resourceInfoToK8sObject(info, l)
+		k8sObj, fpErr, isWorkload, isNetpol := resourceInfoToK8sObject(info, l, muteErrsAndWarns)
 		if fpErr != nil {
 			fpErrList = append(fpErrList, *fpErr)
 			// no need to stop if stopOnErr was set, since malformedYamlDoc is a warning
@@ -218,17 +219,18 @@ func ResourceInfoListToK8sObjectsList(infosList []*resource.Info, l logger.Logge
 		}
 	}
 	if !hasWorkloads {
-		fpErrList = appendAndLogNewError(fpErrList, missingResources(true, false), l)
+		fpErrList = appendAndLogNewError(fpErrList, missingResources(true, false), l, muteErrsAndWarns)
 	}
 	if !hasNetpols {
-		fpErrList = appendAndLogNewError(fpErrList, missingResources(false, true), l)
+		fpErrList = appendAndLogNewError(fpErrList, missingResources(false, true), l, muteErrsAndWarns)
 	}
 
 	return res, fpErrList
 }
 
 // resourceInfoToK8sObject converts an input resource.Info object to a K8sObject
-func resourceInfoToK8sObject(info *resource.Info, l logger.Logger) (*K8sObject, *FileProcessingError, bool, bool) {
+func resourceInfoToK8sObject(info *resource.Info, l logger.Logger, muteErrsAndWarns bool) (
+	*K8sObject, *FileProcessingError, bool, bool) {
 	resObject := K8sObject{}
 	if unstructuredObj, ok := info.Object.(*unstructured.Unstructured); ok {
 		resObject.Kind = unstructuredObj.GetKind()
@@ -250,14 +252,14 @@ func resourceInfoToK8sObject(info *resource.Info, l logger.Logger) (*K8sObject, 
 				errStr += " with " + resourceStr
 			}
 			fpErr := malformedYamlDoc(info.Source, 0, -1, fmt.Errorf("%s:  %s", errStr, err))
-			logError(l, fpErr)
+			logError(l, fpErr, muteErrsAndWarns)
 			return nil, fpErr, false, false
 		}
 		resObject.initDefaultNamespace()
 	} else {
 		// failed conversion to unstructured
 		fpErr := malformedYamlDoc(info.Source, 0, -1, fmt.Errorf("failed conversion from resource.Info to unstructured.Unstructured"))
-		logError(l, fpErr)
+		logError(l, fpErr, muteErrsAndWarns)
 		return nil, fpErr, false, false
 	}
 
@@ -292,7 +294,7 @@ func (sc *ResourcesScanner) YAMLDocumentsToObjectsList(documents []YAMLDocumentI
 			if k8sObjects, err := manifestToK8sObjects(manifest, kind); err == nil {
 				res = append(res, k8sObjects...)
 			} else {
-				errs = appendAndLogNewError(errs, failedScanningResource(kind, manifest.FilePath(), err), sc.logger)
+				errs = appendAndLogNewError(errs, failedScanningResource(kind, manifest.FilePath(), err), sc.logger, false)
 			}
 		}
 		errs = append(errs, processingErrs...)
@@ -301,14 +303,14 @@ func (sc *ResourcesScanner) YAMLDocumentsToObjectsList(documents []YAMLDocumentI
 		}
 	}
 	if len(res) == 0 {
-		errs = appendAndLogNewError(errs, noK8sResourcesFound(), sc.logger)
+		errs = appendAndLogNewError(errs, noK8sResourcesFound(), sc.logger, false)
 	} else {
 		hasWorkloads, hasNetpols := hasWorkloadsOrNetworkPolicies(res)
 		if !hasWorkloads {
-			errs = appendAndLogNewError(errs, noK8sWorkloadResourcesFound(), sc.logger)
+			errs = appendAndLogNewError(errs, noK8sWorkloadResourcesFound(), sc.logger, false)
 		}
 		if !hasNetpols {
-			errs = appendAndLogNewError(errs, noK8sNetworkPolicyResourcesFound(), sc.logger)
+			errs = appendAndLogNewError(errs, noK8sNetworkPolicyResourcesFound(), sc.logger, false)
 		}
 	}
 	return res, errs
@@ -360,7 +362,7 @@ func (sc *ResourcesScanner) GetYAMLDocumentsFromPath(repoDir string) ([]YAMLDocu
 	}
 
 	if len(manifestFilesMap) == 0 {
-		fileScanErrors = appendAndLogNewError(fileScanErrors, noYamlsFound(), sc.logger)
+		fileScanErrors = appendAndLogNewError(fileScanErrors, noYamlsFound(), sc.logger, false)
 		return nil, fileScanErrors
 	}
 
@@ -514,14 +516,14 @@ func convertJSONInputToYAML(srcBytes []byte) ([]byte, error) {
 func (sc *ResourcesScanner) splitByYamlDocuments(mfp string, isYAML bool) ([]YAMLDocumentIntf, []FileProcessingError) {
 	fileBuf, err := os.ReadFile(mfp)
 	if err != nil {
-		return []YAMLDocumentIntf{}, appendAndLogNewError(nil, FailedReadingFile(mfp, err), sc.logger)
+		return []YAMLDocumentIntf{}, appendAndLogNewError(nil, FailedReadingFile(mfp, err), sc.logger, false)
 	}
 
 	if !isYAML && sc.includeJSONManifests {
 		// convert JSON to YAML
 		fileBuf, err = convertJSONInputToYAML(fileBuf)
 		if err != nil {
-			return []YAMLDocumentIntf{}, appendAndLogNewError(nil, FailedReadingFile(mfp, err), sc.logger)
+			return []YAMLDocumentIntf{}, appendAndLogNewError(nil, FailedReadingFile(mfp, err), sc.logger, false)
 		}
 	}
 
@@ -532,14 +534,14 @@ func (sc *ResourcesScanner) splitByYamlDocuments(mfp string, isYAML bool) ([]YAM
 		var doc yamlv3.Node
 		if err := decoder.Decode(&doc); err != nil {
 			if err != io.EOF {
-				return documents, appendAndLogNewError(nil, malformedYamlDoc(mfp, 0, documentID, err), sc.logger)
+				return documents, appendAndLogNewError(nil, malformedYamlDoc(mfp, 0, documentID, err), sc.logger, false)
 			}
 			break
 		}
 		if len(doc.Content) > 0 && doc.Content[0].Kind == yamlv3.MappingNode {
 			out, err := yamlv3.Marshal(doc.Content[0])
 			if err != nil {
-				return documents, appendAndLogNewError(nil, malformedYamlDoc(mfp, doc.Line, documentID, err), sc.logger)
+				return documents, appendAndLogNewError(nil, malformedYamlDoc(mfp, doc.Line, documentID, err), sc.logger, false)
 			}
 			documents = append(documents, &yamlDocument{content: string(out), docID: documentID, filePath: mfp})
 		}
@@ -553,7 +555,8 @@ func (sc *ResourcesScanner) getKind(yamlDoc YAMLDocumentIntf) (acceptedKind bool
 	fileProcessingErrors := make([]FileProcessingError, 0)
 	_, groupVersionKind, err := sc.resourceDecoder.Decode([]byte(yamlDoc.Content()), nil, nil)
 	if err != nil {
-		fileProcessingErrors = appendAndLogNewError(fileProcessingErrors, notK8sResource(yamlDoc.FilePath(), yamlDoc.DocID(), err), sc.logger)
+		fileProcessingErrors = appendAndLogNewError(fileProcessingErrors, notK8sResource(yamlDoc.FilePath(), yamlDoc.DocID(), err),
+			sc.logger, false)
 		return false, "", fileProcessingErrors
 	}
 	if !acceptedK8sTypes.MatchString(groupVersionKind.Kind) {
@@ -632,7 +635,7 @@ func (sc *ResourcesScanner) searchYamlFiles(repoDir string) (map[string]bool, []
 	processingErrors := make([]FileProcessingError, 0)
 	err := sc.walkFn(repoDir, func(path string, f os.DirEntry, err error) error {
 		if err != nil {
-			processingErrors = appendAndLogNewError(processingErrors, failedAccessingDir(path, err, path != repoDir), sc.logger)
+			processingErrors = appendAndLogNewError(processingErrors, failedAccessingDir(path, err, path != repoDir), sc.logger, false)
 			if stopProcessing(sc.stopOnError, processingErrors) {
 				return err
 			}
@@ -1161,13 +1164,17 @@ func stopProcessing(stopOn1stErr bool, errs []FileProcessingError) bool {
 	return false
 }
 
-func appendAndLogNewError(errs []FileProcessingError, newErr *FileProcessingError, l logger.Logger) []FileProcessingError {
-	logError(l, newErr)
+func appendAndLogNewError(errs []FileProcessingError, newErr *FileProcessingError, l logger.Logger,
+	muteErrsAndWarns bool) []FileProcessingError {
+	logError(l, newErr, muteErrsAndWarns)
 	errs = append(errs, *newErr)
 	return errs
 }
 
-func logError(l logger.Logger, fpe *FileProcessingError) {
+func logError(l logger.Logger, fpe *FileProcessingError, muteErrsAndWarns bool) {
+	if muteErrsAndWarns {
+		return
+	}
 	logMsg := fpe.Error().Error()
 	location := fpe.Location()
 	if location != "" {
