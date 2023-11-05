@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 )
 
 // diffFormatter implements diff output formatting in the required output format
@@ -34,14 +34,14 @@ type singleDiffFields struct {
 // formDiffFieldsDataOfDiffConns for each conn pair, forms the required fields of diff data.
 // getting array of ConnsPair , returning an array of singleDiffFields
 // splits the result into two arrays, one for policy conns the other ingress conns
-func formDiffFieldsDataOfDiffConns(diffConns []*ConnsPair) (netpolsDiff, ingressDiff []*singleDiffFields) {
+func formDiffFieldsDataOfDiffConns(diffConns []SrcDstDiff) (netpolsDiff, ingressDiff []*singleDiffFields) {
 	netpolsRes := make([]*singleDiffFields, 0) // diff in connections from netpols
 	ingressRes := make([]*singleDiffFields, 0) // diff in connections from ingress-controller
 	for _, d := range diffConns {
 		firstDirConn, secondDirConn := getDirsConnsStrings(d)
 		srcStr, dstStr, isSrcIngress := getConnPeersStrings(d)
 		diffData := &singleDiffFields{
-			diffType:         d.diffType,
+			diffType:         string(d.DiffType()),
 			src:              srcStr,
 			dst:              dstStr,
 			dir1Conn:         firstDirConn,
@@ -59,50 +59,46 @@ func formDiffFieldsDataOfDiffConns(diffConns []*ConnsPair) (netpolsDiff, ingress
 
 // getConnPeersStrings returns the string form of the peers names, src and dst for the given conns pair,
 // and an indication if the src is an ingress-controller
-func getConnPeersStrings(c *ConnsPair) (srcStr, dstStr string, isSrcIngress bool) {
-	switch c.diffType {
-	case changedType, removedType, nonChangedType:
-		return c.firstConn.Src().String(), c.firstConn.Dst().String(), isIngressControllerPeer(c.firstConn.Src())
-	case addedType:
-		return c.secondConn.Src().String(), c.secondConn.Dst().String(), isIngressControllerPeer(c.secondConn.Src())
-	default:
-		return "", "", false // should not get here
-	}
+func getConnPeersStrings(c SrcDstDiff) (srcStr, dstStr string, isSrcIngress bool) {
+	return c.Src().String(), c.Dst().String(), isIngressControllerPeer(c.Src())
 }
 
 // getDirsConnsStrings returns the string forms of the connections in a single diff connsPair
-func getDirsConnsStrings(c *ConnsPair) (dir1Str, dir2Str string) {
-	switch c.diffType {
-	case changedType, nonChangedType:
-		return connlist.GetProtocolsAndPortsStr(c.firstConn), connlist.GetProtocolsAndPortsStr(c.secondConn)
-	case addedType:
-		return noConns, connlist.GetProtocolsAndPortsStr(c.secondConn)
-	case removedType:
-		return connlist.GetProtocolsAndPortsStr(c.firstConn), noConns
+func getDirsConnsStrings(c SrcDstDiff) (dir1Str, dir2Str string) {
+	dir1AllowedConns := c.Dir1Connectivity()
+	dir2AllowedConns := c.Dir2Connectivity()
+	switch c.DiffType() {
+	case ChangedType, NonChangedType:
+		return common.ConnStrFromConnProperties(dir1AllowedConns.AllProtocolsAndPorts(), dir1AllowedConns.ProtocolsAndPorts()),
+			common.ConnStrFromConnProperties(dir2AllowedConns.AllProtocolsAndPorts(), dir2AllowedConns.ProtocolsAndPorts())
+	case AddedType:
+		return noConns, common.ConnStrFromConnProperties(dir2AllowedConns.AllProtocolsAndPorts(), dir2AllowedConns.ProtocolsAndPorts())
+	case RemovedType:
+		return common.ConnStrFromConnProperties(dir1AllowedConns.AllProtocolsAndPorts(), dir1AllowedConns.ProtocolsAndPorts()), noConns
 	default:
 		return "", "" // should not get here ever
 	}
 }
 
 // getDiffInfo computes the diff description string (if to include added/removed workloads)
-func getDiffInfo(c *ConnsPair) string {
+func getDiffInfo(c SrcDstDiff) string {
 	srcStr, dstStr, _ := getConnPeersStrings(c)
 	diffInfo := ""
 	// handling added or removed diff data
 	includedSrcFlag := false
-	if c.newOrLostSrc || c.newOrLostDst {
+	if c.IsSrcNewOrRemoved() || c.IsDstNewOrRemoved() {
 		diffInfo += infoPrefix
-		if c.newOrLostSrc {
+		if c.IsSrcNewOrRemoved() {
 			diffInfo += srcStr
 			includedSrcFlag = true
 		}
-		if c.newOrLostDst {
+		if c.IsDstNewOrRemoved() {
 			if includedSrcFlag {
 				diffInfo += and
 			}
 			diffInfo += dstStr
 		}
-		diffInfo += space + c.diffType
+		diffInfo += space + string(c.DiffType())
 	}
 	return diffInfo
 }

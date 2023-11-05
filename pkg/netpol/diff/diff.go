@@ -9,6 +9,7 @@ import (
 	"errors"
 	"os"
 
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/cli-runtime/pkg/resource"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
@@ -97,15 +98,6 @@ func dirExists(dirPath string) bool {
 		}
 	}
 	return true
-}
-
-// ConnectivityDiff captures the differences in terms of connectivity between two input k8s resource sets,
-type ConnectivityDiff interface {
-	RemovedConnections() []*ConnsPair    // only first conn exists between peers, plus indications if any of the peers removed
-	AddedConnections() []*ConnsPair      // only second conn exists between peers, plus indications if any of the peers is new
-	ChangedConnections() []*ConnsPair    // both first & second conn exists between peers
-	IsEmpty() bool                       // indicates if no diff between connections, i.e. removed, added and changed connections are empty
-	NonChangedConnections() []*ConnsPair // non changed conns, both first & second conn exists and equal between the peers
 }
 
 // computeDiffFromConnlistResults returns the ConnectivityDiff for the input connectivity results of each dir
@@ -301,24 +293,93 @@ func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
 	return src.String() + keyElemSep + dst.String()
 }
 
+type DiffTypeStr string
+
 const (
 	// diff types
-	changedType    = "changed"
-	removedType    = "removed"
-	addedType      = "added"
-	nonChangedType = "nonChanged"
+	ChangedType    DiffTypeStr = "changed"
+	RemovedType    DiffTypeStr = "removed"
+	AddedType      DiffTypeStr = "added"
+	NonChangedType DiffTypeStr = "nonChanged"
 )
+
+// allowedConnectivity implements the AllowedConnectivity interface
+type allowedConnectivity struct {
+	allProtocolsAndPorts bool
+	protocolsAndPortsMap map[v1.Protocol][]common.PortRange
+}
+
+func (a *allowedConnectivity) AllProtocolsAndPorts() bool {
+	return a.allProtocolsAndPorts
+}
+
+func (a *allowedConnectivity) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
+	return a.protocolsAndPortsMap
+}
 
 // ConnsPair captures a pair of Peer2PeerConnection from two dir paths
 // the src,dst of firstConn and secondConn are assumed to be the same
 // with info on the diffType and if any of the peers is lost/new
 // (exists only in one dir for cases of removed/added connections)
+// ConnsPair implements the SrcDstDiff interface
 type ConnsPair struct {
 	firstConn    connlist.Peer2PeerConnection
 	secondConn   connlist.Peer2PeerConnection
-	diffType     string
+	diffType     DiffTypeStr
 	newOrLostSrc bool
 	newOrLostDst bool
+}
+
+func (c *ConnsPair) Src() Peer {
+	if c.diffType == AddedType {
+		return c.secondConn.Src()
+	}
+	return c.firstConn.Src()
+}
+
+func (c *ConnsPair) Dst() Peer {
+	if c.diffType == AddedType {
+		return c.secondConn.Dst()
+	}
+	return c.firstConn.Dst()
+}
+
+func (c *ConnsPair) Dir1Connectivity() AllowedConnectivity {
+	if c.diffType == AddedType {
+		return &allowedConnectivity{
+			allProtocolsAndPorts: false,
+			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+		}
+	}
+	return &allowedConnectivity{
+		allProtocolsAndPorts: c.firstConn.AllProtocolsAndPorts(),
+		protocolsAndPortsMap: c.firstConn.ProtocolsAndPorts(),
+	}
+}
+
+func (c *ConnsPair) Dir2Connectivity() AllowedConnectivity {
+	if c.diffType == RemovedType {
+		return &allowedConnectivity{
+			allProtocolsAndPorts: false,
+			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+		}
+	}
+	return &allowedConnectivity{
+		allProtocolsAndPorts: c.secondConn.AllProtocolsAndPorts(),
+		protocolsAndPortsMap: c.secondConn.ProtocolsAndPorts(),
+	}
+}
+
+func (c *ConnsPair) IsSrcNewOrRemoved() bool {
+	return c.newOrLostSrc
+}
+
+func (c *ConnsPair) IsDstNewOrRemoved() bool {
+	return c.newOrLostDst
+}
+
+func (c *ConnsPair) DiffType() DiffTypeStr {
+	return c.diffType
 }
 
 // update func of ConnsPair obj, updates the pair with input Peer2PeerConnection, at first or second conn
@@ -572,22 +633,22 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 		switch {
 		case d.firstConn != nil && d.secondConn != nil:
 			if !equalConns(d.firstConn, d.secondConn) {
-				d.diffType = changedType
+				d.diffType = ChangedType
 				d.newOrLostSrc, d.newOrLostDst = false, false
 				res.changedConns = append(res.changedConns, d)
 			} else { // equal - non changed
-				d.diffType = nonChangedType
+				d.diffType = NonChangedType
 				d.newOrLostSrc, d.newOrLostDst = false, false
 				res.nonChangedConns = append(res.nonChangedConns, d)
 			}
 		case d.firstConn != nil:
 			// removed conn means both Src and Dst exist in peers1, just check if they are not in peers2 too
-			d.diffType = removedType
+			d.diffType = RemovedType
 			d.updateNewOrLostFields(true, peers2)
 			res.removedConns = append(res.removedConns, d)
 		case d.secondConn != nil:
 			// added conns means Src and Dst are in peers2, check if they didn't exist in peers1 too
-			d.diffType = addedType
+			d.diffType = AddedType
 			d.updateNewOrLostFields(false, peers1)
 			res.addedConns = append(res.addedConns, d)
 		default:
@@ -664,22 +725,30 @@ type connectivityDiff struct {
 	nonChangedConns []*ConnsPair
 }
 
-func (c *connectivityDiff) RemovedConnections() []*ConnsPair {
-	return c.removedConns
+func connsPairListToSrcDstDiffList(connsPairs []*ConnsPair) []SrcDstDiff {
+	res := make([]SrcDstDiff, len(connsPairs))
+	for i := range connsPairs {
+		res[i] = connsPairs[i]
+	}
+	return res
 }
 
-func (c *connectivityDiff) AddedConnections() []*ConnsPair {
-	return c.addedConns
+func (c *connectivityDiff) RemovedConnections() []SrcDstDiff {
+	return connsPairListToSrcDstDiffList(c.removedConns)
 }
 
-func (c *connectivityDiff) ChangedConnections() []*ConnsPair {
-	return c.changedConns
+func (c *connectivityDiff) AddedConnections() []SrcDstDiff {
+	return connsPairListToSrcDstDiffList(c.addedConns)
+}
+
+func (c *connectivityDiff) ChangedConnections() []SrcDstDiff {
+	return connsPairListToSrcDstDiffList(c.changedConns)
 }
 
 func (c *connectivityDiff) IsEmpty() bool {
 	return len(c.removedConns) == 0 && len(c.addedConns) == 0 && len(c.changedConns) == 0
 }
 
-func (c *connectivityDiff) NonChangedConnections() []*ConnsPair {
-	return c.nonChangedConns
+func (c *connectivityDiff) NonChangedConnections() []SrcDstDiff {
+	return connsPairListToSrcDstDiffList(c.nonChangedConns)
 }

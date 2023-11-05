@@ -12,9 +12,6 @@ import (
 	"errors"
 	"time"
 
-	"sort"
-	"strings"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
@@ -286,8 +283,7 @@ func getFormatter(format string) (connsFormatter, error) {
 // internal type definitions below
 
 const (
-	connsAndPortRangeSeparator = ","
-	ctxTimeoutSeconds          = 3
+	ctxTimeoutSeconds = 3
 )
 
 // connection implements the Peer2PeerConnection interface
@@ -309,26 +305,6 @@ func (c *connection) AllProtocolsAndPorts() bool {
 }
 func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 	return c.protocolsAndPorts
-}
-
-// return a string representation of a connection type (protocols and ports)
-func GetProtocolsAndPortsStr(c Peer2PeerConnection) string {
-	if c.AllProtocolsAndPorts() {
-		return "All Connections"
-	}
-	if len(c.ProtocolsAndPorts()) == 0 {
-		return "No Connections"
-	}
-	var connStr string
-	connStrings := make([]string, len(c.ProtocolsAndPorts()))
-	index := 0
-	for protocol, ports := range c.ProtocolsAndPorts() {
-		connStrings[index] = string(protocol) + " " + portsString(ports)
-		index++
-	}
-	sort.Strings(connStrings)
-	connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
-	return connStr
 }
 
 // returns a *common.ConnectionSet from Peer2PeerConnection data
@@ -518,15 +494,6 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		res = append(res, p2pConnection)
 	}
 	return res, nil
-}
-
-// get string representation for a list of port ranges
-func portsString(ports []common.PortRange) string {
-	portsStr := make([]string, len(ports))
-	for i := range ports {
-		portsStr[i] = ports[i].String()
-	}
-	return strings.Join(portsStr, connsAndPortRangeSeparator)
 }
 
 func (ca *ConnlistAnalyzer) warnBlockedIngress(peerStr string, ingressObjs map[string][]string) {
