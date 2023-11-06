@@ -15,8 +15,8 @@ import (
 const (
 	dirLevelUp            = ".."
 	testsDirName          = "tests"
-	standardPkgLevelDepth = 3
-	internalPkgLevelDepth = 5
+	standardPkgLevelDepth = 3 // e.g. pkg/netpol/connlist
+	internalPkgLevelDepth = 5 // e.g. pkg/netpol/connlist/internal/ingressanalyzer
 )
 
 func GetTestsDir() string {
@@ -42,20 +42,20 @@ func GetDebugMsgWithTestNameAndFormat(testName, format string) string {
 
 // CheckActualVsExpectedOutputMatch: testing helping func - checks if actual output matches expected output,
 // if not generates actual output file
-func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedOutputFileName, actualOutput, format string) {
+func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedOutputFileName, actualOutput, testInfo string) {
 	actualOutputFileName := "actual_" + expectedOutputFileName
 	// read expected output file
 	expectedOutputFile := filepath.Join(GetTestsDir(), dirName, expectedOutputFileName)
 	expectedOutput, err := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err, GetDebugMsgWithTestNameAndFormat(testName, format))
+	require.Nil(t, err, testInfo)
 	actualOutputFile := filepath.Join(GetTestsDir(), dirName, actualOutputFileName)
 	if cleanStr(string(expectedOutput)) != cleanStr(actualOutput) {
 		err := common.WriteToFile(actualOutput, actualOutputFile)
-		require.Nil(t, err, GetDebugMsgWithTestNameAndFormat(testName, format))
+		require.Nil(t, err, testInfo)
 	}
 	require.Equal(t, cleanStr(string(expectedOutput)), cleanStr(actualOutput),
 		"output mismatch for %s, actual output file %q vs expected output file: %q",
-		GetDebugMsgWithTestNameAndFormat(testName, format),
+		testInfo,
 		actualOutputFile, expectedOutputFile)
 }
 
@@ -65,11 +65,7 @@ func cleanStr(str string) string {
 
 // CheckErrorContainment: helping func - if the actual error/warning message does not contain the expected error,
 // fail the test with relevant info
-func CheckErrorContainment(t *testing.T, testName, expectedErrorMsg, actualErrMsg string, isErr bool) {
-	errType := "error"
-	if !isErr {
-		errType = "warning"
-	}
-	require.Contains(t, actualErrMsg, expectedErrorMsg, "%s message mismatch for test %q, actual: %q, expected contains: %q",
-		errType, testName, actualErrMsg, expectedErrorMsg)
+func CheckErrorContainment(t *testing.T, testInfo, expectedErrorMsg, actualErrMsg string) {
+	require.Contains(t, actualErrMsg, expectedErrorMsg, "err/warn message mismatch for test: %q, actual: %q, expected contains: %q",
+		testInfo, actualErrMsg, expectedErrorMsg)
 }

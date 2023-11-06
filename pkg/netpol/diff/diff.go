@@ -211,6 +211,13 @@ func (da *DiffAnalyzer) determineConnlistAnalyzerOptions() []connlist.ConnlistAn
 	return []connlist.ConnlistAnalyzerOption{connlist.WithMuteErrsAndWarns(), connlist.WithLogger(da.logger)}
 }
 
+// getConnlistAnalysis calls ConnlistAnalyzer to analyze connectivity from input resource.Info objects.
+// It appends to da.errors the errors/warnings returned from ConnlistAnalyzer
+// It returns the connectivity analysis results ([]connlist.Peer2PeerConnection ,[]connlist.Peer )
+// It also checks if the diff-analysis should stop due to fatal error, or severe err with stopOnErr flag
+// Thus, it returns the additional set of values (bool, ConnectivityDiff, error), where the bool flag is
+// true if the analysis should stop. The pair (ConnectivityDiff, error) are the values to be returned from
+// the main function, if the analysis should stop.
 func (da *DiffAnalyzer) getConnlistAnalysis(
 	infos []*resource.Info,
 	dir1 bool,
@@ -230,7 +237,7 @@ func (da *DiffAnalyzer) getConnlistAnalysis(
 		// wrap err/warn with new err type that includes context of dir1/dir2
 		daErr := newConnectivityAnalysisError(e.Error(), dir1, dir2, dirPath, e.IsSevere(), e.IsFatal())
 		da.errors = append(da.errors, daErr)
-		da.logger.Warnf(daErr.err.Error())
+		logErrOrWarning(daErr, da.logger)
 	}
 	if err != nil {
 		// assuming that the fatal error should exist in the errors array from connlistaAnalyzer.Errors()
@@ -244,15 +251,25 @@ func (da *DiffAnalyzer) getConnlistAnalysis(
 	shouldStop := false
 	var errVal error
 	cDiff := &connectivityDiff{}
+	// stopProcessing checks if there is a fatal err, or severe err with stopOnErr flag
 	if da.stopProcessing() {
 		shouldStop = true
 		if err := da.hasFatalError(); err != nil {
+			// a fatal err should be returned and not only be kept in the da.errors array
 			errVal = err
 			cDiff = nil
 		}
 	}
 
 	return conns, workloads, shouldStop, cDiff, errVal
+}
+
+func logErrOrWarning(d DiffError, l logger.Logger) {
+	if d.IsSevere() || d.IsFatal() {
+		l.Errorf(d.Error(), "")
+	} else {
+		l.Warnf(d.Error().Error())
+	}
 }
 
 // create set from peers-strings

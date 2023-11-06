@@ -124,8 +124,7 @@ func WithOutputFormat(outputFormat string) ConnlistAnalyzerOption {
 	}
 }
 
-// WithStopOnError is a functional option which directs ConnlistAnalyzer to stop any processing after the
-// first severe error.
+// WithMuteErrsAndWarns is a functional option which directs ConnlistAnalyzer to avoid logging errors/warnings
 func WithMuteErrsAndWarns() ConnlistAnalyzerOption {
 	return func(c *ConnlistAnalyzer) {
 		c.muteErrsAndWarns = true

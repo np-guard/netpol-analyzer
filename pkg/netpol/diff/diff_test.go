@@ -24,7 +24,7 @@ var diffTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
 
 //////////////////////////////////good path tests/////////////////////////////////////////////////////////////////////////
 
-// TestDiff tests the output for valid input resources, for both apis
+// TestDiff tests the output for valid input resources, for both apis (ConnDiffFromResourceInfos , ConnDiffFromDirPaths)
 func TestDiff(t *testing.T) {
 	t.Parallel()
 	for _, tt := range goodPathTests {
@@ -34,12 +34,12 @@ func TestDiff(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.formats {
 				for _, apiFunc := range diffTestedAPIS {
-					pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.firstDirName, tt.secondDirName, format)
+					pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.firstDirName, tt.secondDirName, format, "")
 					require.Nil(t, err, pTest.testInfo)
 					actualOutput, err := pTest.analyzer.ConnectivityDiffToString(diffRes)
 					require.Nil(t, err, pTest.testInfo)
-					// TODO: send to CheckActualVsExpectedOutputMatch the pTest.Info instead of format
-					testutils.CheckActualVsExpectedOutputMatch(t, testName, tt.secondDirName, pTest.expectedOutputFileName, actualOutput, format)
+					testutils.CheckActualVsExpectedOutputMatch(t, testName, tt.secondDirName,
+						pTest.expectedOutputFileName, actualOutput, pTest.testInfo)
 				}
 			}
 		})
@@ -59,11 +59,11 @@ func TestDiffAnalyzeFatalErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiFunc := range diffTestedAPIS {
-				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.dir1, tt.dir2, common.DefaultFormat)
+				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.dir1, tt.dir2, common.DefaultFormat, tt.name)
 				require.Empty(t, diffRes, "test: %q, apiFunc: %q", tt.name, apiFunc)
-				testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error(), true)
+				testutils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
 				require.Equal(t, 1, len(pTest.analyzer.errors))
-				testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, pTest.analyzer.errors[0].Error().Error(), true)
+				testutils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, pTest.analyzer.errors[0].Error().Error())
 			}
 		})
 	}
@@ -149,7 +149,7 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 					continue
 				}
 
-				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.dir1, tt.dir2, common.DefaultFormat)
+				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.dir1, tt.dir2, common.DefaultFormat, tt.name)
 				if tt.emptyRes {
 					require.Empty(t, diffRes)
 				} else {
@@ -202,26 +202,16 @@ func TestDiffOutputFatalErrors(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			analyzerOpts := []DiffAnalyzerOption{WithOutputFormat(tt.format)}
-			analyzer, connsDiff, err := constructAnalyzerAndGetDiffFromDirPaths(analyzerOpts, tt.dir1, tt.dir2)
-			require.Nil(t, err, "test: %q", tt.name)
-			require.NotEmpty(t, connsDiff, "test: %q", tt.name)
-			output, err := analyzer.ConnectivityDiffToString(connsDiff)
-			require.Empty(t, output, "test: %q", tt.name)
-			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error(), true)
+			for _, apiFunc := range diffTestedAPIS {
+				pTest, connsDiff, err := getAnalysisResFromAPI(apiFunc, tt.dir1, tt.dir2, tt.format, tt.name)
+				require.Nil(t, err, pTest.testInfo)
+				require.NotEmpty(t, connsDiff, pTest.testInfo)
+				output, err := pTest.analyzer.ConnectivityDiffToString(connsDiff)
+				require.Empty(t, output, pTest.testInfo)
+				testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error())
+			}
 		})
 	}
-}
-
-// helping func constructs diffAnalyzer with required options and computes the connectivity diff from the dir paths
-func constructAnalyzerAndGetDiffFromDirPaths(opts []DiffAnalyzerOption, dir1, dir2 string) (*DiffAnalyzer, ConnectivityDiff, error) {
-	diffAnalyzer := NewDiffAnalyzer(opts...)
-
-	firstDirPath := filepath.Join(testutils.GetTestsDir(), dir1)
-	secondDirPath := filepath.Join(testutils.GetTestsDir(), dir2)
-	connsDiff, err := diffAnalyzer.ConnDiffFromDirPaths(firstDirPath, secondDirPath)
-
-	return diffAnalyzer, connsDiff, err
 }
 
 type preparedTest struct {
@@ -237,8 +227,14 @@ func getTestName(dir1, dir2 string) string {
 	return "diff_between_" + dir2 + "_and_" + dir1
 }
 
-func prepareTest(firstDir, secondDir, format, apiName string) *preparedTest {
-	testName := getTestName(firstDir, secondDir)
+func prepareTest(firstDir, secondDir, format, apiName, testNameStr string) *preparedTest {
+	var testName string
+	if testNameStr != "" {
+		testName = testNameStr
+	} else {
+		testName = getTestName(firstDir, secondDir)
+	}
+
 	return &preparedTest{
 		testName:               testName,
 		expectedOutputFileName: expectedOutputFilePrefix + firstDir + "." + format,
@@ -246,13 +242,12 @@ func prepareTest(firstDir, secondDir, format, apiName string) *preparedTest {
 		analyzer:               NewDiffAnalyzer(WithOutputFormat(format)),
 		firstDirPath:           filepath.Join(testutils.GetTestsDir(), firstDir),
 		secondDirPath:          filepath.Join(testutils.GetTestsDir(), secondDir),
-		//testInfo:               testutils.GetDebugMsgWithTestNameAndFormat(res.testName, format),
 	}
 }
 
-func getAnalysisResFromAPI(apiName, firstDir, secondDir, format string) (
+func getAnalysisResFromAPI(apiName, firstDir, secondDir, format, testName string) (
 	pTest *preparedTest, diffRes ConnectivityDiff, err error) {
-	pTest = prepareTest(firstDir, secondDir, format, apiName)
+	pTest = prepareTest(firstDir, secondDir, format, apiName, testName)
 	switch apiName {
 	case ResourceInfosFunc:
 		infos1, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.firstDirPath}, true, false)
