@@ -80,7 +80,6 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 		name                string
 		dir1                string
 		dir2                string
-		firstErrStrContains string
 		containedErrOrWarns []string
 		emptyRes            bool
 		onlyDirPathsAPI     bool
@@ -151,7 +150,7 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 
 				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.dir1, tt.dir2, common.DefaultFormat, tt.name)
 				if tt.emptyRes {
-					require.Empty(t, diffRes)
+					require.Empty(t, diffRes, pTest.testInfo)
 				} else {
 					require.NotEmpty(t, diffRes, pTest.testInfo)
 				}
@@ -179,6 +178,88 @@ func checkIfErrStrContained(t *testing.T, pTest *preparedTest, errStr string) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Test errs/warnings unique for ConnDiffFromDirPaths only (issued by the resources builder)
+// ----------------------------------------------------------------------------------------------
+
+func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name                string
+		dir1                string
+		dir2                string
+		containedErrOrWarns []string
+		emptyRes            bool
+		onlyDirPathsAPI     bool
+		isFatal             bool
+	}{
+		{
+			name: "both_input_dirs_do_not_exist",
+			dir1: "some_dir",
+			dir2: "some_other_dir",
+			containedErrOrWarns: []string{
+				// [the path "tests/some_dir" does not exist, the path "tests/some_other_dir" does not exist]
+				"[the path ", "some_dir", "does not exist", "some_other_dir",
+			},
+			emptyRes: true, // fatal err
+			isFatal:  true,
+		},
+		{
+			name: "first_dir_does_not_exist_and_second_dir_has_json_that_cannot_be_decoded",
+			dir1: "some_dir",
+			dir2: "acs-security-demos",
+			containedErrOrWarns: []string{
+				// [the path "tests/some_other_dir" does not exist, unable to decode "tests\\acs-security-demos\\connlist_output.json":
+				// json: cannot unmarshal array into Go value of type unstructured.detector]
+				"[the path ", "some_dir", "does not exist", "unable to decode", "connlist_output.json",
+			},
+			emptyRes: true, // fatal err
+			isFatal:  true,
+		},
+		{
+			name: "dir_has_json_that_cannot_be_decoded_and_dir1_dir2_are_the_same",
+			dir1: "acs-security-demos",
+			dir2: "acs-security-demos",
+			containedErrOrWarns: []string{
+				// at dir1: error reading file: unable to decode ...
+				// at dir2: error reading file: unable to decode ...
+				// "at dir" is only attached to the log msg and not to the returned err obj
+				"unable to decode", "connlist_output.json", "error reading file",
+			},
+			emptyRes: false, // no diff, but ConnectivityDiff contains non-changed conns
+			isFatal:  false,
+		},
+	}
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			pTest, diffRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dir1, tt.dir2, common.DefaultFormat, tt.name)
+			if tt.emptyRes {
+				require.Empty(t, diffRes, pTest.testInfo)
+			} else {
+				require.NotEmpty(t, diffRes, pTest.testInfo)
+			}
+
+			if !tt.isFatal {
+				// not a fatal err, thus require err is nil
+				require.Nil(t, err, pTest.testInfo)
+			} else {
+				// fatal err - the expected err should be returned
+				for _, expectedErrStr := range tt.containedErrOrWarns {
+					testutils.CheckErrorContainment(t, pTest.testInfo, expectedErrStr, err.Error())
+				}
+			}
+
+			// check containment of all expected err/warn strings in analyzer.errors
+			for _, errStr := range tt.containedErrOrWarns {
+				checkIfErrStrContained(t, pTest, errStr) // checks pTest.analyzer.errors
+			}
+		})
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // TestDiffOutputFatalErrors tests fatal errors returned while writing the diff to string in given output format
 func TestDiffOutputFatalErrors(t *testing.T) {
@@ -208,7 +289,7 @@ func TestDiffOutputFatalErrors(t *testing.T) {
 				require.NotEmpty(t, connsDiff, pTest.testInfo)
 				output, err := pTest.analyzer.ConnectivityDiffToString(connsDiff)
 				require.Empty(t, output, pTest.testInfo)
-				testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error())
+				testutils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
 			}
 		})
 	}

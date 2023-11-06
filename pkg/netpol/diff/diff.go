@@ -65,7 +65,7 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 			if len(errs1) == 0 {
 				dirPath = dirPath2
 			}
-			da.logger.Errorf(err, "Error getting resourceInfos from dir path "+dirPath)
+			da.logger.Errorf(err, "Error getting resourceInfos from dir paths dir1/dir2 ")
 			da.errors = append(da.errors, parser.FailedReadingFile(dirPath, err))
 			return nil, err // return as fatal error if both infos-lists are empty, or if stopOnError is on,
 			// or if at least one input dir does not exist
