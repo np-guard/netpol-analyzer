@@ -317,12 +317,12 @@ func (a *allowedConnectivity) ProtocolsAndPorts() map[v1.Protocol][]common.PortR
 	return a.protocolsAndPortsMap
 }
 
-// ConnsPair captures a pair of Peer2PeerConnection from two dir paths
+// connsPair captures a pair of Peer2PeerConnection from two dir paths
 // the src,dst of firstConn and secondConn are assumed to be the same
 // with info on the diffType and if any of the peers is lost/new
 // (exists only in one dir for cases of removed/added connections)
-// ConnsPair implements the SrcDstDiff interface
-type ConnsPair struct {
+// connsPair implements the SrcDstDiff interface
+type connsPair struct {
 	firstConn    connlist.Peer2PeerConnection
 	secondConn   connlist.Peer2PeerConnection
 	diffType     DiffTypeStr
@@ -330,21 +330,21 @@ type ConnsPair struct {
 	newOrLostDst bool
 }
 
-func (c *ConnsPair) Src() Peer {
+func (c *connsPair) Src() Peer {
 	if c.diffType == AddedType {
 		return c.secondConn.Src()
 	}
 	return c.firstConn.Src()
 }
 
-func (c *ConnsPair) Dst() Peer {
+func (c *connsPair) Dst() Peer {
 	if c.diffType == AddedType {
 		return c.secondConn.Dst()
 	}
 	return c.firstConn.Dst()
 }
 
-func (c *ConnsPair) Dir1Connectivity() AllowedConnectivity {
+func (c *connsPair) Dir1Connectivity() AllowedConnectivity {
 	if c.diffType == AddedType {
 		return &allowedConnectivity{
 			allProtocolsAndPorts: false,
@@ -357,7 +357,7 @@ func (c *ConnsPair) Dir1Connectivity() AllowedConnectivity {
 	}
 }
 
-func (c *ConnsPair) Dir2Connectivity() AllowedConnectivity {
+func (c *connsPair) Dir2Connectivity() AllowedConnectivity {
 	if c.diffType == RemovedType {
 		return &allowedConnectivity{
 			allProtocolsAndPorts: false,
@@ -370,20 +370,20 @@ func (c *ConnsPair) Dir2Connectivity() AllowedConnectivity {
 	}
 }
 
-func (c *ConnsPair) IsSrcNewOrRemoved() bool {
+func (c *connsPair) IsSrcNewOrRemoved() bool {
 	return c.newOrLostSrc
 }
 
-func (c *ConnsPair) IsDstNewOrRemoved() bool {
+func (c *connsPair) IsDstNewOrRemoved() bool {
 	return c.newOrLostDst
 }
 
-func (c *ConnsPair) DiffType() DiffTypeStr {
+func (c *connsPair) DiffType() DiffTypeStr {
 	return c.diffType
 }
 
 // update func of ConnsPair obj, updates the pair with input Peer2PeerConnection, at first or second conn
-func (c *ConnsPair) updateConn(isFirst bool, conn connlist.Peer2PeerConnection) {
+func (c *connsPair) updateConn(isFirst bool, conn connlist.Peer2PeerConnection) {
 	if isFirst {
 		c.firstConn = conn
 	} else {
@@ -392,7 +392,7 @@ func (c *ConnsPair) updateConn(isFirst bool, conn connlist.Peer2PeerConnection) 
 }
 
 // isSrcOrDstPeerIPType returns whether src (if checkSrc is true) or dst (if checkSrc is false) is of IP type
-func (c *ConnsPair) isSrcOrDstPeerIPType(checkSrc bool) bool {
+func (c *connsPair) isSrcOrDstPeerIPType(checkSrc bool) bool {
 	var src, dst eval.Peer
 	if c.firstConn != nil {
 		src = c.firstConn.Src()
@@ -412,7 +412,7 @@ func isIngressControllerPeer(peer eval.Peer) bool {
 }
 
 // updateNewOrLostFields updates ConnsPair's newOrLostSrc and newOrLostDst values
-func (c *ConnsPair) updateNewOrLostFields(isFirst bool, peersSet map[string]bool) {
+func (c *connsPair) updateNewOrLostFields(isFirst bool, peersSet map[string]bool) {
 	var src, dst eval.Peer
 	if isFirst {
 		src, dst = c.firstConn.Src(), c.firstConn.Dst()
@@ -429,24 +429,24 @@ func (c *ConnsPair) updateNewOrLostFields(isFirst bool, peersSet map[string]bool
 }
 
 // diffMap captures connectivity-diff as a map from src-dst key to ConnsPair object
-type diffMap map[string]*ConnsPair
+type diffMap map[string]*connsPair
 
 // update func of diffMap, updates the map input key and Peer2PeerConnection, at first or second conn
 func (d diffMap) update(key string, isFirst bool, c connlist.Peer2PeerConnection) {
 	if _, ok := d[key]; !ok {
-		d[key] = &ConnsPair{}
+		d[key] = &connsPair{}
 	}
 	d[key].updateConn(isFirst, c)
 }
 
 // type mapListConnPairs is a map from key (src-or-dst)+conns1+conns2 to []ConnsPair (where dst-or-src is ip-block)
 // it is used to group disjoint ip-blocks and merge overlapping/touching ip-blocks when possible
-type mapListConnPairs map[string][]*ConnsPair
+type mapListConnPairs map[string][]*connsPair
 
 const keyElemSep = ";"
 
 // addConnsPair is given ConnsPair with src or dst as ip-block, and updates mapListConnPairs
-func (m mapListConnPairs) addConnsPair(c *ConnsPair, isSrcAnIP bool) error {
+func (m mapListConnPairs) addConnsPair(c *connsPair, isSrcAnIP bool) error {
 	// new key is src+conns1+conns2 if dst is ip, and dst+conns1+conns2 if src is ip
 	var srcOrDstKey string
 	var p connlist.Peer2PeerConnection
@@ -475,7 +475,7 @@ func (m mapListConnPairs) addConnsPair(c *ConnsPair, isSrcAnIP bool) error {
 	newKey := srcOrDstKey + keyElemSep + conn1 + keyElemSep + conn2
 
 	if _, ok := m[newKey]; !ok {
-		m[newKey] = []*ConnsPair{}
+		m[newKey] = []*connsPair{}
 	}
 	m[newKey] = append(m[newKey], c)
 
@@ -483,7 +483,7 @@ func (m mapListConnPairs) addConnsPair(c *ConnsPair, isSrcAnIP bool) error {
 }
 
 // getConnStringsFromConnsPair returns string representation of connections from the pair at ConnsPair
-func getConnStringsFromConnsPair(c *ConnsPair) (conn1, conn2 string, err error) {
+func getConnStringsFromConnsPair(c *connsPair) (conn1, conn2 string, err error) {
 	switch {
 	case c.firstConn != nil && c.secondConn != nil:
 		conn1 = connlist.GetConnectionSetFromP2PConnection(c.firstConn).String()
@@ -499,7 +499,7 @@ func getConnStringsFromConnsPair(c *ConnsPair) (conn1, conn2 string, err error) 
 }
 
 // getDstOrSrcFromConnsPair returns the src or dst Peer from ConnsPair object
-func getDstOrSrcFromConnsPair(c *ConnsPair, isDst bool) eval.Peer {
+func getDstOrSrcFromConnsPair(c *connsPair, isDst bool) eval.Peer {
 	var p connlist.Peer2PeerConnection
 	if c.firstConn != nil {
 		p = c.firstConn
@@ -624,10 +624,10 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 	}
 
 	res := &connectivityDiff{
-		removedConns:    []*ConnsPair{},
-		addedConns:      []*ConnsPair{},
-		changedConns:    []*ConnsPair{},
-		nonChangedConns: []*ConnsPair{},
+		removedConns:    []*connsPair{},
+		addedConns:      []*connsPair{},
+		changedConns:    []*connsPair{},
+		nonChangedConns: []*connsPair{},
 	}
 	for _, d := range diffsMap {
 		switch {
@@ -719,13 +719,13 @@ func getFormatter(format string) (diffFormatter, error) {
 
 // connectivityDiff implements the ConnectivityDiff interface
 type connectivityDiff struct {
-	removedConns    []*ConnsPair
-	addedConns      []*ConnsPair
-	changedConns    []*ConnsPair
-	nonChangedConns []*ConnsPair
+	removedConns    []*connsPair
+	addedConns      []*connsPair
+	changedConns    []*connsPair
+	nonChangedConns []*connsPair
 }
 
-func connsPairListToSrcDstDiffList(connsPairs []*ConnsPair) []SrcDstDiff {
+func connsPairListToSrcDstDiffList(connsPairs []*connsPair) []SrcDstDiff {
 	res := make([]SrcDstDiff, len(connsPairs))
 	for i := range connsPairs {
 		res[i] = connsPairs[i]
