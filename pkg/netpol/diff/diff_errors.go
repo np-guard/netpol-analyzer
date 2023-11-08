@@ -32,13 +32,6 @@ type connectivityAnalysisError struct {
 	dirPath string
 }
 
-/*type connectivityAnalysisWarning struct {
-	origErr error
-	dir1    bool
-	dir2    bool
-	dirPath string
-}*/
-
 ///////////////////////////
 // diffGeneratingError implements DiffError interface
 
