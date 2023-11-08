@@ -7,24 +7,128 @@ package diff
 
 import (
 	"errors"
-	"path/filepath"
+	"os"
+
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/cli-runtime/pkg/resource"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
+
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 )
 
 // A DiffAnalyzer provides API to recursively scan two directories for Kubernetes resources including network policies,
 // and get the difference of permitted connectivity between the workloads of the K8s application managed in theses directories.
 type DiffAnalyzer struct {
-	logger               logger.Logger
-	stopOnError          bool
-	errors               []DiffError
-	walkFn               scan.WalkFunction
-	outputFormat         string
-	includeJSONManifests bool
+	logger       logger.Logger
+	stopOnError  bool
+	errors       []DiffError
+	outputFormat string
+}
+
+// ConnDiffFromResourceInfos returns the connectivity diffs from two lists of resource.Info objects,
+// representing two versions of manifest sets to compare
+func (da *DiffAnalyzer) ConnDiffFromResourceInfos(infos1, infos2 []*resource.Info) (ConnectivityDiff, error) {
+	// connectivity analysis for first dir
+	// TODO: should add input arg dirPath to this API func? so that log msgs can specify the dir, rather then just "dir1"/"dir2"
+	conns1, workloads1, shouldStop, cDiff, errVal := da.getConnlistAnalysis(infos1, true, false, "")
+	if shouldStop {
+		return cDiff, errVal
+	}
+
+	// connectivity analysis for second dir
+	conns2, workloads2, shouldStop, cDiff, errVal := da.getConnlistAnalysis(infos2, false, true, "")
+	if shouldStop {
+		return cDiff, errVal
+	}
+
+	// the actual diff analysis
+	return da.computeDiffFromConnlistResults(conns1, conns2, workloads1, workloads2)
+}
+
+// ConnDiffFromDirPaths returns the connectivity diffs from two dir paths containing k8s resources,
+// representing two versions of manifest sets to compare
+func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (ConnectivityDiff, error) {
+	// attempt to read manifests from both dirs
+	infos1, errs1 := fsscanner.GetResourceInfosFromDirPath([]string{dirPath1}, true, da.stopOnError)
+	infos2, errs2 := fsscanner.GetResourceInfosFromDirPath([]string{dirPath2}, true, da.stopOnError)
+
+	if len(errs1) > 0 || len(errs2) > 0 {
+		if (len(infos1) == 0 && len(infos2) == 0) || da.stopOnError || !doBothInputDirsExist(dirPath1, dirPath2) {
+			err := utilerrors.NewAggregate(append(errs1, errs2...))
+			dirPath := dirPath1
+			if len(errs1) == 0 {
+				dirPath = dirPath2
+			}
+			da.logger.Errorf(err, "Error getting resourceInfos from dir paths dir1/dir2 ")
+			da.errors = append(da.errors, parser.FailedReadingFile(dirPath, err))
+			return nil, err // return as fatal error if both infos-lists are empty, or if stopOnError is on,
+			// or if at least one input dir does not exist
+		}
+
+		// split err if it's an aggregated error to a list of separate errors
+		errReadingFile := "error reading file"
+		for _, err := range errs1 {
+			da.logger.Errorf(err, atDir1Prefix+errReadingFile)                     // print to log the error from builder
+			da.errors = append(da.errors, parser.FailedReadingFile(dirPath1, err)) // add the error from builder to accumulated errors
+		}
+		for _, err := range errs2 {
+			da.logger.Errorf(err, atDir2Prefix+errReadingFile)                     // print to log the error from builder
+			da.errors = append(da.errors, parser.FailedReadingFile(dirPath2, err)) // add the error from builder to accumulated errors
+		}
+	}
+	return da.ConnDiffFromResourceInfos(infos1, infos2)
+}
+
+func doBothInputDirsExist(dirPath1, dirPath2 string) bool {
+	return dirExists(dirPath1) && dirExists(dirPath2)
+}
+
+func dirExists(dirPath string) bool {
+	if _, err := os.Stat(dirPath); err != nil {
+		// TODO: should any err != nil for os.Stat be considered as error to stop the analysis?
+		// instead of checking os.IsNotExist specifically on err
+		if os.IsNotExist(err) {
+			return false
+		}
+	}
+	return true
+}
+
+// computeDiffFromConnlistResults returns the ConnectivityDiff for the input connectivity results of each dir
+func (da *DiffAnalyzer) computeDiffFromConnlistResults(
+	conns1, conns2 []connlist.Peer2PeerConnection,
+	workloads1, workloads2 []connlist.Peer,
+) (ConnectivityDiff, error) {
+	workloadsNames1, workloadsNames2 := getPeersNamesFromPeersList(workloads1), getPeersNamesFromPeersList(workloads2)
+
+	// get disjoint ip-blocks from both configs
+	ipPeers1, ipPeers2 := getIPblocksFromConnList(conns1), getIPblocksFromConnList(conns2)
+	disjointPeerIPMap, err := eval.DisjointPeerIPMap(ipPeers1, ipPeers2)
+	if err != nil {
+		da.errors = append(da.errors, newHandlingIPpeersError(err))
+		return nil, err
+	}
+
+	// refine conns1,conns2 based on common disjoint ip-blocks
+	conns1Refined, err := connlist.RefineConnListByDisjointPeers(conns1, disjointPeerIPMap)
+	if err != nil {
+		da.errors = append(da.errors, newHandlingIPpeersError(err))
+		return nil, err
+	}
+	conns2Refined, err := connlist.RefineConnListByDisjointPeers(conns2, disjointPeerIPMap)
+	if err != nil {
+		da.errors = append(da.errors, newHandlingIPpeersError(err))
+		return nil, err
+	}
+
+	// get the diff w.r.t refined sets of connectivity
+	return diffConnectionsLists(conns1Refined, conns2Refined, workloadsNames1, workloadsNames2)
 }
 
 // ValidDiffFormats are the supported formats for output generation of the diff command
@@ -57,13 +161,6 @@ func WithStopOnError() DiffAnalyzerOption {
 	}
 }
 
-// WithIncludeJSONManifests is a functional option which directs ConnlistAnalyzer to include JSON manifests in the analysis
-func WithIncludeJSONManifests() DiffAnalyzerOption {
-	return func(d *DiffAnalyzer) {
-		d.includeJSONManifests = true
-	}
-}
-
 // NewDiffAnalyzer creates a new instance of DiffAnalyzer, and applies the provided functional options.
 func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 	// object with default behavior options
@@ -71,7 +168,6 @@ func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 		logger:       logger.NewDefaultLogger(),
 		stopOnError:  false,
 		errors:       []DiffError{},
-		walkFn:       filepath.WalkDir,
 		outputFormat: common.DefaultFormat,
 	}
 	for _, o := range options {
@@ -88,8 +184,8 @@ func (da *DiffAnalyzer) Errors() []DiffError {
 // loops the errors that were returned from the connlistAnalyzer
 // (as only connlistAnalyzer.Errors() may contain severe errors; all other DiffAnalyzer errors are fatal),
 // returns true if has fatal error or severe error with flag stopOnError
-func (da *DiffAnalyzer) stopProcessing(caErrors []connlist.ConnlistError) bool {
-	for _, e := range caErrors {
+func (da *DiffAnalyzer) stopProcessing() bool {
+	for _, e := range da.errors {
 		if e.IsFatal() || da.stopOnError && e.IsSevere() {
 			return true
 		}
@@ -97,84 +193,83 @@ func (da *DiffAnalyzer) stopProcessing(caErrors []connlist.ConnlistError) bool {
 	return false
 }
 
-// appending connlist warnings and severe errors to diff_errors
-func (da *DiffAnalyzer) appendConnlistErrorsToDiffErrors(caErrors []connlist.ConnlistError) {
-	for _, e := range caErrors {
-		// interfaces ConnlistError and DiffError has same functionality, so we can append to each other implicitly
-		da.errors = append(da.errors, e)
+func (da *DiffAnalyzer) hasFatalError() error {
+	for idx := range da.errors {
+		if da.errors[idx].IsFatal() {
+			return da.errors[idx].Error()
+		}
 	}
+	return nil
 }
 
-func (da *DiffAnalyzer) determineConnlistAnalyzerOptionsForDiffAnalysis() []connlist.ConnlistAnalyzerOption {
-	res := []connlist.ConnlistAnalyzerOption{connlist.WithLogger(da.logger), connlist.WithWalkFn(da.walkFn)}
-	if da.includeJSONManifests {
-		res = append(res, connlist.WithIncludeJSONManifests())
-	}
+// return a []ConnlistAnalyzerOption with mute errs/warns, so that logging of err/wanr is not duplicated, and
+// added to log only by getConnlistAnalysis function, which adds the context of dir1/dir2
+func (da *DiffAnalyzer) determineConnlistAnalyzerOptions() []connlist.ConnlistAnalyzerOption {
 	if da.stopOnError {
-		res = append(res, connlist.WithStopOnError())
+		return []connlist.ConnlistAnalyzerOption{connlist.WithMuteErrsAndWarns(), connlist.WithLogger(da.logger), connlist.WithStopOnError()}
 	}
-	return res
+	return []connlist.ConnlistAnalyzerOption{connlist.WithMuteErrsAndWarns(), connlist.WithLogger(da.logger)}
 }
 
-// returns results from calling connlist analyzer ConnlistFromDirPath for the given dir path
-// and appends the connlist analyzers' errors to diffError
-func (da *DiffAnalyzer) getConnsAndWorkloadsFromDir(caAnalyzer *connlist.ConnlistAnalyzer, dirPath string) ([]connlist.Peer2PeerConnection,
-	[]connlist.Peer, error) {
-	conns, workloads, err := caAnalyzer.ConnlistFromDirPath(dirPath)
-	if err != nil {
-		// append all fatal/severe errors and warnings returned by caAnalyzer then return because of the fatal err
-		da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
-		return nil, nil, err
+// getConnlistAnalysis calls ConnlistAnalyzer to analyze connectivity from input resource.Info objects.
+// It appends to da.errors the errors/warnings returned from ConnlistAnalyzer
+// It returns the connectivity analysis results ([]connlist.Peer2PeerConnection ,[]connlist.Peer )
+// It also checks if the diff-analysis should stop due to fatal error, or severe err with stopOnErr flag
+// Thus, it returns the additional set of values (bool, ConnectivityDiff, error), where the bool flag is
+// true if the analysis should stop. The pair (ConnectivityDiff, error) are the values to be returned from
+// the main function, if the analysis should stop.
+func (da *DiffAnalyzer) getConnlistAnalysis(
+	infos []*resource.Info,
+	dir1 bool,
+	dir2 bool,
+	dirPath string) (
+	[]connlist.Peer2PeerConnection,
+	[]connlist.Peer,
+	bool,
+	ConnectivityDiff,
+	error) {
+	// get a new ConnlistAnalyzer with muted errs/warns
+	connlistaAnalyzer := connlist.NewConnlistAnalyzer(da.determineConnlistAnalyzerOptions()...)
+	conns, workloads, err := connlistaAnalyzer.ConnlistFromResourceInfos(infos)
+
+	// append all fatal/severe errors and warnings returned by connlistaAnalyzer
+	for _, e := range connlistaAnalyzer.Errors() {
+		// wrap err/warn with new err type that includes context of dir1/dir2
+		daErr := newConnectivityAnalysisError(e.Error(), dir1, dir2, dirPath, e.IsSevere(), e.IsFatal())
+		da.errors = append(da.errors, daErr)
+		logErrOrWarning(daErr, da.logger)
 	}
-	return conns, workloads, nil
+	if err != nil {
+		// assuming that the fatal error should exist in the errors array from connlistaAnalyzer.Errors()
+		// check it exists, if not, append a new fatal err to the da.errors array
+		if da.hasFatalError() == nil {
+			// append the fatal error (indicates an issue in connlist analyzer, that did not append this err as expected)
+			da.errors = append(da.errors, newConnectivityAnalysisError(err, dir1, dir2, dirPath, false, true))
+		}
+	}
+
+	shouldStop := false
+	var errVal error
+	cDiff := &connectivityDiff{}
+	// stopProcessing checks if there is a fatal err, or severe err with stopOnErr flag
+	if da.stopProcessing() {
+		shouldStop = true
+		if err := da.hasFatalError(); err != nil {
+			// a fatal err should be returned and not only be kept in the da.errors array
+			errVal = err
+			cDiff = nil
+		}
+	}
+
+	return conns, workloads, shouldStop, cDiff, errVal
 }
 
-// ConnDiffFromDirPaths returns the connectivity diffs from two dir paths containing k8s resources
-func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (ConnectivityDiff, error) {
-	caAnalyzer := connlist.NewConnlistAnalyzer(da.determineConnlistAnalyzerOptionsForDiffAnalysis()...)
-	var conns1, conns2 []connlist.Peer2PeerConnection
-	var workloads1, workloads2 []connlist.Peer
-	var workloadsNames1, workloadsNames2 map[string]bool
-	var err error
-	if conns1, workloads1, err = da.getConnsAndWorkloadsFromDir(caAnalyzer, dirPath1); err != nil {
-		return nil, err
+func logErrOrWarning(d DiffError, l logger.Logger) {
+	if d.IsSevere() || d.IsFatal() {
+		l.Errorf(d.Error(), "")
+	} else {
+		l.Warnf(d.Error().Error())
 	}
-	if da.stopProcessing(caAnalyzer.Errors()) { // check if first dir analysis raised severe error
-		// if true, before returning, append the caAnalyzer.Errors to DiffAnalyzer.Errors() to be exported
-		da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors())
-		return &connectivityDiff{}, nil
-	}
-	if conns2, workloads2, err = da.getConnsAndWorkloadsFromDir(caAnalyzer, dirPath2); err != nil {
-		return nil, err
-	}
-	da.appendConnlistErrorsToDiffErrors(caAnalyzer.Errors()) // append all caAnalyzer.Errors() as we finished calling its funcs
-	if da.stopProcessing(caAnalyzer.Errors()) {              // checks if the second dirPath raised any severe errors
-		return &connectivityDiff{}, nil
-	}
-	workloadsNames1, workloadsNames2 = getPeersNamesFromPeersList(workloads1), getPeersNamesFromPeersList(workloads2)
-
-	// get disjoint ip-blocks from both configs
-	ipPeers1, ipPeers2 := getIPblocksFromConnList(conns1), getIPblocksFromConnList(conns2)
-	disjointPeerIPMap, err := eval.DisjointPeerIPMap(ipPeers1, ipPeers2)
-	if err != nil {
-		da.errors = append(da.errors, newHandlingIPpeersError(err))
-		return nil, err
-	}
-
-	// refine conns1,conns2 based on common disjoint ip-blocks
-	conns1Refined, err := connlist.RefineConnListByDisjointPeers(conns1, disjointPeerIPMap)
-	if err != nil {
-		da.errors = append(da.errors, newHandlingIPpeersError(err))
-		return nil, err
-	}
-	conns2Refined, err := connlist.RefineConnListByDisjointPeers(conns2, disjointPeerIPMap)
-	if err != nil {
-		da.errors = append(da.errors, newHandlingIPpeersError(err))
-		return nil, err
-	}
-
-	// get the diff w.r.t refined sets of connectivity
-	return diffConnectionsLists(conns1Refined, conns2Refined, workloadsNames1, workloadsNames2)
 }
 
 // create set from peers-strings
@@ -215,28 +310,87 @@ func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
 	return src.String() + keyElemSep + dst.String()
 }
 
-const (
-	// diff types
-	changedType    = "changed"
-	removedType    = "removed"
-	addedType      = "added"
-	nonChangedType = "nonChanged"
-)
+// allowedConnectivity implements the AllowedConnectivity interface
+type allowedConnectivity struct {
+	allProtocolsAndPorts bool
+	protocolsAndPortsMap map[v1.Protocol][]common.PortRange
+}
 
-// ConnsPair captures a pair of Peer2PeerConnection from two dir paths
+func (a *allowedConnectivity) AllProtocolsAndPorts() bool {
+	return a.allProtocolsAndPorts
+}
+
+func (a *allowedConnectivity) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
+	return a.protocolsAndPortsMap
+}
+
+// connsPair captures a pair of Peer2PeerConnection from two dir paths
 // the src,dst of firstConn and secondConn are assumed to be the same
 // with info on the diffType and if any of the peers is lost/new
 // (exists only in one dir for cases of removed/added connections)
-type ConnsPair struct {
+// connsPair implements the SrcDstDiff interface
+type connsPair struct {
 	firstConn    connlist.Peer2PeerConnection
 	secondConn   connlist.Peer2PeerConnection
-	diffType     string
+	diffType     DiffTypeStr
 	newOrLostSrc bool
 	newOrLostDst bool
 }
 
+func (c *connsPair) Src() Peer {
+	if c.diffType == AddedType {
+		return c.secondConn.Src()
+	}
+	return c.firstConn.Src()
+}
+
+func (c *connsPair) Dst() Peer {
+	if c.diffType == AddedType {
+		return c.secondConn.Dst()
+	}
+	return c.firstConn.Dst()
+}
+
+func (c *connsPair) Dir1Connectivity() AllowedConnectivity {
+	if c.diffType == AddedType {
+		return &allowedConnectivity{
+			allProtocolsAndPorts: false,
+			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+		}
+	}
+	return &allowedConnectivity{
+		allProtocolsAndPorts: c.firstConn.AllProtocolsAndPorts(),
+		protocolsAndPortsMap: c.firstConn.ProtocolsAndPorts(),
+	}
+}
+
+func (c *connsPair) Dir2Connectivity() AllowedConnectivity {
+	if c.diffType == RemovedType {
+		return &allowedConnectivity{
+			allProtocolsAndPorts: false,
+			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+		}
+	}
+	return &allowedConnectivity{
+		allProtocolsAndPorts: c.secondConn.AllProtocolsAndPorts(),
+		protocolsAndPortsMap: c.secondConn.ProtocolsAndPorts(),
+	}
+}
+
+func (c *connsPair) IsSrcNewOrRemoved() bool {
+	return c.newOrLostSrc
+}
+
+func (c *connsPair) IsDstNewOrRemoved() bool {
+	return c.newOrLostDst
+}
+
+func (c *connsPair) DiffType() DiffTypeStr {
+	return c.diffType
+}
+
 // update func of ConnsPair obj, updates the pair with input Peer2PeerConnection, at first or second conn
-func (c *ConnsPair) updateConn(isFirst bool, conn connlist.Peer2PeerConnection) {
+func (c *connsPair) updateConn(isFirst bool, conn connlist.Peer2PeerConnection) {
 	if isFirst {
 		c.firstConn = conn
 	} else {
@@ -245,7 +399,7 @@ func (c *ConnsPair) updateConn(isFirst bool, conn connlist.Peer2PeerConnection) 
 }
 
 // isSrcOrDstPeerIPType returns whether src (if checkSrc is true) or dst (if checkSrc is false) is of IP type
-func (c *ConnsPair) isSrcOrDstPeerIPType(checkSrc bool) bool {
+func (c *connsPair) isSrcOrDstPeerIPType(checkSrc bool) bool {
 	var src, dst eval.Peer
 	if c.firstConn != nil {
 		src = c.firstConn.Src()
@@ -262,7 +416,7 @@ func isIngressControllerPeer(peer eval.Peer) bool {
 }
 
 // updateNewOrLostFields updates ConnsPair's newOrLostSrc and newOrLostDst values
-func (c *ConnsPair) updateNewOrLostFields(isFirst bool, peersSet map[string]bool) {
+func (c *connsPair) updateNewOrLostFields(isFirst bool, peersSet map[string]bool) {
 	var src, dst eval.Peer
 	if isFirst {
 		src, dst = c.firstConn.Src(), c.firstConn.Dst()
@@ -279,24 +433,24 @@ func (c *ConnsPair) updateNewOrLostFields(isFirst bool, peersSet map[string]bool
 }
 
 // diffMap captures connectivity-diff as a map from src-dst key to ConnsPair object
-type diffMap map[string]*ConnsPair
+type diffMap map[string]*connsPair
 
 // update func of diffMap, updates the map input key and Peer2PeerConnection, at first or second conn
 func (d diffMap) update(key string, isFirst bool, c connlist.Peer2PeerConnection) {
 	if _, ok := d[key]; !ok {
-		d[key] = &ConnsPair{}
+		d[key] = &connsPair{}
 	}
 	d[key].updateConn(isFirst, c)
 }
 
 // type mapListConnPairs is a map from key (src-or-dst)+conns1+conns2 to []ConnsPair (where dst-or-src is ip-block)
 // it is used to group disjoint ip-blocks and merge overlapping/touching ip-blocks when possible
-type mapListConnPairs map[string][]*ConnsPair
+type mapListConnPairs map[string][]*connsPair
 
 const keyElemSep = ";"
 
 // addConnsPair is given ConnsPair with src or dst as ip-block, and updates mapListConnPairs
-func (m mapListConnPairs) addConnsPair(c *ConnsPair, isSrcAnIP bool) error {
+func (m mapListConnPairs) addConnsPair(c *connsPair, isSrcAnIP bool) error {
 	// new key is src+conns1+conns2 if dst is ip, and dst+conns1+conns2 if src is ip
 	var srcOrDstKey string
 	var p connlist.Peer2PeerConnection
@@ -325,7 +479,7 @@ func (m mapListConnPairs) addConnsPair(c *ConnsPair, isSrcAnIP bool) error {
 	newKey := srcOrDstKey + keyElemSep + conn1 + keyElemSep + conn2
 
 	if _, ok := m[newKey]; !ok {
-		m[newKey] = []*ConnsPair{}
+		m[newKey] = []*connsPair{}
 	}
 	m[newKey] = append(m[newKey], c)
 
@@ -333,7 +487,7 @@ func (m mapListConnPairs) addConnsPair(c *ConnsPair, isSrcAnIP bool) error {
 }
 
 // getConnStringsFromConnsPair returns string representation of connections from the pair at ConnsPair
-func getConnStringsFromConnsPair(c *ConnsPair) (conn1, conn2 string, err error) {
+func getConnStringsFromConnsPair(c *connsPair) (conn1, conn2 string, err error) {
 	switch {
 	case c.firstConn != nil && c.secondConn != nil:
 		conn1 = connlist.GetConnectionSetFromP2PConnection(c.firstConn).String()
@@ -349,7 +503,7 @@ func getConnStringsFromConnsPair(c *ConnsPair) (conn1, conn2 string, err error) 
 }
 
 // getDstOrSrcFromConnsPair returns the src or dst Peer from ConnsPair object
-func getDstOrSrcFromConnsPair(c *ConnsPair, isDst bool) eval.Peer {
+func getDstOrSrcFromConnsPair(c *connsPair, isDst bool) eval.Peer {
 	var p connlist.Peer2PeerConnection
 	if c.firstConn != nil {
 		p = c.firstConn
@@ -474,31 +628,31 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 	}
 
 	res := &connectivityDiff{
-		removedConns:    []*ConnsPair{},
-		addedConns:      []*ConnsPair{},
-		changedConns:    []*ConnsPair{},
-		nonChangedConns: []*ConnsPair{},
+		removedConns:   []*connsPair{},
+		addedConns:     []*connsPair{},
+		changedConns:   []*connsPair{},
+		unchangedConns: []*connsPair{},
 	}
 	for _, d := range diffsMap {
 		switch {
 		case d.firstConn != nil && d.secondConn != nil:
 			if !equalConns(d.firstConn, d.secondConn) {
-				d.diffType = changedType
+				d.diffType = ChangedType
 				d.newOrLostSrc, d.newOrLostDst = false, false
 				res.changedConns = append(res.changedConns, d)
 			} else { // equal - non changed
-				d.diffType = nonChangedType
+				d.diffType = UnchangedType
 				d.newOrLostSrc, d.newOrLostDst = false, false
-				res.nonChangedConns = append(res.nonChangedConns, d)
+				res.unchangedConns = append(res.unchangedConns, d)
 			}
 		case d.firstConn != nil:
 			// removed conn means both Src and Dst exist in peers1, just check if they are not in peers2 too
-			d.diffType = removedType
+			d.diffType = RemovedType
 			d.updateNewOrLostFields(true, peers2)
 			res.removedConns = append(res.removedConns, d)
 		case d.secondConn != nil:
 			// added conns means Src and Dst are in peers2, check if they didn't exist in peers1 too
-			d.diffType = addedType
+			d.diffType = AddedType
 			d.updateNewOrLostFields(false, peers1)
 			res.addedConns = append(res.addedConns, d)
 		default:
@@ -569,37 +723,36 @@ func getFormatter(format string) (diffFormatter, error) {
 
 // connectivityDiff implements the ConnectivityDiff interface
 type connectivityDiff struct {
-	removedConns    []*ConnsPair
-	addedConns      []*ConnsPair
-	changedConns    []*ConnsPair
-	nonChangedConns []*ConnsPair
+	removedConns   []*connsPair
+	addedConns     []*connsPair
+	changedConns   []*connsPair
+	unchangedConns []*connsPair
 }
 
-func (c *connectivityDiff) RemovedConnections() []*ConnsPair {
-	return c.removedConns
+func connsPairListToSrcDstDiffList(connsPairs []*connsPair) []SrcDstDiff {
+	res := make([]SrcDstDiff, len(connsPairs))
+	for i := range connsPairs {
+		res[i] = connsPairs[i]
+	}
+	return res
 }
 
-func (c *connectivityDiff) AddedConnections() []*ConnsPair {
-	return c.addedConns
+func (c *connectivityDiff) RemovedConnections() []SrcDstDiff {
+	return connsPairListToSrcDstDiffList(c.removedConns)
 }
 
-func (c *connectivityDiff) ChangedConnections() []*ConnsPair {
-	return c.changedConns
+func (c *connectivityDiff) AddedConnections() []SrcDstDiff {
+	return connsPairListToSrcDstDiffList(c.addedConns)
+}
+
+func (c *connectivityDiff) ChangedConnections() []SrcDstDiff {
+	return connsPairListToSrcDstDiffList(c.changedConns)
 }
 
 func (c *connectivityDiff) IsEmpty() bool {
 	return len(c.removedConns) == 0 && len(c.addedConns) == 0 && len(c.changedConns) == 0
 }
 
-func (c *connectivityDiff) NonChangedConnections() []*ConnsPair {
-	return c.nonChangedConns
-}
-
-// ConnectivityDiff captures differences in terms of connectivity between two input resource sets
-type ConnectivityDiff interface {
-	RemovedConnections() []*ConnsPair    // only first conn exists between peers, plus indications if any of the peers removed
-	AddedConnections() []*ConnsPair      // only second conn exists between peers, plus indications if any of the peers is new
-	ChangedConnections() []*ConnsPair    // both first & second conn exists between peers
-	IsEmpty() bool                       // indicates if no diff between connections, i.e. removed, added and changed connections are empty
-	NonChangedConnections() []*ConnsPair // non changed conns, both first & second conn exists and equal between the peers
+func (c *connectivityDiff) UnchangedConnections() []SrcDstDiff {
+	return connsPairListToSrcDstDiffList(c.unchangedConns)
 }

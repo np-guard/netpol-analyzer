@@ -25,7 +25,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -53,7 +53,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -81,7 +81,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -109,7 +109,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }
@@ -137,7 +137,7 @@
       "spec": {
         "containers": [
           {
-            "ports": {}
+            "ports": []
           }
         ]
       }

@@ -17,7 +17,7 @@ func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 	var edgeLines, peersLines, ingressAnalyzerEdges []string
 	peersVisited := make(map[string]bool, 0) // set of peers
 	// non changed
-	ncPeers, nonChangedEdges, nonChangedIngressEdges := getEdgesAndPeersLinesByCategory(connsDiff.NonChangedConnections(), peersVisited)
+	ncPeers, nonChangedEdges, nonChangedIngressEdges := getEdgesAndPeersLinesByCategory(connsDiff.UnchangedConnections(), peersVisited)
 	peersLines = append(peersLines, ncPeers...)
 	edgeLines = append(edgeLines, nonChangedEdges...)
 	ingressAnalyzerEdges = append(ingressAnalyzerEdges, nonChangedIngressEdges...)
@@ -54,7 +54,7 @@ func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 
 // getEdgesAndPeersLinesByCategory returns the dot peers, edges and  ingress edges lines of the given connsPairs
 // (all connsPairs are in same category)
-func getEdgesAndPeersLinesByCategory(connsPairs []*ConnsPair, peersSet map[string]bool) (peersLines, connsEdges, ingressEdges []string) {
+func getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff, peersSet map[string]bool) (peersLines, connsEdges, ingressEdges []string) {
 	peersLines = make([]string, 0)
 	connsEdges = make([]string, 0)
 	ingressEdges = make([]string, 0)
@@ -63,11 +63,11 @@ func getEdgesAndPeersLinesByCategory(connsPairs []*ConnsPair, peersSet map[strin
 		// add peers lines (which are still not in the set)
 		if !peersSet[src] {
 			peersSet[src] = true
-			peersLines = append(peersLines, addPeerLine(src, connsPair.diffType, connsPair.newOrLostSrc))
+			peersLines = append(peersLines, addPeerLine(src, connsPair.DiffType(), connsPair.IsSrcNewOrRemoved()))
 		}
 		if !peersSet[dst] {
 			peersSet[dst] = true
-			peersLines = append(peersLines, addPeerLine(dst, connsPair.diffType, connsPair.newOrLostDst))
+			peersLines = append(peersLines, addPeerLine(dst, connsPair.DiffType(), connsPair.IsDstNewOrRemoved()))
 		}
 		// add connections lines
 		if isIngress {
@@ -86,13 +86,13 @@ const (
 )
 
 // addPeerLine returns peer line string in dot format
-func addPeerLine(peerName, diffType string, isNewOrLost bool) string {
+func addPeerLine(peerName string, diffType DiffTypeStr, isNewOrLost bool) string {
 	peerColor := persistentPeerColor
 	if isNewOrLost {
 		switch diffType {
-		case addedType:
+		case AddedType:
 			peerColor = newPeerColor
-		case removedType:
+		case RemovedType:
 			peerColor = removedPeerColor
 		default: // will not get here
 			break
@@ -109,18 +109,18 @@ const (
 )
 
 // addEdgesLines forms the appropriate edge line of the given conns pair
-func addEdgesLines(connsPair *ConnsPair) string {
+func addEdgesLines(connsPair SrcDstDiff) string {
 	src, dst, _ := getConnPeersStrings(connsPair)
 	firstConn, secondConn := getDirsConnsStrings(connsPair)
-	switch connsPair.diffType {
-	case nonChangedType:
+	switch connsPair.DiffType() {
+	case UnchangedType:
 		return getEdgeLine(src, dst, firstConn, nonChangedConnColor)
-	case changedType:
+	case ChangedType:
 		changedEdgeLabel := secondConn + " (old: " + firstConn + ")"
 		return getEdgeLine(src, dst, changedEdgeLabel, changedConnColor)
-	case removedType:
+	case RemovedType:
 		return getEdgeLine(src, dst, firstConn, removedConnColor)
-	case addedType:
+	case AddedType:
 		return getEdgeLine(src, dst, secondConn, addedConnColor)
 	default:
 		return "" // should not get here

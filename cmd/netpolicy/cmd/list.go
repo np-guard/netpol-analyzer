@@ -83,9 +83,7 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 		connlist.WithFocusWorkload(focusWorkload),
 		connlist.WithOutputFormat(output),
 	}
-	if includeJSONManifests {
-		res = append(res, connlist.WithIncludeJSONManifests())
-	}
+
 	if stopOnFirstError {
 		res = append(res, connlist.WithStopOnError())
 	}
@@ -138,5 +136,6 @@ defined`,
 	c.Flags().StringVarP(&output, "output", "o", common.DefaultFormat, getOutputFormatDescription(supportedFormats))
 	// out file
 	c.Flags().StringVarP(&outFile, "file", "f", "", "Write output to specified file")
+
 	return c
 }

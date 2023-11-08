@@ -28,7 +28,7 @@
       "spec": {
         "containers": [
           {
-            "ports": []
+            "ports": {}  
           }
         ]
       }

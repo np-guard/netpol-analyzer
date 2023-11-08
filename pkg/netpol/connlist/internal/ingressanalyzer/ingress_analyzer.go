@@ -28,7 +28,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
 )
 
 type serviceInfo struct {
@@ -46,33 +46,41 @@ type peersAndPorts struct {
 // IngressAnalyzer provides API to analyze Ingress/Route resources, to allow inferring potential connectivity
 // from ingress-controller to pods in the cluster
 type IngressAnalyzer struct {
-	logger                     logger.Logger
-	pe                         *eval.PolicyEngine                  // holds the workload peers relevant to the analysis
-	servicesToPortsAndPeersMap map[string]map[string]peersAndPorts // map from namespace to map from service name to its ports and
-	// its selected workloads
-	routesToServicesMap     map[string]map[string][]serviceInfo // map from namespace to map from route name to its target service
-	k8sIngressToServicesMap map[string]map[string][]serviceInfo // map from namespace to map from k8s ingress object name to
-	// its target services
+	logger logger.Logger
+	// pe holds the workload peers relevant to the analysis
+	pe *eval.PolicyEngine
+	// servicesToPortsAndPeersMap is a map from namespace to map from service name to its ports and its selected workloads
+	servicesToPortsAndPeersMap map[string]map[string]peersAndPorts
+
+	// routesToServicesMap is a map from namespace to map from route name to its target service
+	routesToServicesMap map[string]map[string][]serviceInfo
+
+	// k8sIngressToServicesMap is a map from namespace to map from k8s ingress object name to its target services
+	k8sIngressToServicesMap map[string]map[string][]serviceInfo
+
+	muteErrsAndWarns bool
 }
 
 // NewIngressAnalyzerWithObjects returns a new IngressAnalyzer with relevant objects
-func NewIngressAnalyzerWithObjects(objects []scan.K8sObject, pe *eval.PolicyEngine, l logger.Logger) (*IngressAnalyzer, error) {
+func NewIngressAnalyzerWithObjects(objects []parser.K8sObject, pe *eval.PolicyEngine, l logger.Logger,
+	muteErrsAndWarns bool) (*IngressAnalyzer, error) {
 	ia := &IngressAnalyzer{
 		servicesToPortsAndPeersMap: make(map[string]map[string]peersAndPorts),
 		routesToServicesMap:        make(map[string]map[string][]serviceInfo),
 		k8sIngressToServicesMap:    make(map[string]map[string][]serviceInfo),
 		logger:                     l,
 		pe:                         pe,
+		muteErrsAndWarns:           muteErrsAndWarns,
 	}
 
 	var err error
 	for _, obj := range objects {
 		switch obj.Kind {
-		case scan.Service:
+		case parser.Service:
 			err = ia.mapServiceToPeers(obj.Service)
-		case scan.Route:
+		case parser.Route:
 			ia.mapRouteToServices(obj.Route)
-		case scan.Ingress:
+		case parser.Ingress:
 			ia.mapK8sIngressToServices(obj.Ingress)
 		}
 		if err != nil {
@@ -119,7 +127,7 @@ func (ia *IngressAnalyzer) mapServiceToPeers(svc *corev1.Service) error {
 func (ia *IngressAnalyzer) getServiceSelectedPeers(svc *corev1.Service) ([]eval.Peer, error) {
 	svcStr := types.NamespacedName{Name: svc.Name, Namespace: svc.Namespace}.String()
 	if svc.Spec.Selector == nil {
-		ia.logger.Warnf("Ignoring " + scan.Service + whiteSpace + svcStr + colon + missingSelectorWarning)
+		ia.logWarning("Ignoring " + parser.Service + whiteSpace + svcStr + colon + missingSelectorWarning)
 		return nil, nil
 	}
 	svcLabelsSelector, err := convertServiceSelectorToLabelSelector(svc.Spec.Selector)
@@ -144,7 +152,7 @@ func convertServiceSelectorToLabelSelector(svcSelector map[string]string) (label
 // routes analysis
 
 const (
-	allowedTargetKind      = scan.Service
+	allowedTargetKind      = parser.Service
 	routeTargetKindWarning = "ignoring target with unsupported kind"
 	routeBackendsWarning   = "ignoring alternate backend without Service "
 )
@@ -171,14 +179,14 @@ func (ia *IngressAnalyzer) getRouteServices(rt *ocroutev1.Route) []serviceInfo {
 	}
 	// Currently, only 'Service' is allowed as the kind of target that the route is referring to.
 	if rt.Spec.To.Kind != "" && rt.Spec.To.Kind != allowedTargetKind {
-		ia.logger.Warnf(scan.Route + whiteSpace + routeStr + colon + routeTargetKindWarning)
+		ia.logWarning(parser.Route + whiteSpace + routeStr + colon + routeTargetKindWarning)
 	} else {
 		targetServices = append(targetServices, serviceInfo{serviceName: rt.Spec.To.Name, servicePort: routeTargetPort})
 	}
 
 	for _, backend := range rt.Spec.AlternateBackends {
 		if backend.Kind != "" && backend.Kind != allowedTargetKind {
-			ia.logger.Warnf(scan.Route + whiteSpace + routeStr + colon + routeBackendsWarning)
+			ia.logWarning(parser.Route + whiteSpace + routeStr + colon + routeBackendsWarning)
 		} else {
 			targetServices = append(targetServices, serviceInfo{serviceName: backend.Name, servicePort: routeTargetPort})
 		}
@@ -213,7 +221,7 @@ func (ia *IngressAnalyzer) getK8sIngressServices(ing *netv1.Ingress) []serviceIn
 	// if DefaultBackend is provided add its service info to the result
 	if ing.Spec.DefaultBackend != nil {
 		if ing.Spec.DefaultBackend.Service == nil {
-			ia.logger.Warnf(scan.Ingress + whiteSpace + ingressStr + colon + defaultBackendWarning)
+			ia.logWarning(parser.Ingress + whiteSpace + ingressStr + colon + defaultBackendWarning)
 		} else {
 			backendServices = append(backendServices, getServiceInfo(ing.Spec.DefaultBackend.Service))
 		}
@@ -222,7 +230,7 @@ func (ia *IngressAnalyzer) getK8sIngressServices(ing *netv1.Ingress) []serviceIn
 	for _, rule := range ing.Spec.Rules {
 		for _, path := range rule.IngressRuleValue.HTTP.Paths {
 			if path.Backend.Service == nil {
-				ia.logger.Warnf(scan.Ingress + whiteSpace + ingressStr + colon + ruleBackendWarning)
+				ia.logWarning(parser.Ingress + whiteSpace + ingressStr + colon + ruleBackendWarning)
 			} else {
 				backendServices = append(backendServices, getServiceInfo(path.Backend.Service))
 			}
@@ -262,12 +270,12 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]*PeerAndIngre
 
 	// get all targeted workload peers and compute allowed conns of each workload peer
 	// 1. from routes
-	routesResult, err := ia.allowedIngressConnectionsByResourcesType(ia.routesToServicesMap, scan.Route)
+	routesResult, err := ia.allowedIngressConnectionsByResourcesType(ia.routesToServicesMap, parser.Route)
 	if err != nil {
 		return nil, err
 	}
 	// 2. from k8s-ingress objects
-	ingressResult, err := ia.allowedIngressConnectionsByResourcesType(ia.k8sIngressToServicesMap, scan.Ingress)
+	ingressResult, err := ia.allowedIngressConnectionsByResourcesType(ia.k8sIngressToServicesMap, parser.Ingress)
 	if err != nil {
 		return nil, err
 	}
@@ -330,7 +338,7 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string,
 	for _, svc := range svcList {
 		peersAndPorts, ok := ia.servicesToPortsAndPeersMap[ns][svc.serviceName]
 		if !ok {
-			ia.logger.Warnf("Ignoring target service " + svc.serviceName + " : service not found")
+			ia.logWarning("Ignoring target service " + svc.serviceName + " : service not found")
 		}
 		for _, peer := range peersAndPorts.peers {
 			currIngressPeerConn, err := ia.getIngressPeerConnection(peer, peersAndPorts.ports, svc.servicePort)
@@ -411,4 +419,10 @@ func getPeerAccessPort(actualServicePorts []corev1.ServicePort, requiredPort int
 		}
 	}
 	return res
+}
+
+func (ia *IngressAnalyzer) logWarning(msg string) {
+	if !ia.muteErrsAndWarns {
+		ia.logger.Warnf(msg)
+	}
 }
