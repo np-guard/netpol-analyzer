@@ -49,7 +49,7 @@ func (c singleConnFields) string() string {
 
 // formSingleConn returns a string representation of single connection fields as singleConnFields object
 func formSingleConn(conn Peer2PeerConnection) singleConnFields {
-	connStr := GetProtocolsAndPortsStr(conn)
+	connStr := common.ConnStrFromConnProperties(conn.AllProtocolsAndPorts(), conn.ProtocolsAndPorts())
 	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr}
 }
 

@@ -169,13 +169,13 @@ func (conn *ConnectionSet) AddConnection(protocol v1.Protocol, ports PortSet) {
 // String returns a string representation of the ConnectionSet object
 func (conn *ConnectionSet) String() string {
 	if conn.AllowAll {
-		return "All Connections"
+		return allConnsStr
 	} else if conn.IsEmpty() {
-		return "No Connections"
+		return noConnsStr
 	}
 	resStrings := []string{}
 	for protocol, ports := range conn.AllowedProtocols {
-		resStrings = append(resStrings, string(protocol)+" "+ports.String())
+		resStrings = append(resStrings, protocolAndPortsStr(protocol, ports.String()))
 	}
 	sort.Strings(resStrings)
 	return strings.Join(resStrings, ",")
@@ -241,4 +241,42 @@ func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
 // AllConnections returns true if all ports are allowed for all protocols
 func (conn *ConnectionSet) AllConnections() bool {
 	return conn.AllowAll
+}
+
+const (
+	connsAndPortRangeSeparator = ","
+	allConnsStr                = "All Connections"
+	noConnsStr                 = "No Connections"
+)
+
+func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[v1.Protocol][]PortRange) string {
+	if allProtocolsAndPorts {
+		return allConnsStr
+	}
+	if len(protocolsAndPorts) == 0 {
+		return noConnsStr
+	}
+	var connStr string
+	connStrings := make([]string, len(protocolsAndPorts))
+	index := 0
+	for protocol, ports := range protocolsAndPorts {
+		connStrings[index] = protocolAndPortsStr(protocol, portsString(ports))
+		index++
+	}
+	sort.Strings(connStrings)
+	connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
+	return connStr
+}
+
+// get string representation for a list of port ranges
+func portsString(ports []PortRange) string {
+	portsStr := make([]string, len(ports))
+	for i := range ports {
+		portsStr[i] = ports[i].String()
+	}
+	return strings.Join(portsStr, connsAndPortRangeSeparator)
+}
+
+func protocolAndPortsStr(protocol v1.Protocol, ports string) string {
+	return string(protocol) + " " + ports
 }
