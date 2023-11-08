@@ -68,7 +68,7 @@ func getDirsConnsStrings(c SrcDstDiff) (dir1Str, dir2Str string) {
 	dir1AllowedConns := c.Dir1Connectivity()
 	dir2AllowedConns := c.Dir2Connectivity()
 	switch c.DiffType() {
-	case ChangedType, NonChangedType:
+	case ChangedType, UnchangedType:
 		return common.ConnStrFromConnProperties(dir1AllowedConns.AllProtocolsAndPorts(), dir1AllowedConns.ProtocolsAndPorts()),
 			common.ConnStrFromConnProperties(dir2AllowedConns.AllProtocolsAndPorts(), dir2AllowedConns.ProtocolsAndPorts())
 	case AddedType:

@@ -310,16 +310,6 @@ func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
 	return src.String() + keyElemSep + dst.String()
 }
 
-type DiffTypeStr string
-
-const (
-	// diff types
-	ChangedType    DiffTypeStr = "changed"
-	RemovedType    DiffTypeStr = "removed"
-	AddedType      DiffTypeStr = "added"
-	NonChangedType DiffTypeStr = "nonChanged"
-)
-
 // allowedConnectivity implements the AllowedConnectivity interface
 type allowedConnectivity struct {
 	allProtocolsAndPorts bool
@@ -641,10 +631,10 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 	}
 
 	res := &connectivityDiff{
-		removedConns:    []*connsPair{},
-		addedConns:      []*connsPair{},
-		changedConns:    []*connsPair{},
-		nonChangedConns: []*connsPair{},
+		removedConns:   []*connsPair{},
+		addedConns:     []*connsPair{},
+		changedConns:   []*connsPair{},
+		unchangedConns: []*connsPair{},
 	}
 	for _, d := range diffsMap {
 		switch {
@@ -654,9 +644,9 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 				d.newOrLostSrc, d.newOrLostDst = false, false
 				res.changedConns = append(res.changedConns, d)
 			} else { // equal - non changed
-				d.diffType = NonChangedType
+				d.diffType = UnchangedType
 				d.newOrLostSrc, d.newOrLostDst = false, false
-				res.nonChangedConns = append(res.nonChangedConns, d)
+				res.unchangedConns = append(res.unchangedConns, d)
 			}
 		case d.firstConn != nil:
 			// removed conn means both Src and Dst exist in peers1, just check if they are not in peers2 too
@@ -736,10 +726,10 @@ func getFormatter(format string) (diffFormatter, error) {
 
 // connectivityDiff implements the ConnectivityDiff interface
 type connectivityDiff struct {
-	removedConns    []*connsPair
-	addedConns      []*connsPair
-	changedConns    []*connsPair
-	nonChangedConns []*connsPair
+	removedConns   []*connsPair
+	addedConns     []*connsPair
+	changedConns   []*connsPair
+	unchangedConns []*connsPair
 }
 
 func connsPairListToSrcDstDiffList(connsPairs []*connsPair) []SrcDstDiff {
@@ -766,6 +756,6 @@ func (c *connectivityDiff) IsEmpty() bool {
 	return len(c.removedConns) == 0 && len(c.addedConns) == 0 && len(c.changedConns) == 0
 }
 
-func (c *connectivityDiff) NonChangedConnections() []SrcDstDiff {
-	return connsPairListToSrcDstDiffList(c.nonChangedConns)
+func (c *connectivityDiff) UnchangedConnections() []SrcDstDiff {
+	return connsPairListToSrcDstDiffList(c.unchangedConns)
 }

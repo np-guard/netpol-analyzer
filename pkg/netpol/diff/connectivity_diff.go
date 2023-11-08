@@ -19,8 +19,8 @@ type ConnectivityDiff interface {
 	// connection properties
 	ChangedConnections() []SrcDstDiff
 
-	// NonChangedConnections is a list of connections that exists in dir1 and dir2, and are identical
-	NonChangedConnections() []SrcDstDiff
+	// UnchangedConnections is a list of connections that exists in dir1 and dir2, and are identical
+	UnchangedConnections() []SrcDstDiff
 
 	// IsEmpty returns true if there is no diff in connectivity, i.e. removed, added and changed connections are empty
 	IsEmpty() bool
@@ -54,3 +54,13 @@ type AllowedConnectivity interface {
 	// ProtocolsAndPorts returns the set of allowed connections
 	ProtocolsAndPorts() map[v1.Protocol][]common.PortRange
 }
+
+type DiffTypeStr string
+
+const (
+	// diff types
+	ChangedType   DiffTypeStr = "changed"
+	RemovedType   DiffTypeStr = "removed"
+	AddedType     DiffTypeStr = "added"
+	UnchangedType DiffTypeStr = "unchanged"
+)
