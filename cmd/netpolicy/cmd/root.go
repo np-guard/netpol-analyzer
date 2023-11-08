@@ -31,11 +31,10 @@ var (
 	// resources dir information
 	dirPath string
 	// k8s client
-	clientset            *kubernetes.Clientset
-	quiet                bool
-	verbose              bool
-	includeJSONManifests bool
-	stopOnFirstError     bool
+	clientset        *kubernetes.Clientset
+	quiet            bool
+	verbose          bool
+	stopOnFirstError bool
 )
 
 // returns verbosity level based on the -q and -v switches
@@ -97,8 +96,6 @@ func newCommandRoot() *cobra.Command {
 		"Kubernetes context to use when evaluating connections in a live cluster")
 	c.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "runs quietly, reports only severe errors and results")
 	c.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "runs with more informative messages printed to log")
-	c.PersistentFlags().BoolVarP(&includeJSONManifests, "include-json", "", false,
-		"consider JSON manifests (in addition to YAML) when analyzing from dir")
 	c.PersistentFlags().BoolVarP(&stopOnFirstError, "fail", "", false, "fail on the first encountered error")
 
 	// add sub-commands

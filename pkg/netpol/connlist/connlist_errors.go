@@ -8,7 +8,7 @@ import (
 // the parsing and connectivity analysis of k8s-app with network policies
 type ConnlistError common.NetpolError
 
-// connlistGeneratingError - ConnlistError that may arrise while producing the connections list
+// connlistGeneratingError - ConnlistError that may arise while producing the connections list
 type connlistGeneratingError struct {
 	err    error
 	fatal  bool

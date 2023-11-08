@@ -10,11 +10,7 @@ package connlist
 import (
 	"context"
 	"errors"
-	"path/filepath"
 	"time"
-
-	"sort"
-	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -22,24 +18,73 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 
+	"k8s.io/cli-runtime/pkg/resource"
+
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist/internal/ingressanalyzer"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
+
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 )
 
 // A ConnlistAnalyzer provides API to recursively scan a directory for Kubernetes resources including network policies,
 // and get the list of permitted connectivity between the workloads of the K8s application managed in this directory.
 type ConnlistAnalyzer struct {
-	logger               logger.Logger
-	stopOnError          bool
-	errors               []ConnlistError
-	walkFn               scan.WalkFunction
-	scanner              *scan.ResourcesScanner
-	focusWorkload        string
-	outputFormat         string
-	includeJSONManifests bool
+	logger           logger.Logger
+	stopOnError      bool
+	errors           []ConnlistError
+	focusWorkload    string
+	outputFormat     string
+	muteErrsAndWarns bool
+}
+
+// The new interface
+// ConnlistFromResourceInfos returns the allowed-connections list from input slice of resource.Info objects,
+// and the list of all workloads from the parsed resources
+func (ca *ConnlistAnalyzer) ConnlistFromResourceInfos(info []*resource.Info) ([]Peer2PeerConnection, []Peer, error) {
+	// convert resource.Info objects to k8s resources, filter irrelevant resources
+	objs, fpErrs := parser.ResourceInfoListToK8sObjectsList(info, ca.logger, ca.muteErrsAndWarns)
+	ca.copyFpErrs(fpErrs)
+	if ca.stopProcessing() {
+		if err := ca.hasFatalError(); err != nil {
+			return nil, nil, err
+		}
+		return []Peer2PeerConnection{}, []Peer{}, nil
+	}
+	return ca.connslistFromParsedResources(objs)
+}
+
+func (ca *ConnlistAnalyzer) copyFpErrs(fpErrs []parser.FileProcessingError) {
+	for i := range fpErrs {
+		ca.errors = append(ca.errors, &fpErrs[i])
+	}
+}
+
+// ConnlistFromDirPath returns the allowed connections list from dir path containing k8s resources
+// and list of all workloads from the parsed resources
+func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConnection, []Peer, error) {
+	rList, errs := fsscanner.GetResourceInfosFromDirPath([]string{dirPath}, true, ca.stopOnError)
+	// instead of parsing the builder's string error to decide on error type (warning/error/fatal-err)
+	// return as fatal error if rList is empty or if stopOnError is on
+	// otherwise try to analyze and return as accumulated error
+	if errs != nil {
+		// TODO: consider avoid logging this error because it is already printed to log by the builder
+		if len(rList) == 0 || ca.stopOnError {
+			err := utilerrors.NewAggregate(errs)
+			ca.logger.Errorf(err, "Error getting resourceInfos from dir path")
+			ca.errors = append(ca.errors, parser.FailedReadingFile(dirPath, err))
+			return nil, nil, err // return as fatal error if rList is empty or if stopOnError is on
+		}
+		// split err if it's an aggregated error to a list of separate errors
+		for _, err := range errs {
+			ca.logger.Errorf(err, "Error reading file")                           // print to log the error from builder
+			ca.errors = append(ca.errors, parser.FailedReadingFile(dirPath, err)) // add the error from builder to accumulated errors
+		}
+	}
+	return ca.ConnlistFromResourceInfos(rList)
 }
 
 // ValidFormats array of possible values of output format
@@ -66,21 +111,6 @@ func WithStopOnError() ConnlistAnalyzerOption {
 	}
 }
 
-// WithIncludeJSONManifests is a functional option which directs ConnlistAnalyzer to include JSON manifests in the analysis
-func WithIncludeJSONManifests() ConnlistAnalyzerOption {
-	return func(c *ConnlistAnalyzer) {
-		c.includeJSONManifests = true
-	}
-}
-
-// WithWalkFn is a functional option, allowing user to provide their own dir-scanning function.
-// It is relevant when using ConnlistAnalyzer to analyze connectivity from scanned dir resources.
-func WithWalkFn(walkFn scan.WalkFunction) ConnlistAnalyzerOption {
-	return func(c *ConnlistAnalyzer) {
-		c.walkFn = walkFn
-	}
-}
-
 func WithFocusWorkload(workload string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
 		p.focusWorkload = workload
@@ -94,6 +124,13 @@ func WithOutputFormat(outputFormat string) ConnlistAnalyzerOption {
 	}
 }
 
+// WithMuteErrsAndWarns is a functional option which directs ConnlistAnalyzer to avoid logging errors/warnings
+func WithMuteErrsAndWarns() ConnlistAnalyzerOption {
+	return func(c *ConnlistAnalyzer) {
+		c.muteErrsAndWarns = true
+	}
+}
+
 // NewConnlistAnalyzer creates a new instance of ConnlistAnalyzer, and applies the provided functional options.
 func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	// object with default behavior options
@@ -101,13 +138,11 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 		logger:       logger.NewDefaultLogger(),
 		stopOnError:  false,
 		errors:       []ConnlistError{},
-		walkFn:       filepath.WalkDir,
 		outputFormat: common.DefaultFormat,
 	}
 	for _, o := range options {
 		o(ca)
 	}
-	ca.scanner = scan.NewResourcesScanner(ca.logger, ca.stopOnError, ca.walkFn, ca.includeJSONManifests)
 	return ca
 }
 
@@ -135,49 +170,14 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 	return nil
 }
 
-// ConnlistFromDirPath returns the allowed connections list from dir path containing k8s resources
-// and list of all workloads from the parsed resources
-func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConnection, []Peer, error) {
-	objectsList, processingErrs := ca.scanner.FilesToObjectsList(dirPath)
-	for i := range processingErrs {
-		ca.errors = append(ca.errors, &processingErrs[i])
-	}
-
-	if ca.stopProcessing() {
-		if err := ca.hasFatalError(); err != nil {
-			return nil, nil, err
-		}
-		return []Peer2PeerConnection{}, []Peer{}, nil
-	}
-	return ca.connslistFromParsedResources(objectsList)
-}
-
-// ConnlistFromYAMLManifests returns the allowed connections list from input YAML manifests
-// and list of all workloads from the parsed resources
-func (ca *ConnlistAnalyzer) ConnlistFromYAMLManifests(manifests []scan.YAMLDocumentIntf) ([]Peer2PeerConnection, []Peer, error) {
-	objectsList, processingErrs := ca.scanner.YAMLDocumentsToObjectsList(manifests)
-	for i := range processingErrs {
-		ca.errors = append(ca.errors, &processingErrs[i])
-	}
-
-	if ca.stopProcessing() {
-		if err := ca.hasFatalError(); err != nil {
-			return nil, nil, err
-		}
-		return []Peer2PeerConnection{}, []Peer{}, nil
-	}
-
-	return ca.connslistFromParsedResources(objectsList)
-}
-
-func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []scan.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
+func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
 	// TODO: do we need logger in policyEngine?
 	pe, err := eval.NewPolicyEngineWithObjects(objectsList)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
 	}
-	ia, err := ingressanalyzer.NewIngressAnalyzerWithObjects(objectsList, pe, ca.logger)
+	ia, err := ingressanalyzer.NewIngressAnalyzerWithObjects(objectsList, pe, ca.logger, ca.muteErrsAndWarns)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
@@ -282,8 +282,7 @@ func getFormatter(format string) (connsFormatter, error) {
 // internal type definitions below
 
 const (
-	connsAndPortRangeSeparator = ","
-	ctxTimeoutSeconds          = 3
+	ctxTimeoutSeconds = 3
 )
 
 // connection implements the Peer2PeerConnection interface
@@ -305,26 +304,6 @@ func (c *connection) AllProtocolsAndPorts() bool {
 }
 func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 	return c.protocolsAndPorts
-}
-
-// return a string representation of a connection type (protocols and ports)
-func GetProtocolsAndPortsStr(c Peer2PeerConnection) string {
-	if c.AllProtocolsAndPorts() {
-		return "All Connections"
-	}
-	if len(c.ProtocolsAndPorts()) == 0 {
-		return "No Connections"
-	}
-	var connStr string
-	connStrings := make([]string, len(c.ProtocolsAndPorts()))
-	index := 0
-	for protocol, ports := range c.ProtocolsAndPorts() {
-		connStrings[index] = string(protocol) + " " + portsString(ports)
-		index++
-	}
-	sort.Strings(connStrings)
-	connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
-	return connStr
 }
 
 // returns a *common.ConnectionSet from Peer2PeerConnection data
@@ -392,7 +371,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	existFocusWorkload, warningMsg := ca.existsFocusWorkload(peers, excludeIngressAnalysis)
 	if ca.focusWorkload != "" && !existFocusWorkload {
 		ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
-		ca.logger.Warnf(warningMsg)
+		ca.logWarning(warningMsg)
 		return nil, nil, nil
 	}
 
@@ -417,7 +396,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	connsRes = append(connsRes, ingressAllowedConns...)
 
 	if ca.focusWorkload == "" && len(peersAllowedConns) == 0 {
-		ca.logger.Warnf("Connectivity analysis found no allowed connectivity between pairs from the configured workloads or external IP-blocks")
+		ca.logWarning("Connectivity analysis found no allowed connectivity between pairs from the configured workloads or external IP-blocks")
 	}
 
 	return connsRes, peers, nil
@@ -516,25 +495,22 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 	return res, nil
 }
 
-// get string representation for a list of port ranges
-func portsString(ports []common.PortRange) string {
-	portsStr := make([]string, len(ports))
-	for i := range ports {
-		portsStr[i] = ports[i].String()
-	}
-	return strings.Join(portsStr, connsAndPortRangeSeparator)
-}
-
 func (ca *ConnlistAnalyzer) warnBlockedIngress(peerStr string, ingressObjs map[string][]string) {
 	warningMsg := ""
-	if len(ingressObjs[scan.Ingress]) > 0 {
-		warningMsg = "K8s-Ingress resource " + ingressObjs[scan.Ingress][0]
-	} else if len(ingressObjs[scan.Route]) > 0 {
-		warningMsg = "Route resource " + ingressObjs[scan.Route][0]
+	if len(ingressObjs[parser.Ingress]) > 0 {
+		warningMsg = "K8s-Ingress resource " + ingressObjs[parser.Ingress][0]
+	} else if len(ingressObjs[parser.Route]) > 0 {
+		warningMsg = "Route resource " + ingressObjs[parser.Route][0]
 	}
 	warningMsg += " specified workload " + peerStr + " as a backend, but network policies are blocking " +
 		"ingress connections from an arbitrary in-cluster source to this workload. " +
 		"Connectivity map will not include a possibly allowed connection between the ingress controller and this workload."
 	ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
-	ca.logger.Warnf(warningMsg)
+	ca.logWarning(warningMsg)
+}
+
+func (ca *ConnlistAnalyzer) logWarning(msg string) {
+	if !ca.muteErrsAndWarns {
+		ca.logger.Warnf(msg)
+	}
 }

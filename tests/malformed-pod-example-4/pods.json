@@ -1,0 +1,37 @@
+{
+    "apiVersion": "v1",
+    "kindt": "PodListdgfd",
+    "items": [
+      {
+        "apiVersion": "v1",
+        "kind": "Podgfg",
+        "metadata": {
+          "name": "cog-agents-d54st",
+          "namespace": "default",
+          "labels": {
+            "app": "skydive",
+            "controller-revision-hash": "1317571478",
+            "pod-template-generation": "1",
+            "tier": "agent"
+          },
+          "ownerReferences": [
+            {
+              "apiVersion": "extensions/v1beta1",
+              "kind": "DaemonSet",
+              "name": "cog-agents",
+              "uid": "14265cc3-301f-11e8-865c-52075433990e",
+              "controller": true,
+              "blockOwnerDeletion": true
+            }
+          ]
+        },
+        "spec": {
+          "containers": [
+            {
+              "ports": []
+            }
+          ]
+        }
+      }
+    ]
+  }
