@@ -7,8 +7,8 @@ require (
 	github.com/openshift/api v0.0.0-20230502160752-c71432710382
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
-	k8s.io/api v0.28.2
-	k8s.io/apimachinery v0.28.2
+	k8s.io/api v0.28.3
+	k8s.io/apimachinery v0.28.3
 	k8s.io/cli-runtime v0.28.2
 	k8s.io/client-go v0.28.2
 	sigs.k8s.io/yaml v1.4.0
