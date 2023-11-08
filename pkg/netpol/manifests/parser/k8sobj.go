@@ -185,7 +185,7 @@ var workloadKinds = map[string]bool{
 	ReplicationController: true,
 }
 
-func FilterObjectsList(allObjects []K8sObject, errs []FileProcessingError, podNames []types.NamespacedName) []K8sObject {
+func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) []K8sObject {
 	podNamesMap := make(map[string]bool, 0)
 	nsMap := make(map[string]bool, 0)
 	for i := range podNames {

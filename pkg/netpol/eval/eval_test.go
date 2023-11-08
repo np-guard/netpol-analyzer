@@ -25,9 +25,6 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
 )
 
-// global scanner object for testing
-// var scanner = scan.NewResourcesScanner(logger.NewDefaultLogger(), false, filepath.WalkDir, false)
-
 const (
 	allowAllOnSCTPSerialized = `
 apiVersion: networking.k8s.io/v1

@@ -22,26 +22,26 @@ func ResourceInfoListToK8sObjectsList(infosList []*resource.Info, l logger.Logge
 	var hasWorkloads, hasNetpols bool
 	for _, info := range infosList {
 		// fpErr can be  malformedYamlDoc
-		k8sObj, fpErr, isWorkload, isNetpol := resourceInfoToK8sObject(info, l, muteErrsAndWarns)
+		k8sObj, fpErr := resourceInfoToK8sObject(info, l, muteErrsAndWarns)
 		if fpErr != nil {
 			fpErrList = append(fpErrList, *fpErr)
 			// no need to stop if stopOnErr was set, since malformedYamlDoc is a warning
 		}
 		if k8sObj != nil && k8sObj.Kind != "" {
 			res = append(res, *k8sObj)
-			if isNetpol {
+			if k8sObj.Kind == Networkpolicy {
 				hasNetpols = true
 			}
-			if isWorkload {
+			if workloadKinds[k8sObj.Kind] {
 				hasWorkloads = true
 			}
 		}
 	}
 	if !hasWorkloads {
-		fpErrList = appendAndLogNewError(fpErrList, missingResources(true, false), l, muteErrsAndWarns)
+		fpErrList = appendAndLogNewError(fpErrList, noK8sWorkloadResourcesFound(), l, muteErrsAndWarns)
 	}
 	if !hasNetpols {
-		fpErrList = appendAndLogNewError(fpErrList, missingResources(false, true), l, muteErrsAndWarns)
+		fpErrList = appendAndLogNewError(fpErrList, noK8sNetworkPolicyResourcesFound(), l, muteErrsAndWarns)
 	}
 
 	return res, fpErrList
@@ -49,7 +49,7 @@ func ResourceInfoListToK8sObjectsList(infosList []*resource.Info, l logger.Logge
 
 // resourceInfoToK8sObject converts an input resource.Info object to a K8sObject
 func resourceInfoToK8sObject(info *resource.Info, l logger.Logger, muteErrsAndWarns bool) (
-	*K8sObject, *FileProcessingError, bool, bool) {
+	*K8sObject, *FileProcessingError) {
 	resObject := K8sObject{}
 	if unstructuredObj, ok := info.Object.(*unstructured.Unstructured); ok {
 		resObject.Kind = unstructuredObj.GetKind()
@@ -57,7 +57,7 @@ func resourceInfoToK8sObject(info *resource.Info, l logger.Logger, muteErrsAndWa
 		objField := resObject.getEmptyInitializedFieldObjByKind(resObject.Kind)
 		if objField == nil {
 			l.Infof("in file: %s, skipping object with type: %s", info.Source, resObject.Kind)
-			return nil, nil, false, false
+			return nil, nil
 		}
 		err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredObj.Object, objField)
 		if err != nil {
@@ -72,29 +72,17 @@ func resourceInfoToK8sObject(info *resource.Info, l logger.Logger, muteErrsAndWa
 			}
 			fpErr := malformedYamlDoc(info.Source, 0, -1, fmt.Errorf("%s:  %s", errStr, err))
 			logError(l, fpErr, muteErrsAndWarns)
-			return nil, fpErr, false, false
+			return nil, fpErr
 		}
 		resObject.initDefaultNamespace()
 	} else {
 		// failed conversion to unstructured
 		fpErr := malformedYamlDoc(info.Source, 0, -1, fmt.Errorf("failed conversion from resource.Info to unstructured.Unstructured"))
 		logError(l, fpErr, muteErrsAndWarns)
-		return nil, fpErr, false, false
+		return nil, fpErr
 	}
 
-	isNetpol := resObject.Kind == Networkpolicy
-	isWorkload := workloadKinds[resObject.Kind]
-	return &resObject, nil, isWorkload, isNetpol
-}
-
-func missingResources(isWorkload, isNetpol bool) *FileProcessingError {
-	if isWorkload {
-		return noK8sWorkloadResourcesFound()
-	}
-	if isNetpol {
-		return noK8sNetworkPolicyResourcesFound()
-	}
-	return nil
+	return &resObject, nil
 }
 
 // error for resource with kind: , name: ,namespace: ,

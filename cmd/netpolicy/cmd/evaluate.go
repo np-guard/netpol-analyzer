@@ -88,7 +88,7 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 	}
 	objectsList, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, elogger, false)
 	// TODO: consider stopOnFirstError after processingErrs as well
-	objectsList = parser.FilterObjectsList(objectsList, processingErrs, podNames)
+	objectsList = parser.FilterObjectsList(objectsList, podNames)
 	for _, err := range processingErrs {
 		if err.IsFatal() || (stopOnFirstError && err.IsSevere()) {
 			return fmt.Errorf("scan dir path %s had processing errors: %v", dirPath, err.Error())
