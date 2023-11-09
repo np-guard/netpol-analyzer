@@ -24,3 +24,7 @@ build:
 test:
 	@echo -- $@ --
 	go test ./... -v -cover -coverprofile netpolicy.coverprofile
+
+test-update: # overrides/ generates tests' expected output files for relevant tests
+	@echo -- $@ --
+	go test ./pkg/netpol/connlist/ ./pkg/netpol/diff/ --args --update

@@ -1,6 +1,7 @@
 package testutils
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,6 +12,9 @@ import (
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 )
+
+// a flag for writing/overriding the golden result files for tests
+var update = flag.Bool("update", false, "write or override golden files")
 
 const (
 	dirLevelUp            = ".."
@@ -42,12 +46,19 @@ func GetDebugMsgWithTestNameAndFormat(testName, format string) string {
 
 // CheckActualVsExpectedOutputMatch: testing helping func - checks if actual output matches expected output,
 // if not generates actual output file
+// if --update flag is on, writes the actual output to the expected output file
 func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedOutputFileName, actualOutput, testInfo string) {
-	actualOutputFileName := "actual_" + expectedOutputFileName
-	// read expected output file
 	expectedOutputFile := filepath.Join(GetTestsDir(), dirName, expectedOutputFileName)
+	// if the --update flag is on (then generate/ override the expected output file with the actualOutput)
+	if *update {
+		err := common.WriteToFile(actualOutput, expectedOutputFile)
+		require.Nil(t, err, testInfo)
+		return
+	}
+	// read expected output file
 	expectedOutput, err := os.ReadFile(expectedOutputFile)
 	require.Nil(t, err, testInfo)
+	actualOutputFileName := "actual_" + expectedOutputFileName
 	actualOutputFile := filepath.Join(GetTestsDir(), dirName, actualOutputFileName)
 	if cleanStr(string(expectedOutput)) != cleanStr(actualOutput) {
 		err := common.WriteToFile(actualOutput, actualOutputFile)
