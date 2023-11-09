@@ -1,4 +1,4 @@
-| diff-type | source | destination | dir1 | dir2 | workloads-diff-info |
+| diff-type | source | destination | ref1 | ref2 | workloads-diff-info |
 |-----------|--------|-------------|------|------|---------------------|
 | added | payments/gateway[Deployment] | payments/visa-processor-v2[Deployment] | No Connections | TCP 8080 | workload payments/visa-processor-v2[Deployment] added |
 | added | {ingress-controller} | frontend/blog[Deployment] | No Connections | TCP 8080 | workload frontend/blog[Deployment] added |

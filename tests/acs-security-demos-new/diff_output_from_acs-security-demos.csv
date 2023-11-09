@@ -1,4 +1,4 @@
-diff-type,source,destination,dir1,dir2,workloads-diff-info
+diff-type,source,destination,ref1,ref2,workloads-diff-info
 changed,backend/reports[Deployment],backend/catalog[Deployment],TCP 8080,TCP 9080,
 added,0.0.0.0-255.255.255.255,external/unicorn[Deployment],No Connections,All Connections,workload external/unicorn[Deployment] added
 added,backend/checkout[Deployment],external/unicorn[Deployment],No Connections,UDP 5353,workload external/unicorn[Deployment] added

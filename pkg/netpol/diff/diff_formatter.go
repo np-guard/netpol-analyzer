@@ -26,8 +26,8 @@ type singleDiffFields struct {
 	diffType         string
 	src              string
 	dst              string
-	dir1Conn         string
-	dir2Conn         string
+	ref1Conn         string
+	ref2Conn         string
 	workloadDiffInfo string
 }
 
@@ -44,8 +44,8 @@ func formDiffFieldsDataOfDiffConns(diffConns []SrcDstDiff) (netpolsDiff, ingress
 			diffType:         string(d.DiffType()),
 			src:              srcStr,
 			dst:              dstStr,
-			dir1Conn:         firstDirConn,
-			dir2Conn:         secondDirConn,
+			ref1Conn:         firstDirConn,
+			ref2Conn:         secondDirConn,
 			workloadDiffInfo: getDiffInfo(d),
 		}
 		if isSrcIngress {
@@ -64,17 +64,17 @@ func getConnPeersStrings(c SrcDstDiff) (srcStr, dstStr string, isSrcIngress bool
 }
 
 // getDirsConnsStrings returns the string forms of the connections in a single diff connsPair
-func getDirsConnsStrings(c SrcDstDiff) (dir1Str, dir2Str string) {
-	dir1AllowedConns := c.Dir1Connectivity()
-	dir2AllowedConns := c.Dir2Connectivity()
+func getDirsConnsStrings(c SrcDstDiff) (ref1Str, ref2Str string) {
+	ref1AllowedConns := c.Ref1Connectivity()
+	ref2AllowedConns := c.Ref2Connectivity()
 	switch c.DiffType() {
 	case ChangedType, UnchangedType:
-		return common.ConnStrFromConnProperties(dir1AllowedConns.AllProtocolsAndPorts(), dir1AllowedConns.ProtocolsAndPorts()),
-			common.ConnStrFromConnProperties(dir2AllowedConns.AllProtocolsAndPorts(), dir2AllowedConns.ProtocolsAndPorts())
+		return common.ConnStrFromConnProperties(ref1AllowedConns.AllProtocolsAndPorts(), ref1AllowedConns.ProtocolsAndPorts()),
+			common.ConnStrFromConnProperties(ref2AllowedConns.AllProtocolsAndPorts(), ref2AllowedConns.ProtocolsAndPorts())
 	case AddedType:
-		return noConns, common.ConnStrFromConnProperties(dir2AllowedConns.AllProtocolsAndPorts(), dir2AllowedConns.ProtocolsAndPorts())
+		return noConns, common.ConnStrFromConnProperties(ref2AllowedConns.AllProtocolsAndPorts(), ref2AllowedConns.ProtocolsAndPorts())
 	case RemovedType:
-		return common.ConnStrFromConnProperties(dir1AllowedConns.AllProtocolsAndPorts(), dir1AllowedConns.ProtocolsAndPorts()), noConns
+		return common.ConnStrFromConnProperties(ref1AllowedConns.AllProtocolsAndPorts(), ref1AllowedConns.ProtocolsAndPorts()), noConns
 	default:
 		return "", "" // should not get here ever
 	}

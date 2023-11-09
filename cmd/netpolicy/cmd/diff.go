@@ -55,7 +55,7 @@ func runDiffCommand() error {
 }
 
 func getDiffOptions(l *logger.DefaultLogger) []diff.DiffAnalyzerOption {
-	res := []diff.DiffAnalyzerOption{diff.WithLogger(l), diff.WithOutputFormat(outFormat)}
+	res := []diff.DiffAnalyzerOption{diff.WithLogger(l), diff.WithOutputFormat(outFormat), diff.WithArgNames("dir1", "dir2")}
 	if stopOnFirstError {
 		res = append(res, diff.WithStopOnError())
 	}

@@ -1,4 +1,4 @@
-| diff-type | source | destination | dir1 | dir2 | workloads-diff-info |
+| diff-type | source | destination | ref1 | ref2 | workloads-diff-info |
 |-----------|--------|-------------|------|------|---------------------|
 | changed | default/checkoutservice[Deployment] | default/cartservice[Deployment] | TCP 7070 | TCP 8000 |  |
 | changed | default/checkoutservice[Deployment] | default/emailservice[Deployment] | TCP 8080 | TCP 8080,9555 |  |
