@@ -1,2 +1,0 @@
-Connectivity diff:
-diff-type: changed, source: default/frontend-99684f7f8[ReplicaSet], destination: default/adservice-77d5cd745d[ReplicaSet], dir1:  TCP 9555, dir2: TCP 8080

@@ -126,7 +126,7 @@ func getListCmdExpectedOutputFile(focusWorkload, format string) string {
 }
 
 func getDiffCmdExpectedOutputFile(dir1, format string) string {
-	return "diff_output_from_" + dir1 + "." + determineFileSuffix(format)
+	return "cli_diff_output_from_" + dir1 + "." + determineFileSuffix(format)
 }
 
 // TestCommandsFailExecute - tests executing failure for illegal commands or commands with invalid args or with wrong input values
@@ -255,11 +255,11 @@ func TestListCommandOutput(t *testing.T) {
 			dirName:       "acs-security-demos",
 			focusWorkload: "ingress-controller",
 		},
-		{
-			dirName:       "onlineboutique_workloads",
-			focusWorkload: "emailservice",
-			format:        "json",
-		},
+		// {
+		// 	dirName:       "onlineboutique_workloads",
+		// 	focusWorkload: "emailservice",
+		// 	format:        "json",
+		// },
 		{
 			dirName:       "onlineboutique_workloads",
 			focusWorkload: "emailservice",

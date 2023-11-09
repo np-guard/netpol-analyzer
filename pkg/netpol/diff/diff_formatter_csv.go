@@ -9,9 +9,13 @@ import (
 
 // diffFormatCSV: implements the diffFormatter interface for csv output format
 type diffFormatCSV struct {
+	ref1 string
+	ref2 string
 }
 
-var csvHeader = []string{"diff-type", "source", "destination", "dir1", "dir2", "workloads-diff-info"}
+func (cs *diffFormatCSV) getCSVHeader() []string {
+	return []string{"diff-type", "source", "destination", cs.ref1, cs.ref2, "workloads-diff-info"}
+}
 
 // writeDiffOutput writes the diff output in the csv format
 func (cs *diffFormatCSV) writeDiffOutput(connsDiff ConnectivityDiff) (string, error) {
@@ -19,7 +23,7 @@ func (cs *diffFormatCSV) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 	// writing csv rows into a buffer
 	buf := new(bytes.Buffer)
 	writer := csv.NewWriter(buf)
-	if err := writer.Write(csvHeader); err != nil {
+	if err := writer.Write(cs.getCSVHeader()); err != nil {
 		return "", err
 	}
 	for _, diffData := range changesSortedByCategory {
@@ -34,5 +38,5 @@ func (cs *diffFormatCSV) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 
 // singleDiffLine forms a single diff line in the csv format
 func (cs *diffFormatCSV) singleDiffLine(d *singleDiffFields) string {
-	return fmt.Sprintf("%s;%s;%s;%s;%s;%s", d.diffType, d.src, d.dst, d.dir1Conn, d.dir2Conn, d.workloadDiffInfo)
+	return fmt.Sprintf("%s;%s;%s;%s;%s;%s", d.diffType, d.src, d.dst, d.ref1Conn, d.ref2Conn, d.workloadDiffInfo)
 }

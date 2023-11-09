@@ -1,2 +1,2 @@
 Connectivity diff:
-diff-type: changed, source: demo/cog-agents-bank-ui[DaemonSet], destination: demo/cog-agents-account-command[DaemonSet], dir1:  SCTP 7070,TCP 8080-8081,UDP 9090, dir2: TCP 8081-8082,UDP 9091
+diff-type: changed, source: demo/cog-agents-bank-ui[DaemonSet], destination: demo/cog-agents-account-command[DaemonSet], ref1: SCTP 7070,TCP 8080-8081,UDP 9090, ref2: TCP 8081-8082,UDP 9091

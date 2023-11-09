@@ -7,6 +7,8 @@ import (
 
 // diffFormatText: implements the diffFormatter interface for txt output format
 type diffFormatText struct {
+	ref1 string
+	ref2 string
 }
 
 const (
@@ -24,8 +26,8 @@ func (t *diffFormatText) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 
 // singleDiffLine forms a single diff line in the txt format
 func (t *diffFormatText) singleDiffLine(d *singleDiffFields) string {
-	diffLine := fmt.Sprintf("diff-type: %s, source: %s, destination: %s, dir1:  %s, dir2: %s", d.diffType,
-		d.src, d.dst, d.dir1Conn, d.dir2Conn)
+	diffLine := fmt.Sprintf("diff-type: %s, source: %s, destination: %s, %s: %s, %s: %s", d.diffType,
+		d.src, d.dst, t.ref1, d.ref1Conn, t.ref2, d.ref2Conn)
 	if d.workloadDiffInfo != "" {
 		return diffLine + ", workloads-diff-info: " + d.workloadDiffInfo
 	}

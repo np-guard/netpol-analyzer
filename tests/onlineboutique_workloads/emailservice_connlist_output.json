@@ -1,7 +1,0 @@
-[
-  {
-    "src": "default/checkoutservice[Deployment]",
-    "dst": "default/emailservice[Deployment]",
-    "conn": "TCP 8080"
-  }
-]

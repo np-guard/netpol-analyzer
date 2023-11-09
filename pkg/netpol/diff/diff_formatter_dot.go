@@ -10,6 +10,8 @@ import (
 
 // diffFormatDOT: implements the diffFormatter interface for dot output format
 type diffFormatDOT struct {
+	ref1 string
+	ref2 string
 }
 
 // writeDiffOutput writes the diff output in the dot format
@@ -17,22 +19,22 @@ func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 	var edgeLines, peersLines, ingressAnalyzerEdges []string
 	peersVisited := make(map[string]bool, 0) // set of peers
 	// non changed
-	ncPeers, nonChangedEdges, nonChangedIngressEdges := getEdgesAndPeersLinesByCategory(connsDiff.UnchangedConnections(), peersVisited)
+	ncPeers, nonChangedEdges, nonChangedIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.UnchangedConnections(), peersVisited)
 	peersLines = append(peersLines, ncPeers...)
 	edgeLines = append(edgeLines, nonChangedEdges...)
 	ingressAnalyzerEdges = append(ingressAnalyzerEdges, nonChangedIngressEdges...)
 	// changed
-	cPeers, changedEedges, changedIngressEdges := getEdgesAndPeersLinesByCategory(connsDiff.ChangedConnections(), peersVisited)
+	cPeers, changedEedges, changedIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.ChangedConnections(), peersVisited)
 	peersLines = append(peersLines, cPeers...)
 	edgeLines = append(edgeLines, changedEedges...)
 	ingressAnalyzerEdges = append(ingressAnalyzerEdges, changedIngressEdges...)
 	// added
-	nPeers, newEdges, newIngressEdges := getEdgesAndPeersLinesByCategory(connsDiff.AddedConnections(), peersVisited)
+	nPeers, newEdges, newIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.AddedConnections(), peersVisited)
 	peersLines = append(peersLines, nPeers...)
 	edgeLines = append(edgeLines, newEdges...)
 	ingressAnalyzerEdges = append(ingressAnalyzerEdges, newIngressEdges...)
 	// removed
-	lPeers, lostEdges, lostIngressEdges := getEdgesAndPeersLinesByCategory(connsDiff.RemovedConnections(), peersVisited)
+	lPeers, lostEdges, lostIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.RemovedConnections(), peersVisited)
 	peersLines = append(peersLines, lPeers...)
 	edgeLines = append(edgeLines, lostEdges...)
 	ingressAnalyzerEdges = append(ingressAnalyzerEdges, lostIngressEdges...)
@@ -54,7 +56,8 @@ func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 
 // getEdgesAndPeersLinesByCategory returns the dot peers, edges and  ingress edges lines of the given connsPairs
 // (all connsPairs are in same category)
-func getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff, peersSet map[string]bool) (peersLines, connsEdges, ingressEdges []string) {
+func (df *diffFormatDOT) getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff, peersSet map[string]bool,
+) (peersLines, connsEdges, ingressEdges []string) {
 	peersLines = make([]string, 0)
 	connsEdges = make([]string, 0)
 	ingressEdges = make([]string, 0)
@@ -71,9 +74,9 @@ func getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff, peersSet map[strin
 		}
 		// add connections lines
 		if isIngress {
-			ingressEdges = append(ingressEdges, addEdgesLines(connsPair))
+			ingressEdges = append(ingressEdges, df.addEdgesLines(connsPair))
 		} else {
-			connsEdges = append(connsEdges, addEdgesLines(connsPair))
+			connsEdges = append(connsEdges, df.addEdgesLines(connsPair))
 		}
 	}
 	return peersLines, connsEdges, ingressEdges
@@ -109,14 +112,14 @@ const (
 )
 
 // addEdgesLines forms the appropriate edge line of the given conns pair
-func addEdgesLines(connsPair SrcDstDiff) string {
+func (df *diffFormatDOT) addEdgesLines(connsPair SrcDstDiff) string {
 	src, dst, _ := getConnPeersStrings(connsPair)
 	firstConn, secondConn := getDirsConnsStrings(connsPair)
 	switch connsPair.DiffType() {
 	case UnchangedType:
 		return getEdgeLine(src, dst, firstConn, nonChangedConnColor)
 	case ChangedType:
-		changedEdgeLabel := secondConn + " (old: " + firstConn + ")"
+		changedEdgeLabel := fmt.Sprintf("%s (%s: %s)", secondConn, df.ref1, firstConn)
 		return getEdgeLine(src, dst, changedEdgeLabel, changedConnColor)
 	case RemovedType:
 		return getEdgeLine(src, dst, firstConn, removedConnColor)
