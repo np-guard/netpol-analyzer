@@ -56,9 +56,6 @@ func runDiffCommand() error {
 
 func getDiffOptions(l *logger.DefaultLogger) []diff.DiffAnalyzerOption {
 	res := []diff.DiffAnalyzerOption{diff.WithLogger(l), diff.WithOutputFormat(outFormat)}
-	if includeJSONManifests {
-		res = append(res, diff.WithIncludeJSONManifests())
-	}
 	if stopOnFirstError {
 		res = append(res, diff.WithStopOnError())
 	}
@@ -88,6 +85,7 @@ func newCommandDiff() *cobra.Command {
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := runDiffCommand(); err != nil {
+				cmd.SilenceUsage = true // don't print usage message when returning an error from running a valid command
 				return err
 			}
 			return nil

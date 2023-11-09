@@ -204,7 +204,7 @@ func TestCommandsFailExecute(t *testing.T) {
 			expectedErrorContains: "-q and -v cannot be specified together",
 		},
 		{
-			name: "eval_command_on_dir_with_severe_error_wit_fail_flag_stops_executing_and_returns_the_severe_err_as_err",
+			name: "eval_command_on_dir_with_severe_error_with_fail_flag_stops_executing_and_returns_the_severe_err_as_err",
 			args: []string{
 				"eval",
 				"--dirpath",
@@ -216,7 +216,7 @@ func TestCommandsFailExecute(t *testing.T) {
 				"-p",
 				"80",
 				"--fail"},
-			expectedErrorContains: "had processing errors: YAML document is malformed",
+			expectedErrorContains: "found character that cannot start any token",
 		},
 	}
 	for _, tt := range tests {
@@ -277,7 +277,6 @@ func TestListCommandOutput(t *testing.T) {
 		},
 		{
 			// the test contains malformed yaml beside to legal yaml.
-			//  MalformedYamlDocError is not fatal, thus not returned
 			// analysis is able to parse some deployments, thus can produce connectivity output
 			dirName: filepath.Join("bad_yamls", "document_with_syntax_error"),
 		},
@@ -410,7 +409,6 @@ func TestCommandWithFailFlag(t *testing.T) {
 		},
 		{
 			name: "list_cmd_dir_with_severe_error_running_with_fail_stops_and_return_empty_output",
-			//  MalformedYamlDocError is not fatal, but severe, thus stops the run if --fail is on
 			// as we saw in a previous test on same path, when --fail is not used, the test produces connectivity map
 			args: []string{
 				"list",

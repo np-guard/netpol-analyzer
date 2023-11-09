@@ -1,9 +1,8 @@
-package scan
+package parser
 
 import (
 	"errors"
 	"fmt"
-	"os"
 )
 
 // FileProcessingError holds all information about a single error/warning that occurred during
@@ -17,25 +16,10 @@ type FileProcessingError struct {
 	severe   bool // a severe error is recoverable. However, outputs should be used with care
 }
 
-type NoYamlsFoundError struct {
-}
-
-type NoK8sResourcesFoundError struct {
-}
-
 type NoK8sWorkloadResourcesFoundError struct {
 }
 
 type NoK8sNetworkPolicyResourcesFoundError struct {
-}
-
-type FailedScanningResource struct {
-	resourceType string
-	origErr      error
-}
-
-type NotK8sResourceError struct {
-	origErr error
 }
 
 type MalformedYamlDocError struct {
@@ -46,41 +30,12 @@ type FailedReadingFileError struct {
 	origErr error
 }
 
-type FailedAccessingDirError struct {
-	origErr error
-	dirPath string
-}
-
-func (err *NoYamlsFoundError) Error() string {
-	return "no yaml files found"
-}
-
-func (err *NoK8sResourcesFoundError) Error() string {
-	return "no relevant Kubernetes resources found"
-}
-
 func (err *NoK8sWorkloadResourcesFoundError) Error() string {
 	return "no relevant Kubernetes workload resources found"
 }
 
 func (err *NoK8sNetworkPolicyResourcesFoundError) Error() string {
 	return "no relevant Kubernetes network policy resources found"
-}
-
-func (err *FailedScanningResource) Error() string {
-	return fmt.Sprintf("error scanning %s resource: %v", err.resourceType, err.origErr)
-}
-
-func (err *FailedScanningResource) Unwrap() error {
-	return err.origErr
-}
-
-func (err *NotK8sResourceError) Error() string {
-	return fmt.Sprintf("Yaml document is not a K8s resource: %v", err.origErr)
-}
-
-func (err *NotK8sResourceError) Unwrap() error {
-	return err.origErr
 }
 
 func (err *MalformedYamlDocError) Error() string {
@@ -96,18 +51,6 @@ func (err *FailedReadingFileError) Error() string {
 }
 
 func (err *FailedReadingFileError) Unwrap() error {
-	return err.origErr
-}
-
-func (err *FailedAccessingDirError) Error() string {
-	if errors.Is(err.origErr, os.ErrNotExist) {
-		return fmt.Sprintf("directory %s was not found", err.dirPath)
-	}
-
-	return fmt.Sprintf("failed reading contents of directory %s ", err.dirPath)
-}
-
-func (err *FailedAccessingDirError) Unwrap() error {
 	return err.origErr
 }
 
@@ -163,14 +106,6 @@ func (e *FileProcessingError) IsSevere() bool {
 
 // --------  Constructors for specific error types ----------------
 
-func noYamlsFound() *FileProcessingError {
-	return &FileProcessingError{&NoYamlsFoundError{}, "", 0, -1, false, false}
-}
-
-func noK8sResourcesFound() *FileProcessingError {
-	return &FileProcessingError{&NoK8sResourcesFoundError{}, "", 0, -1, false, true}
-}
-
 func noK8sWorkloadResourcesFound() *FileProcessingError {
 	return &FileProcessingError{&NoK8sWorkloadResourcesFoundError{}, "", 0, -1, false, true}
 }
@@ -179,22 +114,10 @@ func noK8sNetworkPolicyResourcesFound() *FileProcessingError {
 	return &FileProcessingError{&NoK8sNetworkPolicyResourcesFoundError{}, "", 0, -1, false, false}
 }
 
-func failedScanningResource(resourceType, filePath string, err error) *FileProcessingError {
-	return &FileProcessingError{&FailedScanningResource{resourceType, err}, filePath, 0, -1, false, false}
-}
-
-func notK8sResource(filePath string, docID int, err error) *FileProcessingError {
-	return &FileProcessingError{&NotK8sResourceError{err}, filePath, 0, docID, false, false}
-}
-
 func malformedYamlDoc(filePath string, lineNum, docID int, err error) *FileProcessingError {
 	return &FileProcessingError{&MalformedYamlDocError{err}, filePath, lineNum, docID, false, true}
 }
 
-func failedReadingFile(filePath string, err error) *FileProcessingError {
+func FailedReadingFile(filePath string, err error) *FileProcessingError {
 	return &FileProcessingError{&FailedReadingFileError{err}, filePath, 0, -1, false, true}
-}
-
-func failedAccessingDir(dirPath string, err error, isSubDir bool) *FileProcessingError {
-	return &FileProcessingError{&FailedAccessingDirError{origErr: err, dirPath: dirPath}, dirPath, 0, -1, !isSubDir, true}
 }

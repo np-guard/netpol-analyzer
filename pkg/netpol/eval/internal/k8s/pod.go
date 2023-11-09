@@ -26,7 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/scan"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
 )
 
 const defaultPortsListSize = 8
@@ -121,49 +121,49 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 	var podTemplate corev1.PodTemplateSpec
 	numReplicas := 1
 	switch kind {
-	case scan.ReplicaSet:
+	case parser.ReplicaSet:
 		obj := workload.(*appsv1.ReplicaSet)
 		replicas = getReplicas(obj.Spec.Replicas)
 		workloadName = obj.Name
 		workloadNamespace = obj.Namespace
 		podTemplate = obj.Spec.Template
 		APIVersion = obj.APIVersion
-	case scan.Deployment:
+	case parser.Deployment:
 		obj := workload.(*appsv1.Deployment)
 		replicas = getReplicas(obj.Spec.Replicas)
 		workloadName = obj.Name
 		workloadNamespace = obj.Namespace
 		podTemplate = obj.Spec.Template
 		APIVersion = obj.APIVersion
-	case scan.Statefulset:
+	case parser.Statefulset:
 		obj := workload.(*appsv1.StatefulSet)
 		replicas = getReplicas(obj.Spec.Replicas)
 		workloadName = obj.Name
 		workloadNamespace = obj.Namespace
 		podTemplate = obj.Spec.Template
 		APIVersion = obj.APIVersion
-	case scan.Daemonset:
+	case parser.Daemonset:
 		obj := workload.(*appsv1.DaemonSet)
 		replicas = 1
 		workloadName = obj.Name
 		workloadNamespace = obj.Namespace
 		podTemplate = obj.Spec.Template
 		APIVersion = obj.APIVersion
-	case scan.ReplicationController:
+	case parser.ReplicationController:
 		obj := workload.(*corev1.ReplicationController)
 		replicas = getReplicas(obj.Spec.Replicas)
 		workloadName = obj.Name
 		workloadNamespace = obj.Namespace
 		podTemplate = *obj.Spec.Template
 		APIVersion = obj.APIVersion
-	case scan.CronJob:
+	case parser.CronJob:
 		obj := workload.(*batchv1.CronJob)
 		replicas = 1
 		workloadName = obj.Name
 		workloadNamespace = obj.Namespace
 		podTemplate = obj.Spec.JobTemplate.Spec.Template
 		APIVersion = obj.APIVersion
-	case scan.Job:
+	case parser.Job:
 		obj := workload.(*batchv1.Job)
 		replicas = getReplicas(obj.Spec.Parallelism)
 		workloadName = obj.Name
@@ -213,7 +213,7 @@ func variantFromLabelsMap(labels map[string]string) string {
 }
 
 func getFakePodIP() string {
-	return scan.IPv4LoopbackAddr
+	return parser.IPv4LoopbackAddr
 }
 
 // PodExposedTCPConnections returns TCP connections exposed by a pod
