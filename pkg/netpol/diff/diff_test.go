@@ -59,7 +59,7 @@ func TestDiffAnalyzeFatalErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiFunc := range diffTestedAPIS {
-				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.dir1, tt.dir2, common.DefaultFormat, tt.name)
+				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.ref1, tt.ref2, common.DefaultFormat, tt.name)
 				require.Empty(t, diffRes, "test: %q, apiFunc: %q", tt.name, apiFunc)
 				testutils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
 				require.Equal(t, 1, len(pTest.analyzer.errors))
@@ -78,51 +78,51 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
 		name                string
-		dir1                string
-		dir2                string
+		ref1                string
+		ref2                string
 		containedErrOrWarns []string
 		emptyRes            bool
 		onlyDirPathsAPI     bool
 	}{
 		{
 			name: "first_input_dir_has_no_k8s_resources_should_return_severe_error",
-			dir1: filepath.Join("bad_yamls", "not_a_k8s_resource.yaml"),
-			dir2: "ipblockstest", // no warnings, nor any severe/fatal errors
+			ref1: filepath.Join("bad_yamls", "not_a_k8s_resource.yaml"),
+			ref2: "ipblockstest", // no warnings, nor any severe/fatal errors
 			containedErrOrWarns: []string{
 				"unable to decode", // "at dir 1" currently printed to log, but not attached to err itself
-				"at dir1: no relevant Kubernetes workload resources found",
-				"at dir1: no relevant Kubernetes network policy resources found",
+				"at ref1: no relevant Kubernetes workload resources found",
+				"at ref1: no relevant Kubernetes network policy resources found",
 			},
 			onlyDirPathsAPI: true,
-			emptyRes:        false, // expecting diff result because dir2 has resources
+			emptyRes:        false, // expecting diff result because ref2 has resources
 		},
 		{
 			// same test as the one above, this time with both apis - thus "unable to decode" not included,
 			// as issued by the builder
 			name: "first_input_dir_has_no_k8s_resources_should_return_severe_error",
-			dir1: filepath.Join("bad_yamls", "not_a_k8s_resource.yaml"),
-			dir2: "ipblockstest", // no warnings, nor any severe/fatal errors
+			ref1: filepath.Join("bad_yamls", "not_a_k8s_resource.yaml"),
+			ref2: "ipblockstest", // no warnings, nor any severe/fatal errors
 			containedErrOrWarns: []string{
-				"at dir1: no relevant Kubernetes workload resources found",
-				"at dir1: no relevant Kubernetes network policy resources found",
+				"at ref1: no relevant Kubernetes workload resources found",
+				"at ref1: no relevant Kubernetes network policy resources found",
 			},
-			emptyRes: false, // expecting diff result because dir2 has resources
+			emptyRes: false, // expecting diff result because ref2 has resources
 		},
 		{
 			name: "first_input_dir_has_no_netpols_should_get_no_relevant_k8s_policies_found",
-			dir1: "k8s_ingress_test",
-			dir2: "k8s_ingress_test_new",
+			ref1: "k8s_ingress_test",
+			ref2: "k8s_ingress_test_new",
 			containedErrOrWarns: []string{
-				"at dir1: no relevant Kubernetes network policy resources found",
+				"at ref1: no relevant Kubernetes network policy resources found",
 			},
 			emptyRes: false, // expecting diff result, both dirs have resources
 		},
 		{
 			name: "in_second_input_dir_network_policies_block_ingress_conns_to_a_workload_should_get_warning_msg",
-			dir1: "acs-security-demos",
-			dir2: "acs-security-demos-new",
+			ref1: "acs-security-demos",
+			ref2: "acs-security-demos-new",
 			containedErrOrWarns: []string{
-				"at dir2: Route resource frontend/asset-cache specified workload frontend/asset-cache[Deployment] as a backend",
+				"at ref2: Route resource frontend/asset-cache specified workload frontend/asset-cache[Deployment] as a backend",
 			},
 			emptyRes: false, // expecting diff result, both dirs have resources
 		},
@@ -132,8 +132,8 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 			// when running without stopOnError we expect to see 6 severe errors (3 for each dir flag)
 			// but when running with stopOnError we expect to see only 1 , and then stops
 			name:                           "both_input_dirs_contain_malformed_yaml_files_should_return_severe_errors",
-			dir1:                           "dirty",
-			dir2:                           "dirty",
+			ref1:                           "dirty",
+			ref2:                           "dirty",
 			firstErrStrContains:            "YAML document is malformed",
 			expectedErrNumWithoutStopOnErr: 6,
 			expectedErrNumWithStopOnErr:    1,
@@ -148,7 +148,7 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 					continue
 				}
 
-				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.dir1, tt.dir2, common.DefaultFormat, tt.name)
+				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.ref1, tt.ref2, common.DefaultFormat, tt.name)
 				if tt.emptyRes {
 					require.Empty(t, diffRes, pTest.testInfo)
 				} else {
@@ -186,8 +186,8 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
 		name                string
-		dir1                string
-		dir2                string
+		ref1                string
+		ref2                string
 		containedErrOrWarns []string
 		emptyRes            bool
 		onlyDirPathsAPI     bool
@@ -195,8 +195,8 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 	}{
 		{
 			name: "both_input_dirs_do_not_exist",
-			dir1: "some_dir",
-			dir2: "some_other_dir",
+			ref1: "some_dir",
+			ref2: "some_other_dir",
 			containedErrOrWarns: []string{
 				// [the path "tests/some_dir" does not exist, the path "tests/some_other_dir" does not exist]
 				"[the path ", "some_dir", "does not exist", "some_other_dir",
@@ -206,8 +206,8 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 		},
 		{
 			name: "first_dir_does_not_exist_and_second_dir_has_json_that_cannot_be_decoded",
-			dir1: "some_dir",
-			dir2: "acs-security-demos",
+			ref1: "some_dir",
+			ref2: "acs-security-demos",
 			containedErrOrWarns: []string{
 				// [the path "tests/some_other_dir" does not exist, unable to decode "tests\\acs-security-demos\\connlist_output.json":
 				// json: cannot unmarshal array into Go value of type unstructured.detector]
@@ -217,12 +217,12 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 			isFatal:  true,
 		},
 		{
-			name: "dir_has_json_that_cannot_be_decoded_and_dir1_dir2_are_the_same",
-			dir1: "acs-security-demos",
-			dir2: "acs-security-demos",
+			name: "dir_has_json_that_cannot_be_decoded_and_dir1_ref2_are_the_same",
+			ref1: "acs-security-demos",
+			ref2: "acs-security-demos",
 			containedErrOrWarns: []string{
-				// at dir1: error reading file: unable to decode ...
-				// at dir2: error reading file: unable to decode ...
+				// at ref1: error reading file: unable to decode ...
+				// at ref2: error reading file: unable to decode ...
 				// "at dir" is only attached to the log msg and not to the returned err obj
 				"unable to decode", "connlist_output.json", "error reading file",
 			},
@@ -234,7 +234,7 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			pTest, diffRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dir1, tt.dir2, common.DefaultFormat, tt.name)
+			pTest, diffRes, err := getAnalysisResFromAPI(DirPathFunc, tt.ref1, tt.ref2, common.DefaultFormat, tt.name)
 			if tt.emptyRes {
 				require.Empty(t, diffRes, pTest.testInfo)
 			} else {
@@ -266,15 +266,15 @@ func TestDiffOutputFatalErrors(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
 		name             string
-		dir1             string
-		dir2             string
+		ref1             string
+		ref2             string
 		format           string
 		errorStrContains string
 	}{
 		{
 			name:             "giving_unsupported_output_format_option_should_return_fatal_error",
-			dir1:             "onlineboutique_workloads",
-			dir2:             "onlineboutique_workloads_changed_netpols",
+			ref1:             "onlineboutique_workloads",
+			ref2:             "onlineboutique_workloads_changed_netpols",
 			format:           "png",
 			errorStrContains: "png output format is not supported.",
 		},
@@ -284,7 +284,7 @@ func TestDiffOutputFatalErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiFunc := range diffTestedAPIS {
-				pTest, connsDiff, err := getAnalysisResFromAPI(apiFunc, tt.dir1, tt.dir2, tt.format, tt.name)
+				pTest, connsDiff, err := getAnalysisResFromAPI(apiFunc, tt.ref1, tt.ref2, tt.format, tt.name)
 				require.Nil(t, err, pTest.testInfo)
 				require.NotEmpty(t, connsDiff, pTest.testInfo)
 				output, err := pTest.analyzer.ConnectivityDiffToString(connsDiff)
@@ -292,6 +292,24 @@ func TestDiffOutputFatalErrors(t *testing.T) {
 				testutils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
 			}
 		})
+	}
+}
+
+// TODO: change to be one of the set from good path tests
+func TestDiffOutputWithArgNamesOption(t *testing.T) {
+	ref1 := "onlineboutique_workloads"
+	ref2 := "onlineboutique_workloads_changed_netpols"
+	for _, format := range ValidDiffFormats {
+		analyzer := NewDiffAnalyzer(WithOutputFormat(format), WithArgNames("old", "new"))
+		diffRes, err := analyzer.ConnDiffFromDirPaths(filepath.Join(testutils.GetTestsDir(), ref1),
+			filepath.Join(testutils.GetTestsDir(), ref2))
+		require.Nil(t, err)
+		require.NotEmpty(t, diffRes)
+		output, err := analyzer.ConnectivityDiffToString(diffRes)
+		require.Nil(t, err)
+		testName := "TsetOutputWithArgNamesOption." + format
+		testutils.CheckActualVsExpectedOutputMatch(t, testName, ref2,
+			testName, output, testName)
 	}
 }
 
@@ -304,8 +322,8 @@ type preparedTest struct {
 	analyzer               *DiffAnalyzer
 }
 
-func getTestName(dir1, dir2 string) string {
-	return "diff_between_" + dir2 + "_and_" + dir1
+func getTestName(ref1, ref2 string) string {
+	return "diff_between_" + ref2 + "_and_" + ref1
 }
 
 func prepareTest(firstDir, secondDir, format, apiName, testNameStr string) *preparedTest {
@@ -599,41 +617,41 @@ var goodPathTests = []struct {
 
 var commonBadPathTestsFatalErr = []struct {
 	name             string
-	dir1             string
-	dir2             string
+	ref1             string
+	ref2             string
 	errorStrContains string
 }{
 	{
 		name:             "first_input_dir_has_netpol_with_invalid_cidr_should_return_fatal_error_of_invalid_CIDR_address",
-		dir1:             filepath.Join("bad_netpols", "subdir1"),
-		dir2:             "ipblockstest",
+		ref1:             filepath.Join("bad_netpols", "subdir1"),
+		ref2:             "ipblockstest",
 		errorStrContains: "network policy default/shippingservice-netpol CIDR error: invalid CIDR address: A",
 	},
 	{
 		name: "second_input_dir_has_netpol_with_bad_label_key_should_return_fatal_selector_error",
-		dir1: "ipblockstest",
-		dir2: filepath.Join("bad_netpols", "subdir2"),
+		ref1: "ipblockstest",
+		ref2: filepath.Join("bad_netpols", "subdir2"),
 		errorStrContains: "network policy default/shippingservice-netpol selector error: key: Invalid value: \"app@b\": " +
 			"name part must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric" +
 			" character (e.g. 'MyName',  or 'my.name',  or '123-abc', regex used for validation is '([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]')",
 	},
 	{
 		name: "first_input_dir_has_netpol_with_invalid_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
-		dir1: filepath.Join("bad_netpols", "subdir3"),
-		dir2: "ipblockstest",
+		ref1: filepath.Join("bad_netpols", "subdir3"),
+		ref2: "ipblockstest",
 		errorStrContains: "network policy default/shippingservice-netpol rule NetworkPolicyPeer error: " +
 			"cannot have both IPBlock and PodSelector/NamespaceSelector set",
 	},
 	{
 		name:             "second_input_dir_has_netpol_with_empty_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
-		dir1:             "ipblockstest",
-		dir2:             filepath.Join("bad_netpols", "subdir4"),
+		ref1:             "ipblockstest",
+		ref2:             filepath.Join("bad_netpols", "subdir4"),
 		errorStrContains: "network policy default/shippingservice-netpol rule NetworkPolicyPeer error: cannot have empty rule peer",
 	},
 	{
 		name:             "second_input_dir_has_netpol_with_named_port_on_ipblock_peer_should_return_fatal_named_port_error",
-		dir1:             "ipblockstest",
-		dir2:             filepath.Join("bad_netpols", "subdir6"),
+		ref1:             "ipblockstest",
+		ref2:             filepath.Join("bad_netpols", "subdir6"),
 		errorStrContains: "network policy default/shippingservice-netpol named port error: cannot convert named port for an IP destination",
 	},
 	/*{
@@ -644,8 +662,8 @@ var commonBadPathTestsFatalErr = []struct {
 	},*/
 	{
 		name: "first_input_dir_has_illegal_podlist_pods_with_same_owner_ref_name_has_different_labels_should_return_fatal_error",
-		dir1: "semanticDiff-same-topologies-illegal-podlist",
-		dir2: "semanticDiff-same-topologies-old1",
+		ref1: "semanticDiff-same-topologies-illegal-podlist",
+		ref2: "semanticDiff-same-topologies-old1",
 		errorStrContains: "Input Pod resources are not supported for connectivity analysis." +
 			" Found Pods of the same owner demo/cog-agents but with different set of labels.",
 	},

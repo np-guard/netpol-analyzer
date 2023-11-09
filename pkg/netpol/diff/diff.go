@@ -7,6 +7,7 @@ package diff
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	v1 "k8s.io/api/core/v1"
@@ -29,20 +30,22 @@ type DiffAnalyzer struct {
 	stopOnError  bool
 	errors       []DiffError
 	outputFormat string
+	ref1Name     string
+	ref2Name     string
 }
 
 // ConnDiffFromResourceInfos returns the connectivity diffs from two lists of resource.Info objects,
 // representing two versions of manifest sets to compare
 func (da *DiffAnalyzer) ConnDiffFromResourceInfos(infos1, infos2 []*resource.Info) (ConnectivityDiff, error) {
 	// connectivity analysis for first dir
-	// TODO: should add input arg dirPath to this API func? so that log msgs can specify the dir, rather then just "dir1"/"dir2"
-	conns1, workloads1, shouldStop, cDiff, errVal := da.getConnlistAnalysis(infos1, true, false, "")
+	// TODO: should add input arg dirPath to this API func? so that log msgs can specify the dir, rather then just "ref1"/"ref2"
+	conns1, workloads1, shouldStop, cDiff, errVal := da.getConnlistAnalysis(infos1, true, "")
 	if shouldStop {
 		return cDiff, errVal
 	}
 
 	// connectivity analysis for second dir
-	conns2, workloads2, shouldStop, cDiff, errVal := da.getConnlistAnalysis(infos2, false, true, "")
+	conns2, workloads2, shouldStop, cDiff, errVal := da.getConnlistAnalysis(infos2, false, "")
 	if shouldStop {
 		return cDiff, errVal
 	}
@@ -65,7 +68,7 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 			if len(errs1) == 0 {
 				dirPath = dirPath2
 			}
-			da.logger.Errorf(err, "Error getting resourceInfos from dir paths dir1/dir2 ")
+			da.logger.Errorf(err, "Error getting resourceInfos from dir paths %s/%s ", da.ref1Name, da.ref2Name)
 			da.errors = append(da.errors, parser.FailedReadingFile(dirPath, err))
 			return nil, err // return as fatal error if both infos-lists are empty, or if stopOnError is on,
 			// or if at least one input dir does not exist
@@ -74,12 +77,12 @@ func (da *DiffAnalyzer) ConnDiffFromDirPaths(dirPath1, dirPath2 string) (Connect
 		// split err if it's an aggregated error to a list of separate errors
 		errReadingFile := "error reading file"
 		for _, err := range errs1 {
-			da.logger.Errorf(err, atDir1Prefix+errReadingFile)                     // print to log the error from builder
+			da.logger.Errorf(err, da.errPrefixSpecifyRefName(true)+errReadingFile) // print to log the error from builder
 			da.errors = append(da.errors, parser.FailedReadingFile(dirPath1, err)) // add the error from builder to accumulated errors
 		}
 		for _, err := range errs2 {
-			da.logger.Errorf(err, atDir2Prefix+errReadingFile)                     // print to log the error from builder
-			da.errors = append(da.errors, parser.FailedReadingFile(dirPath2, err)) // add the error from builder to accumulated errors
+			da.logger.Errorf(err, da.errPrefixSpecifyRefName(false)+errReadingFile) // print to log the error from builder
+			da.errors = append(da.errors, parser.FailedReadingFile(dirPath2, err))  // add the error from builder to accumulated errors
 		}
 	}
 	return da.ConnDiffFromResourceInfos(infos1, infos2)
@@ -161,6 +164,15 @@ func WithStopOnError() DiffAnalyzerOption {
 	}
 }
 
+// WithArgNames is a functional option that sets the names to be used for the two sets of analyzed resources
+// (default is ref1,ref2) in the output reports and log messages.
+func WithArgNames(ref1Name, ref2Name string) DiffAnalyzerOption {
+	return func(d *DiffAnalyzer) {
+		d.ref1Name = ref1Name
+		d.ref2Name = ref2Name
+	}
+}
+
 // NewDiffAnalyzer creates a new instance of DiffAnalyzer, and applies the provided functional options.
 func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 	// object with default behavior options
@@ -169,6 +181,8 @@ func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 		stopOnError:  false,
 		errors:       []DiffError{},
 		outputFormat: common.DefaultFormat,
+		ref1Name:     "ref1",
+		ref2Name:     "ref2",
 	}
 	for _, o := range options {
 		o(da)
@@ -203,7 +217,7 @@ func (da *DiffAnalyzer) hasFatalError() error {
 }
 
 // return a []ConnlistAnalyzerOption with mute errs/warns, so that logging of err/wanr is not duplicated, and
-// added to log only by getConnlistAnalysis function, which adds the context of dir1/dir2
+// added to log only by getConnlistAnalysis function, which adds the context of ref1/ref2
 func (da *DiffAnalyzer) determineConnlistAnalyzerOptions() []connlist.ConnlistAnalyzerOption {
 	if da.stopOnError {
 		return []connlist.ConnlistAnalyzerOption{connlist.WithMuteErrsAndWarns(), connlist.WithLogger(da.logger), connlist.WithStopOnError()}
@@ -220,8 +234,7 @@ func (da *DiffAnalyzer) determineConnlistAnalyzerOptions() []connlist.ConnlistAn
 // the main function, if the analysis should stop.
 func (da *DiffAnalyzer) getConnlistAnalysis(
 	infos []*resource.Info,
-	dir1 bool,
-	dir2 bool,
+	isRef1 bool,
 	dirPath string) (
 	[]connlist.Peer2PeerConnection,
 	[]connlist.Peer,
@@ -233,9 +246,10 @@ func (da *DiffAnalyzer) getConnlistAnalysis(
 	conns, workloads, err := connlistaAnalyzer.ConnlistFromResourceInfos(infos)
 
 	// append all fatal/severe errors and warnings returned by connlistaAnalyzer
+	errPrefix := da.errPrefixSpecifyRefName(isRef1)
 	for _, e := range connlistaAnalyzer.Errors() {
-		// wrap err/warn with new err type that includes context of dir1/dir2
-		daErr := newConnectivityAnalysisError(e.Error(), dir1, dir2, dirPath, e.IsSevere(), e.IsFatal())
+		// wrap err/warn with new err type that includes context of ref1/ref2
+		daErr := newConnectivityAnalysisError(e.Error(), errPrefix, dirPath, e.IsSevere(), e.IsFatal())
 		da.errors = append(da.errors, daErr)
 		logErrOrWarning(daErr, da.logger)
 	}
@@ -244,7 +258,7 @@ func (da *DiffAnalyzer) getConnlistAnalysis(
 		// check it exists, if not, append a new fatal err to the da.errors array
 		if da.hasFatalError() == nil {
 			// append the fatal error (indicates an issue in connlist analyzer, that did not append this err as expected)
-			da.errors = append(da.errors, newConnectivityAnalysisError(err, dir1, dir2, dirPath, false, true))
+			da.errors = append(da.errors, newConnectivityAnalysisError(err, errPrefix, dirPath, false, true))
 		}
 	}
 
@@ -262,6 +276,17 @@ func (da *DiffAnalyzer) getConnlistAnalysis(
 	}
 
 	return conns, workloads, shouldStop, cDiff, errVal
+}
+
+func (da *DiffAnalyzer) errPrefixSpecifyRefName(isRef1 bool) string {
+	if isRef1 {
+		return getErrPrefix(da.ref1Name)
+	}
+	return getErrPrefix(da.ref2Name)
+}
+
+func getErrPrefix(location string) string {
+	return fmt.Sprintf("at %s: ", location)
 }
 
 func logErrOrWarning(d DiffError, l logger.Logger) {
@@ -351,7 +376,7 @@ func (c *connsPair) Dst() Peer {
 	return c.firstConn.Dst()
 }
 
-func (c *connsPair) Dir1Connectivity() AllowedConnectivity {
+func (c *connsPair) Ref1Connectivity() AllowedConnectivity {
 	if c.diffType == AddedType {
 		return &allowedConnectivity{
 			allProtocolsAndPorts: false,
@@ -364,7 +389,7 @@ func (c *connsPair) Dir1Connectivity() AllowedConnectivity {
 	}
 }
 
-func (c *connsPair) Dir2Connectivity() AllowedConnectivity {
+func (c *connsPair) Ref2Connectivity() AllowedConnectivity {
 	if c.diffType == RemovedType {
 		return &allowedConnectivity{
 			allProtocolsAndPorts: false,
@@ -692,7 +717,7 @@ func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDi
 		return "", nil
 	}
 	da.logger.Infof("Found connections diffs")
-	diffFormatter, err := getFormatter(da.outputFormat)
+	diffFormatter, err := getFormatter(da.outputFormat, da.ref1Name, da.ref2Name)
 	if err != nil {
 		da.errors = append(da.errors, newResultFormattingError(err))
 		return "", err
@@ -706,21 +731,21 @@ func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDi
 }
 
 // returns the relevant formatter for the analyzer's outputFormat
-func getFormatter(format string) (diffFormatter, error) {
+func getFormatter(format, ref1Name, ref2Name string) (diffFormatter, error) {
 	if err := ValidateDiffOutputFormat(format); err != nil {
 		return nil, err
 	}
 	switch format {
 	case common.TextFormat:
-		return &diffFormatText{}, nil
+		return &diffFormatText{ref1: ref1Name, ref2: ref2Name}, nil
 	case common.CSVFormat:
-		return &diffFormatCSV{}, nil
+		return &diffFormatCSV{ref1: ref1Name, ref2: ref2Name}, nil
 	case common.MDFormat:
-		return &diffFormatMD{}, nil
+		return &diffFormatMD{ref1: ref1Name, ref2: ref2Name}, nil
 	case common.DOTFormat:
-		return &diffFormatDOT{}, nil
+		return &diffFormatDOT{ref1: ref1Name, ref2: ref2Name}, nil
 	default:
-		return &diffFormatText{}, nil
+		return &diffFormatText{ref1: ref1Name, ref2: ref2Name}, nil
 	}
 }
 

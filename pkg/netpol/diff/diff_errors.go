@@ -26,10 +26,9 @@ type handlingIPpeersError struct {
 }
 
 type connectivityAnalysisError struct {
-	origErr error
-	dir1    bool
-	dir2    bool
-	dirPath string
+	origErr   error
+	errPrefix string
+	dirPath   string
 }
 
 ///////////////////////////
@@ -64,20 +63,13 @@ func (e *handlingIPpeersError) Error() string {
 	return e.origErr.Error()
 }
 
-const (
-	atDir1Prefix = "at dir1: "
-	atDir2Prefix = "at dir2: "
-)
-
 func (e *connectivityAnalysisError) Error() string {
 	var prefix string
 	switch {
 	case e.dirPath != "":
-		prefix = "at " + e.dirPath + ": "
-	case e.dir1:
-		prefix = atDir1Prefix
-	case e.dir2:
-		prefix = atDir2Prefix
+		prefix = getErrPrefix(e.dirPath)
+	case e.errPrefix != "": // prefix of ref1/ref2 names
+		prefix = e.errPrefix
 	}
 	return prefix + e.origErr.Error()
 }
@@ -91,7 +83,7 @@ func newHandlingIPpeersError(err error) *diffGeneratingError {
 	return &diffGeneratingError{err: &handlingIPpeersError{err}, fatal: true, severe: false}
 }
 
-func newConnectivityAnalysisError(err error, dir1, dir2 bool, dirPath string, isSevere, isFatal bool) *diffGeneratingError {
+func newConnectivityAnalysisError(err error, errPrefix, dirPath string, isSevere, isFatal bool) *diffGeneratingError {
 	return &diffGeneratingError{err: &connectivityAnalysisError{
-		origErr: err, dir1: dir1, dir2: dir2, dirPath: dirPath}, fatal: isFatal, severe: isSevere}
+		origErr: err, errPrefix: errPrefix, dirPath: dirPath}, fatal: isFatal, severe: isSevere}
 }

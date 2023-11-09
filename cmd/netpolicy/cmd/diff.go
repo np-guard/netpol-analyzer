@@ -27,8 +27,8 @@ import (
 )
 
 var (
-	dir1      string
-	dir2      string
+	ref1      string
+	ref2      string
 	outFormat string
 )
 
@@ -39,7 +39,7 @@ func runDiffCommand() error {
 	clogger := logger.NewDefaultLoggerWithVerbosity(detrmineLogVerbosity())
 	diffAnalyzer := diff.NewDiffAnalyzer(getDiffOptions(clogger)...)
 
-	connsDiff, err = diffAnalyzer.ConnDiffFromDirPaths(dir1, dir2)
+	connsDiff, err = diffAnalyzer.ConnDiffFromDirPaths(ref1, ref2)
 	if err != nil {
 		return err
 	}
@@ -68,14 +68,14 @@ func newCommandDiff() *cobra.Command {
 		Short: "Reports semantic-diff of allowed connectivity ",
 		Long:  `Reports all differences in allowed connections between two different directories of YAML manifests.`,
 		Example: ` # Get list of different allowed connections between two resources dir paths
-		k8snetpolicy diff --dir1 ./resources_dir/ --dir2 ./other_resources_dir/`,
+		k8snetpolicy diff --ref1 ./resources_dir/ --ref2 ./other_resources_dir/`,
 
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if dirPath != "" {
 				return errors.New("dirpath flag is not used with diff command")
 			}
-			if dir1 == "" || dir2 == "" {
-				return errors.New("both directory paths dir1 and dir2 are required")
+			if ref1 == "" || ref2 == "" {
+				return errors.New("both directory paths ref1 and ref2 are required")
 			}
 			if err := diff.ValidateDiffOutputFormat(outFormat); err != nil {
 				return err
@@ -93,8 +93,8 @@ func newCommandDiff() *cobra.Command {
 	}
 
 	// define any flags and configuration settings.
-	c.Flags().StringVarP(&dir1, "dir1", "", "", "Original Resources path to be compared")
-	c.Flags().StringVarP(&dir2, "dir2", "", "", "New Resources path to compare with original resources path")
+	c.Flags().StringVarP(&ref1, "ref1", "", "", "Original Resources path to be compared")
+	c.Flags().StringVarP(&ref2, "ref2", "", "", "New Resources path to compare with original resources path")
 	supportedDiffFormats := strings.Join(diff.ValidDiffFormats, ",")
 	c.Flags().StringVarP(&outFormat, "output", "o", common.DefaultFormat, getOutputFormatDescription(supportedDiffFormats))
 	// out file

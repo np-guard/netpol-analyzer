@@ -1,4 +1,4 @@
-diff-type,source,destination,dir1,dir2,workloads-diff-info
+diff-type,source,destination,ref1,ref2,workloads-diff-info
 changed,default/reviews-v1-545db77b95[ReplicaSet],default/productpage-v1-6b746f74dc[ReplicaSet],All Connections,TCP 9080,
 changed,default/reviews-v1-545db77b95[ReplicaSet],default/ratings-v1-b6994bb9[ReplicaSet],All Connections,TCP 9080,
 changed,default/reviews-v2-7bf8c9648f[ReplicaSet],default/productpage-v1-6b746f74dc[ReplicaSet],All Connections,TCP 9080,

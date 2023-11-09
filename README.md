@@ -86,11 +86,11 @@ Usage:
 
 Examples:
   # Get list of different allowed connections between two resources dir paths
-  k8snetpolicy diff --dir1 ./resources_dir/ --dir2 ./other_resources_dir/
+  k8snetpolicy diff --ref1 ./resources_dir/ --ref2 ./other_resources_dir/
 
 Flags:
-      --dir1  string  First resources dir path
-      --dir2  string  Second resources dir path to be compared with the first dir path
+      --ref1  string  First resources dir path
+      --ref2  string  Second resources dir path to be compared with the first dir path
   -f, --file string            Write output to specified file
   -o, --output string Required output format (txt, csv, md, dot) (default "txt")  
   -h, --help   help for diff
@@ -136,16 +136,16 @@ default/redis-cart[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
 
 
 
-$ ./bin/k8snetpolicy diff --dir1 tests/onlineboutique_workloads --dir2 tests/onlineboutique_workloads_changed_netpols
+$ ./bin/k8snetpolicy diff --ref1 tests/onlineboutique_workloads --ref2 tests/onlineboutique_workloads_changed_netpols
 Connectivity diff:
-source: default/checkoutservice[Deployment], destination: default/cartservice[Deployment], dir1:  TCP 7070, dir2: TCP 8000, diff-type: changed
-source: default/checkoutservice[Deployment], destination: default/emailservice[Deployment], dir1:  TCP 8080, dir2: TCP 8080,9555, diff-type: changed
-source: default/cartservice[Deployment], destination: default/emailservice[Deployment], dir1:  No Connections, dir2: TCP 9555, diff-type: added
-source: default/checkoutservice[Deployment], destination: default/adservice[Deployment], dir1:  No Connections, dir2: TCP 9555, diff-type: added
-source: 128.0.0.0-255.255.255.255, destination: default/redis-cart[Deployment], dir1:  All Connections, dir2: No Connections, diff-type: removed
-source: default/checkoutservice[Deployment], destination: default/currencyservice[Deployment], dir1:  TCP 7000, dir2: No Connections, diff-type: removed
-source: default/frontend[Deployment], destination: default/adservice[Deployment], dir1:  TCP 9555, dir2: No Connections, diff-type: removed
-source: default/redis-cart[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:  All Connections, dir2: No Connections, diff-type: removed
+source: default/checkoutservice[Deployment], destination: default/cartservice[Deployment], ref1:  TCP 7070, ref2: TCP 8000, diff-type: changed
+source: default/checkoutservice[Deployment], destination: default/emailservice[Deployment], ref1:  TCP 8080, ref2: TCP 8080,9555, diff-type: changed
+source: default/cartservice[Deployment], destination: default/emailservice[Deployment], ref1:  No Connections, ref2: TCP 9555, diff-type: added
+source: default/checkoutservice[Deployment], destination: default/adservice[Deployment], ref1:  No Connections, ref2: TCP 9555, diff-type: added
+source: 128.0.0.0-255.255.255.255, destination: default/redis-cart[Deployment], ref1:  All Connections, ref2: No Connections, diff-type: removed
+source: default/checkoutservice[Deployment], destination: default/currencyservice[Deployment], ref1:  TCP 7000, ref2: No Connections, diff-type: removed
+source: default/frontend[Deployment], destination: default/adservice[Deployment], ref1:  TCP 9555, ref2: No Connections, diff-type: removed
+source: default/redis-cart[Deployment], destination: 0.0.0.0-255.255.255.255, ref1:  All Connections, ref2: No Connections, diff-type: removed
 
 
 ```

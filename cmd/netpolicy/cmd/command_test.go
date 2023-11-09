@@ -142,7 +142,7 @@ func TestCommands(t *testing.T) {
 		{
 			name:           "test_illegal_diff_no_args",
 			args:           []string{"diff"},
-			expectedOutput: "both directory paths dir1 and dir2 are required",
+			expectedOutput: "both directory paths ref1 and ref2 are required",
 			containment:    true,
 			isErr:          true,
 		},
@@ -157,9 +157,9 @@ func TestCommands(t *testing.T) {
 			name: "test_illegal_diff_output_format",
 			args: []string{
 				"diff",
-				"--dir1",
+				"--ref1",
 				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--dir2",
+				"--ref2",
 				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
 				"-o",
 				"png"},
@@ -375,22 +375,22 @@ func TestCommands(t *testing.T) {
 			name: "test_legal_diff_txt_output",
 			args: []string{
 				"diff",
-				"--dir1",
+				"--ref1",
 				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--dir2",
+				"--ref2",
 				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
 				"--output",
 				"txt",
 			},
 			expectedOutput: "Connectivity diff:\n" +
-				"diff-type: added, source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], dir1:" +
-				"  No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
-				"diff-type: added, source: default/redis-cart[Deployment], destination: default/unicorn[Deployment], dir1:" +
-				"  No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
-				"diff-type: added, source: default/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:" +
-				"  No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
-				"diff-type: added, source: default/unicorn[Deployment], destination: default/redis-cart[Deployment], dir1:" +
-				"  No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added",
+				"diff-type: added, source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], ref1:" +
+				"  No Connections, ref2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
+				"diff-type: added, source: default/redis-cart[Deployment], destination: default/unicorn[Deployment], ref1:" +
+				"  No Connections, ref2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
+				"diff-type: added, source: default/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, ref1:" +
+				"  No Connections, ref2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
+				"diff-type: added, source: default/unicorn[Deployment], destination: default/redis-cart[Deployment], ref1:" +
+				"  No Connections, ref2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added",
 			exact: true,
 			isErr: false,
 		},
@@ -398,9 +398,9 @@ func TestCommands(t *testing.T) {
 			name: "test_legal_diff_txt_output_with_file",
 			args: []string{
 				"diff",
-				"--dir1",
+				"--ref1",
 				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--dir2",
+				"--ref2",
 				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
 				"--output",
 				"txt",
@@ -408,14 +408,14 @@ func TestCommands(t *testing.T) {
 				outFileName,
 			},
 			expectedOutput: "Connectivity diff:\n" +
-				"diff-type: added, source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], dir1:" +
-				"  No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
-				"diff-type: added, source: default/redis-cart[Deployment], destination: default/unicorn[Deployment], dir1:" +
-				"  No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
-				"diff-type: added, source: default/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:" +
-				"  No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
-				"diff-type: added, source: default/unicorn[Deployment], destination: default/redis-cart[Deployment], dir1:" +
-				"  No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added",
+				"diff-type: added, source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], ref1:" +
+				"  No Connections, ref2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
+				"diff-type: added, source: default/redis-cart[Deployment], destination: default/unicorn[Deployment], ref1:" +
+				"  No Connections, ref2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
+				"diff-type: added, source: default/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, ref1:" +
+				"  No Connections, ref2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
+				"diff-type: added, source: default/unicorn[Deployment], destination: default/redis-cart[Deployment], ref1:" +
+				"  No Connections, ref2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added",
 			exact:   true,
 			isErr:   false,
 			hasFile: true,
@@ -424,14 +424,14 @@ func TestCommands(t *testing.T) {
 			name: "test_legal_diff_csv_output",
 			args: []string{
 				"diff",
-				"--dir1",
+				"--ref1",
 				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--dir2",
+				"--ref2",
 				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
 				"--output",
 				"csv",
 			},
-			expectedOutput: "diff-type,source,destination,dir1,dir2,workloads-diff-info\n" +
+			expectedOutput: "diff-type,source,destination,ref1,ref2,workloads-diff-info\n" +
 				"added,0.0.0.0-255.255.255.255,default/unicorn[Deployment],No Connections,All Connections," +
 				"workload default/unicorn[Deployment] added\n" +
 				"added,default/redis-cart[Deployment],default/unicorn[Deployment],No Connections,All Connections," +
@@ -448,14 +448,14 @@ func TestCommands(t *testing.T) {
 			name: "test_legal_diff_md_output",
 			args: []string{
 				"diff",
-				"--dir1",
+				"--ref1",
 				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--dir2",
+				"--ref2",
 				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
 				"--output",
 				"md",
 			},
-			expectedOutput: "| diff-type | source | destination | dir1 | dir2 | workloads-diff-info |\n" +
+			expectedOutput: "| diff-type | source | destination | ref1 | ref2 | workloads-diff-info |\n" +
 				"|-----------|--------|-------------|------|------|---------------------|\n" +
 				"| added | 0.0.0.0-255.255.255.255 | default/unicorn[Deployment] | No Connections " +
 				"| All Connections | workload default/unicorn[Deployment] added |\n" +
@@ -510,13 +510,13 @@ func TestCommands(t *testing.T) {
 			name: "test_diff_one_dir_with_severe_error_without_fail_produces_output",
 			args: []string{
 				"diff",
-				"--dir1",
+				"--ref1",
 				filepath.Join(getTestsDir(), "onlineboutique"),
-				"--dir2",
+				"--ref2",
 				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error")},
 			expectedOutput: "Connectivity diff:\n" +
 				"diff-type: changed, source: default/frontend-99684f7f8[ReplicaSet], " +
-				"destination: default/adservice-77d5cd745d[ReplicaSet], dir1:  TCP 9555, dir2: TCP 8080",
+				"destination: default/adservice-77d5cd745d[ReplicaSet], ref1:  TCP 9555, ref2: TCP 8080",
 			exact: true,
 			isErr: false,
 		},
@@ -524,9 +524,9 @@ func TestCommands(t *testing.T) {
 			name: "test_diff_one_dir_with_severe_error_with_fail_returns_empty_output",
 			args: []string{
 				"diff",
-				"--dir1",
+				"--ref1",
 				filepath.Join(getTestsDir(), "onlineboutique"),
-				"--dir2",
+				"--ref2",
 				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error"),
 				"--fail"},
 			expectedOutput: "found character that cannot start any token",

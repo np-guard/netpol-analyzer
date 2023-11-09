@@ -10,6 +10,8 @@ import (
 
 // diffFormatDOT: implements the diffFormatter interface for dot output format
 type diffFormatDOT struct {
+	ref1 string
+	ref2 string
 }
 
 // writeDiffOutput writes the diff output in the dot format
