@@ -5,7 +5,7 @@ digraph {
 	"0.0.0.0-255.255.255.255" -> "default/backend[Deployment]" [label="TCP 9090" color="#008000" fontcolor="#008000"]
 	"0.0.0.0-255.255.255.255" -> "default/frontend[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
 	"default/frontend[Deployment]" -> "0.0.0.0-255.255.255.255" [label="UDP 53" color="grey" fontcolor="grey"]
-	"default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090,UDP 53 (old: TCP 9090)" color="magenta" fontcolor="magenta"]
+	"default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090,UDP 53 (ref1: TCP 9090)" color="magenta" fontcolor="magenta"]
 	nodesep=0.5
 	subgraph cluster_legend {
 		label="Legend"

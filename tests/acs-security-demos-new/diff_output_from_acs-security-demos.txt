@@ -1,13 +1,13 @@
 Connectivity diff:
-diff-type: changed, source: backend/reports[Deployment], destination: backend/catalog[Deployment], ref1:  TCP 8080, ref2: TCP 9080
-diff-type: added, source: 0.0.0.0-255.255.255.255, destination: external/unicorn[Deployment], ref1:  No Connections, ref2: All Connections, workloads-diff-info: workload external/unicorn[Deployment] added
-diff-type: added, source: backend/checkout[Deployment], destination: external/unicorn[Deployment], ref1:  No Connections, ref2: UDP 5353, workloads-diff-info: workload external/unicorn[Deployment] added
-diff-type: added, source: backend/recommendation[Deployment], destination: external/unicorn[Deployment], ref1:  No Connections, ref2: UDP 5353, workloads-diff-info: workload external/unicorn[Deployment] added
-diff-type: added, source: backend/reports[Deployment], destination: external/unicorn[Deployment], ref1:  No Connections, ref2: UDP 5353, workloads-diff-info: workload external/unicorn[Deployment] added
-diff-type: added, source: external/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, ref1:  No Connections, ref2: All Connections, workloads-diff-info: workload external/unicorn[Deployment] added
-diff-type: added, source: external/unicorn[Deployment], destination: frontend/webapp[Deployment], ref1:  No Connections, ref2: TCP 8080, workloads-diff-info: workload external/unicorn[Deployment] added
-diff-type: added, source: frontend/webapp[Deployment], destination: external/unicorn[Deployment], ref1:  No Connections, ref2: UDP 5353, workloads-diff-info: workload external/unicorn[Deployment] added
-diff-type: added, source: payments/gateway[Deployment], destination: external/unicorn[Deployment], ref1:  No Connections, ref2: UDP 5353, workloads-diff-info: workload external/unicorn[Deployment] added
-diff-type: removed, source: frontend/webapp[Deployment], destination: backend/shipping[Deployment], ref1:  TCP 8080, ref2: No Connections
-diff-type: removed, source: payments/gateway[Deployment], destination: payments/mastercard-processor[Deployment], ref1:  TCP 8080, ref2: No Connections, workloads-diff-info: workload payments/mastercard-processor[Deployment] removed
-diff-type: removed, source: {ingress-controller}, destination: frontend/asset-cache[Deployment], ref1:  TCP 8080, ref2: No Connections
+diff-type: changed, source: backend/reports[Deployment], destination: backend/catalog[Deployment], ref1: TCP 8080, ref2: TCP 9080
+diff-type: added, source: 0.0.0.0-255.255.255.255, destination: external/unicorn[Deployment], ref1: No Connections, ref2: All Connections, workloads-diff-info: workload external/unicorn[Deployment] added
+diff-type: added, source: backend/checkout[Deployment], destination: external/unicorn[Deployment], ref1: No Connections, ref2: UDP 5353, workloads-diff-info: workload external/unicorn[Deployment] added
+diff-type: added, source: backend/recommendation[Deployment], destination: external/unicorn[Deployment], ref1: No Connections, ref2: UDP 5353, workloads-diff-info: workload external/unicorn[Deployment] added
+diff-type: added, source: backend/reports[Deployment], destination: external/unicorn[Deployment], ref1: No Connections, ref2: UDP 5353, workloads-diff-info: workload external/unicorn[Deployment] added
+diff-type: added, source: external/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, ref1: No Connections, ref2: All Connections, workloads-diff-info: workload external/unicorn[Deployment] added
+diff-type: added, source: external/unicorn[Deployment], destination: frontend/webapp[Deployment], ref1: No Connections, ref2: TCP 8080, workloads-diff-info: workload external/unicorn[Deployment] added
+diff-type: added, source: frontend/webapp[Deployment], destination: external/unicorn[Deployment], ref1: No Connections, ref2: UDP 5353, workloads-diff-info: workload external/unicorn[Deployment] added
+diff-type: added, source: payments/gateway[Deployment], destination: external/unicorn[Deployment], ref1: No Connections, ref2: UDP 5353, workloads-diff-info: workload external/unicorn[Deployment] added
+diff-type: removed, source: frontend/webapp[Deployment], destination: backend/shipping[Deployment], ref1: TCP 8080, ref2: No Connections
+diff-type: removed, source: payments/gateway[Deployment], destination: payments/mastercard-processor[Deployment], ref1: TCP 8080, ref2: No Connections, workloads-diff-info: workload payments/mastercard-processor[Deployment] removed
+diff-type: removed, source: {ingress-controller}, destination: frontend/asset-cache[Deployment], ref1: TCP 8080, ref2: No Connections
