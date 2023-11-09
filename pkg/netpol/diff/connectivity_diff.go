@@ -42,7 +42,7 @@ type SrcDstDiff interface {
 	// IsDstNewOrRemoved returns true if the dst peer exists only in ref2 (if DiffType is Added) or if
 	// the dst peer exists only in ref1 (if DiffType is Removed)
 	IsDstNewOrRemoved() bool
-	// DiffType returns the diff type of ref2 w.r.t ref1, which can be ChangedType/RemovedType/AddedType/NonChangedType
+	// DiffType returns the diff type of ref2 w.r.t ref1, which can be ChangedType/RemovedType/AddedType/UnchangedType
 	DiffType() DiffTypeStr
 }
 
