@@ -406,7 +406,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 // or if it exists in the peers list from the parsed resources
 // if not returns a suitable warning message
 func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnalysis bool) (existFocusWorkload bool, warning string) {
-	if ca.focusWorkload == ingressanalyzer.IngressPodName {
+	if ca.focusWorkload == common.IngressPodName {
 		if excludeIngressAnalysis { // if the ingress-analyzer is empty,
 			// then no routes/k8s-ingress objects -> ingrss-controller pod will not be added
 			return false, "The ingress-controller workload was not added to the analysis, since Ingress/Route resources were not found." +
@@ -464,7 +464,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		return nil, err
 	}
 	// adding the ingress controller pod to the policy engine,
-	ingressControllerPod, err := pe.AddPodByNameAndNamespace(ingressanalyzer.IngressPodName, ingressanalyzer.IngressPodNamespace)
+	ingressControllerPod, err := pe.AddPodByNameAndNamespace(common.IngressPodName, common.IngressPodNamespace)
 	if err != nil {
 		return nil, err
 	}
