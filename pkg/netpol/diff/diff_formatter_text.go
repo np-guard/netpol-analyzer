@@ -26,7 +26,7 @@ func (t *diffFormatText) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 
 // singleDiffLine forms a single diff line in the txt format
 func (t *diffFormatText) singleDiffLine(d *singleDiffFields) string {
-	diffLine := fmt.Sprintf("diff-type: %s, source: %s, destination: %s, %s:  %s, %s: %s", d.diffType,
+	diffLine := fmt.Sprintf("diff-type: %s, source: %s, destination: %s, %s: %s, %s: %s", d.diffType,
 		d.src, d.dst, t.ref1, d.ref1Conn, t.ref2, d.ref2Conn)
 	if d.workloadDiffInfo != "" {
 		return diffLine + ", workloads-diff-info: " + d.workloadDiffInfo
