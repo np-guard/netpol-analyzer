@@ -56,7 +56,8 @@ func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 
 // getEdgesAndPeersLinesByCategory returns the dot peers, edges and  ingress edges lines of the given connsPairs
 // (all connsPairs are in same category)
-func (df *diffFormatDOT) getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff, peersSet map[string]bool) (peersLines, connsEdges, ingressEdges []string) {
+func (df *diffFormatDOT) getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff, peersSet map[string]bool,
+) (peersLines, connsEdges, ingressEdges []string) {
 	peersLines = make([]string, 0)
 	connsEdges = make([]string, 0)
 	ingressEdges = make([]string, 0)
