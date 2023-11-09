@@ -1,3 +1,3 @@
 Connectivity diff:
-diff-type: changed, source: demo/cog-agents-account-query[DaemonSet], destination: demo/cog-agents-bank-ui[DaemonSet], dir1:  TCP 8080, dir2: UDP 8080
-diff-type: removed, source: demo/cog-agents-bank-ui[DaemonSet], destination: demo/cog-agents-account-command[DaemonSet], dir1:  All Connections, dir2: No Connections
+diff-type: changed, source: demo/cog-agents-account-query[DaemonSet], destination: demo/cog-agents-bank-ui[DaemonSet], ref1: TCP 8080, ref2: UDP 8080
+diff-type: removed, source: demo/cog-agents-bank-ui[DaemonSet], destination: demo/cog-agents-account-command[DaemonSet], ref1: All Connections, ref2: No Connections

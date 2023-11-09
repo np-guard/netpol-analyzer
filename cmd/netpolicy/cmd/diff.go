@@ -32,6 +32,11 @@ var (
 	outFormat string
 )
 
+const (
+	dir1Arg = "dir1"
+	dir2Arg = "dir2"
+)
+
 func runDiffCommand() error {
 	var connsDiff diff.ConnectivityDiff
 	var err error
@@ -55,7 +60,7 @@ func runDiffCommand() error {
 }
 
 func getDiffOptions(l *logger.DefaultLogger) []diff.DiffAnalyzerOption {
-	res := []diff.DiffAnalyzerOption{diff.WithLogger(l), diff.WithOutputFormat(outFormat)}
+	res := []diff.DiffAnalyzerOption{diff.WithLogger(l), diff.WithOutputFormat(outFormat), diff.WithArgNames(dir1Arg, dir2Arg)}
 	if stopOnFirstError {
 		res = append(res, diff.WithStopOnError())
 	}
@@ -93,8 +98,8 @@ func newCommandDiff() *cobra.Command {
 	}
 
 	// define any flags and configuration settings.
-	c.Flags().StringVarP(&dir1, "dir1", "", "", "Original Resources path to be compared")
-	c.Flags().StringVarP(&dir2, "dir2", "", "", "New Resources path to compare with original resources path")
+	c.Flags().StringVarP(&dir1, dir1Arg, "", "", "Original Resources path to be compared")
+	c.Flags().StringVarP(&dir2, dir2Arg, "", "", "New Resources path to compare with original resources path")
 	supportedDiffFormats := strings.Join(diff.ValidDiffFormats, ",")
 	c.Flags().StringVarP(&outFormat, "output", "o", common.DefaultFormat, getOutputFormatDescription(supportedDiffFormats))
 	// out file

@@ -9,17 +9,17 @@ import (
 
 // ConnectivityDiff captures the set of differences in terms of connectivity between two input k8s resource sets
 type ConnectivityDiff interface {
-	// RemovedConnections is a list of differences where the specified conn only exists in dir1
+	// RemovedConnections is a list of differences where the specified conn only exists in ref1
 	RemovedConnections() []SrcDstDiff
 
-	// AddedConnections  is a list of differences where the specified conn only exists in dir2
+	// AddedConnections  is a list of differences where the specified conn only exists in ref2
 	AddedConnections() []SrcDstDiff
 
-	// ChangedConnections is a list of differences where the specified conn exists in dir1 and dir2 but not identical
+	// ChangedConnections is a list of differences where the specified conn exists in ref1 and ref2 but not identical
 	// connection properties
 	ChangedConnections() []SrcDstDiff
 
-	// UnchangedConnections is a list of connections that exists in dir1 and dir2, and are identical
+	// UnchangedConnections is a list of connections that exists in ref1 and ref2, and are identical
 	UnchangedConnections() []SrcDstDiff
 
 	// IsEmpty returns true if there is no diff in connectivity, i.e. removed, added and changed connections are empty
@@ -32,17 +32,17 @@ type SrcDstDiff interface {
 	Src() Peer
 	// Dst returns the destination peer
 	Dst() Peer
-	// Dir1Connectivity returns the AllowedConnectivity from src to dst in dir1
-	Dir1Connectivity() AllowedConnectivity
-	// Dir2Connectivity returns the AllowedConnectivity from src to dst in dir2
-	Dir2Connectivity() AllowedConnectivity
-	// IsSrcNewOrRemoved returns true if the src peer exists only in dir2 (if DiffType is Added) or if
-	// the src peer exists only in dir1 (if DiffType is Removed)
+	// Ref1Connectivity returns the AllowedConnectivity from src to dst in ref1
+	Ref1Connectivity() AllowedConnectivity
+	// Ref2Connectivity returns the AllowedConnectivity from src to dst in ref2
+	Ref2Connectivity() AllowedConnectivity
+	// IsSrcNewOrRemoved returns true if the src peer exists only in ref2 (if DiffType is Added) or if
+	// the src peer exists only in ref1 (if DiffType is Removed)
 	IsSrcNewOrRemoved() bool
-	// IsDstNewOrRemoved returns true if the dst peer exists only in dir2 (if DiffType is Added) or if
-	// the dst peer exists only in dir1 (if DiffType is Removed)
+	// IsDstNewOrRemoved returns true if the dst peer exists only in ref2 (if DiffType is Added) or if
+	// the dst peer exists only in ref1 (if DiffType is Removed)
 	IsDstNewOrRemoved() bool
-	// DiffType returns the diff type of dir2 w.r.t dir1, which can be ChangedType/RemovedType/AddedType/NonChangedType
+	// DiffType returns the diff type of ref2 w.r.t ref1, which can be ChangedType/RemovedType/AddedType/UnchangedType
 	DiffType() DiffTypeStr
 }
 
