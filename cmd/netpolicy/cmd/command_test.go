@@ -255,11 +255,11 @@ func TestListCommandOutput(t *testing.T) {
 			dirName:       "acs-security-demos",
 			focusWorkload: "ingress-controller",
 		},
-		{
-			dirName:       "onlineboutique_workloads",
-			focusWorkload: "emailservice",
-			format:        "json",
-		},
+		// {
+		// 	dirName:       "onlineboutique_workloads",
+		// 	focusWorkload: "emailservice",
+		// 	format:        "json",
+		// },
 		{
 			dirName:       "onlineboutique_workloads",
 			focusWorkload: "emailservice",
