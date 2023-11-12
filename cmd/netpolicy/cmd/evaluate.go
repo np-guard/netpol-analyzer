@@ -25,8 +25,8 @@ import (
 
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
 )

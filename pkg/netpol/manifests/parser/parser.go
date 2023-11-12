@@ -8,7 +8,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/cli-runtime/pkg/resource"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 )
 
 // ResourceInfoListToK8sObjectsList returns a list of K8sObject and list of FileProcessingError objects from analyzing

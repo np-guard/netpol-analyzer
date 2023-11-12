@@ -20,10 +20,10 @@ import (
 
 	"k8s.io/cli-runtime/pkg/resource"
 
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist/internal/ingressanalyzer"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
 
