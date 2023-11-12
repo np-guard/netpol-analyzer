@@ -11,6 +11,7 @@ import (
 	"os"
 
 	v1 "k8s.io/api/core/v1"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/cli-runtime/pkg/resource"
 
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
@@ -19,20 +20,9 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
-
-	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 )
 
-// A DiffAnalyzer provides API to recursively scan two directories for Kubernetes resources including network policies,
-// and get the difference of permitted connectivity between the workloads of the K8s application managed in theses directories.
-type DiffAnalyzer struct {
-	logger       logger.Logger
-	stopOnError  bool
-	errors       []DiffError
-	outputFormat string
-	ref1Name     string
-	ref2Name     string
-}
+// Diff Analyzer funcs:
 
 // ConnDiffFromResourceInfos returns the connectivity diffs from two lists of resource.Info objects,
 // representing two versions of manifest sets to compare
@@ -134,97 +124,6 @@ func (da *DiffAnalyzer) computeDiffFromConnlistResults(
 	return diffConnectionsLists(conns1Refined, conns2Refined, workloadsNames1, workloadsNames2)
 }
 
-// ValidDiffFormats are the supported formats for output generation of the diff command
-var ValidDiffFormats = []string{common.TextFormat, common.CSVFormat, common.MDFormat, common.DOTFormat}
-
-// DiffAnalyzerOption is the type for specifying options for DiffAnalyzer,
-// using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
-type DiffAnalyzerOption func(*DiffAnalyzer)
-
-// WithLogger is a functional option which sets the logger for a DiffAnalyzer to use.
-// The provided logger must conform with the package's Logger interface.
-func WithLogger(l logger.Logger) DiffAnalyzerOption {
-	return func(c *DiffAnalyzer) {
-		c.logger = l
-	}
-}
-
-// WithOutputFormat is a functional option, allowing user to choose the output format txt/csv/md.
-func WithOutputFormat(outputFormat string) DiffAnalyzerOption {
-	return func(d *DiffAnalyzer) {
-		d.outputFormat = outputFormat
-	}
-}
-
-// WithStopOnError is a functional option which directs DiffAnalyzer to stop any processing after the
-// first severe error.
-func WithStopOnError() DiffAnalyzerOption {
-	return func(d *DiffAnalyzer) {
-		d.stopOnError = true
-	}
-}
-
-// WithArgNames is a functional option that sets the names to be used for the two sets of analyzed resources
-// (default is ref1,ref2) in the output reports and log messages.
-func WithArgNames(ref1Name, ref2Name string) DiffAnalyzerOption {
-	return func(d *DiffAnalyzer) {
-		d.ref1Name = ref1Name
-		d.ref2Name = ref2Name
-	}
-}
-
-// NewDiffAnalyzer creates a new instance of DiffAnalyzer, and applies the provided functional options.
-func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
-	// object with default behavior options
-	da := &DiffAnalyzer{
-		logger:       logger.NewDefaultLogger(),
-		stopOnError:  false,
-		errors:       []DiffError{},
-		outputFormat: common.DefaultFormat,
-		ref1Name:     "ref1",
-		ref2Name:     "ref2",
-	}
-	for _, o := range options {
-		o(da)
-	}
-	return da
-}
-
-// Errors returns a slice of DiffError with all warnings and errors encountered during processing.
-func (da *DiffAnalyzer) Errors() []DiffError {
-	return da.errors
-}
-
-// loops the errors that were returned from the connlistAnalyzer
-// (as only connlistAnalyzer.Errors() may contain severe errors; all other DiffAnalyzer errors are fatal),
-// returns true if has fatal error or severe error with flag stopOnError
-func (da *DiffAnalyzer) stopProcessing() bool {
-	for _, e := range da.errors {
-		if e.IsFatal() || da.stopOnError && e.IsSevere() {
-			return true
-		}
-	}
-	return false
-}
-
-func (da *DiffAnalyzer) hasFatalError() error {
-	for idx := range da.errors {
-		if da.errors[idx].IsFatal() {
-			return da.errors[idx].Error()
-		}
-	}
-	return nil
-}
-
-// return a []ConnlistAnalyzerOption with mute errs/warns, so that logging of err/wanr is not duplicated, and
-// added to log only by getConnlistAnalysis function, which adds the context of ref1/ref2
-func (da *DiffAnalyzer) determineConnlistAnalyzerOptions() []connlist.ConnlistAnalyzerOption {
-	if da.stopOnError {
-		return []connlist.ConnlistAnalyzerOption{connlist.WithMuteErrsAndWarns(), connlist.WithLogger(da.logger), connlist.WithStopOnError()}
-	}
-	return []connlist.ConnlistAnalyzerOption{connlist.WithMuteErrsAndWarns(), connlist.WithLogger(da.logger)}
-}
-
 // getConnlistAnalysis calls ConnlistAnalyzer to analyze connectivity from input resource.Info objects.
 // It appends to da.errors the errors/warnings returned from ConnlistAnalyzer
 // It returns the connectivity analysis results ([]connlist.Peer2PeerConnection ,[]connlist.Peer )
@@ -278,6 +177,15 @@ func (da *DiffAnalyzer) getConnlistAnalysis(
 	return conns, workloads, shouldStop, cDiff, errVal
 }
 
+// return a []ConnlistAnalyzerOption with mute errs/warns, so that logging of err/wanr is not duplicated, and
+// added to log only by getConnlistAnalysis function, which adds the context of ref1/ref2
+func (da *DiffAnalyzer) determineConnlistAnalyzerOptions() []connlist.ConnlistAnalyzerOption {
+	if da.stopOnError {
+		return []connlist.ConnlistAnalyzerOption{connlist.WithMuteErrsAndWarns(), connlist.WithLogger(da.logger), connlist.WithStopOnError()}
+	}
+	return []connlist.ConnlistAnalyzerOption{connlist.WithMuteErrsAndWarns(), connlist.WithLogger(da.logger)}
+}
+
 func (da *DiffAnalyzer) errPrefixSpecifyRefName(isRef1 bool) string {
 	if isRef1 {
 		return getErrPrefix(da.ref1Name)
@@ -287,6 +195,27 @@ func (da *DiffAnalyzer) errPrefixSpecifyRefName(isRef1 bool) string {
 
 func getErrPrefix(location string) string {
 	return fmt.Sprintf("at %s: ", location)
+}
+
+// loops the errors that were returned from the connlistAnalyzer
+// (as only connlistAnalyzer.Errors() may contain severe errors; all other DiffAnalyzer errors are fatal),
+// returns true if has fatal error or severe error with flag stopOnError
+func (da *DiffAnalyzer) stopProcessing() bool {
+	for _, e := range da.errors {
+		if e.IsFatal() || da.stopOnError && e.IsSevere() {
+			return true
+		}
+	}
+	return false
+}
+
+func (da *DiffAnalyzer) hasFatalError() error {
+	for idx := range da.errors {
+		if da.errors[idx].IsFatal() {
+			return da.errors[idx].Error()
+		}
+	}
+	return nil
 }
 
 func logErrOrWarning(d DiffError, l logger.Logger) {
@@ -328,11 +257,117 @@ func getIPblocksFromConnList(conns []connlist.Peer2PeerConnection) []eval.Peer {
 	return res
 }
 
-// getKeyFromP2PConn returns the form of `src;dst“ from Peer2PeerConnection object, to be used as key in diffMap
-func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
-	src := c.Src()
-	dst := c.Dst()
-	return src.String() + keyElemSep + dst.String()
+// ValidDiffFormats are the supported formats for output generation of the diff command
+var ValidDiffFormats = []string{common.TextFormat, common.CSVFormat, common.MDFormat, common.DOTFormat}
+
+// ConnectivityDiffToString returns a string of connections diff from connectivityDiff object in the required output format
+func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDiff) (string, error) {
+	if connectivityDiff.IsEmpty() {
+		da.logger.Infof("No connections diff")
+		return "", nil
+	}
+	da.logger.Infof("Found connections diffs")
+	diffFormatter, err := getFormatter(da.outputFormat, da.ref1Name, da.ref2Name)
+	if err != nil {
+		da.errors = append(da.errors, newResultFormattingError(err))
+		return "", err
+	}
+	output, err := diffFormatter.writeDiffOutput(connectivityDiff)
+	if err != nil {
+		da.errors = append(da.errors, newResultFormattingError(err))
+		return "", err
+	}
+	return output, nil
+}
+
+// returns the relevant formatter for the analyzer's outputFormat
+func getFormatter(format, ref1Name, ref2Name string) (diffFormatter, error) {
+	if err := ValidateDiffOutputFormat(format); err != nil {
+		return nil, err
+	}
+	switch format {
+	case common.TextFormat:
+		return &diffFormatText{ref1: ref1Name, ref2: ref2Name}, nil
+	case common.CSVFormat:
+		return &diffFormatCSV{ref1: ref1Name, ref2: ref2Name}, nil
+	case common.MDFormat:
+		return &diffFormatMD{ref1: ref1Name, ref2: ref2Name}, nil
+	case common.DOTFormat:
+		return &diffFormatDOT{ref1: ref1Name, ref2: ref2Name}, nil
+	default:
+		return &diffFormatText{ref1: ref1Name, ref2: ref2Name}, nil
+	}
+}
+
+// ValidateDiffOutputFormat validate the value of the diff output format
+func ValidateDiffOutputFormat(format string) error {
+	for _, formatName := range ValidDiffFormats {
+		if format == formatName {
+			return nil
+		}
+	}
+	return errors.New(format + " output format is not supported.")
+}
+
+////////////////////////////////////////////
+// Diff Conns List Compute:
+
+// diffConnectionsLists returns ConnectivityDiff given two Peer2PeerConnection slices and two peers names sets
+// it assumes that the input has been refined with disjoint ip-blocks, and merges
+// touching ip-blocks in the output where possible
+// currently not including diff of workloads with no connections
+func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
+	peers1, peers2 map[string]bool) (ConnectivityDiff, error) {
+	// convert to a map from src-dst full name, to its connections pair (conns1, conns2)
+	diffsMap := diffMap{}
+	var err error
+	for _, c := range conns1 {
+		diffsMap.update(getKeyFromP2PConn(c), true, c)
+	}
+	for _, c := range conns2 {
+		diffsMap.update(getKeyFromP2PConn(c), false, c)
+	}
+
+	// merge ip-blocks
+	diffsMap, err = diffsMap.mergeIPblocks()
+	if err != nil {
+		return nil, err
+	}
+
+	res := &connectivityDiff{
+		removedConns:   []*connsPair{},
+		addedConns:     []*connsPair{},
+		changedConns:   []*connsPair{},
+		unchangedConns: []*connsPair{},
+	}
+	for _, d := range diffsMap {
+		switch {
+		case d.firstConn != nil && d.secondConn != nil:
+			if !equalConns(d.firstConn, d.secondConn) {
+				d.diffType = ChangedType
+				d.newOrLostSrc, d.newOrLostDst = false, false
+				res.changedConns = append(res.changedConns, d)
+			} else { // equal - non changed
+				d.diffType = UnchangedType
+				d.newOrLostSrc, d.newOrLostDst = false, false
+				res.unchangedConns = append(res.unchangedConns, d)
+			}
+		case d.firstConn != nil:
+			// removed conn means both Src and Dst exist in peers1, just check if they are not in peers2 too
+			d.diffType = RemovedType
+			d.updateNewOrLostFields(true, peers2)
+			res.removedConns = append(res.removedConns, d)
+		case d.secondConn != nil:
+			// added conns means Src and Dst are in peers2, check if they didn't exist in peers1 too
+			d.diffType = AddedType
+			d.updateNewOrLostFields(false, peers1)
+			res.addedConns = append(res.addedConns, d)
+		default:
+			continue
+		}
+	}
+
+	return res, nil
 }
 
 // allowedConnectivity implements the AllowedConnectivity interface
@@ -541,6 +576,13 @@ func getDstOrSrcFromConnsPair(c *connsPair, isDst bool) eval.Peer {
 	return p.Src()
 }
 
+// getKeyFromP2PConn returns the form of `src;dst“ from Peer2PeerConnection object, to be used as key in diffMap
+func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
+	src := c.Src()
+	dst := c.Dst()
+	return src.String() + keyElemSep + dst.String()
+}
+
 func (m mapListConnPairs) mergeBySrcOrDstIPPeers(isDstAnIP bool, d diffMap) error {
 	for _, srcOrdstIPgroup := range m {
 		ipPeersList := make([]eval.Peer, len(srcOrdstIPgroup))
@@ -630,64 +672,6 @@ func (d diffMap) mergeIPblocks() (diffMap, error) {
 	return res, nil
 }
 
-// diffConnectionsLists returns ConnectivityDiff given two Peer2PeerConnection slices and two peers names sets
-// it assumes that the input has been refined with disjoint ip-blocks, and merges
-// touching ip-blocks in the output where possible
-// currently not including diff of workloads with no connections
-func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
-	peers1, peers2 map[string]bool) (ConnectivityDiff, error) {
-	// convert to a map from src-dst full name, to its connections pair (conns1, conns2)
-	diffsMap := diffMap{}
-	var err error
-	for _, c := range conns1 {
-		diffsMap.update(getKeyFromP2PConn(c), true, c)
-	}
-	for _, c := range conns2 {
-		diffsMap.update(getKeyFromP2PConn(c), false, c)
-	}
-
-	// merge ip-blocks
-	diffsMap, err = diffsMap.mergeIPblocks()
-	if err != nil {
-		return nil, err
-	}
-
-	res := &connectivityDiff{
-		removedConns:   []*connsPair{},
-		addedConns:     []*connsPair{},
-		changedConns:   []*connsPair{},
-		unchangedConns: []*connsPair{},
-	}
-	for _, d := range diffsMap {
-		switch {
-		case d.firstConn != nil && d.secondConn != nil:
-			if !equalConns(d.firstConn, d.secondConn) {
-				d.diffType = ChangedType
-				d.newOrLostSrc, d.newOrLostDst = false, false
-				res.changedConns = append(res.changedConns, d)
-			} else { // equal - non changed
-				d.diffType = UnchangedType
-				d.newOrLostSrc, d.newOrLostDst = false, false
-				res.unchangedConns = append(res.unchangedConns, d)
-			}
-		case d.firstConn != nil:
-			// removed conn means both Src and Dst exist in peers1, just check if they are not in peers2 too
-			d.diffType = RemovedType
-			d.updateNewOrLostFields(true, peers2)
-			res.removedConns = append(res.removedConns, d)
-		case d.secondConn != nil:
-			// added conns means Src and Dst are in peers2, check if they didn't exist in peers1 too
-			d.diffType = AddedType
-			d.updateNewOrLostFields(false, peers1)
-			res.addedConns = append(res.addedConns, d)
-		default:
-			continue
-		}
-	}
-
-	return res, nil
-}
-
 // checks whether two connlist.Peer2PeerConnection objects are equal
 func equalConns(firstConn, secondConn connlist.Peer2PeerConnection) bool {
 	// first convert the Peer2PeerConnections to ConnectionSet objects, then compare
@@ -695,55 +679,6 @@ func equalConns(firstConn, secondConn connlist.Peer2PeerConnection) bool {
 	conn2 := connlist.GetConnectionSetFromP2PConnection(secondConn)
 
 	return conn1.Equal(conn2)
-}
-
-// ValidateDiffOutputFormat validate the value of the diff output format
-func ValidateDiffOutputFormat(format string) error {
-	for _, formatName := range ValidDiffFormats {
-		if format == formatName {
-			return nil
-		}
-	}
-	return errors.New(format + " output format is not supported.")
-}
-
-// ConnectivityDiffToString returns a string of connections diff from connectivityDiff object in the required output format
-func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDiff) (string, error) {
-	if connectivityDiff.IsEmpty() {
-		da.logger.Infof("No connections diff")
-		return "", nil
-	}
-	da.logger.Infof("Found connections diffs")
-	diffFormatter, err := getFormatter(da.outputFormat, da.ref1Name, da.ref2Name)
-	if err != nil {
-		da.errors = append(da.errors, newResultFormattingError(err))
-		return "", err
-	}
-	output, err := diffFormatter.writeDiffOutput(connectivityDiff)
-	if err != nil {
-		da.errors = append(da.errors, newResultFormattingError(err))
-		return "", err
-	}
-	return output, nil
-}
-
-// returns the relevant formatter for the analyzer's outputFormat
-func getFormatter(format, ref1Name, ref2Name string) (diffFormatter, error) {
-	if err := ValidateDiffOutputFormat(format); err != nil {
-		return nil, err
-	}
-	switch format {
-	case common.TextFormat:
-		return &diffFormatText{ref1: ref1Name, ref2: ref2Name}, nil
-	case common.CSVFormat:
-		return &diffFormatCSV{ref1: ref1Name, ref2: ref2Name}, nil
-	case common.MDFormat:
-		return &diffFormatMD{ref1: ref1Name, ref2: ref2Name}, nil
-	case common.DOTFormat:
-		return &diffFormatDOT{ref1: ref1Name, ref2: ref2Name}, nil
-	default:
-		return &diffFormatText{ref1: ref1Name, ref2: ref2Name}, nil
-	}
 }
 
 // connectivityDiff implements the ConnectivityDiff interface
