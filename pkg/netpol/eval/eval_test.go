@@ -19,10 +19,10 @@ import (
 	"sigs.k8s.io/yaml"
 
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
+	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/fsscanner"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
 )
 
 const (

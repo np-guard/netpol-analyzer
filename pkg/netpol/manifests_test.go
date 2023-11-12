@@ -1,4 +1,4 @@
-package fsscanner
+package netpol
 
 import (
 	"fmt"
@@ -8,13 +8,14 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
+	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/parser"
 )
 
 func TestBasic(t *testing.T) {
 	dirPath := filepath.Join(testutils.GetTestsDirWithDepth(4), "basic")
-	rList, errs := GetResourceInfosFromDirPath([]string{dirPath}, true, false)
+	rList, errs := fsscanner.GetResourceInfosFromDirPath([]string{dirPath}, true, false)
 	require.Empty(t, errs, "expecting no errors on basic dir")
 
 	// TODO: move the code below to parser pkg
