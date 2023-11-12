@@ -14,7 +14,7 @@ import (
 )
 
 func TestBasic(t *testing.T) {
-	dirPath := filepath.Join(testutils.GetTestsDirWithDepth(4), "basic")
+	dirPath := filepath.Join(testutils.GetTestsDirWithDepth(2), "basic")
 	rList, errs := fsscanner.GetResourceInfosFromDirPath([]string{dirPath}, true, false)
 	require.Empty(t, errs, "expecting no errors on basic dir")
 
