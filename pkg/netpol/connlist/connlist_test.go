@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/manifests/fsscanner"
 
 	"github.com/stretchr/testify/require"
 )
