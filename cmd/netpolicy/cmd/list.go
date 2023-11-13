@@ -22,8 +22,8 @@ import (
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 )
 
 var (

@@ -21,7 +21,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 )
 
 var (

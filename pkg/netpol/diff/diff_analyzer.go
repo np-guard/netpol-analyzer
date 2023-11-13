@@ -1,8 +1,8 @@
 package diff
 
 import (
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 )
 
 // A DiffAnalyzer provides API to recursively scan two directories for Kubernetes resources including network policies,

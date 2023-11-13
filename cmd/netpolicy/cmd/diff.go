@@ -20,8 +20,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/logger"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/diff"
 )
