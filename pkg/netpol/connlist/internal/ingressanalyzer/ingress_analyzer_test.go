@@ -8,7 +8,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
@@ -17,7 +17,7 @@ import (
 
 // helping func - scans the directory objects and returns the ingress analyzer built from them
 func getIngressAnalyzerFromDirObjects(t *testing.T, testName, dirName string, processingErrsNum int) *IngressAnalyzer {
-	path := filepath.Join(testutils.GetTestsDirFromInternalPkg(), dirName)
+	path := filepath.Join(utils.GetTestsDirFromInternalPkg(), dirName)
 	rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{path}, true, false)
 	objects, fpErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
 	require.Len(t, fpErrs, processingErrsNum, "test: %q, expected %d processing errors but got %d",

@@ -1,4 +1,4 @@
-package testutils
+package utils
 
 import (
 	"flag"
@@ -9,8 +9,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
 )
 
 // a flag for writing/overriding the golden result files for tests
@@ -51,7 +49,7 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 	expectedOutputFile := filepath.Join(GetTestsDir(), dirName, expectedOutputFileName)
 	// if the --update flag is on (then generate/ override the expected output file with the actualOutput)
 	if *update {
-		err := utils.WriteToFile(actualOutput, expectedOutputFile)
+		err := WriteToFile(actualOutput, expectedOutputFile)
 		require.Nil(t, err, testInfo)
 		return
 	}
@@ -61,7 +59,7 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 	actualOutputFileName := "actual_" + expectedOutputFileName
 	actualOutputFile := filepath.Join(GetTestsDir(), dirName, actualOutputFileName)
 	if cleanStr(string(expectedOutput)) != cleanStr(actualOutput) {
-		err := utils.WriteToFile(actualOutput, actualOutputFile)
+		err := WriteToFile(actualOutput, actualOutputFile)
 		require.Nil(t, err, testInfo)
 	}
 	require.Equal(t, cleanStr(string(expectedOutput)), cleanStr(actualOutput),

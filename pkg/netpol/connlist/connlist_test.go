@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 
@@ -81,7 +80,7 @@ func TestConnListFromDir(t *testing.T) {
 				require.Nil(t, err, pTest.testInfo)
 				output, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
-				testutils.CheckActualVsExpectedOutputMatch(t, pTest.testName, tt.testDirName,
+				utils.CheckActualVsExpectedOutputMatch(t, pTest.testName, tt.testDirName,
 					pTest.expectedOutputFileName, output, pTest.testInfo)
 			}
 		})
@@ -104,7 +103,7 @@ func TestConnListFromResourceInfos(t *testing.T) {
 				require.Nil(t, err, pTest.testInfo)
 				output, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
-				testutils.CheckActualVsExpectedOutputMatch(t, pTest.testName, tt.testDirName,
+				utils.CheckActualVsExpectedOutputMatch(t, pTest.testName, tt.testDirName,
 					pTest.expectedOutputFileName, output, pTest.testInfo)
 			}
 		})
@@ -183,9 +182,9 @@ func testFatalErr(t *testing.T,
 	analyzer *ConnlistAnalyzer) {
 	require.Empty(t, connsRes, testName)
 	require.Empty(t, peersRes, testName)
-	testutils.CheckErrorContainment(t, testName, errStr, err.Error())
+	utils.CheckErrorContainment(t, testName, errStr, err.Error())
 	require.Equal(t, len(analyzer.errors), 1)
-	testutils.CheckErrorContainment(t, testName, errStr, analyzer.errors[0].Error().Error())
+	utils.CheckErrorContainment(t, testName, errStr, analyzer.errors[0].Error().Error())
 }
 
 func getAnalysisResFromAPI(apiName, dirName, focusWorkload string) (
@@ -299,7 +298,7 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 					require.NotEmpty(t, connsRes, tt.name)
 					require.NotEmpty(t, peersRes, tt.name)
 				}
-				testutils.CheckErrorContainment(t, tt.name, tt.firstErrStrContains, analyzer.errors[0].Error().Error())
+				utils.CheckErrorContainment(t, tt.name, tt.firstErrStrContains, analyzer.errors[0].Error().Error())
 			}
 
 			/*analyzerOpts1 := []ConnlistAnalyzerOption{}
@@ -310,7 +309,7 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 			resErrors1 := analyzer.Errors()
 			require.Nil(t, err1, "test: %q", tt.name)
 			require.Equal(t, tt.expectedErrNumWithoutStopOnErr, len(resErrors1), "test: %q", tt.name)
-			testutils.CheckErrorContainment(t, tt.name, tt.firstErrStrContains, resErrors1[0].Error().Error(), true)
+			utils.CheckErrorContainment(t, tt.name, tt.firstErrStrContains, resErrors1[0].Error().Error(), true)
 			// second analyzer (with stopOnError):
 
 			analyzerWithStopOnError, res, err2 := getConnlistFromDirPathRes(analyzerOpts2, tt.dirName)
@@ -318,7 +317,7 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 			require.Nil(t, err2, "test: %q", tt.name)
 			require.Empty(t, res, "test: %q", tt.name) // the run stopped on first severe error, no result computed
 			require.Equal(t, tt.expectedErrNumWithStopOnErr, len(resErrors2), "test: %q", tt.name)
-			testutils.CheckErrorContainment(t, tt.name, tt.firstErrStrContains, resErrors2[0].Error().Error(), true)*/
+			utils.CheckErrorContainment(t, tt.name, tt.firstErrStrContains, resErrors2[0].Error().Error(), true)*/
 		})
 	}
 }
@@ -397,7 +396,7 @@ func TestErrorsAndWarningsConnlistFromDirPathOnly(t *testing.T) {
 				require.NotEmpty(t, connsRes, tt.name)
 				require.NotEmpty(t, peersRes, tt.name)
 			}
-			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, analyzer.errors[0].Error().Error())
+			utils.CheckErrorContainment(t, tt.name, tt.errorStrContains, analyzer.errors[0].Error().Error())
 		})
 	}
 }
@@ -447,7 +446,7 @@ func TestNotContainedOutputLines(t *testing.T) {
 
 // helping func - returns test's dir path from test's dir name
 func getDirPathFromDirName(dirName string) string {
-	return filepath.Join(testutils.GetTestsDir(), dirName)
+	return filepath.Join(utils.GetTestsDir(), dirName)
 }
 
 // helping func - creates ConnlistAnalyzer with desired opts and returns the analyzer with connlist from provided directory
@@ -461,10 +460,10 @@ func getConnlistFromDirPathRes(opts []ConnlistAnalyzerOption, dirName string) (*
 /*func verifyConnlistAnalyzeOutputVsExpectedOutput(t *testing.T, analyzerOptions []ConnlistAnalyzerOption, dirName,
 	expectedOutputFileName, testName, format string) {
 	analyzer, res, err := getConnlistFromDirPathRes(analyzerOptions, dirName)
-	require.Nil(t, err, testutils.GetDebugMsgWithTestNameAndFormat(testName, format))
+	require.Nil(t, err, utils.GetDebugMsgWithTestNameAndFormat(testName, format))
 	output, err := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err, testutils.GetDebugMsgWithTestNameAndFormat(testName, format))
-	testutils.CheckActualVsExpectedOutputMatch(t, testName, dirName, expectedOutputFileName, output, format)
+	require.Nil(t, err, utils.GetDebugMsgWithTestNameAndFormat(testName, format))
+	utils.CheckActualVsExpectedOutputMatch(t, testName, dirName, expectedOutputFileName, output, format)
 }*/
 
 // helping func - if focus workload is not empty append it to ConnlistAnalyzerOption list
@@ -500,7 +499,7 @@ type preparedTest struct {
 func prepareTest(dirName, focusWorkload, format string) preparedTest {
 	res := preparedTest{}
 	res.testName, res.expectedOutputFileName = testNameByTestType(dirName, focusWorkload, format)
-	res.testInfo = testutils.GetDebugMsgWithTestNameAndFormat(res.testName, format)
+	res.testInfo = utils.GetDebugMsgWithTestNameAndFormat(res.testName, format)
 	res.analyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload))
 	res.dirPath = getDirPathFromDirName(dirName)
 	return res
@@ -540,7 +539,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 
 			output, err := preparedTest.analyzer.ConnectionsListToString(connsRes)
 			require.Empty(t, output, tt.name)
-			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error())
+			utils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error())
 
 			// re-run the test with new analyzer (to clear the analyzer.errors array )
 			preparedTest = prepareTest(tt.dirName, "", tt.format)
@@ -554,7 +553,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 
 			output, err2 = preparedTest.analyzer.ConnectionsListToString(connsRes)
 			require.Empty(t, output, tt.name)
-			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err2.Error())
+			utils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err2.Error())
 		})
 	}
 }

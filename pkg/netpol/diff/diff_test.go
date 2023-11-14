@@ -8,7 +8,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 )
@@ -38,7 +37,7 @@ func TestDiff(t *testing.T) {
 					require.Nil(t, err, pTest.testInfo)
 					actualOutput, err := pTest.analyzer.ConnectivityDiffToString(diffRes)
 					require.Nil(t, err, pTest.testInfo)
-					testutils.CheckActualVsExpectedOutputMatch(t, testName, tt.secondDirName,
+					utils.CheckActualVsExpectedOutputMatch(t, testName, tt.secondDirName,
 						pTest.expectedOutputFileName, actualOutput, pTest.testInfo)
 				}
 			}
@@ -61,9 +60,9 @@ func TestDiffAnalyzeFatalErrors(t *testing.T) {
 			for _, apiFunc := range diffTestedAPIS {
 				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.ref1, tt.ref2, utils.DefaultFormat, tt.name)
 				require.Empty(t, diffRes, "test: %q, apiFunc: %q", tt.name, apiFunc)
-				testutils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
+				utils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
 				require.Equal(t, 1, len(pTest.analyzer.errors))
-				testutils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, pTest.analyzer.errors[0].Error().Error())
+				utils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, pTest.analyzer.errors[0].Error().Error())
 			}
 		})
 	}
@@ -247,7 +246,7 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 			} else {
 				// fatal err - the expected err should be returned
 				for _, expectedErrStr := range tt.containedErrOrWarns {
-					testutils.CheckErrorContainment(t, pTest.testInfo, expectedErrStr, err.Error())
+					utils.CheckErrorContainment(t, pTest.testInfo, expectedErrStr, err.Error())
 				}
 			}
 
@@ -289,7 +288,7 @@ func TestDiffOutputFatalErrors(t *testing.T) {
 				require.NotEmpty(t, connsDiff, pTest.testInfo)
 				output, err := pTest.analyzer.ConnectivityDiffToString(connsDiff)
 				require.Empty(t, output, pTest.testInfo)
-				testutils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
+				utils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
 			}
 		})
 	}
@@ -301,14 +300,14 @@ func TestDiffOutputWithArgNamesOption(t *testing.T) {
 	ref2 := "onlineboutique_workloads_changed_netpols"
 	for _, format := range ValidDiffFormats {
 		analyzer := NewDiffAnalyzer(WithOutputFormat(format), WithArgNames("old", "new"))
-		diffRes, err := analyzer.ConnDiffFromDirPaths(filepath.Join(testutils.GetTestsDir(), ref1),
-			filepath.Join(testutils.GetTestsDir(), ref2))
+		diffRes, err := analyzer.ConnDiffFromDirPaths(filepath.Join(utils.GetTestsDir(), ref1),
+			filepath.Join(utils.GetTestsDir(), ref2))
 		require.Nil(t, err)
 		require.NotEmpty(t, diffRes)
 		output, err := analyzer.ConnectivityDiffToString(diffRes)
 		require.Nil(t, err)
 		testName := "TsetOutputWithArgNamesOption." + format
-		testutils.CheckActualVsExpectedOutputMatch(t, testName, ref2,
+		utils.CheckActualVsExpectedOutputMatch(t, testName, ref2,
 			testName, output, testName)
 	}
 }
@@ -339,8 +338,8 @@ func prepareTest(firstDir, secondDir, format, apiName, testNameStr string) *prep
 		expectedOutputFileName: expectedOutputFilePrefix + firstDir + "." + format,
 		testInfo:               fmt.Sprintf("test: %q, output format: %q, api func: %q", testName, format, apiName),
 		analyzer:               NewDiffAnalyzer(WithOutputFormat(format)),
-		firstDirPath:           filepath.Join(testutils.GetTestsDir(), firstDir),
-		secondDirPath:          filepath.Join(testutils.GetTestsDir(), secondDir),
+		firstDirPath:           filepath.Join(utils.GetTestsDir(), firstDir),
+		secondDirPath:          filepath.Join(utils.GetTestsDir(), secondDir),
 	}
 }
 
