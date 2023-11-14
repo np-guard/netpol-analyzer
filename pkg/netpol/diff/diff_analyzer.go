@@ -1,8 +1,8 @@
 package diff
 
 import (
+	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 )
 
 // A DiffAnalyzer provides API to recursively scan two directories for Kubernetes resources including network policies,
@@ -64,7 +64,7 @@ func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 		logger:       logger.NewDefaultLogger(),
 		stopOnError:  false,
 		errors:       []DiffError{},
-		outputFormat: common.DefaultFormat,
+		outputFormat: utils.DefaultFormat,
 		ref1Name:     "ref1",
 		ref2Name:     "ref2",
 	}

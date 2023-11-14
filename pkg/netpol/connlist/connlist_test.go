@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +18,7 @@ const underscore = "_"
 const ResourceInfosFunc = "ConnlistFromResourceInfos"
 const DirPathFunc = "ConnlistFromDirPath"
 
-var allFormats = []string{common.TextFormat, common.JSONFormat, common.CSVFormat, common.MDFormat, common.DOTFormat}
+var allFormats = []string{utils.TextFormat, utils.JSONFormat, utils.CSVFormat, utils.MDFormat, utils.DOTFormat}
 var connlistTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
 
 /*
@@ -190,7 +190,7 @@ func testFatalErr(t *testing.T,
 
 func getAnalysisResFromAPI(apiName, dirName, focusWorkload string) (
 	analyzer *ConnlistAnalyzer, connsRes []Peer2PeerConnection, peersRes []Peer, err error) {
-	pTest := prepareTest(dirName, focusWorkload, common.DefaultFormat)
+	pTest := prepareTest(dirName, focusWorkload, utils.DefaultFormat)
 	switch apiName {
 	case ResourceInfosFunc:
 		infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
@@ -566,27 +566,27 @@ var goodPathTests = []struct {
 }{
 	{
 		testDirName:   "ipblockstest",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "onlineboutique",
-		outputFormats: []string{common.JSONFormat, common.MDFormat, common.TextFormat},
+		outputFormats: []string{utils.JSONFormat, utils.MDFormat, utils.TextFormat},
 	},
 	{
 		testDirName:   "onlineboutique_workloads",
-		outputFormats: []string{common.CSVFormat, common.DOTFormat, common.TextFormat},
+		outputFormats: []string{utils.CSVFormat, utils.DOTFormat, utils.TextFormat},
 	},
 	{
 		testDirName:   "minikube_resources",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "online_boutique_workloads_no_ns",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "core_pods_without_host_ip",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "acs_security_frontend_demos",
@@ -618,152 +618,152 @@ var goodPathTests = []struct {
 	},
 	{
 		testDirName:   "acs-security-demos-with-netpol-list",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "test_with_named_ports",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "test_with_named_ports_changed_netpol",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "netpol-analysis-example-minimal",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "with_end_port_example",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "with_end_port_example_new",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "new_online_boutique",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "new_online_boutique_synthesis",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "multiple_topology_resources_1",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "multiple_topology_resources_2",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "multiple_topology_resources_3",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "multiple_topology_resources_4",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "minimal_test_in_ns",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-old1",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-old2",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-old3",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-new1",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-new1a",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-new2",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-new3",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-orig-topologies-no-policy",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-orig-topologies-policy-a",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-different-topologies-policy-a",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-different-topologies-policy-b",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "ipblockstest_2",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "ipblockstest_3",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "ipblockstest_4",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-different-topologies-policy-a-with-ipblock",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-different-topologies-policy-b-with-ipblock",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "test_with_named_ports_changed_netpol_2",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "onlineboutique_workloads",
 		focusWorkload: "emailservice",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "k8s_ingress_test",
 		focusWorkload: "details-v1-79f774bdb9",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "acs-security-demos-added-workloads",
 		focusWorkload: "backend/recommendation",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "acs-security-demos-added-workloads",
 		focusWorkload: "asset-cache",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "acs-security-demos-added-workloads",
 		focusWorkload: "frontend/asset-cache",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 	{
 		testDirName:   "acs-security-demos-added-workloads",
 		focusWorkload: "ingress-controller",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{utils.TextFormat},
 	},
 }

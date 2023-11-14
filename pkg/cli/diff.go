@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package cmd
+package cli
 
 import (
 	"errors"
@@ -20,8 +20,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/diff"
 )
@@ -101,7 +101,7 @@ func newCommandDiff() *cobra.Command {
 	c.Flags().StringVarP(&dir1, dir1Arg, "", "", "Original Resources path to be compared")
 	c.Flags().StringVarP(&dir2, dir2Arg, "", "", "New Resources path to compare with original resources path")
 	supportedDiffFormats := strings.Join(diff.ValidDiffFormats, ",")
-	c.Flags().StringVarP(&outFormat, "output", "o", common.DefaultFormat, getOutputFormatDescription(supportedDiffFormats))
+	c.Flags().StringVarP(&outFormat, "output", "o", utils.DefaultFormat, getOutputFormatDescription(supportedDiffFormats))
 	// out file
 	c.Flags().StringVarP(&outFile, "file", "f", "", "Write output to specified file")
 	return c
