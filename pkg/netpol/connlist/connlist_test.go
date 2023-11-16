@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
 
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +18,7 @@ const underscore = "_"
 const ResourceInfosFunc = "ConnlistFromResourceInfos"
 const DirPathFunc = "ConnlistFromDirPath"
 
-var allFormats = []string{common.TextFormat, common.JSONFormat, common.CSVFormat, common.MDFormat, common.DOTFormat}
+var allFormats = []string{output.TextFormat, output.JSONFormat, output.CSVFormat, output.MDFormat, output.DOTFormat}
 var connlistTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
 
 /*
@@ -79,10 +79,10 @@ func TestConnListFromDir(t *testing.T) {
 				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format)
 				res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 				require.Nil(t, err, pTest.testInfo)
-				output, err := pTest.analyzer.ConnectionsListToString(res)
+				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
 				testutils.CheckActualVsExpectedOutputMatch(t, pTest.testName, tt.testDirName,
-					pTest.expectedOutputFileName, output, pTest.testInfo)
+					pTest.expectedOutputFileName, out, pTest.testInfo)
 			}
 		})
 	}
@@ -102,10 +102,10 @@ func TestConnListFromResourceInfos(t *testing.T) {
 				// more suitable to test this in a separate package (manifests) where  GetResourceInfosFromDirPath is implemented
 				res, _, err := pTest.analyzer.ConnlistFromResourceInfos(infos)
 				require.Nil(t, err, pTest.testInfo)
-				output, err := pTest.analyzer.ConnectionsListToString(res)
+				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
 				testutils.CheckActualVsExpectedOutputMatch(t, pTest.testName, tt.testDirName,
-					pTest.expectedOutputFileName, output, pTest.testInfo)
+					pTest.expectedOutputFileName, out, pTest.testInfo)
 			}
 		})
 	}
@@ -190,7 +190,7 @@ func testFatalErr(t *testing.T,
 
 func getAnalysisResFromAPI(apiName, dirName, focusWorkload string) (
 	analyzer *ConnlistAnalyzer, connsRes []Peer2PeerConnection, peersRes []Peer, err error) {
-	pTest := prepareTest(dirName, focusWorkload, common.DefaultFormat)
+	pTest := prepareTest(dirName, focusWorkload, output.DefaultFormat)
 	switch apiName {
 	case ResourceInfosFunc:
 		infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
@@ -438,9 +438,9 @@ func TestNotContainedOutputLines(t *testing.T) {
 			analyzer, res, err := getConnlistFromDirPathRes(analyzerOpts, tt.dirName)
 			require.Len(t, res, tt.expectedResultLen, "test: %q", tt.name)
 			require.Nil(t, err, "test: %q", tt.name)
-			output, err := analyzer.ConnectionsListToString(res)
+			out, err := analyzer.ConnectionsListToString(res)
 			require.Nil(t, err, "test: %q", tt.name)
-			require.NotContains(t, output, tt.extractedLineExample, "test: %q, output should not contain %q", tt.name, tt.extractedLineExample)
+			require.NotContains(t, out, tt.extractedLineExample, "test: %q, output should not contain %q", tt.name, tt.extractedLineExample)
 		})
 	}
 }
@@ -461,10 +461,10 @@ func getConnlistFromDirPathRes(opts []ConnlistAnalyzerOption, dirName string) (*
 /*func verifyConnlistAnalyzeOutputVsExpectedOutput(t *testing.T, analyzerOptions []ConnlistAnalyzerOption, dirName,
 	expectedOutputFileName, testName, format string) {
 	analyzer, res, err := getConnlistFromDirPathRes(analyzerOptions, dirName)
-	require.Nil(t, err, testutils.GetDebugMsgWithTestNameAndFormat(testName, format))
-	output, err := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err, testutils.GetDebugMsgWithTestNameAndFormat(testName, format))
-	testutils.CheckActualVsExpectedOutputMatch(t, testName, dirName, expectedOutputFileName, output, format)
+	require.Nil(t, err, utils.GetDebugMsgWithTestNameAndFormat(testName, format))
+	out, err := analyzer.ConnectionsListToString(res)
+	require.Nil(t, err, utils.GetDebugMsgWithTestNameAndFormat(testName, format))
+	utils.CheckActualVsExpectedOutputMatch(t, testName, dirName, expectedOutputFileName, out, format)
 }*/
 
 // helping func - if focus workload is not empty append it to ConnlistAnalyzerOption list
@@ -538,8 +538,8 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			require.NotEmpty(t, connsRes, "expecting non-empty analysis res")
 			require.NotEmpty(t, peersRes, "expecting non-empty analysis res")
 
-			output, err := preparedTest.analyzer.ConnectionsListToString(connsRes)
-			require.Empty(t, output, tt.name)
+			out, err := preparedTest.analyzer.ConnectionsListToString(connsRes)
+			require.Empty(t, out, tt.name)
 			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error())
 
 			// re-run the test with new analyzer (to clear the analyzer.errors array )
@@ -552,8 +552,8 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			require.NotEmpty(t, connsRes2, "expecting non-empty analysis res")
 			require.NotEmpty(t, peersRes2, "expecting non-empty analysis res")
 
-			output, err2 = preparedTest.analyzer.ConnectionsListToString(connsRes)
-			require.Empty(t, output, tt.name)
+			out, err2 = preparedTest.analyzer.ConnectionsListToString(connsRes)
+			require.Empty(t, out, tt.name)
 			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err2.Error())
 		})
 	}
@@ -566,27 +566,27 @@ var goodPathTests = []struct {
 }{
 	{
 		testDirName:   "ipblockstest",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "onlineboutique",
-		outputFormats: []string{common.JSONFormat, common.MDFormat, common.TextFormat},
+		outputFormats: []string{output.JSONFormat, output.MDFormat, output.TextFormat},
 	},
 	{
 		testDirName:   "onlineboutique_workloads",
-		outputFormats: []string{common.CSVFormat, common.DOTFormat, common.TextFormat},
+		outputFormats: []string{output.CSVFormat, output.DOTFormat, output.TextFormat},
 	},
 	{
 		testDirName:   "minikube_resources",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "online_boutique_workloads_no_ns",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "core_pods_without_host_ip",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "acs_security_frontend_demos",
@@ -618,152 +618,152 @@ var goodPathTests = []struct {
 	},
 	{
 		testDirName:   "acs-security-demos-with-netpol-list",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "test_with_named_ports",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "test_with_named_ports_changed_netpol",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "netpol-analysis-example-minimal",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "with_end_port_example",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "with_end_port_example_new",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "new_online_boutique",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "new_online_boutique_synthesis",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "multiple_topology_resources_1",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "multiple_topology_resources_2",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "multiple_topology_resources_3",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "multiple_topology_resources_4",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "minimal_test_in_ns",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-old1",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-old2",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-old3",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-new1",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-new1a",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-new2",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-same-topologies-new3",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-orig-topologies-no-policy",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-orig-topologies-policy-a",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-different-topologies-policy-a",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-different-topologies-policy-b",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "ipblockstest_2",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "ipblockstest_3",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "ipblockstest_4",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-different-topologies-policy-a-with-ipblock",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "semanticDiff-different-topologies-policy-b-with-ipblock",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "test_with_named_ports_changed_netpol_2",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "onlineboutique_workloads",
 		focusWorkload: "emailservice",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "k8s_ingress_test",
 		focusWorkload: "details-v1-79f774bdb9",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "acs-security-demos-added-workloads",
 		focusWorkload: "backend/recommendation",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "acs-security-demos-added-workloads",
 		focusWorkload: "asset-cache",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "acs-security-demos-added-workloads",
 		focusWorkload: "frontend/asset-cache",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 	{
 		testDirName:   "acs-security-demos-added-workloads",
 		focusWorkload: "ingress-controller",
-		outputFormats: []string{common.TextFormat},
+		outputFormats: []string{output.TextFormat},
 	},
 }

@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	_ "embed"
@@ -576,6 +576,6 @@ func TestCommands(t *testing.T) {
 
 func getTestsDir() string {
 	currentDir, _ := os.Getwd()
-	res := filepath.Join(currentDir, "..", "..", "..", "tests")
+	res := filepath.Join(currentDir, "..", "..", "tests")
 	return res
 }

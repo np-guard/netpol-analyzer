@@ -3,8 +3,8 @@ package eval
 import (
 	"fmt"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // Peer can either represent a Pod or an IP address

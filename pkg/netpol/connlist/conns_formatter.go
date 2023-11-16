@@ -8,8 +8,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 var newLineChar = fmt.Sprintln("")

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // diffFormatter implements diff output formatting in the required output format

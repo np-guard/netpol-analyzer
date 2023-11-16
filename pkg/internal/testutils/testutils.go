@@ -11,7 +11,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 )
 
 // a flag for writing/overriding the golden result files for tests
@@ -52,7 +52,7 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 	expectedOutputFile := filepath.Join(GetTestsDir(), dirName, expectedOutputFileName)
 	// if the --update flag is on (then generate/ override the expected output file with the actualOutput)
 	if *update {
-		err := common.WriteToFile(actualOutput, expectedOutputFile)
+		err := output.WriteToFile(actualOutput, expectedOutputFile)
 		require.Nil(t, err, testInfo)
 		// if format is dot - generate/ override also png graph file using graphviz program
 		if strings.HasSuffix(expectedOutputFile, dotSign+common.DOTFormat) {
@@ -67,7 +67,7 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 	actualOutputFileName := "actual_" + expectedOutputFileName
 	actualOutputFile := filepath.Join(GetTestsDir(), dirName, actualOutputFileName)
 	if cleanStr(string(expectedOutput)) != cleanStr(actualOutput) {
-		err := common.WriteToFile(actualOutput, actualOutputFile)
+		err := output.WriteToFile(actualOutput, actualOutputFile)
 		require.Nil(t, err, testInfo)
 	}
 	require.Equal(t, cleanStr(string(expectedOutput)), cleanStr(actualOutput),
