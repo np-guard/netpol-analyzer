@@ -14,9 +14,9 @@
 package main
 
 import (
-	"github.com/np-guard/netpol-analyzer/cmd/netpolicy/cmd"
+	"github.com/np-guard/netpol-analyzer/pkg/cli"
 )
 
 func main() {
-	cmd.Execute()
+	cli.Execute()
 }

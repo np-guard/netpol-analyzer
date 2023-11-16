@@ -3,7 +3,7 @@ package diff
 import (
 	"errors"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // DiffError holds information about a single error/warning that occurred during

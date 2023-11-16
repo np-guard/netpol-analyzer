@@ -20,12 +20,13 @@ import (
 
 	"k8s.io/cli-runtime/pkg/resource"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist/internal/ingressanalyzer"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 )
@@ -88,8 +89,8 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 }
 
 // ValidFormats array of possible values of output format
-var ValidFormats = []string{common.TextFormat, common.JSONFormat, common.DOTFormat,
-	common.CSVFormat, common.MDFormat}
+var ValidFormats = []string{output.TextFormat, output.JSONFormat, output.DOTFormat,
+	output.CSVFormat, output.MDFormat}
 
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
@@ -138,7 +139,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 		logger:       logger.NewDefaultLogger(),
 		stopOnError:  false,
 		errors:       []ConnlistError{},
-		outputFormat: common.DefaultFormat,
+		outputFormat: output.DefaultFormat,
 	}
 	for _, o := range options {
 		o(ca)
@@ -237,12 +238,12 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
 	}
-	output, err := connsFormatter.writeOutput(conns)
+	out, err := connsFormatter.writeOutput(conns)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
 	}
-	return output, nil
+	return out, nil
 }
 
 // validate the value of the output format
@@ -261,15 +262,15 @@ func getFormatter(format string) (connsFormatter, error) {
 		return nil, err
 	}
 	switch format {
-	case common.JSONFormat:
+	case output.JSONFormat:
 		return formatJSON{}, nil
-	case common.TextFormat:
+	case output.TextFormat:
 		return formatText{}, nil
-	case common.DOTFormat:
+	case output.DOTFormat:
 		return formatDOT{}, nil
-	case common.CSVFormat:
+	case output.CSVFormat:
 		return formatCSV{}, nil
-	case common.MDFormat:
+	case output.MDFormat:
 		return formatMD{}, nil
 	default:
 		return formatText{}, nil

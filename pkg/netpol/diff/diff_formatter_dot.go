@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // diffFormatDOT: implements the diffFormatter interface for dot output format

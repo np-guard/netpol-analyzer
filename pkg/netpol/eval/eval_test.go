@@ -18,11 +18,12 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/yaml"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/testutils"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 const (
@@ -1037,7 +1038,7 @@ func addNewPod(namespace, name string, labels map[string]string) (*v1.Pod, error
 }
 
 func writeRes(res, fileName string) {
-	if err := common.WriteToFile(res, fileName); err != nil {
+	if err := output.WriteToFile(res, fileName); err != nil {
 		fmt.Printf("error writing to file: %v", err)
 	}
 }

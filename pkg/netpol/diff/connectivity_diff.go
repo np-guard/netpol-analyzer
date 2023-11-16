@@ -3,8 +3,8 @@ package diff
 import (
 	v1 "k8s.io/api/core/v1"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // ConnectivityDiff captures the set of differences in terms of connectivity between two input k8s resource sets
