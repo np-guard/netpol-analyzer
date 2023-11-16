@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package cmd
+package cli
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
+	outconsts "github.com/np-guard/netpol-analyzer/pkg/internal/output"
 
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
@@ -133,7 +133,7 @@ defined`,
 		"Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)")
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
-	c.Flags().StringVarP(&output, "output", "o", common.DefaultFormat, getOutputFormatDescription(supportedFormats))
+	c.Flags().StringVarP(&output, "output", "o", outconsts.DefaultFormat, getOutputFormatDescription(supportedFormats))
 	// out file
 	c.Flags().StringVarP(&outFile, "file", "f", "", "Write output to specified file")
 

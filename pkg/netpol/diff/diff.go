@@ -14,12 +14,13 @@ import (
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/cli-runtime/pkg/resource"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // Diff Analyzer funcs:
@@ -258,7 +259,7 @@ func getIPblocksFromConnList(conns []connlist.Peer2PeerConnection) []eval.Peer {
 }
 
 // ValidDiffFormats are the supported formats for output generation of the diff command
-var ValidDiffFormats = []string{common.TextFormat, common.CSVFormat, common.MDFormat, common.DOTFormat}
+var ValidDiffFormats = []string{output.TextFormat, output.CSVFormat, output.MDFormat, output.DOTFormat}
 
 // ConnectivityDiffToString returns a string of connections diff from connectivityDiff object in the required output format
 func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDiff) (string, error) {
@@ -272,12 +273,12 @@ func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDi
 		da.errors = append(da.errors, newResultFormattingError(err))
 		return "", err
 	}
-	output, err := diffFormatter.writeDiffOutput(connectivityDiff)
+	out, err := diffFormatter.writeDiffOutput(connectivityDiff)
 	if err != nil {
 		da.errors = append(da.errors, newResultFormattingError(err))
 		return "", err
 	}
-	return output, nil
+	return out, nil
 }
 
 // returns the relevant formatter for the analyzer's outputFormat
@@ -286,13 +287,13 @@ func getFormatter(format, ref1Name, ref2Name string) (diffFormatter, error) {
 		return nil, err
 	}
 	switch format {
-	case common.TextFormat:
+	case output.TextFormat:
 		return &diffFormatText{ref1: ref1Name, ref2: ref2Name}, nil
-	case common.CSVFormat:
+	case output.CSVFormat:
 		return &diffFormatCSV{ref1: ref1Name, ref2: ref2Name}, nil
-	case common.MDFormat:
+	case output.MDFormat:
 		return &diffFormatMD{ref1: ref1Name, ref2: ref2Name}, nil
-	case common.DOTFormat:
+	case output.DOTFormat:
 		return &diffFormatDOT{ref1: ref1Name, ref2: ref2Name}, nil
 	default:
 		return &diffFormatText{ref1: ref1Name, ref2: ref2Name}, nil

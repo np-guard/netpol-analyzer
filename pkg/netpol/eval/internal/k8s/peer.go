@@ -16,7 +16,7 @@ package k8s
 import (
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/common"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // PeerType is a type to indicate the type of a Peer object (Pod or IP address)
