@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -53,6 +54,11 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 	if *update {
 		err := common.WriteToFile(actualOutput, expectedOutputFile)
 		require.Nil(t, err, testInfo)
+		// if format is dot - generate/ override also png graph file using graphviz program
+		if strings.HasSuffix(expectedOutputFile, dotSign+common.DOTFormat) {
+			err = generateGraphFileIfPossible(expectedOutputFile)
+			require.Nil(t, err, testInfo)
+		}
 		return
 	}
 	// read expected output file
@@ -79,4 +85,25 @@ func cleanStr(str string) string {
 func CheckErrorContainment(t *testing.T, testInfo, expectedErrorMsg, actualErrMsg string) {
 	require.Contains(t, actualErrMsg, expectedErrorMsg, "err/warn message mismatch for test: %q, actual: %q, expected contains: %q",
 		testInfo, actualErrMsg, expectedErrorMsg)
+}
+
+const (
+	// the executable we need from graphviz is "dot"
+	executableNameForGraphviz = common.DOTFormat
+	// graph suffix
+	graphSuffix = "png"
+	dotSign     = "."
+)
+
+// checks if "graphviz" executable exists, if yes runs a cmd to generates a png graph file from the dot output
+func generateGraphFileIfPossible(dotFilePath string) error {
+	// check if graphviz is installed to continue
+	if _, err := exec.LookPath(executableNameForGraphviz); err == nil {
+		pngFilePath := dotFilePath + dotSign + graphSuffix
+		cmd := exec.Command("dot", dotFilePath, "-T"+graphSuffix, "-o", pngFilePath)
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
