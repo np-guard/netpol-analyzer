@@ -8,13 +8,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 )
 
 const expectedOutputFilePrefix = "diff_output_from_"
 
-var allFormats = []string{utils.TextFormat, utils.MDFormat, utils.CSVFormat, utils.DOTFormat}
+var allFormats = []string{output.TextFormat, output.MDFormat, output.CSVFormat, output.DOTFormat}
 
 const ResourceInfosFunc = "ConnDiffFromResourceInfos"
 const DirPathFunc = "ConnDiffFromDirPaths"
@@ -37,7 +38,7 @@ func TestDiff(t *testing.T) {
 					require.Nil(t, err, pTest.testInfo)
 					actualOutput, err := pTest.analyzer.ConnectivityDiffToString(diffRes)
 					require.Nil(t, err, pTest.testInfo)
-					utils.CheckActualVsExpectedOutputMatch(t, testName, tt.secondDirName,
+					testutils.CheckActualVsExpectedOutputMatch(t, testName, tt.secondDirName,
 						pTest.expectedOutputFileName, actualOutput, pTest.testInfo)
 				}
 			}
@@ -58,11 +59,11 @@ func TestDiffAnalyzeFatalErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiFunc := range diffTestedAPIS {
-				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.ref1, tt.ref2, utils.DefaultFormat, tt.name)
+				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.ref1, tt.ref2, output.DefaultFormat, tt.name)
 				require.Empty(t, diffRes, "test: %q, apiFunc: %q", tt.name, apiFunc)
-				utils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
+				testutils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
 				require.Equal(t, 1, len(pTest.analyzer.errors))
-				utils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, pTest.analyzer.errors[0].Error().Error())
+				testutils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, pTest.analyzer.errors[0].Error().Error())
 			}
 		})
 	}
@@ -147,7 +148,7 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 					continue
 				}
 
-				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.ref1, tt.ref2, utils.DefaultFormat, tt.name)
+				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.ref1, tt.ref2, output.DefaultFormat, tt.name)
 				if tt.emptyRes {
 					require.Empty(t, diffRes, pTest.testInfo)
 				} else {
@@ -233,7 +234,7 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			pTest, diffRes, err := getAnalysisResFromAPI(DirPathFunc, tt.ref1, tt.ref2, utils.DefaultFormat, tt.name)
+			pTest, diffRes, err := getAnalysisResFromAPI(DirPathFunc, tt.ref1, tt.ref2, output.DefaultFormat, tt.name)
 			if tt.emptyRes {
 				require.Empty(t, diffRes, pTest.testInfo)
 			} else {
@@ -246,7 +247,7 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 			} else {
 				// fatal err - the expected err should be returned
 				for _, expectedErrStr := range tt.containedErrOrWarns {
-					utils.CheckErrorContainment(t, pTest.testInfo, expectedErrStr, err.Error())
+					testutils.CheckErrorContainment(t, pTest.testInfo, expectedErrStr, err.Error())
 				}
 			}
 
@@ -286,9 +287,9 @@ func TestDiffOutputFatalErrors(t *testing.T) {
 				pTest, connsDiff, err := getAnalysisResFromAPI(apiFunc, tt.ref1, tt.ref2, tt.format, tt.name)
 				require.Nil(t, err, pTest.testInfo)
 				require.NotEmpty(t, connsDiff, pTest.testInfo)
-				output, err := pTest.analyzer.ConnectivityDiffToString(connsDiff)
-				require.Empty(t, output, pTest.testInfo)
-				utils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
+				res, err := pTest.analyzer.ConnectivityDiffToString(connsDiff)
+				require.Empty(t, res, pTest.testInfo)
+				testutils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
 			}
 		})
 	}
@@ -300,15 +301,15 @@ func TestDiffOutputWithArgNamesOption(t *testing.T) {
 	ref2 := "onlineboutique_workloads_changed_netpols"
 	for _, format := range ValidDiffFormats {
 		analyzer := NewDiffAnalyzer(WithOutputFormat(format), WithArgNames("old", "new"))
-		diffRes, err := analyzer.ConnDiffFromDirPaths(filepath.Join(utils.GetTestsDir(), ref1),
-			filepath.Join(utils.GetTestsDir(), ref2))
+		diffRes, err := analyzer.ConnDiffFromDirPaths(filepath.Join(testutils.GetTestsDir(), ref1),
+			filepath.Join(testutils.GetTestsDir(), ref2))
 		require.Nil(t, err)
 		require.NotEmpty(t, diffRes)
-		output, err := analyzer.ConnectivityDiffToString(diffRes)
+		res, err := analyzer.ConnectivityDiffToString(diffRes)
 		require.Nil(t, err)
 		testName := "TsetOutputWithArgNamesOption." + format
-		utils.CheckActualVsExpectedOutputMatch(t, testName, ref2,
-			testName, output, testName)
+		testutils.CheckActualVsExpectedOutputMatch(t, testName, ref2,
+			testName, res, testName)
 	}
 }
 
@@ -338,8 +339,8 @@ func prepareTest(firstDir, secondDir, format, apiName, testNameStr string) *prep
 		expectedOutputFileName: expectedOutputFilePrefix + firstDir + "." + format,
 		testInfo:               fmt.Sprintf("test: %q, output format: %q, api func: %q", testName, format, apiName),
 		analyzer:               NewDiffAnalyzer(WithOutputFormat(format)),
-		firstDirPath:           filepath.Join(utils.GetTestsDir(), firstDir),
-		secondDirPath:          filepath.Join(utils.GetTestsDir(), secondDir),
+		firstDirPath:           filepath.Join(testutils.GetTestsDir(), firstDir),
+		secondDirPath:          filepath.Join(testutils.GetTestsDir(), secondDir),
 	}
 }
 
@@ -394,7 +395,7 @@ var goodPathTests = []struct {
 		// **added Ingress: default/onlineboutique-ingress
 		firstDirName:  "onlineboutique_workloads",
 		secondDirName: "onlineboutique_workloads_with_ingress",
-		formats:       []string{utils.CSVFormat},
+		formats:       []string{output.CSVFormat},
 	},
 	{
 		// description:
@@ -422,7 +423,7 @@ var goodPathTests = []struct {
 		// **removed Routes: frontend/asset-cache, frontend/webapp
 		firstDirName:  "acs-security-demos",
 		secondDirName: "acs-security-demos-no-routes",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
@@ -439,7 +440,7 @@ var goodPathTests = []struct {
 		// in second dir , the netpol limits the ingress of it , so it appears in the diff
 		firstDirName:  "deny_all_to_from_a_deployment",
 		secondDirName: "deny_all_to_from_a_deployment_changed_netpol",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
@@ -472,49 +473,49 @@ var goodPathTests = []struct {
 		// **changed netpol: kube-system-dummy-to-ignore/ingress-based-on-named-ports
 		firstDirName:  "test_with_named_ports",
 		secondDirName: "test_with_named_ports_changed_netpol",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
 		// **changed netpols: demo/ui-to-command, demo/query-to-ui
 		firstDirName:  "multiple_topology_resources_1",
 		secondDirName: "multiple_topology_resources_2",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
 		// **added netpol: default/policy-from2-to1
 		firstDirName:  "multiple_topology_resources_3",
 		secondDirName: "multiple_topology_resources_4",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
 		// **changed netpols: limited egress in all policies , and limited ingress for loadgenerator
 		firstDirName:  "new_online_boutique",
 		secondDirName: "new_online_boutique_synthesis",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
 		// **changed netpols: demo/ui-to-command, demo/query-to-ui
 		firstDirName:  "semanticDiff-same-topologies-old1",
 		secondDirName: "semanticDiff-same-topologies-new1",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
 		// **changed netpols: demo/ui-to-command, demo/query-to-ui
 		firstDirName:  "semanticDiff-same-topologies-old1",
 		secondDirName: "semanticDiff-same-topologies-new1a",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
 		// **changed netpols: demo/ui-to-command
 		firstDirName:  "semanticDiff-same-topologies-old2",
 		secondDirName: "semanticDiff-same-topologies-new2",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
@@ -523,14 +524,14 @@ var goodPathTests = []struct {
 		// **added netpols: demo/capture-query
 		firstDirName:  "semanticDiff-same-topologies-old3",
 		secondDirName: "semanticDiff-same-topologies-new3",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
 		// **added netpols: default/policy-from2-to1
 		firstDirName:  "semanticDiff-orig-topologies-no-policy",
 		secondDirName: "semanticDiff-orig-topologies-policy-a",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
@@ -542,7 +543,7 @@ var goodPathTests = []struct {
 		// **added netpol: policy-from2-to1
 		firstDirName:  "semanticDiff-different-topologies-policy-a",
 		secondDirName: "semanticDiff-different-topologies-policy-b",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
@@ -554,7 +555,7 @@ var goodPathTests = []struct {
 		// **added netpol: policy-from1-to2
 		firstDirName:  "semanticDiff-different-topologies-policy-b",
 		secondDirName: "semanticDiff-different-topologies-policy-a",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
@@ -562,35 +563,35 @@ var goodPathTests = []struct {
 		// **different policies
 		firstDirName:  "semanticDiff-same-topologies-old1",
 		secondDirName: "semanticDiff-different-topologies-policy-a",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
 		// **changed netpols: kube-system/enable-from-ipblock-to-isolated-by-tier
 		firstDirName:  "ipblockstest",
 		secondDirName: "ipblockstest_2",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
 		// **changed netpols: kube-system/enable-from-ipblock-to-isolated-by-tier
 		firstDirName:  "ipblockstest",
 		secondDirName: "ipblockstest_3",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
 		// **changed netpols: kube-system/enable-from-ipblock-to-isolated-by-tier
 		firstDirName:  "ipblockstest_2",
 		secondDirName: "ipblockstest_3",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
 		// **changed netpols: kube-system/enable-from-ipblock-to-isolated-by-tier
 		firstDirName:  "ipblockstest",
 		secondDirName: "ipblockstest_4",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
@@ -602,7 +603,7 @@ var goodPathTests = []struct {
 		// **added netpol: default/policy-from1-to2, default/policy-from-ip-block-to2
 		firstDirName:  "semanticDiff-different-topologies-policy-a-with-ipblock",
 		secondDirName: "semanticDiff-different-topologies-policy-b-with-ipblock",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 	{
 		// description:
@@ -610,7 +611,7 @@ var goodPathTests = []struct {
 		// **added netpol: kube-system/ingress-based-on-port-number
 		firstDirName:  "test_with_named_ports_changed_netpol_2",
 		secondDirName: "test_with_named_ports_changed_netpol_3",
-		formats:       []string{utils.DefaultFormat},
+		formats:       []string{output.DefaultFormat},
 	},
 }
 

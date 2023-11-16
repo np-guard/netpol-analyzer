@@ -20,7 +20,7 @@ import (
 
 	"k8s.io/cli-runtime/pkg/resource"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
@@ -89,8 +89,8 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 }
 
 // ValidFormats array of possible values of output format
-var ValidFormats = []string{utils.TextFormat, utils.JSONFormat, utils.DOTFormat,
-	utils.CSVFormat, utils.MDFormat}
+var ValidFormats = []string{output.TextFormat, output.JSONFormat, output.DOTFormat,
+	output.CSVFormat, output.MDFormat}
 
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
@@ -139,7 +139,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 		logger:       logger.NewDefaultLogger(),
 		stopOnError:  false,
 		errors:       []ConnlistError{},
-		outputFormat: utils.DefaultFormat,
+		outputFormat: output.DefaultFormat,
 	}
 	for _, o := range options {
 		o(ca)
@@ -238,12 +238,12 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
 	}
-	output, err := connsFormatter.writeOutput(conns)
+	out, err := connsFormatter.writeOutput(conns)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
 	}
-	return output, nil
+	return out, nil
 }
 
 // validate the value of the output format
@@ -262,15 +262,15 @@ func getFormatter(format string) (connsFormatter, error) {
 		return nil, err
 	}
 	switch format {
-	case utils.JSONFormat:
+	case output.JSONFormat:
 		return formatJSON{}, nil
-	case utils.TextFormat:
+	case output.TextFormat:
 		return formatText{}, nil
-	case utils.DOTFormat:
+	case output.DOTFormat:
 		return formatDOT{}, nil
-	case utils.CSVFormat:
+	case output.CSVFormat:
 		return formatCSV{}, nil
-	case utils.MDFormat:
+	case output.MDFormat:
 		return formatMD{}, nil
 	default:
 		return formatText{}, nil
@@ -407,7 +407,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 // or if it exists in the peers list from the parsed resources
 // if not returns a suitable warning message
 func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnalysis bool) (existFocusWorkload bool, warning string) {
-	if ca.focusWorkload == utils.IngressPodName {
+	if ca.focusWorkload == common.IngressPodName {
 		if excludeIngressAnalysis { // if the ingress-analyzer is empty,
 			// then no routes/k8s-ingress objects -> ingrss-controller pod will not be added
 			return false, "The ingress-controller workload was not added to the analysis, since Ingress/Route resources were not found." +
@@ -465,7 +465,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		return nil, err
 	}
 	// adding the ingress controller pod to the policy engine,
-	ingressControllerPod, err := pe.AddPodByNameAndNamespace(utils.IngressPodName, utils.IngressPodNamespace)
+	ingressControllerPod, err := pe.AddPodByNameAndNamespace(common.IngressPodName, common.IngressPodNamespace)
 	if err != nil {
 		return nil, err
 	}

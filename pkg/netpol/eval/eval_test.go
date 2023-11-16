@@ -18,7 +18,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/yaml"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
@@ -1037,7 +1038,7 @@ func addNewPod(namespace, name string, labels map[string]string) (*v1.Pod, error
 }
 
 func writeRes(res, fileName string) {
-	if err := utils.WriteToFile(res, fileName); err != nil {
+	if err := output.WriteToFile(res, fileName); err != nil {
 		fmt.Printf("error writing to file: %v", err)
 	}
 }
@@ -1078,7 +1079,7 @@ func TestGeneralPerformance(t *testing.T) {
 	if os.Getenv("CI") != "" {
 		t.Skip("skipping TestGeneralPerformance")
 	}
-	path := filepath.Join(utils.GetTestsDir(), "onlineboutique")
+	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
 	// list of connections to test with, for CheckIfAllowed / CheckIfAllowedNew
 	connectionsListForTest := []TestEntry{
 		{protocol: "tcp", port: "5050"},
@@ -1190,7 +1191,7 @@ func TestGeneralPerformance(t *testing.T) {
 }
 
 func TestFromFiles2(t *testing.T) {
-	path := filepath.Join(utils.GetTestsDir(), "onlineboutique")
+	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
@@ -1243,7 +1244,7 @@ func TestFromFiles2(t *testing.T) {
 }
 
 func TestFromFiles(t *testing.T) {
-	path := filepath.Join(utils.GetTestsDir(), "onlineboutique")
+	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
@@ -1566,7 +1567,7 @@ func computeExpectedCacheHits(pe *PolicyEngine) (int, error) {
 func TestCacheWithPodDeletion(t *testing.T) {
 	pe := NewPolicyEngine()
 	var err error
-	testDir := filepath.Join(utils.GetTestsDir(), "onlineboutique_with_replicas")
+	testDir := filepath.Join(testutils.GetTestsDir(), "onlineboutique_with_replicas")
 	if err = setResourcesFromDir(pe, testDir); err != nil {
 		t.Fatal(err)
 	}
@@ -1598,7 +1599,7 @@ func TestCacheWithPodDeletion(t *testing.T) {
 }
 
 func TestConnectionsMapExamples(t *testing.T) {
-	testsDir := utils.GetTestsDir()
+	testsDir := testutils.GetTestsDir()
 
 	tests := []struct {
 		testName           string
@@ -1733,7 +1734,7 @@ func testConnectivityMapOutput(res []string, expectedFileName string) (bool, err
 }
 
 func TestDisjointIpBlocks(t *testing.T) {
-	path := filepath.Join(utils.GetTestsDir(), "ipblockstest")
+	path := filepath.Join(testutils.GetTestsDir(), "ipblockstest")
 	pe := NewPolicyEngine()
 	if err := setResourcesFromDir(pe, path); err != nil {
 		t.Errorf("%v", err)
@@ -1766,7 +1767,7 @@ func TestDisjointIpBlocks(t *testing.T) {
 }
 
 func TestPolicyEngineWithWorkloads(t *testing.T) {
-	path := filepath.Join(utils.GetTestsDir(), "onlineboutique_workloads")
+	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
 
 	rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{path}, true, false)
 	objects, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)

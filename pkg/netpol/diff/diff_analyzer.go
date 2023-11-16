@@ -1,7 +1,7 @@
 package diff
 
 import (
-	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 )
 
@@ -64,7 +64,7 @@ func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 		logger:       logger.NewDefaultLogger(),
 		stopOnError:  false,
 		errors:       []DiffError{},
-		outputFormat: utils.DefaultFormat,
+		outputFormat: output.DefaultFormat,
 		ref1Name:     "ref1",
 		ref2Name:     "ref2",
 	}

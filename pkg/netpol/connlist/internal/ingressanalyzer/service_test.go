@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
@@ -21,7 +21,7 @@ const servicesDirName = "services"
 // not existed services or not supported services (e.g. services without selectors are ignored, thus no pods are selected)
 func TestServiceMappingToPods(t *testing.T) {
 	t.Parallel()
-	servicesDir := filepath.Join(utils.GetTestsDirFromInternalPkg(), servicesDirName)
+	servicesDir := filepath.Join(testutils.GetTestsDirFromInternalPkg(), servicesDirName)
 	cases := []struct {
 		name                             string
 		serviceName                      string

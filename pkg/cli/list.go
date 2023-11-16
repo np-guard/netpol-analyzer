@@ -20,7 +20,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
+	outconsts "github.com/np-guard/netpol-analyzer/pkg/internal/output"
+
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 )
@@ -132,7 +133,7 @@ defined`,
 		"Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)")
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
-	c.Flags().StringVarP(&output, "output", "o", utils.DefaultFormat, getOutputFormatDescription(supportedFormats))
+	c.Flags().StringVarP(&output, "output", "o", outconsts.DefaultFormat, getOutputFormatDescription(supportedFormats))
 	// out file
 	c.Flags().StringVarP(&outFile, "file", "f", "", "Write output to specified file")
 
