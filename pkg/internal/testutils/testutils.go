@@ -55,7 +55,7 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 		err := output.WriteToFile(actualOutput, expectedOutputFile)
 		require.Nil(t, err, testInfo)
 		// if format is dot - generate/ override also png graph file using graphviz program
-		if strings.HasSuffix(expectedOutputFile, dotSign+common.DOTFormat) {
+		if strings.HasSuffix(expectedOutputFile, dotSign+output.DOTFormat) {
 			err = generateGraphFileIfPossible(expectedOutputFile)
 			require.Nil(t, err, testInfo)
 		}
@@ -89,7 +89,7 @@ func CheckErrorContainment(t *testing.T, testInfo, expectedErrorMsg, actualErrMs
 
 const (
 	// the executable we need from graphviz is "dot"
-	executableNameForGraphviz = common.DOTFormat
+	executableNameForGraphviz = output.DOTFormat
 	// graph suffix
 	graphSuffix = "png"
 	dotSign     = "."
