@@ -1,8 +1,8 @@
 package connlist
 
 import (
+	"fmt"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
@@ -11,9 +11,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 )
-
-const connlistExpectedOutputFileNamePrefix = "connlist_output."
-const underscore = "_"
 
 const ResourceInfosFunc = "ConnlistFromResourceInfos"
 const DirPathFunc = "ConnlistFromDirPath"
@@ -81,8 +78,8 @@ func TestConnListFromDir(t *testing.T) {
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
-				testutils.CheckActualVsExpectedOutputMatch(t, pTest.testName, tt.testDirName,
-					pTest.expectedOutputFileName, out, pTest.testInfo)
+				testutils.CheckActualVsExpectedOutputMatch(t, tt.testDirName,
+					pTest.expectedOutputFileName, out, pTest.testInfo, "", testutils.StandardPkgLevelDepth)
 			}
 		})
 	}
@@ -104,8 +101,8 @@ func TestConnListFromResourceInfos(t *testing.T) {
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
-				testutils.CheckActualVsExpectedOutputMatch(t, pTest.testName, tt.testDirName,
-					pTest.expectedOutputFileName, out, pTest.testInfo)
+				testutils.CheckActualVsExpectedOutputMatch(t, tt.testDirName,
+					pTest.expectedOutputFileName, out, pTest.testInfo, "", testutils.StandardPkgLevelDepth)
 			}
 		})
 	}
@@ -457,16 +454,6 @@ func getConnlistFromDirPathRes(opts []ConnlistAnalyzerOption, dirName string) (*
 	return analyzer, res, err
 }
 
-// helping func - creates the analyzer , gets connlist and writes it to string and verifies results
-/*func verifyConnlistAnalyzeOutputVsExpectedOutput(t *testing.T, analyzerOptions []ConnlistAnalyzerOption, dirName,
-	expectedOutputFileName, testName, format string) {
-	analyzer, res, err := getConnlistFromDirPathRes(analyzerOptions, dirName)
-	require.Nil(t, err, utils.GetDebugMsgWithTestNameAndFormat(testName, format))
-	out, err := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err, utils.GetDebugMsgWithTestNameAndFormat(testName, format))
-	utils.CheckActualVsExpectedOutputMatch(t, testName, dirName, expectedOutputFileName, out, format)
-}*/
-
 // helping func - if focus workload is not empty append it to ConnlistAnalyzerOption list
 func appendFocusWorkloadOptIfRequired(focusWorkload string) []ConnlistAnalyzerOption {
 	analyzerOptions := []ConnlistAnalyzerOption{}
@@ -474,19 +461,6 @@ func appendFocusWorkloadOptIfRequired(focusWorkload string) []ConnlistAnalyzerOp
 		analyzerOptions = append(analyzerOptions, WithFocusWorkload(focusWorkload))
 	}
 	return analyzerOptions
-}
-
-func testNameByTestType(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
-	switch {
-	case focusWorkload == "":
-		return dirName, connlistExpectedOutputFileNamePrefix + format
-
-	case focusWorkload != "":
-		focusWorkloadStr := strings.Replace(focusWorkload, "/", underscore, 1)
-		return "dir_" + dirName + "_focus_workload_" + focusWorkloadStr,
-			focusWorkloadStr + underscore + connlistExpectedOutputFileNamePrefix + format
-	}
-	return "", ""
 }
 
 type preparedTest struct {
@@ -499,8 +473,8 @@ type preparedTest struct {
 
 func prepareTest(dirName, focusWorkload, format string) preparedTest {
 	res := preparedTest{}
-	res.testName, res.expectedOutputFileName = testNameByTestType(dirName, focusWorkload, format)
-	res.testInfo = testutils.GetDebugMsgWithTestNameAndFormat(res.testName, format)
+	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestType(dirName, focusWorkload, format)
+	res.testInfo = fmt.Sprintf("test: %q, output format: %q", res.testName, format)
 	res.analyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload))
 	res.dirPath = getDirPathFromDirName(dirName)
 	return res

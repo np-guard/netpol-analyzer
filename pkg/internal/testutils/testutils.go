@@ -2,7 +2,6 @@ package testutils
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,14 +16,17 @@ import (
 var update = flag.Bool("update", false, "write or override golden files")
 
 const (
-	dirLevelUp            = ".."
-	testsDirName          = "tests"
-	standardPkgLevelDepth = 3 // e.g. pkg/netpol/connlist
-	internalPkgLevelDepth = 5 // e.g. pkg/netpol/connlist/internal/ingressanalyzer
+	dirLevelUp                           = ".."
+	testsDirName                         = "tests"
+	connlistExpectedOutputFileNamePrefix = "connlist_output."
+	StandardPkgLevelDepth                = 3 // e.g. pkg/netpol/connlist
+	internalPkgLevelDepth                = 5 // e.g. pkg/netpol/connlist/internal/ingressanalyzer
+	underscore                           = "_"
+	formatStr                            = "_format_"
 )
 
 func GetTestsDir() string {
-	return GetTestsDirWithDepth(standardPkgLevelDepth)
+	return GetTestsDirWithDepth(StandardPkgLevelDepth)
 }
 
 func GetTestsDirFromInternalPkg() string {
@@ -39,16 +41,31 @@ func GetTestsDirWithDepth(depth int) string {
 	return filepath.Join(res, testsDirName)
 }
 
-// GetDebugMsgWithTestNameAndFormat: testing helping func - writes debug message for good path tests
-func GetDebugMsgWithTestNameAndFormat(testName, format string) string {
-	return fmt.Sprintf("test: %q, output format: %q", testName, format)
+// ConnlistTestNameByTestType returns connlist test name and test's expected output file from some tests args
+func ConnlistTestNameByTestType(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
+	switch {
+	case focusWorkload == "":
+		return dirName + formatStr + format, connlistExpectedOutputFileNamePrefix + format
+
+	case focusWorkload != "":
+		focusWorkloadStr := strings.Replace(focusWorkload, "/", underscore, 1)
+		return dirName + "_focus_workload_" + focusWorkloadStr + formatStr + format,
+			focusWorkloadStr + underscore + connlistExpectedOutputFileNamePrefix + format
+	}
+	return "", ""
+}
+
+// DiffTestName returns diff test name from the names of the sources
+func DiffTestName(ref1, ref2 string) string {
+	return "diff_between_" + ref2 + "_and_" + ref1
 }
 
 // CheckActualVsExpectedOutputMatch: testing helping func - checks if actual output matches expected output,
 // if not generates actual output file
 // if --update flag is on, writes the actual output to the expected output file
-func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedOutputFileName, actualOutput, testInfo string) {
-	expectedOutputFile := filepath.Join(GetTestsDir(), dirName, expectedOutputFileName)
+func CheckActualVsExpectedOutputMatch(t *testing.T, dirName, expectedOutputFileName, actualOutput, testInfo, outFile string,
+	currDirDepth int) {
+	expectedOutputFile := filepath.Join(GetTestsDirWithDepth(currDirDepth), dirName, expectedOutputFileName)
 	// if the --update flag is on (then generate/ override the expected output file with the actualOutput)
 	if *update {
 		err := output.WriteToFile(actualOutput, expectedOutputFile)
@@ -59,7 +76,7 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 	expectedOutput, err := os.ReadFile(expectedOutputFile)
 	require.Nil(t, err, testInfo)
 	actualOutputFileName := "actual_" + expectedOutputFileName
-	actualOutputFile := filepath.Join(GetTestsDir(), dirName, actualOutputFileName)
+	actualOutputFile := filepath.Join(GetTestsDirWithDepth(currDirDepth), dirName, actualOutputFileName)
 	if cleanStr(string(expectedOutput)) != cleanStr(actualOutput) {
 		err := output.WriteToFile(actualOutput, actualOutputFile)
 		require.Nil(t, err, testInfo)
@@ -68,6 +85,21 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 		"output mismatch for %s, actual output file %q vs expected output file: %q",
 		testInfo,
 		actualOutputFile, expectedOutputFile)
+
+	if outFile != "" {
+		compareFileContentsVsExpectedOutput(t, testInfo, outFile, string(expectedOutput), expectedOutputFile)
+	}
+}
+
+// compareFileContentsVsExpectedOutput compares the contents of output file vs expected output
+func compareFileContentsVsExpectedOutput(t *testing.T, testInfo, outFile, expectedOutput, expectedOutputFile string) {
+	_, err := os.Stat(outFile)
+	require.Nil(t, err, testInfo)
+	fileContent, err := os.ReadFile(outFile)
+	require.Nil(t, err, testInfo)
+	require.Equal(t, cleanStr(expectedOutput), cleanStr(string(fileContent)),
+		"output mismatch for test %q, actual output file %q vs expected output file: %q", testInfo, outFile, expectedOutputFile)
+	os.Remove(outFile)
 }
 
 func cleanStr(str string) string {

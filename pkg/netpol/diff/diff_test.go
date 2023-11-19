@@ -29,7 +29,7 @@ func TestDiff(t *testing.T) {
 	t.Parallel()
 	for _, tt := range goodPathTests {
 		tt := tt
-		testName := getTestName(tt.firstDirName, tt.secondDirName)
+		testName := testutils.DiffTestName(tt.firstDirName, tt.secondDirName)
 		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.formats {
@@ -38,8 +38,8 @@ func TestDiff(t *testing.T) {
 					require.Nil(t, err, pTest.testInfo)
 					actualOutput, err := pTest.analyzer.ConnectivityDiffToString(diffRes)
 					require.Nil(t, err, pTest.testInfo)
-					testutils.CheckActualVsExpectedOutputMatch(t, testName, tt.secondDirName,
-						pTest.expectedOutputFileName, actualOutput, pTest.testInfo)
+					testutils.CheckActualVsExpectedOutputMatch(t, tt.secondDirName,
+						pTest.expectedOutputFileName, actualOutput, pTest.testInfo, "", testutils.StandardPkgLevelDepth)
 				}
 			}
 		})
@@ -308,8 +308,8 @@ func TestDiffOutputWithArgNamesOption(t *testing.T) {
 		res, err := analyzer.ConnectivityDiffToString(diffRes)
 		require.Nil(t, err)
 		testName := "TsetOutputWithArgNamesOption." + format
-		testutils.CheckActualVsExpectedOutputMatch(t, testName, ref2,
-			testName, res, testName)
+		testutils.CheckActualVsExpectedOutputMatch(t, ref2,
+			testName, res, testName, "", testutils.StandardPkgLevelDepth)
 	}
 }
 
@@ -322,16 +322,12 @@ type preparedTest struct {
 	analyzer               *DiffAnalyzer
 }
 
-func getTestName(ref1, ref2 string) string {
-	return "diff_between_" + ref2 + "_and_" + ref1
-}
-
 func prepareTest(firstDir, secondDir, format, apiName, testNameStr string) *preparedTest {
 	var testName string
 	if testNameStr != "" {
 		testName = testNameStr
 	} else {
-		testName = getTestName(firstDir, secondDir)
+		testName = testutils.DiffTestName(firstDir, secondDir)
 	}
 
 	return &preparedTest{

@@ -6,10 +6,12 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	outpkg "github.com/np-guard/netpol-analyzer/pkg/internal/output"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 )
 
 var (
@@ -19,7 +21,7 @@ var (
 )
 
 const outFileName = "test_out.txt"
-const defaultFormat = "txt"
+const currentDirDepth = 2
 
 // redirect command's execute stdout to a pipe
 func preTestRun() {
@@ -34,13 +36,6 @@ func postTestRun() string {
 	out, _ := io.ReadAll(testOutR)
 	os.Stdout = stdoutFile
 	return string(out)
-}
-
-// get 'tests' directory path
-func getTestsDir() string {
-	currentDir, _ := os.Getwd()
-	res := filepath.Join(currentDir, "..", "..", "tests")
-	return res
 }
 
 // build a new command with args list and execute it, returns the actual output from stdout and the execute err if exists
@@ -68,65 +63,27 @@ func addCmdOptionalArgs(format, outputFile, focusWorkload string) []string {
 	return res
 }
 
-// compares actual vs expected output
-func compareActualVsExpectedOutput(t *testing.T, dir, testName, expectedOutputFileName, actualOutput, outputFile string) {
-	expectedOutputFile := filepath.Join(getTestsDir(), dir, expectedOutputFileName)
-	expectedOutput, err := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err)
-	actualOutputFileName := "actual_" + expectedOutputFileName
-	actualOutputFile := filepath.Join(getTestsDir(), dir, actualOutputFileName)
-	if string(expectedOutput) != actualOutput {
-		// generate actual file for self check
-		err := writeBufToFile(actualOutputFile, []byte(actualOutput))
-		require.Nil(t, err, "test: %q", testName)
-	}
-	require.Equal(t, string(expectedOutput), actualOutput,
-		"output mismatch for test %q, actual output file %q vs expected output file: %q",
-		testName, actualOutputFile, expectedOutputFile)
-	if outputFile != "" {
-		_, err := os.Stat(outputFile)
-		require.Nil(t, err, "test: %q", testName)
-		fileContent, err := os.ReadFile(outputFile)
-		require.Nil(t, err, "test: %q", testName)
-		require.Equal(t, string(expectedOutput), string(fileContent),
-			"output mismatch for test %q, actual output file %q vs expected output file: %q", testName, outputFile, expectedOutputFile)
-		os.Remove(outputFile)
-	}
-}
-
-// composes test name from list command test's args
-func getListCommandTestNameFromArgs(dirName, focusWorkload, format string) string {
-	testName := "dir_" + dirName
-	if focusWorkload != "" {
-		testName += "_focus_workload_" + focusWorkload
-	}
-	if format != "" {
-		testName += "_in_" + format
-	}
-	return testName
-}
-
 // determines the file suffix from the format
 func determineFileSuffix(format string) string {
-	fileSuffix := defaultFormat
+	fileSuffix := outpkg.DefaultFormat
 	if format != "" {
 		fileSuffix = format
 	}
 	return fileSuffix
 }
 
-// gets the name of expected output file for a list command from its args
-func getListCmdExpectedOutputFile(focusWorkload, format string) string {
+// gets the test name and name of expected output file for a list command from its args
+func getListCmdTestNameAndExpectedOutputFile(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
 	fileSuffix := determineFileSuffix(format)
-	fileName := "connlist_output." + fileSuffix
-	if focusWorkload != "" {
-		fileName = focusWorkload + "_" + fileName
-	}
-	return fileName
+	return testutils.ConnlistTestNameByTestType(dirName, focusWorkload, fileSuffix)
 }
 
 func getDiffCmdExpectedOutputFile(dir1, format string) string {
 	return "cli_diff_output_from_" + dir1 + "." + determineFileSuffix(format)
+}
+
+func testInfo(testName string) string {
+	return fmt.Sprintf("test: %q", testName)
 }
 
 // TestCommandsFailExecute - tests executing failure for illegal commands or commands with invalid args or with wrong input values
@@ -153,7 +110,7 @@ func TestCommandsFailExecute(t *testing.T) {
 		},
 		{
 			name:                  "diff_command_args_contain_dirpath_should_return_error_of_unsupported_flag",
-			args:                  []string{"diff", "--dirpath", filepath.Join(getTestsDir(), "onlineboutique")},
+			args:                  []string{"diff", "--dirpath", filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), "onlineboutique")},
 			expectedErrorContains: "dirpath flag is not used with diff command",
 		},
 		{
@@ -161,9 +118,9 @@ func TestCommandsFailExecute(t *testing.T) {
 			args: []string{
 				"diff",
 				"--dir1",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), "onlineboutique_workloads"),
 				"--dir2",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
+				filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), "onlineboutique_workloads_changed_workloads"),
 				"-o",
 				"png"},
 			expectedErrorContains: "png output format is not supported.",
@@ -173,7 +130,7 @@ func TestCommandsFailExecute(t *testing.T) {
 			args: []string{
 				"eval",
 				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique"),
+				filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), "onlineboutique"),
 				"-s",
 				"default/adservice-77d5cd745d-t8mx4",
 				"-d",
@@ -187,7 +144,7 @@ func TestCommandsFailExecute(t *testing.T) {
 			args: []string{
 				"list",
 				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique"),
+				filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), "onlineboutique"),
 				"-o",
 				"png"},
 			expectedErrorContains: "png output format is not supported.",
@@ -197,7 +154,7 @@ func TestCommandsFailExecute(t *testing.T) {
 			args: []string{
 				"list",
 				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), "onlineboutique_workloads"),
 				"-q",
 				"-v",
 			},
@@ -208,7 +165,7 @@ func TestCommandsFailExecute(t *testing.T) {
 			args: []string{
 				"eval",
 				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error"),
+				filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), "onlineboutique_with_pods_severe_error"),
 				"-s",
 				"adservice-77d5cd745d-t8mx4",
 				"-d",
@@ -263,17 +220,17 @@ func TestListCommandOutput(t *testing.T) {
 		{
 			dirName:       "onlineboutique_workloads",
 			focusWorkload: "emailservice",
-			format:        "dot",
+			format:        outpkg.DOTFormat,
 		},
 		{
 			dirName:       "onlineboutique_workloads",
 			focusWorkload: "emailservice",
-			format:        "csv",
+			format:        outpkg.CSVFormat,
 		},
 		{
 			dirName:       "onlineboutique_workloads",
 			focusWorkload: "emailservice",
-			format:        "md",
+			format:        outpkg.MDFormat,
 		},
 		{
 			// the test contains malformed yaml beside to legal yaml.
@@ -287,15 +244,14 @@ func TestListCommandOutput(t *testing.T) {
 	}
 	for _, tt := range cases {
 		tt := tt
-		focusWorkloadStr := strings.Replace(tt.focusWorkload, "/", "_", 1)
-		testName := getListCommandTestNameFromArgs(tt.dirName, focusWorkloadStr, tt.format)
+		testName, expectedOutputFileName := getListCmdTestNameAndExpectedOutputFile(tt.dirName, tt.focusWorkload, tt.format)
 		t.Run(testName, func(t *testing.T) {
-			args := []string{"list", "--dirpath", filepath.Join(getTestsDir(), tt.dirName)}
+			args := []string{"list", "--dirpath", filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), tt.dirName)}
 			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, tt.focusWorkload)...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
-			expectedOutputFileName := getListCmdExpectedOutputFile(focusWorkloadStr, tt.format)
-			compareActualVsExpectedOutput(t, tt.dirName, testName, expectedOutputFileName, actualOut, tt.outputFile)
+			testutils.CheckActualVsExpectedOutputMatch(t, tt.dirName, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile,
+				currentDirDepth)
 		})
 	}
 }
@@ -311,17 +267,17 @@ func TestDiffCommandOutput(t *testing.T) {
 		{
 			dir1:   "onlineboutique_workloads",
 			dir2:   "onlineboutique_workloads_changed_workloads",
-			format: "txt",
+			format: outpkg.TextFormat,
 		},
 		{
 			dir1:   "onlineboutique_workloads",
 			dir2:   "onlineboutique_workloads_changed_workloads",
-			format: "csv",
+			format: outpkg.CSVFormat,
 		},
 		{
 			dir1:   "onlineboutique_workloads",
 			dir2:   "onlineboutique_workloads_changed_workloads",
-			format: "md",
+			format: outpkg.MDFormat,
 		},
 		{
 			// when format is empty - output should be in defaultFormat (txt)
@@ -331,24 +287,22 @@ func TestDiffCommandOutput(t *testing.T) {
 		{
 			dir1:       "onlineboutique_workloads",
 			dir2:       "onlineboutique_workloads_changed_workloads",
-			format:     "txt",
+			format:     outpkg.TextFormat,
 			outputFile: outFileName,
 		},
 	}
 	for _, tt := range cases {
 		tt := tt
-		testName := ""
-		if tt.format != "" {
-			testName = tt.format + "_"
-		}
-		testName += "diff_between_" + tt.dir2 + "_and_" + tt.dir1
+		testName := testutils.DiffTestName(tt.dir1, tt.dir2) + "_format_" + determineFileSuffix(tt.format)
 		t.Run(testName, func(t *testing.T) {
-			args := []string{"diff", "--dir1", filepath.Join(getTestsDir(), tt.dir1), "--dir2", filepath.Join(getTestsDir(), tt.dir2)}
+			args := []string{"diff", "--dir1", filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), tt.dir1), "--dir2",
+				filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), tt.dir2)}
 			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, "")...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
 			expectedOutputFileName := getDiffCmdExpectedOutputFile(tt.dir1, tt.format)
-			compareActualVsExpectedOutput(t, tt.dir2, testName, expectedOutputFileName, actualOut, tt.outputFile)
+			testutils.CheckActualVsExpectedOutputMatch(t, tt.dir2, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile,
+				currentDirDepth)
 		})
 	}
 }
@@ -381,7 +335,8 @@ func TestEvalCommandOutput(t *testing.T) {
 		tt := tt
 		testName := "eval_" + tt.dir + "_from_" + tt.sourcePod + "_to_" + tt.destPod
 		t.Run(testName, func(t *testing.T) {
-			args := []string{"eval", "--dirpath", filepath.Join(getTestsDir(), tt.dir), "-s", tt.sourcePod, "-d", tt.destPod, "-p", tt.port}
+			args := []string{"eval", "--dirpath", filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), tt.dir), "-s", tt.sourcePod, "-d",
+				tt.destPod, "-p", tt.port}
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
 			require.Contains(t, actualOut, fmt.Sprintf("%v", tt.evalResult),
@@ -402,9 +357,9 @@ func TestCommandWithFailFlag(t *testing.T) {
 			args: []string{
 				"diff",
 				"--dir1",
-				filepath.Join(getTestsDir(), "onlineboutique"),
+				filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), "onlineboutique"),
 				"--dir2",
-				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error"),
+				filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), "onlineboutique_with_pods_severe_error"),
 				"--fail"},
 		},
 		{
@@ -413,7 +368,7 @@ func TestCommandWithFailFlag(t *testing.T) {
 			args: []string{
 				"list",
 				"--dirpath",
-				filepath.Join(getTestsDir(), "bad_yamls", "document_with_syntax_error"),
+				filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), "bad_yamls", "document_with_syntax_error"),
 				"--fail",
 			},
 		},
