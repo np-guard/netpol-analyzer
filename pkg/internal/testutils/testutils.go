@@ -64,8 +64,11 @@ func DiffTestName(ref1, ref2 string) string {
 // if not generates actual output file
 // if --update flag is on, writes the actual output to the expected output file
 func CheckActualVsExpectedOutputMatch(t *testing.T, dirName, expectedOutputFileName, actualOutput, testInfo, outFile string,
-	currDirDepth int) {
+	currDirDepth int, specialOutputFilePath bool) {
 	expectedOutputFile := filepath.Join(GetTestsDirWithDepth(currDirDepth), dirName, expectedOutputFileName)
+	if specialOutputFilePath { // expected output file is given as a path (not under test dir)
+		expectedOutputFile = expectedOutputFileName
+	}
 	// if the --update flag is on (then generate/ override the expected output file with the actualOutput)
 	if *update {
 		err := output.WriteToFile(actualOutput, expectedOutputFile)

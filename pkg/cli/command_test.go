@@ -189,10 +189,11 @@ func TestCommandsFailExecute(t *testing.T) {
 // TestListCommandOutput tests the output of legal list command
 func TestListCommandOutput(t *testing.T) {
 	cases := []struct {
-		dirName       string
-		focusWorkload string
-		format        string
-		outputFile    string
+		dirName                string
+		focusWorkload          string
+		format                 string
+		outputFile             string
+		specialExpectedOutFile string
 	}{
 		// when focusWorkload is empty, output should be the connlist of the dir
 		// when format is empty - output should be in defaultFormat (txt)
@@ -212,11 +213,12 @@ func TestListCommandOutput(t *testing.T) {
 			dirName:       "acs-security-demos",
 			focusWorkload: "ingress-controller",
 		},
-		// {
-		// 	dirName:       "onlineboutique_workloads",
-		// 	focusWorkload: "emailservice",
-		// 	format:        "json",
-		// },
+		{
+			dirName:                "onlineboutique_workloads",
+			focusWorkload:          "emailservice",
+			format:                 "json",
+			specialExpectedOutFile: filepath.Join("tests_outputs", "onlineboutique_workloads_emailservice.json"),
+		},
 		{
 			dirName:       "onlineboutique_workloads",
 			focusWorkload: "emailservice",
@@ -244,14 +246,19 @@ func TestListCommandOutput(t *testing.T) {
 	}
 	for _, tt := range cases {
 		tt := tt
+		specialOutFileFlag := false
 		testName, expectedOutputFileName := getListCmdTestNameAndExpectedOutputFile(tt.dirName, tt.focusWorkload, tt.format)
+		if tt.specialExpectedOutFile != "" {
+			expectedOutputFileName = tt.specialExpectedOutFile
+			specialOutFileFlag = true
+		}
 		t.Run(testName, func(t *testing.T) {
 			args := []string{"list", "--dirpath", filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), tt.dirName)}
 			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, tt.focusWorkload)...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
 			testutils.CheckActualVsExpectedOutputMatch(t, tt.dirName, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile,
-				currentDirDepth)
+				currentDirDepth, specialOutFileFlag)
 		})
 	}
 }
@@ -302,7 +309,7 @@ func TestDiffCommandOutput(t *testing.T) {
 			require.Nil(t, err, "test: %q", testName)
 			expectedOutputFileName := getDiffCmdExpectedOutputFile(tt.dir1, tt.format)
 			testutils.CheckActualVsExpectedOutputMatch(t, tt.dir2, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile,
-				currentDirDepth)
+				currentDirDepth, false)
 		})
 	}
 }

@@ -39,7 +39,7 @@ func TestDiff(t *testing.T) {
 					actualOutput, err := pTest.analyzer.ConnectivityDiffToString(diffRes)
 					require.Nil(t, err, pTest.testInfo)
 					testutils.CheckActualVsExpectedOutputMatch(t, tt.secondDirName,
-						pTest.expectedOutputFileName, actualOutput, pTest.testInfo, "", testutils.StandardPkgLevelDepth)
+						pTest.expectedOutputFileName, actualOutput, pTest.testInfo, "", testutils.StandardPkgLevelDepth, false)
 				}
 			}
 		})
@@ -309,7 +309,7 @@ func TestDiffOutputWithArgNamesOption(t *testing.T) {
 		require.Nil(t, err)
 		testName := "TsetOutputWithArgNamesOption." + format
 		testutils.CheckActualVsExpectedOutputMatch(t, ref2,
-			testName, res, testName, "", testutils.StandardPkgLevelDepth)
+			testName, res, testName, "", testutils.StandardPkgLevelDepth, false)
 	}
 }
 
