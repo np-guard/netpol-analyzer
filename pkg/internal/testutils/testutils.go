@@ -102,7 +102,6 @@ func compareFileContentsVsExpectedOutput(t *testing.T, testInfo, outFile, expect
 	require.Nil(t, err, testInfo)
 	require.Equal(t, cleanStr(expectedOutput), cleanStr(string(fileContent)),
 		"output mismatch for test %q, actual output file %q vs expected output file: %q", testInfo, outFile, expectedOutputFile)
-	os.Remove(outFile)
 }
 
 func cleanStr(str string) string {

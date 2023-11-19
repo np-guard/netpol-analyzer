@@ -86,6 +86,14 @@ func testInfo(testName string) string {
 	return fmt.Sprintf("test: %q", testName)
 }
 
+// removes the output file generated for commands which run with `-f` flag
+func removeOutFile(t *testing.T, outputFile, testInfo string) {
+	if outputFile != "" {
+		err := os.Remove(outputFile)
+		require.Nil(t, err, testInfo)
+	}
+}
+
 // TestCommandsFailExecute - tests executing failure for illegal commands or commands with invalid args or with wrong input values
 func TestCommandsFailExecute(t *testing.T) {
 	tests := []struct {
@@ -259,6 +267,7 @@ func TestListCommandOutput(t *testing.T) {
 			require.Nil(t, err, "test: %q", testName)
 			testutils.CheckActualVsExpectedOutputMatch(t, tt.dirName, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile,
 				currentDirDepth, specialOutFileFlag)
+			removeOutFile(t, tt.outputFile, testInfo(testName))
 		})
 	}
 }
@@ -310,6 +319,7 @@ func TestDiffCommandOutput(t *testing.T) {
 			expectedOutputFileName := getDiffCmdExpectedOutputFile(tt.dir1, tt.format)
 			testutils.CheckActualVsExpectedOutputMatch(t, tt.dir2, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile,
 				currentDirDepth, false)
+			removeOutFile(t, tt.outputFile, testInfo(testName))
 		})
 	}
 }
