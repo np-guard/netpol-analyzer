@@ -21,6 +21,7 @@ const (
 	testsDirName          = "tests"
 	standardPkgLevelDepth = 3 // e.g. pkg/netpol/connlist
 	internalPkgLevelDepth = 5 // e.g. pkg/netpol/connlist/internal/ingressanalyzer
+	ColonSep              = ": "
 )
 
 func GetTestsDir() string {

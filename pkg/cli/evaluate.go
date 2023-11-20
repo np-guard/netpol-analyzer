@@ -25,6 +25,7 @@ import (
 
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
@@ -78,12 +79,12 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 		// TODO: consider avoid logging this error because it is already printed to log by the builder
 		if len(rList) == 0 || stopOnFirstError {
 			err := utilerrors.NewAggregate(errs)
-			elogger.Errorf(err, "Error getting resourceInfos from dir path")
+			elogger.Errorf(err, netpolerrors.ErrGettingResInfoFromDir)
 			return err // return as fatal error if rList is empty or if stopOnError is on
 		}
 		// split err if it's an aggregated error to a list of separate errors
 		for _, err := range errs {
-			elogger.Errorf(err, "Error reading file") // print to log the error from builder
+			elogger.Errorf(err, netpolerrors.FailedReadingFileErrorStr) // print to log the error from builder
 		}
 	}
 	objectsList, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, elogger, false)

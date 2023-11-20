@@ -25,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -41,12 +42,8 @@ type NetworkPolicy netv1.NetworkPolicy
 // 	if so, also consider concurrent access (or declare not goroutine safe?)
 
 const (
-	portBase          = 10
-	portBits          = 32
-	namedPortErrTitle = "named port error"
-	rulePeerErrTitle  = "rule NetworkPolicyPeer error"
-	cidrErrTitle      = "CIDR error"
-	selectorErrTitle  = "selector error"
+	portBase = 10
+	portBits = 32
 )
 
 func getProtocolStr(p *v1.Protocol) string {
@@ -67,7 +64,7 @@ func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32,
 	var start, end int32
 	if port.Type == intstr.String {
 		if dst.PeerType() != PodType {
-			return start, end, np.netpolErr(namedPortErrTitle, "cannot convert named port for an IP destination")
+			return start, end, np.netpolErr(netpolerrors.NamedPortErrTitle, netpolerrors.ConvertNamedPortErrStr)
 		}
 		portNum := np.convertNamedPort(port.StrVal, dst.GetPeerPod())
 		start = portNum
@@ -155,11 +152,11 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 	}
 	for i := range rulePeers {
 		if rulePeers[i].PodSelector == nil && rulePeers[i].NamespaceSelector == nil && rulePeers[i].IPBlock == nil {
-			return false, np.netpolErr(rulePeerErrTitle, "cannot have empty rule peer")
+			return false, np.netpolErr(netpolerrors.RulePeerErrTitle, netpolerrors.EmptyRulePeerErrStr)
 		}
 		if rulePeers[i].PodSelector != nil || rulePeers[i].NamespaceSelector != nil {
 			if rulePeers[i].IPBlock != nil {
-				return false, np.netpolErr(rulePeerErrTitle, "cannot have both IPBlock and PodSelector/NamespaceSelector set")
+				return false, np.netpolErr(netpolerrors.RulePeerErrTitle, netpolerrors.CombinedRulePeerErrStr)
 			}
 			if peer.PeerType() == IPBlockType {
 				continue // assuming that peer of type IP cannot be selected by pod selector
@@ -320,7 +317,7 @@ func (np *NetworkPolicy) netpolErr(title, description string) error {
 func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*common.IPBlock, error) {
 	ipb, err := common.NewIPBlock(cidr, except)
 	if err != nil {
-		return nil, np.netpolErr(cidrErrTitle, err.Error())
+		return nil, np.netpolErr(netpolerrors.CidrErrTitle, err.Error())
 	}
 	return ipb, nil
 }
@@ -328,7 +325,7 @@ func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*common.
 func (np *NetworkPolicy) parseNetpolLabelSelector(selector *metav1.LabelSelector) (labels.Selector, error) {
 	selectorRes, err := metav1.LabelSelectorAsSelector(selector)
 	if err != nil {
-		return nil, np.netpolErr(selectorErrTitle, err.Error())
+		return nil, np.netpolErr(netpolerrors.SelectorErrTitle, err.Error())
 	}
 	return selectorRes, nil
 }

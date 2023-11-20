@@ -11,6 +11,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 )
 
 var (
@@ -163,7 +165,7 @@ func TestCommands(t *testing.T) {
 				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
 				"-o",
 				"png"},
-			expectedOutput: "png output format is not supported.",
+			expectedOutput: netpolerrors.FormatNotSupportedErrStr("png"),
 			containment:    true,
 			isErr:          true,
 		},
