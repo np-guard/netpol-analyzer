@@ -25,6 +25,7 @@ test:
 	@echo -- $@ --
 	go test ./... -v -cover -coverprofile netpolicy.coverprofile
 
-test-update: # overrides/ generates tests' expected output files for relevant tests
+test-update: # overrides/ generates tests' expected output files for relevant tests 
+# if the format is dot - generates also png files
 	@echo -- $@ --
 	go test ./pkg/netpol/connlist/ ./pkg/netpol/diff/ ./pkg/cli --args --update
