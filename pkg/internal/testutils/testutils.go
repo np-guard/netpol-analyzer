@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 )
 
 // a flag for writing/overriding the golden result files for tests
@@ -56,7 +57,7 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, testName, dirName, expectedO
 		require.Nil(t, err, testInfo)
 		// if format is dot - generate/ override also png graph file using graphviz program
 		if strings.HasSuffix(expectedOutputFile, dotSign+output.DOTFormat) {
-			err = generateGraphFileIfPossible(expectedOutputFile)
+			err = generateGraphFilesIfPossible(expectedOutputFile)
 			require.Nil(t, err, testInfo)
 		}
 		return
@@ -90,20 +91,23 @@ func CheckErrorContainment(t *testing.T, testInfo, expectedErrorMsg, actualErrMs
 const (
 	// the executable we need from graphviz is "dot"
 	executableNameForGraphviz = output.DOTFormat
-	// graph suffix
-	graphSuffix = "png"
-	dotSign     = "."
+	dotSign                   = "."
 )
 
+var graphsSuffixes = []string{"png", "svg"}
+
 // checks if "graphviz" executable exists, if yes runs a cmd to generates a png graph file from the dot output
-func generateGraphFileIfPossible(dotFilePath string) error {
+func generateGraphFilesIfPossible(dotFilePath string) error {
 	// check if graphviz is installed to continue
 	if _, err := exec.LookPath(executableNameForGraphviz); err == nil {
-		pngFilePath := dotFilePath + dotSign + graphSuffix
-		cmd := exec.Command("dot", dotFilePath, "-T"+graphSuffix, "-o", pngFilePath)
-		if err := cmd.Run(); err != nil {
-			return err
+		for _, graphSuffix := range graphsSuffixes {
+			graphFilePath := dotFilePath + dotSign + graphSuffix
+			cmd := exec.Command("dot", dotFilePath, "-T"+graphSuffix, "-o", graphFilePath) //nolint:gosec // nosec
+			if err := cmd.Run(); err != nil {
+				return err
+			}
 		}
 	}
+	logger.NewDefaultLogger().Warnf("dot executable of graphviz was not found. Output Graphs will not be generated")
 	return nil
 }
