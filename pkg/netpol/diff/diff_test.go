@@ -13,12 +13,11 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 )
 
-const expectedOutputFilePrefix = "diff_output_from_"
-
 var allFormats = []string{output.TextFormat, output.MDFormat, output.CSVFormat, output.DOTFormat}
 
 const ResourceInfosFunc = "ConnDiffFromResourceInfos"
 const DirPathFunc = "ConnDiffFromDirPaths"
+const currentPkg = "diff"
 
 var diffTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
 
@@ -38,8 +37,8 @@ func TestDiff(t *testing.T) {
 					require.Nil(t, err, pTest.testInfo)
 					actualOutput, err := pTest.analyzer.ConnectivityDiffToString(diffRes)
 					require.Nil(t, err, pTest.testInfo)
-					testutils.CheckActualVsExpectedOutputMatch(t, tt.secondDirName,
-						pTest.expectedOutputFileName, actualOutput, pTest.testInfo, "", testutils.StandardPkgLevelDepth, false)
+					testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, actualOutput,
+						pTest.testInfo, "", currentPkg, testutils.StandardPkgLevelDepth)
 				}
 			}
 		})
@@ -307,9 +306,9 @@ func TestDiffOutputWithArgNamesOption(t *testing.T) {
 		require.NotEmpty(t, diffRes)
 		res, err := analyzer.ConnectivityDiffToString(diffRes)
 		require.Nil(t, err)
-		testName := "TsetOutputWithArgNamesOption." + format
-		testutils.CheckActualVsExpectedOutputMatch(t, ref2,
-			testName, res, testName, "", testutils.StandardPkgLevelDepth, false)
+		testName := "TsetOutputWithArgNamesOption_" + testutils.DiffTestName(ref1, ref2) + testutils.DotSign + format
+		testutils.CheckActualVsExpectedOutputMatch(t, testName, res, testName, "", currentPkg,
+			testutils.StandardPkgLevelDepth)
 	}
 }
 
@@ -332,7 +331,7 @@ func prepareTest(firstDir, secondDir, format, apiName, testNameStr string) *prep
 
 	return &preparedTest{
 		testName:               testName,
-		expectedOutputFileName: expectedOutputFilePrefix + firstDir + "." + format,
+		expectedOutputFileName: testName + testutils.DotSign + format,
 		testInfo:               fmt.Sprintf("test: %q, output format: %q, api func: %q", testName, format, apiName),
 		analyzer:               NewDiffAnalyzer(WithOutputFormat(format)),
 		firstDirPath:           filepath.Join(testutils.GetTestsDir(), firstDir),

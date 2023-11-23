@@ -18,13 +18,16 @@ import (
 var update = flag.Bool("update", false, "write or override golden files")
 
 const (
-	dirLevelUp                           = ".."
-	testsDirName                         = "tests"
-	connlistExpectedOutputFileNamePrefix = "connlist_output."
-	StandardPkgLevelDepth                = 3 // e.g. pkg/netpol/connlist
-	internalPkgLevelDepth                = 5 // e.g. pkg/netpol/connlist/internal/ingressanalyzer
-	underscore                           = "_"
-	formatStr                            = "_format_"
+	dirLevelUp                            = ".."
+	testsDirName                          = "tests"
+	connlistExpectedOutputFilePartialName = "connlist_output."
+	StandardPkgLevelDepth                 = 3 // e.g. pkg/netpol/connlist
+	internalPkgLevelDepth                 = 5 // e.g. pkg/netpol/connlist/internal/ingressanalyzer
+	underscore                            = "_"
+	DotSign                               = "."
+	FormatStr                             = "_format_"
+	outputFilesDir                        = "output_files"
+	focusWlAnnotation                     = "_focus_workload_"
 )
 
 func GetTestsDir() string {
@@ -47,12 +50,13 @@ func GetTestsDirWithDepth(depth int) string {
 func ConnlistTestNameByTestType(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
 	switch {
 	case focusWorkload == "":
-		return dirName + formatStr + format, connlistExpectedOutputFileNamePrefix + format
+		return dirName + FormatStr + format, dirName + underscore + connlistExpectedOutputFilePartialName + format
 
 	case focusWorkload != "":
 		focusWorkloadStr := strings.Replace(focusWorkload, "/", underscore, 1)
-		return dirName + "_focus_workload_" + focusWorkloadStr + formatStr + format,
-			focusWorkloadStr + underscore + connlistExpectedOutputFileNamePrefix + format
+		namePrefix := dirName + focusWlAnnotation + focusWorkloadStr
+		return namePrefix + FormatStr + format,
+			namePrefix + underscore + connlistExpectedOutputFilePartialName + format
 	}
 	return "", ""
 }
@@ -65,18 +69,15 @@ func DiffTestName(ref1, ref2 string) string {
 // CheckActualVsExpectedOutputMatch: testing helping func - checks if actual output matches expected output,
 // if not generates actual output file
 // if --update flag is on, writes the actual output to the expected output file
-func CheckActualVsExpectedOutputMatch(t *testing.T, dirName, expectedOutputFileName, actualOutput, testInfo, outFile string,
-	currDirDepth int, specialOutputFilePath bool) {
-	expectedOutputFile := filepath.Join(GetTestsDirWithDepth(currDirDepth), dirName, expectedOutputFileName)
-	if specialOutputFilePath { // expected output file is given as a path (not under test dir)
-		expectedOutputFile = expectedOutputFileName
-	}
+func CheckActualVsExpectedOutputMatch(t *testing.T, expectedOutputFileName, actualOutput, testInfo, outFile, testingPkg string,
+	currDirDepth int) {
+	expectedOutputFile := filepath.Join(GetTestsDirWithDepth(currDirDepth), outputFilesDir, testingPkg, expectedOutputFileName)
 	// if the --update flag is on (then generate/ override the expected output file with the actualOutput)
 	if *update {
 		err := output.WriteToFile(actualOutput, expectedOutputFile)
 		require.Nil(t, err, testInfo)
 		// if format is dot - generate/ override also png graph file using graphviz program
-		if strings.HasSuffix(expectedOutputFile, dotSign+output.DOTFormat) {
+		if strings.HasSuffix(expectedOutputFile, DotSign+output.DOTFormat) {
 			err = generateGraphFilesIfPossible(expectedOutputFile)
 			require.Nil(t, err, testInfo)
 		}
@@ -86,7 +87,7 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, dirName, expectedOutputFileN
 	expectedOutput, err := os.ReadFile(expectedOutputFile)
 	require.Nil(t, err, testInfo)
 	actualOutputFileName := "actual_" + expectedOutputFileName
-	actualOutputFile := filepath.Join(GetTestsDirWithDepth(currDirDepth), dirName, actualOutputFileName)
+	actualOutputFile := filepath.Join(GetTestsDirWithDepth(currDirDepth), outputFilesDir, testingPkg, actualOutputFileName)
 	if cleanStr(string(expectedOutput)) != cleanStr(actualOutput) {
 		err := output.WriteToFile(actualOutput, actualOutputFile)
 		require.Nil(t, err, testInfo)
@@ -125,7 +126,6 @@ func CheckErrorContainment(t *testing.T, testInfo, expectedErrorMsg, actualErrMs
 const (
 	// the executable we need from graphviz is "dot"
 	executableNameForGraphviz = output.DOTFormat
-	dotSign                   = "."
 )
 
 var graphsSuffixes = []string{"png", "svg"}
@@ -138,7 +138,7 @@ func generateGraphFilesIfPossible(dotFilePath string) error {
 		return nil
 	}
 	for _, graphSuffix := range graphsSuffixes {
-		graphFilePath := dotFilePath + dotSign + graphSuffix
+		graphFilePath := dotFilePath + DotSign + graphSuffix
 		cmd := exec.Command("dot", dotFilePath, "-T"+graphSuffix, "-o", graphFilePath) //nolint:gosec // nosec
 		if err := cmd.Run(); err != nil {
 			return err

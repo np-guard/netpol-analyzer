@@ -14,6 +14,7 @@ import (
 
 const ResourceInfosFunc = "ConnlistFromResourceInfos"
 const DirPathFunc = "ConnlistFromDirPath"
+const currentPkg = "connlist"
 
 var allFormats = []string{output.TextFormat, output.JSONFormat, output.CSVFormat, output.MDFormat, output.DOTFormat}
 var connlistTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
@@ -58,7 +59,7 @@ interfaces to  test:
 	json: cannot unmarshal array into Go value of type unstructured.detector"
 	(4) bad JSON/YAML - missing kind : "Error: unable to decode "tests\\malformed-pod-example-4\\pods.json":
 	 Object 'Kind' is missing in '{ ... }"
-	(5) YAML doc with syntax error: "error parsing tests/bad_yamls/document_with_syntax_error.yaml: error
+	(5) YAML doc with syntax error: "error parsing tests/document_with_syntax_error.yaml: error
 	converting YAML to JSON: yaml: line 19: found character that cannot start any token"
 
 */
@@ -78,8 +79,8 @@ func TestConnListFromDir(t *testing.T) {
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
-				testutils.CheckActualVsExpectedOutputMatch(t, tt.testDirName,
-					pTest.expectedOutputFileName, out, pTest.testInfo, "", testutils.StandardPkgLevelDepth, false)
+				testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, out,
+					pTest.testInfo, "", currentPkg, testutils.StandardPkgLevelDepth)
 			}
 		})
 	}
@@ -101,8 +102,8 @@ func TestConnListFromResourceInfos(t *testing.T) {
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
-				testutils.CheckActualVsExpectedOutputMatch(t, tt.testDirName,
-					pTest.expectedOutputFileName, out, pTest.testInfo, "", testutils.StandardPkgLevelDepth, false)
+				testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, out,
+					pTest.testInfo, "", currentPkg, testutils.StandardPkgLevelDepth)
 			}
 		})
 	}
@@ -267,7 +268,7 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 		/*{
 			// this error issued by builder
 			name:                           "input_file_has_malformed_yaml_doc_should_return_severe_error",
-			dirName:                        filepath.Join("bad_yamls", "document_with_syntax_error"),
+			dirName:                        "document_with_syntax_error",
 			expectedErrNumWithoutStopOnErr: 2,
 			expectedErrNumWithStopOnErr:    1,
 			firstErrStrContains:            "found character that cannot start any token", //"YAML document is malformed",

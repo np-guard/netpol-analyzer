@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -22,6 +23,7 @@ var (
 
 const outFileName = "test_out.txt"
 const currentDirDepth = 2
+const currentPkg = "cli"
 
 // redirect command's execute stdout to a pipe
 func preTestRun() {
@@ -76,10 +78,6 @@ func determineFileSuffix(format string) string {
 func getListCmdTestNameAndExpectedOutputFile(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
 	fileSuffix := determineFileSuffix(format)
 	return testutils.ConnlistTestNameByTestType(dirName, focusWorkload, fileSuffix)
-}
-
-func getDiffCmdExpectedOutputFile(dir1, format string) string {
-	return "cli_diff_output_from_" + dir1 + "." + determineFileSuffix(format)
 }
 
 func testInfo(testName string) string {
@@ -197,11 +195,10 @@ func TestCommandsFailExecute(t *testing.T) {
 // TestListCommandOutput tests the output of legal list command
 func TestListCommandOutput(t *testing.T) {
 	cases := []struct {
-		dirName                string
-		focusWorkload          string
-		format                 string
-		outputFile             string
-		specialExpectedOutFile string
+		dirName       string
+		focusWorkload string
+		format        string
+		outputFile    string
 	}{
 		// when focusWorkload is empty, output should be the connlist of the dir
 		// when format is empty - output should be in defaultFormat (txt)
@@ -222,10 +219,9 @@ func TestListCommandOutput(t *testing.T) {
 			focusWorkload: "ingress-controller",
 		},
 		{
-			dirName:                "onlineboutique_workloads",
-			focusWorkload:          "emailservice",
-			format:                 "json",
-			specialExpectedOutFile: filepath.Join("tests_outputs", "onlineboutique_workloads_emailservice.json"),
+			dirName:       "onlineboutique_workloads",
+			focusWorkload: "emailservice",
+			format:        "json",
 		},
 		{
 			dirName:       "onlineboutique_workloads",
@@ -245,7 +241,7 @@ func TestListCommandOutput(t *testing.T) {
 		{
 			// the test contains malformed yaml beside to legal yaml.
 			// analysis is able to parse some deployments, thus can produce connectivity output
-			dirName: filepath.Join("bad_yamls", "document_with_syntax_error"),
+			dirName: "document_with_syntax_error",
 		},
 		{
 			dirName:    "onlineboutique",
@@ -254,19 +250,14 @@ func TestListCommandOutput(t *testing.T) {
 	}
 	for _, tt := range cases {
 		tt := tt
-		specialOutFileFlag := false
 		testName, expectedOutputFileName := getListCmdTestNameAndExpectedOutputFile(tt.dirName, tt.focusWorkload, tt.format)
-		if tt.specialExpectedOutFile != "" {
-			expectedOutputFileName = tt.specialExpectedOutFile
-			specialOutFileFlag = true
-		}
 		t.Run(testName, func(t *testing.T) {
 			args := []string{"list", "--dirpath", filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), tt.dirName)}
 			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, tt.focusWorkload)...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
-			testutils.CheckActualVsExpectedOutputMatch(t, tt.dirName, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile,
-				currentDirDepth, specialOutFileFlag)
+			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile, currentPkg,
+				currentDirDepth)
 			removeOutFile(t, tt.outputFile, testInfo(testName))
 		})
 	}
@@ -316,9 +307,9 @@ func TestDiffCommandOutput(t *testing.T) {
 			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, "")...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
-			expectedOutputFileName := getDiffCmdExpectedOutputFile(tt.dir1, tt.format)
-			testutils.CheckActualVsExpectedOutputMatch(t, tt.dir2, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile,
-				currentDirDepth, false)
+			expectedOutputFileName := strings.Replace(testName, testutils.FormatStr, testutils.DotSign, 1)
+			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile, currentPkg,
+				currentDirDepth)
 			removeOutFile(t, tt.outputFile, testInfo(testName))
 		})
 	}
@@ -385,7 +376,7 @@ func TestCommandWithFailFlag(t *testing.T) {
 			args: []string{
 				"list",
 				"--dirpath",
-				filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), "bad_yamls", "document_with_syntax_error"),
+				filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), "document_with_syntax_error"),
 				"--fail",
 			},
 		},
