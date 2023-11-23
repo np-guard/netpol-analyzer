@@ -1,4 +1,0 @@
-{ingress-controller} => frontend/asset-cache[Deployment] : TCP 8080
-{ingress-controller} => frontend/blog[Deployment] : TCP 8080
-{ingress-controller} => frontend/webapp[Deployment] : TCP 8080
-{ingress-controller} => zeroday/zeroday[Deployment] : TCP 8080

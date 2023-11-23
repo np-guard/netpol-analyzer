@@ -1,8 +1,0 @@
-0.0.0.0-255.255.255.255 => demo/cog-agents-account-command[DaemonSet] : All Connections
-0.0.0.0-255.255.255.255 => demo/cog-agents-account-query[DaemonSet] : All Connections
-demo/cog-agents-account-command[DaemonSet] => 0.0.0.0-255.255.255.255 : All Connections
-demo/cog-agents-account-command[DaemonSet] => demo/cog-agents-account-query[DaemonSet] : All Connections
-demo/cog-agents-account-query[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet] : TCP 8080
-demo/cog-agents-bank-ui[DaemonSet] => 0.0.0.0-255.255.255.255 : All Connections
-demo/cog-agents-bank-ui[DaemonSet] => demo/cog-agents-account-command[DaemonSet] : All Connections
-demo/cog-agents-bank-ui[DaemonSet] => demo/cog-agents-account-query[DaemonSet] : All Connections

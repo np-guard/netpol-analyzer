@@ -1,3 +1,0 @@
-diff-type,source,destination,ref1,ref2,workloads-diff-info
-added,default/redis-cart[Deployment],default/frontend[Deployment],No Connections,TCP 8080,
-added,{ingress-controller},default/frontend[Deployment],No Connections,TCP 8080,

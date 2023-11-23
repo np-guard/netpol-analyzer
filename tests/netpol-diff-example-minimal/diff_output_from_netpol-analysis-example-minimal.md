@@ -1,4 +1,0 @@
-| diff-type | source | destination | ref1 | ref2 | workloads-diff-info |
-|-----------|--------|-------------|------|------|---------------------|
-| changed | default/frontend[Deployment] | default/backend[Deployment] | TCP 9090 | TCP 9090,UDP 53 |  |
-| added | 0.0.0.0-255.255.255.255 | default/backend[Deployment] | No Connections | TCP 9090 |  |

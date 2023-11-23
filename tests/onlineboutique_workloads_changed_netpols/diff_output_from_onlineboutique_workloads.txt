@@ -1,9 +1,0 @@
-Connectivity diff:
-diff-type: changed, source: default/checkoutservice[Deployment], destination: default/cartservice[Deployment], ref1: TCP 7070, ref2: TCP 8000
-diff-type: changed, source: default/checkoutservice[Deployment], destination: default/emailservice[Deployment], ref1: TCP 8080, ref2: TCP 8080,9555
-diff-type: added, source: default/cartservice[Deployment], destination: default/emailservice[Deployment], ref1: No Connections, ref2: TCP 9555
-diff-type: added, source: default/checkoutservice[Deployment], destination: default/adservice[Deployment], ref1: No Connections, ref2: TCP 9555
-diff-type: removed, source: 128.0.0.0-255.255.255.255, destination: default/redis-cart[Deployment], ref1: All Connections, ref2: No Connections
-diff-type: removed, source: default/checkoutservice[Deployment], destination: default/currencyservice[Deployment], ref1: TCP 7000, ref2: No Connections
-diff-type: removed, source: default/frontend[Deployment], destination: default/adservice[Deployment], ref1: TCP 9555, ref2: No Connections
-diff-type: removed, source: default/redis-cart[Deployment], destination: 0.0.0.0-255.255.255.255, ref1: All Connections, ref2: No Connections
