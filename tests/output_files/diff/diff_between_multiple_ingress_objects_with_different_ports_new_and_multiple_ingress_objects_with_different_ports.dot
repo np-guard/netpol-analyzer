@@ -1,0 +1,34 @@
+digraph {
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
+	"ingressworld/ingress-world-multiple-ports[Deployment]" [label="ingressworld/ingress-world-multiple-ports[Deployment]" color="blue" fontcolor="blue"]
+	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
+	"0.0.0.0-255.255.255.255" -> "ingressworld/ingress-world-multiple-ports[Deployment]" [label="All Connections" color="grey" fontcolor="grey"]
+	"ingressworld/ingress-world-multiple-ports[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="grey" fontcolor="grey"]
+	"{ingress-controller}" -> "ingressworld/ingress-world-multiple-ports[Deployment]" [label="TCP 8000,8090 (ref1: TCP 8050,8090)" color="magenta" fontcolor="magenta"]
+	nodesep=0.5
+	subgraph cluster_legend {
+		label="Legend"
+		fontsize = 10
+		margin=0
+		a [style=invis height=0 width=0]
+		b [style=invis height=0 width=0]
+		c [style=invis height=0 width=0]
+		d [style=invis height=0 width=0]
+		e [style=invis height=0 width=0]
+		f [style=invis height=0 width=0]
+		g [style=invis height=0 width=0]
+		h [style=invis height=0 width=0]
+		{rank=source a b c d}
+		{rank=same e f g h}
+		a -> b [label="added connection", color="#008000" fontcolor="#008000" fontsize = 10 arrowsize=0.2]
+		c -> d [label="removed connection", color="red2" fontcolor="red2" fontsize = 10 arrowsize=0.2]
+		e -> f [label="changed connection", color="magenta" fontcolor="magenta" fontsize = 10 arrowsize=0.2]
+		g -> h [label="unchanged connection", color="grey" fontcolor="grey" fontsize = 10 arrowsize=0.2]
+		np [label="new peer" color="#008000" fontcolor="#008000" fontsize = 10]
+		lp [label="lost peer" color="red" fontcolor="red" fontsize = 10]
+		pp [label="persistent peer" color="blue" fontcolor="blue" fontsize = 10]
+		{rank=sink np lp pp}
+		np->lp [style=invis]
+		lp->pp [style=invis]
+	}
+}
