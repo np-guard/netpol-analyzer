@@ -1,8 +1,17 @@
 digraph {
-	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
-	"ingressworld/ingress-world-multiple-ports[Deployment]" [label="ingressworld/ingress-world-multiple-ports[Deployment]" color="blue" fontcolor="blue"]
-	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
-	"0.0.0.0-255.255.255.255" -> "ingressworld/ingress-world-multiple-ports[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-	"ingressworld/ingress-world-multiple-ports[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-	"{ingress-controller}" -> "ingressworld/ingress-world-multiple-ports[Deployment]" [label="TCP 8050,8090" color="gold2" fontcolor="darkgreen"]
+	subgraph cluster_ {
+		"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+		label=""
+	}
+	subgraph cluster_ingress_controller_ns {
+		"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
+		label="ingress-controller-ns"
+	}
+	subgraph cluster_ingressworld {
+		"ingress-world-multiple-ports" [label="ingress-world-multiple-ports" color="blue" fontcolor="blue"]
+		label="ingressworld"
+	}
+	"0.0.0.0-255.255.255.255" -> "ingress-world-multiple-ports" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"ingress-world-multiple-ports" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"{ingress-controller}" -> "ingress-world-multiple-ports" [label="TCP 8050,8090" color="gold2" fontcolor="darkgreen"]
 }
