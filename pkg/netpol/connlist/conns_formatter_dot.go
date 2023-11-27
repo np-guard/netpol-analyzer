@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	ipColor     = "red2"
-	nsPeerColor = "blue"
+	ipColor        = "red2"
+	nonIPPeerColor = "blue"
 )
 
 // formatDOT: implements the connsFormatter interface for dot output format
@@ -20,29 +20,35 @@ type formatDOT struct {
 // formats an edge line from a singleConnFields struct , to be used for dot graph
 func getEdgeLine(c Peer2PeerConnection) string {
 	connStr := common.ConnStrFromConnProperties(c.AllProtocolsAndPorts(), c.ProtocolsAndPorts())
-	srcName, _ := peerNameAndColorByType(c.Src())
-	dstName, _ := peerNameAndColorByType(c.Dst())
+	srcName, _, _ := peerNameAndColorByType(c.Src())
+	dstName, _, _ := peerNameAndColorByType(c.Dst())
 	return fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\"]", srcName, dstName, connStr)
 }
 
-func peerNameAndColorByType(peer Peer) (name, color string) {
+// returns the peer name and color to be represented in the graph, and whether the peer is external to cluster's namespaces
+func peerNameAndColorByType(peer Peer) (name, color string, isExternal bool) {
 	if peer.IsPeerIPType() {
-		return peer.String(), ipColor
+		return peer.String(), ipColor, true
 	} else if peer.Name() == common.IngressPodName {
-		return peer.String(), nsPeerColor
+		return peer.String(), nonIPPeerColor, true
 	}
-	return peer.Name(), nsPeerColor
+	return peer.Name() + "[" + peer.Kind() + "]", nonIPPeerColor, false
 }
 
 // formats a peer line for dot graph
-func getPeerLine(peer Peer) string {
-	peerName, peerColor := peerNameAndColorByType(peer)
-	return fmt.Sprintf("\t\t%q [label=%q color=%q fontcolor=%q]", peerName, peerName, peerColor, peerColor)
+func getPeerLine(peer Peer) (string, bool) {
+	peerName, peerColor, isExternalPeer := peerNameAndColorByType(peer)
+	linePrefix := "\t\t"
+	if isExternalPeer {
+		linePrefix = "\t"
+	}
+	return fmt.Sprintf("%s%q [label=%q color=%q fontcolor=%q]", linePrefix, peerName, peerName, peerColor, peerColor), isExternalPeer
 }
 
 // returns a dot string form of connections from list of Peer2PeerConnection objects
 func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	nsPeers := make(map[string][]string)         // map from namespace to its peers (grouping peers by namespaces)
+	externalPeersLines := make([]string, 0)      // list of peers which are not in a cluster's namespace (will not be grouped)
 	edgeLines := make([]string, len(conns))      // list of edges lines
 	peersVisited := make(map[string]struct{}, 0) // acts as a set
 	for index := range conns {
@@ -50,28 +56,44 @@ func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
 		edgeLines[index] = getEdgeLine(conns[index])
 		if _, ok := peersVisited[srcStr]; !ok {
 			peersVisited[srcStr] = struct{}{}
-			checkAndAddPeerToNsGroup(nsPeers, conns[index].Src())
+			externalSrcLine := checkAndAddPeerToNsGroup(nsPeers, conns[index].Src())
+			if externalSrcLine != "" {
+				externalPeersLines = append(externalPeersLines, externalSrcLine)
+			}
 		}
 		if _, ok := peersVisited[dstStr]; !ok {
 			peersVisited[dstStr] = struct{}{}
-			checkAndAddPeerToNsGroup(nsPeers, conns[index].Dst())
+			externalDstLine := checkAndAddPeerToNsGroup(nsPeers, conns[index].Dst())
+			if externalDstLine != "" {
+				externalPeersLines = append(externalPeersLines, externalDstLine)
+			}
 		}
 	}
 	// sort graph lines
 	sort.Strings(edgeLines)
+	sort.Strings(externalPeersLines)
 	// collect all lines by order
 	allLines := []string{common.DotHeader}
 	allLines = append(allLines, addNsGroups(nsPeers)...)
+	allLines = append(allLines, externalPeersLines...)
 	allLines = append(allLines, edgeLines...)
 	allLines = append(allLines, common.DotClosing)
 	return strings.Join(allLines, newLineChar), nil
 }
 
-func checkAndAddPeerToNsGroup(mapNsToPeers map[string][]string, peer Peer) {
-	if _, ok := mapNsToPeers[peer.Namespace()]; !ok {
-		mapNsToPeers[peer.Namespace()] = []string{}
+// checks if the peer is in cluster's namespace, then adds its line to the namespace list in the given map.
+// else, returns its line to be added to the external peers lines
+func checkAndAddPeerToNsGroup(mapNsToPeers map[string][]string, peer Peer) string {
+	peerLine, isExternalPeer := getPeerLine(peer)
+	if !isExternalPeer { // belongs to a cluster's namespace
+		if _, ok := mapNsToPeers[peer.Namespace()]; !ok {
+			mapNsToPeers[peer.Namespace()] = []string{}
+		}
+		mapNsToPeers[peer.Namespace()] = append(mapNsToPeers[peer.Namespace()], peerLine)
+		return ""
 	}
-	mapNsToPeers[peer.Namespace()] = append(mapNsToPeers[peer.Namespace()], getPeerLine(peer))
+	// else case - an external (ip/ ingress-controller) peer
+	return peerLine
 }
 
 func addNsGroups(nsPeersMap map[string][]string) []string {
