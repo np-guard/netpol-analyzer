@@ -28,7 +28,7 @@ func TestDiff(t *testing.T) {
 	t.Parallel()
 	for _, tt := range goodPathTests {
 		tt := tt
-		testName := testutils.DiffTestName(tt.firstDirName, tt.secondDirName)
+		testName := testutils.DiffTestNameByRefs(tt.firstDirName, tt.secondDirName)
 		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.formats {
@@ -306,8 +306,11 @@ func TestDiffOutputWithArgNamesOption(t *testing.T) {
 		require.NotEmpty(t, diffRes)
 		res, err := analyzer.ConnectivityDiffToString(diffRes)
 		require.Nil(t, err)
-		testName := "TsetOutputWithArgNamesOption_" + testutils.DiffTestName(ref1, ref2) + testutils.DotSign + format
-		testutils.CheckActualVsExpectedOutputMatch(t, testName, res, testName, "", currentPkg,
+		testNamePrefix := "TsetOutputWithArgNamesOption_"
+		testName, outFileName := testutils.DiffTestNameByTestArgs(ref1, ref2, format)
+		testName = testNamePrefix + testName
+		outFileName = testNamePrefix + outFileName
+		testutils.CheckActualVsExpectedOutputMatch(t, outFileName, res, testName, "", currentPkg,
 			testutils.StandardPkgLevelDepth)
 	}
 }
@@ -322,16 +325,17 @@ type preparedTest struct {
 }
 
 func prepareTest(firstDir, secondDir, format, apiName, testNameStr string) *preparedTest {
-	var testName string
+	var testName, expectedOutputFileName string
 	if testNameStr != "" {
 		testName = testNameStr
+		expectedOutputFileName = ""
 	} else {
-		testName = testutils.DiffTestName(firstDir, secondDir)
+		testName, expectedOutputFileName = testutils.DiffTestNameByTestArgs(firstDir, secondDir, format)
 	}
 
 	return &preparedTest{
 		testName:               testName,
-		expectedOutputFileName: testName + testutils.DotSign + format,
+		expectedOutputFileName: expectedOutputFileName,
 		testInfo:               fmt.Sprintf("test: %q, output format: %q, api func: %q", testName, format, apiName),
 		analyzer:               NewDiffAnalyzer(WithOutputFormat(format)),
 		firstDirPath:           filepath.Join(testutils.GetTestsDir(), firstDir),

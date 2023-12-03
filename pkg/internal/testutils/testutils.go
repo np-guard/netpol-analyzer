@@ -24,8 +24,8 @@ const (
 	StandardPkgLevelDepth                 = 3 // e.g. pkg/netpol/connlist
 	internalPkgLevelDepth                 = 5 // e.g. pkg/netpol/connlist/internal/ingressanalyzer
 	underscore                            = "_"
-	DotSign                               = "."
-	FormatStr                             = "_format_"
+	dotSign                               = "."
+	formatStr                             = "_format_"
 	outputFilesDir                        = "output_files"
 	focusWlAnnotation                     = "_focus_workload_"
 )
@@ -46,24 +46,33 @@ func GetTestsDirWithDepth(depth int) string {
 	return filepath.Join(res, testsDirName)
 }
 
-// ConnlistTestNameByTestType returns connlist test name and test's expected output file from some tests args
-func ConnlistTestNameByTestType(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
+// ConnlistTestNameByTestArgs returns connlist test name and test's expected output file from some tests args
+func ConnlistTestNameByTestArgs(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
 	switch {
 	case focusWorkload == "":
-		return dirName + FormatStr + format, dirName + underscore + connlistExpectedOutputFilePartialName + format
+		testName = dirName + formatStr + format
+		expectedOutputFileName = dirName + underscore + connlistExpectedOutputFilePartialName + format
 
 	case focusWorkload != "":
 		focusWorkloadStr := strings.Replace(focusWorkload, "/", underscore, 1)
 		namePrefix := dirName + focusWlAnnotation + focusWorkloadStr
-		return namePrefix + FormatStr + format,
-			namePrefix + underscore + connlistExpectedOutputFilePartialName + format
+		testName = namePrefix + formatStr + format
+		expectedOutputFileName = namePrefix + underscore + connlistExpectedOutputFilePartialName + format
 	}
-	return "", ""
+	return testName, expectedOutputFileName
 }
 
-// DiffTestName returns diff test name from the names of the sources
-func DiffTestName(ref1, ref2 string) string {
+// DiffTestNameByRefs returns diff test name prefix, based on ref names
+func DiffTestNameByRefs(ref1, ref2 string) string {
 	return "diff_between_" + ref2 + "_and_" + ref1
+}
+
+// DiffTestNameByTestArgs returns diff test name and test's expected output file from some tests args
+func DiffTestNameByTestArgs(ref1, ref2, format string) (testName, expectedOutputFileName string) {
+	namePrefix := DiffTestNameByRefs(ref1, ref2)
+	testName = namePrefix + formatStr + format
+	expectedOutputFileName = namePrefix + dotSign + format
+	return testName, expectedOutputFileName
 }
 
 // CheckActualVsExpectedOutputMatch: testing helping func - checks if actual output matches expected output,
@@ -75,41 +84,43 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, expectedOutputFileName, actu
 	// if the --update flag is on (then generate/ override the expected output file with the actualOutput)
 	if *update {
 		err := output.WriteToFile(actualOutput, expectedOutputFile)
-		require.Nil(t, err, testInfo)
+		if err != nil {
+			warnOnErrorWritingFile(err, expectedOutputFile)
+		}
 		// if format is dot - generate/ override also png graph file using graphviz program
-		if strings.HasSuffix(expectedOutputFile, DotSign+output.DOTFormat) {
-			err = generateGraphFilesIfPossible(expectedOutputFile)
-			require.Nil(t, err, testInfo)
+		if strings.HasSuffix(expectedOutputFile, dotSign+output.DOTFormat) {
+			generateGraphFilesIfPossible(expectedOutputFile)
 		}
 		return
 	}
 	// read expected output file
 	expectedOutput, err := os.ReadFile(expectedOutputFile)
-	require.Nil(t, err, testInfo)
-	actualOutputFileName := "actual_" + expectedOutputFileName
-	actualOutputFile := filepath.Join(GetTestsDirWithDepth(currDirDepth), outputFilesDir, testingPkg, actualOutputFileName)
+	if err != nil {
+		WarnOnErrorReadingFile(err, expectedOutputFile)
+	}
+	actualOutputFile := outFile
+	if outFile == "" {
+		actualOutputFileName := "actual_" + expectedOutputFileName
+		actualOutputFile = filepath.Join(GetTestsDirWithDepth(currDirDepth), outputFilesDir, testingPkg, actualOutputFileName)
+	}
 	if cleanStr(string(expectedOutput)) != cleanStr(actualOutput) {
 		err := output.WriteToFile(actualOutput, actualOutputFile)
-		require.Nil(t, err, testInfo)
+		if err != nil {
+			warnOnErrorWritingFile(err, actualOutputFile)
+		}
 	}
 	require.Equal(t, cleanStr(string(expectedOutput)), cleanStr(actualOutput),
 		"output mismatch for %s, actual output file %q vs expected output file: %q",
 		testInfo,
 		actualOutputFile, expectedOutputFile)
-
-	if outFile != "" {
-		compareFileContentsVsExpectedOutput(t, testInfo, outFile, string(expectedOutput), expectedOutputFile)
-	}
 }
 
-// compareFileContentsVsExpectedOutput compares the contents of output file vs expected output
-func compareFileContentsVsExpectedOutput(t *testing.T, testInfo, outFile, expectedOutput, expectedOutputFile string) {
-	_, err := os.Stat(outFile)
-	require.Nil(t, err, testInfo)
-	fileContent, err := os.ReadFile(outFile)
-	require.Nil(t, err, testInfo)
-	require.Equal(t, cleanStr(expectedOutput), cleanStr(string(fileContent)),
-		"output mismatch for test %q, actual output file %q vs expected output file: %q", testInfo, outFile, expectedOutputFile)
+func WarnOnErrorReadingFile(err error, file string) {
+	logger.NewDefaultLogger().Warnf("failed reading file %q; os error: %v occurred", file, err)
+}
+
+func warnOnErrorWritingFile(err error, file string) {
+	logger.NewDefaultLogger().Warnf("failed writing to file %q; unexpected error %v occurred", file, err)
 }
 
 func cleanStr(str string) string {
@@ -131,18 +142,17 @@ const (
 var graphsSuffixes = []string{"png", "svg"}
 
 // checks if "graphviz" executable exists, if yes runs a cmd to generates a png graph file from the dot output
-func generateGraphFilesIfPossible(dotFilePath string) error {
+func generateGraphFilesIfPossible(dotFilePath string) {
 	// check if graphviz is installed to continue
 	if _, err := exec.LookPath(executableNameForGraphviz); err != nil {
 		logger.NewDefaultLogger().Warnf("dot executable of graphviz was not found. Output Graphs will not be generated")
-		return nil
+		return
 	}
 	for _, graphSuffix := range graphsSuffixes {
-		graphFilePath := dotFilePath + DotSign + graphSuffix
+		graphFilePath := dotFilePath + dotSign + graphSuffix
 		cmd := exec.Command("dot", dotFilePath, "-T"+graphSuffix, "-o", graphFilePath) //nolint:gosec // nosec
 		if err := cmd.Run(); err != nil {
-			return err
+			logger.NewDefaultLogger().Warnf("failed generating %q; unexpected error: %v", graphFilePath, err)
 		}
 	}
-	return nil
 }

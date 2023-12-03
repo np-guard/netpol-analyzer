@@ -474,7 +474,7 @@ type preparedTest struct {
 
 func prepareTest(dirName, focusWorkload, format string) preparedTest {
 	res := preparedTest{}
-	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestType(dirName, focusWorkload, format)
+	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, format)
 	res.testInfo = fmt.Sprintf("test: %q, output format: %q", res.testName, format)
 	res.analyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload))
 	res.dirPath = getDirPathFromDirName(dirName)

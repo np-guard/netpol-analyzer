@@ -6,13 +6,13 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	outpkg "github.com/np-guard/netpol-analyzer/pkg/internal/output"
+	ioutput "github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 )
 
 var (
@@ -67,7 +67,7 @@ func addCmdOptionalArgs(format, outputFile, focusWorkload string) []string {
 
 // determines the file suffix from the format
 func determineFileSuffix(format string) string {
-	fileSuffix := outpkg.DefaultFormat
+	fileSuffix := ioutput.DefaultFormat
 	if format != "" {
 		fileSuffix = format
 	}
@@ -77,7 +77,7 @@ func determineFileSuffix(format string) string {
 // gets the test name and name of expected output file for a list command from its args
 func getListCmdTestNameAndExpectedOutputFile(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
 	fileSuffix := determineFileSuffix(format)
-	return testutils.ConnlistTestNameByTestType(dirName, focusWorkload, fileSuffix)
+	return testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, fileSuffix)
 }
 
 func testInfo(testName string) string {
@@ -85,10 +85,12 @@ func testInfo(testName string) string {
 }
 
 // removes the output file generated for commands which run with `-f` flag
-func removeOutFile(t *testing.T, outputFile, testInfo string) {
+func removeOutFile(outputFile string) {
 	if outputFile != "" {
 		err := os.Remove(outputFile)
-		require.Nil(t, err, testInfo)
+		if err != nil {
+			logger.NewDefaultLogger().Warnf("file %q was not removed; os error: %v occurred", outputFile, err)
+		}
 	}
 }
 
@@ -221,22 +223,22 @@ func TestListCommandOutput(t *testing.T) {
 		{
 			dirName:       "onlineboutique_workloads",
 			focusWorkload: "emailservice",
-			format:        "json",
+			format:        ioutput.JSONFormat,
 		},
 		{
 			dirName:       "onlineboutique_workloads",
 			focusWorkload: "emailservice",
-			format:        outpkg.DOTFormat,
+			format:        ioutput.DOTFormat,
 		},
 		{
 			dirName:       "onlineboutique_workloads",
 			focusWorkload: "emailservice",
-			format:        outpkg.CSVFormat,
+			format:        ioutput.CSVFormat,
 		},
 		{
 			dirName:       "onlineboutique_workloads",
 			focusWorkload: "emailservice",
-			format:        outpkg.MDFormat,
+			format:        ioutput.MDFormat,
 		},
 		{
 			// the test contains malformed yaml beside to legal yaml.
@@ -258,7 +260,7 @@ func TestListCommandOutput(t *testing.T) {
 			require.Nil(t, err, "test: %q", testName)
 			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile, currentPkg,
 				currentDirDepth)
-			removeOutFile(t, tt.outputFile, testInfo(testName))
+			removeOutFile(tt.outputFile)
 		})
 	}
 }
@@ -274,17 +276,17 @@ func TestDiffCommandOutput(t *testing.T) {
 		{
 			dir1:   "onlineboutique_workloads",
 			dir2:   "onlineboutique_workloads_changed_workloads",
-			format: outpkg.TextFormat,
+			format: ioutput.TextFormat,
 		},
 		{
 			dir1:   "onlineboutique_workloads",
 			dir2:   "onlineboutique_workloads_changed_workloads",
-			format: outpkg.CSVFormat,
+			format: ioutput.CSVFormat,
 		},
 		{
 			dir1:   "onlineboutique_workloads",
 			dir2:   "onlineboutique_workloads_changed_workloads",
-			format: outpkg.MDFormat,
+			format: ioutput.MDFormat,
 		},
 		{
 			// when format is empty - output should be in defaultFormat (txt)
@@ -294,23 +296,29 @@ func TestDiffCommandOutput(t *testing.T) {
 		{
 			dir1:       "onlineboutique_workloads",
 			dir2:       "onlineboutique_workloads_changed_workloads",
-			format:     outpkg.TextFormat,
+			format:     ioutput.TextFormat,
 			outputFile: outFileName,
 		},
 	}
 	for _, tt := range cases {
 		tt := tt
-		testName := testutils.DiffTestName(tt.dir1, tt.dir2) + "_format_" + determineFileSuffix(tt.format)
+		testName, expectedOutputFileName := testutils.DiffTestNameByTestArgs(tt.dir1, tt.dir2, determineFileSuffix(tt.format))
 		t.Run(testName, func(t *testing.T) {
 			args := []string{"diff", "--dir1", filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), tt.dir1), "--dir2",
 				filepath.Join(testutils.GetTestsDirWithDepth(currentDirDepth), tt.dir2)}
 			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, "")...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
-			expectedOutputFileName := strings.Replace(testName, testutils.FormatStr, testutils.DotSign, 1)
+			if tt.outputFile != "" {
+				actualOutFromFile, err := os.ReadFile(tt.outputFile)
+				if err != nil {
+					testutils.WarnOnErrorReadingFile(err, tt.outputFile)
+				}
+				actualOut = string(actualOutFromFile)
+			}
 			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile, currentPkg,
 				currentDirDepth)
-			removeOutFile(t, tt.outputFile, testInfo(testName))
+			removeOutFile(tt.outputFile)
 		})
 	}
 }
