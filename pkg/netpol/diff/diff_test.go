@@ -613,6 +613,13 @@ var goodPathTests = []struct {
 		secondDirName: "test_with_named_ports_changed_netpol_3",
 		formats:       []string{output.DefaultFormat},
 	},
+	{
+		// description:
+		// **changed netpol: default/ingress-to-apple
+		firstDirName:  "example_policy_blocking_ingress",
+		secondDirName: "example_with_specific_ingress",
+		formats:       []string{output.DefaultFormat},
+	},
 }
 
 var commonBadPathTestsFatalErr = []struct {

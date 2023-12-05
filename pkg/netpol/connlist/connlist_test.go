@@ -733,6 +733,14 @@ var goodPathTests = []struct {
 		outputFormats: []string{output.TextFormat},
 	},
 	{
+		testDirName:   "example_with_specific_ingress",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		testDirName:   "example_policy_blocking_ingress",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
 		testDirName:   "test_with_named_ports_changed_netpol_2",
 		outputFormats: []string{output.TextFormat},
 	},

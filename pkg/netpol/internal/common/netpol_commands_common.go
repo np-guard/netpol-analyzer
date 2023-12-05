@@ -17,6 +17,9 @@ const (
 	IngressPodNamespace = "ingress-controller-ns"
 )
 
+// SpecificIngressControllersNs is a list of specific ingress controllers' namespaces
+var SpecificIngressControllersNs = []string{"ingress-nginx", "openshift-ingress-operator"}
+
 // diff format common const
 const (
 	DotHeader  = "digraph {"
