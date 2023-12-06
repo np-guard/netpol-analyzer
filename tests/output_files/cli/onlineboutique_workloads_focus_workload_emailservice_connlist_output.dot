@@ -1,5 +1,8 @@
 digraph {
-	"default/checkoutservice[Deployment]" [label="default/checkoutservice[Deployment]" color="blue" fontcolor="blue"]
-	"default/emailservice[Deployment]" [label="default/emailservice[Deployment]" color="blue" fontcolor="blue"]
-	"default/checkoutservice[Deployment]" -> "default/emailservice[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	subgraph cluster_default {
+		"checkoutservice[Deployment]" [label="checkoutservice[Deployment]" color="blue" fontcolor="blue"]
+		"emailservice[Deployment]" [label="emailservice[Deployment]" color="blue" fontcolor="blue"]
+		label="default"
+	}
+	"checkoutservice[Deployment]" -> "emailservice[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
 }
