@@ -61,10 +61,11 @@ func ConnlistTestNameByTestArgs(dirName, focusWorkload, format string) (testName
 func DiffTestNameByTestArgs(ref1, ref2, format string) (testName, expectedOutputFileName string) {
 	namePrefix := "diff_between_" + ref2 + "_and_" + ref1
 	testName = namePrefix
+	expectedOutputFileName = "" // if the format is empty, file name is unused
 	if format != "" {
 		testName += formatStr + format
+		expectedOutputFileName = namePrefix + dotSign + format
 	}
-	expectedOutputFileName = namePrefix + dotSign + format
 	return testName, expectedOutputFileName
 }
 
