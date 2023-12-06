@@ -49,16 +49,14 @@ func GetTestsDirWithDepth(depth int) string {
 // ConnlistTestNameByTestArgs returns connlist test name and test's expected output file from some tests args
 func ConnlistTestNameByTestArgs(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
 	switch {
+	var namePrefix string
 	case focusWorkload == "":
-		testName = dirName + formatStr + format
-		expectedOutputFileName = dirName + underscore + connlistExpectedOutputFilePartialName + format
-
+		namePrefix = dirName 
 	case focusWorkload != "":
-		focusWorkloadStr := strings.Replace(focusWorkload, "/", underscore, 1)
-		namePrefix := dirName + focusWlAnnotation + focusWorkloadStr
-		testName = namePrefix + formatStr + format
-		expectedOutputFileName = namePrefix + underscore + connlistExpectedOutputFilePartialName + format
+		namePrefix = dirName + focusWlAnnotation + strings.Replace(focusWorkload, "/", underscore, 1)
 	}
+	testName = namePrefix + formatStr + format
+	expectedOutputFileName = namePrefix + underscore + connlistExpectedOutputFilePartialName + format
 	return testName, expectedOutputFileName
 }
 
