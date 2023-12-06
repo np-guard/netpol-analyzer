@@ -48,10 +48,10 @@ func GetTestsDirWithDepth(depth int) string {
 
 // ConnlistTestNameByTestArgs returns connlist test name and test's expected output file from some tests args
 func ConnlistTestNameByTestArgs(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
-	switch {
 	var namePrefix string
+	switch {
 	case focusWorkload == "":
-		namePrefix = dirName 
+		namePrefix = dirName
 	case focusWorkload != "":
 		namePrefix = dirName + focusWlAnnotation + strings.Replace(focusWorkload, "/", underscore, 1)
 	}
@@ -60,15 +60,13 @@ func ConnlistTestNameByTestArgs(dirName, focusWorkload, format string) (testName
 	return testName, expectedOutputFileName
 }
 
-// DiffTestNameByRefs returns diff test name prefix, based on ref names
-func DiffTestNameByRefs(ref1, ref2 string) string {
-	return "diff_between_" + ref2 + "_and_" + ref1
-}
-
 // DiffTestNameByTestArgs returns diff test name and test's expected output file from some tests args
 func DiffTestNameByTestArgs(ref1, ref2, format string) (testName, expectedOutputFileName string) {
-	namePrefix := DiffTestNameByRefs(ref1, ref2)
-	testName = namePrefix + formatStr + format
+	namePrefix := "diff_between_" + ref2 + "_and_" + ref1
+	testName = namePrefix
+	if format != "" {
+		testName += formatStr + format
+	}
 	expectedOutputFileName = namePrefix + dotSign + format
 	return testName, expectedOutputFileName
 }
@@ -76,7 +74,7 @@ func DiffTestNameByTestArgs(ref1, ref2, format string) (testName, expectedOutput
 // CheckActualVsExpectedOutputMatch: testing helping func - checks if actual output matches expected output,
 // if not generates actual output file
 // if --update flag is on, writes the actual output to the expected output file
-func CheckActualVsExpectedOutputMatch(t *testing.T, expectedOutputFileName, actualOutput, testInfo, outFile, testingPkg string,
+func CheckActualVsExpectedOutputMatch(t *testing.T, expectedOutputFileName, actualOutput, testInfo, testingPkg string,
 	currDirDepth int) {
 	expectedOutputFile := filepath.Join(GetTestsDirWithDepth(currDirDepth), outputFilesDir, testingPkg, expectedOutputFileName)
 	// if the --update flag is on (then generate/ override the expected output file with the actualOutput)
@@ -96,11 +94,8 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, expectedOutputFileName, actu
 	if err != nil {
 		WarnOnErrorReadingFile(err, expectedOutputFile)
 	}
-	actualOutputFile := outFile
-	if outFile == "" {
-		actualOutputFileName := "actual_" + expectedOutputFileName
-		actualOutputFile = filepath.Join(GetTestsDirWithDepth(currDirDepth), outputFilesDir, testingPkg, actualOutputFileName)
-	}
+	actualOutputFileName := "actual_" + expectedOutputFileName
+	actualOutputFile := filepath.Join(GetTestsDirWithDepth(currDirDepth), outputFilesDir, testingPkg, actualOutputFileName)
 	if cleanStr(string(expectedOutput)) != cleanStr(actualOutput) {
 		err := output.WriteToFile(actualOutput, actualOutputFile)
 		if err != nil {

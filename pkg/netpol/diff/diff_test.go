@@ -28,7 +28,7 @@ func TestDiff(t *testing.T) {
 	t.Parallel()
 	for _, tt := range goodPathTests {
 		tt := tt
-		testName := testutils.DiffTestNameByRefs(tt.firstDirName, tt.secondDirName)
+		testName, _ := testutils.DiffTestNameByTestArgs(tt.firstDirName, tt.secondDirName, "")
 		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.formats {
@@ -38,7 +38,7 @@ func TestDiff(t *testing.T) {
 					actualOutput, err := pTest.analyzer.ConnectivityDiffToString(diffRes)
 					require.Nil(t, err, pTest.testInfo)
 					testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, actualOutput,
-						pTest.testInfo, "", currentPkg, testutils.StandardPkgLevelDepth)
+						pTest.testInfo, currentPkg, testutils.StandardPkgLevelDepth)
 				}
 			}
 		})
@@ -310,7 +310,7 @@ func TestDiffOutputWithArgNamesOption(t *testing.T) {
 		testName, outFileName := testutils.DiffTestNameByTestArgs(ref1, ref2, format)
 		testName = testNamePrefix + testName
 		outFileName = testNamePrefix + outFileName
-		testutils.CheckActualVsExpectedOutputMatch(t, outFileName, res, testName, "", currentPkg,
+		testutils.CheckActualVsExpectedOutputMatch(t, outFileName, res, testName, currentPkg,
 			testutils.StandardPkgLevelDepth)
 	}
 }

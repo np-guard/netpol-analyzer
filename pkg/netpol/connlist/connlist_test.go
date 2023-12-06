@@ -80,7 +80,7 @@ func TestConnListFromDir(t *testing.T) {
 				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
 				testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, out,
-					pTest.testInfo, "", currentPkg, testutils.StandardPkgLevelDepth)
+					pTest.testInfo, currentPkg, testutils.StandardPkgLevelDepth)
 			}
 		})
 	}
@@ -103,7 +103,7 @@ func TestConnListFromResourceInfos(t *testing.T) {
 				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
 				testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, out,
-					pTest.testInfo, "", currentPkg, testutils.StandardPkgLevelDepth)
+					pTest.testInfo, currentPkg, testutils.StandardPkgLevelDepth)
 			}
 		})
 	}

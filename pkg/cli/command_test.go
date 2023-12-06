@@ -94,6 +94,17 @@ func removeOutFile(outputFile string) {
 	}
 }
 
+// helping func, reads output file contents and compares it with expected output
+func checkFileContentVsExpectedOutput(t *testing.T, outputFile, expectedFile, tInfo string) {
+	actualOutFromFile, err := os.ReadFile(outputFile)
+	if err != nil {
+		testutils.WarnOnErrorReadingFile(err, outputFile)
+	}
+	testutils.CheckActualVsExpectedOutputMatch(t, expectedFile, string(actualOutFromFile), tInfo, currentPkg,
+		currentDirDepth)
+	removeOutFile(outputFile)
+}
+
 // TestCommandsFailExecute - tests executing failure for illegal commands or commands with invalid args or with wrong input values
 func TestCommandsFailExecute(t *testing.T) {
 	tests := []struct {
@@ -258,8 +269,11 @@ func TestListCommandOutput(t *testing.T) {
 			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, tt.focusWorkload)...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
-			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile, currentPkg,
+			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), currentPkg,
 				currentDirDepth)
+			if tt.outputFile != "" {
+				checkFileContentVsExpectedOutput(t, tt.outputFile, expectedOutputFileName, testInfo(testName))
+			}
 			removeOutFile(tt.outputFile)
 		})
 	}
@@ -309,16 +323,13 @@ func TestDiffCommandOutput(t *testing.T) {
 			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, "")...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
-			if tt.outputFile != "" {
-				actualOutFromFile, err := os.ReadFile(tt.outputFile)
-				if err != nil {
-					testutils.WarnOnErrorReadingFile(err, tt.outputFile)
-				}
-				actualOut = string(actualOutFromFile)
-			}
-			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), tt.outputFile, currentPkg,
+			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), currentPkg,
 				currentDirDepth)
-			removeOutFile(tt.outputFile)
+
+			if tt.outputFile != "" {
+				checkFileContentVsExpectedOutput(t, tt.outputFile, expectedOutputFileName, testInfo(testName))
+			}
+
 		})
 	}
 }
