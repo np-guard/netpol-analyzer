@@ -329,7 +329,6 @@ func TestDiffCommandOutput(t *testing.T) {
 			if tt.outputFile != "" {
 				checkFileContentVsExpectedOutput(t, tt.outputFile, expectedOutputFileName, testInfo(testName))
 			}
-
 		})
 	}
 }
