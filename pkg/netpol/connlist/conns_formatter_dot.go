@@ -105,7 +105,7 @@ func addNsGroups(nsPeersMap map[string][]string) []string {
 		peersLines := nsPeersMap[ns]
 		sort.Strings(peersLines)
 		// create ns  subgraph cluster
-		nsLabel := strings.ReplaceAll(ns, "-", "_") // dot format does not accept "-" in its sub-graphs names (headers)
+		nsLabel := strings.ReplaceAll(ns, "-", "_")                 // dot format does not accept "-" in its sub-graphs names (headers)
 		nsLines := []string{"\tsubgraph cluster_" + nsLabel + " {"} // subgraph header
 		nsLines = append(nsLines, peersLines...)
 		nsLines = append(nsLines, "\t\tlabel=\""+ns+"\"", "\t}")
