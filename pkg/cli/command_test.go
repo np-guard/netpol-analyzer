@@ -315,10 +315,12 @@ func TestCommands(t *testing.T) {
 				"dot",
 			},
 			expectedOutput: "digraph {\n" +
-				"\t\"default/checkoutservice[Deployment]\" [label=\"default/checkoutservice[Deployment]\" color=\"blue\" fontcolor=\"blue\"]\n" +
-				"\t\"default/emailservice[Deployment]\" [label=\"default/emailservice[Deployment]\" color=\"blue\" fontcolor=\"blue\"]\n" +
-				"\t\"default/checkoutservice[Deployment]\" -> \"default/emailservice[Deployment]\"" +
-				" [label=\"TCP 8080\" color=\"gold2\" fontcolor=\"darkgreen\"]\n" +
+				"\tsubgraph cluster_default {\n" +
+				"\t\t\"checkoutservice[Deployment]\" [label=\"checkoutservice[Deployment]\" color=\"blue\" fontcolor=\"blue\"]\n" +
+				"\t\t\"emailservice[Deployment]\" [label=\"emailservice[Deployment]\" color=\"blue\" fontcolor=\"blue\"]\n" +
+				"\t\tlabel=\"default\"\n" +
+				"\t}\n" +
+				"\t\"checkoutservice[Deployment]\" -> \"emailservice[Deployment]\" [label=\"TCP 8080\" color=\"gold2\" fontcolor=\"darkgreen\"]\n" +
 				"}",
 			exact: true,
 			isErr: false,
