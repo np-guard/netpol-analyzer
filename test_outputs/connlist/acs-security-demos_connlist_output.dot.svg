@@ -8,6 +8,11 @@
  viewBox="0.00 0.00 1231.00 471.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 467)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-467 1227,-467 1227,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_backend</title>
+<polygon fill="none" stroke="black" points="558,-8 558,-278 1152,-278 1152,-8 558,-8"/>
+<text text-anchor="middle" x="855" y="-262.8" font-family="Times New Roman,serif" font-size="14.00">backend</text>
+</g>
 <g id="clust2" class="cluster">
 <title>cluster_frontend</title>
 <polygon fill="none" stroke="black" points="606,-311 606,-386 1024,-386 1024,-311 606,-311"/>
@@ -17,11 +22,6 @@
 <title>cluster_payments</title>
 <polygon fill="none" stroke="black" points="8,-8 8,-170 550,-170 550,-8 8,-8"/>
 <text text-anchor="middle" x="279" y="-154.8" font-family="Times New Roman,serif" font-size="14.00">payments</text>
-</g>
-<g id="clust1" class="cluster">
-<title>cluster_backend</title>
-<polygon fill="none" stroke="black" points="558,-8 558,-278 1152,-278 1152,-8 558,-8"/>
-<text text-anchor="middle" x="855" y="-262.8" font-family="Times New Roman,serif" font-size="14.00">backend</text>
 </g>
 <!-- catalog[Deployment] -->
 <g id="node1" class="node">
