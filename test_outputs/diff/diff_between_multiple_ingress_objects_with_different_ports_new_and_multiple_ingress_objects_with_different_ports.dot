@@ -1,13 +1,13 @@
 digraph {
 	subgraph cluster_ingressworld {
-		"ingress-world-multiple-ports[Deployment]" [label="ingress-world-multiple-ports[Deployment]" color="blue" fontcolor="blue"]
+		"ingressworld/ingress-world-multiple-ports[Deployment]" [label="ingress-world-multiple-ports[Deployment]" color="blue" fontcolor="blue"]
 		label="ingressworld"
 	}
 	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
-	"0.0.0.0-255.255.255.255" -> "ingress-world-multiple-ports[Deployment]" [label="All Connections" color="grey" fontcolor="grey"]
-	"ingress-world-multiple-ports[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="grey" fontcolor="grey"]
-	"{ingress-controller}" -> "ingress-world-multiple-ports[Deployment]" [label="TCP 8000,8090 (ref1: TCP 8050,8090)" color="magenta" fontcolor="magenta"]
+	"0.0.0.0-255.255.255.255" -> "ingressworld/ingress-world-multiple-ports[Deployment]" [label="All Connections" color="grey" fontcolor="grey"]
+	"ingressworld/ingress-world-multiple-ports[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="grey" fontcolor="grey"]
+	"{ingress-controller}" -> "ingressworld/ingress-world-multiple-ports[Deployment]" [label="TCP 8000,8090 (ref1: TCP 8050,8090)" color="magenta" fontcolor="magenta"]
 	nodesep=0.5
 	subgraph cluster_legend {
 		label="Legend"

@@ -72,7 +72,7 @@ func (df *diffFormatDOT) getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff
 		if !peersSet[src] {
 			peersSet[src] = true
 			nodePeerLabel, isExternal := getNodePeerLabelAndType(connsPair.Src())
-			peerLine := getPeerLine(nodePeerLabel, connsPair.DiffType(), connsPair.IsSrcNewOrRemoved())
+			peerLine := getPeerLine(src, nodePeerLabel, connsPair.DiffType(), connsPair.IsSrcNewOrRemoved())
 			if isExternal {
 				externalPeersLines = append(externalPeersLines, peerLine)
 			} else {
@@ -82,7 +82,7 @@ func (df *diffFormatDOT) getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff
 		if !peersSet[dst] {
 			peersSet[dst] = true
 			nodePeerLabel, isExternal := getNodePeerLabelAndType(connsPair.Dst())
-			peerLine := getPeerLine(nodePeerLabel, connsPair.DiffType(), connsPair.IsDstNewOrRemoved())
+			peerLine := getPeerLine(dst, nodePeerLabel, connsPair.DiffType(), connsPair.IsDstNewOrRemoved())
 			if isExternal {
 				externalPeersLines = append(externalPeersLines, peerLine)
 			} else {
@@ -106,7 +106,7 @@ const (
 )
 
 // getPeerLine returns peer line string in dot format
-func getPeerLine(peerName string, diffType DiffTypeStr, isNewOrLost bool) string {
+func getPeerLine(peerName, peerLabelName string, diffType DiffTypeStr, isNewOrLost bool) string {
 	peerColor := persistentPeerColor
 	if isNewOrLost {
 		switch diffType {
@@ -118,7 +118,7 @@ func getPeerLine(peerName string, diffType DiffTypeStr, isNewOrLost bool) string
 			break
 		}
 	}
-	return fmt.Sprintf("\t%q [label=%q color=%q fontcolor=%q]", peerName, peerName, peerColor, peerColor)
+	return fmt.Sprintf("\t%q [label=%q color=%q fontcolor=%q]", peerName, peerLabelName, peerColor, peerColor)
 }
 
 const (
@@ -130,8 +130,7 @@ const (
 
 // addEdgesLines forms the appropriate edge line of the given conns pair
 func (df *diffFormatDOT) addEdgesLines(connsPair SrcDstDiff) string {
-	src, _ := getNodePeerLabelAndType(connsPair.Src())
-	dst, _ := getNodePeerLabelAndType(connsPair.Dst())
+	src, dst, _ := getConnPeersStrings(connsPair)
 	firstConn, secondConn := getDirsConnsStrings(connsPair)
 	switch connsPair.DiffType() {
 	case UnchangedType:

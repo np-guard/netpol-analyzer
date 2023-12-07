@@ -20,13 +20,11 @@ type formatDOT struct {
 // formats an edge line from a singleConnFields struct , to be used for dot graph
 func getEdgeLine(c Peer2PeerConnection) string {
 	connStr := common.ConnStrFromConnProperties(c.AllProtocolsAndPorts(), c.ProtocolsAndPorts())
-	srcName, _, _ := peerNameAndColorByType(c.Src())
-	dstName, _, _ := peerNameAndColorByType(c.Dst())
-	return fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\"]", srcName, dstName, connStr)
+	return fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\"]", c.Src().String(), c.Dst().String(), connStr)
 }
 
-// returns the peer name and color to be represented in the graph, and whether the peer is external to cluster's namespaces
-func peerNameAndColorByType(peer Peer) (name, color string, isExternal bool) {
+// returns the peer label and color to be represented in the graph, and whether the peer is external to cluster's namespaces
+func peerNameAndColorByType(peer Peer) (nameLabel, color string, isExternal bool) {
 	if peer.IsPeerIPType() {
 		return peer.String(), ipColor, true
 	} else if peer.Name() == common.IngressPodName {
@@ -37,8 +35,8 @@ func peerNameAndColorByType(peer Peer) (name, color string, isExternal bool) {
 
 // formats a peer line for dot graph
 func getPeerLine(peer Peer) (string, bool) {
-	peerName, peerColor, isExternalPeer := peerNameAndColorByType(peer)
-	return fmt.Sprintf("\t%q [label=%q color=%q fontcolor=%q]", peerName, peerName, peerColor, peerColor), isExternalPeer
+	peerNameLabel, peerColor, isExternalPeer := peerNameAndColorByType(peer)
+	return fmt.Sprintf("\t%q [label=%q color=%q fontcolor=%q]", peer.String(), peerNameLabel, peerColor, peerColor), isExternalPeer
 }
 
 // returns a dot string form of connections from list of Peer2PeerConnection objects

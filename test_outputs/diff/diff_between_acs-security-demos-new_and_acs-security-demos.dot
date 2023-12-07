@@ -1,52 +1,52 @@
 digraph {
 	subgraph cluster_backend {
-		"catalog[Deployment]" [label="catalog[Deployment]" color="blue" fontcolor="blue"]
-		"checkout[Deployment]" [label="checkout[Deployment]" color="blue" fontcolor="blue"]
-		"notification[Deployment]" [label="notification[Deployment]" color="blue" fontcolor="blue"]
-		"recommendation[Deployment]" [label="recommendation[Deployment]" color="blue" fontcolor="blue"]
-		"reports[Deployment]" [label="reports[Deployment]" color="blue" fontcolor="blue"]
-		"shipping[Deployment]" [label="shipping[Deployment]" color="blue" fontcolor="blue"]
+		"backend/catalog[Deployment]" [label="catalog[Deployment]" color="blue" fontcolor="blue"]
+		"backend/checkout[Deployment]" [label="checkout[Deployment]" color="blue" fontcolor="blue"]
+		"backend/notification[Deployment]" [label="notification[Deployment]" color="blue" fontcolor="blue"]
+		"backend/recommendation[Deployment]" [label="recommendation[Deployment]" color="blue" fontcolor="blue"]
+		"backend/reports[Deployment]" [label="reports[Deployment]" color="blue" fontcolor="blue"]
+		"backend/shipping[Deployment]" [label="shipping[Deployment]" color="blue" fontcolor="blue"]
 		label="backend"
 	}
 	subgraph cluster_external {
-		"unicorn[Deployment]" [label="unicorn[Deployment]" color="#008000" fontcolor="#008000"]
+		"external/unicorn[Deployment]" [label="unicorn[Deployment]" color="#008000" fontcolor="#008000"]
 		label="external"
 	}
 	subgraph cluster_frontend {
-		"asset-cache[Deployment]" [label="asset-cache[Deployment]" color="blue" fontcolor="blue"]
-		"webapp[Deployment]" [label="webapp[Deployment]" color="blue" fontcolor="blue"]
+		"frontend/asset-cache[Deployment]" [label="asset-cache[Deployment]" color="blue" fontcolor="blue"]
+		"frontend/webapp[Deployment]" [label="webapp[Deployment]" color="blue" fontcolor="blue"]
 		label="frontend"
 	}
 	subgraph cluster_payments {
-		"gateway[Deployment]" [label="gateway[Deployment]" color="blue" fontcolor="blue"]
-		"mastercard-processor[Deployment]" [label="mastercard-processor[Deployment]" color="red" fontcolor="red"]
-		"visa-processor[Deployment]" [label="visa-processor[Deployment]" color="blue" fontcolor="blue"]
+		"payments/gateway[Deployment]" [label="gateway[Deployment]" color="blue" fontcolor="blue"]
+		"payments/mastercard-processor[Deployment]" [label="mastercard-processor[Deployment]" color="red" fontcolor="red"]
+		"payments/visa-processor[Deployment]" [label="visa-processor[Deployment]" color="blue" fontcolor="blue"]
 		label="payments"
 	}
 	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
-	"0.0.0.0-255.255.255.255" -> "unicorn[Deployment]" [label="All Connections" color="#008000" fontcolor="#008000"]
-	"checkout[Deployment]" -> "gateway[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"checkout[Deployment]" -> "notification[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"checkout[Deployment]" -> "recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"checkout[Deployment]" -> "unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000"]
-	"gateway[Deployment]" -> "mastercard-processor[Deployment]" [label="TCP 8080" color="red2" fontcolor="red2"]
-	"gateway[Deployment]" -> "unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000"]
-	"gateway[Deployment]" -> "visa-processor[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"recommendation[Deployment]" -> "catalog[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"recommendation[Deployment]" -> "unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000"]
-	"reports[Deployment]" -> "catalog[Deployment]" [label="TCP 9080 (ref1: TCP 8080)" color="magenta" fontcolor="magenta"]
-	"reports[Deployment]" -> "recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"reports[Deployment]" -> "unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000"]
-	"unicorn[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="#008000" fontcolor="#008000"]
-	"unicorn[Deployment]" -> "webapp[Deployment]" [label="TCP 8080" color="#008000" fontcolor="#008000"]
-	"webapp[Deployment]" -> "checkout[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"webapp[Deployment]" -> "recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"webapp[Deployment]" -> "reports[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"webapp[Deployment]" -> "shipping[Deployment]" [label="TCP 8080" color="red2" fontcolor="red2"]
-	"webapp[Deployment]" -> "unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000"]
-	"{ingress-controller}" -> "asset-cache[Deployment]" [label="TCP 8080" color="red2" fontcolor="red2"]
-	"{ingress-controller}" -> "webapp[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"0.0.0.0-255.255.255.255" -> "external/unicorn[Deployment]" [label="All Connections" color="#008000" fontcolor="#008000"]
+	"backend/checkout[Deployment]" -> "backend/notification[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"backend/checkout[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"backend/checkout[Deployment]" -> "external/unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000"]
+	"backend/checkout[Deployment]" -> "payments/gateway[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"backend/recommendation[Deployment]" -> "backend/catalog[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"backend/recommendation[Deployment]" -> "external/unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000"]
+	"backend/reports[Deployment]" -> "backend/catalog[Deployment]" [label="TCP 9080 (ref1: TCP 8080)" color="magenta" fontcolor="magenta"]
+	"backend/reports[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"backend/reports[Deployment]" -> "external/unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000"]
+	"external/unicorn[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="#008000" fontcolor="#008000"]
+	"external/unicorn[Deployment]" -> "frontend/webapp[Deployment]" [label="TCP 8080" color="#008000" fontcolor="#008000"]
+	"frontend/webapp[Deployment]" -> "backend/checkout[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"frontend/webapp[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"frontend/webapp[Deployment]" -> "backend/reports[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"frontend/webapp[Deployment]" -> "backend/shipping[Deployment]" [label="TCP 8080" color="red2" fontcolor="red2"]
+	"frontend/webapp[Deployment]" -> "external/unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000"]
+	"payments/gateway[Deployment]" -> "external/unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000"]
+	"payments/gateway[Deployment]" -> "payments/mastercard-processor[Deployment]" [label="TCP 8080" color="red2" fontcolor="red2"]
+	"payments/gateway[Deployment]" -> "payments/visa-processor[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"{ingress-controller}" -> "frontend/asset-cache[Deployment]" [label="TCP 8080" color="red2" fontcolor="red2"]
+	"{ingress-controller}" -> "frontend/webapp[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
 	nodesep=0.5
 	subgraph cluster_legend {
 		label="Legend"

@@ -33,178 +33,178 @@
 <polygon fill="none" stroke="black" points="8,-8 8,-170 856,-170 856,-8 8,-8"/>
 <text text-anchor="middle" x="432" y="-154.8" font-family="Times New Roman,serif" font-size="14.00">payments</text>
 </g>
-<!-- catalog[Deployment] -->
+<!-- backend/catalog[Deployment] -->
 <g id="node1" class="node">
-<title>catalog[Deployment]</title>
+<title>backend/catalog[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="1212" cy="-34" rx="86.38" ry="18"/>
 <text text-anchor="middle" x="1212" y="-30.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">catalog[Deployment]</text>
 </g>
-<!-- checkout[Deployment] -->
+<!-- backend/checkout[Deployment] -->
 <g id="node2" class="node">
-<title>checkout[Deployment]</title>
+<title>backend/checkout[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="966" cy="-229" rx="93.68" ry="18"/>
 <text text-anchor="middle" x="966" y="-225.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">checkout[Deployment]</text>
 </g>
-<!-- notification[Deployment] -->
+<!-- backend/notification[Deployment] -->
 <g id="node3" class="node">
-<title>notification[Deployment]</title>
+<title>backend/notification[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="973" cy="-121" rx="100.98" ry="18"/>
 <text text-anchor="middle" x="973" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">notification[Deployment]</text>
 </g>
-<!-- checkout[Deployment]&#45;&gt;notification[Deployment] -->
-<g id="edge2" class="edge">
-<title>checkout[Deployment]&#45;&gt;notification[Deployment]</title>
+<!-- backend/checkout[Deployment]&#45;&gt;backend/notification[Deployment] -->
+<g id="edge1" class="edge">
+<title>backend/checkout[Deployment]&#45;&gt;backend/notification[Deployment]</title>
 <path fill="none" stroke="grey" d="M967.12,-210.97C968.22,-194.38 969.9,-168.88 971.19,-149.43"/>
 <polygon fill="grey" stroke="grey" points="974.69,-149.55 971.85,-139.34 967.7,-149.09 974.69,-149.55"/>
 <text text-anchor="middle" x="998" y="-181.8" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- recommendation[Deployment] -->
+<!-- backend/recommendation[Deployment] -->
 <g id="node4" class="node">
-<title>recommendation[Deployment]</title>
+<title>backend/recommendation[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="1363" cy="-121" rx="120.78" ry="18"/>
 <text text-anchor="middle" x="1363" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">recommendation[Deployment]</text>
 </g>
-<!-- checkout[Deployment]&#45;&gt;recommendation[Deployment] -->
-<g id="edge3" class="edge">
-<title>checkout[Deployment]&#45;&gt;recommendation[Deployment]</title>
+<!-- backend/checkout[Deployment]&#45;&gt;backend/recommendation[Deployment] -->
+<g id="edge2" class="edge">
+<title>backend/checkout[Deployment]&#45;&gt;backend/recommendation[Deployment]</title>
 <path fill="none" stroke="grey" d="M1022.17,-214.45C1064.87,-204.22 1125.07,-189.96 1178,-178 1194.41,-174.29 1198.76,-174.38 1215,-170 1246.38,-161.54 1280.95,-150.43 1308.79,-141.03"/>
 <polygon fill="grey" stroke="grey" points="1310,-144.32 1318.34,-137.78 1307.74,-137.69 1310,-144.32"/>
 <text text-anchor="middle" x="1207" y="-181.8" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- gateway[Deployment] -->
+<!-- payments/gateway[Deployment] -->
 <g id="node10" class="node">
-<title>gateway[Deployment]</title>
+<title>payments/gateway[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="554" cy="-121" rx="89.88" ry="18"/>
 <text text-anchor="middle" x="554" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">gateway[Deployment]</text>
 </g>
-<!-- checkout[Deployment]&#45;&gt;gateway[Deployment] -->
-<g id="edge1" class="edge">
-<title>checkout[Deployment]&#45;&gt;gateway[Deployment]</title>
+<!-- backend/checkout[Deployment]&#45;&gt;payments/gateway[Deployment] -->
+<g id="edge3" class="edge">
+<title>backend/checkout[Deployment]&#45;&gt;payments/gateway[Deployment]</title>
 <path fill="none" stroke="grey" d="M912.14,-214.14C836.1,-194.58 697.59,-158.94 616.92,-138.19"/>
 <polygon fill="grey" stroke="grey" points="617.45,-134.71 606.9,-135.61 615.71,-141.49 617.45,-134.71"/>
 <text text-anchor="middle" x="850" y="-181.8" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- recommendation[Deployment]&#45;&gt;catalog[Deployment] -->
-<g id="edge7" class="edge">
-<title>recommendation[Deployment]&#45;&gt;catalog[Deployment]</title>
+<!-- backend/recommendation[Deployment]&#45;&gt;backend/catalog[Deployment] -->
+<g id="edge4" class="edge">
+<title>backend/recommendation[Deployment]&#45;&gt;backend/catalog[Deployment]</title>
 <path fill="none" stroke="grey" d="M1333.53,-103.41C1309.5,-89.88 1275.41,-70.69 1249.44,-56.08"/>
 <polygon fill="grey" stroke="grey" points="1251.06,-52.97 1240.63,-51.12 1247.63,-59.07 1251.06,-52.97"/>
 <text text-anchor="middle" x="1325" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- reports[Deployment] -->
+<!-- backend/reports[Deployment] -->
 <g id="node5" class="node">
-<title>reports[Deployment]</title>
+<title>backend/reports[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="1182" cy="-229" rx="86.38" ry="18"/>
 <text text-anchor="middle" x="1182" y="-225.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">reports[Deployment]</text>
 </g>
-<!-- reports[Deployment]&#45;&gt;catalog[Deployment] -->
-<g id="edge8" class="edge">
-<title>reports[Deployment]&#45;&gt;catalog[Deployment]</title>
+<!-- backend/reports[Deployment]&#45;&gt;backend/catalog[Deployment] -->
+<g id="edge5" class="edge">
+<title>backend/reports[Deployment]&#45;&gt;backend/catalog[Deployment]</title>
 <path fill="none" stroke="grey" d="M1175.41,-211.04C1166.92,-186.64 1154.52,-140.44 1166,-103 1170.82,-87.28 1180.64,-71.91 1189.97,-59.78"/>
 <polygon fill="grey" stroke="grey" points="1192.74,-61.92 1196.29,-51.93 1187.29,-57.53 1192.74,-61.92"/>
 <text text-anchor="middle" x="1195" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- reports[Deployment]&#45;&gt;recommendation[Deployment] -->
-<g id="edge9" class="edge">
-<title>reports[Deployment]&#45;&gt;recommendation[Deployment]</title>
+<!-- backend/reports[Deployment]&#45;&gt;backend/recommendation[Deployment] -->
+<g id="edge6" class="edge">
+<title>backend/reports[Deployment]&#45;&gt;backend/recommendation[Deployment]</title>
 <path fill="none" stroke="grey" d="M1209.49,-211.9C1240.54,-193.72 1291.23,-164.03 1325.8,-143.79"/>
 <polygon fill="grey" stroke="grey" points="1327.79,-146.67 1334.65,-138.6 1324.26,-140.63 1327.79,-146.67"/>
 <text text-anchor="middle" x="1296" y="-181.8" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- shipping[Deployment] -->
+<!-- backend/shipping[Deployment] -->
 <g id="node6" class="node">
-<title>shipping[Deployment]</title>
+<title>backend/shipping[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="1395" cy="-229" rx="90.98" ry="18"/>
 <text text-anchor="middle" x="1395" y="-225.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">shipping[Deployment]</text>
 </g>
-<!-- asset&#45;cache[Deployment] -->
+<!-- frontend/asset&#45;cache[Deployment] -->
 <g id="node7" class="node">
-<title>asset&#45;cache[Deployment]</title>
+<title>frontend/asset&#45;cache[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="843" cy="-337" rx="102.88" ry="18"/>
 <text text-anchor="middle" x="843" y="-333.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">asset&#45;cache[Deployment]</text>
 </g>
-<!-- blog[Deployment] -->
+<!-- frontend/blog[Deployment] -->
 <g id="node8" class="node">
-<title>blog[Deployment]</title>
+<title>frontend/blog[Deployment]</title>
 <ellipse fill="none" stroke="#008000" cx="1058" cy="-337" rx="76.89" ry="18"/>
 <text text-anchor="middle" x="1058" y="-333.3" font-family="Times New Roman,serif" font-size="14.00" fill="#008000">blog[Deployment]</text>
 </g>
-<!-- webapp[Deployment] -->
+<!-- frontend/webapp[Deployment] -->
 <g id="node9" class="node">
-<title>webapp[Deployment]</title>
+<title>frontend/webapp[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="1260" cy="-337" rx="89.08" ry="18"/>
 <text text-anchor="middle" x="1260" y="-333.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">webapp[Deployment]</text>
 </g>
-<!-- webapp[Deployment]&#45;&gt;checkout[Deployment] -->
-<g id="edge10" class="edge">
-<title>webapp[Deployment]&#45;&gt;checkout[Deployment]</title>
+<!-- frontend/webapp[Deployment]&#45;&gt;backend/checkout[Deployment] -->
+<g id="edge7" class="edge">
+<title>frontend/webapp[Deployment]&#45;&gt;backend/checkout[Deployment]</title>
 <path fill="none" stroke="grey" d="M1211.28,-321.87C1174.38,-310.83 1122.59,-294.62 1078,-278 1055.24,-269.52 1030.37,-258.99 1009.85,-249.96"/>
 <polygon fill="grey" stroke="grey" points="1011.02,-246.65 1000.46,-245.79 1008.18,-253.04 1011.02,-246.65"/>
 <text text-anchor="middle" x="1171" y="-289.8" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- webapp[Deployment]&#45;&gt;recommendation[Deployment] -->
-<g id="edge11" class="edge">
-<title>webapp[Deployment]&#45;&gt;recommendation[Deployment]</title>
+<!-- frontend/webapp[Deployment]&#45;&gt;backend/recommendation[Deployment] -->
+<g id="edge8" class="edge">
+<title>frontend/webapp[Deployment]&#45;&gt;backend/recommendation[Deployment]</title>
 <path fill="none" stroke="grey" d="M1315.76,-322.97C1387.55,-306.16 1503.26,-278.94 1504,-278 1522.46,-254.64 1518.38,-237.08 1504,-211 1485.95,-178.26 1450.23,-155.91 1419.26,-141.79"/>
 <polygon fill="grey" stroke="grey" points="1420.39,-138.46 1409.83,-137.67 1417.59,-144.88 1420.39,-138.46"/>
 <text text-anchor="middle" x="1545" y="-225.3" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- webapp[Deployment]&#45;&gt;reports[Deployment] -->
-<g id="edge12" class="edge">
-<title>webapp[Deployment]&#45;&gt;reports[Deployment]</title>
+<!-- frontend/webapp[Deployment]&#45;&gt;backend/reports[Deployment] -->
+<g id="edge9" class="edge">
+<title>frontend/webapp[Deployment]&#45;&gt;backend/reports[Deployment]</title>
 <path fill="none" stroke="grey" d="M1247.47,-318.97C1234.79,-301.74 1215.04,-274.9 1200.55,-255.21"/>
 <polygon fill="grey" stroke="grey" points="1203.25,-252.97 1194.5,-246.99 1197.61,-257.12 1203.25,-252.97"/>
 <text text-anchor="middle" x="1261" y="-289.8" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- webapp[Deployment]&#45;&gt;shipping[Deployment] -->
-<g id="edge13" class="edge">
-<title>webapp[Deployment]&#45;&gt;shipping[Deployment]</title>
+<!-- frontend/webapp[Deployment]&#45;&gt;backend/shipping[Deployment] -->
+<g id="edge10" class="edge">
+<title>frontend/webapp[Deployment]&#45;&gt;backend/shipping[Deployment]</title>
 <path fill="none" stroke="grey" d="M1281.09,-319.44C1303.85,-301.57 1340.23,-273.01 1365.74,-252.97"/>
 <polygon fill="grey" stroke="grey" points="1367.91,-255.72 1373.61,-246.8 1363.58,-250.22 1367.91,-255.72"/>
 <text text-anchor="middle" x="1352" y="-289.8" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- mastercard&#45;processor[Deployment] -->
+<!-- payments/mastercard&#45;processor[Deployment] -->
 <g id="node11" class="node">
-<title>mastercard&#45;processor[Deployment]</title>
+<title>payments/mastercard&#45;processor[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="708" cy="-34" rx="139.98" ry="18"/>
 <text text-anchor="middle" x="708" y="-30.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">mastercard&#45;processor[Deployment]</text>
 </g>
-<!-- gateway[Deployment]&#45;&gt;mastercard&#45;processor[Deployment] -->
-<g id="edge4" class="edge">
-<title>gateway[Deployment]&#45;&gt;mastercard&#45;processor[Deployment]</title>
+<!-- payments/gateway[Deployment]&#45;&gt;payments/mastercard&#45;processor[Deployment] -->
+<g id="edge11" class="edge">
+<title>payments/gateway[Deployment]&#45;&gt;payments/mastercard&#45;processor[Deployment]</title>
 <path fill="none" stroke="grey" d="M583.33,-103.81C607.53,-90.45 642.09,-71.38 668.68,-56.7"/>
 <polygon fill="grey" stroke="grey" points="670.66,-59.61 677.73,-51.71 667.28,-53.48 670.66,-59.61"/>
 <text text-anchor="middle" x="670" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- visa&#45;processor&#45;v2[Deployment] -->
+<!-- payments/visa&#45;processor&#45;v2[Deployment] -->
 <g id="node12" class="node">
-<title>visa&#45;processor&#45;v2[Deployment]</title>
+<title>payments/visa&#45;processor&#45;v2[Deployment]</title>
 <ellipse fill="none" stroke="#008000" cx="142" cy="-34" rx="126.18" ry="18"/>
 <text text-anchor="middle" x="142" y="-30.3" font-family="Times New Roman,serif" font-size="14.00" fill="#008000">visa&#45;processor&#45;v2[Deployment]</text>
 </g>
-<!-- gateway[Deployment]&#45;&gt;visa&#45;processor&#45;v2[Deployment] -->
-<g id="edge5" class="edge">
-<title>gateway[Deployment]&#45;&gt;visa&#45;processor&#45;v2[Deployment]</title>
+<!-- payments/gateway[Deployment]&#45;&gt;payments/visa&#45;processor&#45;v2[Deployment] -->
+<g id="edge12" class="edge">
+<title>payments/gateway[Deployment]&#45;&gt;payments/visa&#45;processor&#45;v2[Deployment]</title>
 <path fill="none" stroke="#008000" d="M493.65,-107.55C421.42,-92.65 300.27,-67.65 220.73,-51.24"/>
 <polygon fill="#008000" stroke="#008000" points="221.26,-47.78 210.76,-49.19 219.85,-54.63 221.26,-47.78"/>
 <text text-anchor="middle" x="402" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="#008000">TCP 8080</text>
 </g>
-<!-- visa&#45;processor[Deployment] -->
+<!-- payments/visa&#45;processor[Deployment] -->
 <g id="node13" class="node">
-<title>visa&#45;processor[Deployment]</title>
+<title>payments/visa&#45;processor[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="418" cy="-34" rx="114.28" ry="18"/>
 <text text-anchor="middle" x="418" y="-30.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">visa&#45;processor[Deployment]</text>
 </g>
-<!-- gateway[Deployment]&#45;&gt;visa&#45;processor[Deployment] -->
-<g id="edge6" class="edge">
-<title>gateway[Deployment]&#45;&gt;visa&#45;processor[Deployment]</title>
+<!-- payments/gateway[Deployment]&#45;&gt;payments/visa&#45;processor[Deployment] -->
+<g id="edge13" class="edge">
+<title>payments/gateway[Deployment]&#45;&gt;payments/visa&#45;processor[Deployment]</title>
 <path fill="none" stroke="grey" d="M527.78,-103.61C506.56,-90.35 476.48,-71.55 453.17,-56.98"/>
 <polygon fill="grey" stroke="grey" points="454.94,-53.96 444.61,-51.63 451.23,-59.9 454.94,-53.96"/>
 <text text-anchor="middle" x="524" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- zeroday[Deployment] -->
+<!-- zeroday/zeroday[Deployment] -->
 <g id="node14" class="node">
-<title>zeroday[Deployment]</title>
+<title>zeroday/zeroday[Deployment]</title>
 <ellipse fill="none" stroke="#008000" cx="1474" cy="-337" rx="89.08" ry="18"/>
 <text text-anchor="middle" x="1474" y="-333.3" font-family="Times New Roman,serif" font-size="14.00" fill="#008000">zeroday[Deployment]</text>
 </g>
@@ -214,30 +214,30 @@
 <ellipse fill="none" stroke="blue" cx="1159" cy="-462.53" rx="82.59" ry="18"/>
 <text text-anchor="middle" x="1159" y="-458.83" font-family="Times New Roman,serif" font-size="14.00" fill="blue">{ingress&#45;controller}</text>
 </g>
-<!-- {ingress&#45;controller}&#45;&gt;asset&#45;cache[Deployment] -->
+<!-- {ingress&#45;controller}&#45;&gt;frontend/asset&#45;cache[Deployment] -->
 <g id="edge14" class="edge">
-<title>{ingress&#45;controller}&#45;&gt;asset&#45;cache[Deployment]</title>
+<title>{ingress&#45;controller}&#45;&gt;frontend/asset&#45;cache[Deployment]</title>
 <path fill="none" stroke="grey" d="M1107.54,-448.41C1085.85,-442.43 1060.46,-434.82 1038,-426.53 983.66,-406.45 923.24,-378.03 884.27,-358.85"/>
 <polygon fill="grey" stroke="grey" points="885.35,-355.48 874.83,-354.18 882.25,-361.75 885.35,-355.48"/>
 <text text-anchor="middle" x="1067" y="-406.56" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- {ingress&#45;controller}&#45;&gt;blog[Deployment] -->
+<!-- {ingress&#45;controller}&#45;&gt;frontend/blog[Deployment] -->
 <g id="edge15" class="edge">
-<title>{ingress&#45;controller}&#45;&gt;blog[Deployment]</title>
+<title>{ingress&#45;controller}&#45;&gt;frontend/blog[Deployment]</title>
 <path fill="none" stroke="#008000" d="M1145.17,-444.61C1127.87,-423.45 1098.11,-387.05 1078.24,-362.76"/>
 <polygon fill="#008000" stroke="#008000" points="1080.7,-360.24 1071.66,-354.71 1075.29,-364.67 1080.7,-360.24"/>
 <text text-anchor="middle" x="1158" y="-406.56" font-family="Times New Roman,serif" font-size="14.00" fill="#008000">TCP 8080</text>
 </g>
-<!-- {ingress&#45;controller}&#45;&gt;webapp[Deployment] -->
+<!-- {ingress&#45;controller}&#45;&gt;frontend/webapp[Deployment] -->
 <g id="edge16" class="edge">
-<title>{ingress&#45;controller}&#45;&gt;webapp[Deployment]</title>
+<title>{ingress&#45;controller}&#45;&gt;frontend/webapp[Deployment]</title>
 <path fill="none" stroke="grey" d="M1176.6,-444.91C1182.33,-439.25 1188.6,-432.77 1194,-426.53 1211.67,-406.09 1229.89,-381.32 1242.7,-363.19"/>
 <polygon fill="grey" stroke="grey" points="1245.65,-365.07 1248.52,-354.87 1239.92,-361.05 1245.65,-365.07"/>
 <text text-anchor="middle" x="1247" y="-406.56" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- {ingress&#45;controller}&#45;&gt;zeroday[Deployment] -->
+<!-- {ingress&#45;controller}&#45;&gt;zeroday/zeroday[Deployment] -->
 <g id="edge17" class="edge">
-<title>{ingress&#45;controller}&#45;&gt;zeroday[Deployment]</title>
+<title>{ingress&#45;controller}&#45;&gt;zeroday/zeroday[Deployment]</title>
 <path fill="none" stroke="#008000" d="M1212.66,-448.74C1235.26,-442.81 1261.69,-435.16 1285,-426.53 1338.25,-406.82 1397.14,-378.06 1434.8,-358.72"/>
 <polygon fill="#008000" stroke="#008000" points="1436.62,-361.72 1443.9,-354.02 1433.41,-355.5 1436.62,-361.72"/>
 <text text-anchor="middle" x="1388" y="-406.56" font-family="Times New Roman,serif" font-size="14.00" fill="#008000">TCP 8080</text>
