@@ -28,20 +28,22 @@ func TestDiff(t *testing.T) {
 	t.Parallel()
 	for _, tt := range goodPathTests {
 		tt := tt
-		testName, _ := testutils.DiffTestNameByTestArgs(tt.firstDirName, tt.secondDirName, "")
-		t.Run(testName, func(t *testing.T) {
-			t.Parallel()
-			for _, format := range tt.formats {
-				for _, apiFunc := range diffTestedAPIS {
-					pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.firstDirName, tt.secondDirName, format, "")
+		for _, format := range tt.formats {
+			format := format
+			for _, apiFunc := range diffTestedAPIS {
+				apiFunc := apiFunc
+				pTest := prepareTest(tt.firstDirName, tt.secondDirName, format, apiFunc, "")
+				t.Run(pTest.testName, func(t *testing.T) {
+					t.Parallel()
+					diffRes, err := getAnalysisResFromAPI(apiFunc, pTest)
 					require.Nil(t, err, pTest.testInfo)
 					actualOutput, err := pTest.analyzer.ConnectivityDiffToString(diffRes)
 					require.Nil(t, err, pTest.testInfo)
 					testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, actualOutput,
 						pTest.testInfo, currentPkg, testutils.StandardPkgLevelDepth)
-				}
+				})
 			}
-		})
+		}
 	}
 }
 
@@ -58,7 +60,8 @@ func TestDiffAnalyzeFatalErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiFunc := range diffTestedAPIS {
-				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.ref1, tt.ref2, output.DefaultFormat, tt.name)
+				pTest := prepareTest(tt.ref1, tt.ref2, output.DefaultFormat, apiFunc, tt.name)
+				diffRes, err := getAnalysisResFromAPI(apiFunc, pTest)
 				require.Empty(t, diffRes, "test: %q, apiFunc: %q", tt.name, apiFunc)
 				testutils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
 				require.Equal(t, 1, len(pTest.analyzer.errors))
@@ -146,8 +149,8 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 				if tt.onlyDirPathsAPI && apiFunc != DirPathFunc {
 					continue
 				}
-
-				pTest, diffRes, err := getAnalysisResFromAPI(apiFunc, tt.ref1, tt.ref2, output.DefaultFormat, tt.name)
+				pTest := prepareTest(tt.ref1, tt.ref2, output.DefaultFormat, apiFunc, tt.name)
+				diffRes, err := getAnalysisResFromAPI(apiFunc, pTest)
 				if tt.emptyRes {
 					require.Empty(t, diffRes, pTest.testInfo)
 				} else {
@@ -233,7 +236,8 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			pTest, diffRes, err := getAnalysisResFromAPI(DirPathFunc, tt.ref1, tt.ref2, output.DefaultFormat, tt.name)
+			pTest := prepareTest(tt.ref1, tt.ref2, output.DefaultFormat, DirPathFunc, tt.name)
+			diffRes, err := getAnalysisResFromAPI(DirPathFunc, pTest)
 			if tt.emptyRes {
 				require.Empty(t, diffRes, pTest.testInfo)
 			} else {
@@ -283,7 +287,8 @@ func TestDiffOutputFatalErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiFunc := range diffTestedAPIS {
-				pTest, connsDiff, err := getAnalysisResFromAPI(apiFunc, tt.ref1, tt.ref2, tt.format, tt.name)
+				pTest := prepareTest(tt.ref1, tt.ref2, tt.format, apiFunc, tt.name)
+				connsDiff, err := getAnalysisResFromAPI(apiFunc, pTest)
 				require.Nil(t, err, pTest.testInfo)
 				require.NotEmpty(t, connsDiff, pTest.testInfo)
 				res, err := pTest.analyzer.ConnectivityDiffToString(connsDiff)
@@ -343,9 +348,7 @@ func prepareTest(firstDir, secondDir, format, apiName, testNameStr string) *prep
 	}
 }
 
-func getAnalysisResFromAPI(apiName, firstDir, secondDir, format, testName string) (
-	pTest *preparedTest, diffRes ConnectivityDiff, err error) {
-	pTest = prepareTest(firstDir, secondDir, format, apiName, testName)
+func getAnalysisResFromAPI(apiName string, pTest *preparedTest) (diffRes ConnectivityDiff, err error) {
 	switch apiName {
 	case ResourceInfosFunc:
 		infos1, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.firstDirPath}, true, false)
@@ -354,7 +357,7 @@ func getAnalysisResFromAPI(apiName, firstDir, secondDir, format, testName string
 	case DirPathFunc:
 		diffRes, err = pTest.analyzer.ConnDiffFromDirPaths(pTest.firstDirPath, pTest.secondDirPath)
 	}
-	return pTest, diffRes, err
+	return diffRes, err
 }
 
 var goodPathTests = []struct {
