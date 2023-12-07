@@ -15,9 +15,11 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
+const currentPkg = testutils.Ingressanalyzer
+
 // helping func - scans the directory objects and returns the ingress analyzer built from them
 func getIngressAnalyzerFromDirObjects(t *testing.T, testName, dirName string, processingErrsNum int) *IngressAnalyzer {
-	path := filepath.Join(testutils.GetTestsDirFromInternalPkg(), dirName)
+	path := filepath.Join(testutils.GetTestsDir(currentPkg), dirName)
 	rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{path}, true, false)
 	objects, fpErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
 	require.Len(t, fpErrs, processingErrsNum, "test: %q, expected %d processing errors but got %d",
