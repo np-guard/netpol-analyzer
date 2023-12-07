@@ -1,36 +1,48 @@
 digraph {
-	"backend/catalog[Deployment]" [label="backend/catalog[Deployment]" color="blue" fontcolor="blue"]
-	"backend/checkout[Deployment]" [label="backend/checkout[Deployment]" color="blue" fontcolor="blue"]
-	"backend/notification[Deployment]" [label="backend/notification[Deployment]" color="blue" fontcolor="blue"]
-	"backend/recommendation[Deployment]" [label="backend/recommendation[Deployment]" color="blue" fontcolor="blue"]
-	"backend/reports[Deployment]" [label="backend/reports[Deployment]" color="blue" fontcolor="blue"]
-	"backend/shipping[Deployment]" [label="backend/shipping[Deployment]" color="blue" fontcolor="blue"]
-	"frontend/asset-cache[Deployment]" [label="frontend/asset-cache[Deployment]" color="blue" fontcolor="blue"]
-	"frontend/blog[Deployment]" [label="frontend/blog[Deployment]" color="#008000" fontcolor="#008000"]
-	"frontend/webapp[Deployment]" [label="frontend/webapp[Deployment]" color="blue" fontcolor="blue"]
-	"payments/gateway[Deployment]" [label="payments/gateway[Deployment]" color="blue" fontcolor="blue"]
-	"payments/mastercard-processor[Deployment]" [label="payments/mastercard-processor[Deployment]" color="blue" fontcolor="blue"]
-	"payments/visa-processor-v2[Deployment]" [label="payments/visa-processor-v2[Deployment]" color="#008000" fontcolor="#008000"]
-	"payments/visa-processor[Deployment]" [label="payments/visa-processor[Deployment]" color="blue" fontcolor="blue"]
-	"zeroday/zeroday[Deployment]" [label="zeroday/zeroday[Deployment]" color="#008000" fontcolor="#008000"]
+	subgraph cluster_backend {
+		"catalog[Deployment]" [label="catalog[Deployment]" color="blue" fontcolor="blue"]
+		"checkout[Deployment]" [label="checkout[Deployment]" color="blue" fontcolor="blue"]
+		"notification[Deployment]" [label="notification[Deployment]" color="blue" fontcolor="blue"]
+		"recommendation[Deployment]" [label="recommendation[Deployment]" color="blue" fontcolor="blue"]
+		"reports[Deployment]" [label="reports[Deployment]" color="blue" fontcolor="blue"]
+		"shipping[Deployment]" [label="shipping[Deployment]" color="blue" fontcolor="blue"]
+		label="backend"
+	}
+	subgraph cluster_frontend {
+		"asset-cache[Deployment]" [label="asset-cache[Deployment]" color="blue" fontcolor="blue"]
+		"blog[Deployment]" [label="blog[Deployment]" color="#008000" fontcolor="#008000"]
+		"webapp[Deployment]" [label="webapp[Deployment]" color="blue" fontcolor="blue"]
+		label="frontend"
+	}
+	subgraph cluster_payments {
+		"gateway[Deployment]" [label="gateway[Deployment]" color="blue" fontcolor="blue"]
+		"mastercard-processor[Deployment]" [label="mastercard-processor[Deployment]" color="blue" fontcolor="blue"]
+		"visa-processor-v2[Deployment]" [label="visa-processor-v2[Deployment]" color="#008000" fontcolor="#008000"]
+		"visa-processor[Deployment]" [label="visa-processor[Deployment]" color="blue" fontcolor="blue"]
+		label="payments"
+	}
+	subgraph cluster_zeroday {
+		"zeroday[Deployment]" [label="zeroday[Deployment]" color="#008000" fontcolor="#008000"]
+		label="zeroday"
+	}
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
-	"backend/checkout[Deployment]" -> "backend/notification[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"backend/checkout[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"backend/checkout[Deployment]" -> "payments/gateway[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"backend/recommendation[Deployment]" -> "backend/catalog[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"backend/reports[Deployment]" -> "backend/catalog[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"backend/reports[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"frontend/webapp[Deployment]" -> "backend/checkout[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"frontend/webapp[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"frontend/webapp[Deployment]" -> "backend/reports[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"frontend/webapp[Deployment]" -> "backend/shipping[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"payments/gateway[Deployment]" -> "payments/mastercard-processor[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"payments/gateway[Deployment]" -> "payments/visa-processor-v2[Deployment]" [label="TCP 8080" color="#008000" fontcolor="#008000"]
-	"payments/gateway[Deployment]" -> "payments/visa-processor[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"{ingress-controller}" -> "frontend/asset-cache[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"{ingress-controller}" -> "frontend/blog[Deployment]" [label="TCP 8080" color="#008000" fontcolor="#008000"]
-	"{ingress-controller}" -> "frontend/webapp[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"{ingress-controller}" -> "zeroday/zeroday[Deployment]" [label="TCP 8080" color="#008000" fontcolor="#008000"]
+	"checkout[Deployment]" -> "gateway[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"checkout[Deployment]" -> "notification[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"checkout[Deployment]" -> "recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"gateway[Deployment]" -> "mastercard-processor[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"gateway[Deployment]" -> "visa-processor-v2[Deployment]" [label="TCP 8080" color="#008000" fontcolor="#008000"]
+	"gateway[Deployment]" -> "visa-processor[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"recommendation[Deployment]" -> "catalog[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"reports[Deployment]" -> "catalog[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"reports[Deployment]" -> "recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"webapp[Deployment]" -> "checkout[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"webapp[Deployment]" -> "recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"webapp[Deployment]" -> "reports[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"webapp[Deployment]" -> "shipping[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"{ingress-controller}" -> "asset-cache[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"{ingress-controller}" -> "blog[Deployment]" [label="TCP 8080" color="#008000" fontcolor="#008000"]
+	"{ingress-controller}" -> "webapp[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"{ingress-controller}" -> "zeroday[Deployment]" [label="TCP 8080" color="#008000" fontcolor="#008000"]
 	nodesep=0.5
 	subgraph cluster_legend {
 		label="Legend"
