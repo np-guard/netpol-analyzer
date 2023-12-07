@@ -174,34 +174,34 @@ in `dot` output graphs, all the peers of the analyzed cluster are grouped by the
 
 digraph {
         subgraph cluster_helloworld {
-                "hello-world[Deployment]" [label="hello-world[Deployment]" color="blue" fontcolor="blue"]
+                "helloworld/hello-world[Deployment]" [label="hello-world[Deployment]" color="blue" fontcolor="blue"]
                 label="helloworld"
         }
         subgraph cluster_ingressworld {
-                "ingress-world[Deployment]" [label="ingress-world[Deployment]" color="blue" fontcolor="blue"]
+                "ingressworld/ingress-world[Deployment]" [label="ingress-world[Deployment]" color="blue" fontcolor="blue"]
                 label="ingressworld"
         }
         subgraph cluster_routeworld {
-                "route-world[Deployment]" [label="route-world[Deployment]" color="blue" fontcolor="blue"]
+                "routeworld/route-world[Deployment]" [label="route-world[Deployment]" color="blue" fontcolor="blue"]
                 label="routeworld"
         }
         "0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
         "{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
-        "0.0.0.0-255.255.255.255" -> "hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "0.0.0.0-255.255.255.255" -> "ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "0.0.0.0-255.255.255.255" -> "route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "hello-world[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "hello-world[Deployment]" -> "ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "hello-world[Deployment]" -> "route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "ingress-world[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "ingress-world[Deployment]" -> "hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "ingress-world[Deployment]" -> "route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "route-world[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "route-world[Deployment]" -> "hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "route-world[Deployment]" -> "ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "{ingress-controller}" -> "hello-world[Deployment]" [label="TCP 8000" color="gold2" fontcolor="darkgreen"]       
-        "{ingress-controller}" -> "ingress-world[Deployment]" [label="TCP 8090" color="gold2" fontcolor="darkgreen"]     
-        "{ingress-controller}" -> "route-world[Deployment]" [label="TCP 8060" color="gold2" fontcolor="darkgreen"]       
+        "0.0.0.0-255.255.255.255" -> "helloworld/hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+        "0.0.0.0-255.255.255.255" -> "ingressworld/ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+        "0.0.0.0-255.255.255.255" -> "routeworld/route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+        "helloworld/hello-world[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+        "helloworld/hello-world[Deployment]" -> "ingressworld/ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+        "helloworld/hello-world[Deployment]" -> "routeworld/route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+        "ingressworld/ingress-world[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+        "ingressworld/ingress-world[Deployment]" -> "helloworld/hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+        "ingressworld/ingress-world[Deployment]" -> "routeworld/route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+        "routeworld/route-world[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+        "routeworld/route-world[Deployment]" -> "helloworld/hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+        "routeworld/route-world[Deployment]" -> "ingressworld/ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+        "{ingress-controller}" -> "helloworld/hello-world[Deployment]" [label="TCP 8000" color="gold2" fontcolor="darkgreen"]
+        "{ingress-controller}" -> "ingressworld/ingress-world[Deployment]" [label="TCP 8090" color="gold2" fontcolor="darkgreen"]
+        "{ingress-controller}" -> "routeworld/route-world[Deployment]" [label="TCP 8060" color="gold2" fontcolor="darkgreen"]
 }
 ```
 
