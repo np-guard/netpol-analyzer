@@ -111,8 +111,6 @@ status:
   hostIP: 192.168.49.2`
 )
 
-const currentPkg = testutils.Eval
-
 func netpolFromYaml(netpolYamlStr string) (*netv1.NetworkPolicy, error) {
 	netpol := netv1.NetworkPolicy{}
 	err := yaml.Unmarshal([]byte(netpolYamlStr), &netpol)
@@ -1081,7 +1079,7 @@ func TestGeneralPerformance(t *testing.T) {
 	if os.Getenv("CI") != "" {
 		t.Skip("skipping TestGeneralPerformance")
 	}
-	path := filepath.Join(testutils.GetTestsDir(currentPkg), "onlineboutique")
+	path := filepath.Join(testutils.TestsDirPath, "onlineboutique")
 	// list of connections to test with, for CheckIfAllowed / CheckIfAllowedNew
 	connectionsListForTest := []TestEntry{
 		{protocol: "tcp", port: "5050"},
@@ -1193,7 +1191,7 @@ func TestGeneralPerformance(t *testing.T) {
 }
 
 func TestFromFiles2(t *testing.T) {
-	path := filepath.Join(testutils.GetTestsDir(currentPkg), "onlineboutique")
+	path := filepath.Join(testutils.TestsDirPath, "onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
@@ -1246,7 +1244,7 @@ func TestFromFiles2(t *testing.T) {
 }
 
 func TestFromFiles(t *testing.T) {
-	path := filepath.Join(testutils.GetTestsDir(currentPkg), "onlineboutique")
+	path := filepath.Join(testutils.TestsDirPath, "onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
@@ -1569,7 +1567,7 @@ func computeExpectedCacheHits(pe *PolicyEngine) (int, error) {
 func TestCacheWithPodDeletion(t *testing.T) {
 	pe := NewPolicyEngine()
 	var err error
-	testDir := filepath.Join(testutils.GetTestsDir(currentPkg), "onlineboutique_with_replicas")
+	testDir := filepath.Join(testutils.TestsDirPath, "onlineboutique_with_replicas")
 	if err = setResourcesFromDir(pe, testDir); err != nil {
 		t.Fatal(err)
 	}
@@ -1601,7 +1599,7 @@ func TestCacheWithPodDeletion(t *testing.T) {
 }
 
 func TestConnectionsMapExamples(t *testing.T) {
-	testsDir := testutils.GetTestsDir(currentPkg)
+	testsDir := testutils.TestsDirPath
 
 	tests := []struct {
 		testName           string
@@ -1736,7 +1734,7 @@ func testConnectivityMapOutput(res []string, expectedFileName string) (bool, err
 }
 
 func TestDisjointIpBlocks(t *testing.T) {
-	path := filepath.Join(testutils.GetTestsDir(currentPkg), "ipblockstest")
+	path := filepath.Join(testutils.TestsDirPath, "ipblockstest")
 	pe := NewPolicyEngine()
 	if err := setResourcesFromDir(pe, path); err != nil {
 		t.Errorf("%v", err)
@@ -1769,7 +1767,7 @@ func TestDisjointIpBlocks(t *testing.T) {
 }
 
 func TestPolicyEngineWithWorkloads(t *testing.T) {
-	path := filepath.Join(testutils.GetTestsDir(currentPkg), "onlineboutique_workloads")
+	path := filepath.Join(testutils.TestsDirPath, "onlineboutique_workloads")
 
 	rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{path}, true, false)
 	objects, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)

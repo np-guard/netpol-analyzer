@@ -21,7 +21,7 @@ const servicesDirName = "services"
 // not existed services or not supported services (e.g. services without selectors are ignored, thus no pods are selected)
 func TestServiceMappingToPods(t *testing.T) {
 	t.Parallel()
-	servicesDir := filepath.Join(testutils.GetTestsDir(currentPkg), servicesDirName)
+	servicesDir := filepath.Join(testutils.TestsDirPath, servicesDirName)
 	cases := []struct {
 		name                             string
 		serviceName                      string

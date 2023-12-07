@@ -17,7 +17,7 @@ var allFormats = []string{output.TextFormat, output.MDFormat, output.CSVFormat, 
 
 const ResourceInfosFunc = "ConnDiffFromResourceInfos"
 const DirPathFunc = "ConnDiffFromDirPaths"
-const currentPkg = testutils.Diff
+const currentPkg = "diff"
 
 var diffTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
 
@@ -305,8 +305,8 @@ func TestDiffOutputWithArgNamesOption(t *testing.T) {
 	ref2 := "onlineboutique_workloads_changed_netpols"
 	for _, format := range ValidDiffFormats {
 		analyzer := NewDiffAnalyzer(WithOutputFormat(format), WithArgNames("old", "new"))
-		diffRes, err := analyzer.ConnDiffFromDirPaths(filepath.Join(testutils.GetTestsDir(currentPkg), ref1),
-			filepath.Join(testutils.GetTestsDir(currentPkg), ref2))
+		diffRes, err := analyzer.ConnDiffFromDirPaths(filepath.Join(testutils.TestsDirPath, ref1),
+			filepath.Join(testutils.TestsDirPath, ref2))
 		require.Nil(t, err)
 		require.NotEmpty(t, diffRes)
 		res, err := analyzer.ConnectivityDiffToString(diffRes)
@@ -342,8 +342,8 @@ func prepareTest(firstDir, secondDir, format, apiName, testNameStr string) *prep
 		expectedOutputFileName: expectedOutputFileName,
 		testInfo:               fmt.Sprintf("test: %q, output format: %q, api func: %q", testName, format, apiName),
 		analyzer:               NewDiffAnalyzer(WithOutputFormat(format)),
-		firstDirPath:           filepath.Join(testutils.GetTestsDir(currentPkg), firstDir),
-		secondDirPath:          filepath.Join(testutils.GetTestsDir(currentPkg), secondDir),
+		firstDirPath:           filepath.Join(testutils.TestsDirPath, firstDir),
+		secondDirPath:          filepath.Join(testutils.TestsDirPath, secondDir),
 	}
 }
 
