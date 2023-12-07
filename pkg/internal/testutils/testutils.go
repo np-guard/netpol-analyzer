@@ -19,10 +19,9 @@ var update = flag.Bool("update", false, "write or override golden files")
 
 const (
 	dirLevelUp                            = ".."
-	TestsDirName                          = "tests"
+	testsDirName                          = "tests"
 	connlistExpectedOutputFilePartialName = "connlist_output."
-	StandardPkgLevelDepth                 = 3 // e.g. pkg/netpol/connlist
-	internalPkgLevelDepth                 = 5 // e.g. pkg/netpol/connlist/internal/ingressanalyzer
+	netpolPkgLevelDepth                   = 3 // e.g. pkg/netpol/connlist
 	underscore                            = "_"
 	dotSign                               = "."
 	formatStr                             = "_format_"
@@ -30,15 +29,24 @@ const (
 	focusWlAnnotation                     = "_focus_workload_"
 )
 
-func GetTestsDir() string { // called from netpol packages
-	return GetDirWithDepth(TestsDirName, StandardPkgLevelDepth)
+// packages names
+const (
+	Cli             = "cli"
+	Connlist        = "connlist"
+	Ingressanalyzer = "ingressanalyzer"
+	Diff            = "diff"
+	Eval            = "eval"
+)
+
+// const map , for each pkg name returns its depth in the project's path
+var pkgToDepth map[string]int = map[string]int{Cli: 2, Connlist: netpolPkgLevelDepth, Ingressanalyzer: 5,
+	Diff: netpolPkgLevelDepth, Eval: netpolPkgLevelDepth}
+
+func GetTestsDir(testingPkg string) string { // called from netpol packages
+	return getDirWithDepth(testsDirName, pkgToDepth[testingPkg])
 }
 
-func GetTestsDirFromInternalPkg() string { // called from netpol/internal packages
-	return GetDirWithDepth(TestsDirName, internalPkgLevelDepth)
-}
-
-func GetDirWithDepth(dirName string, depth int) string {
+func getDirWithDepth(dirName string, depth int) string {
 	res, _ := os.Getwd()
 	for i := 0; i < depth; i++ {
 		res = filepath.Join(res, dirLevelUp)
@@ -68,9 +76,8 @@ func DiffTestNameByTestArgs(ref1, ref2, format string) (testName, expectedOutput
 // CheckActualVsExpectedOutputMatch: testing helping func - checks if actual output matches expected output,
 // if not generates actual output file
 // if --update flag is on, writes the actual output to the expected output file
-func CheckActualVsExpectedOutputMatch(t *testing.T, expectedOutputFileName, actualOutput, testInfo, testingPkg string,
-	currDirDepth int) {
-	expectedOutputFile := filepath.Join(GetDirWithDepth(outputFilesDir, currDirDepth), testingPkg, expectedOutputFileName)
+func CheckActualVsExpectedOutputMatch(t *testing.T, expectedOutputFileName, actualOutput, testInfo, testingPkg string) {
+	expectedOutputFile := filepath.Join(getDirWithDepth(outputFilesDir, pkgToDepth[testingPkg]), testingPkg, expectedOutputFileName)
 	// if the --update flag is on (then generate/ override the expected output file with the actualOutput)
 	if *update {
 		err := output.WriteToFile(actualOutput, expectedOutputFile)
@@ -89,7 +96,7 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, expectedOutputFileName, actu
 		WarnOnErrorReadingFile(err, expectedOutputFile)
 	}
 	actualOutputFileName := "actual_" + expectedOutputFileName
-	actualOutputFile := filepath.Join(GetDirWithDepth(outputFilesDir, currDirDepth), testingPkg, actualOutputFileName)
+	actualOutputFile := filepath.Join(getDirWithDepth(outputFilesDir, pkgToDepth[testingPkg]), testingPkg, actualOutputFileName)
 	if cleanStr(string(expectedOutput)) != cleanStr(actualOutput) {
 		err := output.WriteToFile(actualOutput, actualOutputFile)
 		if err != nil {

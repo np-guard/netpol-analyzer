@@ -17,7 +17,7 @@ var allFormats = []string{output.TextFormat, output.MDFormat, output.CSVFormat, 
 
 const ResourceInfosFunc = "ConnDiffFromResourceInfos"
 const DirPathFunc = "ConnDiffFromDirPaths"
-const currentPkg = "diff"
+const currentPkg = testutils.Diff
 
 var diffTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
 
@@ -40,7 +40,7 @@ func TestDiff(t *testing.T) {
 					actualOutput, err := pTest.analyzer.ConnectivityDiffToString(diffRes)
 					require.Nil(t, err, pTest.testInfo)
 					testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, actualOutput,
-						pTest.testInfo, currentPkg, testutils.StandardPkgLevelDepth)
+						pTest.testInfo, currentPkg)
 				})
 			}
 		}
@@ -305,8 +305,8 @@ func TestDiffOutputWithArgNamesOption(t *testing.T) {
 	ref2 := "onlineboutique_workloads_changed_netpols"
 	for _, format := range ValidDiffFormats {
 		analyzer := NewDiffAnalyzer(WithOutputFormat(format), WithArgNames("old", "new"))
-		diffRes, err := analyzer.ConnDiffFromDirPaths(filepath.Join(testutils.GetTestsDir(), ref1),
-			filepath.Join(testutils.GetTestsDir(), ref2))
+		diffRes, err := analyzer.ConnDiffFromDirPaths(filepath.Join(testutils.GetTestsDir(currentPkg), ref1),
+			filepath.Join(testutils.GetTestsDir(currentPkg), ref2))
 		require.Nil(t, err)
 		require.NotEmpty(t, diffRes)
 		res, err := analyzer.ConnectivityDiffToString(diffRes)
@@ -315,8 +315,7 @@ func TestDiffOutputWithArgNamesOption(t *testing.T) {
 		testName, outFileName := testutils.DiffTestNameByTestArgs(ref1, ref2, format)
 		testName = testNamePrefix + testName
 		outFileName = testNamePrefix + outFileName
-		testutils.CheckActualVsExpectedOutputMatch(t, outFileName, res, testName, currentPkg,
-			testutils.StandardPkgLevelDepth)
+		testutils.CheckActualVsExpectedOutputMatch(t, outFileName, res, testName, currentPkg)
 	}
 }
 
@@ -343,8 +342,8 @@ func prepareTest(firstDir, secondDir, format, apiName, testNameStr string) *prep
 		expectedOutputFileName: expectedOutputFileName,
 		testInfo:               fmt.Sprintf("test: %q, output format: %q, api func: %q", testName, format, apiName),
 		analyzer:               NewDiffAnalyzer(WithOutputFormat(format)),
-		firstDirPath:           filepath.Join(testutils.GetTestsDir(), firstDir),
-		secondDirPath:          filepath.Join(testutils.GetTestsDir(), secondDir),
+		firstDirPath:           filepath.Join(testutils.GetTestsDir(currentPkg), firstDir),
+		secondDirPath:          filepath.Join(testutils.GetTestsDir(currentPkg), secondDir),
 	}
 }
 

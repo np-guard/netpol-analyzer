@@ -14,7 +14,7 @@ import (
 
 const ResourceInfosFunc = "ConnlistFromResourceInfos"
 const DirPathFunc = "ConnlistFromDirPath"
-const currentPkg = "connlist"
+const currentPkg = testutils.Connlist
 
 var allFormats = []string{output.TextFormat, output.JSONFormat, output.CSVFormat, output.MDFormat, output.DOTFormat}
 var connlistTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
@@ -80,7 +80,7 @@ func TestConnListFromDir(t *testing.T) {
 				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
 				testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, out,
-					pTest.testInfo, currentPkg, testutils.StandardPkgLevelDepth)
+					pTest.testInfo, currentPkg)
 			}
 		})
 	}
@@ -103,7 +103,7 @@ func TestConnListFromResourceInfos(t *testing.T) {
 				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
 				testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, out,
-					pTest.testInfo, currentPkg, testutils.StandardPkgLevelDepth)
+					pTest.testInfo, currentPkg)
 			}
 		})
 	}
@@ -445,7 +445,7 @@ func TestNotContainedOutputLines(t *testing.T) {
 
 // helping func - returns test's dir path from test's dir name
 func getDirPathFromDirName(dirName string) string {
-	return filepath.Join(testutils.GetTestsDir(), dirName)
+	return filepath.Join(testutils.GetTestsDir(currentPkg), dirName)
 }
 
 // helping func - creates ConnlistAnalyzer with desired opts and returns the analyzer with connlist from provided directory
