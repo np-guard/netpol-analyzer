@@ -13,21 +13,21 @@
 <polygon fill="none" stroke="black" points="8,-8 8,-170 248,-170 248,-8 8,-8"/>
 <text text-anchor="middle" x="128" y="-154.8" font-family="Times New Roman,serif" font-size="14.00">default</text>
 </g>
-<!-- backend[Deployment] -->
+<!-- default/backend[Deployment] -->
 <g id="node1" class="node">
-<title>backend[Deployment]</title>
+<title>default/backend[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="128" cy="-34" rx="90.98" ry="18"/>
 <text text-anchor="middle" x="128" y="-30.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">backend[Deployment]</text>
 </g>
-<!-- frontend[Deployment] -->
+<!-- default/frontend[Deployment] -->
 <g id="node2" class="node">
-<title>frontend[Deployment]</title>
+<title>default/frontend[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="117" cy="-121" rx="90.98" ry="18"/>
 <text text-anchor="middle" x="117" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">frontend[Deployment]</text>
 </g>
-<!-- frontend[Deployment]&#45;&gt;backend[Deployment] -->
+<!-- default/frontend[Deployment]&#45;&gt;default/backend[Deployment] -->
 <g id="edge5" class="edge">
-<title>frontend[Deployment]&#45;&gt;backend[Deployment]</title>
+<title>default/frontend[Deployment]&#45;&gt;default/backend[Deployment]</title>
 <path fill="none" stroke="magenta" d="M62.25,-106.49C40.78,-98.37 23.66,-86.38 35,-70 40.34,-62.29 47.6,-56.28 55.73,-51.59"/>
 <polygon fill="magenta" stroke="magenta" points="57.48,-54.62 64.84,-47 54.33,-48.37 57.48,-54.62"/>
 <text text-anchor="middle" x="138" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="magenta">TCP 9090,UDP 53 (dir1: TCP 9090)</text>
@@ -38,27 +38,27 @@
 <ellipse fill="none" stroke="blue" cx="173" cy="-229" rx="98.58" ry="18"/>
 <text text-anchor="middle" x="173" y="-225.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">0.0.0.0&#45;255.255.255.255</text>
 </g>
-<!-- frontend[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- default/frontend[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge4" class="edge">
-<title>frontend[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
+<title>default/frontend[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
 <path fill="none" stroke="grey" d="M97.97,-138.74C83.48,-153.57 67.9,-175.51 80,-193 85.01,-200.24 91.72,-205.98 99.25,-210.54"/>
 <polygon fill="grey" stroke="grey" points="97.93,-213.8 108.41,-215.36 101.19,-207.61 97.93,-213.8"/>
 <text text-anchor="middle" x="103" y="-181.8" font-family="Times New Roman,serif" font-size="14.00" fill="grey">UDP 53</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;backend[Deployment] -->
+<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;default/backend[Deployment] -->
 <g id="edge1" class="edge">
-<title>0.0.0.0&#45;255.255.255.255&#45;&gt;backend[Deployment]</title>
+<title>0.0.0.0&#45;255.255.255.255&#45;&gt;default/backend[Deployment]</title>
 <path fill="none" stroke="#008000" d="M195.3,-211.26C201.11,-205.97 206.88,-199.73 211,-193 240.35,-144.99 274.39,-115.29 241,-70 233.81,-60.25 223.94,-53.13 213,-47.96"/>
 <polygon fill="#008000" stroke="#008000" points="214.17,-44.65 203.59,-44.05 211.48,-51.12 214.17,-44.65"/>
 <text text-anchor="middle" x="283" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="#008000">TCP 9090</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;frontend[Deployment] -->
+<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;default/frontend[Deployment] -->
 <g id="edge2" class="edge">
-<title>0.0.0.0&#45;255.255.255.255&#45;&gt;frontend[Deployment]</title>
+<title>0.0.0.0&#45;255.255.255.255&#45;&gt;default/frontend[Deployment]</title>
 <path fill="none" stroke="grey" d="M152.92,-211.32C147.45,-205.95 141.95,-199.65 138,-193 129.99,-179.53 124.85,-162.79 121.66,-148.94"/>
 <polygon fill="grey" stroke="grey" points="125.05,-148.09 119.58,-139.02 118.2,-149.53 125.05,-148.09"/>
 <text text-anchor="middle" x="167" y="-181.8" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;frontend[Deployment] -->
+<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;default/frontend[Deployment] -->
 </g>
 </svg>
