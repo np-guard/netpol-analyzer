@@ -83,7 +83,7 @@ routeworld/route-world[Deployment],ingressworld/ingress-world[Deployment],All Co
 {ingress-controller},routeworld/route-world[Deployment],TCP 8060
 ```
 
-Diff output in `json` format:
+`list` output in `json` format:
 ```
 ./bin/k8snetpolicy list --dirpath tests/demo_app_with_routes_and_ingress/ -o json
 
