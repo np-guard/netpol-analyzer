@@ -443,15 +443,10 @@ func TestNotContainedOutputLines(t *testing.T) {
 	}
 }
 
-// helping func - returns test's dir path from test's dir name
-func getDirPathFromDirName(dirName string) string {
-	return filepath.Join(testutils.TestsDirPath, dirName)
-}
-
 // helping func - creates ConnlistAnalyzer with desired opts and returns the analyzer with connlist from provided directory
 func getConnlistFromDirPathRes(opts []ConnlistAnalyzerOption, dirName string) (*ConnlistAnalyzer, []Peer2PeerConnection, error) {
 	analyzer := NewConnlistAnalyzer(opts...)
-	res, _, err := analyzer.ConnlistFromDirPath(getDirPathFromDirName(dirName))
+	res, _, err := analyzer.ConnlistFromDirPath(testutils.GetTestDirPath(dirName))
 	return analyzer, res, err
 }
 
@@ -477,7 +472,7 @@ func prepareTest(dirName, focusWorkload, format string) preparedTest {
 	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, format)
 	res.testInfo = fmt.Sprintf("test: %q, output format: %q", res.testName, format)
 	res.analyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload))
-	res.dirPath = getDirPathFromDirName(dirName)
+	res.dirPath = testutils.GetTestDirPath(dirName)
 	return res
 }
 

@@ -26,8 +26,13 @@ const (
 	focusWlAnnotation                     = "_focus_workload_"
 )
 
-var TestsDirPath = filepath.Join(projectpath.Root, "tests")
+var testsDirPath = filepath.Join(projectpath.Root, "tests")
 var testsOutputsDirPath = filepath.Join(projectpath.Root, "test_outputs")
+
+// helping func - returns test's dir path from test's dir name
+func GetTestDirPath(dirName string) string {
+	return filepath.Join(testsDirPath, dirName)
+}
 
 // ConnlistTestNameByTestArgs returns connlist test name and test's expected output file from some tests args
 func ConnlistTestNameByTestArgs(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {

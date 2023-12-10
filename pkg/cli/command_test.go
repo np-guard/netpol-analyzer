@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -126,9 +125,8 @@ func TestCommandsFailExecute(t *testing.T) {
 			expectedErrorContains: "both directory paths dir1 and dir2 are required",
 		},
 		{
-			name: "diff_command_args_contain_dirpath_should_return_error_of_unsupported_flag",
-			args: []string{"diff", "--dirpath", filepath.Join(testutils.TestsDirPath,
-				"onlineboutique")},
+			name:                  "diff_command_args_contain_dirpath_should_return_error_of_unsupported_flag",
+			args:                  []string{"diff", "--dirpath", testutils.GetTestDirPath("onlineboutique")},
 			expectedErrorContains: "dirpath flag is not used with diff command",
 		},
 		{
@@ -136,9 +134,9 @@ func TestCommandsFailExecute(t *testing.T) {
 			args: []string{
 				"diff",
 				"--dir1",
-				filepath.Join(testutils.TestsDirPath, "onlineboutique_workloads"),
+				testutils.GetTestDirPath("onlineboutique_workloads"),
 				"--dir2",
-				filepath.Join(testutils.TestsDirPath, "onlineboutique_workloads_changed_workloads"),
+				testutils.GetTestDirPath("onlineboutique_workloads_changed_workloads"),
 				"-o",
 				"png"},
 			expectedErrorContains: "png output format is not supported.",
@@ -148,7 +146,7 @@ func TestCommandsFailExecute(t *testing.T) {
 			args: []string{
 				"eval",
 				"--dirpath",
-				filepath.Join(testutils.TestsDirPath, "onlineboutique"),
+				testutils.GetTestDirPath("onlineboutique"),
 				"-s",
 				"default/adservice-77d5cd745d-t8mx4",
 				"-d",
@@ -162,7 +160,7 @@ func TestCommandsFailExecute(t *testing.T) {
 			args: []string{
 				"list",
 				"--dirpath",
-				filepath.Join(testutils.TestsDirPath, "onlineboutique"),
+				testutils.GetTestDirPath("onlineboutique"),
 				"-o",
 				"png"},
 			expectedErrorContains: "png output format is not supported.",
@@ -172,7 +170,7 @@ func TestCommandsFailExecute(t *testing.T) {
 			args: []string{
 				"list",
 				"--dirpath",
-				filepath.Join(testutils.TestsDirPath, "onlineboutique_workloads"),
+				testutils.GetTestDirPath("onlineboutique_workloads"),
 				"-q",
 				"-v",
 			},
@@ -183,7 +181,7 @@ func TestCommandsFailExecute(t *testing.T) {
 			args: []string{
 				"eval",
 				"--dirpath",
-				filepath.Join(testutils.TestsDirPath, "onlineboutique_with_pods_severe_error"),
+				testutils.GetTestDirPath("onlineboutique_with_pods_severe_error"),
 				"-s",
 				"adservice-77d5cd745d-t8mx4",
 				"-d",
@@ -264,7 +262,7 @@ func TestListCommandOutput(t *testing.T) {
 		tt := tt
 		testName, expectedOutputFileName := getListCmdTestNameAndExpectedOutputFile(tt.dirName, tt.focusWorkload, tt.format)
 		t.Run(testName, func(t *testing.T) {
-			args := []string{"list", "--dirpath", filepath.Join(testutils.TestsDirPath, tt.dirName)}
+			args := []string{"list", "--dirpath", testutils.GetTestDirPath(tt.dirName)}
 			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, tt.focusWorkload)...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
@@ -316,8 +314,8 @@ func TestDiffCommandOutput(t *testing.T) {
 		tt := tt
 		testName, expectedOutputFileName := testutils.DiffTestNameByTestArgs(tt.dir1, tt.dir2, determineFileSuffix(tt.format))
 		t.Run(testName, func(t *testing.T) {
-			args := []string{"diff", "--dir1", filepath.Join(testutils.TestsDirPath, tt.dir1), "--dir2",
-				filepath.Join(testutils.TestsDirPath, tt.dir2)}
+			args := []string{"diff", "--dir1", testutils.GetTestDirPath(tt.dir1), "--dir2",
+				testutils.GetTestDirPath(tt.dir2)}
 			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, "")...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
@@ -358,7 +356,7 @@ func TestEvalCommandOutput(t *testing.T) {
 		tt := tt
 		testName := "eval_" + tt.dir + "_from_" + tt.sourcePod + "_to_" + tt.destPod
 		t.Run(testName, func(t *testing.T) {
-			args := []string{"eval", "--dirpath", filepath.Join(testutils.TestsDirPath, tt.dir),
+			args := []string{"eval", "--dirpath", testutils.GetTestDirPath(tt.dir),
 				"-s", tt.sourcePod, "-d", tt.destPod, "-p", tt.port}
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
@@ -380,9 +378,9 @@ func TestCommandWithFailFlag(t *testing.T) {
 			args: []string{
 				"diff",
 				"--dir1",
-				filepath.Join(testutils.TestsDirPath, "onlineboutique"),
+				testutils.GetTestDirPath("onlineboutique"),
 				"--dir2",
-				filepath.Join(testutils.TestsDirPath, "onlineboutique_with_pods_severe_error"),
+				testutils.GetTestDirPath("onlineboutique_with_pods_severe_error"),
 				"--fail"},
 		},
 		{
@@ -391,7 +389,7 @@ func TestCommandWithFailFlag(t *testing.T) {
 			args: []string{
 				"list",
 				"--dirpath",
-				filepath.Join(testutils.TestsDirPath, "document_with_syntax_error"),
+				testutils.GetTestDirPath("document_with_syntax_error"),
 				"--fail",
 			},
 		},
