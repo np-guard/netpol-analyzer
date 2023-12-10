@@ -166,7 +166,7 @@ routeworld/route-world[Deployment],ingressworld/ingress-world[Deployment],All Co
 ]
 ```
 
-Diff output in `dot` format:
+`list` output in `dot` format:
 
 in `dot` output graphs, all the peers of the analyzed cluster are grouped by their namespaces.
 ```
