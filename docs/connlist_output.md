@@ -168,7 +168,7 @@ routeworld/route-world[Deployment],ingressworld/ingress-world[Deployment],All Co
 
 `list` output in `dot` format:
 
-in `dot` output graphs, all the peers of the analyzed cluster are grouped by their namespaces.
+In `dot` output graphs, all the peers of the analyzed cluster are grouped by their namespaces.
 ```
 ./bin/k8snetpolicy list --dirpath tests/demo_app_with_routes_and_ingress/ -o dot
 
