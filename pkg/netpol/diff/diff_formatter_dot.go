@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/dotformatting"
 )
 
 // diffFormatDOT: implements the diffFormatter interface for dot output format
@@ -49,13 +50,13 @@ func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 	sort.Strings(ingressAnalyzerEdges)
 
 	// write graph
-	allLines := []string{common.DotHeader}
-	allLines = append(allLines, common.AddNsGroups(nsPeers)...)
+	allLines := []string{dotformatting.DotHeader}
+	allLines = append(allLines, dotformatting.AddNsGroups(nsPeers)...)
 	allLines = append(allLines, externalPeersLines...)
 	allLines = append(allLines, edgeLines...)
 	allLines = append(allLines, ingressAnalyzerEdges...)
 	allLines = append(allLines, addLegend()...)
-	allLines = append(allLines, common.DotClosing)
+	allLines = append(allLines, dotformatting.DotClosing)
 	return strings.Join(allLines, newLine), nil
 }
 
@@ -76,7 +77,7 @@ func (df *diffFormatDOT) getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff
 			if isExternal {
 				externalPeersLines = append(externalPeersLines, peerLine)
 			} else {
-				common.AddPeerToNsGroup(connsPair.Src().Namespace(), peerLine, nsPeers)
+				dotformatting.AddPeerToNsGroup(connsPair.Src().Namespace(), peerLine, nsPeers)
 			}
 		}
 		if !peersSet[dst] {
@@ -86,7 +87,7 @@ func (df *diffFormatDOT) getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff
 			if isExternal {
 				externalPeersLines = append(externalPeersLines, peerLine)
 			} else {
-				common.AddPeerToNsGroup(connsPair.Dst().Namespace(), peerLine, nsPeers)
+				dotformatting.AddPeerToNsGroup(connsPair.Dst().Namespace(), peerLine, nsPeers)
 			}
 		}
 		// add connections lines
@@ -267,5 +268,5 @@ func getNodePeerLabelAndType(peer Peer) (string, bool) {
 	if peer.IsPeerIPType() || peer.Name() == common.IngressPodName {
 		return peer.String(), true
 	}
-	return common.NodeClusterPeerLabel(peer.Name(), peer.Kind()), false
+	return dotformatting.NodeClusterPeerLabel(peer.Name(), peer.Kind()), false
 }

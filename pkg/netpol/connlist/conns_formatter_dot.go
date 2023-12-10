@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/dotformatting"
 )
 
 const (
@@ -30,7 +31,7 @@ func peerNameAndColorByType(peer Peer) (nameLabel, color string, isExternal bool
 	} else if peer.Name() == common.IngressPodName {
 		return peer.String(), nonIPPeerColor, true
 	}
-	return common.NodeClusterPeerLabel(peer.Name(), peer.Kind()), nonIPPeerColor, false
+	return dotformatting.NodeClusterPeerLabel(peer.Name(), peer.Kind()), nonIPPeerColor, false
 }
 
 // formats a peer line for dot graph
@@ -54,7 +55,7 @@ func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
 			if isExternalPeer { // peer that does not belong to a cluster's namespace (i.e. ip/ ingress-controller)
 				externalPeersLines = append(externalPeersLines, peerLine)
 			} else { // add to Ns group
-				common.AddPeerToNsGroup(conns[index].Src().Namespace(), peerLine, nsPeers)
+				dotformatting.AddPeerToNsGroup(conns[index].Src().Namespace(), peerLine, nsPeers)
 			}
 		}
 		if !peersVisited[dstStr] {
@@ -63,7 +64,7 @@ func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
 			if isExternalPeer {
 				externalPeersLines = append(externalPeersLines, peerLine)
 			} else {
-				common.AddPeerToNsGroup(conns[index].Dst().Namespace(), peerLine, nsPeers)
+				dotformatting.AddPeerToNsGroup(conns[index].Dst().Namespace(), peerLine, nsPeers)
 			}
 		}
 	}
@@ -71,10 +72,10 @@ func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	sort.Strings(edgeLines)
 	sort.Strings(externalPeersLines)
 	// collect all lines by order
-	allLines := []string{common.DotHeader}
-	allLines = append(allLines, common.AddNsGroups(nsPeers)...)
+	allLines := []string{dotformatting.DotHeader}
+	allLines = append(allLines, dotformatting.AddNsGroups(nsPeers)...)
 	allLines = append(allLines, externalPeersLines...)
 	allLines = append(allLines, edgeLines...)
-	allLines = append(allLines, common.DotClosing)
+	allLines = append(allLines, dotformatting.DotClosing)
 	return strings.Join(allLines, newLineChar), nil
 }
