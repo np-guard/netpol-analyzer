@@ -35,7 +35,8 @@ added,0.0.0.0-255.255.255.255,default/backend[Deployment],No Connections,TCP 909
 
 Diff output in `dot` format:
 
-in dot output graphs, all the peers of the analyzed cluster are grouped by their namespaces.
+In dot output graphs, all the peers of the analyzed cluster are grouped by their namespaces.
+
 ```
 $ ./bin/k8snetpolicy diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 tests/netpol-diff-example-minimal/ -o dot
 
