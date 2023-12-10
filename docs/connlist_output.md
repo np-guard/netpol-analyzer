@@ -39,7 +39,7 @@ routeworld/route-world[Deployment] => ingressworld/ingress-world[Deployment] : A
 
 ```
 
-Diff output in `md` format:
+`list` output in `md` format:
 ```
 ./bin/k8snetpolicy list --dirpath tests/demo_app_with_routes_and_ingress/ -o md
 ```
