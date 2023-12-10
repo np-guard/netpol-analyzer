@@ -1,8 +1,8 @@
 package connlist
 
 import (
+	"fmt"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
@@ -13,11 +13,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const connlistExpectedOutputFileNamePrefix = "connlist_output."
-const underscore = "_"
-const notEmptyMsg = "expecting non-empty analysis res"
 const ResourceInfosFunc = "ConnlistFromResourceInfos"
 const DirPathFunc = "ConnlistFromDirPath"
+const currentPkg = "connlist"
 
 var allFormats = []string{output.TextFormat, output.JSONFormat, output.CSVFormat, output.MDFormat, output.DOTFormat}
 var connlistTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
@@ -62,7 +60,7 @@ interfaces to  test:
 	json: cannot unmarshal array into Go value of type unstructured.detector"
 	(4) bad JSON/YAML - missing kind : "Error: unable to decode "tests\\malformed-pod-example-4\\pods.json":
 	 Object 'Kind' is missing in '{ ... }"
-	(5) YAML doc with syntax error: "error parsing tests/bad_yamls/document_with_syntax_error.yaml: error
+	(5) YAML doc with syntax error: "error parsing tests/document_with_syntax_error.yaml: error
 	converting YAML to JSON: yaml: line 19: found character that cannot start any token"
 
 */
@@ -82,8 +80,8 @@ func TestConnListFromDir(t *testing.T) {
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
-				testutils.CheckActualVsExpectedOutputMatch(t, pTest.testName, tt.testDirName,
-					pTest.expectedOutputFileName, out, pTest.testInfo)
+				testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, out,
+					pTest.testInfo, currentPkg)
 			}
 		})
 	}
@@ -105,8 +103,8 @@ func TestConnListFromResourceInfos(t *testing.T) {
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
-				testutils.CheckActualVsExpectedOutputMatch(t, pTest.testName, tt.testDirName,
-					pTest.expectedOutputFileName, out, pTest.testInfo)
+				testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, out,
+					pTest.testInfo, currentPkg)
 			}
 		})
 	}
@@ -270,7 +268,7 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 		/*{
 			// this error issued by builder
 			name:                           "input_file_has_malformed_yaml_doc_should_return_severe_error",
-			dirName:                        filepath.Join("bad_yamls", "document_with_syntax_error.yaml"),
+			dirName:                        "document_with_syntax_error",
 			expectedErrNumWithoutStopOnErr: 2,
 			expectedErrNumWithStopOnErr:    1,
 			firstErrStrContains:            "found character that cannot start any token", //"YAML document is malformed",
@@ -445,27 +443,12 @@ func TestNotContainedOutputLines(t *testing.T) {
 	}
 }
 
-// helping func - returns test's dir path from test's dir name
-func getDirPathFromDirName(dirName string) string {
-	return filepath.Join(testutils.GetTestsDir(), dirName)
-}
-
 // helping func - creates ConnlistAnalyzer with desired opts and returns the analyzer with connlist from provided directory
 func getConnlistFromDirPathRes(opts []ConnlistAnalyzerOption, dirName string) (*ConnlistAnalyzer, []Peer2PeerConnection, error) {
 	analyzer := NewConnlistAnalyzer(opts...)
-	res, _, err := analyzer.ConnlistFromDirPath(getDirPathFromDirName(dirName))
+	res, _, err := analyzer.ConnlistFromDirPath(testutils.GetTestDirPath(dirName))
 	return analyzer, res, err
 }
-
-// helping func - creates the analyzer , gets connlist and writes it to string and verifies results
-/*func verifyConnlistAnalyzeOutputVsExpectedOutput(t *testing.T, analyzerOptions []ConnlistAnalyzerOption, dirName,
-	expectedOutputFileName, testName, format string) {
-	analyzer, res, err := getConnlistFromDirPathRes(analyzerOptions, dirName)
-	require.Nil(t, err, utils.GetDebugMsgWithTestNameAndFormat(testName, format))
-	out, err := analyzer.ConnectionsListToString(res)
-	require.Nil(t, err, utils.GetDebugMsgWithTestNameAndFormat(testName, format))
-	utils.CheckActualVsExpectedOutputMatch(t, testName, dirName, expectedOutputFileName, out, format)
-}*/
 
 // helping func - if focus workload is not empty append it to ConnlistAnalyzerOption list
 func appendFocusWorkloadOptIfRequired(focusWorkload string) []ConnlistAnalyzerOption {
@@ -474,19 +457,6 @@ func appendFocusWorkloadOptIfRequired(focusWorkload string) []ConnlistAnalyzerOp
 		analyzerOptions = append(analyzerOptions, WithFocusWorkload(focusWorkload))
 	}
 	return analyzerOptions
-}
-
-func testNameByTestType(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
-	switch {
-	case focusWorkload == "":
-		return dirName, connlistExpectedOutputFileNamePrefix + format
-
-	case focusWorkload != "":
-		focusWorkloadStr := strings.Replace(focusWorkload, "/", underscore, 1)
-		return "dir_" + dirName + "_focus_workload_" + focusWorkloadStr,
-			focusWorkloadStr + underscore + connlistExpectedOutputFileNamePrefix + format
-	}
-	return "", ""
 }
 
 type preparedTest struct {
@@ -499,10 +469,10 @@ type preparedTest struct {
 
 func prepareTest(dirName, focusWorkload, format string) preparedTest {
 	res := preparedTest{}
-	res.testName, res.expectedOutputFileName = testNameByTestType(dirName, focusWorkload, format)
-	res.testInfo = testutils.GetDebugMsgWithTestNameAndFormat(res.testName, format)
+	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, format)
+	res.testInfo = fmt.Sprintf("test: %q, output format: %q", res.testName, format)
 	res.analyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload))
-	res.dirPath = getDirPathFromDirName(dirName)
+	res.dirPath = testutils.GetTestDirPath(dirName)
 	return res
 }
 

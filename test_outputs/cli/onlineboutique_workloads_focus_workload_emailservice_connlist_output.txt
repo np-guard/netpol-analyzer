@@ -1,0 +1,1 @@
+default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080

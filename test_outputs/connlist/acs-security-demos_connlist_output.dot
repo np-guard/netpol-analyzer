@@ -1,0 +1,37 @@
+digraph {
+	subgraph cluster_backend {
+		"catalog[Deployment]" [label="catalog[Deployment]" color="blue" fontcolor="blue"]
+		"checkout[Deployment]" [label="checkout[Deployment]" color="blue" fontcolor="blue"]
+		"notification[Deployment]" [label="notification[Deployment]" color="blue" fontcolor="blue"]
+		"recommendation[Deployment]" [label="recommendation[Deployment]" color="blue" fontcolor="blue"]
+		"reports[Deployment]" [label="reports[Deployment]" color="blue" fontcolor="blue"]
+		"shipping[Deployment]" [label="shipping[Deployment]" color="blue" fontcolor="blue"]
+		label="backend"
+	}
+	subgraph cluster_frontend {
+		"asset-cache[Deployment]" [label="asset-cache[Deployment]" color="blue" fontcolor="blue"]
+		"webapp[Deployment]" [label="webapp[Deployment]" color="blue" fontcolor="blue"]
+		label="frontend"
+	}
+	subgraph cluster_payments {
+		"gateway[Deployment]" [label="gateway[Deployment]" color="blue" fontcolor="blue"]
+		"mastercard-processor[Deployment]" [label="mastercard-processor[Deployment]" color="blue" fontcolor="blue"]
+		"visa-processor[Deployment]" [label="visa-processor[Deployment]" color="blue" fontcolor="blue"]
+		label="payments"
+	}
+	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
+	"checkout[Deployment]" -> "gateway[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"checkout[Deployment]" -> "notification[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"checkout[Deployment]" -> "recommendation[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"gateway[Deployment]" -> "mastercard-processor[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"gateway[Deployment]" -> "visa-processor[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"recommendation[Deployment]" -> "catalog[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"reports[Deployment]" -> "catalog[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"reports[Deployment]" -> "recommendation[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"webapp[Deployment]" -> "checkout[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"webapp[Deployment]" -> "recommendation[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"webapp[Deployment]" -> "reports[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"webapp[Deployment]" -> "shipping[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"{ingress-controller}" -> "asset-cache[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"{ingress-controller}" -> "webapp[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+}

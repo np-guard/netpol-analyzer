@@ -2,167 +2,143 @@ package cli
 
 import (
 	_ "embed"
-	"errors"
+	"fmt"
 	"io"
 	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
+
+	ioutput "github.com/np-guard/netpol-analyzer/pkg/internal/output"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 )
 
 var (
 	stdoutFile *os.File
-	stderrFile *os.File
 	testOutR   *os.File
 	testOutW   *os.File
-	testErrR   *os.File
-	testErrW   *os.File
-
-	//go:embed tests_outputs/test_legal_list.txt
-	testLegalListOutput string
 )
 
+const outFileName = "test_out.txt"
+const currentPkg = "cli"
+
+// redirect command's execute stdout to a pipe
 func preTestRun() {
 	stdoutFile = os.Stdout
-	stderrFile = os.Stderr
 	testOutR, testOutW, _ = os.Pipe()
 	os.Stdout = testOutW
-	testErrR, testErrW, _ = os.Pipe()
-	os.Stderr = testErrW
 }
 
-// finalize test and get its output
-func postTestRun(isErr bool) string {
+// finalize test's command execute and get its output
+func postTestRun() string {
 	testOutW.Close()
-	testErrW.Close()
 	out, _ := io.ReadAll(testOutR)
-	errOut, _ := io.ReadAll(testErrR)
 	os.Stdout = stdoutFile
-	os.Stderr = stderrFile
-	actualOutput := string(out)
-	actualErr := string(errOut)
-	if isErr {
-		return actualErr
-	}
-	return actualOutput
+	return string(out)
 }
 
-// check that expected is the same as actual
-func sameOutput(t *testing.T, actual, expected, testName string, isFile bool) {
-	assert.Equal(t, expected, actual, "error - unexpected output for test %s, isFile: %d", testName, isFile)
-}
-
-// check that expected is contained in actual
-func containedOutput(t *testing.T, actual, expected, testName string, isFile bool) {
-	isContained := strings.Contains(actual, expected)
-	assert.True(t, isContained, "test %s error: %s not contained in %s, isFile: %d", testName, expected, actual, isFile)
-}
-
-func clean(test cmdTest) {
-	if test.hasFile {
-		os.Remove(outFileName)
-	}
-}
-
-func runTest(test cmdTest, t *testing.T) {
-	// run the test and get its output
+// build a new command with args list and execute it, returns the actual output from stdout and the execute err if exists
+func buildAndExecuteCommand(args []string) (string, error) {
 	preTestRun()
-	rootCmd := newCommandRoot()
-	rootCmd.SetArgs(test.args)
-	err := rootCmd.Execute()
-	if !test.isErr {
-		require.Nilf(t, err, "expected no errors, but got %v", err)
-	} else {
-		require.NotNil(t, err, "expected error, but got no error")
-	}
-	actual := postTestRun(test.isErr)
-
-	// check if has file and if it exists
-	var fileContent []byte
-	if test.hasFile {
-		_, err := os.Stat(outFileName)
-		require.Nil(t, err)
-		fileContent, err = os.ReadFile(outFileName)
-		require.Nil(t, err)
-	}
-
-	// compare actual to test.expectedOutput
-	if test.exact {
-		sameOutput(t, actual, test.expectedOutput, test.name, false)
-		if test.hasFile {
-			sameOutput(t, string(fileContent), test.expectedOutput, test.name, true)
-		}
-		return
-	}
-
-	if test.containment {
-		containedOutput(t, actual, test.expectedOutput, test.name, false)
-		if test.hasFile {
-			containedOutput(t, string(fileContent), test.expectedOutput, test.name, true)
-		}
-		return
-	}
-
-	assert.Error(t, errors.New(""), "test %s: missing containment or equality flag for test")
+	cmd := newCommandRoot()
+	cmd.SetArgs(args)
+	err := cmd.Execute()
+	actualOut := postTestRun()
+	return actualOut, err
 }
 
-type cmdTest struct {
-	name           string
-	args           []string
-	expectedOutput string
-	exact          bool
-	containment    bool
-	isErr          bool
-	hasFile        bool
+// append the optional args of a command if the values are not empty
+func addCmdOptionalArgs(format, outputFile, focusWorkload string) []string {
+	res := []string{}
+	if focusWorkload != "" {
+		res = append(res, "--focusworkload", focusWorkload)
+	}
+	if format != "" {
+		res = append(res, "--output", format)
+	}
+	if outputFile != "" {
+		res = append(res, "-f", outputFile)
+	}
+	return res
 }
 
-const outFileName = "test_out.txt"
+// determines the file suffix from the format
+func determineFileSuffix(format string) string {
+	fileSuffix := ioutput.DefaultFormat
+	if format != "" {
+		fileSuffix = format
+	}
+	return fileSuffix
+}
 
-func TestCommands(t *testing.T) {
-	tests := []cmdTest{
-		{
-			name:           "test_illegal_command",
-			args:           []string{"A"},
-			expectedOutput: "Error: unknown command \"A\" for \"k8snetpolicy\"",
-			containment:    true,
-			isErr:          true,
-		},
+// gets the test name and name of expected output file for a list command from its args
+func getListCmdTestNameAndExpectedOutputFile(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
+	fileSuffix := determineFileSuffix(format)
+	return testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, fileSuffix)
+}
 
-		{
-			name:           "test_illegal_eval_no_args",
-			args:           []string{"eval"},
-			expectedOutput: "no source defined",
-			containment:    true,
-			isErr:          true,
-		},
+func testInfo(testName string) string {
+	return fmt.Sprintf("test: %q", testName)
+}
 
+// removes the output file generated for commands which run with `-f` flag
+func removeOutFile(outputFile string) {
+	if outputFile != "" {
+		err := os.Remove(outputFile)
+		if err != nil {
+			logger.NewDefaultLogger().Warnf("file %q was not removed; os error: %v occurred", outputFile, err)
+		}
+	}
+}
+
+// helping func, reads output file contents and compares it with expected output
+func checkFileContentVsExpectedOutput(t *testing.T, outputFile, expectedFile, tInfo string) {
+	actualOutFromFile, err := os.ReadFile(outputFile)
+	if err != nil {
+		testutils.WarnOnErrorReadingFile(err, outputFile)
+	}
+	testutils.CheckActualVsExpectedOutputMatch(t, expectedFile, string(actualOutFromFile), tInfo, currentPkg)
+	removeOutFile(outputFile)
+}
+
+// TestCommandsFailExecute - tests executing failure for illegal commands or commands with invalid args or with wrong input values
+func TestCommandsFailExecute(t *testing.T) {
+	tests := []struct {
+		name                  string
+		args                  []string
+		expectedErrorContains string
+	}{
 		{
-			name:           "test_illegal_diff_no_args",
-			args:           []string{"diff"},
-			expectedOutput: "both directory paths dir1 and dir2 are required",
-			containment:    true,
-			isErr:          true,
+			name:                  "unknown_command_should_return_error_of_unknown_command_for_k8snetpolicy",
+			args:                  []string{"A"},
+			expectedErrorContains: "unknown command \"A\" for \"k8snetpolicy\"",
 		},
 		{
-			name:           "test_illegal_diff_unsupported_args",
-			args:           []string{"diff", "--dirpath", filepath.Join(getTestsDir(), "onlineboutique")},
-			expectedOutput: "dirpath flag is not used with diff command",
-			containment:    true,
-			isErr:          true,
+			name:                  "eval_command_with_no_args_is_illegal_should_return_error_of_undefined_source",
+			args:                  []string{"eval"},
+			expectedErrorContains: "no source defined",
 		},
 		{
-			name: "test_illegal_diff_output_format",
+			name:                  "diff_command_with_no_args_is_illegal_should_return_error_there_are_required_flags",
+			args:                  []string{"diff"},
+			expectedErrorContains: "both directory paths dir1 and dir2 are required",
+		},
+		{
+			name:                  "diff_command_args_contain_dirpath_should_return_error_of_unsupported_flag",
+			args:                  []string{"diff", "--dirpath", testutils.GetTestDirPath("onlineboutique")},
+			expectedErrorContains: "dirpath flag is not used with diff command",
+		},
+		{
+			name: "diff_command_with_unsupported_output_format_should_return_error",
 			args: []string{
 				"diff",
 				"--dir1",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				testutils.GetTestDirPath("onlineboutique_workloads"),
 				"--dir2",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
+				testutils.GetTestDirPath("onlineboutique_workloads_changed_workloads"),
 				"-o",
 				"png"},
 			expectedOutput: netpolerrors.FormatNotSupportedErrStr("png"),
@@ -170,393 +146,46 @@ func TestCommands(t *testing.T) {
 			isErr:          true,
 		},
 		{
-			name: "test_illegal_eval_peer_not_found",
+			name: "eval_command_with_not_existing_peer_should_return_error_not_found_peer",
 			args: []string{
 				"eval",
 				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique"),
+				testutils.GetTestDirPath("onlineboutique"),
 				"-s",
 				"default/adservice-77d5cd745d-t8mx4",
 				"-d",
 				"default/emailservice-54c7c5d9d-vp27n",
 				"-p",
 				"80"},
-			expectedOutput: "could not find peer default/default/adservice-77d5cd745d",
-			containment:    true,
-			isErr:          true,
+			expectedErrorContains: "could not find peer default/default/adservice-77d5cd745d",
 		},
-
 		{
-			name: "test_legal_eval",
-			args: []string{
-				"eval",
-				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique"),
-				"-s",
-				"adservice-77d5cd745d-t8mx4",
-				"-d",
-				"emailservice-54c7c5d9d-vp27n",
-				"-p",
-				"80"},
-			expectedOutput: "default/adservice-77d5cd745d-t8mx4 => default/emailservice-54c7c5d9d-vp27n over tcp/80: false\n",
-			exact:          true,
-			isErr:          false,
-		},
-
-		{
-			name: "test_legal_list",
+			name: "list_command_with_unsupported_output_format_should_return_error",
 			args: []string{
 				"list",
 				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique"),
-			},
-			expectedOutput: testLegalListOutput,
-			exact:          true,
-			isErr:          false,
-		},
-
-		{
-			name: "test_legal_list_with_out_file",
-			args: []string{
-				"list",
-				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique"),
-				"-f",
-				outFileName,
-			},
-			expectedOutput: testLegalListOutput,
-			exact:          true,
-			isErr:          false,
-			hasFile:        true,
-		},
-
-		{
-			name: "test_legal_list_with_focus_workload",
-			args: []string{
-				"list",
-				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--focusworkload",
-				"emailservice",
-			},
-			expectedOutput: "default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080",
-			exact:          true,
-			isErr:          false,
-		},
-		{
-			name: "test_legal_list_with_focus_workload_format_of_ns_and_name",
-			args: []string{
-				"list",
-				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--focusworkload",
-				"default/emailservice",
-			},
-			expectedOutput: "default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080",
-			exact:          true,
-			isErr:          false,
-		},
-		{
-			name: "test_legal_list_with_focus_workload_of_ingress_controller",
-			args: []string{
-				"list",
-				"--dirpath",
-				filepath.Join(getTestsDir(), "acs-security-demos"),
-				"--focusworkload",
-				"ingress-controller",
-			},
-			expectedOutput: "{ingress-controller} => frontend/asset-cache[Deployment] : TCP 8080\n" +
-				"{ingress-controller} => frontend/webapp[Deployment] : TCP 8080",
-			exact: true,
-			isErr: false,
-		},
-		{
-			name: "test_legal_list_with_focus_workload_json_output",
-			args: []string{
-				"list",
-				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--focusworkload",
-				"emailservice",
-				"--output",
-				"json",
-			},
-			expectedOutput: "[\n" +
-				"  {\n" +
-				"    \"src\": \"default/checkoutservice[Deployment]\",\n" +
-				"    \"dst\": \"default/emailservice[Deployment]\",\n" +
-				"    \"conn\": \"TCP 8080\"\n" +
-				"  }\n" +
-				"]",
-			exact: true,
-			isErr: false,
-		},
-
-		{
-			name: "test_illegal_list_output_format",
-			args: []string{
-				"list",
-				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique"),
+				testutils.GetTestDirPath("onlineboutique"),
 				"-o",
 				"png"},
-			expectedOutput: "png output format is not supported.",
-			containment:    true,
-			isErr:          true,
+			expectedErrorContains: "png output format is not supported.",
 		},
-
 		{
-			name: "test_legal_list_with_focus_workload_dot_output",
+			name: "test_using_q_and_v_verbosity_flags_together_should_return_an_error_of_illegal_use_of_quiet_and_verbose_flags",
 			args: []string{
 				"list",
 				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--focusworkload",
-				"emailservice",
-				"--output",
-				"dot",
-			},
-			expectedOutput: "digraph {\n" +
-				"\t\"default/checkoutservice[Deployment]\" [label=\"default/checkoutservice[Deployment]\" color=\"blue\" fontcolor=\"blue\"]\n" +
-				"\t\"default/emailservice[Deployment]\" [label=\"default/emailservice[Deployment]\" color=\"blue\" fontcolor=\"blue\"]\n" +
-				"\t\"default/checkoutservice[Deployment]\" -> \"default/emailservice[Deployment]\"" +
-				" [label=\"TCP 8080\" color=\"gold2\" fontcolor=\"darkgreen\"]\n" +
-				"}",
-			exact: true,
-			isErr: false,
-		},
-
-		{
-			name: "test_legal_list_with_focus_workload_csv_output",
-			args: []string{
-				"list",
-				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--focusworkload",
-				"emailservice",
-				"--output",
-				"csv",
-			},
-			expectedOutput: "src,dst,conn\n" +
-				"default/checkoutservice[Deployment],default/emailservice[Deployment],TCP 8080\n",
-			exact: true,
-			isErr: false,
-		},
-
-		{
-			name: "test_legal_list_with_focus_workload_md_output",
-			args: []string{
-				"list",
-				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--focusworkload",
-				"emailservice",
-				"--output",
-				"md",
-			},
-			expectedOutput: "| src | dst | conn |\n" +
-				"|-----|-----|------|\n" +
-				"| default/checkoutservice[Deployment] | default/emailservice[Deployment] | TCP 8080 |",
-			exact: true,
-			isErr: false,
-		},
-		{
-			name: "test_illegal_use_of_quiet_and_verbose_flags",
-			args: []string{
-				"list",
-				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
+				testutils.GetTestDirPath("onlineboutique_workloads"),
 				"-q",
 				"-v",
 			},
-			expectedOutput: "-q and -v cannot be specified together",
-			containment:    true,
-			isErr:          true,
+			expectedErrorContains: "-q and -v cannot be specified together",
 		},
 		{
-			name: "test_legal_diff_txt_output",
-			args: []string{
-				"diff",
-				"--dir1",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--dir2",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
-				"--output",
-				"txt",
-			},
-			expectedOutput: "Connectivity diff:\n" +
-				"diff-type: added, source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], dir1:" +
-				" No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
-				"diff-type: added, source: default/redis-cart[Deployment], destination: default/unicorn[Deployment], dir1:" +
-				" No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
-				"diff-type: added, source: default/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:" +
-				" No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
-				"diff-type: added, source: default/unicorn[Deployment], destination: default/redis-cart[Deployment], dir1:" +
-				" No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added",
-			exact: true,
-			isErr: false,
-		},
-		{
-			name: "test_legal_diff_txt_output_with_file",
-			args: []string{
-				"diff",
-				"--dir1",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--dir2",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
-				"--output",
-				"txt",
-				"-f",
-				outFileName,
-			},
-			expectedOutput: "Connectivity diff:\n" +
-				"diff-type: added, source: 0.0.0.0-255.255.255.255, destination: default/unicorn[Deployment], dir1:" +
-				" No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
-				"diff-type: added, source: default/redis-cart[Deployment], destination: default/unicorn[Deployment], dir1:" +
-				" No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
-				"diff-type: added, source: default/unicorn[Deployment], destination: 0.0.0.0-255.255.255.255, dir1:" +
-				" No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added\n" +
-				"diff-type: added, source: default/unicorn[Deployment], destination: default/redis-cart[Deployment], dir1:" +
-				" No Connections, dir2: All Connections, workloads-diff-info: workload default/unicorn[Deployment] added",
-			exact:   true,
-			isErr:   false,
-			hasFile: true,
-		},
-		{
-			name: "test_legal_diff_csv_output",
-			args: []string{
-				"diff",
-				"--dir1",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--dir2",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
-				"--output",
-				"csv",
-			},
-			expectedOutput: "diff-type,source,destination,dir1,dir2,workloads-diff-info\n" +
-				"added,0.0.0.0-255.255.255.255,default/unicorn[Deployment],No Connections,All Connections," +
-				"workload default/unicorn[Deployment] added\n" +
-				"added,default/redis-cart[Deployment],default/unicorn[Deployment],No Connections,All Connections," +
-				"workload default/unicorn[Deployment] added\n" +
-				"added,default/unicorn[Deployment],0.0.0.0-255.255.255.255,No Connections,All Connections," +
-				"workload default/unicorn[Deployment] added\n" +
-				"added,default/unicorn[Deployment],default/redis-cart[Deployment],No Connections,All Connections," +
-				"workload default/unicorn[Deployment] added\n" +
-				"",
-			exact: true,
-			isErr: false,
-		},
-		{
-			name: "test_legal_diff_md_output",
-			args: []string{
-				"diff",
-				"--dir1",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads"),
-				"--dir2",
-				filepath.Join(getTestsDir(), "onlineboutique_workloads_changed_workloads"),
-				"--output",
-				"md",
-			},
-			expectedOutput: "| diff-type | source | destination | dir1 | dir2 | workloads-diff-info |\n" +
-				"|-----------|--------|-------------|------|------|---------------------|\n" +
-				"| added | 0.0.0.0-255.255.255.255 | default/unicorn[Deployment] | No Connections " +
-				"| All Connections | workload default/unicorn[Deployment] added |\n" +
-				"| added | default/redis-cart[Deployment] | default/unicorn[Deployment] | No Connections " +
-				"| All Connections | workload default/unicorn[Deployment] added |\n" +
-				"| added | default/unicorn[Deployment] | 0.0.0.0-255.255.255.255 | No Connections " +
-				"| All Connections | workload default/unicorn[Deployment] added |\n" +
-				"| added | default/unicorn[Deployment] | default/redis-cart[Deployment] | No Connections " +
-				"| All Connections | workload default/unicorn[Deployment] added |",
-			exact: true,
-			isErr: false,
-		},
-		{
-			name: "test_legal_list_dir_with_severe_error_and_produces_legal_output",
-			// the test contains malformed yaml beside to legal yaml.
-			//  MalformedYamlDocError is not fatal, thus not returned
-			// analysis is able to parse some deployments, thus can produce connectivity output
-			args: []string{
-				"list",
-				"--dirpath",
-				filepath.Join(getTestsDir(), "bad_yamls", "document_with_syntax_error.yaml"),
-			},
-			expectedOutput: "0.0.0.0-255.255.255.255 => default/checkoutservice[Deployment] : All Connections\n" +
-				"0.0.0.0-255.255.255.255 => default/emailservice[Deployment] : All Connections\n" +
-				"0.0.0.0-255.255.255.255 => default/recommendationservice[Deployment] : All Connections\n" +
-				"default/checkoutservice[Deployment] => 0.0.0.0-255.255.255.255 : All Connections\n" +
-				"default/checkoutservice[Deployment] => default/emailservice[Deployment] : All Connections\n" +
-				"default/checkoutservice[Deployment] => default/recommendationservice[Deployment] : All Connections\n" +
-				"default/emailservice[Deployment] => 0.0.0.0-255.255.255.255 : All Connections\n" +
-				"default/emailservice[Deployment] => default/checkoutservice[Deployment] : All Connections\n" +
-				"default/emailservice[Deployment] => default/recommendationservice[Deployment] : All Connections\n" +
-				"default/recommendationservice[Deployment] => 0.0.0.0-255.255.255.255 : All Connections\n" +
-				"default/recommendationservice[Deployment] => default/checkoutservice[Deployment] : All Connections\n" +
-				"default/recommendationservice[Deployment] => default/emailservice[Deployment] : All Connections",
-			exact: true,
-			isErr: false,
-		},
-		{
-			name: "test_list_dir_with_severe_error_running_with_fail_stops_and_return_empty_output",
-			// as we saw in a previous test on same path, when --fail is not used, the test produces connectivity map
-			args: []string{
-				"list",
-				"--dirpath",
-				filepath.Join(getTestsDir(), "bad_yamls", "document_with_syntax_error.yaml"),
-				"--fail",
-			},
-			expectedOutput: "found character that cannot start any token",
-			exact:          false,
-			isErr:          true, // fatal error because err is issued by the builder and uses stopOnErr
-		},
-		{
-			name: "test_diff_one_dir_with_severe_error_without_fail_produces_output",
-			args: []string{
-				"diff",
-				"--dir1",
-				filepath.Join(getTestsDir(), "onlineboutique"),
-				"--dir2",
-				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error")},
-			expectedOutput: "Connectivity diff:\n" +
-				"diff-type: changed, source: default/frontend-99684f7f8[ReplicaSet], " +
-				"destination: default/adservice-77d5cd745d[ReplicaSet], dir1: TCP 9555, dir2: TCP 8080",
-			exact: true,
-			isErr: false,
-		},
-		{
-			name: "test_diff_one_dir_with_severe_error_with_fail_returns_empty_output",
-			args: []string{
-				"diff",
-				"--dir1",
-				filepath.Join(getTestsDir(), "onlineboutique"),
-				"--dir2",
-				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error"),
-				"--fail"},
-			expectedOutput: "found character that cannot start any token",
-			exact:          false,
-			isErr:          true,
-		},
-		{
-			name: "test_eval_on_dir_with_severe_error_without_fail_produces_output",
+			name: "eval_command_on_dir_with_severe_error_with_fail_flag_stops_executing_and_returns_the_severe_err_as_err",
 			args: []string{
 				"eval",
 				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error"),
-				"-s",
-				"adservice-77d5cd745d-t8mx4",
-				"-d",
-				"emailservice-54c7c5d9d-vp27n",
-				"-p",
-				"80"},
-			expectedOutput: "default/adservice-77d5cd745d-t8mx4 => default/emailservice-54c7c5d9d-vp27n over tcp/80: false\n",
-			exact:          true,
-			isErr:          false,
-		},
-		{
-			name: "test_eval_on_dir_with_severe_error_wit_fail_returns_err_output",
-			args: []string{
-				"eval",
-				"--dirpath",
-				filepath.Join(getTestsDir(), "onlineboutique_with_pods_severe_error"),
+				testutils.GetTestDirPath("onlineboutique_with_pods_severe_error"),
 				"-s",
 				"adservice-77d5cd745d-t8mx4",
 				"-d",
@@ -564,20 +193,216 @@ func TestCommands(t *testing.T) {
 				"-p",
 				"80",
 				"--fail"},
-			expectedOutput: "found character that cannot start any token",
-			exact:          false,
-			isErr:          true, // eval command returns err if stopOnFirstError & severe
+			expectedErrorContains: "found character that cannot start any token",
 		},
 	}
-
-	for _, test := range tests {
-		runTest(test, t)
-		clean(test)
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := buildAndExecuteCommand(tt.args)
+			require.Contains(t, err.Error(), tt.expectedErrorContains,
+				"error mismatch for test %q, actual: %q, expected contains: %q", tt.name, err.Error(), tt.expectedErrorContains)
+		})
 	}
 }
 
-func getTestsDir() string {
-	currentDir, _ := os.Getwd()
-	res := filepath.Join(currentDir, "..", "..", "tests")
-	return res
+// TestListCommandOutput tests the output of legal list command
+func TestListCommandOutput(t *testing.T) {
+	cases := []struct {
+		dirName       string
+		focusWorkload string
+		format        string
+		outputFile    string
+	}{
+		// when focusWorkload is empty, output should be the connlist of the dir
+		// when format is empty - output should be in defaultFormat (txt)
+		// when outputFile is empty - output should be written to stout only
+		{
+			dirName: "onlineboutique",
+		},
+		{
+			dirName:       "onlineboutique_workloads",
+			focusWorkload: "emailservice",
+		},
+		{
+			dirName:       "onlineboutique_workloads",
+			focusWorkload: "default/emailservice",
+		},
+		{
+			dirName:       "acs-security-demos",
+			focusWorkload: "ingress-controller",
+		},
+		{
+			dirName:       "onlineboutique_workloads",
+			focusWorkload: "emailservice",
+			format:        ioutput.JSONFormat,
+		},
+		{
+			dirName:       "onlineboutique_workloads",
+			focusWorkload: "emailservice",
+			format:        ioutput.DOTFormat,
+		},
+		{
+			dirName:       "onlineboutique_workloads",
+			focusWorkload: "emailservice",
+			format:        ioutput.CSVFormat,
+		},
+		{
+			dirName:       "onlineboutique_workloads",
+			focusWorkload: "emailservice",
+			format:        ioutput.MDFormat,
+		},
+		{
+			// the test contains malformed yaml beside to legal yaml.
+			// analysis is able to parse some deployments, thus can produce connectivity output
+			dirName: "document_with_syntax_error",
+		},
+		{
+			dirName:    "onlineboutique",
+			outputFile: outFileName,
+		},
+	}
+	for _, tt := range cases {
+		tt := tt
+		testName, expectedOutputFileName := getListCmdTestNameAndExpectedOutputFile(tt.dirName, tt.focusWorkload, tt.format)
+		t.Run(testName, func(t *testing.T) {
+			args := []string{"list", "--dirpath", testutils.GetTestDirPath(tt.dirName)}
+			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, tt.focusWorkload)...)
+			actualOut, err := buildAndExecuteCommand(args)
+			require.Nil(t, err, "test: %q", testName)
+			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), currentPkg)
+			if tt.outputFile != "" {
+				checkFileContentVsExpectedOutput(t, tt.outputFile, expectedOutputFileName, testInfo(testName))
+			}
+			removeOutFile(tt.outputFile)
+		})
+	}
+}
+
+// TestDiffCommandOutput tests the output of legal diff command
+func TestDiffCommandOutput(t *testing.T) {
+	cases := []struct {
+		dir1       string
+		dir2       string
+		format     string
+		outputFile string
+	}{
+		{
+			dir1:   "onlineboutique_workloads",
+			dir2:   "onlineboutique_workloads_changed_workloads",
+			format: ioutput.TextFormat,
+		},
+		{
+			dir1:   "onlineboutique_workloads",
+			dir2:   "onlineboutique_workloads_changed_workloads",
+			format: ioutput.CSVFormat,
+		},
+		{
+			dir1:   "onlineboutique_workloads",
+			dir2:   "onlineboutique_workloads_changed_workloads",
+			format: ioutput.MDFormat,
+		},
+		{
+			// when format is empty - output should be in defaultFormat (txt)
+			dir1: "onlineboutique",
+			dir2: "onlineboutique_with_pods_severe_error",
+		},
+		{
+			dir1:       "onlineboutique_workloads",
+			dir2:       "onlineboutique_workloads_changed_workloads",
+			format:     ioutput.TextFormat,
+			outputFile: outFileName,
+		},
+	}
+	for _, tt := range cases {
+		tt := tt
+		testName, expectedOutputFileName := testutils.DiffTestNameByTestArgs(tt.dir1, tt.dir2, determineFileSuffix(tt.format))
+		t.Run(testName, func(t *testing.T) {
+			args := []string{"diff", "--dir1", testutils.GetTestDirPath(tt.dir1), "--dir2",
+				testutils.GetTestDirPath(tt.dir2)}
+			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, "")...)
+			actualOut, err := buildAndExecuteCommand(args)
+			require.Nil(t, err, "test: %q", testName)
+			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), currentPkg)
+
+			if tt.outputFile != "" {
+				checkFileContentVsExpectedOutput(t, tt.outputFile, expectedOutputFileName, testInfo(testName))
+			}
+		})
+	}
+}
+
+// TestEvalCommandOutput tests the output of legal eval command
+func TestEvalCommandOutput(t *testing.T) {
+	cases := []struct {
+		dir        string
+		sourcePod  string
+		destPod    string
+		port       string
+		evalResult bool
+	}{
+		{
+			dir:        "onlineboutique",
+			sourcePod:  "adservice-77d5cd745d-t8mx4",
+			destPod:    "emailservice-54c7c5d9d-vp27n",
+			port:       "80",
+			evalResult: false,
+		},
+		{
+			dir:        "onlineboutique_with_pods_severe_error",
+			sourcePod:  "adservice-77d5cd745d-t8mx4",
+			destPod:    "emailservice-54c7c5d9d-vp27n",
+			port:       "80",
+			evalResult: false,
+		},
+	}
+	for _, tt := range cases {
+		tt := tt
+		testName := "eval_" + tt.dir + "_from_" + tt.sourcePod + "_to_" + tt.destPod
+		t.Run(testName, func(t *testing.T) {
+			args := []string{"eval", "--dirpath", testutils.GetTestDirPath(tt.dir),
+				"-s", tt.sourcePod, "-d", tt.destPod, "-p", tt.port}
+			actualOut, err := buildAndExecuteCommand(args)
+			require.Nil(t, err, "test: %q", testName)
+			require.Contains(t, actualOut, fmt.Sprintf("%v", tt.evalResult),
+				"unexpected result for test %q, should be %v", testName, tt.evalResult)
+		})
+	}
+}
+
+// TestCommandWithFailFlag testing list or diff commands with --fail flag
+// if there are severe errors on any input dir, command run should stop and return empty result
+func TestCommandWithFailFlag(t *testing.T) {
+	cases := []struct {
+		name string
+		args []string
+	}{
+		{
+			name: "diff_command_with_fail_flag_one_dir_with_severe_error_should_return_empty_output",
+			args: []string{
+				"diff",
+				"--dir1",
+				testutils.GetTestDirPath("onlineboutique"),
+				"--dir2",
+				testutils.GetTestDirPath("onlineboutique_with_pods_severe_error"),
+				"--fail"},
+		},
+		{
+			name: "list_cmd_dir_with_severe_error_running_with_fail_stops_and_return_empty_output",
+			// as we saw in a previous test on same path, when --fail is not used, the test produces connectivity map
+			args: []string{
+				"list",
+				"--dirpath",
+				testutils.GetTestDirPath("document_with_syntax_error"),
+				"--fail",
+			},
+		},
+	}
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			actualOut, _ := buildAndExecuteCommand(tt.args)
+			require.Empty(t, actualOut, "unexpected result for test %q, should be empty", tt.name)
+		})
+	}
 }

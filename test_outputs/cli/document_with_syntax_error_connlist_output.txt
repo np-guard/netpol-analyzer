@@ -1,0 +1,12 @@
+0.0.0.0-255.255.255.255 => default/checkoutservice[Deployment] : All Connections
+0.0.0.0-255.255.255.255 => default/emailservice[Deployment] : All Connections
+0.0.0.0-255.255.255.255 => default/recommendationservice[Deployment] : All Connections
+default/checkoutservice[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+default/checkoutservice[Deployment] => default/emailservice[Deployment] : All Connections
+default/checkoutservice[Deployment] => default/recommendationservice[Deployment] : All Connections
+default/emailservice[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+default/emailservice[Deployment] => default/checkoutservice[Deployment] : All Connections
+default/emailservice[Deployment] => default/recommendationservice[Deployment] : All Connections
+default/recommendationservice[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+default/recommendationservice[Deployment] => default/checkoutservice[Deployment] : All Connections
+default/recommendationservice[Deployment] => default/emailservice[Deployment] : All Connections

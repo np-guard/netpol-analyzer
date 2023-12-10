@@ -28,4 +28,4 @@ test:
 test-update: # overrides/ generates tests' expected output files for relevant tests 
 # if the format is dot - generates also png files
 	@echo -- $@ --
-	go test ./pkg/netpol/connlist/ ./pkg/netpol/diff/ --args --update
+	go test ./pkg/netpol/connlist/ ./pkg/netpol/diff/ ./pkg/cli --args --update

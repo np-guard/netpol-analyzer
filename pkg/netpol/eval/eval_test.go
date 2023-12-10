@@ -1079,7 +1079,7 @@ func TestGeneralPerformance(t *testing.T) {
 	if os.Getenv("CI") != "" {
 		t.Skip("skipping TestGeneralPerformance")
 	}
-	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
+	path := testutils.GetTestDirPath("onlineboutique")
 	// list of connections to test with, for CheckIfAllowed / CheckIfAllowedNew
 	connectionsListForTest := []TestEntry{
 		{protocol: "tcp", port: "5050"},
@@ -1191,7 +1191,7 @@ func TestGeneralPerformance(t *testing.T) {
 }
 
 func TestFromFiles2(t *testing.T) {
-	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
+	path := testutils.GetTestDirPath("onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
@@ -1244,7 +1244,7 @@ func TestFromFiles2(t *testing.T) {
 }
 
 func TestFromFiles(t *testing.T) {
-	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique")
+	path := testutils.GetTestDirPath("onlineboutique")
 	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
@@ -1567,7 +1567,7 @@ func computeExpectedCacheHits(pe *PolicyEngine) (int, error) {
 func TestCacheWithPodDeletion(t *testing.T) {
 	pe := NewPolicyEngine()
 	var err error
-	testDir := filepath.Join(testutils.GetTestsDir(), "onlineboutique_with_replicas")
+	testDir := testutils.GetTestDirPath("onlineboutique_with_replicas")
 	if err = setResourcesFromDir(pe, testDir); err != nil {
 		t.Fatal(err)
 	}
@@ -1599,8 +1599,6 @@ func TestCacheWithPodDeletion(t *testing.T) {
 }
 
 func TestConnectionsMapExamples(t *testing.T) {
-	testsDir := testutils.GetTestsDir()
-
 	tests := []struct {
 		testName           string
 		resourcesDir       string
@@ -1614,8 +1612,8 @@ func TestConnectionsMapExamples(t *testing.T) {
 		// tests with AllAllowedConnections -----------------------------------------------------------------------
 		{
 			testName:           "onlineboutique_all_allowed_connections",
-			resourcesDir:       filepath.Join(testsDir, "onlineboutique"),
-			expectedOutputFile: filepath.Join(testsDir, "onlineboutique", "connections_map_output.txt"),
+			resourcesDir:       testutils.GetTestDirPath("onlineboutique"),
+			expectedOutputFile: testutils.GetTestDirPath(filepath.Join("onlineboutique", "connections_map_output.txt")),
 			// expectedCacheHits:     0, // no pod replicas on this example,
 			checkCacheHits: false, // currently not relevant for "all connections" computation( only for bool result is connection allowed )
 			allConnections: true,
@@ -1624,8 +1622,8 @@ func TestConnectionsMapExamples(t *testing.T) {
 		// tests with IsConnectionAllowed -----------------------------------------------------------------------------
 		{
 			testName:           "onlineboutique_bool_connectivity_results",
-			resourcesDir:       filepath.Join(testsDir, "onlineboutique"),
-			expectedOutputFile: filepath.Join(testsDir, "onlineboutique", "connections_map_output_bool.txt"),
+			resourcesDir:       testutils.GetTestDirPath("onlineboutique"),
+			expectedOutputFile: testutils.GetTestDirPath(filepath.Join("onlineboutique", "connections_map_output_bool.txt")),
 			//expectedCacheHits:  0, // no pod replicas on this example,
 			checkCacheHits: true,
 			allConnections: false,
@@ -1633,8 +1631,8 @@ func TestConnectionsMapExamples(t *testing.T) {
 
 		{
 			testName:           "onlineboutique_with_replicas_bool_connectivity_results",
-			resourcesDir:       filepath.Join(testsDir, "onlineboutique_with_replicas"),
-			expectedOutputFile: filepath.Join(testsDir, "onlineboutique_with_replicas", "connections_map_with_replicas_output.txt"),
+			resourcesDir:       testutils.GetTestDirPath("onlineboutique_with_replicas"),
+			expectedOutputFile: testutils.GetTestDirPath(filepath.Join("onlineboutique_with_replicas", "connections_map_with_replicas_output.txt")),
 			checkCacheHits:     true,
 			allConnections:     false,
 			port:               "80",
@@ -1644,9 +1642,9 @@ func TestConnectionsMapExamples(t *testing.T) {
 
 		{
 			testName:     "onlineboutique_with_replicas_and_variants_bool_connectivity_results",
-			resourcesDir: filepath.Join(testsDir, "onlineboutique_with_replicas_and_variants"),
-			expectedOutputFile: filepath.Join(testsDir, "onlineboutique_with_replicas_and_variants",
-				"connections_map_with_replicas_and_variants_output.txt"),
+			resourcesDir: testutils.GetTestDirPath("onlineboutique_with_replicas_and_variants"),
+			expectedOutputFile: testutils.GetTestDirPath(filepath.Join("onlineboutique_with_replicas_and_variants",
+				"connections_map_with_replicas_and_variants_output.txt")),
 			checkCacheHits: true,
 			allConnections: false,
 			port:           "80",
@@ -1734,7 +1732,7 @@ func testConnectivityMapOutput(res []string, expectedFileName string) (bool, err
 }
 
 func TestDisjointIpBlocks(t *testing.T) {
-	path := filepath.Join(testutils.GetTestsDir(), "ipblockstest")
+	path := testutils.GetTestDirPath("ipblockstest")
 	pe := NewPolicyEngine()
 	if err := setResourcesFromDir(pe, path); err != nil {
 		t.Errorf("%v", err)
@@ -1767,7 +1765,7 @@ func TestDisjointIpBlocks(t *testing.T) {
 }
 
 func TestPolicyEngineWithWorkloads(t *testing.T) {
-	path := filepath.Join(testutils.GetTestsDir(), "onlineboutique_workloads")
+	path := testutils.GetTestDirPath("onlineboutique_workloads")
 
 	rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{path}, true, false)
 	objects, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
