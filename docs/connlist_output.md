@@ -17,7 +17,7 @@ It assumes that the ingress controller Pod is unknown, and thus using this notat
 
 ## Example Output
 
-Diff output in `txt` format:
+`list` output in `txt` format:
 ```
 $ ./bin/k8snetpolicy list --dirpath tests/demo_app_with_routes_and_ingress/
 
