@@ -15,7 +15,7 @@ Its connectivity lines are of the form: `{ingress-controller}` => `dst` : `conne
 This analysis is currently activated only with `--dir-path` flag, and not on a live cluster.
 It assumes that the ingress controller Pod is unknown, and thus using this notation of `{ingress-controller}`.
 
-## Examples Output
+## Example Output
 
 Diff output in `txt` format:
 ```
