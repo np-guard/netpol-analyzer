@@ -61,7 +61,7 @@ routeworld/route-world[Deployment] => ingressworld/ingress-world[Deployment] : A
 | {ingress-controller} | ingressworld/ingress-world[Deployment] | TCP 8090 |
 | {ingress-controller} | routeworld/route-world[Deployment] | TCP 8060 |
 
-Diff output in `csv` format:
+`list` output in `csv` format:
 ```
 ./bin/k8snetpolicy list --dirpath tests/demo_app_with_routes_and_ingress/ -o csv
 
