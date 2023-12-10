@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/projectpath"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 )
 
@@ -18,40 +19,19 @@ import (
 var update = flag.Bool("update", false, "write or override golden files")
 
 const (
-	dirLevelUp                            = ".."
-	testsDirName                          = "tests"
 	connlistExpectedOutputFilePartialName = "connlist_output."
-	netpolPkgLevelDepth                   = 3 // e.g. pkg/netpol/connlist
 	underscore                            = "_"
 	dotSign                               = "."
 	formatStr                             = "_format_"
-	outputFilesDir                        = "test_outputs"
 	focusWlAnnotation                     = "_focus_workload_"
 )
 
-// packages names
-const (
-	Cli             = "cli"
-	Connlist        = "connlist"
-	Ingressanalyzer = "ingressanalyzer"
-	Diff            = "diff"
-	Eval            = "eval"
-)
+var testsDirPath = filepath.Join(projectpath.Root, "tests")
+var testsOutputsDirPath = filepath.Join(projectpath.Root, "test_outputs")
 
-// const map , for each pkg name returns its depth in the project's path
-var pkgToDepth map[string]int = map[string]int{Cli: 2, Connlist: netpolPkgLevelDepth, Ingressanalyzer: 5,
-	Diff: netpolPkgLevelDepth, Eval: netpolPkgLevelDepth}
-
-func GetTestsDir(testingPkg string) string { // called from netpol packages
-	return getDirWithDepth(testsDirName, pkgToDepth[testingPkg])
-}
-
-func getDirWithDepth(dirName string, depth int) string {
-	res, _ := os.Getwd()
-	for i := 0; i < depth; i++ {
-		res = filepath.Join(res, dirLevelUp)
-	}
-	return filepath.Join(res, dirName)
+// helping func - returns test's dir path from test's dir name
+func GetTestDirPath(dirName string) string {
+	return filepath.Join(testsDirPath, dirName)
 }
 
 // ConnlistTestNameByTestArgs returns connlist test name and test's expected output file from some tests args
@@ -77,7 +57,7 @@ func DiffTestNameByTestArgs(ref1, ref2, format string) (testName, expectedOutput
 // if not generates actual output file
 // if --update flag is on, writes the actual output to the expected output file
 func CheckActualVsExpectedOutputMatch(t *testing.T, expectedOutputFileName, actualOutput, testInfo, testingPkg string) {
-	expectedOutputFile := filepath.Join(getDirWithDepth(outputFilesDir, pkgToDepth[testingPkg]), testingPkg, expectedOutputFileName)
+	expectedOutputFile := filepath.Join(testsOutputsDirPath, testingPkg, expectedOutputFileName)
 	// if the --update flag is on (then generate/ override the expected output file with the actualOutput)
 	if *update {
 		err := output.WriteToFile(actualOutput, expectedOutputFile)
@@ -96,7 +76,7 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, expectedOutputFileName, actu
 		WarnOnErrorReadingFile(err, expectedOutputFile)
 	}
 	actualOutputFileName := "actual_" + expectedOutputFileName
-	actualOutputFile := filepath.Join(getDirWithDepth(outputFilesDir, pkgToDepth[testingPkg]), testingPkg, actualOutputFileName)
+	actualOutputFile := filepath.Join(testsOutputsDirPath, testingPkg, actualOutputFileName)
 	if cleanStr(string(expectedOutput)) != cleanStr(actualOutput) {
 		err := output.WriteToFile(actualOutput, actualOutputFile)
 		if err != nil {
