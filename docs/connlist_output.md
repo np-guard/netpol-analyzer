@@ -209,7 +209,7 @@ digraph {
 ```
 dot -Tsvg test_outputs/connlist/demo_app_with_routes_and_ingress_connlist_output.dot -o test_outputs/connlist/demo_app_with_routes_and_ingress_connlist_output.dot.svg
 ```
-Reminder: frames in the graph represent namespaces of the analyzed cluster
+The frames in the graph represent namespaces of the analyzed cluster.
 
 ![svg graph](./connlist_example_svg.svg)
 
