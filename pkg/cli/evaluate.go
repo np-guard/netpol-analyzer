@@ -49,23 +49,23 @@ var (
 func validateEvalFlags() error {
 	// Validate flags values
 	if sourcePod.Name == "" && srcExternalIP == "" {
-		return errors.New("no source defined, source pod and namespace or external IP required")
+		return errors.New(netpolerrors.NoSourceDefinedErr)
 	} else if sourcePod.Name != "" && srcExternalIP != "" {
-		return errors.New("only one of source pod and namespace or external IP can be defined, not both")
+		return errors.New(netpolerrors.OnlyOneSrcFlagErrStr)
 	}
 
 	if destinationPod.Name == "" && dstExternalIP == "" {
-		return errors.New("no destination defined, destination pod and namespace or external IP required")
+		return errors.New(netpolerrors.NoDestDefinedErr)
 	} else if destinationPod.Name != "" && dstExternalIP != "" {
-		return errors.New("only one of destination pod and namespace or external IP can be defined, not both")
+		return errors.New(netpolerrors.OnlyOneDstFalgErrStr)
 	}
 
 	if srcExternalIP != "" && dstExternalIP == "" {
-		return errors.New("only one of source or destination can be defined as external IP, not both")
+		return errors.New(netpolerrors.OnlyOneIPPeerErrStr)
 	}
 
 	if port == "" {
-		return errors.New("destination port name or value is required")
+		return errors.New(netpolerrors.RequiredDstPortFlagErr)
 	}
 	return nil
 }

@@ -16,6 +16,7 @@ import (
 const ResourceInfosFunc = "ConnlistFromResourceInfos"
 const DirPathFunc = "ConnlistFromDirPath"
 const currentPkg = "connlist"
+const notEmptyMsg = "expecting non-empty analysis res"
 
 var allFormats = []string{output.TextFormat, output.JSONFormat, output.CSVFormat, output.MDFormat, output.DOTFormat}
 var connlistTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
@@ -126,27 +127,27 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		{
 			name:             "Input_dir_has_netpol_with_invalid_cidr_should_return_fatal_error_of_invalid_CIDR_address",
 			dirName:          filepath.Join("bad_netpols", "subdir1"),
-			errorStrContains: netpolerrors.CidrErrTitle,
+			errorStrContains: netpolerrors.CidrErrTitle + netpolerrors.ColonSep + netpolerrors.InvalidCIDRAddr,
 		},
 		{
 			name:             "Input_dir_has_netpol_with_bad_label_key_should_return_fatal_selector_error",
 			dirName:          filepath.Join("bad_netpols", "subdir2"),
-			errorStrContains: netpolerrors.SelectorErrTitle,
+			errorStrContains: netpolerrors.SelectorErrTitle + netpolerrors.ColonSep + netpolerrors.InvalidKeyVal,
 		},
 		{
 			name:             "Input_dir_has_netpol_with_invalid_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
 			dirName:          filepath.Join("bad_netpols", "subdir3"),
-			errorStrContains: netpolerrors.RulePeerErrTitle + testutils.ColonSep + netpolerrors.CombinedRulePeerErrStr,
+			errorStrContains: netpolerrors.RulePeerErrTitle + netpolerrors.ColonSep + netpolerrors.CombinedRulePeerErrStr,
 		},
 		{
 			name:             "Input_dir_has_netpol_with_empty_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
 			dirName:          filepath.Join("bad_netpols", "subdir4"),
-			errorStrContains: netpolerrors.RulePeerErrTitle + testutils.ColonSep + netpolerrors.EmptyRulePeerErrStr,
+			errorStrContains: netpolerrors.RulePeerErrTitle + netpolerrors.ColonSep + netpolerrors.EmptyRulePeerErrStr,
 		},
 		{
 			name:             "Input_dir_has_netpol_with_named_port_on_ipblock_peer_should_return_fatal_named_port_error",
 			dirName:          filepath.Join("bad_netpols", "subdir6"),
-			errorStrContains: netpolerrors.NamedPortErrTitle + testutils.ColonSep + netpolerrors.ConvertNamedPortErrStr,
+			errorStrContains: netpolerrors.NamedPortErrTitle + netpolerrors.ColonSep + netpolerrors.ConvertNamedPortErrStr,
 		},
 		/*// input dir does not exist
 		{
@@ -241,13 +242,13 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 		{
 			name:                "malformed_yaml_unrecognized_type_int32",
 			dirName:             "malformed_pod_example",
-			firstErrStrContains: netpolerrors.MalformedYamlDocErrorStr, // unrecognized type: int32
+			firstErrStrContains: netpolerrors.UnrecognizedValType, // netpolerrors.MalformedYamlDocErrorStr
 			emptyRes:            true,
 		},
 		{
 			name:                "malformed_yaml_cannot_restore_slice_from_map",
 			dirName:             "malformed-pod-example-2",
-			firstErrStrContains: netpolerrors.MalformedYamlDocErrorStr, // cannot restore slice from map
+			firstErrStrContains: netpolerrors.SliceFromMapErr, // netpolerrors.MalformedYamlDocErrorStr
 			emptyRes:            false,
 		},
 		{
@@ -336,17 +337,17 @@ func TestFatalErrorsConnlistFromDirPathOnly(t *testing.T) {
 		{
 			name:             "dir_does_not_exist_err",
 			dirName:          "ttt",
-			errorStrContains: "does not exist",
+			errorStrContains: netpolerrors.PathNotExistErr, // netpolerrors.ErrGettingResInfoFromDir
 		},
 		{
 			name:             "empty_dir_with_no_yamls_or_json_files",
 			dirName:          filepath.Join("bad_yamls", "subdir2"),
-			errorStrContains: "recognized file extensions are",
+			errorStrContains: netpolerrors.UnknownFileExtensionErr, // netpolerrors.ErrGettingResInfoFromDir
 		},
 		{
 			name:             "bad_JSON_missing_kind", // this err is fatal here only because dir has no other resources
 			dirName:          "malformed-pod-example-4",
-			errorStrContains: "is missing in", // kind is missing in pod json
+			errorStrContains: netpolerrors.MissingObjectErr, // kind is missing in pod json, netpolerrors.ErrGettingResInfoFromDir
 		},
 	}
 	for _, tt := range cases {
@@ -371,13 +372,13 @@ func TestErrorsAndWarningsConnlistFromDirPathOnly(t *testing.T) {
 		{
 			name:             "irrelevant_JSON_file_unable_to_decode",
 			dirName:          "onlineboutique",
-			errorStrContains: netpolerrors.FailedReadingFileErrorStr, // "cannot unmarshal array into Go value of type unstructured.detector"
+			errorStrContains: netpolerrors.UnmarshalErr, // netpolerrors.FailedReadingFileErrorStr
 			emptyRes:         false,
 		},
 		{
 			name:             "YAML_syntax_err",
 			dirName:          "malformed-pod-example-5",
-			errorStrContains: netpolerrors.FailedReadingFileErrorStr, // "found character that cannot start any token"
+			errorStrContains: netpolerrors.WrongStartCharacterErr, // netpolerrors.FailedReadingFileErrorStr
 			emptyRes:         false,
 			// TODO: this test has another error (missing kind in another file), add this to the testing functionality
 		},

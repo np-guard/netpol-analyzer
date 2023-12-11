@@ -398,7 +398,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	connsRes = append(connsRes, ingressAllowedConns...)
 
 	if ca.focusWorkload == "" && len(peersAllowedConns) == 0 {
-		ca.logWarning("Connectivity analysis found no allowed connectivity between pairs from the configured workloads or external IP-blocks")
+		ca.logWarning(netpolerrors.NoAllowedConnsWarning)
 	}
 
 	return connsRes, peers, nil
@@ -497,15 +497,16 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 }
 
 func (ca *ConnlistAnalyzer) warnBlockedIngress(peerStr string, ingressObjs map[string][]string) {
-	warningMsg := ""
+	objKind := ""
+	objName := ""
 	if len(ingressObjs[parser.Ingress]) > 0 {
-		warningMsg = "K8s-Ingress resource " + ingressObjs[parser.Ingress][0]
+		objKind = "K8s-Ingress"
+		objName = ingressObjs[parser.Ingress][0]
 	} else if len(ingressObjs[parser.Route]) > 0 {
-		warningMsg = "Route resource " + ingressObjs[parser.Route][0]
+		objKind = "Route"
+		objName = ingressObjs[parser.Route][0]
 	}
-	warningMsg += " specified workload " + peerStr + " as a backend, but network policies are blocking " +
-		"ingress connections from an arbitrary in-cluster source to this workload. " +
-		"Connectivity map will not include a possibly allowed connection between the ingress controller and this workload."
+	warningMsg := netpolerrors.BlockedIngressWarning(objKind, objName, peerStr)
 	ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
 	ca.logWarning(warningMsg)
 }

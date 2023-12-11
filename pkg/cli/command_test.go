@@ -114,22 +114,22 @@ func TestCommandsFailExecute(t *testing.T) {
 		{
 			name:                  "unknown_command_should_return_error_of_unknown_command_for_k8snetpolicy",
 			args:                  []string{"A"},
-			expectedErrorContains: "unknown command \"A\" for \"k8snetpolicy\"",
+			expectedErrorContains: netpolerrors.UnknownCommandErr,
 		},
 		{
 			name:                  "eval_command_with_no_args_is_illegal_should_return_error_of_undefined_source",
 			args:                  []string{"eval"},
-			expectedErrorContains: "no source defined",
+			expectedErrorContains: netpolerrors.NoSourceDefinedErr,
 		},
 		{
 			name:                  "diff_command_with_no_args_is_illegal_should_return_error_there_are_required_flags",
 			args:                  []string{"diff"},
-			expectedErrorContains: "both directory paths dir1 and dir2 are required",
+			expectedErrorContains: netpolerrors.RequiredFlagsErr,
 		},
 		{
 			name:                  "diff_command_args_contain_dirpath_should_return_error_of_unsupported_flag",
 			args:                  []string{"diff", "--dirpath", testutils.GetTestDirPath("onlineboutique")},
-			expectedErrorContains: "dirpath flag is not used with diff command",
+			expectedErrorContains: netpolerrors.FlagMisUseErr,
 		},
 		{
 			name: "diff_command_with_unsupported_output_format_should_return_error",
@@ -141,9 +141,7 @@ func TestCommandsFailExecute(t *testing.T) {
 				testutils.GetTestDirPath("onlineboutique_workloads_changed_workloads"),
 				"-o",
 				"png"},
-			expectedOutput: netpolerrors.FormatNotSupportedErrStr("png"),
-			containment:    true,
-			isErr:          true,
+			expectedErrorContains: netpolerrors.FormatNotSupportedErrStr("png"),
 		},
 		{
 			name: "eval_command_with_not_existing_peer_should_return_error_not_found_peer",
@@ -157,7 +155,7 @@ func TestCommandsFailExecute(t *testing.T) {
 				"default/emailservice-54c7c5d9d-vp27n",
 				"-p",
 				"80"},
-			expectedErrorContains: "could not find peer default/default/adservice-77d5cd745d",
+			expectedErrorContains: netpolerrors.NotFoundPeerErrStr("default/default/adservice-77d5cd745d"),
 		},
 		{
 			name: "list_command_with_unsupported_output_format_should_return_error",
@@ -167,7 +165,7 @@ func TestCommandsFailExecute(t *testing.T) {
 				testutils.GetTestDirPath("onlineboutique"),
 				"-o",
 				"png"},
-			expectedErrorContains: "png output format is not supported.",
+			expectedErrorContains: netpolerrors.FormatNotSupportedErrStr("png"),
 		},
 		{
 			name: "test_using_q_and_v_verbosity_flags_together_should_return_an_error_of_illegal_use_of_quiet_and_verbose_flags",
@@ -178,7 +176,7 @@ func TestCommandsFailExecute(t *testing.T) {
 				"-q",
 				"-v",
 			},
-			expectedErrorContains: "-q and -v cannot be specified together",
+			expectedErrorContains: netpolerrors.VerbosityFlagsMisUseErrStr,
 		},
 		{
 			name: "eval_command_on_dir_with_severe_error_with_fail_flag_stops_executing_and_returns_the_severe_err_as_err",
@@ -193,7 +191,7 @@ func TestCommandsFailExecute(t *testing.T) {
 				"-p",
 				"80",
 				"--fail"},
-			expectedErrorContains: "found character that cannot start any token",
+			expectedErrorContains: netpolerrors.WrongStartCharacterErr,
 		},
 	}
 	for _, tt := range tests {

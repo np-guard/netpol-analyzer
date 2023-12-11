@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
-	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 )
 
 // FileProcessingError holds all information about a single error/warning that occurred during
@@ -42,7 +41,7 @@ func (err *NoK8sNetworkPolicyResourcesFoundError) Error() string {
 }
 
 func (err *MalformedYamlDocError) Error() string {
-	return netpolerrors.MalformedYamlDocErrorStr + testutils.ColonSep + err.origErr.Error()
+	return netpolerrors.MalformedYamlDocErrorStr + netpolerrors.ColonSep + err.origErr.Error()
 }
 
 func (err *MalformedYamlDocError) Unwrap() error {
@@ -50,7 +49,7 @@ func (err *MalformedYamlDocError) Unwrap() error {
 }
 
 func (err *FailedReadingFileError) Error() string {
-	return netpolerrors.FailedReadingFileErrorStr + testutils.ColonSep + err.origErr.Error()
+	return netpolerrors.FailedReadingFileErrorStr + netpolerrors.ColonSep + err.origErr.Error()
 }
 
 func (err *FailedReadingFileError) Unwrap() error {
