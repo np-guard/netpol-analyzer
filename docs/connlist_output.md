@@ -19,149 +19,52 @@ It assumes that the ingress controller Pod is unknown, and thus using this notat
 
 `list` output in `txt` format:
 ```
-$ ./bin/k8snetpolicy list --dirpath tests/demo_app_with_routes_and_ingress/
+$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/
 
-0.0.0.0-255.255.255.255 => helloworld/hello-world[Deployment] : All Connections
-0.0.0.0-255.255.255.255 => ingressworld/ingress-world[Deployment] : All Connections
-0.0.0.0-255.255.255.255 => routeworld/route-world[Deployment] : All Connections
-helloworld/hello-world[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
-helloworld/hello-world[Deployment] => ingressworld/ingress-world[Deployment] : All Connections
-helloworld/hello-world[Deployment] => routeworld/route-world[Deployment] : All Connections
-ingressworld/ingress-world[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
-ingressworld/ingress-world[Deployment] => helloworld/hello-world[Deployment] : All Connections
-ingressworld/ingress-world[Deployment] => routeworld/route-world[Deployment] : All Connections
-routeworld/route-world[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
-routeworld/route-world[Deployment] => helloworld/hello-world[Deployment] : All Connections
-routeworld/route-world[Deployment] => ingressworld/ingress-world[Deployment] : All Connections
-{ingress-controller} => helloworld/hello-world[Deployment] : TCP 8000
-{ingress-controller} => ingressworld/ingress-world[Deployment] : TCP 8090
-{ingress-controller} => routeworld/route-world[Deployment] : TCP 8060
-
+0.0.0.0-255.255.255.255 => default/frontend[Deployment] : TCP 8080
+default/frontend[Deployment] => 0.0.0.0-255.255.255.255 : UDP 53
+default/frontend[Deployment] => default/backend[Deployment] : TCP 9090
 ```
 
 `list` output in `md` format:
 ```
-./bin/k8snetpolicy list --dirpath tests/demo_app_with_routes_and_ingress/ -o md
+./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o md
 ```
 | src | dst | conn |
 |-----|-----|------|
-| 0.0.0.0-255.255.255.255 | helloworld/hello-world[Deployment] | All Connections |
-| 0.0.0.0-255.255.255.255 | ingressworld/ingress-world[Deployment] | All Connections |
-| 0.0.0.0-255.255.255.255 | routeworld/route-world[Deployment] | All Connections |
-| helloworld/hello-world[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
-| helloworld/hello-world[Deployment] | ingressworld/ingress-world[Deployment] | All Connections |
-| helloworld/hello-world[Deployment] | routeworld/route-world[Deployment] | All Connections |
-| ingressworld/ingress-world[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
-| ingressworld/ingress-world[Deployment] | helloworld/hello-world[Deployment] | All Connections |
-| ingressworld/ingress-world[Deployment] | routeworld/route-world[Deployment] | All Connections |
-| routeworld/route-world[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
-| routeworld/route-world[Deployment] | helloworld/hello-world[Deployment] | All Connections |
-| routeworld/route-world[Deployment] | ingressworld/ingress-world[Deployment] | All Connections |
-| {ingress-controller} | helloworld/hello-world[Deployment] | TCP 8000 |
-| {ingress-controller} | ingressworld/ingress-world[Deployment] | TCP 8090 |
-| {ingress-controller} | routeworld/route-world[Deployment] | TCP 8060 |
+| 0.0.0.0-255.255.255.255 | default/frontend[Deployment] | TCP 8080 |
+| default/frontend[Deployment] | 0.0.0.0-255.255.255.255 | UDP 53 |
+| default/frontend[Deployment] | default/backend[Deployment] | TCP 9090 |
 
 `list` output in `csv` format:
 ```
-./bin/k8snetpolicy list --dirpath tests/demo_app_with_routes_and_ingress/ -o csv
+./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o csv
 
 src,dst,conn
-0.0.0.0-255.255.255.255,helloworld/hello-world[Deployment],All Connections
-0.0.0.0-255.255.255.255,ingressworld/ingress-world[Deployment],All Connections
-0.0.0.0-255.255.255.255,routeworld/route-world[Deployment],All Connections
-helloworld/hello-world[Deployment],0.0.0.0-255.255.255.255,All Connections
-helloworld/hello-world[Deployment],ingressworld/ingress-world[Deployment],All Connections
-helloworld/hello-world[Deployment],routeworld/route-world[Deployment],All Connections
-ingressworld/ingress-world[Deployment],0.0.0.0-255.255.255.255,All Connections
-ingressworld/ingress-world[Deployment],helloworld/hello-world[Deployment],All Connections
-ingressworld/ingress-world[Deployment],routeworld/route-world[Deployment],All Connections
-routeworld/route-world[Deployment],0.0.0.0-255.255.255.255,All Connections
-routeworld/route-world[Deployment],helloworld/hello-world[Deployment],All Connections
-routeworld/route-world[Deployment],ingressworld/ingress-world[Deployment],All Connections
-{ingress-controller},helloworld/hello-world[Deployment],TCP 8000
-{ingress-controller},ingressworld/ingress-world[Deployment],TCP 8090
-{ingress-controller},routeworld/route-world[Deployment],TCP 8060
+0.0.0.0-255.255.255.255,default/frontend[Deployment],TCP 8080
+default/frontend[Deployment],0.0.0.0-255.255.255.255,UDP 53
+default/frontend[Deployment],default/backend[Deployment],TCP 9090
 ```
 
 `list` output in `json` format:
 ```
-./bin/k8snetpolicy list --dirpath tests/demo_app_with_routes_and_ingress/ -o json
+./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o json
 
 [
   {
     "src": "0.0.0.0-255.255.255.255",
-    "dst": "helloworld/hello-world[Deployment]",
-    "conn": "All Connections"
+    "dst": "default/frontend[Deployment]",
+    "conn": "TCP 8080"
   },
   {
-    "src": "0.0.0.0-255.255.255.255",
-    "dst": "ingressworld/ingress-world[Deployment]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "0.0.0.0-255.255.255.255",
-    "dst": "routeworld/route-world[Deployment]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "helloworld/hello-world[Deployment]",
+    "src": "default/frontend[Deployment]",
     "dst": "0.0.0.0-255.255.255.255",
-    "conn": "All Connections"
+    "conn": "UDP 53"
   },
   {
-    "src": "helloworld/hello-world[Deployment]",
-    "dst": "ingressworld/ingress-world[Deployment]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "helloworld/hello-world[Deployment]",
-    "dst": "routeworld/route-world[Deployment]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "ingressworld/ingress-world[Deployment]",
-    "dst": "0.0.0.0-255.255.255.255",
-    "conn": "All Connections"
-  },
-  {
-    "src": "ingressworld/ingress-world[Deployment]",
-    "dst": "helloworld/hello-world[Deployment]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "ingressworld/ingress-world[Deployment]",
-    "dst": "routeworld/route-world[Deployment]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "routeworld/route-world[Deployment]",
-    "dst": "0.0.0.0-255.255.255.255",
-    "conn": "All Connections"
-  },
-  {
-    "src": "routeworld/route-world[Deployment]",
-    "dst": "helloworld/hello-world[Deployment]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "routeworld/route-world[Deployment]",
-    "dst": "ingressworld/ingress-world[Deployment]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "{ingress-controller}",
-    "dst": "helloworld/hello-world[Deployment]",
-    "conn": "TCP 8000"
-  },
-  {
-    "src": "{ingress-controller}",
-    "dst": "ingressworld/ingress-world[Deployment]",
-    "conn": "TCP 8090"
-  },
-  {
-    "src": "{ingress-controller}",
-    "dst": "routeworld/route-world[Deployment]",
-    "conn": "TCP 8060"
+    "src": "default/frontend[Deployment]",
+    "dst": "default/backend[Deployment]",
+    "conn": "TCP 9090"
   }
 ]
 ```
@@ -170,44 +73,24 @@ routeworld/route-world[Deployment],ingressworld/ingress-world[Deployment],All Co
 
 In `dot` output graphs, all the peers of the analyzed cluster are grouped by their namespaces.
 ```
-./bin/k8snetpolicy list --dirpath tests/demo_app_with_routes_and_ingress/ -o dot
+./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o dot
 
 digraph {
-        subgraph cluster_helloworld {
-                "helloworld/hello-world[Deployment]" [label="hello-world[Deployment]" color="blue" fontcolor="blue"]
-                label="helloworld"
-        }
-        subgraph cluster_ingressworld {
-                "ingressworld/ingress-world[Deployment]" [label="ingress-world[Deployment]" color="blue" fontcolor="blue"]
-                label="ingressworld"
-        }
-        subgraph cluster_routeworld {
-                "routeworld/route-world[Deployment]" [label="route-world[Deployment]" color="blue" fontcolor="blue"]
-                label="routeworld"
-        }
-        "0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
-        "{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
-        "0.0.0.0-255.255.255.255" -> "helloworld/hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "0.0.0.0-255.255.255.255" -> "ingressworld/ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "0.0.0.0-255.255.255.255" -> "routeworld/route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "helloworld/hello-world[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "helloworld/hello-world[Deployment]" -> "ingressworld/ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "helloworld/hello-world[Deployment]" -> "routeworld/route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "ingressworld/ingress-world[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "ingressworld/ingress-world[Deployment]" -> "helloworld/hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "ingressworld/ingress-world[Deployment]" -> "routeworld/route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "routeworld/route-world[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "routeworld/route-world[Deployment]" -> "helloworld/hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "routeworld/route-world[Deployment]" -> "ingressworld/ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-        "{ingress-controller}" -> "helloworld/hello-world[Deployment]" [label="TCP 8000" color="gold2" fontcolor="darkgreen"]
-        "{ingress-controller}" -> "ingressworld/ingress-world[Deployment]" [label="TCP 8090" color="gold2" fontcolor="darkgreen"]
-        "{ingress-controller}" -> "routeworld/route-world[Deployment]" [label="TCP 8060" color="gold2" fontcolor="darkgreen"]
+	subgraph cluster_default {
+		"default/backend[Deployment]" [label="backend[Deployment]" color="blue" fontcolor="blue"]
+		"default/frontend[Deployment]" [label="frontend[Deployment]" color="blue" fontcolor="blue"]
+		label="default"
+	}
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255" -> "default/frontend[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"default/frontend[Deployment]" -> "0.0.0.0-255.255.255.255" [label="UDP 53" color="gold2" fontcolor="darkgreen"]
+	"default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090" color="gold2" fontcolor="darkgreen"]
 }
 ```
 
 `svg` graph from `dot` format output can be produced using `graphviz` as following:
 ```
-dot -Tsvg test_outputs/connlist/demo_app_with_routes_and_ingress_connlist_output.dot -o test_outputs/connlist/demo_app_with_routes_and_ingress_connlist_output.dot.svg
+dot -Tsvg test_outputs/connlist/netpol-analysis-example-minimal_connlist_output.dot -o test_outputs/connlist/netpol-analysis-example-minimal_connlist_output.dot.svg
 ```
 The frames in the graph represent namespaces of the analyzed cluster.
 
