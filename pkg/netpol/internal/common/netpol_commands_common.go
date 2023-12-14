@@ -9,15 +9,10 @@ type NetpolError interface {
 	Location() string
 }
 
-// Ingress Controller const - the name and namespace of an ingress-controller pod
-const (
-	//  The actual ingress controller pod is usually unknown and not available in the input resources for the analysis.
-	// IngressPodName and IngressPodNamespace are used to represent that pod with those placeholder values for name and namespace.
-	IngressPodName      = "ingress-controller"
-	IngressPodNamespace = "ingress-controller-ns"
-)
+// The actual ingress controller pod is usually unknown and not available in the input resources for the analysis.
+const IngressPodName = "ingress-controller"
 
-// SpecificIngressControllersNs is a list of specific ingress controllers' namespaces
+// SpecificIngressControllersNs is a list of specific namespaces that may be used as the ingress-controller namespace
 var SpecificIngressControllersNs = []string{"ingress-nginx", "openshift-ingress-operator"}
 
 // diff format common const

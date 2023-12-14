@@ -8,20 +8,20 @@
  viewBox="0.00 0.00 1231.00 471.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 467)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-467 1227,-467 1227,4 -4,4"/>
-<g id="clust2" class="cluster">
-<title>cluster_frontend</title>
-<polygon fill="none" stroke="black" points="606,-311 606,-386 1024,-386 1024,-311 606,-311"/>
-<text text-anchor="middle" x="815" y="-370.8" font-family="Times New Roman,serif" font-size="14.00">frontend</text>
+<g id="clust1" class="cluster">
+<title>cluster_backend</title>
+<polygon fill="none" stroke="black" points="558,-8 558,-278 1152,-278 1152,-8 558,-8"/>
+<text text-anchor="middle" x="855" y="-262.8" font-family="Times New Roman,serif" font-size="14.00">backend</text>
 </g>
 <g id="clust3" class="cluster">
 <title>cluster_payments</title>
 <polygon fill="none" stroke="black" points="8,-8 8,-170 550,-170 550,-8 8,-8"/>
 <text text-anchor="middle" x="279" y="-154.8" font-family="Times New Roman,serif" font-size="14.00">payments</text>
 </g>
-<g id="clust1" class="cluster">
-<title>cluster_backend</title>
-<polygon fill="none" stroke="black" points="558,-8 558,-278 1152,-278 1152,-8 558,-8"/>
-<text text-anchor="middle" x="855" y="-262.8" font-family="Times New Roman,serif" font-size="14.00">backend</text>
+<g id="clust2" class="cluster">
+<title>cluster_frontend</title>
+<polygon fill="none" stroke="black" points="606,-311 606,-386 1024,-386 1024,-311 606,-311"/>
+<text text-anchor="middle" x="815" y="-370.8" font-family="Times New Roman,serif" font-size="14.00">frontend</text>
 </g>
 <!-- catalog[Deployment] -->
 <g id="node1" class="node">
@@ -158,7 +158,7 @@
 <title>gateway[Deployment]&#45;&gt;mastercard&#45;processor[Deployment]</title>
 <path fill="none" stroke="#eec900" d="M381.55,-105.48C336.03,-91.26 266.42,-69.51 216.57,-53.93"/>
 <polygon fill="#eec900" stroke="#eec900" points="217.47,-50.54 206.88,-50.9 215.38,-57.22 217.47,-50.54"/>
-<text text-anchor="middle" x="337" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
+<text text-anchor="middle" x="338" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
 </g>
 <!-- visa&#45;processor[Deployment] -->
 <g id="node11" class="node">
@@ -173,25 +173,45 @@
 <polygon fill="#eec900" stroke="#eec900" points="431.5,-62.18 428,-52.18 424.5,-62.18 431.5,-62.18"/>
 <text text-anchor="middle" x="457" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
 </g>
-<!-- {ingress&#45;controller} -->
+<!-- {ingress&#45;nginx} -->
 <g id="node12" class="node">
-<title>{ingress&#45;controller}</title>
-<ellipse fill="none" stroke="blue" cx="821" cy="-445" rx="82.59" ry="18"/>
-<text text-anchor="middle" x="821" y="-441.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">{ingress&#45;controller}</text>
+<title>{ingress&#45;nginx}</title>
+<ellipse fill="none" stroke="blue" cx="722" cy="-445" rx="67.69" ry="18"/>
+<text text-anchor="middle" x="722" y="-441.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">{ingress&#45;nginx}</text>
 </g>
-<!-- {ingress&#45;controller}&#45;&gt;asset&#45;cache[Deployment] -->
+<!-- {ingress&#45;nginx}&#45;&gt;asset&#45;cache[Deployment] -->
 <g id="edge13" class="edge">
-<title>{ingress&#45;controller}&#45;&gt;asset&#45;cache[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M804.29,-426.97C787.08,-409.43 760.11,-381.94 740.7,-362.16"/>
-<polygon fill="#eec900" stroke="#eec900" points="743.17,-359.68 733.67,-354.99 738.17,-364.58 743.17,-359.68"/>
-<text text-anchor="middle" x="813" y="-397.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
+<title>{ingress&#45;nginx}&#45;&gt;asset&#45;cache[Deployment]</title>
+<path fill="none" stroke="#eec900" d="M709.93,-426.97C706.7,-421.49 703.65,-415.22 702,-409 698.13,-394.45 701.15,-378 705.46,-364.61"/>
+<polygon fill="#eec900" stroke="#eec900" points="708.81,-365.64 708.92,-355.04 702.23,-363.26 708.81,-365.64"/>
+<text text-anchor="middle" x="731" y="-397.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
 </g>
-<!-- {ingress&#45;controller}&#45;&gt;webapp[Deployment] -->
+<!-- {ingress&#45;nginx}&#45;&gt;webapp[Deployment] -->
 <g id="edge14" class="edge">
-<title>{ingress&#45;controller}&#45;&gt;webapp[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M838.03,-426.97C855.57,-409.43 883.06,-381.94 902.84,-362.16"/>
-<polygon fill="#eec900" stroke="#eec900" points="905.42,-364.53 910.01,-354.99 900.47,-359.58 905.42,-364.53"/>
-<text text-anchor="middle" x="899" y="-397.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
+<title>{ingress&#45;nginx}&#45;&gt;webapp[Deployment]</title>
+<path fill="none" stroke="#eec900" d="M739.91,-427.58C754.32,-414.71 773.66,-398.28 783,-394 801.87,-385.36 809.26,-392.41 829,-386 850.02,-379.18 872.24,-368.6 890.19,-359.12"/>
+<polygon fill="#eec900" stroke="#eec900" points="892.02,-362.11 899.16,-354.28 888.7,-355.94 892.02,-362.11"/>
+<text text-anchor="middle" x="812" y="-397.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
+</g>
+<!-- {openshift&#45;ingress&#45;operator} -->
+<g id="node13" class="node">
+<title>{openshift&#45;ingress&#45;operator}</title>
+<ellipse fill="none" stroke="blue" cx="933" cy="-445" rx="115.08" ry="18"/>
+<text text-anchor="middle" x="933" y="-441.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">{openshift&#45;ingress&#45;operator}</text>
+</g>
+<!-- {openshift&#45;ingress&#45;operator}&#45;&gt;asset&#45;cache[Deployment] -->
+<g id="edge15" class="edge">
+<title>{openshift&#45;ingress&#45;operator}&#45;&gt;asset&#45;cache[Deployment]</title>
+<path fill="none" stroke="#eec900" d="M902.2,-427.52C891.38,-421.7 879.13,-415.09 868,-409 855.96,-402.41 853.27,-400.16 841,-394 815.77,-381.32 787.07,-368.28 763.64,-357.97"/>
+<polygon fill="#eec900" stroke="#eec900" points="764.84,-354.67 754.27,-353.87 762.03,-361.09 764.84,-354.67"/>
+<text text-anchor="middle" x="897" y="-397.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
+</g>
+<!-- {openshift&#45;ingress&#45;operator}&#45;&gt;webapp[Deployment] -->
+<g id="edge16" class="edge">
+<title>{openshift&#45;ingress&#45;operator}&#45;&gt;webapp[Deployment]</title>
+<path fill="none" stroke="#eec900" d="M932.04,-426.97C931.1,-410.38 929.65,-384.88 928.55,-365.43"/>
+<polygon fill="#eec900" stroke="#eec900" points="932.04,-365.13 927.98,-355.34 925.05,-365.52 932.04,-365.13"/>
+<text text-anchor="middle" x="959" y="-397.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
 </g>
 </g>
 </svg>

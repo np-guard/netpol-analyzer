@@ -10,4 +10,5 @@ diff-type: added, source: frontend/webapp[Deployment], destination: external/uni
 diff-type: added, source: payments/gateway[Deployment], destination: external/unicorn[Deployment], ref1: No Connections, ref2: UDP 5353, workloads-diff-info: workload external/unicorn[Deployment] added
 diff-type: removed, source: frontend/webapp[Deployment], destination: backend/shipping[Deployment], ref1: TCP 8080, ref2: No Connections
 diff-type: removed, source: payments/gateway[Deployment], destination: payments/mastercard-processor[Deployment], ref1: TCP 8080, ref2: No Connections, workloads-diff-info: workload payments/mastercard-processor[Deployment] removed
-diff-type: removed, source: {ingress-controller}, destination: frontend/asset-cache[Deployment], ref1: TCP 8080, ref2: No Connections
+diff-type: removed, source: {ingress-nginx}, destination: frontend/asset-cache[Deployment], ref1: TCP 8080, ref2: No Connections
+diff-type: removed, source: {openshift-ingress-operator}, destination: frontend/asset-cache[Deployment], ref1: TCP 8080, ref2: No Connections

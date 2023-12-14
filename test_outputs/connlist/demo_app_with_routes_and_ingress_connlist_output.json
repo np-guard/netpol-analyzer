@@ -60,17 +60,32 @@
     "conn": "All Connections"
   },
   {
-    "src": "{ingress-controller}",
+    "src": "{ingress-nginx}",
     "dst": "helloworld/hello-world[Deployment]",
     "conn": "TCP 8000"
   },
   {
-    "src": "{ingress-controller}",
+    "src": "{ingress-nginx}",
     "dst": "ingressworld/ingress-world[Deployment]",
     "conn": "TCP 8090"
   },
   {
-    "src": "{ingress-controller}",
+    "src": "{ingress-nginx}",
+    "dst": "routeworld/route-world[Deployment]",
+    "conn": "TCP 8060"
+  },
+  {
+    "src": "{openshift-ingress-operator}",
+    "dst": "helloworld/hello-world[Deployment]",
+    "conn": "TCP 8000"
+  },
+  {
+    "src": "{openshift-ingress-operator}",
+    "dst": "ingressworld/ingress-world[Deployment]",
+    "conn": "TCP 8090"
+  },
+  {
+    "src": "{openshift-ingress-operator}",
     "dst": "routeworld/route-world[Deployment]",
     "conn": "TCP 8060"
   }

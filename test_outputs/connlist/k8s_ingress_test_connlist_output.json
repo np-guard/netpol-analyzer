@@ -210,7 +210,12 @@
     "conn": "All Connections"
   },
   {
-    "src": "{ingress-controller}",
+    "src": "{ingress-nginx}",
+    "dst": "default/details-v1-79f774bdb9[ReplicaSet]",
+    "conn": "TCP 9080"
+  },
+  {
+    "src": "{openshift-ingress-operator}",
     "dst": "default/details-v1-79f774bdb9[ReplicaSet]",
     "conn": "TCP 9080"
   }

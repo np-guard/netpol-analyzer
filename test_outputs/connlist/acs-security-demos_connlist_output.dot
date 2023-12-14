@@ -19,7 +19,8 @@ digraph {
 		"visa-processor[Deployment]" [label="visa-processor[Deployment]" color="blue" fontcolor="blue"]
 		label="payments"
 	}
-	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
+	"{ingress-nginx}" [label="{ingress-nginx}" color="blue" fontcolor="blue"]
+	"{openshift-ingress-operator}" [label="{openshift-ingress-operator}" color="blue" fontcolor="blue"]
 	"checkout[Deployment]" -> "gateway[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
 	"checkout[Deployment]" -> "notification[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
 	"checkout[Deployment]" -> "recommendation[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
@@ -32,6 +33,8 @@ digraph {
 	"webapp[Deployment]" -> "recommendation[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
 	"webapp[Deployment]" -> "reports[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
 	"webapp[Deployment]" -> "shipping[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
-	"{ingress-controller}" -> "asset-cache[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
-	"{ingress-controller}" -> "webapp[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"{ingress-nginx}" -> "asset-cache[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"{ingress-nginx}" -> "webapp[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"{openshift-ingress-operator}" -> "asset-cache[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"{openshift-ingress-operator}" -> "webapp[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
 }

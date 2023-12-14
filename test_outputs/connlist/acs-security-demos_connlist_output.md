@@ -12,5 +12,7 @@
 | frontend/webapp[Deployment] | backend/shipping[Deployment] | TCP 8080 |
 | payments/gateway[Deployment] | payments/mastercard-processor[Deployment] | TCP 8080 |
 | payments/gateway[Deployment] | payments/visa-processor[Deployment] | TCP 8080 |
-| {ingress-controller} | frontend/asset-cache[Deployment] | TCP 8080 |
-| {ingress-controller} | frontend/webapp[Deployment] | TCP 8080 |
+| {ingress-nginx} | frontend/asset-cache[Deployment] | TCP 8080 |
+| {ingress-nginx} | frontend/webapp[Deployment] | TCP 8080 |
+| {openshift-ingress-operator} | frontend/asset-cache[Deployment] | TCP 8080 |
+| {openshift-ingress-operator} | frontend/webapp[Deployment] | TCP 8080 |

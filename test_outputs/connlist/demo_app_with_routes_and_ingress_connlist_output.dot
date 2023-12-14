@@ -12,7 +12,8 @@ digraph {
 		label="routeworld"
 	}
 	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
-	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
+	"{ingress-nginx}" [label="{ingress-nginx}" color="blue" fontcolor="blue"]
+	"{openshift-ingress-operator}" [label="{openshift-ingress-operator}" color="blue" fontcolor="blue"]
 	"0.0.0.0-255.255.255.255" -> "hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"0.0.0.0-255.255.255.255" -> "ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"0.0.0.0-255.255.255.255" -> "route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
@@ -25,7 +26,10 @@ digraph {
 	"route-world[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"route-world[Deployment]" -> "hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"route-world[Deployment]" -> "ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-	"{ingress-controller}" -> "hello-world[Deployment]" [label="TCP 8000" color="gold2" fontcolor="darkgreen"]
-	"{ingress-controller}" -> "ingress-world[Deployment]" [label="TCP 8090" color="gold2" fontcolor="darkgreen"]
-	"{ingress-controller}" -> "route-world[Deployment]" [label="TCP 8060" color="gold2" fontcolor="darkgreen"]
+	"{ingress-nginx}" -> "hello-world[Deployment]" [label="TCP 8000" color="gold2" fontcolor="darkgreen"]
+	"{ingress-nginx}" -> "ingress-world[Deployment]" [label="TCP 8090" color="gold2" fontcolor="darkgreen"]
+	"{ingress-nginx}" -> "route-world[Deployment]" [label="TCP 8060" color="gold2" fontcolor="darkgreen"]
+	"{openshift-ingress-operator}" -> "hello-world[Deployment]" [label="TCP 8000" color="gold2" fontcolor="darkgreen"]
+	"{openshift-ingress-operator}" -> "ingress-world[Deployment]" [label="TCP 8090" color="gold2" fontcolor="darkgreen"]
+	"{openshift-ingress-operator}" -> "route-world[Deployment]" [label="TCP 8060" color="gold2" fontcolor="darkgreen"]
 }

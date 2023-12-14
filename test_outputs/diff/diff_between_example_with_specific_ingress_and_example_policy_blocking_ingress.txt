@@ -1,2 +1,2 @@
 Connectivity diff:
-diff-type: added, source: {ingress-nginx}, destination: default/apple-app[Pod], ref1: No Connections, ref2: TCP 5678, workloads-diff-info: workload {ingress-nginx} added
+diff-type: added, source: {ingress-nginx}, destination: default/apple-app[Pod], ref1: No Connections, ref2: TCP 5678

@@ -7,7 +7,8 @@ digraph {
 	"default/reviews-v2-7bf8c9648f[ReplicaSet]" [label="default/reviews-v2-7bf8c9648f[ReplicaSet]" color="blue" fontcolor="blue"]
 	"default/reviews-v3-84779c7bbc[ReplicaSet]" [label="default/reviews-v3-84779c7bbc[ReplicaSet]" color="blue" fontcolor="blue"]
 	"default/unicorn[Deployment]" [label="default/unicorn[Deployment]" color="#008000" fontcolor="#008000"]
-	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
+	"{ingress-nginx}" [label="{ingress-nginx}" color="blue" fontcolor="blue"]
+	"{openshift-ingress-operator}" [label="{openshift-ingress-operator}" color="blue" fontcolor="blue"]
 	"0.0.0.0-255.255.255.255" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="All Connections" color="red2" fontcolor="red2"]
 	"0.0.0.0-255.255.255.255" -> "default/productpage-v1-6b746f74dc[ReplicaSet]" [label="All Connections" color="red2" fontcolor="red2"]
 	"0.0.0.0-255.255.255.255" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="All Connections" color="red2" fontcolor="red2"]
@@ -53,8 +54,10 @@ digraph {
 	"default/reviews-v3-84779c7bbc[ReplicaSet]" -> "default/reviews-v2-7bf8c9648f[ReplicaSet]" [label="All Connections" color="red2" fontcolor="red2"]
 	"default/unicorn[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="#008000" fontcolor="#008000"]
 	"default/unicorn[Deployment]" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="#008000" fontcolor="#008000"]
-	"{ingress-controller}" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="grey" fontcolor="grey"]
-	"{ingress-controller}" -> "default/unicorn[Deployment]" [label="TCP 8080" color="#008000" fontcolor="#008000"]
+	"{ingress-nginx}" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="grey" fontcolor="grey"]
+	"{ingress-nginx}" -> "default/unicorn[Deployment]" [label="TCP 8080" color="#008000" fontcolor="#008000"]
+	"{openshift-ingress-operator}" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="grey" fontcolor="grey"]
+	"{openshift-ingress-operator}" -> "default/unicorn[Deployment]" [label="TCP 8080" color="#008000" fontcolor="#008000"]
 	nodesep=0.5
 	subgraph cluster_legend {
 		label="Legend"

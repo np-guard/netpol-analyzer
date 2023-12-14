@@ -11,4 +11,5 @@
 | added | payments/gateway[Deployment] | external/unicorn[Deployment] | No Connections | UDP 5353 | workload external/unicorn[Deployment] added |
 | removed | frontend/webapp[Deployment] | backend/shipping[Deployment] | TCP 8080 | No Connections |  |
 | removed | payments/gateway[Deployment] | payments/mastercard-processor[Deployment] | TCP 8080 | No Connections | workload payments/mastercard-processor[Deployment] removed |
-| removed | {ingress-controller} | frontend/asset-cache[Deployment] | TCP 8080 | No Connections |  |
+| removed | {ingress-nginx} | frontend/asset-cache[Deployment] | TCP 8080 | No Connections |  |
+| removed | {openshift-ingress-operator} | frontend/asset-cache[Deployment] | TCP 8080 | No Connections |  |
