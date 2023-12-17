@@ -28,7 +28,7 @@ default/frontend[Deployment] => default/backend[Deployment] : TCP 9090
 
 `list` output in `md` format:
 ```
-./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o md
+$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o md
 ```
 | src | dst | conn |
 |-----|-----|------|
@@ -38,7 +38,7 @@ default/frontend[Deployment] => default/backend[Deployment] : TCP 9090
 
 `list` output in `csv` format:
 ```
-./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o csv
+$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o csv
 
 src,dst,conn
 0.0.0.0-255.255.255.255,default/frontend[Deployment],TCP 8080
@@ -48,7 +48,7 @@ default/frontend[Deployment],default/backend[Deployment],TCP 9090
 
 `list` output in `json` format:
 ```
-./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o json
+$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o json
 
 [
   {
@@ -73,7 +73,7 @@ default/frontend[Deployment],default/backend[Deployment],TCP 9090
 
 In `dot` output graphs, all the peers of the analyzed cluster are grouped by their namespaces.
 ```
-./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o dot
+$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o dot
 
 digraph {
 	subgraph cluster_default {
@@ -90,7 +90,8 @@ digraph {
 
 `svg` graph from `dot` format output can be produced using `graphviz` as following:
 ```
-dot -Tsvg test_outputs/connlist/netpol-analysis-example-minimal_connlist_output.dot -O
+$ dot -Tsvg test_outputs/connlist/netpol-analysis-example-minimal_connlist_output.dot -O
+```
 The frames in the graph represent namespaces of the analyzed cluster.
 
 ![svg graph](./connlist_example_svg.svg)
