@@ -90,8 +90,7 @@ digraph {
 
 `svg` graph from `dot` format output can be produced using `graphviz` as following:
 ```
-dot -Tsvg test_outputs/connlist/netpol-analysis-example-minimal_connlist_output.dot -o test_outputs/connlist/netpol-analysis-example-minimal_connlist_output.dot.svg
-```
+dot -Tsvg test_outputs/connlist/netpol-analysis-example-minimal_connlist_output.dot -O
 The frames in the graph represent namespaces of the analyzed cluster.
 
 ![svg graph](./connlist_example_svg.svg)
