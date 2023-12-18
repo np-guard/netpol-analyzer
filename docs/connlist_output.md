@@ -15,29 +15,87 @@ Its connectivity lines are of the form: `{ingress-controller}` => `dst` : `conne
 This analysis is currently activated only with `--dir-path` flag, and not on a live cluster.
 It assumes that the ingress controller Pod is unknown, and thus using this notation of `{ingress-controller}`.
 
-
 ## Example Output
 
+`list` output in `txt` format:
 ```
-$ ./bin/k8snetpolicy list --dirpath tests/demo_app_with_routes_and_ingress/
+$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/
 
-0.0.0.0-255.255.255.255 => helloworld/hello-world[Deployment] : All Connections
-0.0.0.0-255.255.255.255 => ingressworld/ingress-world[Deployment] : All Connections
-0.0.0.0-255.255.255.255 => routeworld/route-world[Deployment] : All Connections
-helloworld/hello-world[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
-helloworld/hello-world[Deployment] => ingressworld/ingress-world[Deployment] : All Connections
-helloworld/hello-world[Deployment] => routeworld/route-world[Deployment] : All Connections
-ingressworld/ingress-world[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
-ingressworld/ingress-world[Deployment] => helloworld/hello-world[Deployment] : All Connections
-ingressworld/ingress-world[Deployment] => routeworld/route-world[Deployment] : All Connections
-routeworld/route-world[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
-routeworld/route-world[Deployment] => helloworld/hello-world[Deployment] : All Connections
-routeworld/route-world[Deployment] => ingressworld/ingress-world[Deployment] : All Connections
-{ingress-controller} => helloworld/hello-world[Deployment] : TCP 8000
-{ingress-controller} => ingressworld/ingress-world[Deployment] : TCP 8090
-{ingress-controller} => routeworld/route-world[Deployment] : TCP 8060
-
+0.0.0.0-255.255.255.255 => default/frontend[Deployment] : TCP 8080
+default/frontend[Deployment] => 0.0.0.0-255.255.255.255 : UDP 53
+default/frontend[Deployment] => default/backend[Deployment] : TCP 9090
 ```
+
+`list` output in `md` format:
+```
+$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o md
+```
+| src | dst | conn |
+|-----|-----|------|
+| 0.0.0.0-255.255.255.255 | default/frontend[Deployment] | TCP 8080 |
+| default/frontend[Deployment] | 0.0.0.0-255.255.255.255 | UDP 53 |
+| default/frontend[Deployment] | default/backend[Deployment] | TCP 9090 |
+
+`list` output in `csv` format:
+```
+$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o csv
+
+src,dst,conn
+0.0.0.0-255.255.255.255,default/frontend[Deployment],TCP 8080
+default/frontend[Deployment],0.0.0.0-255.255.255.255,UDP 53
+default/frontend[Deployment],default/backend[Deployment],TCP 9090
+```
+
+`list` output in `json` format:
+```
+$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o json
+
+[
+  {
+    "src": "0.0.0.0-255.255.255.255",
+    "dst": "default/frontend[Deployment]",
+    "conn": "TCP 8080"
+  },
+  {
+    "src": "default/frontend[Deployment]",
+    "dst": "0.0.0.0-255.255.255.255",
+    "conn": "UDP 53"
+  },
+  {
+    "src": "default/frontend[Deployment]",
+    "dst": "default/backend[Deployment]",
+    "conn": "TCP 9090"
+  }
+]
+```
+
+`list` output in `dot` format:
+
+In `dot` output graphs, all the peers of the analyzed cluster are grouped by their namespaces.
+```
+$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o dot
+
+digraph {
+	subgraph cluster_default {
+		"default/backend[Deployment]" [label="backend[Deployment]" color="blue" fontcolor="blue"]
+		"default/frontend[Deployment]" [label="frontend[Deployment]" color="blue" fontcolor="blue"]
+		label="default"
+	}
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255" -> "default/frontend[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"default/frontend[Deployment]" -> "0.0.0.0-255.255.255.255" [label="UDP 53" color="gold2" fontcolor="darkgreen"]
+	"default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090" color="gold2" fontcolor="darkgreen"]
+}
+```
+
+`svg` graph from `dot` format output can be produced using `graphviz` as following:
+```
+$ dot -Tsvg test_outputs/connlist/netpol-analysis-example-minimal_connlist_output.dot -O
+```
+The frames in the graph represent namespaces of the analyzed cluster.
+
+![svg graph](./connlist_example_svg.svg)
+
 
 ### Possible warning
 `Route/Ingress specified workload as a backend, but network policies are blocking ingress connections from an arbitrary in-cluster source to this workload. Connectivity map will not include a possibly allowed connection between the ingress controller and this workload.`
