@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/dotformatting"
 )
 
 // diffFormatDOT: implements the diffFormatter interface for dot output format
@@ -16,49 +17,54 @@ type diffFormatDOT struct {
 
 // writeDiffOutput writes the diff output in the dot format
 func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, error) {
-	var edgeLines, peersLines, ingressAnalyzerEdges []string
+	var edgeLines, ingressAnalyzerEdges []string
 	peersVisited := make(map[string]bool, 0) // set of peers
+	nsPeers := make(map[string][]string)     // map from namespace to its peers (grouping peers by namespaces)
+	externalPeersLines := make([]string, 0)
 	// non changed
-	ncPeers, nonChangedEdges, nonChangedIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.UnchangedConnections(), peersVisited)
-	peersLines = append(peersLines, ncPeers...)
+	externalNCPeers, nonChangedEdges, nonChangedIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.UnchangedConnections(),
+		peersVisited, nsPeers)
+	externalPeersLines = append(externalPeersLines, externalNCPeers...)
 	edgeLines = append(edgeLines, nonChangedEdges...)
 	ingressAnalyzerEdges = append(ingressAnalyzerEdges, nonChangedIngressEdges...)
 	// changed
-	cPeers, changedEedges, changedIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.ChangedConnections(), peersVisited)
-	peersLines = append(peersLines, cPeers...)
+	externalCPeers, changedEedges, changedIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.ChangedConnections(),
+		peersVisited, nsPeers)
+	externalPeersLines = append(externalPeersLines, externalCPeers...)
 	edgeLines = append(edgeLines, changedEedges...)
 	ingressAnalyzerEdges = append(ingressAnalyzerEdges, changedIngressEdges...)
 	// added
-	nPeers, newEdges, newIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.AddedConnections(), peersVisited)
-	peersLines = append(peersLines, nPeers...)
+	externalNPeers, newEdges, newIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.AddedConnections(), peersVisited, nsPeers)
+	externalPeersLines = append(externalPeersLines, externalNPeers...)
 	edgeLines = append(edgeLines, newEdges...)
 	ingressAnalyzerEdges = append(ingressAnalyzerEdges, newIngressEdges...)
 	// removed
-	lPeers, lostEdges, lostIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.RemovedConnections(), peersVisited)
-	peersLines = append(peersLines, lPeers...)
+	externalLPeers, lostEdges, lostIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.RemovedConnections(), peersVisited, nsPeers)
+	externalPeersLines = append(externalPeersLines, externalLPeers...)
 	edgeLines = append(edgeLines, lostEdges...)
 	ingressAnalyzerEdges = append(ingressAnalyzerEdges, lostIngressEdges...)
 
 	// sort lines
-	sort.Strings(peersLines)
+	sort.Strings(externalPeersLines)
 	sort.Strings(edgeLines)
 	sort.Strings(ingressAnalyzerEdges)
 
 	// write graph
-	allLines := []string{common.DotHeader}
-	allLines = append(allLines, peersLines...)
+	allLines := []string{dotformatting.DotHeader}
+	allLines = append(allLines, dotformatting.AddNsGroups(nsPeers)...)
+	allLines = append(allLines, externalPeersLines...)
 	allLines = append(allLines, edgeLines...)
 	allLines = append(allLines, ingressAnalyzerEdges...)
 	allLines = append(allLines, addLegend()...)
-	allLines = append(allLines, common.DotClosing)
+	allLines = append(allLines, dotformatting.DotClosing)
 	return strings.Join(allLines, newLine), nil
 }
 
 // getEdgesAndPeersLinesByCategory returns the dot peers, edges and  ingress edges lines of the given connsPairs
 // (all connsPairs are in same category)
-func (df *diffFormatDOT) getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff, peersSet map[string]bool,
-) (peersLines, connsEdges, ingressEdges []string) {
-	peersLines = make([]string, 0)
+func (df *diffFormatDOT) getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff, peersSet map[string]bool, nsPeers map[string][]string,
+) (externalPeersLines, connsEdges, ingressEdges []string) {
+	externalPeersLines = make([]string, 0)
 	connsEdges = make([]string, 0)
 	ingressEdges = make([]string, 0)
 	for _, connsPair := range connsPairs {
@@ -66,11 +72,23 @@ func (df *diffFormatDOT) getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff
 		// add peers lines (which are still not in the set)
 		if !peersSet[src] {
 			peersSet[src] = true
-			peersLines = append(peersLines, addPeerLine(src, connsPair.DiffType(), connsPair.IsSrcNewOrRemoved()))
+			nodePeerLabel, isExternal := getNodePeerLabelAndType(connsPair.Src())
+			peerLine := getPeerLine(src, nodePeerLabel, connsPair.DiffType(), connsPair.IsSrcNewOrRemoved())
+			if isExternal {
+				externalPeersLines = append(externalPeersLines, peerLine)
+			} else {
+				dotformatting.AddPeerToNsGroup(connsPair.Src().Namespace(), peerLine, nsPeers)
+			}
 		}
 		if !peersSet[dst] {
 			peersSet[dst] = true
-			peersLines = append(peersLines, addPeerLine(dst, connsPair.DiffType(), connsPair.IsDstNewOrRemoved()))
+			nodePeerLabel, isExternal := getNodePeerLabelAndType(connsPair.Dst())
+			peerLine := getPeerLine(dst, nodePeerLabel, connsPair.DiffType(), connsPair.IsDstNewOrRemoved())
+			if isExternal {
+				externalPeersLines = append(externalPeersLines, peerLine)
+			} else {
+				dotformatting.AddPeerToNsGroup(connsPair.Dst().Namespace(), peerLine, nsPeers)
+			}
 		}
 		// add connections lines
 		if isIngress {
@@ -79,7 +97,7 @@ func (df *diffFormatDOT) getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff
 			connsEdges = append(connsEdges, df.addEdgesLines(connsPair))
 		}
 	}
-	return peersLines, connsEdges, ingressEdges
+	return externalPeersLines, connsEdges, ingressEdges
 }
 
 const (
@@ -88,8 +106,8 @@ const (
 	persistentPeerColor = "blue"
 )
 
-// addPeerLine returns peer line string in dot format
-func addPeerLine(peerName string, diffType DiffTypeStr, isNewOrLost bool) string {
+// getPeerLine returns peer line string in dot format
+func getPeerLine(peerName, peerLabelName string, diffType DiffTypeStr, isNewOrLost bool) string {
 	peerColor := persistentPeerColor
 	if isNewOrLost {
 		switch diffType {
@@ -101,7 +119,7 @@ func addPeerLine(peerName string, diffType DiffTypeStr, isNewOrLost bool) string
 			break
 		}
 	}
-	return fmt.Sprintf("\t%q [label=%q color=%q fontcolor=%q]", peerName, peerName, peerColor, peerColor)
+	return fmt.Sprintf("\t%q [label=%q color=%q fontcolor=%q]", peerName, peerLabelName, peerColor, peerColor)
 }
 
 const (
@@ -243,4 +261,12 @@ func addNodeKeyLines() []string { // const
 		linePrefix + listOpen + legendRankSinkLine + space + strings.Join(pNodesNames, space) + listClose}
 	res = append(res, addInvisibleEdges()...)
 	return res
+}
+
+// returns the peer name should be displayed in the node of the peer in the graph and whether the peer is a cluster peer or not
+func getNodePeerLabelAndType(peer Peer) (string, bool) {
+	if peer.IsPeerIPType() || peer.Name() == common.IngressPodName {
+		return peer.String(), true
+	}
+	return dotformatting.NodeClusterPeerLabel(peer.Name(), peer.Kind()), false
 }

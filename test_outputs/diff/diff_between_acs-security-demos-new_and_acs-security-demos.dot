@@ -1,17 +1,29 @@
 digraph {
+	subgraph cluster_backend {
+		"backend/catalog[Deployment]" [label="catalog[Deployment]" color="blue" fontcolor="blue"]
+		"backend/checkout[Deployment]" [label="checkout[Deployment]" color="blue" fontcolor="blue"]
+		"backend/notification[Deployment]" [label="notification[Deployment]" color="blue" fontcolor="blue"]
+		"backend/recommendation[Deployment]" [label="recommendation[Deployment]" color="blue" fontcolor="blue"]
+		"backend/reports[Deployment]" [label="reports[Deployment]" color="blue" fontcolor="blue"]
+		"backend/shipping[Deployment]" [label="shipping[Deployment]" color="blue" fontcolor="blue"]
+		label="backend"
+	}
+	subgraph cluster_external {
+		"external/unicorn[Deployment]" [label="unicorn[Deployment]" color="#008000" fontcolor="#008000"]
+		label="external"
+	}
+	subgraph cluster_frontend {
+		"frontend/asset-cache[Deployment]" [label="asset-cache[Deployment]" color="blue" fontcolor="blue"]
+		"frontend/webapp[Deployment]" [label="webapp[Deployment]" color="blue" fontcolor="blue"]
+		label="frontend"
+	}
+	subgraph cluster_payments {
+		"payments/gateway[Deployment]" [label="gateway[Deployment]" color="blue" fontcolor="blue"]
+		"payments/mastercard-processor[Deployment]" [label="mastercard-processor[Deployment]" color="red" fontcolor="red"]
+		"payments/visa-processor[Deployment]" [label="visa-processor[Deployment]" color="blue" fontcolor="blue"]
+		label="payments"
+	}
 	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
-	"backend/catalog[Deployment]" [label="backend/catalog[Deployment]" color="blue" fontcolor="blue"]
-	"backend/checkout[Deployment]" [label="backend/checkout[Deployment]" color="blue" fontcolor="blue"]
-	"backend/notification[Deployment]" [label="backend/notification[Deployment]" color="blue" fontcolor="blue"]
-	"backend/recommendation[Deployment]" [label="backend/recommendation[Deployment]" color="blue" fontcolor="blue"]
-	"backend/reports[Deployment]" [label="backend/reports[Deployment]" color="blue" fontcolor="blue"]
-	"backend/shipping[Deployment]" [label="backend/shipping[Deployment]" color="blue" fontcolor="blue"]
-	"external/unicorn[Deployment]" [label="external/unicorn[Deployment]" color="#008000" fontcolor="#008000"]
-	"frontend/asset-cache[Deployment]" [label="frontend/asset-cache[Deployment]" color="blue" fontcolor="blue"]
-	"frontend/webapp[Deployment]" [label="frontend/webapp[Deployment]" color="blue" fontcolor="blue"]
-	"payments/gateway[Deployment]" [label="payments/gateway[Deployment]" color="blue" fontcolor="blue"]
-	"payments/mastercard-processor[Deployment]" [label="payments/mastercard-processor[Deployment]" color="red" fontcolor="red"]
-	"payments/visa-processor[Deployment]" [label="payments/visa-processor[Deployment]" color="blue" fontcolor="blue"]
 	"{ingress-nginx}" [label="{ingress-nginx}" color="blue" fontcolor="blue"]
 	"{openshift-ingress-operator}" [label="{openshift-ingress-operator}" color="blue" fontcolor="blue"]
 	"0.0.0.0-255.255.255.255" -> "external/unicorn[Deployment]" [label="All Connections" color="#008000" fontcolor="#008000"]

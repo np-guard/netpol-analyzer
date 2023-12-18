@@ -1,12 +1,15 @@
 digraph {
+	subgraph cluster_default {
+		"default/details-v1-79f774bdb9[ReplicaSet]" [label="details-v1-79f774bdb9[ReplicaSet]" color="blue" fontcolor="blue"]
+		"default/productpage-v1-6b746f74dc[ReplicaSet]" [label="productpage-v1-6b746f74dc[ReplicaSet]" color="blue" fontcolor="blue"]
+		"default/ratings-v1-b6994bb9[ReplicaSet]" [label="ratings-v1-b6994bb9[ReplicaSet]" color="blue" fontcolor="blue"]
+		"default/reviews-v1-545db77b95[ReplicaSet]" [label="reviews-v1-545db77b95[ReplicaSet]" color="blue" fontcolor="blue"]
+		"default/reviews-v2-7bf8c9648f[ReplicaSet]" [label="reviews-v2-7bf8c9648f[ReplicaSet]" color="blue" fontcolor="blue"]
+		"default/reviews-v3-84779c7bbc[ReplicaSet]" [label="reviews-v3-84779c7bbc[ReplicaSet]" color="blue" fontcolor="blue"]
+		"default/unicorn[Deployment]" [label="unicorn[Deployment]" color="#008000" fontcolor="#008000"]
+		label="default"
+	}
 	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
-	"default/details-v1-79f774bdb9[ReplicaSet]" [label="default/details-v1-79f774bdb9[ReplicaSet]" color="blue" fontcolor="blue"]
-	"default/productpage-v1-6b746f74dc[ReplicaSet]" [label="default/productpage-v1-6b746f74dc[ReplicaSet]" color="blue" fontcolor="blue"]
-	"default/ratings-v1-b6994bb9[ReplicaSet]" [label="default/ratings-v1-b6994bb9[ReplicaSet]" color="blue" fontcolor="blue"]
-	"default/reviews-v1-545db77b95[ReplicaSet]" [label="default/reviews-v1-545db77b95[ReplicaSet]" color="blue" fontcolor="blue"]
-	"default/reviews-v2-7bf8c9648f[ReplicaSet]" [label="default/reviews-v2-7bf8c9648f[ReplicaSet]" color="blue" fontcolor="blue"]
-	"default/reviews-v3-84779c7bbc[ReplicaSet]" [label="default/reviews-v3-84779c7bbc[ReplicaSet]" color="blue" fontcolor="blue"]
-	"default/unicorn[Deployment]" [label="default/unicorn[Deployment]" color="#008000" fontcolor="#008000"]
 	"{ingress-nginx}" [label="{ingress-nginx}" color="blue" fontcolor="blue"]
 	"{openshift-ingress-operator}" [label="{openshift-ingress-operator}" color="blue" fontcolor="blue"]
 	"0.0.0.0-255.255.255.255" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="All Connections" color="red2" fontcolor="red2"]
