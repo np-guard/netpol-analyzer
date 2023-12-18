@@ -600,7 +600,7 @@ var goodPathTests = []struct {
 	},
 	{
 		testDirName:   "netpol-analysis-example-minimal",
-		outputFormats: []string{output.TextFormat},
+		outputFormats: allFormats,
 	},
 	{
 		testDirName:   "with_end_port_example",
