@@ -58,8 +58,6 @@ digraph {
 
 ```
 $ dot -Tsvg test_outputs/diff/diff_between_netpol-diff-example-minimal_and_netpol-analysis-example-minimal.dot -O
-
-
 ```
 The frames in the graph represent namespaces of the analyzed cluster.
 
