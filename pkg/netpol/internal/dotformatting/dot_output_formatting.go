@@ -24,7 +24,8 @@ func NodeClusterPeerLabel(name, kind string) string {
 	return name + "[" + kind + "]"
 }
 
-// AddNsGroups adds namespaces frames to dot graphs
+// AddNsGroups gets namespace to peers-lines map, writes a dot subgraph for each namespace with its peers' lines
+// returns all subgraphs sorted by namespace name and each subgraph internally sorted by peers' names
 func AddNsGroups(nsPeersMap map[string][]string) []string {
 	res := []string{}
 	// sort namespaces (map's keys) to ensure same output always
