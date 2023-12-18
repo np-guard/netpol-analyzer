@@ -57,7 +57,8 @@ digraph {
 `svg` graph from `dot` format output can be produced using `graphviz` as following:
 
 ```
-$ dot -Tsvg test_outputs/diff/diff_between_netpol-diff-example-minimal_and_netpol-analysis-example-minimal.dot -o test_outputs/diff/diff_between_netpol-diff-example-minimal_and_netpol-analysis-example-minimal.dot.svg
+$ dot -Tsvg test_outputs/diff/diff_between_netpol-diff-example-minimal_and_netpol-analysis-example-minimal.dot -O
+
 
 ```
 The frames in the graph represent namespaces of the analyzed cluster.
