@@ -8,6 +8,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/cli-runtime/pkg/resource"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 )
 
@@ -77,7 +78,7 @@ func resourceInfoToK8sObject(info *resource.Info, l logger.Logger, muteErrsAndWa
 		resObject.initDefaultNamespace()
 	} else {
 		// failed conversion to unstructured
-		fpErr := malformedYamlDoc(info.Source, 0, -1, fmt.Errorf("failed conversion from resource.Info to unstructured.Unstructured"))
+		fpErr := malformedYamlDoc(info.Source, 0, -1, errors.New(netpolerrors.ConversionToUnstructuredErr))
 		logError(l, fpErr, muteErrsAndWarns)
 		return nil, fpErr
 	}

@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
@@ -15,6 +16,7 @@ import (
 const ResourceInfosFunc = "ConnlistFromResourceInfos"
 const DirPathFunc = "ConnlistFromDirPath"
 const currentPkg = "connlist"
+const notEmptyMsg = "expecting non-empty analysis res"
 
 var allFormats = []string{output.TextFormat, output.JSONFormat, output.CSVFormat, output.MDFormat, output.DOTFormat}
 var connlistTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
@@ -125,27 +127,27 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		{
 			name:             "Input_dir_has_netpol_with_invalid_cidr_should_return_fatal_error_of_invalid_CIDR_address",
 			dirName:          filepath.Join("bad_netpols", "subdir1"),
-			errorStrContains: "CIDR error: invalid CIDR address",
+			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.CidrErrTitle, netpolerrors.InvalidCIDRAddr),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_bad_label_key_should_return_fatal_selector_error",
 			dirName:          filepath.Join("bad_netpols", "subdir2"),
-			errorStrContains: "selector error: key: Invalid value: \"app@b\": name part must consist of alphanumeric characters",
+			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.SelectorErrTitle, netpolerrors.InvalidKeyVal),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_invalid_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
 			dirName:          filepath.Join("bad_netpols", "subdir3"),
-			errorStrContains: "rule NetworkPolicyPeer error: cannot have both IPBlock and PodSelector/NamespaceSelector set",
+			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.RulePeerErrTitle, netpolerrors.CombinedRulePeerErrStr),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_empty_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
 			dirName:          filepath.Join("bad_netpols", "subdir4"),
-			errorStrContains: "rule NetworkPolicyPeer error: cannot have empty rule peer",
+			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.RulePeerErrTitle, netpolerrors.EmptyRulePeerErrStr),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_named_port_on_ipblock_peer_should_return_fatal_named_port_error",
 			dirName:          filepath.Join("bad_netpols", "subdir6"),
-			errorStrContains: "named port error: cannot convert named port for an IP destination",
+			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.NamedPortErrTitle, netpolerrors.ConvertNamedPortErrStr),
 		},
 		/*// input dir does not exist
 		{
@@ -155,10 +157,9 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		},*/
 		// pods list issue - pods with same owner but different labels
 		{
-			name:    "Input_dir_has_illegal_podlist_pods_with_same_owner_ref_name_has_different_labels_should_return_fatal_error",
-			dirName: "semanticDiff-same-topologies-illegal-podlist",
-			errorStrContains: "Input Pod resources are not supported for connectivity analysis. Found Pods of the same owner demo/cog-agents " +
-				"but with different set of labels.",
+			name:             "Input_dir_has_illegal_podlist_pods_with_same_owner_ref_name_has_different_labels_should_return_fatal_error",
+			dirName:          "semanticDiff-same-topologies-illegal-podlist",
+			errorStrContains: netpolerrors.NotSupportedPodResourcesErrorStr("demo/cog-agents"),
 		},
 	}
 	for _, tt := range cases {
@@ -220,13 +221,13 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 		{
 			name:                "input_file_has_no_relevant_k8s_resources",
 			dirName:             filepath.Join("bad_yamls", "irrelevant_k8s_resources.yaml"),
-			firstErrStrContains: "no relevant Kubernetes workload resources found",
+			firstErrStrContains: netpolerrors.NoK8sWorkloadResourcesFoundErrorStr,
 			emptyRes:            true,
 		},
 		{
 			name:                "no_network_policy_resources_warning",
 			dirName:             "no_netpols_dir",
-			firstErrStrContains: "no relevant Kubernetes network policy resources found",
+			firstErrStrContains: netpolerrors.NoK8sNetworkPolicyResourcesFoundErrorStr,
 			emptyRes:            false,
 		},
 		/*
@@ -241,27 +242,27 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 		{
 			name:                "malformed_yaml_unrecognized_type_int32",
 			dirName:             "malformed_pod_example",
-			firstErrStrContains: "unrecognized type: int32",
+			firstErrStrContains: netpolerrors.UnrecognizedValType, // netpolerrors.MalformedYamlDocErrorStr
 			emptyRes:            true,
 		},
 		{
 			name:                "malformed_yaml_cannot_restore_slice_from_map",
 			dirName:             "malformed-pod-example-2",
-			firstErrStrContains: "cannot restore slice from map",
+			firstErrStrContains: netpolerrors.SliceFromMapErr, // netpolerrors.MalformedYamlDocErrorStr
 			emptyRes:            false,
 		},
 		{
 			name:                "input_dir_with_focusworkload_that_does_not_exist_should_get_warning",
 			dirName:             "onlineboutique_workloads",
 			focusWorkload:       "abcd",
-			firstErrStrContains: "Workload abcd does not exist in the input resources. Connectivity map report will be empty.",
+			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("abcd"),
 			emptyRes:            true,
 		},
 		{
 			name:                "input_dir_with_focusworkload_ns_and_name_that_does_not_exist_should_get_warning",
 			dirName:             "onlineboutique_workloads",
 			focusWorkload:       "default/abcd",
-			firstErrStrContains: "Workload default/abcd does not exist in the input resources. Connectivity map report will be empty.",
+			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("default/abcd"),
 			emptyRes:            true,
 		},
 
@@ -336,17 +337,17 @@ func TestFatalErrorsConnlistFromDirPathOnly(t *testing.T) {
 		{
 			name:             "dir_does_not_exist_err",
 			dirName:          "ttt",
-			errorStrContains: "does not exist",
+			errorStrContains: netpolerrors.PathNotExistErr, // netpolerrors.ErrGettingResInfoFromDir
 		},
 		{
 			name:             "empty_dir_with_no_yamls_or_json_files",
 			dirName:          filepath.Join("bad_yamls", "subdir2"),
-			errorStrContains: "recognized file extensions are",
+			errorStrContains: netpolerrors.UnknownFileExtensionErr, // netpolerrors.ErrGettingResInfoFromDir
 		},
 		{
 			name:             "bad_JSON_missing_kind", // this err is fatal here only because dir has no other resources
 			dirName:          "malformed-pod-example-4",
-			errorStrContains: "is missing in", // kind is missing in pod json
+			errorStrContains: netpolerrors.MissingObjectErr, // kind is missing in pod json, netpolerrors.ErrGettingResInfoFromDir
 		},
 	}
 	for _, tt := range cases {
@@ -371,13 +372,13 @@ func TestErrorsAndWarningsConnlistFromDirPathOnly(t *testing.T) {
 		{
 			name:             "irrelevant_JSON_file_unable_to_decode",
 			dirName:          "onlineboutique",
-			errorStrContains: "cannot unmarshal array into Go value of type unstructured.detector",
+			errorStrContains: netpolerrors.UnmarshalErr, // netpolerrors.FailedReadingFileErrorStr
 			emptyRes:         false,
 		},
 		{
 			name:             "YAML_syntax_err",
 			dirName:          "malformed-pod-example-5",
-			errorStrContains: "found character that cannot start any token",
+			errorStrContains: netpolerrors.WrongStartCharacterErr, // netpolerrors.FailedReadingFileErrorStr
 			emptyRes:         false,
 			// TODO: this test has another error (missing kind in another file), add this to the testing functionality
 		},
@@ -492,7 +493,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			name:             "giving_unsupported_output_format_option_should_return_fatal_error",
 			dirName:          "onlineboutique",
 			format:           "docx",
-			errorStrContains: "docx output format is not supported.",
+			errorStrContains: netpolerrors.FormatNotSupportedErrStr("docx"),
 		},
 	}
 	for _, tt := range cases {
@@ -505,8 +506,8 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			require.Nil(t, err, tt.name)
 			// "unable to decode ... connlist_output.json"
 			require.Equal(t, len(preparedTest.analyzer.errors), 1, "expecting error since builder not able to parse connlist_output.json")
-			require.NotEmpty(t, connsRes, "expecting non-empty analysis res")
-			require.NotEmpty(t, peersRes, "expecting non-empty analysis res")
+			require.NotEmpty(t, connsRes, notEmptyMsg)
+			require.NotEmpty(t, peersRes, notEmptyMsg)
 
 			out, err := preparedTest.analyzer.ConnectionsListToString(connsRes)
 			require.Empty(t, out, tt.name)
@@ -519,8 +520,8 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 
 			require.Nil(t, err2, tt.name)
 			require.Empty(t, preparedTest.analyzer.errors, "expecting no errors from ConnlistFromResourceInfos")
-			require.NotEmpty(t, connsRes2, "expecting non-empty analysis res")
-			require.NotEmpty(t, peersRes2, "expecting non-empty analysis res")
+			require.NotEmpty(t, connsRes2, notEmptyMsg)
+			require.NotEmpty(t, peersRes2, notEmptyMsg)
 
 			out, err2 = preparedTest.analyzer.ConnectionsListToString(connsRes)
 			require.Empty(t, out, tt.name)
