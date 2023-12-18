@@ -15,7 +15,6 @@ package eval
 
 import (
 	"errors"
-	"fmt"
 	"net"
 	"strings"
 
@@ -23,6 +22,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -67,12 +67,12 @@ func (pe *PolicyEngine) convertWorkloadPeerToPodPeer(peer Peer) (*k8s.PodPeer, e
 	if workloadPeer, ok := peer.(*k8s.WorkloadPeer); ok {
 		podNamespace, ok := pe.namspacesMap[workloadPeer.Pod.Namespace]
 		if !ok {
-			return nil, fmt.Errorf("error: namespace of pod %s is missing", workloadPeer.String())
+			return nil, errors.New(netpolerrors.MissingNamespaceErrStr(workloadPeer.String()))
 		}
 		podPeer := &k8s.PodPeer{Pod: workloadPeer.Pod, NamespaceObject: podNamespace}
 		return podPeer, nil
 	}
-	return nil, fmt.Errorf("peer: %s ,is not a WorkloadPeer", peer.String())
+	return nil, errors.New(netpolerrors.NotPeerErrStr(peer.String()))
 }
 
 // for connectivity considerations, when requesting allowed connections between 2 workload peers which are the same,
@@ -123,7 +123,7 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 		}
 		return pe.allAllowedConnectionsBetweenPeers(srcPodPeer, dstPodPeer)
 	}
-	return nil, fmt.Errorf("cannot have both srcPeer and dstPeer of IP types: src: %s, dst: %s", srcPeer.String(), dstPeer.String())
+	return nil, errors.New(netpolerrors.BothSrcAndDstIPsErrStr(srcPeer.String(), dstPeer.String()))
 }
 
 // allAllowedConnectionsBetweenPeers: returns the allowed connections from srcPeer to dstPeer
@@ -316,14 +316,14 @@ func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 			}
 			nsObj, ok := pe.namspacesMap[namespaceStr]
 			if !ok {
-				return nil, errors.New("could not find peer namespace")
+				return nil, errors.New(netpolerrors.NotFoundNamespace)
 			}
 			res.NamespaceObject = nsObj
 			return res, nil
 		}
-		return nil, fmt.Errorf("could not find peer %s", p)
+		return nil, errors.New(netpolerrors.NotFoundPeerErrStr(p))
 	}
-	return nil, fmt.Errorf("%s is not a valid peer", p)
+	return nil, errors.New(netpolerrors.InvalidPeerErrStr(p))
 }
 
 // checkIfAllowedNew: (connection-set based computation) returns true if the given input connection is

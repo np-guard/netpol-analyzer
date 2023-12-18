@@ -20,6 +20,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	outconsts "github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/diff"
@@ -76,10 +77,10 @@ func newCommandDiff() *cobra.Command {
 
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if dirPath != "" {
-				return errors.New("dirpath flag is not used with diff command")
+				return errors.New(netpolerrors.FlagMisUseErr)
 			}
 			if dir1 == "" || dir2 == "" {
-				return errors.New("both directory paths dir1 and dir2 are required")
+				return errors.New(netpolerrors.RequiredFlagsErr)
 			}
 			if err := diff.ValidateDiffOutputFormat(outFormat); err != nil {
 				return err
