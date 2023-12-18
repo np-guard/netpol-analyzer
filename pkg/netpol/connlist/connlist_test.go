@@ -127,27 +127,27 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		{
 			name:             "Input_dir_has_netpol_with_invalid_cidr_should_return_fatal_error_of_invalid_CIDR_address",
 			dirName:          filepath.Join("bad_netpols", "subdir1"),
-			errorStrContains: netpolerrors.CidrErrTitle + netpolerrors.ColonSep + netpolerrors.InvalidCIDRAddr,
+			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.CidrErrTitle, netpolerrors.InvalidCIDRAddr),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_bad_label_key_should_return_fatal_selector_error",
 			dirName:          filepath.Join("bad_netpols", "subdir2"),
-			errorStrContains: netpolerrors.SelectorErrTitle + netpolerrors.ColonSep + netpolerrors.InvalidKeyVal,
+			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.SelectorErrTitle, netpolerrors.InvalidKeyVal),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_invalid_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
 			dirName:          filepath.Join("bad_netpols", "subdir3"),
-			errorStrContains: netpolerrors.RulePeerErrTitle + netpolerrors.ColonSep + netpolerrors.CombinedRulePeerErrStr,
+			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.RulePeerErrTitle, netpolerrors.CombinedRulePeerErrStr),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_empty_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
 			dirName:          filepath.Join("bad_netpols", "subdir4"),
-			errorStrContains: netpolerrors.RulePeerErrTitle + netpolerrors.ColonSep + netpolerrors.EmptyRulePeerErrStr,
+			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.RulePeerErrTitle, netpolerrors.EmptyRulePeerErrStr),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_named_port_on_ipblock_peer_should_return_fatal_named_port_error",
 			dirName:          filepath.Join("bad_netpols", "subdir6"),
-			errorStrContains: netpolerrors.NamedPortErrTitle + netpolerrors.ColonSep + netpolerrors.ConvertNamedPortErrStr,
+			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.NamedPortErrTitle, netpolerrors.ConvertNamedPortErrStr),
 		},
 		/*// input dir does not exist
 		{

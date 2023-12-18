@@ -3,7 +3,6 @@ package netpolerrors
 import "fmt"
 
 const (
-	ColonSep                   = ": "
 	VerbosityFlagsMisUseErrStr = "-q and -v cannot be specified together"
 	// k8s errors
 	CidrErrTitle           = "CIDR error"
@@ -104,4 +103,11 @@ func NotPeerErrStr(peerStr string) string {
 // BothSrcAndDstIPsErrStr returns error string that conn from ip to ip is not supported
 func BothSrcAndDstIPsErrStr(srcStr, dstStr string) string {
 	return fmt.Sprintf("cannot have both srcPeer and dstPeer of IP types: src: %s, dst: %s", srcStr, dstStr)
+}
+
+const colonSep = ": "
+
+// ConcatErrors returns the given errors' messages concatenated by colon
+func ConcatErrors(err1, err2 string) string {
+	return err1 + colonSep + err2
 }

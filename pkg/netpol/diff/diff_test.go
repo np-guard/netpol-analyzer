@@ -640,19 +640,19 @@ var commonBadPathTestsFatalErr = []struct {
 		name:             "first_input_dir_has_netpol_with_invalid_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
 		ref1:             filepath.Join("bad_netpols", "subdir3"),
 		ref2:             "ipblockstest",
-		errorStrContains: netpolerrors.RulePeerErrTitle + netpolerrors.ColonSep + netpolerrors.CombinedRulePeerErrStr,
+		errorStrContains: netpolerrors.ConcatErrors(netpolerrors.RulePeerErrTitle, netpolerrors.CombinedRulePeerErrStr),
 	},
 	{
 		name:             "second_input_dir_has_netpol_with_empty_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
 		ref1:             "ipblockstest",
 		ref2:             filepath.Join("bad_netpols", "subdir4"),
-		errorStrContains: netpolerrors.RulePeerErrTitle + netpolerrors.ColonSep + netpolerrors.EmptyRulePeerErrStr,
+		errorStrContains: netpolerrors.ConcatErrors(netpolerrors.RulePeerErrTitle, netpolerrors.EmptyRulePeerErrStr),
 	},
 	{
 		name:             "second_input_dir_has_netpol_with_named_port_on_ipblock_peer_should_return_fatal_named_port_error",
 		ref1:             "ipblockstest",
 		ref2:             filepath.Join("bad_netpols", "subdir6"),
-		errorStrContains: netpolerrors.NamedPortErrTitle + netpolerrors.ColonSep + netpolerrors.ConvertNamedPortErrStr,
+		errorStrContains: netpolerrors.ConcatErrors(netpolerrors.NamedPortErrTitle, netpolerrors.ConvertNamedPortErrStr),
 	},
 	/*{
 		name:             "first_input_dir_does_not_exist_should_return_fatal_error_dir_not_found",

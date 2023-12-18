@@ -41,7 +41,7 @@ func (err *NoK8sNetworkPolicyResourcesFoundError) Error() string {
 }
 
 func (err *MalformedYamlDocError) Error() string {
-	return netpolerrors.MalformedYamlDocErrorStr + netpolerrors.ColonSep + err.origErr.Error()
+	return netpolerrors.ConcatErrors(netpolerrors.MalformedYamlDocErrorStr, err.origErr.Error())
 }
 
 func (err *MalformedYamlDocError) Unwrap() error {
@@ -49,7 +49,7 @@ func (err *MalformedYamlDocError) Unwrap() error {
 }
 
 func (err *FailedReadingFileError) Error() string {
-	return netpolerrors.FailedReadingFileErrorStr + netpolerrors.ColonSep + err.origErr.Error()
+	return netpolerrors.ConcatErrors(netpolerrors.FailedReadingFileErrorStr, err.origErr.Error())
 }
 
 func (err *FailedReadingFileError) Unwrap() error {
