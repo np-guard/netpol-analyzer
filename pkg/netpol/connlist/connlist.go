@@ -20,6 +20,7 @@ import (
 
 	"k8s.io/cli-runtime/pkg/resource"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
@@ -75,13 +76,13 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 		// TODO: consider avoid logging this error because it is already printed to log by the builder
 		if len(rList) == 0 || ca.stopOnError {
 			err := utilerrors.NewAggregate(errs)
-			ca.logger.Errorf(err, "Error getting resourceInfos from dir path")
+			ca.logger.Errorf(err, netpolerrors.ErrGettingResInfoFromDir)
 			ca.errors = append(ca.errors, parser.FailedReadingFile(dirPath, err))
 			return nil, nil, err // return as fatal error if rList is empty or if stopOnError is on
 		}
 		// split err if it's an aggregated error to a list of separate errors
 		for _, err := range errs {
-			ca.logger.Errorf(err, "Error reading file")                           // print to log the error from builder
+			ca.logger.Errorf(err, netpolerrors.FailedReadingFileErrorStr)         // print to log the error from builder
 			ca.errors = append(ca.errors, parser.FailedReadingFile(dirPath, err)) // add the error from builder to accumulated errors
 		}
 	}
@@ -253,7 +254,7 @@ func ValidateOutputFormat(format string) error {
 			return nil
 		}
 	}
-	return errors.New(format + " output format is not supported.")
+	return errors.New(netpolerrors.FormatNotSupportedErrStr(format))
 }
 
 // returns the relevant formatter for the analyzer's outputFormat
@@ -397,7 +398,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	connsRes = append(connsRes, ingressAllowedConns...)
 
 	if ca.focusWorkload == "" && len(peersAllowedConns) == 0 {
-		ca.logWarning("Connectivity analysis found no allowed connectivity between pairs from the configured workloads or external IP-blocks")
+		ca.logWarning(netpolerrors.NoAllowedConnsWarning)
 	}
 
 	return connsRes, peers, nil
@@ -410,8 +411,7 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnal
 	if ca.focusWorkload == common.IngressPodName {
 		if excludeIngressAnalysis { // if the ingress-analyzer is empty,
 			// then no routes/k8s-ingress objects -> ingrss-controller pod will not be added
-			return false, "The ingress-controller workload was not added to the analysis, since Ingress/Route resources were not found." +
-				" Connectivity map report will be empty."
+			return false, netpolerrors.NoIngressSourcesErrStr + netpolerrors.EmptyConnListErrStr
 		}
 		return true, ""
 	}
@@ -422,7 +422,7 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnal
 			return true, ""
 		}
 	}
-	return false, "Workload " + ca.focusWorkload + " does not exist in the input resources. Connectivity map report will be empty."
+	return false, netpolerrors.WorkloadDoesNotExistErrStr(ca.focusWorkload)
 }
 
 // getConnectionsBetweenPeers returns connections list from PolicyEngine object
@@ -497,15 +497,16 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 }
 
 func (ca *ConnlistAnalyzer) warnBlockedIngress(peerStr string, ingressObjs map[string][]string) {
-	warningMsg := ""
+	objKind := ""
+	objName := ""
 	if len(ingressObjs[parser.Ingress]) > 0 {
-		warningMsg = "K8s-Ingress resource " + ingressObjs[parser.Ingress][0]
+		objKind = "K8s-Ingress"
+		objName = ingressObjs[parser.Ingress][0]
 	} else if len(ingressObjs[parser.Route]) > 0 {
-		warningMsg = "Route resource " + ingressObjs[parser.Route][0]
+		objKind = "Route"
+		objName = ingressObjs[parser.Route][0]
 	}
-	warningMsg += " specified workload " + peerStr + " as a backend, but network policies are blocking " +
-		"ingress connections from an arbitrary in-cluster source to this workload. " +
-		"Connectivity map will not include a possibly allowed connection between the ingress controller and this workload."
+	warningMsg := netpolerrors.BlockedIngressWarning(objKind, objName, peerStr)
 	ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
 	ca.logWarning(warningMsg)
 }

@@ -21,6 +21,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 )
 
@@ -55,7 +56,7 @@ func newCommandRoot() *cobra.Command {
 		Short: "Determine allowed connection based on Kubernetes NetworkPolicy objects",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if quiet && verbose {
-				return errors.New("-q and -v cannot be specified together")
+				return errors.New(netpolerrors.VerbosityFlagsMisUseErrStr)
 			}
 			if dirPath != "" {
 				return nil

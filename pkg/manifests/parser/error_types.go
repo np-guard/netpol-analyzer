@@ -3,6 +3,8 @@ package parser
 import (
 	"errors"
 	"fmt"
+
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 )
 
 // FileProcessingError holds all information about a single error/warning that occurred during
@@ -31,15 +33,15 @@ type FailedReadingFileError struct {
 }
 
 func (err *NoK8sWorkloadResourcesFoundError) Error() string {
-	return "no relevant Kubernetes workload resources found"
+	return netpolerrors.NoK8sWorkloadResourcesFoundErrorStr
 }
 
 func (err *NoK8sNetworkPolicyResourcesFoundError) Error() string {
-	return "no relevant Kubernetes network policy resources found"
+	return netpolerrors.NoK8sNetworkPolicyResourcesFoundErrorStr
 }
 
 func (err *MalformedYamlDocError) Error() string {
-	return fmt.Sprintf("YAML document is malformed: %v", err.origErr)
+	return netpolerrors.ConcatErrors(netpolerrors.MalformedYamlDocErrorStr, err.origErr.Error())
 }
 
 func (err *MalformedYamlDocError) Unwrap() error {
@@ -47,7 +49,7 @@ func (err *MalformedYamlDocError) Unwrap() error {
 }
 
 func (err *FailedReadingFileError) Error() string {
-	return fmt.Sprintf("error reading file: %v", err.origErr)
+	return netpolerrors.ConcatErrors(netpolerrors.FailedReadingFileErrorStr, err.origErr.Error())
 }
 
 func (err *FailedReadingFileError) Unwrap() error {
@@ -72,7 +74,7 @@ func (e *FileProcessingError) LineNo() int {
 // DocumentID returns the file's YAML document ID (0-based) in which the error occurred (or an error if not applicable)
 func (e *FileProcessingError) DocumentID() (int, error) {
 	if e.docID < 0 {
-		return -1, errors.New("no document ID is available for this error")
+		return -1, errors.New(netpolerrors.NoDocumentIDErrorStr)
 	}
 	return e.docID, nil
 }

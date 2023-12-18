@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
@@ -18,6 +19,8 @@ var allFormats = []string{output.TextFormat, output.MDFormat, output.CSVFormat, 
 const ResourceInfosFunc = "ConnDiffFromResourceInfos"
 const DirPathFunc = "ConnDiffFromDirPaths"
 const currentPkg = "diff"
+const atRef1 = "at ref1: "
+const atRef2 = "at ref2: "
 
 var diffTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
 
@@ -91,9 +94,9 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 			ref1: filepath.Join("bad_yamls", "not_a_k8s_resource.yaml"),
 			ref2: "ipblockstest", // no warnings, nor any severe/fatal errors
 			containedErrOrWarns: []string{
-				"unable to decode", // "at dir 1" currently printed to log, but not attached to err itself
-				"at ref1: no relevant Kubernetes workload resources found",
-				"at ref1: no relevant Kubernetes network policy resources found",
+				netpolerrors.UnableToDecodeErr, // "at dir 1" currently printed to log, but not attached to err itself
+				atRef1 + netpolerrors.NoK8sWorkloadResourcesFoundErrorStr,
+				atRef1 + netpolerrors.NoK8sNetworkPolicyResourcesFoundErrorStr,
 			},
 			onlyDirPathsAPI: true,
 			emptyRes:        false, // expecting diff result because ref2 has resources
@@ -105,8 +108,8 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 			ref1: filepath.Join("bad_yamls", "not_a_k8s_resource.yaml"),
 			ref2: "ipblockstest", // no warnings, nor any severe/fatal errors
 			containedErrOrWarns: []string{
-				"at ref1: no relevant Kubernetes workload resources found",
-				"at ref1: no relevant Kubernetes network policy resources found",
+				atRef1 + netpolerrors.NoK8sWorkloadResourcesFoundErrorStr,
+				atRef1 + netpolerrors.NoK8sNetworkPolicyResourcesFoundErrorStr,
 			},
 			emptyRes: false, // expecting diff result because ref2 has resources
 		},
@@ -115,7 +118,7 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 			ref1: "k8s_ingress_test",
 			ref2: "k8s_ingress_test_new",
 			containedErrOrWarns: []string{
-				"at ref1: no relevant Kubernetes network policy resources found",
+				atRef1 + netpolerrors.NoK8sNetworkPolicyResourcesFoundErrorStr,
 			},
 			emptyRes: false, // expecting diff result, both dirs have resources
 		},
@@ -124,7 +127,7 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 			ref1: "acs-security-demos",
 			ref2: "acs-security-demos-new",
 			containedErrOrWarns: []string{
-				"at ref2: Route resource frontend/asset-cache specified workload frontend/asset-cache[Deployment] as a backend",
+				atRef2 + netpolerrors.BlockedIngressWarning("Route", "frontend/asset-cache", "frontend/asset-cache[Deployment]"),
 			},
 			emptyRes: false, // expecting diff result, both dirs have resources
 		},
@@ -201,7 +204,7 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 			ref2: "some_other_dir",
 			containedErrOrWarns: []string{
 				// [the path "tests/some_dir" does not exist, the path "tests/some_other_dir" does not exist]
-				"[the path ", "some_dir", "does not exist", "some_other_dir",
+				"[the path ", "some_dir", netpolerrors.PathNotExistErr, "some_other_dir",
 			},
 			emptyRes: true, // fatal err
 			isFatal:  true,
@@ -213,7 +216,7 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 			containedErrOrWarns: []string{
 				// [the path "tests/some_other_dir" does not exist, unable to decode "tests\\acs-security-demos\\connlist_output.json":
 				// json: cannot unmarshal array into Go value of type unstructured.detector]
-				"[the path ", "some_dir", "does not exist", "unable to decode", "connlist_output.json",
+				"[the path ", "some_dir", netpolerrors.PathNotExistErr, netpolerrors.UnableToDecodeErr, "connlist_output.json",
 			},
 			emptyRes: true, // fatal err
 			isFatal:  true,
@@ -226,7 +229,7 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 				// at ref1: error reading file: unable to decode ...
 				// at ref2: error reading file: unable to decode ...
 				// "at dir" is only attached to the log msg and not to the returned err obj
-				"unable to decode", "connlist_output.json", "error reading file",
+				netpolerrors.UnableToDecodeErr, "connlist_output.json", netpolerrors.FailedReadingFileErrorStr,
 			},
 			emptyRes: false, // no diff, but ConnectivityDiff contains non-changed conns
 			isFatal:  false,
@@ -279,7 +282,7 @@ func TestDiffOutputFatalErrors(t *testing.T) {
 			ref1:             "onlineboutique_workloads",
 			ref2:             "onlineboutique_workloads_changed_netpols",
 			format:           "png",
-			errorStrContains: "png output format is not supported.",
+			errorStrContains: netpolerrors.FormatNotSupportedErrStr("png"),
 		},
 	}
 	for _, tt := range cases {
@@ -625,34 +628,31 @@ var commonBadPathTestsFatalErr = []struct {
 		name:             "first_input_dir_has_netpol_with_invalid_cidr_should_return_fatal_error_of_invalid_CIDR_address",
 		ref1:             filepath.Join("bad_netpols", "subdir1"),
 		ref2:             "ipblockstest",
-		errorStrContains: "network policy default/shippingservice-netpol CIDR error: invalid CIDR address: A",
+		errorStrContains: netpolerrors.CidrErrTitle,
 	},
 	{
-		name: "second_input_dir_has_netpol_with_bad_label_key_should_return_fatal_selector_error",
-		ref1: "ipblockstest",
-		ref2: filepath.Join("bad_netpols", "subdir2"),
-		errorStrContains: "network policy default/shippingservice-netpol selector error: key: Invalid value: \"app@b\": " +
-			"name part must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric" +
-			" character (e.g. 'MyName',  or 'my.name',  or '123-abc', regex used for validation is '([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]')",
+		name:             "second_input_dir_has_netpol_with_bad_label_key_should_return_fatal_selector_error",
+		ref1:             "ipblockstest",
+		ref2:             filepath.Join("bad_netpols", "subdir2"),
+		errorStrContains: netpolerrors.SelectorErrTitle,
 	},
 	{
-		name: "first_input_dir_has_netpol_with_invalid_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
-		ref1: filepath.Join("bad_netpols", "subdir3"),
-		ref2: "ipblockstest",
-		errorStrContains: "network policy default/shippingservice-netpol rule NetworkPolicyPeer error: " +
-			"cannot have both IPBlock and PodSelector/NamespaceSelector set",
+		name:             "first_input_dir_has_netpol_with_invalid_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
+		ref1:             filepath.Join("bad_netpols", "subdir3"),
+		ref2:             "ipblockstest",
+		errorStrContains: netpolerrors.ConcatErrors(netpolerrors.RulePeerErrTitle, netpolerrors.CombinedRulePeerErrStr),
 	},
 	{
 		name:             "second_input_dir_has_netpol_with_empty_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
 		ref1:             "ipblockstest",
 		ref2:             filepath.Join("bad_netpols", "subdir4"),
-		errorStrContains: "network policy default/shippingservice-netpol rule NetworkPolicyPeer error: cannot have empty rule peer",
+		errorStrContains: netpolerrors.ConcatErrors(netpolerrors.RulePeerErrTitle, netpolerrors.EmptyRulePeerErrStr),
 	},
 	{
 		name:             "second_input_dir_has_netpol_with_named_port_on_ipblock_peer_should_return_fatal_named_port_error",
 		ref1:             "ipblockstest",
 		ref2:             filepath.Join("bad_netpols", "subdir6"),
-		errorStrContains: "network policy default/shippingservice-netpol named port error: cannot convert named port for an IP destination",
+		errorStrContains: netpolerrors.ConcatErrors(netpolerrors.NamedPortErrTitle, netpolerrors.ConvertNamedPortErrStr),
 	},
 	/*{
 		name:             "first_input_dir_does_not_exist_should_return_fatal_error_dir_not_found",
@@ -661,10 +661,9 @@ var commonBadPathTestsFatalErr = []struct {
 		errorStrContains: "was not found",
 	},*/
 	{
-		name: "first_input_dir_has_illegal_podlist_pods_with_same_owner_ref_name_has_different_labels_should_return_fatal_error",
-		ref1: "semanticDiff-same-topologies-illegal-podlist",
-		ref2: "semanticDiff-same-topologies-old1",
-		errorStrContains: "Input Pod resources are not supported for connectivity analysis." +
-			" Found Pods of the same owner demo/cog-agents but with different set of labels.",
+		name:             "first_input_dir_has_illegal_podlist_pods_with_same_owner_ref_name_has_different_labels_should_return_fatal_error",
+		ref1:             "semanticDiff-same-topologies-illegal-podlist",
+		ref2:             "semanticDiff-same-topologies-old1",
+		errorStrContains: netpolerrors.NotSupportedPodResourcesErrorStr("demo/cog-agents"),
 	},
 }

@@ -13,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -233,8 +234,7 @@ func generateLabelsDiffError(firstPod, newPod *k8s.Pod, key, firstVal, newVal st
 	ownerName := types.NamespacedName{Namespace: firstPod.Namespace, Name: firstPod.Owner.Name}.String()
 	newPodStr := types.NamespacedName{Namespace: newPod.Namespace, Name: newPod.Name}.String()
 	firstPodStr := types.NamespacedName{Namespace: firstPod.Namespace, Name: firstPod.Name}.String()
-	errMsgPart1 := "Input Pod resources are not supported for connectivity analysis. Found Pods of the same owner " +
-		ownerName + " but with different set of labels."
+	errMsgPart1 := netpolerrors.NotSupportedPodResourcesErrorStr(ownerName)
 	errMsgPart2 := ""
 	keyMissingErr := " Pod %s has label %s=%s, and Pod %s does not have label %s."
 	differentValuesErr := " Pod %s has label %s=%s, and Pod %s has label %s=%s."
