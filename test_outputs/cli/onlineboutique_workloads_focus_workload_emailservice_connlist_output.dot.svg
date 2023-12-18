@@ -13,21 +13,21 @@
 <polygon fill="none" stroke="black" points="8,-8 8,-170 262,-170 262,-8 8,-8"/>
 <text text-anchor="middle" x="135" y="-154.8" font-family="Times New Roman,serif" font-size="14.00">default</text>
 </g>
-<!-- checkoutservice[Deployment] -->
+<!-- default/checkoutservice[Deployment] -->
 <g id="node1" class="node">
-<title>checkoutservice[Deployment]</title>
+<title>default/checkoutservice[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="135" cy="-121" rx="118.88" ry="18"/>
 <text text-anchor="middle" x="135" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">checkoutservice[Deployment]</text>
 </g>
-<!-- emailservice[Deployment] -->
+<!-- default/emailservice[Deployment] -->
 <g id="node2" class="node">
-<title>emailservice[Deployment]</title>
+<title>default/emailservice[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="135" cy="-34" rx="104.78" ry="18"/>
 <text text-anchor="middle" x="135" y="-30.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">emailservice[Deployment]</text>
 </g>
-<!-- checkoutservice[Deployment]&#45;&gt;emailservice[Deployment] -->
+<!-- default/checkoutservice[Deployment]&#45;&gt;default/emailservice[Deployment] -->
 <g id="edge1" class="edge">
-<title>checkoutservice[Deployment]&#45;&gt;emailservice[Deployment]</title>
+<title>default/checkoutservice[Deployment]&#45;&gt;default/emailservice[Deployment]</title>
 <path fill="none" stroke="#eec900" d="M135,-102.8C135,-91.16 135,-75.55 135,-62.24"/>
 <polygon fill="#eec900" stroke="#eec900" points="138.5,-62.18 135,-52.18 131.5,-62.18 138.5,-62.18"/>
 <text text-anchor="middle" x="164" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>

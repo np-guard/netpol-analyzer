@@ -34,26 +34,34 @@ added,0.0.0.0-255.255.255.255,default/backend[Deployment],No Connections,TCP 909
 ```
 
 Diff output in `dot` format:
+
+In dot output graphs, all the peers of the analyzed cluster are grouped by their namespaces.
+
 ```
 $ ./bin/k8snetpolicy diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 tests/netpol-diff-example-minimal/ -o dot
 
 digraph {
+        subgraph cluster_default {
+                "default/backend[Deployment]" [label="backend[Deployment]" color="blue" fontcolor="blue"]    
+                "default/frontend[Deployment]" [label="frontend[Deployment]" color="blue" fontcolor="blue"]  
+                label="default"
+        }
         "0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
-        "default/backend[Deployment]" [label="default/backend[Deployment]" color="blue" fontcolor="blue"]
-        "default/frontend[Deployment]" [label="default/frontend[Deployment]" color="blue" fontcolor="blue"]
         "0.0.0.0-255.255.255.255" -> "default/backend[Deployment]" [label="TCP 9090" color="#008000" fontcolor="#008000"]
         "0.0.0.0-255.255.255.255" -> "default/frontend[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
         "default/frontend[Deployment]" -> "0.0.0.0-255.255.255.255" [label="UDP 53" color="grey" fontcolor="grey"]
-        "default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090,UDP 53 (old: TCP 9090)" color="magenta" fontcolor="magenta"]
+        "default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090,UDP 53 (dir1: TCP 9090)" color="magenta" fontcolor="magenta"]
 }
 ```
 
 `svg` graph from `dot` format output can be produced using `graphviz` as following:
 
 ```
-$ dot -Tsvg tests/netpol-diff-example-minimal/diff_output_from_netpol-analysis-example-minimal.dot -o tests/netpol-diff-example-minimal/diff_output_from_netpol-analysis-example-minimal.svg
-
+$ dot -Tsvg test_outputs/diff/diff_between_netpol-diff-example-minimal_and_netpol-analysis-example-minimal.dot -O
 ```
+The frames in the graph represent namespaces of the analyzed cluster.
+
+
 ![svg graph](./diff_example_svg.svg)
 
 ### Understanding the output

@@ -16,9 +16,3 @@ const (
 	IngressPodName      = "ingress-controller"
 	IngressPodNamespace = "ingress-controller-ns"
 )
-
-// diff format common const
-const (
-	DotHeader  = "digraph {"
-	DotClosing = "}"
-)
