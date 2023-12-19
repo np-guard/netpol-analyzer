@@ -10,10 +10,8 @@ The connectivity output consists of lines of the form: `src` => `dst` : `connect
 
 For connections inferred from network policy resources only, the `src` and `dst` are workloads or external IP-blocks.
 
-For Ingress/Route analysis, the `src` is specified as `{ingress-controller}`, representing the cluster's ingress controller Pod.
-Its connectivity lines are of the form: `{ingress-controller}` => `dst` : `connections`, where `dst` is a workload in the cluster.
-This analysis is currently activated only with `--dir-path` flag, and not on a live cluster.
-It assumes that the ingress controller Pod is unknown, and thus using this notation of `{ingress-controller}`.
+For Ingress/Route analysis, the `src` is specified as with an `{<ingress controller namespace>}`, representing a specific ingress controller's namespace, the `dst` is a workload.
+Additional details on ingress analysis and its output is specified [here](docs/ingress_analysis.md).
 
 ## Example Output
 
@@ -95,9 +93,3 @@ $ dot -Tsvg test_outputs/connlist/netpol-analysis-example-minimal_connlist_outpu
 The frames in the graph represent namespaces of the analyzed cluster.
 
 ![svg graph](./connlist_example_svg.svg)
-
-
-### Possible warning
-`Route/Ingress specified workload as a backend, but network policies are blocking ingress connections from an arbitrary in-cluster source to this workload. Connectivity map will not include a possibly allowed connection between the ingress controller and this workload.`
-
-Since the analysis assumes the manifest of the ingress controller is unknown, it checks whether an arbitrary workload can access the destination workloads specified in Ingress/Route rules. If such access is not permitted by network policies, this connection is removed from the report. It may be an allowed connection if a network policy specifically allows ingress access to that workload from a specific workload/namespace of the actual ingress controller installed.

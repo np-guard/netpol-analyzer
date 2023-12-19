@@ -525,8 +525,9 @@ func (ca *ConnlistAnalyzer) logWarning(msg string) {
 // helping func - adds new fake pods in ingress controllers namespaces to the policy engine
 func addSpecificIngressControllers(pe *eval.PolicyEngine) ([]Peer, error) {
 	res := []Peer{}
-	for _, ns := range common.SpecificIngressControllersNs {
-		ingPod, err := pe.AddPodByNameAndNamespace(common.IngressPodName, ns)
+
+	for ns, nsLabels := range common.SpecificIngressControllersNsToLabels {
+		ingPod, err := pe.AddPodByNameAndNamespace(common.IngressPodName, ns, nsLabels)
 		if err != nil {
 			return nil, err
 		}
