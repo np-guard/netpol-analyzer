@@ -537,7 +537,7 @@ func addSpecificIngressControllers(pe *eval.PolicyEngine) ([]Peer, error) {
 }
 
 func (ca *ConnlistAnalyzer) allowedIngressControllerToPeerFromPoliciesRules(ingressPeer, dst Peer,
-	pe *eval.PolicyEngine) (common.Connection, error) {
+	pe *eval.PolicyEngine) (*common.Connection, error) {
 	// refines to only relevant connections if ca.focusWorkload is not empty
 	if !ca.includePairOfWorkloads(ingressPeer, dst) {
 		return nil, nil
