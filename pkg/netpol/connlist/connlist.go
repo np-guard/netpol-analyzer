@@ -546,5 +546,5 @@ func (ca *ConnlistAnalyzer) allowedIngressControllerToPeerFromPoliciesRules(ingr
 	if err != nil {
 		return nil, err
 	}
-	return peConn, nil
+	return &peConn, nil
 }
