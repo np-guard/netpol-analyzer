@@ -482,7 +482,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 			if ingConn == nil {
 				continue
 			}
-			(ingConn.(*common.ConnectionSet)).Intersection(peerAndConn.ConnSet)
+			ingConn.Intersection(peerAndConn.ConnSet)
 			if !ingConn.IsEmpty() {
 				foundIngressConns = true
 				p2pConnection := &connection{
@@ -537,7 +537,7 @@ func addSpecificIngressControllers(pe *eval.PolicyEngine) ([]Peer, error) {
 }
 
 func (ca *ConnlistAnalyzer) allowedIngressControllerToPeerFromPoliciesRules(ingressPeer, dst Peer,
-	pe *eval.PolicyEngine) (*common.Connection, error) {
+	pe *eval.PolicyEngine) (*common.ConnectionSet, error) {
 	// refines to only relevant connections if ca.focusWorkload is not empty
 	if !ca.includePairOfWorkloads(ingressPeer, dst) {
 		return nil, nil
@@ -546,5 +546,5 @@ func (ca *ConnlistAnalyzer) allowedIngressControllerToPeerFromPoliciesRules(ingr
 	if err != nil {
 		return nil, err
 	}
-	return &peConn, nil
+	return peConn.(*common.ConnectionSet), nil
 }
