@@ -10,8 +10,7 @@ The connectivity output consists of lines of the form: `src` => `dst` : `connect
 
 For connections inferred from network policy resources only, the `src` and `dst` are workloads or external IP-blocks.
 
-For Ingress/Route analysis, the `src` is specified as with an `{<ingress controller namespace>}`, representing a specific ingress controller's namespace, the `dst` is a workload.
-Additional details on ingress analysis and its output is specified [here](docs/ingress_analysis.md).
+Details on Ingress/Route analysis are specified [here](docs/ingress_analysis.md).
 
 ## Example Output
 
