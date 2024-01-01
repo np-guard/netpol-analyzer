@@ -16,18 +16,17 @@ Ingress access to a workload selected by Ingress/Route object may be restricted 
 In order to check if a network-policy rule enables access to such workload we need to check if a rule's namespaceSelector matches any of supported ingress controllers' namespaces.
 if at least one label of the following is used in the namespaceSelector, so ingress access from the relevant Ingress-Controller is enabled.
 
-|Ingress Controller | Namespace labels supported|
-|-------------------|---------------------------|
-|Openshift ingress controller |namespace.name: openshift-ingress-operator|
-||kubernetes.io/metadata.name: openshift-ingress-operator|
-||network.openshift.io/policy-group: ingress|
-|Nginx ingress controller |tier: ingress|
-||kubernetes.io/metadata.name: ingress-nginx|
-||app.kubernetes.io/part-of: ingress-nginx|
+|Ingress Controller | Namespace labels supported| More Details |
+|-------------------|---------------------------|--------------|
+|Openshift ingress controller |namespace.name: openshift-ingress-operator|[openshift-ingress-operator namespace link](https://github.com/openshift/cluster-ingress-operator/blob/f9dd81ab522f72233e2608f5e57a43e79a5079b5/manifests/00-namespace.yaml#L10)|
+||kubernetes.io/metadata.name: openshift-ingress-operator||
+||openshift.io/cluster-monitoring: "true"||
+|Nginx ingress controller |kubernetes.io/metadata.name: ingress-nginx|[nginx-ingress namespace link](https://github.com/nginxinc/kubernetes-ingress/blob/main/deployments/common/ns-and-sa.yaml)|
+
 
 ## Allowed Ingress Connections And Output:
 
-- Capturing ingress-controller by `podSelector` also is not supported yet. 
+- Selecting ingress-controller deployment by `podSelector` in a network-policy rule is not supported yet. 
 if ingress connections from a specific ingress-controller namespace (from above) is allowed to a cluster's peer, we assume it is allowed from any ingress-controller-pod in that namespace.
 
 - For each supported ingress-controller, the connectivity line is of the form:
@@ -46,6 +45,6 @@ It assumes that the ingress controller Pod is unknown, and thus using this notat
 
 
 ### Possible warning
-`Route/Ingress specified workload as a backend, but network policies are blocking ingress connections from an arbitrary in-cluster source to this workload. Connectivity map will not include a possibly allowed connection between the ingress controller and this workload.`
+`Route/Ingress specified workload as a backend, but network policies are blocking external ingress access by nginx or openshift ingress controllers. Connectivity map will not include a possibly allowed connection between the ingress controller and this workload.`
 
-Since the analysis considers only the mentioned above specific ingress controllers, it checks whether an arbitrary workload in one of the specified namespaces can access the destination workloads specified in Ingress/Route rules. If such access is not permitted by network policies, this connection is removed from the report. It may be an allowed connection if a network policy specifically allows ingress access to that workload from a specific workload/namespace of the actual different ingress controller installed.
+Since the analysis considers only the mentioned above specific ingress controllers, it checks whether an arbitrary workload in one of the specified namespaces can access the destination workloads specified in Ingress/Route rules. If such access is not permitted by network policies, this connection is removed from the report. It may be an allowed connection if a network policy specifically allows ingress access to that workload from a specific workload/namespace of an actual different ingress controller installed.
