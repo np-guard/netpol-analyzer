@@ -21,6 +21,14 @@ if at least one label of the following is used in the namespaceSelector, so ingr
 |Openshift ingress controller |namespace.name: openshift-ingress-operator|[openshift-ingress-operator namespace link](https://github.com/openshift/cluster-ingress-operator/blob/f9dd81ab522f72233e2608f5e57a43e79a5079b5/manifests/00-namespace.yaml#L10)|
 ||kubernetes.io/metadata.name: openshift-ingress-operator||
 ||openshift.io/cluster-monitoring: "true"||
+|Openshift ingress controller |namespace.name: openshift-ingress|[openshift-ingress-operator namespace link](https://github.com/openshift/cluster-ingress-operator/blob/f9dd81ab522f72233e2608f5e57a43e79a5079b5/pkg/manifests/assets/router/namespace.yaml#L13)|
+||kubernetes.io/metadata.name: openshift-ingress||
+||openshift.io/cluster-monitoring: "true"||
+||network.openshift.io/policy-group: ingress||
+||policy-group.network.openshift.io/ingress: ""||
+||pod-security.kubernetes.io/enforce: privileged||
+||pod-security.kubernetes.io/audit: privileged||
+||pod-security.kubernetes.io/warn: privileged||
 |Nginx ingress controller |kubernetes.io/metadata.name: ingress-nginx|[nginx-ingress namespace link](https://github.com/nginxinc/kubernetes-ingress/blob/main/deployments/common/ns-and-sa.yaml)|
 
 
@@ -29,8 +37,11 @@ if at least one label of the following is used in the namespaceSelector, so ingr
 - Selecting ingress-controller deployment by `podSelector` in a network-policy rule is not supported yet. 
 if ingress connections from a specific ingress-controller namespace (from above) is allowed to a cluster's peer, we assume it is allowed from any ingress-controller-pod in that namespace.
 
-- For each supported ingress-controller, the connectivity line is of the form:
+- For a supported ingress-controller, the connectivity line is of the form:
 `{<ingress-controller-namespace-name>}` => `dst` : `connections`, where `dst` is a workload in the cluster.
+
+- If external ingress to a workload is allowed from any ingress-controller or at least all supported ingress-controllers, then the connectivity line is of the form:
+`{ingress-controller}` => `dst` : `connections`, where `dst` is a workload in the cluster.
 
 - When ingress connection is enabled to a workload by Ingress/Route objects and there is no network-policy rule that denies or restricts this connection, the output will include a connectivity line for each specific ingress-controller from the list above
 
