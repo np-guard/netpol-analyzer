@@ -1,12 +1,20 @@
 # Ingress Analysis
 
+Ingress Analysis is performed when input resources include Ingress/Route objects.
+
+For workloads that are selected by Ingress/Route objects, we analyze if ingress access from ingress-controllers is allowed to them.
+
 ## Supported Ingress Controllers:
 
 Ingress Controllers considered for ingress analysis:
-- Openshift ingress controller 
-- Nginx ingress controller
+- Openshift ingress controller ([view official docs](https://docs.openshift.com/container-platform/4.14/networking/ingress-operator.html#nw-ingress-view_configuring-ingress))
+- Nginx ingress controller ([view official docs](https://docs.nginx.com/nginx-ingress-controller/overview))
 
-#### Namespace Labels Supported:
+#### Namespace Labels Checked :
+
+Ingress access to a workload selected by Ingress/Route object may be restricted by network-policies rules.
+In order to check if a network-policy rule enables access to such workload we need to check if a rule's namespaceSelector matches any of supported ingress controllers' namespaces.
+if at least one label of the following is used in the namespaceSelector, so ingress access from the relevant Ingress-Controller is enabled.
 
 |Ingress Controller | Namespace labels supported|
 |-------------------|---------------------------|
