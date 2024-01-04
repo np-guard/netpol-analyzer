@@ -24,8 +24,7 @@ digraph {
 		label="payments"
 	}
 	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
-	"{ingress-nginx}" [label="{ingress-nginx}" color="blue" fontcolor="blue"]
-	"{openshift-ingress-operator}" [label="{openshift-ingress-operator}" color="blue" fontcolor="blue"]
+	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
 	"0.0.0.0-255.255.255.255" -> "external/unicorn[Deployment]" [label="All Connections" color="#008000" fontcolor="#008000"]
 	"backend/checkout[Deployment]" -> "backend/notification[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
 	"backend/checkout[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
@@ -46,10 +45,8 @@ digraph {
 	"payments/gateway[Deployment]" -> "external/unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000"]
 	"payments/gateway[Deployment]" -> "payments/mastercard-processor[Deployment]" [label="TCP 8080" color="red2" fontcolor="red2"]
 	"payments/gateway[Deployment]" -> "payments/visa-processor[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"{ingress-nginx}" -> "frontend/asset-cache[Deployment]" [label="TCP 8080" color="red2" fontcolor="red2"]
-	"{ingress-nginx}" -> "frontend/webapp[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
-	"{openshift-ingress-operator}" -> "frontend/asset-cache[Deployment]" [label="TCP 8080" color="red2" fontcolor="red2"]
-	"{openshift-ingress-operator}" -> "frontend/webapp[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
+	"{ingress-controller}" -> "frontend/asset-cache[Deployment]" [label="TCP 8080" color="red2" fontcolor="red2"]
+	"{ingress-controller}" -> "frontend/webapp[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey"]
 	nodesep=0.5
 	subgraph cluster_legend {
 		label="Legend"

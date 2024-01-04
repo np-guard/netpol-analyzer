@@ -1,8 +1,4 @@
-{ingress-nginx} => frontend/asset-cache[Deployment] : TCP 8080
-{ingress-nginx} => frontend/blog[Deployment] : TCP 8080
-{ingress-nginx} => frontend/webapp[Deployment] : TCP 8080
-{ingress-nginx} => zeroday/zeroday[Deployment] : TCP 8080
-{openshift-ingress-operator} => frontend/asset-cache[Deployment] : TCP 8080
-{openshift-ingress-operator} => frontend/blog[Deployment] : TCP 8080
-{openshift-ingress-operator} => frontend/webapp[Deployment] : TCP 8080
-{openshift-ingress-operator} => zeroday/zeroday[Deployment] : TCP 8080
+{ingress-controller} => frontend/asset-cache[Deployment] : TCP 8080
+{ingress-controller} => frontend/blog[Deployment] : TCP 8080
+{ingress-controller} => frontend/webapp[Deployment] : TCP 8080
+{ingress-controller} => zeroday/zeroday[Deployment] : TCP 8080

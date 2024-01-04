@@ -1,2 +1,1 @@
-{ingress-nginx} => frontend/asset-cache[Deployment] : TCP 8080
-{openshift-ingress-operator} => frontend/asset-cache[Deployment] : TCP 8080
+{ingress-controller} => frontend/asset-cache[Deployment] : TCP 8080

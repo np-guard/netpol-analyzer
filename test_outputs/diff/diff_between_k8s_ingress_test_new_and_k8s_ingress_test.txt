@@ -44,5 +44,4 @@ diff-type: removed, source: default/reviews-v3-84779c7bbc[ReplicaSet], destinati
 diff-type: removed, source: default/reviews-v3-84779c7bbc[ReplicaSet], destination: default/details-v1-79f774bdb9[ReplicaSet], ref1: All Connections, ref2: No Connections
 diff-type: removed, source: default/reviews-v3-84779c7bbc[ReplicaSet], destination: default/reviews-v1-545db77b95[ReplicaSet], ref1: All Connections, ref2: No Connections
 diff-type: removed, source: default/reviews-v3-84779c7bbc[ReplicaSet], destination: default/reviews-v2-7bf8c9648f[ReplicaSet], ref1: All Connections, ref2: No Connections
-diff-type: added, source: {ingress-nginx}, destination: default/unicorn[Deployment], ref1: No Connections, ref2: TCP 8080, workloads-diff-info: workload default/unicorn[Deployment] added
-diff-type: added, source: {openshift-ingress-operator}, destination: default/unicorn[Deployment], ref1: No Connections, ref2: TCP 8080, workloads-diff-info: workload default/unicorn[Deployment] added
+diff-type: added, source: {ingress-controller}, destination: default/unicorn[Deployment], ref1: No Connections, ref2: TCP 8080, workloads-diff-info: workload default/unicorn[Deployment] added

@@ -10,12 +10,7 @@
     "conn": "All Connections"
   },
   {
-    "src": "{ingress-nginx}",
-    "dst": "ingressworld/ingress-world-multiple-ports[Deployment]",
-    "conn": "TCP 8050,8090"
-  },
-  {
-    "src": "{openshift-ingress-operator}",
+    "src": "{ingress-controller}",
     "dst": "ingressworld/ingress-world-multiple-ports[Deployment]",
     "conn": "TCP 8050,8090"
   }

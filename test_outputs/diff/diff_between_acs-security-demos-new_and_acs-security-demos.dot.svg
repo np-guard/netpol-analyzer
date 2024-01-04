@@ -13,16 +13,6 @@
 <polygon fill="none" stroke="black" points="8,-8 8,-299 733,-299 733,-8 8,-8"/>
 <text text-anchor="middle" x="370.5" y="-283.8" font-family="Times New Roman,serif" font-size="14.00">backend</text>
 </g>
-<g id="clust5" class="cluster">
-<title>cluster_legend</title>
-<polygon fill="none" stroke="black" points="1012,-340 1012,-518.79 1407,-518.79 1407,-340 1012,-340"/>
-<text text-anchor="middle" x="1209.5" y="-506.79" font-family="Times New Roman,serif" font-size="10.00">Legend</text>
-</g>
-<g id="clust4" class="cluster">
-<title>cluster_payments</title>
-<polygon fill="none" stroke="black" points="1389,-8 1389,-191 1949,-191 1949,-8 1389,-8"/>
-<text text-anchor="middle" x="1669" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">payments</text>
-</g>
 <g id="clust2" class="cluster">
 <title>cluster_external</title>
 <polygon fill="none" stroke="black" points="1000,-8 1000,-83 1192,-83 1192,-8 1000,-8"/>
@@ -32,6 +22,16 @@
 <title>cluster_frontend</title>
 <polygon fill="none" stroke="black" points="553,-332 553,-407 989,-407 989,-332 553,-332"/>
 <text text-anchor="middle" x="771" y="-391.8" font-family="Times New Roman,serif" font-size="14.00">frontend</text>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_payments</title>
+<polygon fill="none" stroke="black" points="1389,-8 1389,-191 1949,-191 1949,-8 1389,-8"/>
+<text text-anchor="middle" x="1669" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">payments</text>
+</g>
+<g id="clust5" class="cluster">
+<title>cluster_legend</title>
+<polygon fill="none" stroke="black" points="1012,-340 1012,-518.79 1407,-518.79 1407,-340 1012,-340"/>
+<text text-anchor="middle" x="1209.5" y="-506.79" font-family="Times New Roman,serif" font-size="10.00">Legend</text>
 </g>
 <!-- backend/catalog[Deployment] -->
 <g id="node1" class="node">
@@ -251,50 +251,30 @@
 <polygon fill="#008000" stroke="#008000" points="1023.6,-52.32 1032.51,-46.58 1021.97,-45.51 1023.6,-52.32"/>
 <text text-anchor="middle" x="957.5" y="-94.8" font-family="Times New Roman,serif" font-size="14.00" fill="#008000">All Connections</text>
 </g>
-<!-- {ingress&#45;nginx} -->
+<!-- {ingress&#45;controller} -->
 <g id="node14" class="node">
-<title>{ingress&#45;nginx}</title>
-<ellipse fill="none" stroke="blue" cx="624" cy="-483.53" rx="67.69" ry="18"/>
-<text text-anchor="middle" x="624" y="-479.83" font-family="Times New Roman,serif" font-size="14.00" fill="blue">{ingress&#45;nginx}</text>
+<title>{ingress&#45;controller}</title>
+<ellipse fill="none" stroke="blue" cx="777" cy="-483.53" rx="82.59" ry="18"/>
+<text text-anchor="middle" x="777" y="-479.83" font-family="Times New Roman,serif" font-size="14.00" fill="blue">{ingress&#45;controller}</text>
 </g>
-<!-- {ingress&#45;nginx}&#45;&gt;frontend/asset&#45;cache[Deployment] -->
+<!-- {ingress&#45;controller}&#45;&gt;frontend/asset&#45;cache[Deployment] -->
 <g id="edge21" class="edge">
-<title>{ingress&#45;nginx}&#45;&gt;frontend/asset&#45;cache[Deployment]</title>
-<path fill="none" stroke="#ee0000" d="M607.48,-465.71C603.23,-460.33 599.23,-454.06 597,-447.53 592.34,-433.84 590.88,-428.1 597,-415 603.25,-401.63 614.44,-390.33 625.9,-381.46"/>
-<polygon fill="#ee0000" stroke="#ee0000" points="628.18,-384.13 634.24,-375.43 624.08,-378.46 628.18,-384.13"/>
-<text text-anchor="middle" x="626" y="-427.56" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">TCP 8080</text>
+<title>{ingress&#45;controller}&#45;&gt;frontend/asset&#45;cache[Deployment]</title>
+<path fill="none" stroke="#ee0000" d="M761.52,-465.61C742.11,-444.38 708.67,-407.83 686.44,-383.53"/>
+<polygon fill="#ee0000" stroke="#ee0000" points="688.98,-381.13 679.65,-376.11 683.82,-385.85 688.98,-381.13"/>
+<text text-anchor="middle" x="773" y="-427.56" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">TCP 8080</text>
 </g>
-<!-- {ingress&#45;nginx}&#45;&gt;frontend/webapp[Deployment] -->
+<!-- {ingress&#45;controller}&#45;&gt;frontend/webapp[Deployment] -->
 <g id="edge22" class="edge">
-<title>{ingress&#45;nginx}&#45;&gt;frontend/webapp[Deployment]</title>
-<path fill="none" stroke="grey" d="M680.86,-473.59C705.76,-468.24 734.77,-459.97 759,-447.53 779.08,-437.22 779.58,-428.04 798,-415 815.69,-402.47 836.29,-389.99 853.68,-379.99"/>
-<polygon fill="grey" stroke="grey" points="855.49,-382.99 862.46,-375.01 852.03,-376.91 855.49,-382.99"/>
-<text text-anchor="middle" x="827" y="-427.56" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
-</g>
-<!-- {openshift&#45;ingress&#45;operator} -->
-<g id="node15" class="node">
-<title>{openshift&#45;ingress&#45;operator}</title>
-<ellipse fill="none" stroke="blue" cx="855" cy="-483.53" rx="115.08" ry="18"/>
-<text text-anchor="middle" x="855" y="-479.83" font-family="Times New Roman,serif" font-size="14.00" fill="blue">{openshift&#45;ingress&#45;operator}</text>
-</g>
-<!-- {openshift&#45;ingress&#45;operator}&#45;&gt;frontend/asset&#45;cache[Deployment] -->
-<g id="edge23" class="edge">
-<title>{openshift&#45;ingress&#45;operator}&#45;&gt;frontend/asset&#45;cache[Deployment]</title>
-<path fill="none" stroke="#ee0000" d="M769.81,-471.29C738.4,-465.61 707.63,-457.73 696,-447.53 678.3,-431.99 670.39,-405.9 666.85,-386.05"/>
-<polygon fill="#ee0000" stroke="#ee0000" points="670.3,-385.42 665.34,-376.06 663.37,-386.47 670.3,-385.42"/>
-<text text-anchor="middle" x="725" y="-427.56" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">TCP 8080</text>
-</g>
-<!-- {openshift&#45;ingress&#45;operator}&#45;&gt;frontend/webapp[Deployment] -->
-<g id="edge24" class="edge">
-<title>{openshift&#45;ingress&#45;operator}&#45;&gt;frontend/webapp[Deployment]</title>
-<path fill="none" stroke="grey" d="M860.14,-465.35C866.33,-444.7 876.78,-409.81 884.02,-385.65"/>
-<polygon fill="grey" stroke="grey" points="887.38,-386.61 886.9,-376.03 880.68,-384.61 887.38,-386.61"/>
-<text text-anchor="middle" x="903" y="-427.56" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
+<title>{ingress&#45;controller}&#45;&gt;frontend/webapp[Deployment]</title>
+<path fill="none" stroke="grey" d="M793.7,-465.54C799.25,-459.85 805.42,-453.44 811,-447.53 831.2,-426.1 853.79,-401.35 869.97,-383.47"/>
+<polygon fill="grey" stroke="grey" points="872.81,-385.55 876.92,-375.78 867.62,-380.85 872.81,-385.55"/>
+<text text-anchor="middle" x="870" y="-427.56" font-family="Times New Roman,serif" font-size="14.00" fill="grey">TCP 8080</text>
 </g>
 <!-- a -->
 <!-- b -->
 <!-- a&#45;&gt;b -->
-<g id="edge25" class="edge">
+<g id="edge23" class="edge">
 <title>a&#45;&gt;b</title>
 <path fill="none" stroke="#008000" d="M1264.29,-483.53C1290.65,-483.53 1342.53,-483.53 1370.7,-483.53"/>
 <polygon fill="#008000" stroke="#008000" points="1371.02,-484.23 1373.02,-483.53 1371.02,-482.83 1371.02,-484.23"/>
@@ -303,7 +283,7 @@
 <!-- c -->
 <!-- d -->
 <!-- c&#45;&gt;d -->
-<g id="edge26" class="edge">
+<g id="edge24" class="edge">
 <title>c&#45;&gt;d</title>
 <path fill="none" stroke="#ee0000" d="M1044.45,-483.53C1072.51,-483.53 1129.53,-483.53 1159.53,-483.53"/>
 <polygon fill="#ee0000" stroke="#ee0000" points="1159.65,-484.23 1161.65,-483.53 1159.65,-482.83 1159.65,-484.23"/>
@@ -312,7 +292,7 @@
 <!-- e -->
 <!-- f -->
 <!-- e&#45;&gt;f -->
-<g id="edge27" class="edge">
+<g id="edge25" class="edge">
 <title>e&#45;&gt;f</title>
 <path fill="none" stroke="magenta" d="M1255.51,-431.26C1283.93,-431.26 1341.79,-431.26 1370.72,-431.26"/>
 <polygon fill="magenta" stroke="magenta" points="1370.75,-431.96 1372.75,-431.26 1370.75,-430.56 1370.75,-431.96"/>
@@ -321,27 +301,27 @@
 <!-- g -->
 <!-- h -->
 <!-- g&#45;&gt;h -->
-<g id="edge28" class="edge">
+<g id="edge26" class="edge">
 <title>g&#45;&gt;h</title>
 <path fill="none" stroke="grey" d="M1052.32,-431.26C1082.46,-431.26 1146.64,-431.26 1178.4,-431.26"/>
 <polygon fill="grey" stroke="grey" points="1178.63,-431.96 1180.63,-431.26 1178.63,-430.56 1178.63,-431.96"/>
 <text text-anchor="middle" x="1116.5" y="-437.26" font-family="Times New Roman,serif" font-size="10.00" fill="grey">unchanged connection</text>
 </g>
 <!-- np -->
-<g id="node24" class="node">
+<g id="node23" class="node">
 <title>np</title>
 <ellipse fill="none" stroke="#008000" cx="1058" cy="-358" rx="31.4" ry="18"/>
 <text text-anchor="middle" x="1058" y="-355.5" font-family="Times New Roman,serif" font-size="10.00" fill="#008000">new peer</text>
 </g>
 <!-- lp -->
-<g id="node25" class="node">
+<g id="node24" class="node">
 <title>lp</title>
 <ellipse fill="none" stroke="red" cx="1191" cy="-358" rx="30.04" ry="18"/>
 <text text-anchor="middle" x="1191" y="-355.5" font-family="Times New Roman,serif" font-size="10.00" fill="red">lost peer</text>
 </g>
 <!-- np&#45;&gt;lp -->
 <!-- pp -->
-<g id="node26" class="node">
+<g id="node25" class="node">
 <title>pp</title>
 <ellipse fill="none" stroke="blue" cx="1337" cy="-358" rx="44.98" ry="18"/>
 <text text-anchor="middle" x="1337" y="-355.5" font-family="Times New Roman,serif" font-size="10.00" fill="blue">persistent peer</text>

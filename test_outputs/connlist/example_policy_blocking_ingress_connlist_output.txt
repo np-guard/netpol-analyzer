@@ -2,5 +2,4 @@
 default/apple-app[Pod] => 0.0.0.0-255.255.255.255 : All Connections
 default/apple-app[Pod] => default/banana-app[Pod] : All Connections
 default/banana-app[Pod] => 0.0.0.0-255.255.255.255 : All Connections
-{ingress-nginx} => default/banana-app[Pod] : TCP 5678
-{openshift-ingress-operator} => default/banana-app[Pod] : TCP 5678
+{ingress-controller} => default/banana-app[Pod] : TCP 5678

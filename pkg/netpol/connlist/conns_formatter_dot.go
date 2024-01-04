@@ -28,7 +28,7 @@ func getEdgeLine(c Peer2PeerConnection) string {
 func peerNameAndColorByType(peer Peer) (nameLabel, color string, isExternal bool) {
 	if peer.IsPeerIPType() {
 		return peer.String(), ipColor, true
-	} else if peer.Name() == common.IngressPodName {
+	} else if strings.Contains(peer.String(), "{") {
 		return peer.String(), nonIPPeerColor, true
 	}
 	return dotformatting.NodeClusterPeerLabel(peer.Name(), peer.Kind()), nonIPPeerColor, false

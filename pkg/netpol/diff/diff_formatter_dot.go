@@ -5,7 +5,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/dotformatting"
 )
 
@@ -265,7 +264,7 @@ func addNodeKeyLines() []string { // const
 
 // returns the peer name should be displayed in the node of the peer in the graph and whether the peer is a cluster peer or not
 func getNodePeerLabelAndType(peer Peer) (string, bool) {
-	if peer.IsPeerIPType() || peer.Name() == common.IngressPodName {
+	if peer.IsPeerIPType() || strings.Contains(peer.String(), "{") {
 		return peer.String(), true
 	}
 	return dotformatting.NodeClusterPeerLabel(peer.Name(), peer.Kind()), false

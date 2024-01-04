@@ -4,12 +4,10 @@ digraph {
 		label="ingressworld"
 	}
 	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
-	"{ingress-nginx}" [label="{ingress-nginx}" color="blue" fontcolor="blue"]
-	"{openshift-ingress-operator}" [label="{openshift-ingress-operator}" color="blue" fontcolor="blue"]
+	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
 	"0.0.0.0-255.255.255.255" -> "ingressworld/ingress-world-multiple-ports[Deployment]" [label="All Connections" color="grey" fontcolor="grey"]
 	"ingressworld/ingress-world-multiple-ports[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="grey" fontcolor="grey"]
-	"{ingress-nginx}" -> "ingressworld/ingress-world-multiple-ports[Deployment]" [label="TCP 8000,8090 (ref1: TCP 8050,8090)" color="magenta" fontcolor="magenta"]
-	"{openshift-ingress-operator}" -> "ingressworld/ingress-world-multiple-ports[Deployment]" [label="TCP 8000,8090 (ref1: TCP 8050,8090)" color="magenta" fontcolor="magenta"]
+	"{ingress-controller}" -> "ingressworld/ingress-world-multiple-ports[Deployment]" [label="TCP 8000,8090 (ref1: TCP 8050,8090)" color="magenta" fontcolor="magenta"]
 	nodesep=0.5
 	subgraph cluster_legend {
 		label="Legend"

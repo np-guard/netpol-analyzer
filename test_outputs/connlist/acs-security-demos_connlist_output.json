@@ -60,22 +60,12 @@
     "conn": "TCP 8080"
   },
   {
-    "src": "{ingress-nginx}",
+    "src": "{ingress-controller}",
     "dst": "frontend/asset-cache[Deployment]",
     "conn": "TCP 8080"
   },
   {
-    "src": "{ingress-nginx}",
-    "dst": "frontend/webapp[Deployment]",
-    "conn": "TCP 8080"
-  },
-  {
-    "src": "{openshift-ingress-operator}",
-    "dst": "frontend/asset-cache[Deployment]",
-    "conn": "TCP 8080"
-  },
-  {
-    "src": "{openshift-ingress-operator}",
+    "src": "{ingress-controller}",
     "dst": "frontend/webapp[Deployment]",
     "conn": "TCP 8080"
   }

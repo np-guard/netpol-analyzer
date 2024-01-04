@@ -40,5 +40,4 @@ default/reviews-v3-84779c7bbc[ReplicaSet] => default/productpage-v1-6b746f74dc[R
 default/reviews-v3-84779c7bbc[ReplicaSet] => default/ratings-v1-b6994bb9[ReplicaSet] : All Connections
 default/reviews-v3-84779c7bbc[ReplicaSet] => default/reviews-v1-545db77b95[ReplicaSet] : All Connections
 default/reviews-v3-84779c7bbc[ReplicaSet] => default/reviews-v2-7bf8c9648f[ReplicaSet] : All Connections
-{ingress-nginx} => default/details-v1-79f774bdb9[ReplicaSet] : TCP 9080
-{openshift-ingress-operator} => default/details-v1-79f774bdb9[ReplicaSet] : TCP 9080
+{ingress-controller} => default/details-v1-79f774bdb9[ReplicaSet] : TCP 9080

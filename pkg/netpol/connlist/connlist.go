@@ -10,6 +10,7 @@ package connlist
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -335,6 +336,10 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 	if ca.focusWorkload == "" {
 		return true
 	}
+	// accept any ingress controller source as focus-workload: ingress-controller
+	if ca.focusWorkload == common.GeneralIngressControllerName && strings.Contains(src.Name(), common.GeneralIngressControllerName) {
+		return true
+	}
 	// at least one of src/dst should be the focus workload
 	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
 }
@@ -408,7 +413,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 // or if it exists in the peers list from the parsed resources
 // if not returns a suitable warning message
 func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnalysis bool) (existFocusWorkload bool, warning string) {
-	if ca.focusWorkload == common.IngressPodName {
+	if strings.Contains(ca.focusWorkload, common.GeneralIngressControllerName) {
 		if excludeIngressAnalysis { // if the ingress-analyzer is empty,
 			// then no routes/k8s-ingress objects -> ingrss-controller pod will not be added
 			return false, netpolerrors.NoIngressSourcesErrStr + netpolerrors.EmptyConnListErrStr
@@ -473,7 +478,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 	// 3. computing allowed connections by Ingress controllers for peers that are selected by Ingress/Route objects
 	for peerStr, peerAndConn := range ingressConns {
 		// check if ingress is allowed from a specific known ingress controller
-		foundIngressConns := false
+		ingressConnsSet := map[string]Peer2PeerConnection{} // set of the ingress controllers conns allowed
 		for _, ingPod := range specificIngressControllers {
 			ingConn, err := ca.allowedIngressControllerToPeerFromPoliciesRules(ingPod, peerAndConn.Peer, pe)
 			if err != nil {
@@ -484,18 +489,34 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 			}
 			ingConn.Intersection(peerAndConn.ConnSet)
 			if !ingConn.IsEmpty() {
-				foundIngressConns = true
 				p2pConnection := &connection{
 					src:               ingPod,
 					dst:               peerAndConn.Peer,
 					allConnections:    ingConn.AllConnections(),
 					protocolsAndPorts: ingConn.ProtocolsAndPortsMap(),
 				}
-				res = append(res, p2pConnection)
+				if _, ok := ingressConnsSet[ingPod.Name()]; !ok {
+					// to avoid having conns from same controller (with different captured namespaces)
+					ingressConnsSet[ingPod.Name()] = p2pConnection
+				}
 			}
 		}
-		if !foundIngressConns { // specific ingress controller conn to this peer is not allowed
+		// append the ingress controllers connections to res
+		switch len(ingressConnsSet) {
+		case 0: // specific ingress controller conn to this peer is blocked by network-policies
 			ca.warnBlockedIngress(peerStr, peerAndConn.IngressObjects)
+		case len(common.SpecificIngressControllerToItsNamespaces): // connections from any ingress controller is allowed -
+			// append to res a general conn
+			sampleConn := ingressConnsSet[common.NginxIngressControllerName]
+			generalConn, err := addGeneralConnectionBasedOnSampleOne(sampleConn, pe)
+			if err != nil {
+				return nil, err
+			}
+			res = append(res, generalConn)
+		default: // network policies allow ingress controllers' connections from only some (1/2) of the supported ones
+			for _, v := range ingressConnsSet {
+				res = append(res, v)
+			}
 		}
 	}
 	return res, nil
@@ -526,12 +547,14 @@ func (ca *ConnlistAnalyzer) logWarning(msg string) {
 func addSpecificIngressControllers(pe *eval.PolicyEngine) ([]Peer, error) {
 	res := []Peer{}
 
-	for ns, nsLabels := range common.SpecificIngressControllersNsToLabels {
-		ingPod, err := pe.AddPodByNameAndNamespace(common.IngressPodName, ns, nsLabels)
-		if err != nil {
-			return nil, err
+	for controllerName, nsInfoList := range common.SpecificIngressControllerToItsNamespaces {
+		for _, ns := range nsInfoList {
+			ingPod, err := pe.AddPodByNameAndNamespace(controllerName, ns.ControllerNamespaceName, ns.ControllerNamespaceLabels)
+			if err != nil {
+				return nil, err
+			}
+			res = append(res, ingPod)
 		}
-		res = append(res, ingPod)
 	}
 	return res, nil
 }
@@ -547,4 +570,19 @@ func (ca *ConnlistAnalyzer) allowedIngressControllerToPeerFromPoliciesRules(ingr
 		return nil, err
 	}
 	return peConn.(*common.ConnectionSet), nil
+}
+
+// gets sample ingress controller connection and copies it to a general connection to be allowed from any ingress controller
+func addGeneralConnectionBasedOnSampleOne(sampleConn Peer2PeerConnection, pe *eval.PolicyEngine) (Peer2PeerConnection, error) {
+	generalIngController, err := pe.AddPodByNameAndNamespace(common.GeneralIngressControllerName, common.GeneralIngressControllerName, nil)
+	if err != nil {
+		return nil, err
+	}
+	generalConn := &connection{
+		src:               generalIngController,
+		dst:               sampleConn.Dst(),
+		allConnections:    sampleConn.AllProtocolsAndPorts(),
+		protocolsAndPorts: sampleConn.ProtocolsAndPorts(),
+	}
+	return generalConn, nil
 }
