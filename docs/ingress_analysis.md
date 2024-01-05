@@ -29,7 +29,7 @@ if at least one label of the following is used in the namespaceSelector, so ingr
 ||pod-security.kubernetes.io/enforce: privileged||
 ||pod-security.kubernetes.io/audit: privileged||
 ||pod-security.kubernetes.io/warn: privileged||
-|Nginx ingress controller |kubernetes.io/metadata.name: ingress-nginx|[nginx-ingress namespace link](https://github.com/nginxinc/kubernetes-ingress/blob/main/deployments/common/ns-and-sa.yaml)|
+|Nginx ingress controller |kubernetes.io/metadata.name: nginx-ingress|[nginx-ingress namespace link](https://github.com/nginxinc/kubernetes-ingress/blob/main/deployments/common/ns-and-sa.yaml)|
 
 
 ## Allowed Ingress Connections And Output:

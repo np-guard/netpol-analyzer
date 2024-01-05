@@ -33,8 +33,8 @@ type IngressControllerNamespaceInfo struct {
 var SpecificIngressControllerToItsNamespaces = map[string][]IngressControllerNamespaceInfo{
 	NginxIngressControllerName: {
 		{
-			ControllerNamespaceName:   "ingress-nginx",
-			ControllerNamespaceLabels: map[string]string{"kubernetes.io/metadata.name": "ingress-nginx"},
+			ControllerNamespaceName:   "nginx-ingress",
+			ControllerNamespaceLabels: map[string]string{"kubernetes.io/metadata.name": "nginx-ingress"},
 		},
 	},
 	OpenshiftIngressControllerName: {
