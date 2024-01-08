@@ -9,6 +9,8 @@ type NetpolError interface {
 	Location() string
 }
 
+const AllNamespaces = "any namespace"
+
 // Ingress Controller const - the name and namespace of an ingress-controller pod
 const (
 	//  The actual ingress controller pod is usually unknown and not available in the input resources for the analysis.

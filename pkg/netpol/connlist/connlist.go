@@ -25,6 +25,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist/internal/exposureanalysis"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist/internal/ingressanalyzer"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -384,6 +385,18 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		return nil, nil, err
 	}
 	connsRes = peersAllowedConns
+
+	//////////////////////
+	// exposure analysis
+	if ca.focusWorkload == "" {
+		// TODO: get results from this, and add to return values/ write in form of connsRes
+		err = exposureanalysis.GetPotentialAllowedConnections(pe, peerList)
+		if err != nil {
+			// ca.errors = append(ca.errors, newResourceEvaluationError(err))
+			return nil, nil, err
+		}
+	}
+	////////////////////
 
 	if excludeIngressAnalysis {
 		return connsRes, peers, nil
