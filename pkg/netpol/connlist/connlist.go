@@ -39,6 +39,7 @@ type ConnlistAnalyzer struct {
 	stopOnError      bool
 	errors           []ConnlistError
 	focusWorkload    string
+	exposureAnalysis bool
 	outputFormat     string
 	muteErrsAndWarns bool
 }
@@ -119,6 +120,13 @@ func WithFocusWorkload(workload string) ConnlistAnalyzerOption {
 	}
 }
 
+// WithExposureAnalysis is a functional option to include exposure analysis
+func WithExposureAnalysis() ConnlistAnalyzerOption {
+	return func(c *ConnlistAnalyzer) {
+		c.exposureAnalysis = true
+	}
+}
+
 // WithOutputFormat is a functional option, allowing user to choose the output format txt/json/dot/csv/md.
 func WithOutputFormat(outputFormat string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
@@ -137,10 +145,11 @@ func WithMuteErrsAndWarns() ConnlistAnalyzerOption {
 func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	// object with default behavior options
 	ca := &ConnlistAnalyzer{
-		logger:       logger.NewDefaultLogger(),
-		stopOnError:  false,
-		errors:       []ConnlistError{},
-		outputFormat: output.DefaultFormat,
+		logger:           logger.NewDefaultLogger(),
+		stopOnError:      false,
+		exposureAnalysis: false,
+		errors:           []ConnlistError{},
+		outputFormat:     output.DefaultFormat,
 	}
 	for _, o := range options {
 		o(ca)
