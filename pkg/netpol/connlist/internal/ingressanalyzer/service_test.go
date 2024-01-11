@@ -84,7 +84,7 @@ func TestServiceMappingToPods(t *testing.T) {
 			objects, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
 			require.Len(t, processingErrs, 1, "test: %q", tt.name) // no policies
 			require.Len(t, objects, 17, "test: %q", tt.name)       // found 6 services and 11 pods
-			pe, err := eval.NewPolicyEngineWithObjects(objects)
+			pe, err := eval.NewPolicyEngineWithObjects(objects, false)
 			require.Empty(t, err, "test: %q", tt.name)
 			ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger(), false)
 			require.Empty(t, err, "test: %q", tt.name)

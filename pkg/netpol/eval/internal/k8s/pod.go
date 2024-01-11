@@ -41,6 +41,9 @@ type Pod struct {
 	Ports     []corev1.ContainerPort
 	HostIP    string
 	Owner     Owner
+
+	// vars to contain exposure-analysis data (should keep here or add to workloadPeer?)
+	ExposureNsLabels string
 }
 
 // Owner encapsulates pod owner workload info
@@ -61,14 +64,15 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 	}
 
 	pr := &Pod{
-		Name:      p.Name,
-		Namespace: p.Namespace,
-		Labels:    make(map[string]string, len(p.Labels)),
-		IPs:       make([]corev1.PodIP, len(p.Status.PodIPs)),
-		Ports:     make([]corev1.ContainerPort, 0, defaultPortsListSize),
-		HostIP:    p.Status.HostIP,
-		Owner:     Owner{},
-		FakePod:   false,
+		Name:             p.Name,
+		Namespace:        p.Namespace,
+		Labels:           make(map[string]string, len(p.Labels)),
+		IPs:              make([]corev1.PodIP, len(p.Status.PodIPs)),
+		Ports:            make([]corev1.ContainerPort, 0, defaultPortsListSize),
+		HostIP:           p.Status.HostIP,
+		Owner:            Owner{},
+		FakePod:          false,
+		ExposureNsLabels: "",
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)

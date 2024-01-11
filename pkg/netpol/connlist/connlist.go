@@ -183,7 +183,7 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 
 func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
 	// TODO: do we need logger in policyEngine?
-	pe, err := eval.NewPolicyEngineWithObjects(objectsList)
+	pe, err := eval.NewPolicyEngineWithObjects(objectsList, ca.exposureAnalysis)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
@@ -198,7 +198,7 @@ func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8
 
 // ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources and a list of all peers names
 func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []Peer, error) {
-	pe := eval.NewPolicyEngine()
+	pe := eval.NewPolicyEngine(ca.exposureAnalysis)
 
 	// get all resources from k8s cluster
 
@@ -341,11 +341,35 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 	if src.String() == dst.String() {
 		return false
 	}
+	// when exposure-analysis, skip conns between fake pods (exposure or ingress-controller) or ip-peer and fake pods
+	if ca.exposureAnalysis && ca.hasFakePodsAndIPs(src, dst) {
+		return false
+	}
 	if ca.focusWorkload == "" {
 		return true
 	}
 	// at least one of src/dst should be the focus workload
 	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
+}
+
+// TBD: should reveal the Fake pod flag in eval.Peer ?
+func (ca *ConnlistAnalyzer) hasFakePodsAndIPs(src, dst eval.Peer) bool {
+	if src.IsPeerIPType() && dst.Name() == common.PodInExposedNs {
+		return true
+	}
+	if src.Name() == common.PodInExposedNs && dst.IsPeerIPType() {
+		return true
+	}
+	if src.Name() == common.PodInExposedNs && dst.Name() == common.PodInExposedNs {
+		return true
+	}
+	if src.Name() == common.PodInExposedNs && dst.Name() == common.IngressPodName {
+		return true
+	}
+	if src.Name() == common.IngressPodName && dst.Name() == common.PodInExposedNs {
+		return true
+	}
+	return false
 }
 
 func getPeerNsNameFormat(peer eval.Peer) string {
@@ -474,7 +498,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		return nil, err
 	}
 	// adding the ingress controller pod to the policy engine,
-	ingressControllerPod, err := pe.AddPodByNameAndNamespace(common.IngressPodName, common.IngressPodNamespace)
+	ingressControllerPod, err := pe.AddPodByNameAndNamespace(common.IngressPodName, common.IngressPodNamespace, nil)
 	if err != nil {
 		return nil, err
 	}
