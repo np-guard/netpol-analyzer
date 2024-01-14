@@ -47,15 +47,15 @@ type ConnlistAnalyzer struct {
 // The new interface
 // ConnlistFromResourceInfos returns the allowed-connections list from input slice of resource.Info objects,
 // and the list of all workloads from the parsed resources
-func (ca *ConnlistAnalyzer) ConnlistFromResourceInfos(info []*resource.Info) ([]Peer2PeerConnection, []Peer, error) {
+func (ca *ConnlistAnalyzer) ConnlistFromResourceInfos(info []*resource.Info) ([]Peer2PeerConnection, []Peer, []ExposedPeer, error) {
 	// convert resource.Info objects to k8s resources, filter irrelevant resources
 	objs, fpErrs := parser.ResourceInfoListToK8sObjectsList(info, ca.logger, ca.muteErrsAndWarns)
 	ca.copyFpErrs(fpErrs)
 	if ca.stopProcessing() {
 		if err := ca.hasFatalError(); err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
-		return []Peer2PeerConnection{}, []Peer{}, nil
+		return []Peer2PeerConnection{}, []Peer{}, []ExposedPeer{}, nil
 	}
 	return ca.connslistFromParsedResources(objs)
 }
@@ -68,7 +68,7 @@ func (ca *ConnlistAnalyzer) copyFpErrs(fpErrs []parser.FileProcessingError) {
 
 // ConnlistFromDirPath returns the allowed connections list from dir path containing k8s resources
 // and list of all workloads from the parsed resources
-func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConnection, []Peer, error) {
+func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConnection, []Peer, []ExposedPeer, error) {
 	rList, errs := fsscanner.GetResourceInfosFromDirPath([]string{dirPath}, true, ca.stopOnError)
 	// instead of parsing the builder's string error to decide on error type (warning/error/fatal-err)
 	// return as fatal error if rList is empty or if stopOnError is on
@@ -79,7 +79,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 			err := utilerrors.NewAggregate(errs)
 			ca.logger.Errorf(err, netpolerrors.ErrGettingResInfoFromDir)
 			ca.errors = append(ca.errors, parser.FailedReadingFile(dirPath, err))
-			return nil, nil, err // return as fatal error if rList is empty or if stopOnError is on
+			return nil, nil, nil, err // return as fatal error if rList is empty or if stopOnError is on
 		}
 		// split err if it's an aggregated error to a list of separate errors
 		for _, err := range errs {
@@ -181,23 +181,24 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 	return nil
 }
 
-func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
+func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer,
+	[]ExposedPeer, error) {
 	// TODO: do we need logger in policyEngine?
 	pe, err := eval.NewPolicyEngineWithObjects(objectsList, ca.exposureAnalysis)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	ia, err := ingressanalyzer.NewIngressAnalyzerWithObjects(objectsList, pe, ca.logger, ca.muteErrsAndWarns)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	return ca.getConnectionsList(pe, ia)
 }
 
 // ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources and a list of all peers names
-func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []Peer, error) {
+func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []Peer, []ExposedPeer, error) {
 	pe := eval.NewPolicyEngine(ca.exposureAnalysis)
 
 	// get all resources from k8s cluster
@@ -208,34 +209,34 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 	// get all namespaces
 	nsList, apierr := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	if apierr != nil {
-		return nil, nil, apierr
+		return nil, nil, nil, apierr
 	}
 	for i := range nsList.Items {
 		ns := &nsList.Items[i]
 		if err := pe.UpsertObject(ns); err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 	}
 
 	// get all pods
 	podList, apierr := clientset.CoreV1().Pods(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	if apierr != nil {
-		return nil, nil, apierr
+		return nil, nil, nil, apierr
 	}
 	for i := range podList.Items {
 		if err := pe.UpsertObject(&podList.Items[i]); err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 	}
 
 	// get all netpols
 	npList, apierr := clientset.NetworkingV1().NetworkPolicies(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	if apierr != nil {
-		return nil, nil, apierr
+		return nil, nil, nil, apierr
 	}
 	for i := range npList.Items {
 		if err := pe.UpsertObject(&npList.Items[i]); err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 	}
 	return ca.getConnectionsList(pe, nil)
@@ -382,17 +383,17 @@ func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer eval.Peer) bool {
 
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
 func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingressanalyzer.IngressAnalyzer) ([]Peer2PeerConnection,
-	[]Peer, error) {
+	[]Peer, []ExposedPeer, error) {
 	connsRes := make([]Peer2PeerConnection, 0)
 	if !pe.HasPodPeers() {
-		return connsRes, []Peer{}, nil
+		return connsRes, []Peer{}, []ExposedPeer{}, nil
 	}
 
 	// get workload peers and ip blocks
 	peerList, err := pe.GetPeersList()
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	// represent peerList as []connlist.Peer list to be returned
 	peers := make([]Peer, len(peerList))
@@ -407,26 +408,26 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	if ca.focusWorkload != "" && !existFocusWorkload {
 		ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
 		ca.logWarning(warningMsg)
-		return nil, nil, nil
+		return nil, nil, nil, nil
 	}
 
 	// compute connections between peers based on pe analysis of network policies
 	peersAllowedConns, err := ca.getConnectionsBetweenPeers(pe, peers)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	connsRes = peersAllowedConns
 
 	if excludeIngressAnalysis {
-		return connsRes, peers, nil
+		return connsRes, peers, []ExposedPeer{}, nil
 	}
 
 	// analyze ingress connections - create connection objects for relevant ingress analyzer connections
 	ingressAllowedConns, err := ca.getIngressAllowedConnections(ia, pe)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	connsRes = append(connsRes, ingressAllowedConns...)
 
@@ -434,7 +435,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		ca.logWarning(netpolerrors.NoAllowedConnsWarning)
 	}
 
-	return connsRes, peers, nil
+	return connsRes, peers, []ExposedPeer{}, nil
 }
 
 // existsFocusWorkload checks if the provided focus workload is ingress-controller

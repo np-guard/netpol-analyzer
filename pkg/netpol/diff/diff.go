@@ -145,7 +145,7 @@ func (da *DiffAnalyzer) getConnlistAnalysis(
 	error) {
 	// get a new ConnlistAnalyzer with muted errs/warns
 	connlistaAnalyzer := connlist.NewConnlistAnalyzer(da.determineConnlistAnalyzerOptions()...)
-	conns, workloads, err := connlistaAnalyzer.ConnlistFromResourceInfos(infos)
+	conns, workloads, _, err := connlistaAnalyzer.ConnlistFromResourceInfos(infos)
 
 	// append all fatal/severe errors and warnings returned by connlistaAnalyzer
 	errPrefix := da.errPrefixSpecifyRefName(isRef1)
@@ -414,7 +414,7 @@ func (c *connsPair) Dst() Peer {
 	return c.firstConn.Dst()
 }
 
-func (c *connsPair) Ref1Connectivity() AllowedConnectivity {
+func (c *connsPair) Ref1Connectivity() common.AllowedConnectivity {
 	if c.diffType == AddedType {
 		return &allowedConnectivity{
 			allProtocolsAndPorts: false,
@@ -427,7 +427,7 @@ func (c *connsPair) Ref1Connectivity() AllowedConnectivity {
 	}
 }
 
-func (c *connsPair) Ref2Connectivity() AllowedConnectivity {
+func (c *connsPair) Ref2Connectivity() common.AllowedConnectivity {
 	if c.diffType == RemovedType {
 		return &allowedConnectivity{
 			allProtocolsAndPorts: false,
