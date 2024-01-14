@@ -15,6 +15,7 @@ type ExposedPeer interface {
 // XgressExposureData contains the data of potential connectivity for an existing peer in the cluster
 // a peer might be exposed to the entire cluster (any-namespace), to any namespace with labels or
 // any pod with labels in any-namespace, or any pod with labels in a namespace with labels, or any pod with labels in a specific namespace
+// TODO: add detailed documentation as to which combinations of values represent which kind of "abstract" node in the output
 type XgressExposureData interface {
 	// IsProtectedByNetpols indicates if the exposed peer is protected by any netpol on Ingress/Egress
 	// if a peer is not protected by xgress netpols, it will be exposed to entire cluster with all allowed connections
