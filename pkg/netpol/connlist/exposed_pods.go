@@ -14,7 +14,7 @@ type ExposedPeer interface {
 
 // XgressExposureData data of potential connectivity for an existing peer to/from a representative peer
 type XgressExposureData interface {
-	// IsProtectedByNetpols Is the exposed peer protected by any xgress netpol
+	// IsProtectedByNetpols indicates if the exposed peer is protected by any netpol on Ingress/Egress 
 	IsProtectedByNetpols() bool
 	// IsExposedToEntireCluster is the peer exposed to all namespaces in the cluster for the relevant direction
 	IsExposedToEntireCluster() bool
