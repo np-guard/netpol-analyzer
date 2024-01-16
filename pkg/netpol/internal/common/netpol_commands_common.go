@@ -20,6 +20,20 @@ type AllowedConnectivity interface {
 	ProtocolsAndPorts() map[v1.Protocol][]PortRange
 }
 
+// AllowedConns implements the AllowedConnectivity interface
+type AllowedConns struct {
+	AllConnections       bool
+	ProtocolsAndPortsMap map[v1.Protocol][]PortRange
+}
+
+func (a *AllowedConns) AllProtocolsAndPorts() bool {
+	return a.AllConnections
+}
+
+func (a *AllowedConns) ProtocolsAndPorts() map[v1.Protocol][]PortRange {
+	return a.ProtocolsAndPortsMap
+}
+
 // Ingress Controller const - the name and namespace of an ingress-controller pod
 const (
 	//  The actual ingress controller pod is usually unknown and not available in the input resources for the analysis.

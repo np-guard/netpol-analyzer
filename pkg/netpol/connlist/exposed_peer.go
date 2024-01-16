@@ -6,8 +6,18 @@ import "github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 type ExposedPeer interface {
 	// ExposedPeer is a peer for which the analysis found some potential exposure info
 	ExposedPeer() Peer
+	// IsProtectedByIngressNetpols indicates if there are ingress netpols selecting the ExposedPeer
+	// if peer is not protected, indicates that the peer is exposed on ingress to the whole world
+	// if peer is not protected by ingress netpols, the IngressExposure list will be empty
+	// output wil display this detail
+	IsProtectedByIngressNetpols() bool
 	// IngressExposure is a list of the potential Ingress connections to the ExposedPeer
 	IngressExposure() []XgressExposureData
+	// IsProtectedByEgressNetpols indicates if there are egress netpols selecting the ExposedPeer
+	// if peer is not protected, indicates that the peer is exposed on egress to the whole world
+	// if peer is not protected by egress netpols, the EgressExposure list will be empty
+	// output wil display this detail
+	IsProtectedByEgressNetpols() bool
 	// EgressExposure is a list of the potential Egress connections from the ExposedPeer
 	EgressExposure() []XgressExposureData
 }
@@ -17,9 +27,6 @@ type ExposedPeer interface {
 // any pod with labels in any-namespace, or any pod with labels in a namespace with labels, or any pod with labels in a specific namespace
 // TODO: add detailed documentation as to which combinations of values represent which kind of "abstract" node in the output
 type XgressExposureData interface {
-	// IsProtectedByNetpols indicates if the exposed peer is protected by any netpol on Ingress/Egress
-	// if a peer is not protected by xgress netpols, it will be exposed to entire cluster with all allowed connections
-	IsProtectedByNetpols() bool
 	// IsExposedToEntireCluster indicates if the peer is exposed to all namespaces in the cluster for the relevant direction
 	IsExposedToEntireCluster() bool
 	// NamespaceLabels are matchLabels of potential namespaces which the peer might be exposed to

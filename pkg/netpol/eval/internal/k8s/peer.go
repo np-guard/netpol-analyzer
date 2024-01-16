@@ -83,7 +83,7 @@ func (p *WorkloadPeer) Kind() string {
 
 func (p *WorkloadPeer) String() string {
 	if p.Pod.FakePod {
-		return p.determineRepresentationOfFakePod()
+		return "{" + p.Pod.Name + "}"
 	}
 	return types.NamespacedName{Name: p.Name(), Namespace: p.Namespace()}.String() + "[" + p.Kind() + "]"
 }
@@ -94,25 +94,6 @@ func (p *WorkloadPeer) IP() string {
 
 func (p *WorkloadPeer) IsPeerIPType() bool {
 	return false
-}
-
-const (
-	openingP = "{"
-	closingP = "}"
-)
-
-func (p *WorkloadPeer) determineRepresentationOfFakePod() string {
-	switch p.Pod.Name {
-	case common.IngressPodName:
-		return openingP + p.Pod.Name + closingP
-	case common.PodInExposedNs:
-		if p.Pod.Namespace == common.AllNamespaces {
-			return openingP + common.AllNamespaces + closingP
-		}
-		return openingP + "any-namespace-with : " + p.Pod.ExposureNsLabels + closingP
-	default:
-		return ""
-	}
 }
 
 ////////////////////////////////////////////////////

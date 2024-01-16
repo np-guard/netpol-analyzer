@@ -373,20 +373,6 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 	return res, nil
 }
 
-// allowedConnectivity implements the AllowedConnectivity interface
-type allowedConnectivity struct {
-	allProtocolsAndPorts bool
-	protocolsAndPortsMap map[v1.Protocol][]common.PortRange
-}
-
-func (a *allowedConnectivity) AllProtocolsAndPorts() bool {
-	return a.allProtocolsAndPorts
-}
-
-func (a *allowedConnectivity) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
-	return a.protocolsAndPortsMap
-}
-
 // connsPair captures a pair of Peer2PeerConnection from two dir paths
 // the src,dst of firstConn and secondConn are assumed to be the same
 // with info on the diffType and if any of the peers is lost/new
@@ -416,27 +402,27 @@ func (c *connsPair) Dst() Peer {
 
 func (c *connsPair) Ref1Connectivity() common.AllowedConnectivity {
 	if c.diffType == AddedType {
-		return &allowedConnectivity{
-			allProtocolsAndPorts: false,
-			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+		return &common.AllowedConns{
+			AllConnections:       false,
+			ProtocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
 		}
 	}
-	return &allowedConnectivity{
-		allProtocolsAndPorts: c.firstConn.AllProtocolsAndPorts(),
-		protocolsAndPortsMap: c.firstConn.ProtocolsAndPorts(),
+	return &common.AllowedConns{
+		AllConnections:       c.firstConn.AllProtocolsAndPorts(),
+		ProtocolsAndPortsMap: c.firstConn.ProtocolsAndPorts(),
 	}
 }
 
 func (c *connsPair) Ref2Connectivity() common.AllowedConnectivity {
 	if c.diffType == RemovedType {
-		return &allowedConnectivity{
-			allProtocolsAndPorts: false,
-			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+		return &common.AllowedConns{
+			AllConnections:       false,
+			ProtocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
 		}
 	}
-	return &allowedConnectivity{
-		allProtocolsAndPorts: c.secondConn.AllProtocolsAndPorts(),
-		protocolsAndPortsMap: c.secondConn.ProtocolsAndPorts(),
+	return &common.AllowedConns{
+		AllConnections:       c.secondConn.AllProtocolsAndPorts(),
+		ProtocolsAndPortsMap: c.secondConn.ProtocolsAndPorts(),
 	}
 }
 
