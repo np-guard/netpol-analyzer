@@ -92,7 +92,7 @@ func (pe *PolicyEngine) checkNamespaceSelectorsMatch(reqSelector map[string]stri
 
 // /////////////////////////////////
 
-// IsPeerProtected returns if the peer is protected on the given xgress direction
+// IsPeerProtected returns if the peer is protected by network policies on the given ingress/egress direction
 // relevant only for workloadPeer
 // returns false by default for any other peer type (shouldn't be called with other peer type)
 func (pe *PolicyEngine) IsPeerProtected(p Peer, isIngress bool) bool {
