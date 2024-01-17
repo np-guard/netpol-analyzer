@@ -14,10 +14,12 @@
 package eval
 
 import (
+	"errors"
 	"fmt"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -94,16 +96,15 @@ func (pe *PolicyEngine) checkNamespaceSelectorsMatch(reqSelector map[string]stri
 
 // IsPeerProtected returns if the peer is protected by network policies on the given ingress/egress direction
 // relevant only for workloadPeer
-// returns false by default for any other peer type (shouldn't be called with other peer type)
-func (pe *PolicyEngine) IsPeerProtected(p Peer, isIngress bool) bool {
+func (pe *PolicyEngine) IsPeerProtected(p Peer, isIngress bool) (bool, error) {
 	peer, ok := p.(*k8s.WorkloadPeer)
 	if !ok { // should not get here
-		return false
+		return false, errors.New(netpolerrors.NotPeerErrStr(p.String()))
 	}
 	if isIngress {
-		return peer.Pod.IngressProtected
+		return peer.Pod.IngressProtected, nil
 	}
-	return peer.Pod.EgressProtected
+	return peer.Pod.EgressProtected, nil
 }
 
 // TODO these functions will be changed in a later PR (when implementing RepresentativePeer)

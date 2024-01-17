@@ -500,7 +500,10 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 			if allowedConnections.IsEmpty() {
 				continue
 			}
-			p2pConnection := ca.checkIfP2PConnOrExposureConn(pe, allowedConnections, srcPeer, dstPeer, expMap)
+			p2pConnection, err := ca.checkIfP2PConnOrExposureConn(pe, allowedConnections, srcPeer, dstPeer, expMap)
+			if err != nil {
+				return nil, err
+			}
 			if p2pConnection != nil {
 				connsRes = append(connsRes, p2pConnection)
 			}
@@ -573,27 +576,28 @@ func (ca *ConnlistAnalyzer) logWarning(msg string) {
 // checkIfP2PConnOrExposureConn checks if the given connection is between two peers from the parsed resources, if yes returns it,
 // otherwise the connection belongs to exposure-analysis, will be added to the provided map
 func (ca *ConnlistAnalyzer) checkIfP2PConnOrExposureConn(pe *eval.PolicyEngine, allowedConnections common.Connection,
-	src, dst Peer, exposuresMap exposureMap) *connection {
+	src, dst Peer, exposuresMap exposureMap) (*connection, error) {
 	if !ca.exposureAnalysis {
 		// if exposure analysis option is off , the connection is definitely a P2PConnection
-		return createConnectionObject(allowedConnections, src, dst)
+		return createConnectionObject(allowedConnections, src, dst), nil
 	}
 	// else exposure analysis is on
 	// TODO : enhance this if condition after implementing eval.RepresentativePeer
 	if src.Name() != common.PodInRepNs && dst.Name() != common.PodInRepNs {
 		// both src and dst are peers are found in the parsed resources
-		return createConnectionObject(allowedConnections, src, dst)
+		return createConnectionObject(allowedConnections, src, dst), nil
 	}
 	// else: one of the peers is inferred from a netpol-rule , and the other is a peer from the parsed resources
 	// an exposure analysis connection
+	var err error
 	if src.Name() != common.PodInRepNs {
 		// dst is the inferred from netpol peer, we have an exposed egress for the src peer
-		addConnToExposureMap(pe, allowedConnections, src, dst, false, exposuresMap)
+		err = addConnToExposureMap(pe, allowedConnections, src, dst, false, exposuresMap)
 	} else {
 		// src is the inferred from netpol peer, we have an exposed ingress to the dst peer
-		addConnToExposureMap(pe, allowedConnections, src, dst, true, exposuresMap)
+		err = addConnToExposureMap(pe, allowedConnections, src, dst, true, exposuresMap)
 	}
-	return nil
+	return nil, err
 }
 
 // helper function - returns a connection object from the given fields
@@ -608,7 +612,7 @@ func createConnectionObject(allowedConnections common.Connection, src, dst Peer)
 
 // addConnToExposureMap adds a connection and its data to the exposure-analysis map
 func addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections common.Connection, src, dst Peer, isIngress bool,
-	exposuresMap exposureMap) {
+	exposuresMap exposureMap) error {
 	peer := src         // real peer
 	inferredPeer := dst // inferred from netpol rule
 	if isIngress {
@@ -623,8 +627,12 @@ func addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections common.Conne
 			egressExposure:     make([]*xgressExposure, 0),
 		}
 	}
-	if !pe.IsPeerProtected(peer, isIngress) {
-		return // if the peer is not protected, we don't need to store any connection data
+	protected, err := pe.IsPeerProtected(peer, isIngress)
+	if err != nil {
+		return err
+	}
+	if !protected {
+		return nil // if the peer is not protected, we don't need to store any connection data
 	}
 	// protected peer - store the data
 	expData := &xgressExposure{
@@ -643,4 +651,5 @@ func addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections common.Conne
 		exposuresMap[peer].isEgressProtected = true
 		exposuresMap[peer].egressExposure = append(exposuresMap[peer].egressExposure, expData)
 	}
+	return nil
 }
