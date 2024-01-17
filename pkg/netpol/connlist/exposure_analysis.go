@@ -137,7 +137,7 @@ func loopAndRefineXgressData(xgressData []*xgressExposure) []*xgressExposure {
 	return res
 }
 
-// returns the list without items with provided conn value
+// refineConnsWithSameValueFromRes returns the xgressExposure list without items having the provided conn value
 func refineConnsWithSameValueFromRes(expList []*xgressExposure, conn common.AllowedConnectivity) []*xgressExposure {
 	res := make([]*xgressExposure, 0)
 	for _, singleConn := range expList {
