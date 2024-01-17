@@ -83,7 +83,10 @@ func (p *WorkloadPeer) Kind() string {
 
 func (p *WorkloadPeer) String() string {
 	if p.Pod.FakePod {
-		return "{" + p.Pod.Name + "}"
+		// TODO: revert this after implementing RepresantativePeer
+		if p.Pod.Name == common.IngressPodName {
+			return "{" + p.Pod.Name + "}"
+		}
 	}
 	return types.NamespacedName{Name: p.Name(), Namespace: p.Namespace()}.String() + "[" + p.Kind() + "]"
 }

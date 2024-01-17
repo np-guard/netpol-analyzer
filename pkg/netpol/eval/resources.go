@@ -492,7 +492,7 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, nsLabels map[s
 		return nil, err
 	}
 	if pe.exposureAnalysisFlag {
-		// save the labelsStr in the pod's data to be used in the output later
+		// save the labels in the pod's data
 		newPod.ExposureNsLabels = nsLabels
 	}
 	pe.podsMap[podStr] = newPod
