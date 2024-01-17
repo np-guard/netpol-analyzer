@@ -176,6 +176,9 @@ func (pe *PolicyEngine) getPoliciesSelectingPod(p *k8s.Pod, direction netv1.Poli
 			res = append(res, policy)
 		}
 	}
+	if len(res) > 0 {
+		updatePodXgressProtectedFlag(p, direction)
+	}
 	return res, nil
 }
 
@@ -240,17 +243,11 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 			return common.MakeConnectionSet(true), nil // all connections allowed - no restrictions on ingress to externalIP
 		}
 		netpols, err = pe.getPoliciesSelectingPod(dst.GetPeerPod(), netv1.PolicyTypeIngress)
-		if len(netpols) > 0 {
-			dst.GetPeerPod().IngressProtected = true
-		}
 	} else {
 		if src.PeerType() == k8s.IPBlockType {
 			return common.MakeConnectionSet(true), nil // all connections allowed - no restrictions on egress from externalIP
 		}
 		netpols, err = pe.getPoliciesSelectingPod(src.GetPeerPod(), netv1.PolicyTypeEgress)
-		if len(netpols) > 0 {
-			src.GetPeerPod().EgressProtected = true
-		}
 	}
 	if err != nil {
 		return nil, err
@@ -369,5 +366,15 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 		return currPeer.Pod.PodExposedTCPConnections()
 	default:
 		return nil
+	}
+}
+
+// updatePodXgressProtectedFlag updates to true the relevant ingress/egress protected flag of the pod
+func updatePodXgressProtectedFlag(p *k8s.Pod, direction netv1.PolicyType) {
+	switch direction {
+	case netv1.PolicyTypeIngress:
+		p.IngressProtected = true
+	case netv1.PolicyTypeEgress:
+		p.EgressProtected = true
 	}
 }
