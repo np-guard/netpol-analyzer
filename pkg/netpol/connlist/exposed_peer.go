@@ -15,7 +15,6 @@ type ExposedPeer interface {
 	// IsProtectedByEgressNetpols indicates if there are egress netpols selecting the ExposedPeer
 	// if peer is not protected, indicates that the peer is exposed on egress to the whole world
 	// if peer is not protected by egress netpols, the EgressExposure list will be empty
-	// output wil display this detail
 	IsProtectedByEgressNetpols() bool
 	// EgressExposure is a list of the potential Egress connections from the ExposedPeer
 	EgressExposure() []XgressExposureData
