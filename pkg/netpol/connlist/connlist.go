@@ -606,7 +606,7 @@ func createConnectionObject(allowedConnections common.Connection, src, dst Peer)
 	}
 }
 
-// helper function - adds a connection and its data to the exposure-analysis
+// addConnToExposureMap adds a connection and its data to the exposure-analysis map
 func addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections common.Connection, src, dst Peer, isIngress bool,
 	exposuresMap exposureMap) {
 	peer := src         // real peer
