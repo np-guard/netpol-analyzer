@@ -9,7 +9,6 @@ type ExposedPeer interface {
 	// IsProtectedByIngressNetpols indicates if there are ingress netpols selecting the ExposedPeer
 	// if peer is not protected, indicates that the peer is exposed on ingress to the whole world
 	// if peer is not protected by ingress netpols, the IngressExposure list will be empty
-	// output wil display this detail
 	IsProtectedByIngressNetpols() bool
 	// IngressExposure is a list of the potential Ingress connections to the ExposedPeer
 	IngressExposure() []XgressExposureData
