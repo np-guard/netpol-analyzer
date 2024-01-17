@@ -397,6 +397,7 @@ func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer eval.Peer) bool {
 }
 
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
+// if the exposure-analysis option is on, also computes and updates the exposure-analysis results
 func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingressanalyzer.IngressAnalyzer) ([]Peer2PeerConnection,
 	[]Peer, []ExposedPeer, error) {
 	connsRes := make([]Peer2PeerConnection, 0)
@@ -427,9 +428,8 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	}
 
 	// compute connections between peers based on pe analysis of network policies
-	// if exposure-analysis is on, also compute the exposures-map
-	exposuresMap := exposureMap{}
-	peersAllowedConns, err := ca.getConnectionsBetweenPeers(pe, peers, exposuresMap)
+	// if exposure-analysis is on, also compute and return the exposures-map
+	peersAllowedConns, exposuresMap, err := ca.getConnectionsBetweenPeers(pe, peers)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, nil, err
@@ -482,9 +482,10 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnal
 }
 
 // getConnectionsBetweenPeers returns connections list from PolicyEngine object
-func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, peers []Peer,
-	expMap exposureMap) ([]Peer2PeerConnection, error) {
+// and exposures-map containing the exposed peers data if the exposure-analysis is on , else empty map
+func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, peers []Peer) ([]Peer2PeerConnection, exposureMap, error) {
 	connsRes := make([]Peer2PeerConnection, 0)
+	exposuresMap := exposureMap{}
 	for i := range peers {
 		srcPeer := peers[i]
 		for j := range peers {
@@ -494,22 +495,22 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			// skip empty connections
 			if allowedConnections.IsEmpty() {
 				continue
 			}
-			p2pConnection, err := ca.checkIfP2PConnOrExposureConn(pe, allowedConnections, srcPeer, dstPeer, expMap)
+			p2pConnection, err := ca.checkIfP2PConnOrExposureConn(pe, allowedConnections, srcPeer, dstPeer, exposuresMap)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			if p2pConnection != nil {
 				connsRes = append(connsRes, p2pConnection)
 			}
 		}
 	}
-	return connsRes, nil
+	return connsRes, exposuresMap, nil
 }
 
 // getIngressAllowedConnections returns connections list from IngressAnalyzer intersected with PolicyEngine's connections
