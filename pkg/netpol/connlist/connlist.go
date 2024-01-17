@@ -594,10 +594,10 @@ func (ca *ConnlistAnalyzer) checkIfP2PConnOrExposureConn(pe *eval.PolicyEngine, 
 	var err error
 	if src.Name() != common.PodInRepNs {
 		// dst is the inferred from netpol peer, we have an exposed egress for the src peer
-		err = addConnToExposureMap(pe, allowedConnections, src, dst, false, exposuresMap)
+		err = exposuresMap.addConnToExposureMap(pe, allowedConnections, src, dst, false)
 	} else {
 		// src is the inferred from netpol peer, we have an exposed ingress to the dst peer
-		err = addConnToExposureMap(pe, allowedConnections, src, dst, true, exposuresMap)
+		err = exposuresMap.addConnToExposureMap(pe, allowedConnections, src, dst, true)
 	}
 	return nil, err
 }
@@ -613,16 +613,15 @@ func createConnectionObject(allowedConnections conn.Connection, src, dst Peer) *
 }
 
 // addConnToExposureMap adds a connection and its data to the exposure-analysis map
-func addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections conn.Connection, src, dst Peer, isIngress bool,
-	exposuresMap exposureMap) error {
+func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections conn.Connection, src, dst Peer, isIngress bool) error {
 	peer := src         // real peer
 	inferredPeer := dst // inferred from netpol rule
 	if isIngress {
 		peer = dst
 		inferredPeer = src
 	}
-	if _, ok := exposuresMap[peer]; !ok {
-		exposuresMap[peer] = &peerExposureData{
+	if _, ok := ex[peer]; !ok {
+		ex[peer] = &peerExposureData{
 			isIngressProtected: false,
 			isEgressProtected:  false,
 			ingressExposure:    make([]*xgressExposure, 0),
@@ -644,11 +643,11 @@ func addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections conn.Connect
 		potentialConn:          allowedConnections,
 	}
 	if isIngress {
-		exposuresMap[peer].isIngressProtected = true
-		exposuresMap[peer].ingressExposure = append(exposuresMap[peer].ingressExposure, expData)
+		ex[peer].isIngressProtected = true
+		ex[peer].ingressExposure = append(ex[peer].ingressExposure, expData)
 	} else { // egress
-		exposuresMap[peer].isEgressProtected = true
-		exposuresMap[peer].egressExposure = append(exposuresMap[peer].egressExposure, expData)
+		ex[peer].isEgressProtected = true
+		ex[peer].egressExposure = append(ex[peer].egressExposure, expData)
 	}
 	return nil
 }
