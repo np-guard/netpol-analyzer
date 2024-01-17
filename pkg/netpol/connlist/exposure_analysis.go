@@ -1,6 +1,7 @@
 package connlist
 
 import (
+	conn "github.com/np-guard/netpol-analyzer/pkg/netpol/connection"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -22,7 +23,7 @@ type xgressExposure struct {
 	exposedToEntireCluster bool
 	namespaceLabels        map[string]string
 	podLabels              map[string]string
-	potentialConn          common.AllowedConnectivity
+	potentialConn          conn.Connection
 }
 
 func (e *xgressExposure) IsExposedToEntireCluster() bool {
@@ -37,7 +38,7 @@ func (e *xgressExposure) PodLabels() map[string]string {
 	return e.podLabels
 }
 
-func (e *xgressExposure) PotentialConnectivity() common.AllowedConnectivity {
+func (e *xgressExposure) PotentialConnectivity() conn.Connection {
 	return e.potentialConn
 }
 
@@ -115,10 +116,10 @@ func buildExposedPeerListFromExposureMap(exposuresMap exposureMap) []ExposedPeer
 func loopAndRefineXgressData(xgressData []*xgressExposure) []*xgressExposure {
 	res := make([]*xgressExposure, 0)
 	// helping var
-	var entireClusterConn common.AllowedConnectivity
+	var entireClusterConn conn.Connection
 	for _, singleConn := range xgressData {
 		//  exposed to entire cluster on all conns - result will include this one general exposureConn
-		if singleConn.exposedToEntireCluster && singleConn.potentialConn.AllProtocolsAndPorts() {
+		if singleConn.exposedToEntireCluster && singleConn.potentialConn.AllConnections() {
 			res = nil // remove previous conns if exist
 			res = append(res, singleConn)
 			break
@@ -126,10 +127,10 @@ func loopAndRefineXgressData(xgressData []*xgressExposure) []*xgressExposure {
 		if singleConn.exposedToEntireCluster {
 			entireClusterConn = singleConn.potentialConn
 			// refine result - exclude data to/from specific ns with same conn value
-			res = refineConnsWithSameValueFromRes(res, entireClusterConn)
+			res = refineListConnsContainedInEntireConn(res, entireClusterConn)
 		}
 		// exposed to specific namespace with same connection exposed to any-namespace , skip
-		if !singleConn.exposedToEntireCluster && singleConn.potentialConn == entireClusterConn {
+		if !singleConn.exposedToEntireCluster && isConnContainedInEntireClusterConn(singleConn.potentialConn, entireClusterConn) {
 			continue
 		}
 		res = append(res, singleConn)
@@ -137,13 +138,22 @@ func loopAndRefineXgressData(xgressData []*xgressExposure) []*xgressExposure {
 	return res
 }
 
-// refineConnsWithSameValueFromRes returns the xgressExposure list without items having the provided conn value
-func refineConnsWithSameValueFromRes(expList []*xgressExposure, conn common.AllowedConnectivity) []*xgressExposure {
+// refineConnsWithSameValueFromRes returns the xgressExposure list without items having conns contained in the given conns value
+func refineListConnsContainedInEntireConn(expList []*xgressExposure, conns conn.Connection) []*xgressExposure {
 	res := make([]*xgressExposure, 0)
 	for _, singleConn := range expList {
-		if singleConn.potentialConn != conn {
+		if !isConnContainedInEntireClusterConn(singleConn.potentialConn, conns) {
 			res = append(res, singleConn)
 		}
 	}
 	return res
+}
+
+// isConnContainedInEntireClusterConn checks if the first connection contained in the second
+// using common.ConnectionSet functionality
+func isConnContainedInEntireClusterConn(singleConn, entireClusterConn conn.Connection) bool {
+	if entireClusterConn == nil {
+		return false
+	}
+	return singleConn.(*common.ConnectionSet).ContainedIn(entireClusterConn.(*common.ConnectionSet))
 }

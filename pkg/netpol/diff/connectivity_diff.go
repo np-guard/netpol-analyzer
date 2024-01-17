@@ -1,8 +1,8 @@
 package diff
 
 import (
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/connection"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // ConnectivityDiff captures the set of differences in terms of connectivity between two input k8s resource sets
@@ -31,9 +31,9 @@ type SrcDstDiff interface {
 	// Dst returns the destination peer
 	Dst() Peer
 	// Ref1Connectivity returns the AllowedConnectivity from src to dst in ref1
-	Ref1Connectivity() common.AllowedConnectivity
+	Ref1Connectivity() connection.Connection
 	// Ref2Connectivity returns the AllowedConnectivity from src to dst in ref2
-	Ref2Connectivity() common.AllowedConnectivity
+	Ref2Connectivity() connection.Connection
 	// IsSrcNewOrRemoved returns true if the src peer exists only in ref2 (if DiffType is Added) or if
 	// the src peer exists only in ref1 (if DiffType is Removed)
 	IsSrcNewOrRemoved() bool

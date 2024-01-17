@@ -19,6 +19,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/connection"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -373,6 +374,24 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 	return res, nil
 }
 
+// allowedConnectivity implements the Connection interface
+type allowedConnectivity struct {
+	allProtocolsAndPorts bool
+	protocolsAndPortsMap map[v1.Protocol][]common.PortRange
+}
+
+func (a *allowedConnectivity) AllConnections() bool {
+	return a.allProtocolsAndPorts
+}
+
+func (a *allowedConnectivity) ProtocolsAndPortsMap() map[v1.Protocol][]common.PortRange {
+	return a.protocolsAndPortsMap
+}
+
+func (a *allowedConnectivity) IsEmpty() bool {
+	return !a.allProtocolsAndPorts && len(a.protocolsAndPortsMap) == 0
+}
+
 // connsPair captures a pair of Peer2PeerConnection from two dir paths
 // the src,dst of firstConn and secondConn are assumed to be the same
 // with info on the diffType and if any of the peers is lost/new
@@ -400,29 +419,29 @@ func (c *connsPair) Dst() Peer {
 	return c.firstConn.Dst()
 }
 
-func (c *connsPair) Ref1Connectivity() common.AllowedConnectivity {
+func (c *connsPair) Ref1Connectivity() connection.Connection {
 	if c.diffType == AddedType {
-		return &common.AllowedConns{
-			AllConnections:       false,
-			ProtocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+		return &allowedConnectivity{
+			allProtocolsAndPorts: false,
+			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
 		}
 	}
-	return &common.AllowedConns{
-		AllConnections:       c.firstConn.AllProtocolsAndPorts(),
-		ProtocolsAndPortsMap: c.firstConn.ProtocolsAndPorts(),
+	return &allowedConnectivity{
+		allProtocolsAndPorts: c.firstConn.AllProtocolsAndPorts(),
+		protocolsAndPortsMap: c.firstConn.ProtocolsAndPorts(),
 	}
 }
 
-func (c *connsPair) Ref2Connectivity() common.AllowedConnectivity {
+func (c *connsPair) Ref2Connectivity() connection.Connection {
 	if c.diffType == RemovedType {
-		return &common.AllowedConns{
-			AllConnections:       false,
-			ProtocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+		return &allowedConnectivity{
+			allProtocolsAndPorts: false,
+			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
 		}
 	}
-	return &common.AllowedConns{
-		AllConnections:       c.secondConn.AllProtocolsAndPorts(),
-		ProtocolsAndPortsMap: c.secondConn.ProtocolsAndPorts(),
+	return &allowedConnectivity{
+		allProtocolsAndPorts: c.secondConn.AllProtocolsAndPorts(),
+		protocolsAndPortsMap: c.secondConn.ProtocolsAndPorts(),
 	}
 }
 

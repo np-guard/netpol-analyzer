@@ -23,6 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/connection"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -89,7 +90,7 @@ func (pe *PolicyEngine) changePodPeerToAnotherPodObject(peer *k8s.PodPeer) {
 
 // AllAllowedConnectionsBetweenWorkloadPeers returns the allowed connections from srcPeer to dstPeer,
 // expecting that srcPeer and dstPeer are in level of workloads (WorkloadPeer)
-func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer Peer) (common.Connection, error) {
+func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer Peer) (connection.Connection, error) {
 	if srcPeer.IsPeerIPType() && !dstPeer.IsPeerIPType() {
 		// assuming dstPeer is WorkloadPeer, should be converted to k8s.Peer
 		dstPodPeer, err := pe.convertWorkloadPeerToPodPeer(dstPeer)
