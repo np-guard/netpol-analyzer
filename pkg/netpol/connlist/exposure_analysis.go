@@ -8,7 +8,7 @@ import (
 // which are computed by the connlist analyzer
 type exposureMap map[Peer]*peerExposureData
 
-// helping struct - stores exposure data for a peer
+// peerExposureData stores exposure data for a peer
 type peerExposureData struct {
 	isIngressProtected bool
 	isEgressProtected  bool
