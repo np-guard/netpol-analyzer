@@ -543,12 +543,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 			ca.warnBlockedIngress(peerStr, peerAndConn.IngressObjects)
 			continue
 		}
-		p2pConnection := &connection{
-			src:               ingressControllerPod,
-			dst:               peerAndConn.Peer,
-			allConnections:    peerAndConn.ConnSet.AllConnections(),
-			protocolsAndPorts: peerAndConn.ConnSet.ProtocolsAndPortsMap(),
-		}
+		p2pConnection := createConnectionObject(peerAndConn.ConnSet, ingressControllerPod, peerAndConn.Peer)
 		res = append(res, p2pConnection)
 	}
 	return res, nil
@@ -607,7 +602,7 @@ func createConnectionObject(allowedConnections conn.AllowedSet, src, dst Peer) *
 	return &connection{
 		src:               src,
 		dst:               dst,
-		allConnections:    allowedConnections.AllConnections(),
+		allConnections:    allowedConnections.IsAllConnections(),
 		protocolsAndPorts: allowedConnections.ProtocolsAndPortsMap(),
 	}
 }

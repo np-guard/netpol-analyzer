@@ -119,7 +119,7 @@ func loopAndRefineXgressData(xgressData []*xgressExposure) []*xgressExposure {
 	var entireClusterConn *common.ConnectionSet
 	for _, singleConn := range xgressData {
 		//  exposed to entire cluster on all conns - result will include this one general exposureConn
-		if singleConn.exposedToEntireCluster && singleConn.potentialConn.AllConnections() {
+		if singleConn.exposedToEntireCluster && singleConn.potentialConn.IsAllConnections() {
 			return []*xgressExposure{singleConn}
 		}
 		if singleConn.exposedToEntireCluster {

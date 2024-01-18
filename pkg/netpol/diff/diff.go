@@ -380,7 +380,7 @@ type allowedConnectivity struct {
 	protocolsAndPortsMap map[v1.Protocol][]connection.PortRange
 }
 
-func (a *allowedConnectivity) AllConnections() bool {
+func (a *allowedConnectivity) IsAllConnections() bool {
 	return a.allProtocolsAndPorts
 }
 
