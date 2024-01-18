@@ -126,7 +126,7 @@ func loopAndRefineXgressData(xgressData []*xgressExposure) []*xgressExposure {
 		}
 		if singleConn.exposedToEntireCluster {
 			entireClusterConn = singleConn.potentialConn
-			// refine result - exclude data to/from specific ns with same conn value
+			// refine result - exclude data to/from specific ns with connection contained in this connection
 			res = refineListConnsContainedInEntireConn(res, entireClusterConn)
 		}
 		// exposed to specific namespace with same connection exposed to any-namespace , skip
