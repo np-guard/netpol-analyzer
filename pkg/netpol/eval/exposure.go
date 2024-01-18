@@ -14,10 +14,12 @@
 package eval
 
 import (
+	"errors"
 	"fmt"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -27,7 +29,7 @@ import (
 // addPotentiallyExposedPods adds pods which are potentially exposed to connect with (from/to) existing pods in the resources
 func (pe *PolicyEngine) addPotentiallyExposedPods() error {
 	// first adds a pod that represent connections with any namespace
-	_, err := pe.AddPodByNameAndNamespace(common.PodInExposedNs, common.AllNamespaces, nil)
+	_, err := pe.AddPodByNameAndNamespace(common.PodInRepNs, common.AllNamespaces, nil)
 	if err != nil {
 		return err
 	}
@@ -64,7 +66,7 @@ func (pe *PolicyEngine) addPodsForUnmatchedNamespaceSelectors(nsSelectors []*met
 		}
 		foundNs := pe.checkNamespaceSelectorsMatch(selectorMap)
 		if !foundNs {
-			_, err = pe.AddPodByNameAndNamespace(common.PodInExposedNs, common.NsNamePrefix+policyName+fmt.Sprint(i), selectorMap)
+			_, err = pe.AddPodByNameAndNamespace(common.PodInRepNs, common.NsNamePrefix+policyName+fmt.Sprint(i), selectorMap)
 			if err != nil {
 				return err
 			}
@@ -88,4 +90,25 @@ func (pe *PolicyEngine) checkNamespaceSelectorsMatch(reqSelector map[string]stri
 		}
 	}
 	return false
+}
+
+// /////////////////////////////////
+
+// IsPeerProtected returns if the peer is protected by network policies on the given ingress/egress direction
+// relevant only for workloadPeer
+func (pe *PolicyEngine) IsPeerProtected(p Peer, isIngress bool) (bool, error) {
+	peer, ok := p.(*k8s.WorkloadPeer)
+	if !ok { // should not get here
+		return false, errors.New(netpolerrors.NotPeerErrStr(p.String()))
+	}
+	if isIngress {
+		return peer.Pod.IngressProtected, nil
+	}
+	return peer.Pod.EgressProtected, nil
+}
+
+// TODO these functions will be changed in a later PR (when implementing RepresentativePeer)
+func (pe *PolicyEngine) GetPeerNsLabels(p Peer) map[string]string {
+	peer := p.(*k8s.WorkloadPeer)
+	return peer.Pod.ExposureNsLabels
 }

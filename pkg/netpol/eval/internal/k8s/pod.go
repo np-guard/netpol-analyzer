@@ -42,8 +42,10 @@ type Pod struct {
 	HostIP    string
 	Owner     Owner
 
-	// vars to contain exposure-analysis data (should keep here or add to workloadPeer?)
-	ExposureNsLabels string
+	IngressProtected bool // indicates if the pod is selected by any ingress netpol
+	EgressProtected  bool // indicates if the pod is selected by any egress netpol
+	// TODO in next PR: define new RepresentativePeer and move following fields to be part of it
+	ExposureNsLabels map[string]string
 }
 
 // Owner encapsulates pod owner workload info
@@ -72,7 +74,9 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		HostIP:           p.Status.HostIP,
 		Owner:            Owner{},
 		FakePod:          false,
-		ExposureNsLabels: "",
+		IngressProtected: false,
+		EgressProtected:  false,
+		ExposureNsLabels: map[string]string{},
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -195,6 +199,8 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.HostIP = getFakePodIP()
 		pod.Owner = Owner{Name: workloadName, Kind: kind, APIVersion: APIVersion}
 		pod.FakePod = false
+		pod.EgressProtected = false
+		pod.IngressProtected = false
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
 		}

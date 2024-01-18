@@ -69,12 +69,12 @@ func getDirsConnsStrings(c SrcDstDiff) (ref1Str, ref2Str string) {
 	ref2AllowedConns := c.Ref2Connectivity()
 	switch c.DiffType() {
 	case ChangedType, UnchangedType:
-		return common.ConnStrFromConnProperties(ref1AllowedConns.AllProtocolsAndPorts(), ref1AllowedConns.ProtocolsAndPorts()),
-			common.ConnStrFromConnProperties(ref2AllowedConns.AllProtocolsAndPorts(), ref2AllowedConns.ProtocolsAndPorts())
+		return common.ConnStrFromConnProperties(ref1AllowedConns.IsAllConnections(), ref1AllowedConns.ProtocolsAndPortsMap()),
+			common.ConnStrFromConnProperties(ref2AllowedConns.IsAllConnections(), ref2AllowedConns.ProtocolsAndPortsMap())
 	case AddedType:
-		return noConns, common.ConnStrFromConnProperties(ref2AllowedConns.AllProtocolsAndPorts(), ref2AllowedConns.ProtocolsAndPorts())
+		return noConns, common.ConnStrFromConnProperties(ref2AllowedConns.IsAllConnections(), ref2AllowedConns.ProtocolsAndPortsMap())
 	case RemovedType:
-		return common.ConnStrFromConnProperties(ref1AllowedConns.AllProtocolsAndPorts(), ref1AllowedConns.ProtocolsAndPorts()), noConns
+		return common.ConnStrFromConnProperties(ref1AllowedConns.IsAllConnections(), ref1AllowedConns.ProtocolsAndPortsMap()), noConns
 	default:
 		return "", "" // should not get here ever
 	}

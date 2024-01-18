@@ -19,6 +19,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/connection"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -373,18 +374,22 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 	return res, nil
 }
 
-// allowedConnectivity implements the AllowedConnectivity interface
+// allowedConnectivity implements the AllowedSet interface
 type allowedConnectivity struct {
 	allProtocolsAndPorts bool
-	protocolsAndPortsMap map[v1.Protocol][]common.PortRange
+	protocolsAndPortsMap map[v1.Protocol][]connection.PortRange
 }
 
-func (a *allowedConnectivity) AllProtocolsAndPorts() bool {
+func (a *allowedConnectivity) IsAllConnections() bool {
 	return a.allProtocolsAndPorts
 }
 
-func (a *allowedConnectivity) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
+func (a *allowedConnectivity) ProtocolsAndPortsMap() map[v1.Protocol][]connection.PortRange {
 	return a.protocolsAndPortsMap
+}
+
+func (a *allowedConnectivity) IsEmpty() bool {
+	return !a.allProtocolsAndPorts && len(a.protocolsAndPortsMap) == 0
 }
 
 // connsPair captures a pair of Peer2PeerConnection from two dir paths
@@ -414,11 +419,11 @@ func (c *connsPair) Dst() Peer {
 	return c.firstConn.Dst()
 }
 
-func (c *connsPair) Ref1Connectivity() common.AllowedConnectivity {
+func (c *connsPair) Ref1Connectivity() connection.AllowedSet {
 	if c.diffType == AddedType {
 		return &allowedConnectivity{
 			allProtocolsAndPorts: false,
-			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+			protocolsAndPortsMap: map[v1.Protocol][]connection.PortRange{},
 		}
 	}
 	return &allowedConnectivity{
@@ -427,11 +432,11 @@ func (c *connsPair) Ref1Connectivity() common.AllowedConnectivity {
 	}
 }
 
-func (c *connsPair) Ref2Connectivity() common.AllowedConnectivity {
+func (c *connsPair) Ref2Connectivity() connection.AllowedSet {
 	if c.diffType == RemovedType {
 		return &allowedConnectivity{
 			allProtocolsAndPorts: false,
-			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+			protocolsAndPortsMap: map[v1.Protocol][]connection.PortRange{},
 		}
 	}
 	return &allowedConnectivity{

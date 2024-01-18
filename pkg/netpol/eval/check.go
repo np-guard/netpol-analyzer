@@ -23,6 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/connection"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -89,7 +90,7 @@ func (pe *PolicyEngine) changePodPeerToAnotherPodObject(peer *k8s.PodPeer) {
 
 // AllAllowedConnectionsBetweenWorkloadPeers returns the allowed connections from srcPeer to dstPeer,
 // expecting that srcPeer and dstPeer are in level of workloads (WorkloadPeer)
-func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer Peer) (common.Connection, error) {
+func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer Peer) (connection.AllowedSet, error) {
 	if srcPeer.IsPeerIPType() && !dstPeer.IsPeerIPType() {
 		// assuming dstPeer is WorkloadPeer, should be converted to k8s.Peer
 		dstPodPeer, err := pe.convertWorkloadPeerToPodPeer(dstPeer)
@@ -175,6 +176,9 @@ func (pe *PolicyEngine) getPoliciesSelectingPod(p *k8s.Pod, direction netv1.Poli
 		if selects {
 			res = append(res, policy)
 		}
+	}
+	if len(res) > 0 {
+		updatePodXgressProtectedFlag(p, direction)
 	}
 	return res, nil
 }
@@ -363,5 +367,15 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 		return currPeer.Pod.PodExposedTCPConnections()
 	default:
 		return nil
+	}
+}
+
+// updatePodXgressProtectedFlag updates to true the relevant ingress/egress protected flag of the pod
+func updatePodXgressProtectedFlag(p *k8s.Pod, direction netv1.PolicyType) {
+	switch direction {
+	case netv1.PolicyTypeIngress:
+		p.IngressProtected = true
+	case netv1.PolicyTypeEgress:
+		p.EgressProtected = true
 	}
 }

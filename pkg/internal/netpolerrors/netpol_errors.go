@@ -27,7 +27,8 @@ const (
 	NoAllowedConnsWarning  = "Connectivity analysis found no allowed connectivity between pairs from the configured workloads or" +
 		" external IP-blocks"
 
-	ErrGettingResInfoFromDir = "Error getting resourceInfos from dir path"
+	ErrGettingResInfoFromDir     = "Error getting resourceInfos from dir path"
+	ConversionToConnectionSetErr = "failed conversion from AllowedSet to ConnectionSet"
 
 	// eval errors
 	NoSourceDefinedErr     = "no source defined, source pod and namespace or external IP required"
