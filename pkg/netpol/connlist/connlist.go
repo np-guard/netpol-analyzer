@@ -25,7 +25,6 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
-	conn "github.com/np-guard/netpol-analyzer/pkg/netpol/connection"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist/internal/ingressanalyzer"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -318,7 +317,7 @@ type connection struct {
 	src               Peer
 	dst               Peer
 	allConnections    bool
-	protocolsAndPorts map[v1.Protocol][]conn.PortRange
+	protocolsAndPorts map[v1.Protocol][]common.PortRange
 }
 
 func (c *connection) Src() Peer {
@@ -330,7 +329,7 @@ func (c *connection) Dst() Peer {
 func (c *connection) AllProtocolsAndPorts() bool {
 	return c.allConnections
 }
-func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]conn.PortRange {
+func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 	return c.protocolsAndPorts
 }
 
@@ -572,7 +571,7 @@ func (ca *ConnlistAnalyzer) logWarning(msg string) {
 
 // checkIfP2PConnOrExposureConn checks if the given connection is between two peers from the parsed resources, if yes returns it,
 // otherwise the connection belongs to exposure-analysis, will be added to the provided map
-func (ca *ConnlistAnalyzer) checkIfP2PConnOrExposureConn(pe *eval.PolicyEngine, allowedConnections conn.AllowedSet,
+func (ca *ConnlistAnalyzer) checkIfP2PConnOrExposureConn(pe *eval.PolicyEngine, allowedConnections common.Connection,
 	src, dst Peer, exposuresMap exposureMap) (*connection, error) {
 	if !ca.exposureAnalysis {
 		// if exposure analysis option is off , the connection is definitely a P2PConnection
@@ -598,17 +597,18 @@ func (ca *ConnlistAnalyzer) checkIfP2PConnOrExposureConn(pe *eval.PolicyEngine, 
 }
 
 // helper function - returns a connection object from the given fields
-func createConnectionObject(allowedConnections conn.AllowedSet, src, dst Peer) *connection {
+func createConnectionObject(allowedConnections common.Connection, src, dst Peer) *connection {
 	return &connection{
 		src:               src,
 		dst:               dst,
-		allConnections:    allowedConnections.IsAllConnections(),
+		allConnections:    allowedConnections.AllConnections(),
 		protocolsAndPorts: allowedConnections.ProtocolsAndPortsMap(),
 	}
 }
 
 // addConnToExposureMap adds a connection and its data to the exposure-analysis map
-func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections conn.AllowedSet, src, dst Peer, isIngress bool) error {
+func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections common.Connection, src, dst Peer,
+	isIngress bool) error {
 	peer := src         // real peer
 	inferredPeer := dst // inferred from netpol rule
 	if isIngress {

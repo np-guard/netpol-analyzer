@@ -5,8 +5,8 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 
-	conn "github.com/np-guard/netpol-analyzer/pkg/netpol/connection"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // Peer2PeerConnection encapsulates the allowed connectivity result between two peers.
@@ -18,7 +18,7 @@ type Peer2PeerConnection interface {
 	// AllProtocolsAndPorts returns true if all ports are allowed for all protocols
 	AllProtocolsAndPorts() bool
 	// ProtocolsAndPorts returns the set of allowed connections
-	ProtocolsAndPorts() map[v1.Protocol][]conn.PortRange
+	ProtocolsAndPorts() map[v1.Protocol][]common.PortRange
 }
 
 type Peer eval.Peer
@@ -71,7 +71,7 @@ func refineP2PConnByDisjointPeers(p eval.Peer, isSrc bool, conns Peer2PeerConnec
 }
 
 // NewPeer2PeerConnection returns a Peer2PeerConnection object with given src,dst,allConns and conns map
-func NewPeer2PeerConnection(src, dst eval.Peer, allConns bool, conns map[v1.Protocol][]conn.PortRange) Peer2PeerConnection {
+func NewPeer2PeerConnection(src, dst eval.Peer, allConns bool, conns map[v1.Protocol][]common.PortRange) Peer2PeerConnection {
 	return &connection{src: src,
 		dst:               dst,
 		allConnections:    allConns,

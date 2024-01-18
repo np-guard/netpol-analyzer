@@ -87,7 +87,7 @@ func checkConnsEquality(t *testing.T, testName string, ingressConns map[string]*
 		"[" + expectedIngressToPeer.peerType + "]"
 	require.Contains(t, ingressConns, peerStr, "test: %q, expected to get ingress connections to peer %q but did not.", testName, peerStr)
 	ingressConnsToPeer := ingressConns[peerStr]
-	require.Equal(t, ingressConnsToPeer.ConnSet.IsAllConnections(), expectedIngressToPeer.allConnections,
+	require.Equal(t, ingressConnsToPeer.ConnSet.AllConnections(), expectedIngressToPeer.allConnections,
 		"test: %q, mismatch in ingress connections to %q", testName, peerStr)
 	// if all connections is false; check if actual conns are as expected
 	if !expectedIngressToPeer.allConnections {
