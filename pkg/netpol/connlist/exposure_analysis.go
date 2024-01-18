@@ -23,7 +23,7 @@ type xgressExposure struct {
 	exposedToEntireCluster bool
 	namespaceLabels        map[string]string
 	podLabels              map[string]string
-	potentialConn          conn.Connection
+	potentialConn          conn.AllowedSet
 }
 
 func (e *xgressExposure) IsExposedToEntireCluster() bool {
@@ -38,7 +38,7 @@ func (e *xgressExposure) PodLabels() map[string]string {
 	return e.podLabels
 }
 
-func (e *xgressExposure) PotentialConnectivity() conn.Connection {
+func (e *xgressExposure) PotentialConnectivity() conn.AllowedSet {
 	return e.potentialConn
 }
 
@@ -116,7 +116,7 @@ func buildExposedPeerListFromExposureMap(exposuresMap exposureMap) []ExposedPeer
 func loopAndRefineXgressData(xgressData []*xgressExposure) []*xgressExposure {
 	res := make([]*xgressExposure, 0)
 	// helping var
-	var entireClusterConn conn.Connection
+	var entireClusterConn conn.AllowedSet
 	for _, singleConn := range xgressData {
 		//  exposed to entire cluster on all conns - result will include this one general exposureConn
 		if singleConn.exposedToEntireCluster && singleConn.potentialConn.AllConnections() {
@@ -139,7 +139,7 @@ func loopAndRefineXgressData(xgressData []*xgressExposure) []*xgressExposure {
 }
 
 // refineConnsWithSameValueFromRes returns the xgressExposure list without items having conns contained in the given conns value
-func refineListConnsContainedInEntireConn(expList []*xgressExposure, conns conn.Connection) []*xgressExposure {
+func refineListConnsContainedInEntireConn(expList []*xgressExposure, conns conn.AllowedSet) []*xgressExposure {
 	res := make([]*xgressExposure, 0)
 	for _, singleConn := range expList {
 		if !isConnContainedInEntireClusterConn(singleConn.potentialConn, conns) {
@@ -151,7 +151,7 @@ func refineListConnsContainedInEntireConn(expList []*xgressExposure, conns conn.
 
 // isConnContainedInEntireClusterConn checks if the first connection contained in the second
 // using common.ConnectionSet functionality
-func isConnContainedInEntireClusterConn(singleConn, entireClusterConn conn.Connection) bool {
+func isConnContainedInEntireClusterConn(singleConn, entireClusterConn conn.AllowedSet) bool {
 	if entireClusterConn == nil {
 		return false
 	}

@@ -34,5 +34,5 @@ type XgressExposureData interface {
 	// PodLabels are matchLabels of potential pods which the peer might be exposed to
 	PodLabels() map[string]string
 	// PotentialConnectivity the potential connectivity of the exposure
-	PotentialConnectivity() conn.Connection
+	PotentialConnectivity() conn.AllowedSet
 }

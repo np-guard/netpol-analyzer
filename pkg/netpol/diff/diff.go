@@ -374,17 +374,17 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 	return res, nil
 }
 
-// allowedConnectivity implements the Connection interface
+// allowedConnectivity implements the AllowedSet interface
 type allowedConnectivity struct {
 	allProtocolsAndPorts bool
-	protocolsAndPortsMap map[v1.Protocol][]common.PortRange
+	protocolsAndPortsMap map[v1.Protocol][]connection.PortRange
 }
 
 func (a *allowedConnectivity) AllConnections() bool {
 	return a.allProtocolsAndPorts
 }
 
-func (a *allowedConnectivity) ProtocolsAndPortsMap() map[v1.Protocol][]common.PortRange {
+func (a *allowedConnectivity) ProtocolsAndPortsMap() map[v1.Protocol][]connection.PortRange {
 	return a.protocolsAndPortsMap
 }
 
@@ -419,11 +419,11 @@ func (c *connsPair) Dst() Peer {
 	return c.firstConn.Dst()
 }
 
-func (c *connsPair) Ref1Connectivity() connection.Connection {
+func (c *connsPair) Ref1Connectivity() connection.AllowedSet {
 	if c.diffType == AddedType {
 		return &allowedConnectivity{
 			allProtocolsAndPorts: false,
-			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+			protocolsAndPortsMap: map[v1.Protocol][]connection.PortRange{},
 		}
 	}
 	return &allowedConnectivity{
@@ -432,11 +432,11 @@ func (c *connsPair) Ref1Connectivity() connection.Connection {
 	}
 }
 
-func (c *connsPair) Ref2Connectivity() connection.Connection {
+func (c *connsPair) Ref2Connectivity() connection.AllowedSet {
 	if c.diffType == RemovedType {
 		return &allowedConnectivity{
 			allProtocolsAndPorts: false,
-			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+			protocolsAndPortsMap: map[v1.Protocol][]connection.PortRange{},
 		}
 	}
 	return &allowedConnectivity{

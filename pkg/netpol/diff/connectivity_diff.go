@@ -31,9 +31,9 @@ type SrcDstDiff interface {
 	// Dst returns the destination peer
 	Dst() Peer
 	// Ref1Connectivity returns the AllowedConnectivity from src to dst in ref1
-	Ref1Connectivity() connection.Connection
+	Ref1Connectivity() connection.AllowedSet
 	// Ref2Connectivity returns the AllowedConnectivity from src to dst in ref2
-	Ref2Connectivity() connection.Connection
+	Ref2Connectivity() connection.AllowedSet
 	// IsSrcNewOrRemoved returns true if the src peer exists only in ref2 (if DiffType is Added) or if
 	// the src peer exists only in ref1 (if DiffType is Removed)
 	IsSrcNewOrRemoved() bool
