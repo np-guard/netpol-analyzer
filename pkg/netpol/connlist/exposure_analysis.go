@@ -45,8 +45,8 @@ func (e *xgressExposure) PotentialConnectivity() conn.AllowedSet {
 // ----------------------------------------------------
 // exposedPeer implements the ExposedPeer interface
 type exposedPeer struct {
-	peer     Peer
-	pExpData *peerExposureData
+	peer Peer
+	*peerExposureData
 }
 
 func (ep *exposedPeer) ExposedPeer() Peer {
@@ -62,19 +62,19 @@ func xgressExposureListToXgressExposureDataList(xgressExp []*xgressExposure) []X
 }
 
 func (ep *exposedPeer) IsProtectedByIngressNetpols() bool {
-	return ep.pExpData.isIngressProtected
+	return ep.isIngressProtected
 }
 
 func (ep *exposedPeer) IngressExposure() []XgressExposureData {
-	return xgressExposureListToXgressExposureDataList(ep.pExpData.ingressExposure)
+	return xgressExposureListToXgressExposureDataList(ep.ingressExposure)
 }
 
 func (ep *exposedPeer) IsProtectedByEgressNetpols() bool {
-	return ep.pExpData.isEgressProtected
+	return ep.isEgressProtected
 }
 
 func (ep *exposedPeer) EgressExposure() []XgressExposureData {
-	return xgressExposureListToXgressExposureDataList(ep.pExpData.egressExposure)
+	return xgressExposureListToXgressExposureDataList(ep.egressExposure)
 }
 
 // ----------------------------------------------------
@@ -101,7 +101,7 @@ func buildExposedPeerListFromExposureMap(exposuresMap exposureMap) []ExposedPeer
 		// final peer's exposure data
 		expInfo := &exposedPeer{
 			peer: p,
-			pExpData: &peerExposureData{
+			peerExposureData: &peerExposureData{
 				isIngressProtected: expData.isIngressProtected,
 				isEgressProtected:  expData.isEgressProtected,
 				ingressExposure:    ingExp,
