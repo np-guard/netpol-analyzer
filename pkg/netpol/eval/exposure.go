@@ -26,8 +26,8 @@ import (
 
 // this file contains eval.PolicyEngine funcs which are related to exposure-analysis feature
 
-// addPotentiallyExposedPods adds pods which are potentially exposed to connect with (from/to) existing pods in the resources
-func (pe *PolicyEngine) addPotentiallyExposedPods() error {
+// addInferredFromPoliciesPods adds representative pods which are exposed to connect with (from/to) existing pods in the resources
+func (pe *PolicyEngine) addInferredFromPoliciesPods() error {
 	// first adds a pod that represent connections with any namespace
 	_, err := pe.AddPodByNameAndNamespace(common.PodInRepNs, common.AllNamespaces, nil)
 	if err != nil {

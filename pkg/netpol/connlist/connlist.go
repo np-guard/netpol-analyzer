@@ -191,10 +191,16 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 
 func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
 	// TODO: do we need logger in policyEngine?
-	pe, err := eval.NewPolicyEngineWithObjects(objectsList, ca.exposureAnalysis)
+	pe, err := eval.NewPolicyEngineWithObjects(objectsList)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
+	}
+	if ca.exposureAnalysis {
+		err = pe.SetExposureAnalysisResources()
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 	ia, err := ingressanalyzer.NewIngressAnalyzerWithObjects(objectsList, pe, ca.logger, ca.muteErrsAndWarns)
 	if err != nil {
@@ -205,8 +211,15 @@ func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8
 }
 
 // ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources, and list of all peers names
+// if exposure analysis option is on , performs exposure analysis computations
 func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []Peer, error) {
-	pe := eval.NewPolicyEngine(ca.exposureAnalysis)
+	pe := eval.NewPolicyEngine()
+	if ca.exposureAnalysis {
+		err := pe.SetExposureAnalysisResources()
+		if err != nil {
+			return nil, nil, err
+		}
+	}
 
 	// get all resources from k8s cluster
 
