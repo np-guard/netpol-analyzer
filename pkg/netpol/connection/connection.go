@@ -4,7 +4,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-// Connection represents a set of allowed connections between two peers
+// AllowedSet represents a set of allowed connections between two peers
 type AllowedSet interface {
 	// ProtocolsAndPortsMap returns the set of allowed connections
 	ProtocolsAndPortsMap() map[v1.Protocol][]PortRange
