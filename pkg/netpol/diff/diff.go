@@ -145,7 +145,7 @@ func (da *DiffAnalyzer) getConnlistAnalysis(
 	error) {
 	// get a new ConnlistAnalyzer with muted errs/warns
 	connlistaAnalyzer := connlist.NewConnlistAnalyzer(da.determineConnlistAnalyzerOptions()...)
-	conns, workloads, _, err := connlistaAnalyzer.ConnlistFromResourceInfos(infos)
+	conns, workloads, err := connlistaAnalyzer.ConnlistFromResourceInfos(infos)
 
 	// append all fatal/severe errors and warnings returned by connlistaAnalyzer
 	errPrefix := da.errPrefixSpecifyRefName(isRef1)

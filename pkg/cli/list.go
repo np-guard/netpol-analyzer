@@ -45,9 +45,9 @@ func runListCommand() error {
 	analyzer := connlist.NewConnlistAnalyzer(getConnlistOptions(clogger)...)
 
 	if dirPath != "" {
-		conns, _, _, err = analyzer.ConnlistFromDirPath(dirPath)
+		conns, _, err = analyzer.ConnlistFromDirPath(dirPath)
 	} else {
-		conns, _, _, err = analyzer.ConnlistFromK8sCluster(clientset)
+		conns, _, err = analyzer.ConnlistFromK8sCluster(clientset)
 	}
 	if err != nil {
 		return err

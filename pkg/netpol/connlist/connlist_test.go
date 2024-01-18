@@ -77,7 +77,7 @@ func TestConnListFromDir(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
 				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format)
-				res, _, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
+				res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
@@ -100,7 +100,7 @@ func TestConnListFromResourceInfos(t *testing.T) {
 				// require.Empty(t, errs, testInfo) - TODO: add info about expected errors
 				// from each test here (these errors do not stop the analysis or affect the output)
 				// more suitable to test this in a separate package (manifests) where  GetResourceInfosFromDirPath is implemented
-				res, _, _, err := pTest.analyzer.ConnlistFromResourceInfos(infos)
+				res, _, err := pTest.analyzer.ConnlistFromResourceInfos(infos)
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
 				require.Nil(t, err, pTest.testInfo)
@@ -193,9 +193,9 @@ func getAnalysisResFromAPI(apiName, dirName, focusWorkload string) (
 	switch apiName {
 	case ResourceInfosFunc:
 		infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
-		connsRes, peersRes, _, err = pTest.analyzer.ConnlistFromResourceInfos(infos)
+		connsRes, peersRes, err = pTest.analyzer.ConnlistFromResourceInfos(infos)
 	case DirPathFunc:
-		connsRes, peersRes, _, err = pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
+		connsRes, peersRes, err = pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 	}
 	return pTest.analyzer, connsRes, peersRes, err
 }
@@ -447,7 +447,7 @@ func TestNotContainedOutputLines(t *testing.T) {
 // helping func - creates ConnlistAnalyzer with desired opts and returns the analyzer with connlist from provided directory
 func getConnlistFromDirPathRes(opts []ConnlistAnalyzerOption, dirName string) (*ConnlistAnalyzer, []Peer2PeerConnection, error) {
 	analyzer := NewConnlistAnalyzer(opts...)
-	res, _, _, err := analyzer.ConnlistFromDirPath(testutils.GetTestDirPath(dirName))
+	res, _, err := analyzer.ConnlistFromDirPath(testutils.GetTestDirPath(dirName))
 	return analyzer, res, err
 }
 
@@ -501,7 +501,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			preparedTest := prepareTest(tt.dirName, "", tt.format)
-			connsRes, peersRes, _, err := preparedTest.analyzer.ConnlistFromDirPath(preparedTest.dirPath)
+			connsRes, peersRes, err := preparedTest.analyzer.ConnlistFromDirPath(preparedTest.dirPath)
 
 			require.Nil(t, err, tt.name)
 			// "unable to decode ... connlist_output.json"
@@ -516,7 +516,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			// re-run the test with new analyzer (to clear the analyzer.errors array )
 			preparedTest = prepareTest(tt.dirName, "", tt.format)
 			infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{preparedTest.dirPath}, true, false)
-			connsRes2, peersRes2, _, err2 := preparedTest.analyzer.ConnlistFromResourceInfos(infos)
+			connsRes2, peersRes2, err2 := preparedTest.analyzer.ConnlistFromResourceInfos(infos)
 
 			require.Nil(t, err2, tt.name)
 			require.Empty(t, preparedTest.analyzer.errors, "expecting no errors from ConnlistFromResourceInfos")
