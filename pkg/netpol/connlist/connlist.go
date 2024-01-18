@@ -630,12 +630,17 @@ func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnect
 	if !protected {
 		return nil // if the peer is not protected, we don't need to store any connection data
 	}
+
+	allowedConnSet, ok := allowedConnections.(*common.ConnectionSet)
+	if !ok { // should not get here
+		return errors.New(netpolerrors.ConversionToConnectionSetErr)
+	}
 	// protected peer - store the data
 	expData := &xgressExposure{
 		exposedToEntireCluster: inferredPeer.Namespace() == common.AllNamespaces,
 		namespaceLabels:        pe.GetPeerNsLabels(inferredPeer),
 		podLabels:              map[string]string{}, // will be empty since in this branch rules with namespaceSelectors only supported
-		potentialConn:          allowedConnections.(*common.ConnectionSet),
+		potentialConn:          allowedConnSet,
 	}
 	if isIngress {
 		ex[peer].isIngressProtected = true
