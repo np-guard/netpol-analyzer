@@ -640,7 +640,7 @@ func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnect
 		exposedToEntireCluster: inferredPeer.Namespace() == common.AllNamespaces,
 		namespaceLabels:        pe.GetPeerNsLabels(inferredPeer),
 		podLabels:              map[string]string{}, // will be empty since in this branch rules with namespaceSelectors only supported
-		potentialConn:          allowedConnections,
+		potentialConn:          allowedConnections.(*common.ConnectionSet),
 	}
 	if isIngress {
 		ex[peer].isIngressProtected = true

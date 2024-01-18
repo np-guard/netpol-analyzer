@@ -23,7 +23,7 @@ type xgressExposure struct {
 	exposedToEntireCluster bool
 	namespaceLabels        map[string]string
 	podLabels              map[string]string
-	potentialConn          conn.AllowedSet
+	potentialConn          *common.ConnectionSet
 }
 
 func (e *xgressExposure) IsExposedToEntireCluster() bool {
@@ -116,7 +116,7 @@ func buildExposedPeerListFromExposureMap(exposuresMap exposureMap) []ExposedPeer
 func loopAndRefineXgressData(xgressData []*xgressExposure) []*xgressExposure {
 	res := make([]*xgressExposure, 0)
 	// helping var
-	var entireClusterConn conn.AllowedSet
+	var entireClusterConn *common.ConnectionSet
 	for _, singleConn := range xgressData {
 		//  exposed to entire cluster on all conns - result will include this one general exposureConn
 		if singleConn.exposedToEntireCluster && singleConn.potentialConn.AllConnections() {
@@ -126,34 +126,32 @@ func loopAndRefineXgressData(xgressData []*xgressExposure) []*xgressExposure {
 		}
 		if singleConn.exposedToEntireCluster {
 			entireClusterConn = singleConn.potentialConn
-			// refine result - exclude data to/from specific ns with connection contained in this connection
-			res = refineListConnsContainedInEntireConn(res, entireClusterConn)
 		}
-		// exposed to specific namespace with same connection exposed to any-namespace , skip
-		if !singleConn.exposedToEntireCluster && isConnContainedInEntireClusterConn(singleConn.potentialConn, entireClusterConn) {
+		// exposed to specific namespace with connection contained in the connection exposed to any-namespace , skip
+		if !singleConn.exposedToEntireCluster && entireClusterConn != nil &&
+			singleConn.potentialConn.ContainedIn(entireClusterConn) {
 			continue
 		}
 		res = append(res, singleConn)
 	}
+	if entireClusterConn != nil {
+		// refine result - exclude data to/from specific ns with connection contained in the connection exposed to entire cluster
+		// if exists, such data was stored before storing entire cluster connection
+		res = refineListConnsContainedInEntireConn(res, entireClusterConn)
+	}
 	return res
 }
 
-// refineConnsWithSameValueFromRes returns the xgressExposure list without items having conns contained in the given conns value
-func refineListConnsContainedInEntireConn(expList []*xgressExposure, conns conn.AllowedSet) []*xgressExposure {
+// refineConnsWithSameValueFromRes returns the xgressExposure list without specified namespaces items
+// having conns contained in the given conns value
+// keeps the general connection to entire cluster and other connections which are not contained in it
+func refineListConnsContainedInEntireConn(expList []*xgressExposure, conns *common.ConnectionSet) []*xgressExposure {
 	res := make([]*xgressExposure, 0)
 	for _, singleConn := range expList {
-		if !isConnContainedInEntireClusterConn(singleConn.potentialConn, conns) {
+		if singleConn.exposedToEntireCluster ||
+			!singleConn.potentialConn.ContainedIn(conns) {
 			res = append(res, singleConn)
 		}
 	}
 	return res
-}
-
-// isConnContainedInEntireClusterConn checks if the first connection contained in the second
-// using common.ConnectionSet functionality
-func isConnContainedInEntireClusterConn(singleConn, entireClusterConn conn.AllowedSet) bool {
-	if entireClusterConn == nil {
-		return false
-	}
-	return singleConn.(*common.ConnectionSet).ContainedIn(entireClusterConn.(*common.ConnectionSet))
 }
