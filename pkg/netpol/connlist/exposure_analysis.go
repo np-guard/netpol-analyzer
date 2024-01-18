@@ -123,7 +123,10 @@ func loopAndRefineXgressData(xgressData []*xgressExposure) []*xgressExposure {
 			return []*xgressExposure{singleConn}
 		}
 		if singleConn.exposedToEntireCluster {
-			entireClusterConn = singleConn.potentialConn
+			// storing the maximum entire cluster connection
+			if entireClusterConn == nil || entireClusterConn.ContainedIn(singleConn.potentialConn) {
+				entireClusterConn = singleConn.potentialConn
+			}
 		}
 		// exposed to specific namespace with connection contained in the connection exposed to any-namespace , skip
 		if !singleConn.exposedToEntireCluster && entireClusterConn != nil &&
