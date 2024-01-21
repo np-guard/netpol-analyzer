@@ -1,5 +1,7 @@
 package connlist
 
+import "github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
+
 // ExposedPeer captures potential ingress and egress connections data for an exposed Peer
 type ExposedPeer interface {
 	// ExposedPeer is a peer for which the analysis found some potential exposure info
@@ -30,5 +32,5 @@ type XgressExposureData interface {
 	// PodLabels are matchLabels of potential pods which the peer might be exposed to
 	PodLabels() map[string]string
 	// PotentialConnectivity the potential connectivity of the exposure
-	PotentialConnectivity() AllowedSet
+	PotentialConnectivity() common.Connection
 }
