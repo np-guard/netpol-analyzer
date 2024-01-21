@@ -212,7 +212,6 @@ func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8
 }
 
 // ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources, and list of all peers names
-// if exposure analysis option is on , performs exposure analysis computations
 func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []Peer, error) {
 	pe := eval.NewPolicyEngine()
 	if ca.exposureAnalysis {
