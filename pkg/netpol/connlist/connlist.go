@@ -165,7 +165,8 @@ func (ca *ConnlistAnalyzer) Errors() []ConnlistError {
 	return ca.errors
 }
 
-// ExposureAnalysis returns a slice of ExposedPeer with all exposed pods and their exposure data
+// ExposureAnalysis returns a slice of ExposedPeer objects,  capturing for input workloads if/how they  may
+// be exposed to potential cluster entities, based on the input network policies
 func (ca *ConnlistAnalyzer) ExposureAnalysis() []ExposedPeer {
 	return ca.exposureResult
 }
