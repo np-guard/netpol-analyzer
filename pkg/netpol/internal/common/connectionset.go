@@ -20,12 +20,10 @@ import (
 	"strings"
 
 	v1 "k8s.io/api/core/v1"
-
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/connection"
 )
 
 // ConnectionSet represents a set of allowed connections between two peers on a k8s env
-// and implements AllowedSet interface
+// and implements Connection interface
 type ConnectionSet struct {
 	AllowAll         bool
 	AllowedProtocols map[v1.Protocol]*PortSet // map from protocol name to set of allowed ports
@@ -225,10 +223,10 @@ func (p *portRange) String() string {
 }
 
 // ProtocolsAndPortsMap() returns a map from allowed protocol to list of allowed ports ranges.
-func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]connection.PortRange {
-	res := make(map[v1.Protocol][]connection.PortRange, 0)
+func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
+	res := make(map[v1.Protocol][]PortRange, 0)
 	for protocol, portSet := range conn.AllowedProtocols {
-		res[protocol] = make([]connection.PortRange, 0)
+		res[protocol] = make([]PortRange, 0)
 		// TODO: consider leave the slice of ports empty if portSet covers the full range
 		for i := range portSet.Ports.IntervalSet {
 			startPort := portSet.Ports.IntervalSet[i].Start
@@ -240,8 +238,8 @@ func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]connection.P
 	return res
 }
 
-// IsAllConnections returns true if all ports are allowed for all protocols
-func (conn *ConnectionSet) IsAllConnections() bool {
+// AllConnections returns true if all ports are allowed for all protocols
+func (conn *ConnectionSet) AllConnections() bool {
 	return conn.AllowAll
 }
 
@@ -251,7 +249,7 @@ const (
 	noConnsStr                 = "No Connections"
 )
 
-func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[v1.Protocol][]connection.PortRange) string {
+func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[v1.Protocol][]PortRange) string {
 	if allProtocolsAndPorts {
 		return allConnsStr
 	}
@@ -271,7 +269,7 @@ func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[
 }
 
 // get string representation for a list of port ranges
-func portsString(ports []connection.PortRange) string {
+func portsString(ports []PortRange) string {
 	portsStr := make([]string, len(ports))
 	for i := range ports {
 		portsStr[i] = ports[i].String()

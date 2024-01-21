@@ -43,19 +43,19 @@ type (
 )
 
 // NewPolicyEngine returns a new PolicyEngine with an empty initial state
-func NewPolicyEngine(exposureAnalysisFlag bool) *PolicyEngine {
+func NewPolicyEngine() *PolicyEngine {
 	return &PolicyEngine{
 		namspacesMap:                    make(map[string]*k8s.Namespace),
 		podsMap:                         make(map[string]*k8s.Pod),
 		netpolsMap:                      make(map[string]map[string]*k8s.NetworkPolicy),
 		podOwnersToRepresentativePodMap: make(map[string]map[string]*k8s.Pod),
 		cache:                           newEvalCache(),
-		exposureAnalysisFlag:            exposureAnalysisFlag,
+		exposureAnalysisFlag:            false,
 	}
 }
 
-func NewPolicyEngineWithObjects(objects []parser.K8sObject, exposureAnalysisFlag bool) (*PolicyEngine, error) {
-	pe := NewPolicyEngine(exposureAnalysisFlag)
+func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, error) {
+	pe := NewPolicyEngine()
 	var err error
 	for _, obj := range objects {
 		switch obj.Kind {
@@ -89,12 +89,15 @@ func NewPolicyEngineWithObjects(objects []parser.K8sObject, exposureAnalysisFlag
 		}
 	}
 	err = pe.resolveMissingNamespaces()
-
-	if pe.exposureAnalysisFlag {
-		// scan policies' rules for new pods in (unmatched) namespaces (TODO : and unmatched pods in un/matched namespaces)
-		err = pe.addPotentiallyExposedPods()
-	}
 	return pe, err
+}
+
+// SetExposureAnalysisResources sets the new representative peers needed for exposure analysis
+// TODO: changes may be done on optimizing PR (will the flag be relevant after optimize? , should have these both funcs?..)
+func (pe *PolicyEngine) SetExposureAnalysisResources() error {
+	pe.exposureAnalysisFlag = true
+	// scan policies' rules for new pods in (unmatched) namespaces (TODO : and unmatched pods in un/matched namespaces)
+	return pe.addRepresentativePods()
 }
 
 func (pe *PolicyEngine) resolveMissingNamespaces() error {

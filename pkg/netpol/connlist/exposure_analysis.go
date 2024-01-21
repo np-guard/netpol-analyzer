@@ -1,7 +1,6 @@
 package connlist
 
 import (
-	conn "github.com/np-guard/netpol-analyzer/pkg/netpol/connection"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -38,7 +37,7 @@ func (e *xgressExposure) PodLabels() map[string]string {
 	return e.podLabels
 }
 
-func (e *xgressExposure) PotentialConnectivity() conn.AllowedSet {
+func (e *xgressExposure) PotentialConnectivity() common.Connection {
 	return e.potentialConn
 }
 
@@ -119,7 +118,7 @@ func loopAndRefineXgressData(xgressData []*xgressExposure) []*xgressExposure {
 	var entireClusterConn *common.ConnectionSet
 	for _, singleConn := range xgressData {
 		//  exposed to entire cluster on all conns - result will include this one general exposureConn
-		if singleConn.exposedToEntireCluster && singleConn.potentialConn.IsAllConnections() {
+		if singleConn.exposedToEntireCluster && singleConn.potentialConn.AllConnections() {
 			return []*xgressExposure{singleConn}
 		}
 		if singleConn.exposedToEntireCluster {

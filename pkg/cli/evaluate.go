@@ -172,7 +172,7 @@ func runEvalCommand() error {
 		podNames = append(podNames, sourcePod)
 	}
 
-	pe := eval.NewPolicyEngine(false)
+	pe := eval.NewPolicyEngine()
 
 	if dirPath != "" {
 		if err := updatePolicyEngineObjectsFromDirPath(pe, podNames); err != nil {

@@ -21,7 +21,7 @@ func getIngressAnalyzerFromDirObjects(t *testing.T, testName, dirName string, pr
 	objects, fpErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
 	require.Len(t, fpErrs, processingErrsNum, "test: %q, expected %d processing errors but got %d",
 		testName, processingErrsNum, len(fpErrs))
-	pe, err := eval.NewPolicyEngineWithObjects(objects, false)
+	pe, err := eval.NewPolicyEngineWithObjects(objects)
 	require.Empty(t, err, "test: %q", testName)
 	ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger(), false)
 	require.Empty(t, err, "test: %q", testName)
@@ -87,7 +87,7 @@ func checkConnsEquality(t *testing.T, testName string, ingressConns map[string]*
 		"[" + expectedIngressToPeer.peerType + "]"
 	require.Contains(t, ingressConns, peerStr, "test: %q, expected to get ingress connections to peer %q but did not.", testName, peerStr)
 	ingressConnsToPeer := ingressConns[peerStr]
-	require.Equal(t, ingressConnsToPeer.ConnSet.IsAllConnections(), expectedIngressToPeer.allConnections,
+	require.Equal(t, ingressConnsToPeer.ConnSet.AllConnections(), expectedIngressToPeer.allConnections,
 		"test: %q, mismatch in ingress connections to %q", testName, peerStr)
 	// if all connections is false; check if actual conns are as expected
 	if !expectedIngressToPeer.allConnections {

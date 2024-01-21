@@ -1,15 +1,15 @@
-package connection
+package common
 
 import (
 	v1 "k8s.io/api/core/v1"
 )
 
-// AllowedSet represents a set of allowed connections between two peers
-type AllowedSet interface {
+// Connection represents a set of allowed connections between two peers
+type Connection interface {
 	// ProtocolsAndPortsMap returns the set of allowed connections
 	ProtocolsAndPortsMap() map[v1.Protocol][]PortRange
-	// IsAllConnections returns true if all ports are allowed for all protocols
-	IsAllConnections() bool
+	// AllConnections returns true if all ports are allowed for all protocols
+	AllConnections() bool
 	// IsEmpty returns true if no connection is allowed
 	IsEmpty() bool
 }
