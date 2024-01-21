@@ -97,7 +97,7 @@ func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, erro
 func (pe *PolicyEngine) SetExposureAnalysisResources() error {
 	pe.exposureAnalysisFlag = true
 	// scan policies' rules for new pods in (unmatched) namespaces (TODO : and unmatched pods in un/matched namespaces)
-	return pe.addInferredFromPoliciesPods()
+	return pe.addRepresentativePods()
 }
 
 func (pe *PolicyEngine) resolveMissingNamespaces() error {
