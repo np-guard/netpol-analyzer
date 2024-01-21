@@ -4,6 +4,9 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
+// AllowedSet holds information about allowed connections set between two peers
+type AllowedSet common.Connection
+
 // exposureMap from peer to its exposure data; map that stores exposure-analysis allowed connections
 // which are computed by the connlist analyzer
 type exposureMap map[Peer]*peerExposureData
@@ -37,7 +40,7 @@ func (e *xgressExposure) PodLabels() map[string]string {
 	return e.podLabels
 }
 
-func (e *xgressExposure) PotentialConnectivity() common.Connection {
+func (e *xgressExposure) PotentialConnectivity() AllowedSet {
 	return e.potentialConn
 }
 
