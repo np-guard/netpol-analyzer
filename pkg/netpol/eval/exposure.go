@@ -26,7 +26,10 @@ import (
 
 // this file contains eval.PolicyEngine funcs which are related to exposure-analysis feature
 
-// addInferredFromPoliciesPods adds representative pods which are exposed to connect with (from/to) existing pods in the resources
+// addInferredFromPoliciesPods adds representative pods by inferring from network policies selectors within rules
+// the required entities to represent (namespaces or pods by certain labels selectors)
+// for example, if a rule within policy has namespace selector "name: foo", then a representative pod in such a 
+// namespace with those labels will be added, representing all potential pods in such a namespace
 func (pe *PolicyEngine) addInferredFromPoliciesPods() error {
 	// first adds a pod that represent connections with any namespace
 	_, err := pe.AddPodByNameAndNamespace(common.PodInRepNs, common.AllNamespaces, nil)
