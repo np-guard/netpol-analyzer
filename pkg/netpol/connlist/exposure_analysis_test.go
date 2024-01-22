@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	v1 "k8s.io/api/core/v1"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
@@ -43,16 +42,7 @@ type expectedPeerResultInfo struct {
 
 var allConns = common.MakeConnectionSet(true)
 
-var tcpConn *common.ConnectionSet = &common.ConnectionSet{
-	AllowAll: false,
-	AllowedProtocols: map[v1.Protocol]*common.PortSet{
-		v1.ProtocolTCP: {
-			Ports:              common.CanonicalIntervalSet{},
-			NamedPorts:         nil,
-			ExcludedNamedPorts: nil,
-		},
-	},
-}
+var tcpConn *common.ConnectionSet = common.GetAllTCPConnections()
 
 var notProtectedPeer *peerExposureData = &peerExposureData{
 	isIngressProtected: false,

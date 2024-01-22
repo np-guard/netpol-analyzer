@@ -37,6 +37,13 @@ func MakeConnectionSet(all bool) *ConnectionSet {
 	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}}
 }
 
+// GetAllTCPConnections returns a pointer to ConnectionSet object with all TCP protocol connections
+func GetAllTCPConnections() *ConnectionSet {
+	tcpConn := MakeConnectionSet(false)
+	tcpConn.AddConnection(v1.ProtocolTCP, MakePortSet(true))
+	return tcpConn
+}
+
 // Intersection updates ConnectionSet object to be the intersection result with other ConnectionSet
 func (conn *ConnectionSet) Intersection(other *ConnectionSet) {
 	if other.AllowAll {
