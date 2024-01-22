@@ -41,10 +41,7 @@ type expectedPeerResultInfo struct {
 	lenEgExposedConns  int
 }
 
-var allConns *common.ConnectionSet = &common.ConnectionSet{
-	AllowAll:         true,
-	AllowedProtocols: nil,
-}
+var allConns = common.MakeConnectionSet(true)
 
 var tcpConn *common.ConnectionSet = &common.ConnectionSet{
 	AllowAll: false,
