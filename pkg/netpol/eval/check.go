@@ -268,9 +268,11 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 		var policyAllowedConnectionsPerDirection *common.ConnectionSet
 		var err error
 		if isIngress {
+			// policy selecting dst
 			policyAllowedConnectionsPerDirection, err = policy.GetIngressAllowedConns(src, dst)
 		} else {
-			policyAllowedConnectionsPerDirection, err = policy.GetEgressAllowedConns(dst)
+			// policy selecting src
+			policyAllowedConnectionsPerDirection, err = policy.GetEgressAllowedConns(dst, src)
 		}
 		if err != nil {
 			return allowedConns, err
