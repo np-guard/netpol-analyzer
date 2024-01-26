@@ -48,10 +48,15 @@ type Pod struct {
 	IngressExposedToEntireCluster  bool                  // indicates if ingress netpols rules expose the pod to entire cluster
 	IngressEntireClusterConnection *common.ConnectionSet // contains the maximum range of connection which exposes the
 	// pod to entire cluster on ingress
+	IngressToEntireClusterChecked bool // indicates if the ingress conn to entire cluster already checked, it is enough to check once;
+	// at the first time the ingress policies selecting the pod are looped
+
 	EgressProtected               bool                  // indicates if the pod is selected by any egress netpol
 	EgressExposedToEntireCluster  bool                  // indicates if egress netpols rules expose the pod to entire cluster
 	EgressEntireClusterConnection *common.ConnectionSet // contains the maximum range of connection which exposes the
 	// pod to entire cluster on egress
+	EgressToEntireClusterChecked bool // indicates if the egress conn to entire cluster already checked; it is enough to check once;
+	// at the first time the egress policies selecting the pod are looped
 
 	// TODO in next PR: define new RepresentativePeer and move following fields to be part of it
 	ExposureNsLabels map[string]string
@@ -86,9 +91,11 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		IngressProtected:               false,
 		IngressExposedToEntireCluster:  false,
 		IngressEntireClusterConnection: nil,
+		IngressToEntireClusterChecked:  false,
 		EgressProtected:                false,
 		EgressExposedToEntireCluster:   false,
 		EgressEntireClusterConnection:  nil,
+		EgressToEntireClusterChecked:   false,
 		ExposureNsLabels:               map[string]string{},
 	}
 
@@ -215,9 +222,11 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.EgressProtected = false
 		pod.EgressExposedToEntireCluster = false
 		pod.EgressEntireClusterConnection = nil
+		pod.EgressToEntireClusterChecked = false
 		pod.IngressProtected = false
 		pod.IngressExposedToEntireCluster = false
 		pod.IngressEntireClusterConnection = nil
+		pod.IngressToEntireClusterChecked = false
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
 		}

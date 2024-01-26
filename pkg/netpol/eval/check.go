@@ -279,6 +279,15 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 		}
 		allowedConns.Union(policyAllowedConnectionsPerDirection)
 	}
+	if isIngress {
+		// after looping the policies selecting this dst for first time, the exposure to entire cluster on ingress is computed;
+		// no need to compute again
+		dst.GetPeerPod().IngressToEntireClusterChecked = true
+	} else {
+		// after looping the policies selecting this src for first time, the exposure to entire cluster on egress is computed;
+		// no need to compute again
+		src.GetPeerPod().EgressToEntireClusterChecked = true
+	}
 	return allowedConns, nil
 }
 

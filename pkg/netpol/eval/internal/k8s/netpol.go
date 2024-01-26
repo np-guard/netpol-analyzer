@@ -283,11 +283,14 @@ func (np *NetworkPolicy) GetEgressAllowedConns(dst, src Peer) (*common.Connectio
 		if err != nil {
 			return res, err
 		}
+		if !anyNsMatch && !peerSselected {
+			continue
+		}
 		ruleConns, err := np.ruleConnections(rulePorts, dst)
 		if err != nil {
 			return res, err
 		}
-		if anyNsMatch {
+		if anyNsMatch && !src.GetPeerPod().EgressToEntireClusterChecked {
 			// src is exposed to any namespace on Egress
 			src.GetPeerPod().updatePodXgressExposureToEntireClusterData(ruleConns, false)
 		}
@@ -315,11 +318,14 @@ func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (*common.Connecti
 		if err != nil {
 			return res, err
 		}
+		if !anyNsMatch && !peerSselected {
+			continue
+		}
 		ruleConns, err := np.ruleConnections(rulePorts, dst)
 		if err != nil {
 			return res, err
 		}
-		if anyNsMatch {
+		if anyNsMatch && !dst.GetPeerPod().IngressToEntireClusterChecked {
 			// dst is exposed to any namespace on Ingress
 			dst.GetPeerPod().updatePodXgressExposureToEntireClusterData(ruleConns, true)
 		}
