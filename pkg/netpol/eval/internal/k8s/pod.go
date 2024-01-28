@@ -42,8 +42,6 @@ type Pod struct {
 	HostIP    string
 	Owner     Owner
 
-	// Following fields contain data on pod's exposure on the cluster (e.g. is protected by netpols?! is exposed to entire cluster?!
-	//	on what directions? on which connections? etc.)
 	IngressProtected               bool                  // indicates if the pod is selected by any ingress netpol
 	IngressExposedToEntireCluster  bool                  // indicates if ingress netpols rules expose the pod to entire cluster
 	IngressEntireClusterConnection *common.ConnectionSet // contains the maximum range of connection which exposes the
