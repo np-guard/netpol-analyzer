@@ -31,50 +31,49 @@ func (ex exposureMap) appendPeerXgressExposureData(peer Peer, expData *xgressExp
 	}
 }
 
-// addPeersEntireClusterExposure
-// if the given src exposed on egress to entire cluster or/and
-// the given dst exposed on ingress to  entire cluster
-// updates their map entries with the relevant entire cluster exposure data.
-// also updates that the peers are checked for entire cluster exposure in the matching sets maps;
-// so each such peer's conn is checked and added to exposures map once only in each direction
-func (ex exposureMap) addPeersEntireClusterExposure(pe *eval.PolicyEngine, src, dst Peer, ingressSet,
-	egressSet map[Peer]bool) (err error) {
-	// 1. update egress exposure for the src (if src is a real workload from resources)
-	if !src.IsPeerIPType() && src.Name() != common.PodInRepNs {
-		if !egressSet[src] {
-			egressSet[src] = true
-			err = ex.addPeerXgressEntireClusterExp(pe, src, false)
-			if err != nil {
-				return err
-			}
-		}
+// addPeerGeneralExposure checks if given peer is not protected on given ingress/egress direction;
+// if not protected initialize its data in the map (with unprotected flag)
+// if protected check and add entire cluster exposure on the ingress/egress direction (if exists)
+func (ex exposureMap) addPeerGeneralExposure(pe *eval.PolicyEngine, peer Peer, isIngress bool) (err error) {
+	added, err := ex.addPeerUnprotectedData(pe, peer, isIngress)
+	if err != nil {
+		return err
 	}
-	// 2. update ingress exposure for the dst
-	if !dst.IsPeerIPType() && dst.Name() != common.PodInRepNs {
-		if !ingressSet[dst] {
-			ingressSet[dst] = true
-			err = ex.addPeerXgressEntireClusterExp(pe, dst, true)
-		}
+	if !added { // protected peer : check and add entire cluster conns
+		err = ex.addPeerXgressEntireClusterExp(pe, peer, isIngress)
 	}
 	return err
 }
 
-// addPeerXgressEntireClusterExp checks and adds (if exists) ingress/egress entire cluster exposure for peer
-func (ex exposureMap) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer Peer, isIngress bool) error {
-	exposed, err := pe.IsPeerExposedToEntireCluster(peer, isIngress)
+// addPeerUnprotectedData getting a peer and a direction; checks if the peer is not protected on that direction;
+// if not protected adds the peer to the exposure map and returns an indication that was added
+func (ex exposureMap) addPeerUnprotectedData(pe *eval.PolicyEngine, peer Peer, isIngress bool) (bool, error) {
+	protected, err := pe.IsPeerProtected(peer, isIngress)
 	if err != nil {
-		return err
+		return false, err
 	}
-	if !exposed {
-		return nil
+	if !protected {
+		if _, ok := ex[peer]; !ok {
+			ex.initiatePeerEntry(peer)
+		}
+		return true, nil
 	}
-	// exposed
-	if _, ok := ex[peer]; !ok {
-		ex.initiatePeerEntry(peer)
-	}
+	return false, nil
+}
+
+// addPeerXgressEntireClusterExp checks and adds (if exists) ingress/egress entire cluster exposure for the given peer
+// on the given direction
+func (ex exposureMap) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer Peer, isIngress bool) error {
 	conn, err := pe.GetPeerXgressEntireClusterConn(peer, isIngress)
 	if err != nil {
 		return err
+	}
+	if conn == nil {
+		return nil
+	}
+	// exposed to entire cluster
+	if _, ok := ex[peer]; !ok {
+		ex.initiatePeerEntry(peer)
 	}
 	expData := &xgressExposure{
 		exposedToEntireCluster: true,
@@ -97,9 +96,7 @@ func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnect
 		peer = dst
 		inferredPeer = src
 	}
-	if _, ok := ex[peer]; !ok {
-		ex.initiatePeerEntry(peer)
-	}
+	// if peer is not protected return
 	protected, err := pe.IsPeerProtected(peer, isIngress)
 	if err != nil {
 		return err
@@ -108,13 +105,11 @@ func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnect
 		return nil // if the peer is not protected, we don't need to store any connection data
 	}
 
+	// protected peer and this connection is between a representative peer and the real peer
 	allowedConnSet, ok := allowedConnections.(*common.ConnectionSet)
 	if !ok { // should not get here
 		return errors.New(netpolerrors.ConversionToConnectionSetErr)
 	}
-	// protected peer
-	// this connection is between a representative peer and the real peer
-
 	// check if the connection is contained in an entire cluster connection; if yes skip; if not store the connection data
 	contained, err := connectionContainedInEntireClusterConn(pe, peer, allowedConnSet, isIngress)
 	if err != nil {
@@ -122,6 +117,10 @@ func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnect
 	}
 	if contained {
 		return nil // skip
+	}
+	// check if peer is in the map; if not initialize an entry
+	if _, ok := ex[peer]; !ok {
+		ex.initiatePeerEntry(peer)
 	}
 	// store connection data
 	expData := &xgressExposure{
@@ -146,17 +145,13 @@ func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnect
 // * if the peer is exposed to entire cluster on given direction: return whether the given conn is contained in
 // the entire cluster exposed conn (which is the max exposure conn)
 func connectionContainedInEntireClusterConn(pe *eval.PolicyEngine, peer Peer, conns *common.ConnectionSet, isIngress bool) (bool, error) {
-	exposed, err := pe.IsPeerExposedToEntireCluster(peer, isIngress)
-	if err != nil {
-		return false, err
-	}
-	if !exposed {
-		return false, nil
-	}
-	// exposed
 	generalConn, err := pe.GetPeerXgressEntireClusterConn(peer, isIngress)
 	if err != nil {
 		return false, err
+	}
+	if generalConn == nil {
+		// not exposed to entire cluster on this direction
+		return false, nil
 	}
 	return conns.ContainedIn(generalConn), nil
 }

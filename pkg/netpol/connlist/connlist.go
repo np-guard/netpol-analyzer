@@ -505,11 +505,17 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 			if err != nil {
 				return nil, nil, err
 			}
+			if ca.exposureAnalysis {
+				err = updatePeersGeneralExposureData(pe, srcPeer, dstPeer, ingressSet, egressSet, exposuresMap)
+				if err != nil {
+					return nil, nil, err
+				}
+			}
 			// skip empty connections
 			if allowedConnections.IsEmpty() {
 				continue
 			}
-			p2pConnection, err := ca.checkIfP2PConnOrExposureConn(pe, allowedConnections, srcPeer, dstPeer, exposuresMap, ingressSet, egressSet)
+			p2pConnection, err := ca.checkIfP2PConnOrExposureConn(pe, allowedConnections, srcPeer, dstPeer, exposuresMap)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -580,22 +586,12 @@ func (ca *ConnlistAnalyzer) logWarning(msg string) {
 // checkIfP2PConnOrExposureConn checks if the given connection is between two peers from the parsed resources, if yes returns it,
 // otherwise the connection belongs to exposure-analysis, will be added to the provided map
 func (ca *ConnlistAnalyzer) checkIfP2PConnOrExposureConn(pe *eval.PolicyEngine, allowedConnections common.Connection,
-	src, dst Peer, exposuresMap exposureMap, ingSet, egSet map[Peer]bool) (*connection, error) {
+	src, dst Peer, exposuresMap exposureMap) (*connection, error) {
 	if !ca.exposureAnalysis {
 		// if exposure analysis option is off , the connection is definitely a P2PConnection
 		return createConnectionObject(allowedConnections, src, dst), nil
 	}
 	// else exposure analysis is on
-
-	// when computing allowed conns between the peers,
-	// exposure to entire cluster was definitely computed for src or/and dst (if its a workload peer)
-	// so we should update the entire connection cluster in the map for those peers (if they are real workload peers)
-	// this way we ensure updating the xgress exposure data to entire cluster of the peer's entry
-	// in the exposure map before adding any other connection
-	err := exposuresMap.addPeersEntireClusterExposure(pe, src, dst, ingSet, egSet)
-	if err != nil {
-		return nil, err
-	}
 
 	// TODO : enhance this if condition after implementing eval.RepresentativePeer
 	if src.Name() != common.PodInRepNs && dst.Name() != common.PodInRepNs {
@@ -604,6 +600,7 @@ func (ca *ConnlistAnalyzer) checkIfP2PConnOrExposureConn(pe *eval.PolicyEngine, 
 	}
 	// else: one of the peers is inferred from a netpol-rule , and the other is a peer from the parsed resources
 	// an exposure analysis connection
+	var err error
 	if src.Name() != common.PodInRepNs {
 		// dst is the inferred from netpol peer, we have an exposed egress for the src peer
 		err = exposuresMap.addConnToExposureMap(pe, allowedConnections, src, dst, false)
@@ -622,4 +619,31 @@ func createConnectionObject(allowedConnections common.Connection, src, dst Peer)
 		allConnections:    allowedConnections.AllConnections(),
 		protocolsAndPorts: allowedConnections.ProtocolsAndPortsMap(),
 	}
+}
+
+// updatePeersGeneralExposureData updates src and dst connections to entire world/cluster on the exposures map
+func updatePeersGeneralExposureData(pe *eval.PolicyEngine, src, dst Peer, ingressSet, egressSet map[Peer]bool, exMap exposureMap) error {
+	// when computing allowed conns between the peers,(even on first time)
+	// if a workload peer is not protected by netpols this was definitely detected;
+	// also exposure to entire cluster was definitely computed for src or/and dst (if its a workload peer)
+	// so we should update the unprotected / entire connection cluster in the map for those real workload peers
+	// this way we ensure updating the xgress exposure data to entire cluster/world of the peer's entry
+	// in the exposure map before adding any other connection
+	// or we might also have a case of no other exposure conns
+	// (e.g. only one peer with one netpol exposing the peer to entire cluster, no netpols)
+	var err error
+	// 1. only on first time : add general exposure data for the src peer (on egress)
+	if !src.IsPeerIPType() && src.Name() != common.PodInRepNs && !egressSet[src] {
+		err = exMap.addPeerGeneralExposure(pe, src, false)
+		if err != nil {
+			return err
+		}
+	}
+	egressSet[src] = true
+	// 2. only on first time : add general exposure data for the dst peer (on ingress)
+	if !dst.IsPeerIPType() && dst.Name() != common.PodInRepNs && !ingressSet[dst] {
+		err = exMap.addPeerGeneralExposure(pe, dst, true)
+	}
+	ingressSet[dst] = true
+	return err
 }

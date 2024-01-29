@@ -42,19 +42,17 @@ type Pod struct {
 	HostIP    string
 	Owner     Owner
 
-	IngressProtected               bool                  // indicates if the pod is selected by any ingress netpol
-	IngressExposedToEntireCluster  bool                  // indicates if ingress netpols rules expose the pod to entire cluster
-	IngressEntireClusterConnection *common.ConnectionSet // contains the maximum range of connection which exposes the
-	// pod to entire cluster on ingress
-	IngressToEntireClusterChecked bool // indicates if the ingress conn to entire cluster already checked, it is enough to check once;
-	// at the first time the ingress policies selecting the pod are looped
+	// IngressProtected indicates if the pod is selected by any network-policy on ingress direction, or not
+	IngressProtected bool
+	// IngressEntireClusterConnection contains the maximum range of connections which the pod is exposed with to all namespaces
+	// on ingress direction; or nil if pod is not exposed to all namespaces on ingress direction
+	IngressEntireClusterConnection *common.ConnectionSet
 
-	EgressProtected               bool                  // indicates if the pod is selected by any egress netpol
-	EgressExposedToEntireCluster  bool                  // indicates if egress netpols rules expose the pod to entire cluster
-	EgressEntireClusterConnection *common.ConnectionSet // contains the maximum range of connection which exposes the
-	// pod to entire cluster on egress
-	EgressToEntireClusterChecked bool // indicates if the egress conn to entire cluster already checked; it is enough to check once;
-	// at the first time the egress policies selecting the pod are looped
+	// EgressProtected indicates if the pod is selected by any network-policy on egress direction, or not
+	EgressProtected bool
+	// EgressEntireClusterConnection contains the maximum range of connections which the pod is exposed with to all namespaces
+	// on egress direction; or nil if pod is not exposed to all namespaces on egress direction
+	EgressEntireClusterConnection *common.ConnectionSet
 
 	// TODO in next PR: define new RepresentativePeer and move following fields to be part of it
 	ExposureNsLabels map[string]string
@@ -87,13 +85,9 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		Owner:                          Owner{},
 		FakePod:                        false,
 		IngressProtected:               false,
-		IngressExposedToEntireCluster:  false,
 		IngressEntireClusterConnection: nil,
-		IngressToEntireClusterChecked:  false,
 		EgressProtected:                false,
-		EgressExposedToEntireCluster:   false,
 		EgressEntireClusterConnection:  nil,
-		EgressToEntireClusterChecked:   false,
 		ExposureNsLabels:               map[string]string{},
 	}
 
@@ -218,13 +212,9 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.Owner = Owner{Name: workloadName, Kind: kind, APIVersion: APIVersion}
 		pod.FakePod = false
 		pod.EgressProtected = false
-		pod.EgressExposedToEntireCluster = false
 		pod.EgressEntireClusterConnection = nil
-		pod.EgressToEntireClusterChecked = false
 		pod.IngressProtected = false
-		pod.IngressExposedToEntireCluster = false
 		pod.IngressEntireClusterConnection = nil
-		pod.IngressToEntireClusterChecked = false
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
 		}
@@ -280,15 +270,13 @@ func (pod *Pod) ConvertPodNamedPort(namedPort string) int32 {
 // updatePodXgressExposureToEntireClusterData updates the pods' fields which are related to entire class exposure on ingress/egress
 func (pod *Pod) updatePodXgressExposureToEntireClusterData(ruleConns *common.ConnectionSet, isIngress bool) {
 	if isIngress {
-		if !pod.IngressExposedToEntireCluster {
-			pod.IngressExposedToEntireCluster = true
+		if pod.IngressEntireClusterConnection == nil {
 			pod.IngressEntireClusterConnection = ruleConns
 		} else {
 			pod.IngressEntireClusterConnection.Union(ruleConns)
 		}
 	} else {
-		if !pod.EgressExposedToEntireCluster {
-			pod.EgressExposedToEntireCluster = true
+		if pod.EgressEntireClusterConnection == nil {
 			pod.EgressEntireClusterConnection = ruleConns
 		} else {
 			pod.EgressEntireClusterConnection.Union(ruleConns)

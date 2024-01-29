@@ -144,43 +144,32 @@ func (np *NetworkPolicy) ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, p
 }
 
 // ruleSelectsPeer returns true if the given peer is in the set of peers selected by rulePeers
-// also returns an indication if the rulePeers matches all namespaces in the cluster
 //
 //gocyclo:ignore
-func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, peer Peer) (peerSelected, anyNsMatch bool, err error) {
-	entireClusterCheckOnly := false
+func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, peer Peer) (bool, error) {
 	if len(rulePeers) == 0 {
-		return true, true, nil // If this field is empty or missing, this rule matches all destinations
+		return true, nil // If this field is empty or missing, this rule matches all destinations
 	}
 	for i := range rulePeers {
 		if rulePeers[i].PodSelector == nil && rulePeers[i].NamespaceSelector == nil && rulePeers[i].IPBlock == nil {
-			return false, false, np.netpolErr(netpolerrors.RulePeerErrTitle, netpolerrors.EmptyRulePeerErrStr)
+			return false, np.netpolErr(netpolerrors.RulePeerErrTitle, netpolerrors.EmptyRulePeerErrStr)
 		}
 		if rulePeers[i].PodSelector != nil || rulePeers[i].NamespaceSelector != nil {
 			if rulePeers[i].IPBlock != nil {
-				return false, false, np.netpolErr(netpolerrors.RulePeerErrTitle, netpolerrors.CombinedRulePeerErrStr)
+				return false, np.netpolErr(netpolerrors.RulePeerErrTitle, netpolerrors.CombinedRulePeerErrStr)
 			}
 			if peer.PeerType() == IPBlockType {
-				entireClusterCheckOnly = true // assuming that peer of type IP cannot be selected by pod selector
-				// so continuing only to check if the rule is namespaceSelector : {}
+				continue // assuming that peer of type IP cannot be selected by pod selector
 			}
 			// peer is a pod
 			peerMatchesPodSelector := false
 			peerMatchesNamespaceSelector := false
-			if rulePeers[i].NamespaceSelector == nil && !entireClusterCheckOnly {
+			if rulePeers[i].NamespaceSelector == nil {
 				peerMatchesNamespaceSelector = (np.ObjectMeta.Namespace == peer.GetPeerPod().Namespace)
 			} else {
 				selector, err := np.parseNetpolLabelSelector(rulePeers[i].NamespaceSelector)
 				if err != nil {
-					return false, false, err
-				}
-				// the entire cluster check
-				if selector.Empty() && rulePeers[i].PodSelector == nil {
-					// empty namespaceSelector without a podSelector, means matches any namespace in the cluster
-					anyNsMatch = true
-				}
-				if entireClusterCheckOnly {
-					continue
+					return false, err
 				}
 				peerNamespace := peer.GetPeerNamespace()
 				peerMatchesNamespaceSelector = selector.Matches(labels.Set(peerNamespace.Labels))
@@ -193,12 +182,12 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			} else {
 				selector, err := np.parseNetpolLabelSelector(rulePeers[i].PodSelector)
 				if err != nil {
-					return false, false, err
+					return false, err
 				}
 				peerMatchesPodSelector = selector.Matches(labels.Set(peer.GetPeerPod().Labels))
 			}
 			if peerMatchesPodSelector {
-				return true, anyNsMatch, nil //  matching both pod selector and ns_selector here
+				return true, nil //  matching both pod selector and ns_selector here
 			}
 		} else { // ipblock
 			if peer.PeerType() == PodType {
@@ -208,17 +197,17 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			// check that peer.IP matches the IPBlock
 			ruleIPBlock, err := np.parseNetpolCIDR(rulePeers[i].IPBlock.CIDR, rulePeers[i].IPBlock.Except)
 			if err != nil {
-				return false, false, err
+				return false, err
 			}
 
 			peerIPBlock := peer.GetPeerIPBlock()
 			res := peerIPBlock.ContainedIn(ruleIPBlock)
 			if res {
-				return true, anyNsMatch, nil
+				return true, nil
 			}
 		}
 	}
-	return false, anyNsMatch, nil
+	return false, nil
 }
 
 // IngressAllowedConn returns true  if the given connections from src to any of the pods captured by the policy is allowed
@@ -228,7 +217,7 @@ func (np *NetworkPolicy) IngressAllowedConn(src Peer, protocol, port string, dst
 		rulePeers := np.Spec.Ingress[i].From
 		rulePorts := np.Spec.Ingress[i].Ports
 
-		peerSselected, _, err := np.ruleSelectsPeer(rulePeers, src)
+		peerSselected, err := np.ruleSelectsPeer(rulePeers, src)
 		if err != nil {
 			return false, err
 		}
@@ -252,7 +241,7 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 		rulePeers := np.Spec.Egress[i].To
 		rulePorts := np.Spec.Egress[i].Ports
 
-		peerSselected, _, err := np.ruleSelectsPeer(rulePeers, dst)
+		peerSselected, err := np.ruleSelectsPeer(rulePeers, dst)
 		if err != nil {
 			return false, err
 		}
@@ -271,31 +260,21 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 }
 
 // GetEgressAllowedConns returns the set of allowed connetions from any captured pod to the destination peer
-// also, updates the egress entire cluster exposure data of the src (peer selected by the policy)
-//
-//nolint:dupl // GetIngressAllowedConns and GetEgressAllowedConns loop different rules sections
-func (np *NetworkPolicy) GetEgressAllowedConns(dst, src Peer) (*common.ConnectionSet, error) {
+func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		peerSselected, anyNsMatch, err := np.ruleSelectsPeer(rulePeers, dst)
+		peerSselected, err := np.ruleSelectsPeer(rulePeers, dst)
 		if err != nil {
 			return res, err
 		}
-		if !anyNsMatch && !peerSselected {
+		if !peerSselected {
 			continue
 		}
 		ruleConns, err := np.ruleConnections(rulePorts, dst)
 		if err != nil {
 			return res, err
-		}
-		if anyNsMatch && !src.GetPeerPod().EgressToEntireClusterChecked {
-			// src is exposed to any namespace on Egress
-			src.GetPeerPod().updatePodXgressExposureToEntireClusterData(ruleConns, false)
-		}
-		if !peerSselected {
-			continue
 		}
 		res.Union(ruleConns)
 		if res.AllowAll {
@@ -306,31 +285,22 @@ func (np *NetworkPolicy) GetEgressAllowedConns(dst, src Peer) (*common.Connectio
 }
 
 // GetIngressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer
-// also, updates the ingress entire cluster exposure data of the dst (peer selected by the policy)
-//
-//nolint:dupl // GetIngressAllowedConns and GetEgressAllowedConns loop different rules sections
 func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		peerSselected, anyNsMatch, err := np.ruleSelectsPeer(rulePeers, src)
+		peerSselected, err := np.ruleSelectsPeer(rulePeers, src)
 		if err != nil {
 			return res, err
-		}
-		if !anyNsMatch && !peerSselected {
-			continue
-		}
-		ruleConns, err := np.ruleConnections(rulePorts, dst)
-		if err != nil {
-			return res, err
-		}
-		if anyNsMatch && !dst.GetPeerPod().IngressToEntireClusterChecked {
-			// dst is exposed to any namespace on Ingress
-			dst.GetPeerPod().updatePodXgressExposureToEntireClusterData(ruleConns, true)
 		}
 		if !peerSselected {
 			continue
+		}
+
+		ruleConns, err := np.ruleConnections(rulePorts, dst)
+		if err != nil {
+			return res, err
 		}
 		res.Union(ruleConns)
 		if res.AllowAll {
@@ -436,4 +406,65 @@ func (np *NetworkPolicy) Selects(p *Pod, direction netv1.PolicyType) (bool, erro
 
 func (np *NetworkPolicy) fullName() string {
 	return types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String()
+}
+
+// ScanRulesForIngressFromEntireCluster scans ingress spec of the policy to check if the rules exposes given pod
+// to entire cluster; if yes updates the pod's connection to entire cluster field
+func (np *NetworkPolicy) ScanRulesForIngressFromEntireCluster(dst Peer) error {
+	// since we get here after scanning rules for allowed conns between peers, we can assume the rules are ok
+	for _, rule := range np.Spec.Ingress {
+		rulePeers := rule.From
+		rulePorts := rule.Ports
+		if !np.ruleSelectsEntireCluster(rulePeers) {
+			continue
+		}
+		ruleConns, err := np.ruleConnections(rulePorts, dst)
+		if err != nil {
+			return err
+		}
+		dst.GetPeerPod().updatePodXgressExposureToEntireClusterData(ruleConns, true)
+	}
+	return nil
+}
+
+// ScanRulesForEgressToEntireCluster scans egress spec of the policy to check if the rules exposes src peer
+// to entire class, if yes update egress to entire class connection details of the src
+// dst is provided for computing the correct connection of the rules
+func (np *NetworkPolicy) ScanRulesForEgressToEntireCluster(src, dst Peer) error {
+	for _, rule := range np.Spec.Egress {
+		rulePeers := rule.To
+		rulePorts := rule.Ports
+		if !np.ruleSelectsEntireCluster(rulePeers) {
+			continue
+		}
+		ruleConns, err := np.ruleConnections(rulePorts, dst)
+		if err != nil {
+			return err
+		}
+		src.GetPeerPod().updatePodXgressExposureToEntireClusterData(ruleConns, false)
+	}
+	return nil
+}
+
+// ruleSelectsEntireCluster checks if the given rules list is exposed to entire cluster;
+// i.e. if the rules list is empty or if there is a rule with empty namespaceSelector
+// since this func is definitely called after ruleSelectsPeer, there is no rules' correctness check here
+func (np *NetworkPolicy) ruleSelectsEntireCluster(rules []netv1.NetworkPolicyPeer) bool {
+	if len(rules) == 0 {
+		return true
+	}
+	for i := range rules {
+		if rules[i].IPBlock != nil {
+			continue
+		}
+		if rules[i].PodSelector != nil {
+			continue
+		}
+		// ns selector is not nil
+		selector, _ := np.parseNetpolLabelSelector(rules[i].NamespaceSelector)
+		if selector.Empty() {
+			return true
+		}
+	}
+	return false
 }
