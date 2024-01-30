@@ -115,7 +115,6 @@ func (pe *PolicyEngine) IsPeerProtected(p Peer, isIngress bool) (bool, error) {
 }
 
 // GetPeerXgressEntireClusterConn returns the connection to entire cluster on given ingress/egress direction
-// nil if there is no such connection
 // relevant only for workloadPeer
 func (pe *PolicyEngine) GetPeerXgressEntireClusterConn(p Peer, isIngress bool) (*common.ConnectionSet, error) {
 	peer, err := isPeerAWorkloadPeer(p)

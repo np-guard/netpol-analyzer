@@ -68,7 +68,7 @@ func (ex exposureMap) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer 
 	if err != nil {
 		return err
 	}
-	if conn == nil {
+	if conn.IsEmpty() {
 		return nil
 	}
 	// exposed to entire cluster
@@ -149,7 +149,7 @@ func connectionContainedInEntireClusterConn(pe *eval.PolicyEngine, peer Peer, co
 	if err != nil {
 		return false, err
 	}
-	if generalConn == nil {
+	if generalConn.IsEmpty() {
 		// not exposed to entire cluster on this direction
 		return false, nil
 	}
