@@ -415,7 +415,7 @@ func (np *NetworkPolicy) ScanRulesForIngressFromEntireCluster(dst Peer) error {
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		if !np.ruleSelectsEntireCluster(rulePeers) {
+		if !np.doRulesExposeToEntireCluster(rulePeers) {
 			continue
 		}
 		ruleConns, err := np.ruleConnections(rulePorts, dst)
@@ -434,7 +434,7 @@ func (np *NetworkPolicy) ScanRulesForEgressToEntireCluster(src, dst Peer) error 
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		if !np.ruleSelectsEntireCluster(rulePeers) {
+		if !np.doRulesExposeToEntireCluster(rulePeers) {
 			continue
 		}
 		ruleConns, err := np.ruleConnections(rulePorts, dst)
@@ -446,10 +446,10 @@ func (np *NetworkPolicy) ScanRulesForEgressToEntireCluster(src, dst Peer) error 
 	return nil
 }
 
-// ruleSelectsEntireCluster checks if the given rules list is exposed to entire cluster;
+// doRulesExposeToEntireCluster checks if the given rules list is exposed to entire cluster;
 // i.e. if the rules list is empty or if there is a rule with empty namespaceSelector
 // since this func is definitely called after ruleSelectsPeer, there is no rules' correctness check here
-func (np *NetworkPolicy) ruleSelectsEntireCluster(rules []netv1.NetworkPolicyPeer) bool {
+func (np *NetworkPolicy) doRulesExposeToEntireCluster(rules []netv1.NetworkPolicyPeer) bool {
 	if len(rules) == 0 {
 		return true
 	}

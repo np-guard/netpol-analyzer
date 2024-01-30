@@ -31,6 +31,20 @@ import (
 
 const defaultPortsListSize = 8
 
+type podExposureInfo struct {
+	// is Protected indicates if the pod is selected by any network-policy or not
+	IsProtected bool
+	// entireClusterConnection contains the maximal connection-set for which the pod is exposed to all namespaces by network policies
+	EntireClusterConnection *common.ConnectionSet
+}
+
+func initiatePodExposure() podExposureInfo {
+	return podExposureInfo{
+		IsProtected:             false,
+		EntireClusterConnection: common.MakeConnectionSet(false),
+	}
+}
+
 // Pod encapsulates k8s Pod fields that are relevant for evaluating network policies
 type Pod struct {
 	Name      string
@@ -42,17 +56,16 @@ type Pod struct {
 	HostIP    string
 	Owner     Owner
 
-	// IngressProtected indicates if the pod is selected by any network-policy on ingress direction, or not
-	IngressProtected bool
-	// IngressEntireClusterConnection contains the maximal connection-set for which the pod is exposed to all namespaces by network policies
-	// on ingress direction; or nil if pod is not exposed to all namespaces on ingress direction
-	IngressEntireClusterConnection *common.ConnectionSet
-
-	// EgressProtected indicates if the pod is selected by any network-policy on egress direction, or not
-	EgressProtected bool
-	// EgressEntireClusterConnection contains the maximal connection-set for which the pod is exposed to all namespaces by network policies
-	// on egress direction; or nil if pod is not exposed to all namespaces on egress direction
-	EgressEntireClusterConnection *common.ConnectionSet
+	// IngressExposureData contains:
+	// - whether the pod is protected by any network-policy on ingress direction or not;
+	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
+	// on ingress direction
+	IngressExposureData podExposureInfo
+	// EgressExposureData contains:
+	// - whether the pod is protected by any network-policy on egress direction or not;
+	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
+	// on egress direction
+	EgressExposureData podExposureInfo
 
 	// TODO in next PR: define new RepresentativePeer and move following fields to be part of it
 	ExposureNsLabels map[string]string
@@ -76,19 +89,17 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 	}
 
 	pr := &Pod{
-		Name:                           p.Name,
-		Namespace:                      p.Namespace,
-		Labels:                         make(map[string]string, len(p.Labels)),
-		IPs:                            make([]corev1.PodIP, len(p.Status.PodIPs)),
-		Ports:                          make([]corev1.ContainerPort, 0, defaultPortsListSize),
-		HostIP:                         p.Status.HostIP,
-		Owner:                          Owner{},
-		FakePod:                        false,
-		IngressProtected:               false,
-		IngressEntireClusterConnection: common.MakeConnectionSet(false),
-		EgressProtected:                false,
-		EgressEntireClusterConnection:  common.MakeConnectionSet(false),
-		ExposureNsLabels:               map[string]string{},
+		Name:                p.Name,
+		Namespace:           p.Namespace,
+		Labels:              make(map[string]string, len(p.Labels)),
+		IPs:                 make([]corev1.PodIP, len(p.Status.PodIPs)),
+		Ports:               make([]corev1.ContainerPort, 0, defaultPortsListSize),
+		HostIP:              p.Status.HostIP,
+		Owner:               Owner{},
+		FakePod:             false,
+		IngressExposureData: initiatePodExposure(),
+		EgressExposureData:  initiatePodExposure(),
+		ExposureNsLabels:    map[string]string{},
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -211,10 +222,8 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.HostIP = getFakePodIP()
 		pod.Owner = Owner{Name: workloadName, Kind: kind, APIVersion: APIVersion}
 		pod.FakePod = false
-		pod.EgressProtected = false
-		pod.EgressEntireClusterConnection = common.MakeConnectionSet(false)
-		pod.IngressProtected = false
-		pod.IngressEntireClusterConnection = common.MakeConnectionSet(false)
+		pod.IngressExposureData = initiatePodExposure()
+		pod.EgressExposureData = initiatePodExposure()
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
 		}
@@ -270,8 +279,17 @@ func (pod *Pod) ConvertPodNamedPort(namedPort string) int32 {
 // updatePodXgressExposureToEntireClusterData updates the pods' fields which are related to entire class exposure on ingress/egress
 func (pod *Pod) updatePodXgressExposureToEntireClusterData(ruleConns *common.ConnectionSet, isIngress bool) {
 	if isIngress {
-		pod.IngressEntireClusterConnection.Union(ruleConns)
+		pod.IngressExposureData.EntireClusterConnection.Union(ruleConns)
 	} else {
-		pod.EgressEntireClusterConnection.Union(ruleConns)
+		pod.EgressExposureData.EntireClusterConnection.Union(ruleConns)
+	}
+}
+
+// updatePodXgressProtectedFlag updates to true the relevant ingress/egress protected flag of the pod
+func (pod *Pod) UpdatePodXgressProtectedFlag(isIngress bool) {
+	if isIngress {
+		pod.IngressExposureData.IsProtected = true
+	} else {
+		pod.EgressExposureData.IsProtected = true
 	}
 }

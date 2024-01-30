@@ -109,9 +109,9 @@ func (pe *PolicyEngine) IsPeerProtected(p Peer, isIngress bool) (bool, error) {
 		return false, err
 	}
 	if isIngress {
-		return peer.Pod.IngressProtected, nil
+		return peer.Pod.IngressExposureData.IsProtected, nil
 	}
-	return peer.Pod.EgressProtected, nil
+	return peer.Pod.EgressExposureData.IsProtected, nil
 }
 
 // GetPeerXgressEntireClusterConn returns the connection to entire cluster on given ingress/egress direction
@@ -122,9 +122,9 @@ func (pe *PolicyEngine) GetPeerXgressEntireClusterConn(p Peer, isIngress bool) (
 		return nil, err
 	}
 	if isIngress {
-		return peer.Pod.IngressEntireClusterConnection, nil
+		return peer.Pod.IngressExposureData.EntireClusterConnection, nil
 	}
-	return peer.Pod.EgressEntireClusterConnection, nil
+	return peer.Pod.EgressExposureData.EntireClusterConnection, nil
 }
 
 // TODO these functions will be changed in a later PR (when implementing RepresentativePeer)

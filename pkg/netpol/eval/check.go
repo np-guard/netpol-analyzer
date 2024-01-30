@@ -180,7 +180,7 @@ func (pe *PolicyEngine) getPoliciesSelectingPod(p *k8s.Pod, direction netv1.Poli
 		}
 	}
 	if len(res) > 0 {
-		updatePodXgressProtectedFlag(p, direction)
+		p.UpdatePodXgressProtectedFlag(direction == netv1.PolicyTypeIngress)
 	}
 	return res, nil
 }
@@ -399,15 +399,5 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 		return currPeer.Pod.PodExposedTCPConnections()
 	default:
 		return nil
-	}
-}
-
-// updatePodXgressProtectedFlag updates to true the relevant ingress/egress protected flag of the pod
-func updatePodXgressProtectedFlag(p *k8s.Pod, direction netv1.PolicyType) {
-	switch direction {
-	case netv1.PolicyTypeIngress:
-		p.IngressProtected = true
-	case netv1.PolicyTypeEgress:
-		p.EgressProtected = true
 	}
 }
