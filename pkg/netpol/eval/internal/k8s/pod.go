@@ -44,7 +44,7 @@ type Pod struct {
 
 	// IngressProtected indicates if the pod is selected by any network-policy on ingress direction, or not
 	IngressProtected bool
-	// IngressEntireClusterConnection contains the maximum range of connections which the pod is exposed with to all namespaces
+	// IngressEntireClusterConnection contains the maximal connection-set for which the pod is exposed to all namespaces by network policies 
 	// on ingress direction; or nil if pod is not exposed to all namespaces on ingress direction
 	IngressEntireClusterConnection *common.ConnectionSet
 
