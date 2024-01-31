@@ -31,16 +31,11 @@ import (
 // for example, if a rule within policy has namespace selector "name: foo", then a representative pod in such a
 // namespace with those labels will be added, representing all potential pods in such a namespace
 func (pe *PolicyEngine) addRepresentativePods() error {
-	// first adds a pod that represent connections with any namespace
-	_, err := pe.AddPodByNameAndNamespace(common.PodInRepNs, common.AllNamespaces, nil)
-	if err != nil {
-		return err
-	}
 	// scan policies's rules : generate fake-exposure pod for rules with no match in the resources
 	for _, nsNetpolsMap := range pe.netpolsMap {
 		for pName, policy := range nsNetpolsMap {
 			// scan and handle policy rules which doesn't have a match in the resources
-			err = pe.addPodsForUnmatchedRules(pName, policy)
+			err := pe.addPodsForUnmatchedRules(pName, policy)
 			if err != nil {
 				return err
 			}
@@ -97,17 +92,39 @@ func (pe *PolicyEngine) checkNamespaceSelectorsMatch(reqSelector map[string]stri
 
 // /////////////////////////////////
 
+// isPeerAWorkloadPeer checks and returns the peer if it is a k8s workload peer
+func isPeerAWorkloadPeer(p Peer) (*k8s.WorkloadPeer, error) {
+	peer, ok := p.(*k8s.WorkloadPeer)
+	if !ok { // should not get here
+		return nil, errors.New(netpolerrors.NotPeerErrStr(p.String()))
+	}
+	return peer, nil
+}
+
 // IsPeerProtected returns if the peer is protected by network policies on the given ingress/egress direction
 // relevant only for workloadPeer
 func (pe *PolicyEngine) IsPeerProtected(p Peer, isIngress bool) (bool, error) {
-	peer, ok := p.(*k8s.WorkloadPeer)
-	if !ok { // should not get here
-		return false, errors.New(netpolerrors.NotPeerErrStr(p.String()))
+	peer, err := isPeerAWorkloadPeer(p)
+	if err != nil { // should not get here
+		return false, err
 	}
 	if isIngress {
-		return peer.Pod.IngressProtected, nil
+		return peer.Pod.IngressExposureData.IsProtected, nil
 	}
-	return peer.Pod.EgressProtected, nil
+	return peer.Pod.EgressExposureData.IsProtected, nil
+}
+
+// GetPeerXgressEntireClusterConn returns the connection to entire cluster on given ingress/egress direction
+// relevant only for workloadPeer
+func (pe *PolicyEngine) GetPeerXgressEntireClusterConn(p Peer, isIngress bool) (*common.ConnectionSet, error) {
+	peer, err := isPeerAWorkloadPeer(p)
+	if err != nil { // should not get here
+		return nil, err
+	}
+	if isIngress {
+		return peer.Pod.IngressExposureData.EntireClusterConnection, nil
+	}
+	return peer.Pod.EgressExposureData.EntireClusterConnection, nil
 }
 
 // TODO these functions will be changed in a later PR (when implementing RepresentativePeer)

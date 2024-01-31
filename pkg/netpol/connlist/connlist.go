@@ -490,6 +490,10 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnal
 func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, peers []Peer) ([]Peer2PeerConnection, exposureMap, error) {
 	connsRes := make([]Peer2PeerConnection, 0)
 	exposuresMap := exposureMap{}
+	// sets for marking peer checked for ingress/egress exposure to entire cluster data once
+	ingressSet := make(map[Peer]bool, 0)
+	egressSet := make(map[Peer]bool, 0)
+
 	for i := range peers {
 		srcPeer := peers[i]
 		for j := range peers {
@@ -500,6 +504,12 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
 			if err != nil {
 				return nil, nil, err
+			}
+			if ca.exposureAnalysis {
+				err = updatePeersGeneralExposureData(pe, srcPeer, dstPeer, ingressSet, egressSet, exposuresMap)
+				if err != nil {
+					return nil, nil, err
+				}
 			}
 			// skip empty connections
 			if allowedConnections.IsEmpty() {
@@ -582,6 +592,7 @@ func (ca *ConnlistAnalyzer) checkIfP2PConnOrExposureConn(pe *eval.PolicyEngine, 
 		return createConnectionObject(allowedConnections, src, dst), nil
 	}
 	// else exposure analysis is on
+
 	// TODO : enhance this if condition after implementing eval.RepresentativePeer
 	if src.Name() != common.PodInRepNs && dst.Name() != common.PodInRepNs {
 		// both src and dst are peers are found in the parsed resources
@@ -610,48 +621,29 @@ func createConnectionObject(allowedConnections common.Connection, src, dst Peer)
 	}
 }
 
-// addConnToExposureMap adds a connection and its data to the exposure-analysis map
-func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections common.Connection, src, dst Peer,
-	isIngress bool) error {
-	peer := src         // real peer
-	inferredPeer := dst // inferred from netpol rule
-	if isIngress {
-		peer = dst
-		inferredPeer = src
-	}
-	if _, ok := ex[peer]; !ok {
-		ex[peer] = &peerExposureData{
-			isIngressProtected: false,
-			isEgressProtected:  false,
-			ingressExposure:    make([]*xgressExposure, 0),
-			egressExposure:     make([]*xgressExposure, 0),
+// updatePeersGeneralExposureData updates src and dst connections to entire world/cluster on the exposures map
+func updatePeersGeneralExposureData(pe *eval.PolicyEngine, src, dst Peer, ingressSet, egressSet map[Peer]bool, exMap exposureMap) error {
+	// when computing allowed conns between the peers,(even on first time)
+	// if a workload peer is not protected by netpols this was definitely detected;
+	// also exposure to entire cluster was definitely computed for src or/and dst (if its a workload peer)
+	// so we should update the unprotected / entire connection cluster in the map for those real workload peers
+	// this way we ensure updating the xgress exposure data to entire cluster/world of the peer's entry
+	// in the exposure map before adding any other connection
+	// or we might also have a case of no other exposure conns
+	// (e.g. only one peer with one netpol exposing the peer to entire cluster, no netpols)
+	var err error
+	// 1. only on first time : add general exposure data for the src peer (on egress)
+	if !src.IsPeerIPType() && src.Name() != common.PodInRepNs && !egressSet[src] {
+		err = exMap.addPeerGeneralExposure(pe, src, false)
+		if err != nil {
+			return err
 		}
 	}
-	protected, err := pe.IsPeerProtected(peer, isIngress)
-	if err != nil {
-		return err
+	egressSet[src] = true
+	// 2. only on first time : add general exposure data for the dst peer (on ingress)
+	if !dst.IsPeerIPType() && dst.Name() != common.PodInRepNs && !ingressSet[dst] {
+		err = exMap.addPeerGeneralExposure(pe, dst, true)
 	}
-	if !protected {
-		return nil // if the peer is not protected, we don't need to store any connection data
-	}
-
-	allowedConnSet, ok := allowedConnections.(*common.ConnectionSet)
-	if !ok { // should not get here
-		return errors.New(netpolerrors.ConversionToConnectionSetErr)
-	}
-	// protected peer - store the data
-	expData := &xgressExposure{
-		exposedToEntireCluster: inferredPeer.Namespace() == common.AllNamespaces,
-		namespaceLabels:        pe.GetPeerNsLabels(inferredPeer),
-		podLabels:              map[string]string{}, // will be empty since in this branch rules with namespaceSelectors only supported
-		potentialConn:          allowedConnSet,
-	}
-	if isIngress {
-		ex[peer].isIngressProtected = true
-		ex[peer].ingressExposure = append(ex[peer].ingressExposure, expData)
-	} else { // egress
-		ex[peer].isEgressProtected = true
-		ex[peer].egressExposure = append(ex[peer].egressExposure, expData)
-	}
-	return nil
+	ingressSet[dst] = true
+	return err
 }

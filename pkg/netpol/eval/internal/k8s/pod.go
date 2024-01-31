@@ -31,6 +31,20 @@ import (
 
 const defaultPortsListSize = 8
 
+type PodExposureInfo struct {
+	// 	IsProtected indicates if the pod is selected by any network-policy or not
+	IsProtected bool
+	// EntireClusterConnection contains the maximal connection-set for which the pod is exposed to all namespaces by network policies
+	EntireClusterConnection *common.ConnectionSet
+}
+
+func initiatePodExposure() PodExposureInfo {
+	return PodExposureInfo{
+		IsProtected:             false,
+		EntireClusterConnection: common.MakeConnectionSet(false),
+	}
+}
+
 // Pod encapsulates k8s Pod fields that are relevant for evaluating network policies
 type Pod struct {
 	Name      string
@@ -42,8 +56,17 @@ type Pod struct {
 	HostIP    string
 	Owner     Owner
 
-	IngressProtected bool // indicates if the pod is selected by any ingress netpol
-	EgressProtected  bool // indicates if the pod is selected by any egress netpol
+	// IngressExposureData contains:
+	// - whether the pod is protected by any network-policy on ingress direction or not;
+	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
+	// on ingress direction
+	IngressExposureData PodExposureInfo
+	// EgressExposureData contains:
+	// - whether the pod is protected by any network-policy on egress direction or not;
+	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
+	// on egress direction
+	EgressExposureData PodExposureInfo
+
 	// TODO in next PR: define new RepresentativePeer and move following fields to be part of it
 	ExposureNsLabels map[string]string
 }
@@ -66,17 +89,17 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 	}
 
 	pr := &Pod{
-		Name:             p.Name,
-		Namespace:        p.Namespace,
-		Labels:           make(map[string]string, len(p.Labels)),
-		IPs:              make([]corev1.PodIP, len(p.Status.PodIPs)),
-		Ports:            make([]corev1.ContainerPort, 0, defaultPortsListSize),
-		HostIP:           p.Status.HostIP,
-		Owner:            Owner{},
-		FakePod:          false,
-		IngressProtected: false,
-		EgressProtected:  false,
-		ExposureNsLabels: map[string]string{},
+		Name:                p.Name,
+		Namespace:           p.Namespace,
+		Labels:              make(map[string]string, len(p.Labels)),
+		IPs:                 make([]corev1.PodIP, len(p.Status.PodIPs)),
+		Ports:               make([]corev1.ContainerPort, 0, defaultPortsListSize),
+		HostIP:              p.Status.HostIP,
+		Owner:               Owner{},
+		FakePod:             false,
+		IngressExposureData: initiatePodExposure(),
+		EgressExposureData:  initiatePodExposure(),
+		ExposureNsLabels:    map[string]string{},
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -199,8 +222,8 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.HostIP = getFakePodIP()
 		pod.Owner = Owner{Name: workloadName, Kind: kind, APIVersion: APIVersion}
 		pod.FakePod = false
-		pod.EgressProtected = false
-		pod.IngressProtected = false
+		pod.IngressExposureData = initiatePodExposure()
+		pod.EgressExposureData = initiatePodExposure()
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
 		}
@@ -251,4 +274,22 @@ func (pod *Pod) ConvertPodNamedPort(namedPort string) int32 {
 		}
 	}
 	return noPort
+}
+
+// updatePodXgressExposureToEntireClusterData updates the pods' fields which are related to entire class exposure on ingress/egress
+func (pod *Pod) updatePodXgressExposureToEntireClusterData(ruleConns *common.ConnectionSet, isIngress bool) {
+	if isIngress {
+		pod.IngressExposureData.EntireClusterConnection.Union(ruleConns)
+	} else {
+		pod.EgressExposureData.EntireClusterConnection.Union(ruleConns)
+	}
+}
+
+// updatePodXgressProtectedFlag updates to true the relevant ingress/egress protected flag of the pod
+func (pod *Pod) UpdatePodXgressProtectedFlag(isIngress bool) {
+	if isIngress {
+		pod.IngressExposureData.IsProtected = true
+	} else {
+		pod.EgressExposureData.IsProtected = true
+	}
 }

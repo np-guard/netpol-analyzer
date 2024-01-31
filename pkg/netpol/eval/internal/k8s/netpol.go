@@ -210,7 +210,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 	return false, nil
 }
 
-// GetIngressAllowedConns returns true  if the given connections from src to any of the pods captured by the policy is allowed
+// IngressAllowedConn returns true  if the given connections from src to any of the pods captured by the policy is allowed
 func (np *NetworkPolicy) IngressAllowedConn(src Peer, protocol, port string, dst Peer) (bool, error) {
 	// iterate list of rules: []NetworkPolicyIngressRule
 	for i := range np.Spec.Ingress {
@@ -235,7 +235,7 @@ func (np *NetworkPolicy) IngressAllowedConn(src Peer, protocol, port string, dst
 	return false, nil
 }
 
-// GetEgressAllowedConns returns true if the given connection to dst from any of the pods captured by the policy is allowed
+// EgressAllowedConn returns true if the given connection to dst from any of the pods captured by the policy is allowed
 func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (bool, error) {
 	for i := range np.Spec.Egress {
 		rulePeers := np.Spec.Egress[i].To
@@ -406,4 +406,65 @@ func (np *NetworkPolicy) Selects(p *Pod, direction netv1.PolicyType) (bool, erro
 
 func (np *NetworkPolicy) fullName() string {
 	return types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String()
+}
+
+// ScanRulesForIngressFromEntireCluster scans ingress spec of the policy to check if the rules exposes given pod
+// to entire cluster; if yes updates the pod's connection to entire cluster field
+func (np *NetworkPolicy) ScanRulesForIngressFromEntireCluster(dst Peer) error {
+	// since we get here after scanning rules for allowed conns between peers, we can assume the rules are ok
+	for _, rule := range np.Spec.Ingress {
+		rulePeers := rule.From
+		rulePorts := rule.Ports
+		if !np.doRulesExposeToEntireCluster(rulePeers) {
+			continue
+		}
+		ruleConns, err := np.ruleConnections(rulePorts, dst)
+		if err != nil {
+			return err
+		}
+		dst.GetPeerPod().updatePodXgressExposureToEntireClusterData(ruleConns, true)
+	}
+	return nil
+}
+
+// ScanRulesForEgressToEntireCluster scans egress spec of the policy to check if the rules exposes src peer
+// to entire class, if yes update egress to entire class connection details of the src
+// dst is provided for computing the correct connection of the rules
+func (np *NetworkPolicy) ScanRulesForEgressToEntireCluster(src, dst Peer) error {
+	for _, rule := range np.Spec.Egress {
+		rulePeers := rule.To
+		rulePorts := rule.Ports
+		if !np.doRulesExposeToEntireCluster(rulePeers) {
+			continue
+		}
+		ruleConns, err := np.ruleConnections(rulePorts, dst)
+		if err != nil {
+			return err
+		}
+		src.GetPeerPod().updatePodXgressExposureToEntireClusterData(ruleConns, false)
+	}
+	return nil
+}
+
+// doRulesExposeToEntireCluster checks if the given rules list is exposed to entire cluster;
+// i.e. if the rules list is empty or if there is a rule with empty namespaceSelector
+// since this func is definitely called after ruleSelectsPeer, there is no rules' correctness check here
+func (np *NetworkPolicy) doRulesExposeToEntireCluster(rules []netv1.NetworkPolicyPeer) bool {
+	if len(rules) == 0 {
+		return true
+	}
+	for i := range rules {
+		if rules[i].IPBlock != nil {
+			continue
+		}
+		if rules[i].PodSelector != nil {
+			continue
+		}
+		// ns selector is not nil
+		selector, _ := np.parseNetpolLabelSelector(rules[i].NamespaceSelector)
+		if selector.Empty() {
+			return true
+		}
+	}
+	return false
 }
