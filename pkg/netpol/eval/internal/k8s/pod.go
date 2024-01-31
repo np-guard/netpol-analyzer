@@ -31,15 +31,15 @@ import (
 
 const defaultPortsListSize = 8
 
-type podExposureInfo struct {
-	// is Protected indicates if the pod is selected by any network-policy or not
+type PodExposureInfo struct {
+	// 	IsProtected indicates if the pod is selected by any network-policy or not
 	IsProtected bool
-	// entireClusterConnection contains the maximal connection-set for which the pod is exposed to all namespaces by network policies
+	// EntireClusterConnection contains the maximal connection-set for which the pod is exposed to all namespaces by network policies
 	EntireClusterConnection *common.ConnectionSet
 }
 
-func initiatePodExposure() podExposureInfo {
-	return podExposureInfo{
+func initiatePodExposure() PodExposureInfo {
+	return PodExposureInfo{
 		IsProtected:             false,
 		EntireClusterConnection: common.MakeConnectionSet(false),
 	}
@@ -60,12 +60,12 @@ type Pod struct {
 	// - whether the pod is protected by any network-policy on ingress direction or not;
 	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
 	// on ingress direction
-	IngressExposureData podExposureInfo
+	IngressExposureData PodExposureInfo
 	// EgressExposureData contains:
 	// - whether the pod is protected by any network-policy on egress direction or not;
 	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
 	// on egress direction
-	EgressExposureData podExposureInfo
+	EgressExposureData PodExposureInfo
 
 	// TODO in next PR: define new RepresentativePeer and move following fields to be part of it
 	ExposureNsLabels map[string]string
