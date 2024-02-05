@@ -1,6 +1,8 @@
 package fsscanner
 
 import (
+	"errors"
+
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/cli-runtime/pkg/resource"
 )
@@ -13,7 +15,8 @@ func GetResourceInfosFromDirPath(paths []string, recursive, stopOnErr bool) ([]*
 	infos, err := resourceResult.Infos()
 	errs := []error{}
 	if err != nil {
-		if agg, ok := err.(utilerrors.Aggregate); ok {
+		var agg utilerrors.Aggregate
+		if ok := errors.As(err, &agg); ok {
 			errs = agg.Errors()
 		} else {
 			errs = []error{err}
