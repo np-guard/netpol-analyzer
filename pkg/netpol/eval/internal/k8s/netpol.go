@@ -537,6 +537,7 @@ func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.Net
 	return false, false
 }
 
+// UpdatePodEntireClusterConnFromPolicyData updates the pod's entire cluster connections on the given direction
 func (np *NetworkPolicy) UpdatePodEntireClusterConnFromPolicyData(podPeer Peer, isIngress bool) {
 	if isIngress {
 		// if ingress: the pod is the dst; its named port should be converted to numbers;
