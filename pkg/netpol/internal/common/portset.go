@@ -22,9 +22,15 @@ type PortSet struct {
 func MakePortSet(all bool) PortSet {
 	if all {
 		portsInterval := Interval{Start: minPort, End: maxPort}
-		return PortSet{Ports: CanonicalIntervalSet{IntervalSet: []Interval{portsInterval}}}
+		return PortSet{Ports: CanonicalIntervalSet{IntervalSet: []Interval{portsInterval}},
+			NamedPorts:         map[string]bool{},
+			ExcludedNamedPorts: map[string]bool{},
+		}
 	}
-	return PortSet{}
+	return PortSet{
+		NamedPorts:         map[string]bool{},
+		ExcludedNamedPorts: map[string]bool{},
+	}
 }
 
 // Equal: return true if current object equals another PortSet object
@@ -41,6 +47,8 @@ func (p *PortSet) IsEmpty() bool {
 // Copy: return a new copy of a PortSet object
 func (p *PortSet) Copy() PortSet {
 	res := PortSet{}
+	res.NamedPorts = map[string]bool{}
+	res.ExcludedNamedPorts = map[string]bool{}
 	res.Ports = p.Ports.Copy()
 	for k, v := range p.NamedPorts {
 		res.NamedPorts[k] = v
@@ -54,6 +62,10 @@ func (p *PortSet) Copy() PortSet {
 // AddPort: update current PortSet object with new added port as allowed
 func (p *PortSet) AddPort(port intstr.IntOrString) {
 	if port.Type == intstr.String {
+		if p.NamedPorts == nil {
+			p.NamedPorts = make(map[string]bool)
+			p.ExcludedNamedPorts = make(map[string]bool)
+		}
 		p.NamedPorts[port.StrVal] = true
 		delete(p.ExcludedNamedPorts, port.StrVal)
 	} else {

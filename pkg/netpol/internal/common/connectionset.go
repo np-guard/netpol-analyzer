@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 // ConnectionSet represents a set of allowed connections between two peers on a k8s env
@@ -248,6 +249,27 @@ func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
 // AllConnections returns true if all ports are allowed for all protocols
 func (conn *ConnectionSet) AllConnections() bool {
 	return conn.AllowAll
+}
+
+// ReplaceNamedPortWithMatchingPortNum : checks if the connectionSet contains named ports from the given map;
+// if yes, add the matching port numbers to its portSet and delete the named port from the set
+func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(namedPortsMap map[v1.Protocol]map[string]int32) {
+	for protocol, portSet := range conn.AllowedProtocols {
+		if _, ok := namedPortsMap[protocol]; !ok {
+			continue
+		}
+		replacedNamedPorts := make([]string, 0)
+		for portName, portNum := range namedPortsMap[protocol] {
+			if portSet.NamedPorts[portName] {
+				portSet.AddPort(intstr.FromInt32(portNum))
+				replacedNamedPorts = append(replacedNamedPorts, portName)
+			}
+		}
+		// after replacing the named ports with numbers : delete them from the PortSet
+		for _, portName := range replacedNamedPorts {
+			portSet.RemovePort(intstr.FromString(portName))
+		}
+	}
 }
 
 const (
