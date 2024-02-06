@@ -46,9 +46,7 @@ func (p *PortSet) IsEmpty() bool {
 
 // Copy: return a new copy of a PortSet object
 func (p *PortSet) Copy() PortSet {
-	res := PortSet{}
-	res.NamedPorts = map[string]bool{}
-	res.ExcludedNamedPorts = map[string]bool{}
+	res := MakePortSet(false)
 	res.Ports = p.Ports.Copy()
 	for k, v := range p.NamedPorts {
 		res.NamedPorts[k] = v
@@ -62,10 +60,6 @@ func (p *PortSet) Copy() PortSet {
 // AddPort: update current PortSet object with new added port as allowed
 func (p *PortSet) AddPort(port intstr.IntOrString) {
 	if port.Type == intstr.String {
-		if p.NamedPorts == nil {
-			p.NamedPorts = make(map[string]bool)
-			p.ExcludedNamedPorts = make(map[string]bool)
-		}
 		p.NamedPorts[port.StrVal] = true
 		delete(p.ExcludedNamedPorts, port.StrVal)
 	} else {
@@ -121,7 +115,7 @@ func (p *PortSet) String() string {
 
 // Contains: return true if current PortSet contains a specific input port
 func (p *PortSet) Contains(port int64) bool {
-	portObj := PortSet{}
+	portObj := MakePortSet(false)
 	portObj.AddPortRange(port, port)
 	return portObj.ContainedIn(*p)
 }

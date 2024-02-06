@@ -133,7 +133,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 		if rulePorts[i].Protocol != nil {
 			protocol = *rulePorts[i].Protocol
 		}
-		ports := common.PortSet{}
+		ports := common.MakePortSet(false)
 		if rulePorts[i].Port == nil {
 			ports = common.MakePortSet(true)
 		} else {
