@@ -46,9 +46,6 @@ type NetworkPolicy struct {
 	// - the maximal connection-set which the policy's rules allow to all destinations on egress direction
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on egress direction
 	EgressGeneralConns PolicyGeneralRulesConns
-
-	namedPortsToPortNum map[v1.Protocol]map[string]int32 // internal map; map from protocol to map from namedPort which
-	// appeared in the policy rules to its matching port number
 }
 
 type PolicyGeneralRulesConns struct {
@@ -76,17 +73,6 @@ func getProtocolStr(p *v1.Protocol) string {
 
 func (np *NetworkPolicy) convertNamedPort(namedPort string, pod *Pod) int32 {
 	return pod.ConvertPodNamedPort(namedPort)
-}
-
-func (np *NetworkPolicy) saveNamedPortToPort(protocol v1.Protocol, namedPort string, portNum int32) {
-	if np.namedPortsToPortNum == nil {
-		np.namedPortsToPortNum = make(map[v1.Protocol]map[string]int32)
-	}
-	// a namedPort was converted, store in the map
-	if _, ok := np.namedPortsToPortNum[protocol]; !ok {
-		np.namedPortsToPortNum[protocol] = make(map[string]int32)
-	}
-	np.namedPortsToPortNum[protocol][namedPort] = portNum
 }
 
 // getPortsRange returns the start and end port numbers given input port, endPort and dest peer
@@ -119,7 +105,7 @@ func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32,
 }
 
 func isEmptyPortRange(start, end int32) bool {
-	return start == noPort && end == noPort
+	return start == common.NoPort && end == common.NoPort
 }
 
 func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) (*common.ConnectionSet, error) {
@@ -142,11 +128,10 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 				return res, err
 			}
 			if dst == nil && portName != "" {
-				// if dst is nil and rulePorts contains namedPort, we want to save the general connection with namedPort
+				// adding namedPort to connectionSet in case of :
+				// -  dst is nil - for general connections;
+				// - TODO: if dst is a fake pod (representative)
 				ports.AddPort(intstr.FromString(portName))
-			}
-			if portName != "" && startPort != -1 {
-				np.saveNamedPortToPort(protocol, portName, startPort)
 			}
 			if !isEmptyPortRange(startPort, endPort) {
 				ports.AddPortRange(int64(startPort), int64(endPort))
@@ -535,23 +520,4 @@ func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.Net
 		}
 	}
 	return false, false
-}
-
-// UpdatePodEntireClusterConnFromPolicyData updates the pod's entire cluster connections on the given direction
-func (np *NetworkPolicy) UpdatePodEntireClusterConnFromPolicyData(podPeer Peer, isIngress bool) {
-	if isIngress {
-		// if ingress: the pod is the dst; its named port should be converted to numbers;
-		// if the policy's entire cluster connection includes
-		// named ports; add the matching port num to the connection
-		// should replace namedport here or move to another place?
-		np.IngressGeneralConns.EntireClusterConns.ReplaceNamedPortWithMatchingPortNum(np.namedPortsToPortNum)
-		podPeer.GetPeerPod().updatePodXgressExposureToEntireClusterData(np.IngressGeneralConns.EntireClusterConns, isIngress)
-	} else {
-		// TBD : if egress, the pod is the src; if the policy's entire cluster connection includes named ports;
-		// should we keep the named port only?
-		// (for specific real pods; this port is converted when computing the allowed conns between both peers)
-		// should following line: adding already converted namedPorts be here:
-		np.EgressGeneralConns.EntireClusterConns.ReplaceNamedPortWithMatchingPortNum(np.namedPortsToPortNum)
-		podPeer.GetPeerPod().updatePodXgressExposureToEntireClusterData(np.EgressGeneralConns.EntireClusterConns, isIngress)
-	}
 }

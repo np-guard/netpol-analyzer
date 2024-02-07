@@ -279,7 +279,7 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 			if !ingressSet[dst] {
 				// if this is first time scanning policies selecting this dst peer,
 				// update its ingress entire cluster connection relying on policy data
-				policy.UpdatePodEntireClusterConnFromPolicyData(dst, isIngress)
+				dst.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.IngressGeneralConns.EntireClusterConns, isIngress)
 			}
 		} else {
 			// policy selecting src
@@ -287,7 +287,7 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 			if !egressSet[src] {
 				// if this is first time scanning policies selecting this src peer,
 				// update its egress entire cluster connection relying on policy data
-				policy.UpdatePodEntireClusterConnFromPolicyData(src, isIngress)
+				src.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.EgressGeneralConns.EntireClusterConns, isIngress)
 			}
 		}
 		if err != nil {

@@ -209,6 +209,39 @@ func (conn *ConnectionSet) Equal(other *ConnectionSet) bool {
 	return true
 }
 
+// Copy returns a new copy of ConnectionSet object
+func (conn *ConnectionSet) Copy() *ConnectionSet {
+	res := MakeConnectionSet(false)
+	res.AllowAll = conn.AllowAll
+	for protocol, portSet := range conn.AllowedProtocols {
+		portSetCopy := portSet.Copy()
+		res.AllowedProtocols[protocol] = &portSetCopy
+	}
+	return res
+}
+
+// GetNamedPorts returns map from protocol to list of its allowed named ports
+func (conn *ConnectionSet) GetNamedPorts() map[v1.Protocol][]string {
+	res := make(map[v1.Protocol][]string, 0)
+	for protocol, portSet := range conn.AllowedProtocols {
+		if namedPorts := portSet.GetNamedPortsKeys(); len(namedPorts) > 0 {
+			res[protocol] = namedPorts
+		}
+	}
+	return res
+}
+
+// ReplaceNamedPortWithMatchingPortNum : replacing given namedPort with the matching given port num in the connection
+// if port num is -1; just deletes the named port from the protocol's list
+func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(protocol v1.Protocol, namedPort string, portNum int32) {
+	protocolPortSet := conn.AllowedProtocols[protocol]
+	if portNum != NoPort {
+		protocolPortSet.AddPort(intstr.FromInt32(portNum))
+	}
+	// after adding the portNum to the protocol's portSet; remove the port name
+	protocolPortSet.RemovePort(intstr.FromString(namedPort))
+}
+
 // portRange implements the PortRange interface
 type portRange struct {
 	start int64
@@ -249,27 +282,6 @@ func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
 // AllConnections returns true if all ports are allowed for all protocols
 func (conn *ConnectionSet) AllConnections() bool {
 	return conn.AllowAll
-}
-
-// ReplaceNamedPortWithMatchingPortNum : checks if the connectionSet contains named ports from the given map;
-// if yes, add the matching port numbers to its portSet and delete the named port from the set
-func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(namedPortsMap map[v1.Protocol]map[string]int32) {
-	for protocol, portSet := range conn.AllowedProtocols {
-		if _, ok := namedPortsMap[protocol]; !ok {
-			continue
-		}
-		replacedNamedPorts := make([]string, 0)
-		for portName, portNum := range namedPortsMap[protocol] {
-			if portSet.NamedPorts[portName] {
-				portSet.AddPort(intstr.FromInt32(portNum))
-				replacedNamedPorts = append(replacedNamedPorts, portName)
-			}
-		}
-		// after replacing the named ports with numbers : delete them from the PortSet
-		for _, portName := range replacedNamedPorts {
-			portSet.RemovePort(intstr.FromString(portName))
-		}
-	}
 }
 
 const (

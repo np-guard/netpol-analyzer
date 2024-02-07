@@ -7,6 +7,7 @@ import (
 )
 
 const (
+	NoPort        = -1
 	minPort int64 = 1
 	maxPort int64 = 65535
 )
@@ -110,7 +111,18 @@ func (p *PortSet) IsAll() bool {
 
 // String: return string representation of current PortSet
 func (p *PortSet) String() string {
-	return p.Ports.String()
+	res := p.Ports.String()
+	if len(p.NamedPorts) > 0 {
+		// if p.Ports is empty but p.NamedPorts is not: start a new string
+		if res == emptyStr {
+			res = ""
+		}
+		for k := range p.NamedPorts {
+			res += k + ","
+		}
+		res = res[:len(res)-1]
+	}
+	return res
 }
 
 // Contains: return true if current PortSet contains a specific input port
@@ -118,6 +130,15 @@ func (p *PortSet) Contains(port int64) bool {
 	portObj := MakePortSet(false)
 	portObj.AddPortRange(port, port)
 	return portObj.ContainedIn(*p)
+}
+
+// GetNamedPortsKeys returns the named ports of current portSet
+func (p *PortSet) GetNamedPortsKeys() []string {
+	res := []string{}
+	for k := range p.NamedPorts {
+		res = append(res, k)
+	}
+	return res
 }
 
 /*

@@ -235,10 +235,12 @@ func getNumAsStr(num int64) string {
 	return fmt.Sprintf("%v", num)
 }
 
+const emptyStr = "Empty"
+
 // String returns a string representation of the current CanonicalIntervalSet object
 func (c *CanonicalIntervalSet) String() string {
 	if c.IsEmpty() {
-		return "Empty"
+		return emptyStr
 	}
 	res := ""
 	for _, interval := range c.IntervalSet {
