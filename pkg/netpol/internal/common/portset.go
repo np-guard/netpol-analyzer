@@ -2,6 +2,7 @@ package common
 
 import (
 	"reflect"
+	"sort"
 
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -109,16 +110,22 @@ func (p *PortSet) IsAll() bool {
 	return p.Equal(MakePortSet(true))
 }
 
+const comma = ","
+
 // String: return string representation of current PortSet
 func (p *PortSet) String() string {
 	res := p.Ports.String()
 	if len(p.NamedPorts) > 0 {
+		sortedNamedPorts := p.GetNamedPortsKeys()
+		sort.Strings(sortedNamedPorts)
 		// if p.Ports is empty but p.NamedPorts is not: start a new string
 		if res == emptyStr {
 			res = ""
+		} else {
+			res += comma
 		}
-		for k := range p.NamedPorts {
-			res += k + ","
+		for _, k := range sortedNamedPorts {
+			res += k + comma
 		}
 		res = res[:len(res)-1]
 	}
