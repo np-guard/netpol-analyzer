@@ -274,21 +274,21 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 		var policyAllowedConnectionsPerDirection *common.ConnectionSet
 		var err error
 		if isIngress {
-			// policy selecting dst
-			policyAllowedConnectionsPerDirection, err = policy.GetIngressAllowedConns(src, dst)
+			// policy selecting dst (dst pod is real)
 			if pe.exposureAnalysisFlag && !ingressSet[dst] {
 				// if this is first time scanning policies selecting this dst peer,
 				// update its ingress entire cluster connection relying on policy data
 				dst.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.IngressGeneralConns.EntireClusterConns, isIngress)
 			}
+			policyAllowedConnectionsPerDirection, err = policy.GetIngressAllowedConns(src, dst, pe.exposureAnalysisFlag)
 		} else {
 			// policy selecting src
-			policyAllowedConnectionsPerDirection, err = policy.GetEgressAllowedConns(dst)
 			if pe.exposureAnalysisFlag && !egressSet[src] {
 				// if this is first time scanning policies selecting this src peer,
 				// update its egress entire cluster connection relying on policy data
 				src.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.EgressGeneralConns.EntireClusterConns, isIngress)
 			}
+			policyAllowedConnectionsPerDirection, err = policy.GetEgressAllowedConns(dst, pe.exposureAnalysisFlag)
 		}
 		if err != nil {
 			return allowedConns, err

@@ -289,11 +289,21 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 }
 
 // GetEgressAllowedConns returns the set of allowed connetions from any captured pod to the destination peer
-func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet, error) {
+// if exposureFlag is true; the result is initiated with the matching policy's general connections
+// and computations of rule conns are skipped for general rules;
+func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer, exposureFlag bool) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
+	if exposureFlag {
+		// if exposure-analysis is on; we already have the policy's entire world and entire cluster connections;
+		// so we can initiate the result with it
+		res = np.initEgressAllowedConnsFromPolicyGeneralConns(dst)
+	}
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
+		if exposureFlag && np.isGeneralRule(rulePeers) {
+			continue
+		}
 		peerSselected, err := np.ruleSelectsPeer(rulePeers, dst)
 		if err != nil {
 			return res, err
@@ -314,11 +324,21 @@ func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet,
 }
 
 // GetIngressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer
-func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (*common.ConnectionSet, error) {
+// if exposureFlag is true; the result is initiated with the matching policy's general connections
+// and computations of rule conns are skipped for general rules;
+func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer, exposureFlag bool) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
+	if exposureFlag {
+		// if exposure-analysis is on; we already have the policy's entire world and entire cluster connections;
+		// so we can initiate the result
+		res = np.initIngressAllowedConnsFromGeneralConns(src, dst)
+	}
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
+		if exposureFlag && np.isGeneralRule(rulePeers) {
+			continue
+		}
 		peerSselected, err := np.ruleSelectsPeer(rulePeers, src)
 		if err != nil {
 			return res, err
@@ -499,7 +519,7 @@ func (np *NetworkPolicy) scanRulesForGeneralEgressConns() error {
 	return nil
 }
 
-// doRulesExposeToAllDestOrEntireCluster checks if the given rules list is exposed to entire cluster;
+// doRulesExposeToAllDestOrEntireCluster checks if the given rules list is exposed to entire world or entire cluster;
 // i.e. if the rules list is empty or if there is a rule with empty namespaceSelector
 // this func assumes rules are legal (rules correctness check occurs later)
 func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.NetworkPolicyPeer) (alldests, entireCluster bool) {
@@ -520,4 +540,51 @@ func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.Net
 		}
 	}
 	return false, false
+}
+
+/////////////////////////////////////////////////
+// exposure analysis benefits from pre-processing stored data
+
+// initEgressAllowedConnsFromPolicyGeneralConns returns an init egress allowed conns between two peers
+// based on the policy's general connections as following:
+// - if the dst peer is ip-block, then return the copy of policy's egress AllDestinationsConns
+// - if the dst peer is a real pod, return the copy of policy's egress EntireClusterConns with converting the named ports
+// if found in the connection (conversion based on dst pod's ports)
+// - if the dst peer is a representative pod, return the copy policy's egress EntireClusterConns without converting the named
+// ports if found (for a representative pod, a named port is potential connection port)
+// returns copy of a general connection, since it might be changed for the specific connection between two peers
+func (np *NetworkPolicy) initEgressAllowedConnsFromPolicyGeneralConns(dst Peer) *common.ConnectionSet {
+	if dst.GetPeerIPBlock() != nil { // dst is ip
+		return np.EgressGeneralConns.AllDestinationsConns.Copy()
+	}
+	res := np.EgressGeneralConns.EntireClusterConns
+	if dst.GetPeerPod().FakePod { // dst is representative
+		return res.Copy()
+	}
+	// dst is real pod
+	convertedConn := dst.GetPeerPod().checkAndConvertNamedPortsInConnection(res)
+	if convertedConn != nil {
+		return convertedConn
+	}
+	return res.Copy()
+}
+
+// initIngressAllowedConnsFromGeneralConns returns an init ingress allowed conns between two peers;
+// based on policy and dst pod general connections as following:
+// 1. src peer is an ip-block : returns copy of policy's ingress AllDestinationsConns
+// 2. src peer is a pod (real or representative) : returns copy of dst pod's ingress' entire-cluster connection
+// as it already contains the policy's ingress entire-cluster connection and converted named ports (if found)
+// returns copy of a general connection, since it might be changed for the specific connection between two peers
+func (np *NetworkPolicy) initIngressAllowedConnsFromGeneralConns(src, dst Peer) *common.ConnectionSet {
+	if src.GetPeerIPBlock() != nil { // src is ip
+		return np.IngressGeneralConns.AllDestinationsConns.Copy()
+	}
+	// src is pod peer
+	return dst.GetPeerPod().IngressExposureData.EntireClusterConnection.Copy()
+}
+
+// isGeneralRule returns if the given rule is general; i.e. e
+func (np *NetworkPolicy) isGeneralRule(rulePeer []netv1.NetworkPolicyPeer) bool {
+	allDests, entireCluster := np.doRulesExposeToAllDestOrEntireCluster(rulePeer)
+	return allDests || entireCluster
 }

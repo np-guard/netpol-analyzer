@@ -280,23 +280,33 @@ func (pod *Pod) UpdatePodXgressExposureToEntireClusterData(ruleConns *common.Con
 	if isIngress {
 		// for a dst pod check if the given ruleConns contains namedPorts; if yes replace them with pod's
 		// matching port number
-		connNamedPorts := ruleConns.GetNamedPorts()
-		if len(connNamedPorts) > 0 {
-			ruleConnsCopy := ruleConns.Copy() // copying the connectionSet; in order to replace
-			// the named ports with pod's port numbers
-			for protocol, namedPorts := range connNamedPorts {
-				for _, namedPort := range namedPorts {
-					portNum := pod.ConvertPodNamedPort(namedPort)
-					ruleConnsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum)
-				}
-			}
-			pod.IngressExposureData.EntireClusterConnection.Union(ruleConnsCopy)
+		convertedConns := pod.checkAndConvertNamedPortsInConnection(ruleConns)
+		if convertedConns != nil {
+			pod.IngressExposureData.EntireClusterConnection.Union(convertedConns)
 		} else {
 			pod.IngressExposureData.EntireClusterConnection.Union(ruleConns)
 		}
 	} else {
 		pod.EgressExposureData.EntireClusterConnection.Union(ruleConns)
 	}
+}
+
+// checkAndConvertNamedPortsInConnection returns the copy of the given connectionSet where named ports are converted;
+// returns nil if the given connectionSet has no named ports
+func (pod *Pod) checkAndConvertNamedPortsInConnection(conns *common.ConnectionSet) *common.ConnectionSet {
+	connNamedPorts := conns.GetNamedPorts()
+	if len(connNamedPorts) == 0 {
+		return nil
+	} // else - found named ports
+	connsCopy := conns.Copy() // copying the connectionSet; in order to replace
+	// the named ports with pod's port numbers
+	for protocol, namedPorts := range connNamedPorts {
+		for _, namedPort := range namedPorts {
+			portNum := pod.ConvertPodNamedPort(namedPort)
+			connsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum)
+		}
+	}
+	return connsCopy
 }
 
 // updatePodXgressProtectedFlag updates to true the relevant ingress/egress protected flag of the pod
