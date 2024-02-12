@@ -2,11 +2,14 @@ package common
 
 import (
 	"reflect"
+	"sort"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 const (
+	NoPort        = -1
 	minPort int64 = 1
 	maxPort int64 = 65535
 )
@@ -22,9 +25,15 @@ type PortSet struct {
 func MakePortSet(all bool) PortSet {
 	if all {
 		portsInterval := Interval{Start: minPort, End: maxPort}
-		return PortSet{Ports: CanonicalIntervalSet{IntervalSet: []Interval{portsInterval}}}
+		return PortSet{Ports: CanonicalIntervalSet{IntervalSet: []Interval{portsInterval}},
+			NamedPorts:         map[string]bool{},
+			ExcludedNamedPorts: map[string]bool{},
+		}
 	}
-	return PortSet{}
+	return PortSet{
+		NamedPorts:         map[string]bool{},
+		ExcludedNamedPorts: map[string]bool{},
+	}
 }
 
 // Equal: return true if current object equals another PortSet object
@@ -40,7 +49,7 @@ func (p *PortSet) IsEmpty() bool {
 
 // Copy: return a new copy of a PortSet object
 func (p *PortSet) Copy() PortSet {
-	res := PortSet{}
+	res := MakePortSet(false)
 	res.Ports = p.Ports.Copy()
 	for k, v := range p.NamedPorts {
 		res.NamedPorts[k] = v
@@ -102,16 +111,41 @@ func (p *PortSet) IsAll() bool {
 	return p.Equal(MakePortSet(true))
 }
 
+const comma = ","
+
 // String: return string representation of current PortSet
 func (p *PortSet) String() string {
-	return p.Ports.String()
+	res := p.Ports.String()
+	if len(p.NamedPorts) > 0 {
+		sortedNamedPorts := p.GetNamedPortsKeys()
+		sort.Strings(sortedNamedPorts)
+		// if p.Ports is empty but p.NamedPorts is not: start a new string
+		if res == emptyStr {
+			res = ""
+		} else {
+			res += comma
+		}
+		res += strings.Join(sortedNamedPorts, comma)
+	}
+	return res
 }
 
 // Contains: return true if current PortSet contains a specific input port
 func (p *PortSet) Contains(port int64) bool {
-	portObj := PortSet{}
+	portObj := MakePortSet(false)
 	portObj.AddPortRange(port, port)
 	return portObj.ContainedIn(*p)
+}
+
+// GetNamedPortsKeys returns the named ports of current portSet
+func (p *PortSet) GetNamedPortsKeys() []string {
+	res := make([]string, len(p.NamedPorts))
+	index := 0
+	for k := range p.NamedPorts {
+		res[index] = k
+		index++
+	}
+	return res
 }
 
 /*

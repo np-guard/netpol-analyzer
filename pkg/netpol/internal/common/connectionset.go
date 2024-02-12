@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 // ConnectionSet represents a set of allowed connections between two peers on a k8s env
@@ -206,6 +207,39 @@ func (conn *ConnectionSet) Equal(other *ConnectionSet) bool {
 		}
 	}
 	return true
+}
+
+// Copy returns a new copy of ConnectionSet object
+func (conn *ConnectionSet) Copy() *ConnectionSet {
+	res := MakeConnectionSet(false)
+	res.AllowAll = conn.AllowAll
+	for protocol, portSet := range conn.AllowedProtocols {
+		portSetCopy := portSet.Copy()
+		res.AllowedProtocols[protocol] = &portSetCopy
+	}
+	return res
+}
+
+// GetNamedPorts returns map from protocol to list of its allowed named ports
+func (conn *ConnectionSet) GetNamedPorts() map[v1.Protocol][]string {
+	res := make(map[v1.Protocol][]string, 0)
+	for protocol, portSet := range conn.AllowedProtocols {
+		if namedPorts := portSet.GetNamedPortsKeys(); len(namedPorts) > 0 {
+			res[protocol] = namedPorts
+		}
+	}
+	return res
+}
+
+// ReplaceNamedPortWithMatchingPortNum : replacing given namedPort with the matching given port num in the connection
+// if port num is -1; just deletes the named port from the protocol's list
+func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(protocol v1.Protocol, namedPort string, portNum int32) {
+	protocolPortSet := conn.AllowedProtocols[protocol]
+	if portNum != NoPort {
+		protocolPortSet.AddPort(intstr.FromInt32(portNum))
+	}
+	// after adding the portNum to the protocol's portSet; remove the port name
+	protocolPortSet.RemovePort(intstr.FromString(namedPort))
 }
 
 // portRange implements the PortRange interface

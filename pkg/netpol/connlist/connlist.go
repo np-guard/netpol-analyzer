@@ -342,7 +342,8 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.ConnectionSet {
 	protocolsToPortSetMap := make(map[v1.Protocol]*common.PortSet, len(c.ProtocolsAndPorts()))
 	for protocol, portRageArr := range c.ProtocolsAndPorts() {
-		protocolsToPortSetMap[protocol] = &common.PortSet{}
+		portSet := common.MakePortSet(false)
+		protocolsToPortSetMap[protocol] = &portSet
 		for _, portRange := range portRageArr {
 			protocolsToPortSetMap[protocol].AddPortRange(portRange.Start(), portRange.End())
 		}

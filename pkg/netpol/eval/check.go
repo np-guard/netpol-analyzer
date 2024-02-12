@@ -276,24 +276,18 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 		if isIngress {
 			// policy selecting dst
 			policyAllowedConnectionsPerDirection, err = policy.GetIngressAllowedConns(src, dst)
-			if err != nil {
-				return allowedConns, err
-			}
 			if !ingressSet[dst] {
 				// if this is first time scanning policies selecting this dst peer,
-				// check and store if it is exposed to entire class on ingress
-				err = policy.ScanRulesForIngressFromEntireCluster(dst)
+				// update its ingress entire cluster connection relying on policy data
+				dst.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.IngressGeneralConns.EntireClusterConns, isIngress)
 			}
 		} else {
 			// policy selecting src
 			policyAllowedConnectionsPerDirection, err = policy.GetEgressAllowedConns(dst)
-			if err != nil {
-				return allowedConns, err
-			}
 			if !egressSet[src] {
 				// if this is first time scanning policies selecting this src peer,
-				// check and store if it is exposed to entire class on egress
-				err = policy.ScanRulesForEgressToEntireCluster(src, dst)
+				// update its egress entire cluster connection relying on policy data
+				src.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.EgressGeneralConns.EntireClusterConns, isIngress)
 			}
 		}
 		if err != nil {

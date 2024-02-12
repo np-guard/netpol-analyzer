@@ -255,7 +255,7 @@ func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 	for _, cPort := range pod.Ports {
 		protocol := corev1.ProtocolTCP
 		if cPort.Protocol == "" || protocol == corev1.ProtocolTCP {
-			ports := common.PortSet{}
+			ports := common.MakePortSet(false)
 			ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort))
 			res.AddConnection(protocol, ports)
 		}
@@ -263,23 +263,37 @@ func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 	return res
 }
 
-const noPort = -1
-
 // ConvertPodNamedPort returns the ContainerPort number that matches the named port
 // if there is no match, returns -1
+// namedPort is unique within the pod
 func (pod *Pod) ConvertPodNamedPort(namedPort string) int32 {
 	for _, containerPort := range pod.Ports {
 		if namedPort == containerPort.Name {
 			return containerPort.ContainerPort
 		}
 	}
-	return noPort
+	return common.NoPort
 }
 
 // updatePodXgressExposureToEntireClusterData updates the pods' fields which are related to entire class exposure on ingress/egress
-func (pod *Pod) updatePodXgressExposureToEntireClusterData(ruleConns *common.ConnectionSet, isIngress bool) {
+func (pod *Pod) UpdatePodXgressExposureToEntireClusterData(ruleConns *common.ConnectionSet, isIngress bool) {
 	if isIngress {
-		pod.IngressExposureData.EntireClusterConnection.Union(ruleConns)
+		// for a dst pod check if the given ruleConns contains namedPorts; if yes replace them with pod's
+		// matching port number
+		connNamedPorts := ruleConns.GetNamedPorts()
+		if len(connNamedPorts) > 0 {
+			ruleConnsCopy := ruleConns.Copy() // copying the connectionSet; in order to replace
+			// the named ports with pod's port numbers
+			for protocol, namedPorts := range connNamedPorts {
+				for _, namedPort := range namedPorts {
+					portNum := pod.ConvertPodNamedPort(namedPort)
+					ruleConnsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum)
+				}
+			}
+			pod.IngressExposureData.EntireClusterConnection.Union(ruleConnsCopy)
+		} else {
+			pod.IngressExposureData.EntireClusterConnection.Union(ruleConns)
+		}
 	} else {
 		pod.EgressExposureData.EntireClusterConnection.Union(ruleConns)
 	}
