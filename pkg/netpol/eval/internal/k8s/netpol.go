@@ -37,7 +37,7 @@ import (
 // -> might help to preprocess and store peers that match policy selectors + selectors in rules + set of allowed connections per rule
 type NetworkPolicy struct {
 	*netv1.NetworkPolicy // embedding k8s network policy object
-	// following data stored in preprocessing;
+	// following data stored in preprocessing when exposure-analysis is on;
 	// IngressGeneralConns contains:
 	// - the maximal connection-set which the policy's rules allow to all destinations on ingress direction
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on ingress direction
@@ -438,7 +438,7 @@ func (np *NetworkPolicy) fullName() string {
 }
 
 // /////////////////////////////////////////////////////////////////////////////////////////////
-// pre-processing computations - currently performed for exposure-analysis goals;
+// pre-processing computations - currently performed for exposure-analysis goals only;
 
 // DetermineGeneralConnectionsOfPolicy scans policy rules and updates if it allows conns with all destinations or/ and with entire cluster
 // for ingress and/ or egress directions

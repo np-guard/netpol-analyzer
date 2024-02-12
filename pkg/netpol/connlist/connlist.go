@@ -190,18 +190,29 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 	return nil
 }
 
-func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
+// getPolicyEngine returns a new policy engine considering the exposure analysis option
+func (ca *ConnlistAnalyzer) getPolicyEngine(objectsList []parser.K8sObject) (*eval.PolicyEngine, error) {
 	// TODO: do we need logger in policyEngine?
-	pe, err := eval.NewPolicyEngineWithObjects(objectsList)
+	if !ca.exposureAnalysis {
+		return eval.NewPolicyEngineWithObjects(objectsList)
+	}
+	// else build new policy engine with exposure analysis
+	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
+	// add objects from real resources
+	err := pe.AddObjects(objectsList)
+	if err != nil {
+		return nil, err
+	}
+	// add representative resources
+	err = pe.SetExposureAnalysisResources()
+	return pe, err
+}
+
+func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
+	pe, err := ca.getPolicyEngine(objectsList)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
-	}
-	if ca.exposureAnalysis {
-		err = pe.SetExposureAnalysisResources()
-		if err != nil {
-			return nil, nil, err
-		}
 	}
 	ia, err := ingressanalyzer.NewIngressAnalyzerWithObjects(objectsList, pe, ca.logger, ca.muteErrsAndWarns)
 	if err != nil {
@@ -491,7 +502,7 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnal
 func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, peers []Peer) ([]Peer2PeerConnection, exposureMap, error) {
 	connsRes := make([]Peer2PeerConnection, 0)
 	exposuresMap := exposureMap{}
-	// sets for marking peer checked for ingress/egress exposure to entire cluster data once
+	// for exposure-analysis use: sets for marking peer checked for ingress/egress exposure to entire cluster data once
 	ingressSet := make(map[Peer]bool, 0)
 	egressSet := make(map[Peer]bool, 0)
 
