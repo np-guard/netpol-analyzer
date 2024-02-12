@@ -278,18 +278,22 @@ func (pod *Pod) ConvertPodNamedPort(namedPort string) int32 {
 // updatePodXgressExposureToEntireClusterData updates the pods' fields which are related to entire class exposure on ingress/egress
 func (pod *Pod) UpdatePodXgressExposureToEntireClusterData(ruleConns *common.ConnectionSet, isIngress bool) {
 	if isIngress {
-		// for a dst pod check if the given ruleConns contains namedPorts; and replace them with pod's
+		// for a dst pod check if the given ruleConns contains namedPorts; if yes replace them with pod's
 		// matching port number
-		ruleConnsCopy := ruleConns.Copy() // copying the connectionSet; in order to replace
-		// the named ports with pod's port numbers
-		connNamedPorts := ruleConnsCopy.GetNamedPorts()
-		for protocol, namedPorts := range connNamedPorts {
-			for _, namedPort := range namedPorts {
-				portNum := pod.ConvertPodNamedPort(namedPort)
-				ruleConnsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum)
+		connNamedPorts := ruleConns.GetNamedPorts()
+		if len(connNamedPorts) > 0 {
+			ruleConnsCopy := ruleConns.Copy() // copying the connectionSet; in order to replace
+			// the named ports with pod's port numbers
+			for protocol, namedPorts := range connNamedPorts {
+				for _, namedPort := range namedPorts {
+					portNum := pod.ConvertPodNamedPort(namedPort)
+					ruleConnsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum)
+				}
 			}
+			pod.IngressExposureData.EntireClusterConnection.Union(ruleConnsCopy)
+		} else {
+			pod.IngressExposureData.EntireClusterConnection.Union(ruleConns)
 		}
-		pod.IngressExposureData.EntireClusterConnection.Union(ruleConnsCopy)
 	} else {
 		pod.EgressExposureData.EntireClusterConnection.Union(ruleConns)
 	}

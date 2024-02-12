@@ -85,7 +85,7 @@ func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32,
 	portName := ""
 	if port.Type == intstr.String {
 		if dst == nil {
-			return -1, -1, port.StrVal, nil
+			return common.NoPort, common.NoPort, port.StrVal, nil
 		}
 		if dst.PeerType() != PodType {
 			return start, end, "", np.netpolErr(netpolerrors.NamedPortErrTitle, netpolerrors.ConvertNamedPortErrStr)

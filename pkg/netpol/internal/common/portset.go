@@ -3,6 +3,7 @@ package common
 import (
 	"reflect"
 	"sort"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -124,10 +125,7 @@ func (p *PortSet) String() string {
 		} else {
 			res += comma
 		}
-		for _, k := range sortedNamedPorts {
-			res += k + comma
-		}
-		res = res[:len(res)-1]
+		res += strings.Join(sortedNamedPorts, comma)
 	}
 	return res
 }
@@ -141,9 +139,11 @@ func (p *PortSet) Contains(port int64) bool {
 
 // GetNamedPortsKeys returns the named ports of current portSet
 func (p *PortSet) GetNamedPortsKeys() []string {
-	res := []string{}
+	res := make([]string, len(p.NamedPorts))
+	index := 0
 	for k := range p.NamedPorts {
-		res = append(res, k)
+		res[index] = k
+		index++
 	}
 	return res
 }

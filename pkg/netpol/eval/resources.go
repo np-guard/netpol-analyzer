@@ -311,7 +311,7 @@ func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
 	return nil
 }
 
-func initiatePolicyGeneralConns() k8s.PolicyGeneralRulesConns {
+func initPolicyGeneralConns() k8s.PolicyGeneralRulesConns {
 	return k8s.PolicyGeneralRulesConns{
 		AllDestinationsConns: common.MakeConnectionSet(false),
 		EntireClusterConns:   common.MakeConnectionSet(false),
@@ -328,16 +328,16 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		pe.netpolsMap[netpolNamespace] = make(map[string]*k8s.NetworkPolicy)
 	}
 
-	newNP := &k8s.NetworkPolicy{
+	newNetpol := &k8s.NetworkPolicy{
 		NetworkPolicy:       np,
-		IngressGeneralConns: initiatePolicyGeneralConns(),
-		EgressGeneralConns:  initiatePolicyGeneralConns(),
+		IngressGeneralConns: initPolicyGeneralConns(),
+		EgressGeneralConns:  initPolicyGeneralConns(),
 	}
-	pe.netpolsMap[netpolNamespace][np.Name] = newNP
+	pe.netpolsMap[netpolNamespace][np.Name] = newNetpol
 
 	// scan policy ingress and egress rules to store allowed connections
 	// to entire cluster and to all destinations (if such connections are allowed by the policy)
-	err := newNP.DetermineGeneralConnectionsOfPolicy()
+	err := newNetpol.DetermineGeneralConnectionsOfPolicy()
 
 	// clear the cache on netpols changes
 	pe.cache.clear()
