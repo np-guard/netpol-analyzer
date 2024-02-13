@@ -294,7 +294,7 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 	return false, nil
 }
 
-// GetEgressAllowedConns returns the set of allowed connetions from any captured pod to the destination peer
+// GetEgressAllowedConns returns the set of allowed connections from any captured pod to the destination peer
 // if exposureFlag is true; the result is initiated with the matching policy's general connections
 // and computations of rule conns are skipped for general rules;
 func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer, exposureFlag bool) (*common.ConnectionSet, error) {
