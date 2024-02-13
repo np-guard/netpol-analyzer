@@ -69,6 +69,7 @@ func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 	return pe
 }
 
+// AddObjects adds k8s objects from parsed resources to the policy engine
 func (pe *PolicyEngine) AddObjects(objects []parser.K8sObject) error {
 	var err error
 	for _, obj := range objects {
