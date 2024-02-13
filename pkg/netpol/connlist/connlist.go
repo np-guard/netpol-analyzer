@@ -203,6 +203,7 @@ func (ca *ConnlistAnalyzer) getPolicyEngine(objectsList []parser.K8sObject) (*ev
 	if err != nil {
 		return nil, err
 	}
+	// TODO: this will be eliminated when adding representative peers while policies upsert
 	// add representative resources
 	err = pe.SetExposureAnalysisResources()
 	return pe, err
