@@ -173,10 +173,12 @@ func (np *NetworkPolicy) ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, p
 }
 
 // ruleSelectsPeer returns true if the given peer is in the set of peers selected by rulePeers
+// if exposureFlag is true, skips general rules; i.e. returns false also if the rule selects all destinations
+// or entire cluster
 //
 //gocyclo:ignore
-func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, peer Peer) (bool, error) {
-	if len(rulePeers) == 0 {
+func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, peer Peer, exposureFlag bool) (bool, error) {
+	if len(rulePeers) == 0 && !exposureFlag {
 		return true, nil // If this field is empty or missing, this rule matches all destinations
 	}
 	for i := range rulePeers {
@@ -199,6 +201,10 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 				selector, err := np.parseNetpolLabelSelector(rulePeers[i].NamespaceSelector)
 				if err != nil {
 					return false, err
+				}
+				if exposureFlag && selector.Empty() && rulePeers[i].PodSelector == nil {
+					// general rule matching entire cluster (namespaceSelector : {}); skip in case of exposure analysis
+					continue
 				}
 				peerNamespace := peer.GetPeerNamespace()
 				peerMatchesNamespaceSelector = selector.Matches(labels.Set(peerNamespace.Labels))
@@ -246,7 +252,7 @@ func (np *NetworkPolicy) IngressAllowedConn(src Peer, protocol, port string, dst
 		rulePeers := np.Spec.Ingress[i].From
 		rulePorts := np.Spec.Ingress[i].Ports
 
-		peerSselected, err := np.ruleSelectsPeer(rulePeers, src)
+		peerSselected, err := np.ruleSelectsPeer(rulePeers, src, false)
 		if err != nil {
 			return false, err
 		}
@@ -270,7 +276,7 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 		rulePeers := np.Spec.Egress[i].To
 		rulePorts := np.Spec.Egress[i].Ports
 
-		peerSselected, err := np.ruleSelectsPeer(rulePeers, dst)
+		peerSselected, err := np.ruleSelectsPeer(rulePeers, dst, false)
 		if err != nil {
 			return false, err
 		}
@@ -301,10 +307,8 @@ func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer, exposureFlag bool) (*co
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		if exposureFlag && np.isGeneralRule(rulePeers) {
-			continue
-		}
-		peerSselected, err := np.ruleSelectsPeer(rulePeers, dst)
+		// in case of exposure analysis, returns false for general rule; as we already has its conns in res
+		peerSselected, err := np.ruleSelectsPeer(rulePeers, dst, exposureFlag)
 		if err != nil {
 			return res, err
 		}
@@ -329,17 +333,15 @@ func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer, exposureFlag bool) (*co
 func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer, exposureFlag bool) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
 	if exposureFlag {
-		// if exposure-analysis is on; we already have the policy's entire world and entire cluster connections;
+		// if exposure-analysis is on; we already have the policy's and dst's entire world and entire cluster connections;
 		// so we can initiate the result
 		res = np.initIngressAllowedConnsFromGeneralConns(src, dst)
 	}
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		if exposureFlag && np.isGeneralRule(rulePeers) {
-			continue
-		}
-		peerSselected, err := np.ruleSelectsPeer(rulePeers, src)
+		// in case of exposure analysis, returns false for general rule; as we already has its conns in res
+		peerSselected, err := np.ruleSelectsPeer(rulePeers, src, exposureFlag)
 		if err != nil {
 			return res, err
 		}
@@ -581,10 +583,4 @@ func (np *NetworkPolicy) initIngressAllowedConnsFromGeneralConns(src, dst Peer) 
 	}
 	// src is pod peer
 	return dst.GetPeerPod().IngressExposureData.EntireClusterConnection.Copy()
-}
-
-// isGeneralRule returns if the given rule is general; i.e. e
-func (np *NetworkPolicy) isGeneralRule(rulePeer []netv1.NetworkPolicyPeer) bool {
-	allDests, entireCluster := np.doRulesExposeToAllDestOrEntireCluster(rulePeer)
-	return allDests || entireCluster
 }
