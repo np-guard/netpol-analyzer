@@ -48,6 +48,10 @@ type NetworkPolicy struct {
 	EgressGeneralConns PolicyGeneralRulesConns
 }
 
+// @todo might help if while pre-process, to check containment of all rules' connections; if all "specific" rules
+// connections are contained in the "general" rules connections, then we can avoid iterating policy rules for computing
+// connections between two peers
+
 type PolicyGeneralRulesConns struct {
 	// AllDestinationsConns contains the maximal connection-set which the policy's rules allow to all destinations
 	// (all namespaces, pods and IP addresses)
