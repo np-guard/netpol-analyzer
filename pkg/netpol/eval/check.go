@@ -268,28 +268,26 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 
 	// iterate relevant network policies (that capture the required pod)
 	for _, policy := range netpols {
-		// if isIngress: check for ingress rules that capture src within 'from'
-		// if not isIngress: check for egress rules that capture dst within 'to'
-		// collect the allowed connectivity from the relevant rules into allowedConns
-		var policyAllowedConnectionsPerDirection *common.ConnectionSet
-		var err error
-		if isIngress {
-			// policy selecting dst (dst pod is real)
-			if pe.exposureAnalysisFlag && !ingressSet[dst] {
+		// in case of exposure-analysis: update exposure data for relevant pod
+		if pe.exposureAnalysisFlag {
+			if isIngress && !ingressSet[dst] {
+				// policy selecting dst (dst pod is real)
 				// if this is first time scanning policies selecting this dst peer,
 				// update its ingress entire cluster connection relying on policy data
 				dst.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.IngressGeneralConns.EntireClusterConns, isIngress)
 			}
-			policyAllowedConnectionsPerDirection, err = policy.GetIngressAllowedConns(src, dst)
-		} else {
-			// policy selecting src
-			if pe.exposureAnalysisFlag && !egressSet[src] {
+			if !isIngress && !egressSet[src] {
+				// policy selecting src
 				// if this is first time scanning policies selecting this src peer,
 				// update its egress entire cluster connection relying on policy data
 				src.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.EgressGeneralConns.EntireClusterConns, isIngress)
 			}
-			policyAllowedConnectionsPerDirection, err = policy.GetEgressAllowedConns(dst)
 		}
+		// determine policy's allowed connections between the peers for the direction
+		// if isIngress: check for ingress rules that capture src within 'from'
+		// if not isIngress: check for egress rules that capture dst within 'to'
+		// collect the allowed connectivity from the relevant rules into allowedConns
+		policyAllowedConnectionsPerDirection, err := determineAllowedConnsPerDirection(policy, src, dst, isIngress)
 		if err != nil {
 			return allowedConns, err
 		}
@@ -307,6 +305,29 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 		}
 	}
 	return allowedConns, nil
+}
+
+// determineAllowedConnsPerDirection - helping func, determine policy's allowed connections between the peers for the direction
+func determineAllowedConnsPerDirection(policy *k8s.NetworkPolicy, src, dst k8s.Peer, isIngress bool) (*common.ConnectionSet, error) {
+	if isIngress {
+		switch {
+		case policy.IngressGeneralConns.AllDestinationsConns.AllowAll:
+			return policy.IngressGeneralConns.AllDestinationsConns, nil
+		case policy.IngressGeneralConns.EntireClusterConns.AllowAll && src.PeerType() == k8s.PodType:
+			return policy.IngressGeneralConns.EntireClusterConns, nil
+		default:
+			return policy.GetIngressAllowedConns(src, dst)
+		}
+	}
+	// else egress
+	switch {
+	case policy.EgressGeneralConns.AllDestinationsConns.AllowAll:
+		return policy.EgressGeneralConns.AllDestinationsConns, nil
+	case policy.EgressGeneralConns.EntireClusterConns.AllowAll && dst.PeerType() == k8s.PodType:
+		return policy.EgressGeneralConns.EntireClusterConns, nil
+	default:
+		return policy.GetEgressAllowedConns(dst)
+	}
 }
 
 // isPeerNodeIP returns true if peer1 is an IP address of a node and peer2 is a pod on that node
