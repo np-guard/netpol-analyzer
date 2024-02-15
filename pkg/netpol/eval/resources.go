@@ -56,6 +56,21 @@ func NewPolicyEngine() *PolicyEngine {
 
 func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, error) {
 	pe := NewPolicyEngine()
+	err := pe.AddObjects(objects)
+	return pe, err
+}
+
+// NewPolicyEngineWithOptions returns a new policy engine with an empty state but updating the exposure analysis flag,
+// TBD: currently exposure-analysis is the only option supported by policy-engine, so no need for options param,
+// should have the exposureFlag or just assign to true in the func?
+func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
+	pe := NewPolicyEngine()
+	pe.exposureAnalysisFlag = exposureFlag
+	return pe
+}
+
+// AddObjects adds k8s objects from parsed resources to the policy engine
+func (pe *PolicyEngine) AddObjects(objects []parser.K8sObject) error {
 	var err error
 	for _, obj := range objects {
 		switch obj.Kind {
@@ -85,17 +100,15 @@ func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, erro
 			fmt.Printf("ignoring resource kind %s", obj.Kind)
 		}
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
-	err = pe.resolveMissingNamespaces()
-	return pe, err
+	return pe.resolveMissingNamespaces()
 }
 
 // SetExposureAnalysisResources sets the new representative peers needed for exposure analysis
-// TODO: changes may be done on optimizing PR (will the flag be relevant after optimize? , should have these both funcs?..)
+// TODO: changes may be done on optimizing PR (should have these both funcs?)
 func (pe *PolicyEngine) SetExposureAnalysisResources() error {
-	pe.exposureAnalysisFlag = true
 	// scan policies' rules for new pods in (unmatched) namespaces (TODO : and unmatched pods in un/matched namespaces)
 	return pe.addRepresentativePods()
 }
@@ -335,10 +348,12 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 	}
 	pe.netpolsMap[netpolNamespace][np.Name] = newNetpol
 
-	// scan policy ingress and egress rules to store allowed connections
+	// for exposure analysis only: scan policy ingress and egress rules to store allowed connections
 	// to entire cluster and to all destinations (if such connections are allowed by the policy)
-	err := newNetpol.DetermineGeneralConnectionsOfPolicy()
-
+	var err error
+	if pe.exposureAnalysisFlag {
+		err = newNetpol.DetermineGeneralConnectionsOfPolicy()
+	}
 	// clear the cache on netpols changes
 	pe.cache.clear()
 	return err

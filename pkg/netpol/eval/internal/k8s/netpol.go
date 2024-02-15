@@ -37,7 +37,7 @@ import (
 // -> might help to preprocess and store peers that match policy selectors + selectors in rules + set of allowed connections per rule
 type NetworkPolicy struct {
 	*netv1.NetworkPolicy // embedding k8s network policy object
-	// following data stored in preprocessing;
+	// following data stored in preprocessing when exposure-analysis is on;
 	// IngressGeneralConns contains:
 	// - the maximal connection-set which the policy's rules allow to all destinations on ingress direction
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on ingress direction
@@ -47,6 +47,10 @@ type NetworkPolicy struct {
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on egress direction
 	EgressGeneralConns PolicyGeneralRulesConns
 }
+
+// @todo might help if while pre-process, to check containment of all rules' connections; if all "specific" rules
+// connections are contained in the "general" rules connections, then we can avoid iterating policy rules for computing
+// connections between two peers
 
 type PolicyGeneralRulesConns struct {
 	// AllDestinationsConns contains the maximal connection-set which the policy's rules allow to all destinations
@@ -288,7 +292,7 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 	return false, nil
 }
 
-// GetEgressAllowedConns returns the set of allowed connetions from any captured pod to the destination peer
+// GetEgressAllowedConns returns the set of allowed connections from any captured pod to the destination peer
 func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
 	for _, rule := range np.Spec.Egress {
@@ -438,7 +442,7 @@ func (np *NetworkPolicy) fullName() string {
 }
 
 // /////////////////////////////////////////////////////////////////////////////////////////////
-// pre-processing computations - currently performed for exposure-analysis goals;
+// pre-processing computations - currently performed for exposure-analysis goals only;
 
 // DetermineGeneralConnectionsOfPolicy scans policy rules and updates if it allows conns with all destinations or/ and with entire cluster
 // for ingress and/ or egress directions
@@ -499,7 +503,7 @@ func (np *NetworkPolicy) scanRulesForGeneralEgressConns() error {
 	return nil
 }
 
-// doRulesExposeToAllDestOrEntireCluster checks if the given rules list is exposed to entire cluster;
+// doRulesExposeToAllDestOrEntireCluster checks if the given rules list is exposed to entire world or entire cluster;
 // i.e. if the rules list is empty or if there is a rule with empty namespaceSelector
 // this func assumes rules are legal (rules correctness check occurs later)
 func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.NetworkPolicyPeer) (alldests, entireCluster bool) {
