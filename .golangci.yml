@@ -53,16 +53,27 @@ linters-settings:
             allowStrs: '"",".","-","/","\n","\n\n","\t","error","true","false"'
             allowInts: "0,1,2,404"
             allowFloats: "0.0,0.,1.0,1.,2.0,2."
+  tagliatelle:
+    case:
+      rules:
+        json: snake
 
 linters:
   disable-all: true
   enable:
+    - asasalint
+    - asciicheck
+    - bidichk
     - bodyclose
+    - contextcheck
     - dogsled
     - dupl
+    - durationcheck
     - errcheck
+    - errorlint
     - exportloopref
     - funlen
+    - ginkgolinter
     - gochecknoinits
     - goconst
     - gocritic
@@ -70,33 +81,41 @@ linters:
     - gofmt
     - goimports
     - gomnd
+    - gomoddirectives
     - goprintffuncname
     - gosec
     - gosimple
     - govet
+    - grouper
+    - importas
     - ineffassign
     - lll
+    - loggercheck
+    - makezero
     - misspell
     - nakedret
+    - nilerr
     - noctx
     - nolintlint
+    - nosprintfhostport
     - prealloc
+    - predeclared
+    - promlinter
+    - reassign
+    - revive
     - staticcheck
     - stylecheck
+    - tagliatelle
+    - tenv
+    - testableexamples
+    - tparallel
     - typecheck
     - unconvert
     - unparam
     - unused
+    - usestdlibvars
     - whitespace
-    - revive
-
-  # don't enable:
-  # - gochecknoglobals
-  # - gocognit
-  # - goerr113
-  # - nestif
-  # - testpackage
-  # - wsl
+ 
 issues:
   exclude-rules:
     - path: _test\.go
