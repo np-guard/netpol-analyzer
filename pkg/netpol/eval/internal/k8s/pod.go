@@ -66,9 +66,6 @@ type Pod struct {
 	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
 	// on egress direction
 	EgressExposureData PodExposureInfo
-
-	// TODO in next PR: define new RepresentativePeer and move following fields to be part of it
-	ExposureNsLabels map[string]string
 }
 
 // Owner encapsulates pod owner workload info
@@ -99,7 +96,6 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		FakePod:             false,
 		IngressExposureData: initiatePodExposure(),
 		EgressExposureData:  initiatePodExposure(),
-		ExposureNsLabels:    map[string]string{},
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)

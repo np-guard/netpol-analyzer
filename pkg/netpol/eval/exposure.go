@@ -54,6 +54,9 @@ func (pe *PolicyEngine) addPodsForUnmatchedRules(policyName string, policy *k8s.
 	return err
 }
 
+// any fake namespace added will start with following prefix for ns name and following pod name
+const repNsNamePrefix = "representative-namespace-"
+
 // gets a list of policy xgress rules consisted only from namespaceSelector.
 // adds new pod for each selector that does not have a matching namespace in the resources
 func (pe *PolicyEngine) addPodsForUnmatchedNamespaceSelectors(nsSelectors []*metav1.LabelSelector, policyName string) error {
@@ -64,7 +67,7 @@ func (pe *PolicyEngine) addPodsForUnmatchedNamespaceSelectors(nsSelectors []*met
 		}
 		foundNs := pe.checkNamespaceSelectorsMatch(selectorMap)
 		if !foundNs {
-			_, err = pe.AddPodByNameAndNamespace(common.PodInRepNs, common.NsNamePrefix+policyName+fmt.Sprint(i), selectorMap)
+			_, err = pe.AddPodByNameAndNamespace(k8s.RepresentativePodName, repNsNamePrefix+policyName+fmt.Sprint(i), selectorMap)
 			if err != nil {
 				return err
 			}
@@ -127,8 +130,20 @@ func (pe *PolicyEngine) GetPeerXgressEntireClusterConn(p Peer, isIngress bool) (
 	return peer.Pod.EgressExposureData.EntireClusterConnection, nil
 }
 
-// TODO these functions will be changed in a later PR (when implementing RepresentativePeer)
-func (pe *PolicyEngine) GetPeerNsLabels(p Peer) map[string]string {
-	peer := p.(*k8s.WorkloadPeer)
-	return peer.Pod.ExposureNsLabels
+/////////////////////////////////////////////
+
+// IsRepresentativePeer returns whether the peer is representative peer (inferred from netpol rule)
+func (pe *PolicyEngine) IsRepresentativePeer(peer Peer) bool {
+	_, ok := peer.(*k8s.RepresentativePeer)
+	return ok
+}
+
+// GetPeerNsLabels returns namespace labels defining the given representative peer
+// relevant only for RepresentativePeer
+func (pe *PolicyEngine) GetPeerNsLabels(p Peer) (map[string]string, error) {
+	peer, ok := p.(*k8s.RepresentativePeer)
+	if !ok { // should not get here
+		return nil, errors.New(netpolerrors.NotRepresentativePeerErrStr(p.String()))
+	}
+	return peer.PotentialNamespaceLabels, nil
 }

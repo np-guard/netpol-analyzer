@@ -98,7 +98,11 @@ func MissingNamespaceErrStr(peerStr string) string {
 
 // NotPeerErrStr returns error string of a peer that is not workload peer
 func NotPeerErrStr(peerStr string) string {
-	return "peer: " + peerStr + ",is not a WorkloadPeer"
+	return "peer: " + peerStr + ", is not a WorkloadPeer"
+}
+
+func NotRepresentativePeerErrStr(peerStr string) string {
+	return peerStr + ", is not a Representative peer"
 }
 
 // BothSrcAndDstIPsErrStr returns error string that conn from ip to ip is not supported

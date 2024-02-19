@@ -122,10 +122,15 @@ func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnect
 	if _, ok := ex[peer]; !ok {
 		ex.initiatePeerEntry(peer)
 	}
+
+	nsLabels, err := pe.GetPeerNsLabels(inferredPeer)
+	if err != nil {
+		return err
+	}
 	// store connection data
 	expData := &xgressExposure{
 		exposedToEntireCluster: false,
-		namespaceLabels:        pe.GetPeerNsLabels(inferredPeer),
+		namespaceLabels:        nsLabels,
 		podLabels:              map[string]string{}, // will be empty since in this branch rules with namespaceSelectors only supported
 		potentialConn:          allowedConnSet,
 	}

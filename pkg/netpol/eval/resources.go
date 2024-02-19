@@ -28,8 +28,9 @@ type (
 		netpolsMap                      map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
 		podOwnersToRepresentativePodMap map[string]map[string]*k8s.Pod           // map from namespace to map from pods' ownerReference name
 		// to its representative pod object
-		cache                *evalCache
-		exposureAnalysisFlag bool
+		cache                   *evalCache
+		exposureAnalysisFlag    bool
+		representativePeersList []*k8s.RepresentativePeer // list of representative peer objects, used only with exposure analysis
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -51,6 +52,7 @@ func NewPolicyEngine() *PolicyEngine {
 		podOwnersToRepresentativePodMap: make(map[string]map[string]*k8s.Pod),
 		cache:                           newEvalCache(),
 		exposureAnalysisFlag:            false,
+		representativePeersList:         nil, // initiated to empty state only when exposureAnalysisFlag is true
 	}
 }
 
@@ -66,6 +68,9 @@ func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, erro
 func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 	pe := NewPolicyEngine()
 	pe.exposureAnalysisFlag = exposureFlag
+	if exposureFlag {
+		pe.representativePeersList = make([]*k8s.RepresentativePeer, 0)
+	}
 	return pe
 }
 
@@ -223,6 +228,9 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.podsMap = make(map[string]*k8s.Pod)
 	pe.netpolsMap = make(map[string]map[string]*k8s.NetworkPolicy)
 	pe.podOwnersToRepresentativePodMap = make(map[string]map[string]*k8s.Pod)
+	if pe.exposureAnalysisFlag {
+		pe.representativePeersList = make([]*k8s.RepresentativePeer, 0)
+	}
 	pe.cache = newEvalCache()
 }
 
@@ -422,6 +430,7 @@ func (pe *PolicyEngine) GetPodsMap() map[string]*k8s.Pod {
 	return pe.podsMap
 }
 
+// HasPodPeers returns if there are pods from parsed pod objects in the policy-engine
 func (pe *PolicyEngine) HasPodPeers() bool {
 	return len(pe.podsMap) > 0
 }
@@ -442,6 +451,7 @@ func (pe *PolicyEngine) createPodOwnersMap() (map[string]Peer, error) {
 
 // GetPeersList returns a slice of peers from all PolicyEngine resources
 // get peers in level of workloads (pod owners) of type WorkloadPeer, and ip-blocks
+// and representative peers if exposure-analysis is on
 func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 	podOwnersMap, err := pe.createPodOwnersMap()
 	if err != nil {
@@ -451,9 +461,13 @@ func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 	if err != nil {
 		return nil, err
 	}
+	resLength := len(ipBlocks) + len(podOwnersMap)
+	if pe.exposureAnalysisFlag {
+		resLength += len(pe.representativePeersList)
+	}
 
 	// add ip-blocks to peers list
-	res := make([]Peer, len(ipBlocks)+len(podOwnersMap))
+	res := make([]Peer, resLength)
 	for i := range ipBlocks {
 		res[i] = &k8s.IPBlockPeer{IPBlock: ipBlocks[i]}
 	}
@@ -462,6 +476,13 @@ func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 	for _, workloadPeer := range podOwnersMap {
 		res[index] = workloadPeer
 		index++
+	}
+	// if exposure-analysis is on, add representative peers
+	if pe.exposureAnalysisFlag {
+		for _, repPeer := range pe.representativePeersList {
+			res[index] = repPeer
+			index++
+		}
 	}
 	return res, nil
 }
@@ -484,6 +505,7 @@ func (pe *PolicyEngine) getDisjointIPBlocks() ([]*common.IPBlock, error) {
 }
 
 // GetSelectedPeers returns list of workload peers in the given namespace which match the given labels selector
+// used only for ingress-analyzer : currently not supported with exposure-analysis
 func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace string) ([]Peer, error) {
 	res := make([]Peer, 0)
 	peers, err := pe.createPodOwnersMap()
@@ -514,8 +536,9 @@ func (pe *PolicyEngine) ConvertPeerNamedPort(namedPort string, peer Peer) (int32
 	}
 }
 
-// AddPodByNameAndNamespace adds a new fake pod to the pe.podsMap,
-// used for adding ingress-controller pods and pods for exposure-analysis use-case
+// AddPodByNameAndNamespace adds a new fake pod to:
+// the pe.podsMap in case of fake ingress-controller pods
+// or the pe.representativePeersList in case of exposure-analysis peers
 func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, nsLabels map[string]string) (Peer, error) {
 	podStr := types.NamespacedName{Namespace: ns, Name: name}.String()
 	newPod := &k8s.Pod{
@@ -526,10 +549,12 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, nsLabels map[s
 	if err := pe.resolveSingleMissingNamespace(ns, nsLabels); err != nil {
 		return nil, err
 	}
-	if pe.exposureAnalysisFlag {
-		// save the labels in the pod's data
-		newPod.ExposureNsLabels = nsLabels
+	if pe.exposureAnalysisFlag && newPod.Name == k8s.RepresentativePodName { // if exposure-analysis and this is not a fake ingress-controller
+		newRepresentativePeer := &k8s.RepresentativePeer{Pod: newPod, PotentialNamespaceLabels: nsLabels}
+		pe.representativePeersList = append(pe.representativePeersList, newRepresentativePeer)
+		return newRepresentativePeer, nil
 	}
+	// ingress-controller will be treated as a real pod, may be added to podsMap
 	pe.podsMap[podStr] = newPod
 	return &k8s.WorkloadPeer{Pod: newPod}, nil
 }
