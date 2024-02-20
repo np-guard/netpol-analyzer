@@ -59,7 +59,9 @@ type WorkloadPeer struct {
 }
 
 // RepresentativePeer implements eval.Peer interface
-// a representative peer is a peer inferred from a policy rule not a parsed pod/deployment object
+// a representative peer is a peer inferred from a policy rule (selector) not a parsed pod/deployment object
+// and is used to represent a potential pod/ns entity in the cluster (that does not exist on the input resources)
+// but may have enabled connectivity to input resources (pods/deployments) based on input network policies. 
 type RepresentativePeer struct {
 	Pod                      *Pod
 	PotentialNamespaceLabels map[string]string
