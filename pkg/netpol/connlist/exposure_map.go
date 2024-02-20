@@ -90,11 +90,11 @@ func (ex exposureMap) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer 
 // finally the map will include refined lists of ingress and egress exposure connections for each workload peer
 func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections common.Connection, src, dst Peer,
 	isIngress bool) error {
-	peer := src         // real peer
-	inferredPeer := dst // inferred from netpol rule
+	peer := src               // real peer
+	representativePeer := dst // inferred from netpol rule
 	if isIngress {
 		peer = dst
-		inferredPeer = src
+		representativePeer = src
 	}
 	// if peer is not protected return
 	protected, err := pe.IsPeerProtected(peer, isIngress)
@@ -123,7 +123,7 @@ func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnect
 		ex.initiatePeerEntry(peer)
 	}
 
-	nsLabels, err := pe.GetPeerNsLabels(inferredPeer)
+	nsLabels, err := pe.GetPeerNsLabels(representativePeer)
 	if err != nil {
 		return err
 	}
@@ -134,11 +134,7 @@ func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnect
 		podLabels:              map[string]string{}, // will be empty since in this branch rules with namespaceSelectors only supported
 		potentialConn:          allowedConnSet,
 	}
-	if isIngress {
-		ex.appendPeerXgressExposureData(peer, expData, true)
-	} else { // egress
-		ex.appendPeerXgressExposureData(peer, expData, false)
-	}
+	ex.appendPeerXgressExposureData(peer, expData, isIngress)
 	return nil
 }
 
