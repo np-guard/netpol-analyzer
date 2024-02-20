@@ -52,7 +52,6 @@ func NewPolicyEngine() *PolicyEngine {
 		podOwnersToRepresentativePodMap: make(map[string]map[string]*k8s.Pod),
 		cache:                           newEvalCache(),
 		exposureAnalysisFlag:            false,
-		representativePeersList:         nil, // initiated to empty state only when exposureAnalysisFlag is true
 	}
 }
 
