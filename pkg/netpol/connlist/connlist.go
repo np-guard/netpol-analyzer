@@ -366,13 +366,17 @@ func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.Connection
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
+func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
 	if src.IsPeerIPType() && dst.IsPeerIPType() {
 		return false
 	}
 	// skip self-looped connection,
 	// i.e. a connection from workload to itself (regardless existence of replicas)
 	if src.String() == dst.String() {
+		return false
+	}
+	// when exposure-analysis, skip conns between fake pods or ip-peer and fake pods
+	if ca.exposureAnalysis && ca.hasFakePodsAndIPs(pe, src, dst) {
 		return false
 	}
 	if ca.focusWorkload == "" {
@@ -506,11 +510,7 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 		srcPeer := peers[i]
 		for j := range peers {
 			dstPeer := peers[j]
-			if !ca.includePairOfWorkloads(srcPeer, dstPeer) {
-				continue
-			}
-			// when exposure-analysis, skip conns between fake pods or ip-peer and fake pods
-			if ca.exposureAnalysis && ca.hasFakePodsAndIPs(pe, srcPeer, dstPeer) {
+			if !ca.includePairOfWorkloads(pe, srcPeer, dstPeer) {
 				continue
 			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
@@ -554,7 +554,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 	}
 	for peerStr, peerAndConn := range ingressConns {
 		// refines to only relevant connections if ca.focusWorkload is not empty
-		if !ca.includePairOfWorkloads(ingressControllerPod, peerAndConn.Peer) {
+		if !ca.includePairOfWorkloads(pe, ingressControllerPod, peerAndConn.Peer) {
 			continue
 		}
 		// compute allowed connections based on pe.policies to the peer, then intersect the conns with
