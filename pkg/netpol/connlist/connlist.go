@@ -609,16 +609,11 @@ func (ca *ConnlistAnalyzer) checkIfP2PConnOrExposureConn(pe *eval.PolicyEngine, 
 		// both src and dst are peers are found in the parsed resources
 		return createConnectionObject(allowedConnections, src, dst), nil
 	}
-	// else: one of the peers is inferred from a netpol-rule , and the other is a peer from the parsed resources
+	// else: one of the peers is a representative peer (inferred from a netpol-rule) ,
+	// and the other is a peer from the parsed resources
 	// an exposure analysis connection
-	var err error
-	if !pe.IsRepresentativePeer(src) {
-		// dst is the inferred from netpol peer, we have an exposed egress for the src peer
-		err = exposuresMap.addConnToExposureMap(pe, allowedConnections, src, dst, false)
-	} else {
-		// src is the inferred from netpol peer, we have an exposed ingress to the dst peer
-		err = exposuresMap.addConnToExposureMap(pe, allowedConnections, src, dst, true)
-	}
+	isIngress := pe.IsRepresentativePeer(src)
+	err := exposuresMap.addConnToExposureMap(pe, allowedConnections, src, dst, isIngress)
 	return nil, err
 }
 
