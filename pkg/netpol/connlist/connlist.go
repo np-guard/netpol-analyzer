@@ -434,6 +434,15 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		peers[i] = p
 	}
 
+	// connPeers represents []connlist.Peer to be sent to ca.getConnectionsBetweenPeers
+	connPeers := peers
+	if ca.exposureAnalysis {
+		representativePeers := pe.GetRepresentativePeersList()
+		for _, p := range representativePeers {
+			connPeers = append(connPeers, p)
+		}
+	}
+
 	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
 
 	// if ca.focusWorkload is not empty, check if it exists in the peers before proceeding
@@ -446,7 +455,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 
 	// compute connections between peers based on pe analysis of network policies
 	// if exposure-analysis is on, also compute and return the exposures-map
-	peersAllowedConns, exposuresMap, err := ca.getConnectionsBetweenPeers(pe, peers)
+	peersAllowedConns, exposuresMap, err := ca.getConnectionsBetweenPeers(pe, connPeers)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err

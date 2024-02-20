@@ -447,7 +447,6 @@ func (pe *PolicyEngine) createPodOwnersMap() (map[string]Peer, error) {
 
 // GetPeersList returns a slice of peers from all PolicyEngine resources
 // get peers in level of workloads (pod owners) of type WorkloadPeer, and ip-blocks
-// and representative peers if exposure-analysis is on
 func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 	podOwnersMap, err := pe.createPodOwnersMap()
 	if err != nil {
@@ -457,13 +456,9 @@ func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 	if err != nil {
 		return nil, err
 	}
-	resLength := len(ipBlocks) + len(podOwnersMap)
-	if pe.exposureAnalysisFlag {
-		resLength += len(pe.representativePeersList)
-	}
 
 	// add ip-blocks to peers list
-	res := make([]Peer, resLength)
+	res := make([]Peer, len(ipBlocks)+len(podOwnersMap))
 	for i := range ipBlocks {
 		res[i] = &k8s.IPBlockPeer{IPBlock: ipBlocks[i]}
 	}
@@ -473,14 +468,16 @@ func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 		res[index] = workloadPeer
 		index++
 	}
-	// if exposure-analysis is on, add representative peers
-	if pe.exposureAnalysisFlag {
-		for _, repPeer := range pe.representativePeersList {
-			res[index] = repPeer
-			index++
-		}
-	}
 	return res, nil
+}
+
+// GetRepresentativePeersList returns a slice of representative peers
+func (pe *PolicyEngine) GetRepresentativePeersList() []Peer {
+	res := make([]Peer, len(pe.representativePeersList))
+	for i, p := range pe.representativePeersList {
+		res[i] = p
+	}
+	return res
 }
 
 // getDisjointIPBlocks returns a slice of disjoint ip-blocks from all netpols resources
