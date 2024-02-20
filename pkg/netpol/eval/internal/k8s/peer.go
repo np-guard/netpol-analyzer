@@ -63,6 +63,13 @@ type WorkloadPeer struct {
 // and is used to represent a potential pod/ns entity in the cluster (that does not exist on the input resources)
 // but may have enabled connectivity to input resources (pods/deployments) based on input network policies.
 type RepresentativePeer struct {
+	// Pod is a fake pod originated as following:
+	// - if inferred from a policy rule, which contains only non-empty namespaceSelector; the pod's namespace is a fake namespace
+	// with the labels from the selector (those labels also stored in PotentialNamespaceLabels)
+	// - if inferred from a policy rule, which contains only podSelector; the pod's namespace is same as the policy's namespace;
+	// and its labels are taken from the selector labels
+	// - if inferred from selector combining a namespaceSelector and a podSelector: the pod's labels will contain the podSelector labels
+	// and its namespace is a fake namespace with the namespaceSelector labels  (those labels also stored in PotentialNamespaceLabels)
 	Pod                      *Pod
 	PotentialNamespaceLabels map[string]string
 }
