@@ -68,9 +68,6 @@ func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, erro
 func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 	pe := NewPolicyEngine()
 	pe.exposureAnalysisFlag = exposureFlag
-	if exposureFlag {
-		pe.representativePeersList = make([]*k8s.RepresentativePeer, 0)
-	}
 	return pe
 }
 
