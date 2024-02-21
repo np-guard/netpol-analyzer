@@ -366,7 +366,7 @@ func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.Connection
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
+func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
 	if src.IsPeerIPType() && dst.IsPeerIPType() {
 		return false
 	}
@@ -375,8 +375,8 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 	if src.String() == dst.String() {
 		return false
 	}
-	// when exposure-analysis, skip conns between fake pods (exposure or ingress-controller) or ip-peer and fake pods
-	if ca.exposureAnalysis && ca.hasFakePodsAndIPs(src, dst) {
+	// when exposure-analysis, skip conns between fake pods or ip-peer and fake pods
+	if ca.exposureAnalysis && ca.hasFakePodsAndIPs(pe, src, dst) {
 		return false
 	}
 	if ca.focusWorkload == "" {
@@ -386,21 +386,20 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
 }
 
-// TODO : enhance this after implementing representative peers
-func (ca *ConnlistAnalyzer) hasFakePodsAndIPs(src, dst eval.Peer) bool {
-	if src.IsPeerIPType() && dst.Name() == common.PodInRepNs {
+func (ca *ConnlistAnalyzer) hasFakePodsAndIPs(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
+	// if both peers are Representative
+	if pe.IsRepresentativePeer(src) && pe.IsRepresentativePeer(dst) {
 		return true
 	}
-	if src.Name() == common.PodInRepNs && dst.IsPeerIPType() {
+	// if one peer is IP and the other is a representative peer
+	if (src.IsPeerIPType() || dst.IsPeerIPType()) &&
+		(pe.IsRepresentativePeer(src) || pe.IsRepresentativePeer(dst)) {
 		return true
 	}
-	if src.Name() == common.PodInRepNs && dst.Name() == common.PodInRepNs {
-		return true
-	}
-	if src.Name() == common.PodInRepNs && dst.Name() == common.IngressPodName {
-		return true
-	}
-	if src.Name() == common.IngressPodName && dst.Name() == common.PodInRepNs {
+	// if one peer is fake ingress-pod and the other is a representative peer
+	// todo: might check if peer is a fake ingress-controller by checking name and fakePod flag (within new pe func)
+	if (src.Name() == common.IngressPodName || dst.Name() == common.IngressPodName) &&
+		(pe.IsRepresentativePeer(src) || pe.IsRepresentativePeer(dst)) {
 		return true
 	}
 	return false
@@ -435,6 +434,15 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		peers[i] = p
 	}
 
+	// connPeers represents []connlist.Peer to be sent to ca.getConnectionsBetweenPeers
+	connPeers := peers
+	if ca.exposureAnalysis {
+		representativePeers := pe.GetRepresentativePeersList()
+		for _, p := range representativePeers {
+			connPeers = append(connPeers, p)
+		}
+	}
+
 	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
 
 	// if ca.focusWorkload is not empty, check if it exists in the peers before proceeding
@@ -447,7 +455,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 
 	// compute connections between peers based on pe analysis of network policies
 	// if exposure-analysis is on, also compute and return the exposures-map
-	peersAllowedConns, exposuresMap, err := ca.getConnectionsBetweenPeers(pe, peers)
+	peersAllowedConns, exposuresMap, err := ca.getConnectionsBetweenPeers(pe, connPeers)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
@@ -511,7 +519,7 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 		srcPeer := peers[i]
 		for j := range peers {
 			dstPeer := peers[j]
-			if !ca.includePairOfWorkloads(srcPeer, dstPeer) {
+			if !ca.includePairOfWorkloads(pe, srcPeer, dstPeer) {
 				continue
 			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
@@ -555,7 +563,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 	}
 	for peerStr, peerAndConn := range ingressConns {
 		// refines to only relevant connections if ca.focusWorkload is not empty
-		if !ca.includePairOfWorkloads(ingressControllerPod, peerAndConn.Peer) {
+		if !ca.includePairOfWorkloads(pe, ingressControllerPod, peerAndConn.Peer) {
 			continue
 		}
 		// compute allowed connections based on pe.policies to the peer, then intersect the conns with
@@ -606,21 +614,15 @@ func (ca *ConnlistAnalyzer) checkIfP2PConnOrExposureConn(pe *eval.PolicyEngine, 
 	}
 	// else exposure analysis is on
 
-	// TODO : enhance this if condition after implementing eval.RepresentativePeer
-	if src.Name() != common.PodInRepNs && dst.Name() != common.PodInRepNs {
+	if !pe.IsRepresentativePeer(src) && !pe.IsRepresentativePeer(dst) {
 		// both src and dst are peers are found in the parsed resources
 		return createConnectionObject(allowedConnections, src, dst), nil
 	}
-	// else: one of the peers is inferred from a netpol-rule , and the other is a peer from the parsed resources
+	// else: one of the peers is a representative peer (inferred from a netpol-rule) ,
+	// and the other is a peer from the parsed resources
 	// an exposure analysis connection
-	var err error
-	if src.Name() != common.PodInRepNs {
-		// dst is the inferred from netpol peer, we have an exposed egress for the src peer
-		err = exposuresMap.addConnToExposureMap(pe, allowedConnections, src, dst, false)
-	} else {
-		// src is the inferred from netpol peer, we have an exposed ingress to the dst peer
-		err = exposuresMap.addConnToExposureMap(pe, allowedConnections, src, dst, true)
-	}
+	isIngress := pe.IsRepresentativePeer(src)
+	err := exposuresMap.addConnToExposureMap(pe, allowedConnections, src, dst, isIngress)
 	return nil, err
 }
 
@@ -646,7 +648,7 @@ func updatePeersGeneralExposureData(pe *eval.PolicyEngine, src, dst Peer, ingres
 	// (e.g. only one peer with one netpol exposing the peer to entire cluster, no netpols)
 	var err error
 	// 1. only on first time : add general exposure data for the src peer (on egress)
-	if !src.IsPeerIPType() && src.Name() != common.PodInRepNs && !egressSet[src] {
+	if !src.IsPeerIPType() && !pe.IsRepresentativePeer(src) && !egressSet[src] {
 		err = exMap.addPeerGeneralExposure(pe, src, false)
 		if err != nil {
 			return err
@@ -654,7 +656,7 @@ func updatePeersGeneralExposureData(pe *eval.PolicyEngine, src, dst Peer, ingres
 	}
 	egressSet[src] = true
 	// 2. only on first time : add general exposure data for the dst peer (on ingress)
-	if !dst.IsPeerIPType() && dst.Name() != common.PodInRepNs && !ingressSet[dst] {
+	if !dst.IsPeerIPType() && !pe.IsRepresentativePeer(dst) && !ingressSet[dst] {
 		err = exMap.addPeerGeneralExposure(pe, dst, true)
 	}
 	ingressSet[dst] = true

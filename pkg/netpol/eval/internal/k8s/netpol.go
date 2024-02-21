@@ -131,10 +131,10 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 			if err != nil {
 				return res, err
 			}
-			if dst == nil && portName != "" {
+			if (dst == nil || isRepresentativePod(dst)) && portName != "" {
 				// adding namedPort to connectionSet in case of :
-				// -  dst is nil - for general connections;
-				// - TODO: if dst is a fake pod (representative)
+				// - dst is nil - for general connections;
+				// - if dst is a representative pod (its namedPorts are unknown)
 				ports.AddPort(intstr.FromString(portName))
 			}
 			if !isEmptyPortRange(startPort, endPort) {
@@ -144,6 +144,14 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 		res.AddConnection(protocol, ports)
 	}
 	return res, nil
+}
+
+// isRepresentativePod determines if the peer's source is representativePeer; i.e. its pod fake and has RepresentativePodName
+func isRepresentativePod(peer Peer) bool {
+	if peer.GetPeerPod() == nil {
+		return false
+	}
+	return peer.GetPeerPod().FakePod && peer.GetPeerPod().Name == RepresentativePodName
 }
 
 // ruleConnsContain returns true if the given protocol and port are contained in connections allowed by rulePorts
