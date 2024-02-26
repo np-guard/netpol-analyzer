@@ -17,8 +17,6 @@ import (
 	"errors"
 	"fmt"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -26,71 +24,21 @@ import (
 
 // this file contains eval.PolicyEngine funcs which are related to exposure-analysis feature
 
-// addRepresentativePods adds representative pods by inferring from network policies selectors within rules
-// the required entities to represent (namespaces or pods by certain labels selectors)
-// for example, if a rule within policy has namespace selector "name: foo", then a representative pod in such a
-// namespace with those labels will be added, representing all potential pods in such a namespace
-func (pe *PolicyEngine) addRepresentativePods() error {
-	// scan policies's rules : generate fake-exposure pod for rules with no match in the resources
-	for _, nsNetpolsMap := range pe.netpolsMap {
-		for pName, policy := range nsNetpolsMap {
-			// scan and handle policy rules which doesn't have a match in the resources
-			err := pe.addPodsForUnmatchedRules(pName, policy)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-func (pe *PolicyEngine) addPodsForUnmatchedRules(policyName string, policy *k8s.NetworkPolicy) error {
-	// gets the namespaceSelector-s from policy's rules which contain only namespaceSelector
-	namespacesOnly := policy.GetRulesSelectors()
-	// find if there are matches for the namespacesSelectors in pe.namespacesMap; if not add relevant pods
-	err := pe.addPodsForUnmatchedNamespaceSelectors(namespacesOnly, policyName)
-	// TODO : add pods for unmatched rules with:  only podSelector (in the policy's ns)
-	// - namespaceSelector + podSelector
-	return err
-}
-
 // any fake namespace added will start with following prefix for ns name and following pod name
 const repNsNamePrefix = "representative-namespace-"
 
-// gets a list of policy xgress rules consisted only from namespaceSelector.
-// adds new pod for each selector that does not have a matching namespace in the resources
-func (pe *PolicyEngine) addPodsForUnmatchedNamespaceSelectors(nsSelectors []*metav1.LabelSelector, policyName string) error {
-	for i, selector := range nsSelectors {
-		selectorMap, err := metav1.LabelSelectorAsMap(selector)
+// generateRepresentativePeers adds representative pods with namespace or pod labels inferred from given selectors
+// which are extracted from network policies rules.
+// for example, if a rule within policy has namespace selector "name: foo", then a representative pod in such a
+// namespace with those labels will be added, representing all potential pods in such a namespace
+func (pe *PolicyEngine) generateRepresentativePeers(selectorsLabels []k8s.SingleRuleLabels, policyName string) error {
+	for i := range selectorsLabels {
+		_, err := pe.AddPodByNameAndNamespace(k8s.RepresentativePodName, repNsNamePrefix+policyName+fmt.Sprint(i), &selectorsLabels[i])
 		if err != nil {
 			return err
 		}
-		foundNs := pe.checkNamespaceSelectorsMatch(selectorMap)
-		if !foundNs {
-			_, err = pe.AddPodByNameAndNamespace(k8s.RepresentativePodName, repNsNamePrefix+policyName+fmt.Sprint(i), selectorMap)
-			if err != nil {
-				return err
-			}
-		}
 	}
 	return nil
-}
-
-// getting a selector , checks if there is a namespace with labels containing all the selector's labels
-func (pe *PolicyEngine) checkNamespaceSelectorsMatch(reqSelector map[string]string) bool {
-	for _, ns := range pe.namspacesMap {
-		cnt := 0
-		// check if the selectors of the namespace contain the given selectors
-		for sel, val := range reqSelector {
-			if ns.Labels[sel] == val {
-				cnt++
-			}
-		}
-		if len(reqSelector) == cnt {
-			return true
-		}
-	}
-	return false
 }
 
 // /////////////////////////////////

@@ -452,73 +452,77 @@ func (np *NetworkPolicy) fullName() string {
 // /////////////////////////////////////////////////////////////////////////////////////////////
 // pre-processing computations - currently performed for exposure-analysis goals only;
 
-// DetermineGeneralConnectionsOfPolicy scans policy rules and updates if it allows conns with all destinations or/ and with entire cluster
-// for ingress and/ or egress directions
-func (np *NetworkPolicy) DetermineGeneralConnectionsOfPolicy() (err error) {
-	if np.policyAffectsDirection(netv1.PolicyTypeIngress) {
-		err = np.scanRulesForGeneralIngressConns()
-		if err != nil {
-			return err
-		}
-	}
-	if np.policyAffectsDirection(netv1.PolicyTypeEgress) {
-		err = np.scanRulesForGeneralEgressConns()
-	}
-	return err
+// SingleRuleLabels contains maps of <key>:<value> labels inferred from namespaceSelector or/and podSelector
+// within a single rule in the policy
+type SingleRuleLabels struct {
+	NsLabels map[string]string
+	// PodLabels map[string]string (@todo: to be added)
 }
 
-func (np *NetworkPolicy) scanRulesForGeneralIngressConns() error {
+// ScanPolicyRulesForGeneralConnsAndRepresentativePeers scans policy rules and :
+// - updates policy's general connections with all destinations or/ and with entire cluster for ingress and/ or egress directions
+// - returns list of selectors labels from rules which has non-empty namespace selectors  (from rules with namespaceSelector only)
+// TODO: support checking rules with podSelector
+func (np *NetworkPolicy) ScanPolicyRulesForGeneralConnsAndRepresentativePeers() (rulesSelectors []SingleRuleLabels, err error) {
+	if np.policyAffectsDirection(netv1.PolicyTypeIngress) {
+		selectors, err := np.scanIngressRules()
+		if err != nil {
+			return nil, err
+		}
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	if np.policyAffectsDirection(netv1.PolicyTypeEgress) {
+		selectors, err := np.scanEgressRules()
+		if err != nil {
+			return nil, err
+		}
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	return rulesSelectors, nil
+}
+
+func (np *NetworkPolicy) scanIngressRules() ([]SingleRuleLabels, error) {
+	rulesSelectors := []SingleRuleLabels{}
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		allDests, entireCluster := np.doRulesExposeToAllDestOrEntireCluster(rulePeers)
-		if !allDests && !entireCluster {
-			continue
-		}
-		ruleConns, err := np.ruleConnections(rulePorts, nil)
+		selectors, err := np.doRulesExposeToAllDestOrEntireCluster(rulePeers, rulePorts, true)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		if allDests {
-			np.IngressGeneralConns.AllDestinationsConns.Union(ruleConns)
-		}
-		if entireCluster {
-			np.IngressGeneralConns.EntireClusterConns.Union(ruleConns)
-		}
+		rulesSelectors = append(rulesSelectors, selectors...)
 	}
-	return nil
+	return rulesSelectors, nil
 }
 
-func (np *NetworkPolicy) scanRulesForGeneralEgressConns() error {
+func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleLabels, error) {
+	rulesSelectors := []SingleRuleLabels{}
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		allDests, entireCluster := np.doRulesExposeToAllDestOrEntireCluster(rulePeers)
-		if !allDests && !entireCluster {
-			continue
-		}
-		ruleConns, err := np.ruleConnections(rulePorts, nil)
+		selectors, err := np.doRulesExposeToAllDestOrEntireCluster(rulePeers, rulePorts, false)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		if allDests {
-			np.EgressGeneralConns.AllDestinationsConns.Union(ruleConns)
-		}
-		if entireCluster {
-			np.EgressGeneralConns.EntireClusterConns.Union(ruleConns)
-		}
+		// rule with selectors selecting specific namespaces/ pods
+		rulesSelectors = append(rulesSelectors, selectors...)
 	}
-	return nil
+	return rulesSelectors, nil
 }
 
-// doRulesExposeToAllDestOrEntireCluster checks if the given rules list is exposed to entire world or entire cluster;
-// i.e. if the rules list is empty or if there is a rule with empty namespaceSelector
+// doRulesExposeToAllDestOrEntireCluster :
+// checks if the given rules list is exposed to entire world or entire cluster
+// (e.g. if the rules list is empty or if there is a rule with empty namespaceSelector) : then updates the policy's general conns
+// else: returns selectors of non-general rules (rules that are not exposed to entire world or cluster).
 // this func assumes rules are legal (rules correctness check occurs later)
-func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.NetworkPolicyPeer) (alldests, entireCluster bool) {
+func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
+	isIngress bool) (rulesSelectors []SingleRuleLabels, err error) {
 	if len(rules) == 0 {
-		return true, true
+		err = np.updateNetworkPolicyGeneralConn(true, true, rulePorts, isIngress)
+		return nil, err
 	}
 	for i := range rules {
+		var ruleSel SingleRuleLabels
 		if rules[i].IPBlock != nil {
 			continue
 		}
@@ -527,9 +531,39 @@ func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.Net
 		}
 		// ns selector is not nil
 		selector, _ := np.parseNetpolLabelSelector(rules[i].NamespaceSelector)
-		if selector.Empty() {
-			return false, true
+		if selector.Empty() { // if rules list contains at least one rulePeer with entireCluster; no need to consider other selectors
+			err = np.updateNetworkPolicyGeneralConn(false, true, rulePorts, isIngress)
+			return nil, err
+		}
+		// else (selector not empty)
+		ruleSel.NsLabels, err = metav1.LabelSelectorAsMap(rules[i].NamespaceSelector)
+		if err != nil {
+			return nil, err
+		}
+		rulesSelectors = append(rulesSelectors, ruleSel)
+	}
+	return rulesSelectors, nil
+}
+
+func (np *NetworkPolicy) updateNetworkPolicyGeneralConn(allDests, entireCluster bool, rulePorts []netv1.NetworkPolicyPort,
+	isIngress bool) error {
+	ruleConns, err := np.ruleConnections(rulePorts, nil)
+	if err != nil {
+		return err
+	}
+	if allDests {
+		if isIngress {
+			np.IngressGeneralConns.AllDestinationsConns.Union(ruleConns)
+		} else {
+			np.EgressGeneralConns.AllDestinationsConns.Union(ruleConns)
 		}
 	}
-	return false, false
+	if entireCluster {
+		if isIngress {
+			np.IngressGeneralConns.EntireClusterConns.Union(ruleConns)
+		} else {
+			np.EgressGeneralConns.EntireClusterConns.Union(ruleConns)
+		}
+	}
+	return nil
 }
