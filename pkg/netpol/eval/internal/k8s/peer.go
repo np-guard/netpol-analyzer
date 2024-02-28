@@ -72,6 +72,9 @@ type RepresentativePeer struct {
 	// and its namespace is a fake namespace with the namespaceSelector labels  (those labels also stored in PotentialNamespaceLabels)
 	Pod                      *Pod
 	PotentialNamespaceLabels map[string]string
+	// IsRedundant indicates if a real workload peer that fits labels of this peer and its namespace
+	// was found  while computing allowed connections between peers (so this peer should be refined)
+	IsRedundant bool
 }
 
 const podKind = "Pod"

@@ -361,8 +361,8 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, d
 	if src.String() == dst.String() {
 		return false
 	}
-	// when exposure-analysis, skip conns between fake pods or ip-peer and fake pods
-	if ca.exposureAnalysis && ca.hasFakePodsAndIPs(pe, src, dst) {
+	// when exposure-analysis, skip conns between fake pods or ip-peer and fake pods or redundant fake pods
+	if ca.exposureAnalysis && !ca.includePairWithRepresentativePeer(pe, src, dst) {
 		return false
 	}
 	if ca.focusWorkload == "" {
@@ -372,23 +372,37 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, d
 	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
 }
 
-func (ca *ConnlistAnalyzer) hasFakePodsAndIPs(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
-	// if both peers are Representative
-	if pe.IsRepresentativePeer(src) && pe.IsRepresentativePeer(dst) {
+//nolint:gocyclo // ignore gocyclo
+func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
+	isRepSrc := pe.IsRepresentativePeer(src)
+	isRepDst := pe.IsRepresentativePeer(dst)
+	// both peers are not representative, then return with true
+	if !isRepSrc && !isRepDst {
 		return true
 	}
+	// cases when at least one of the peers is representative peer; when not to include the peers pair:
+	// both peers are Representative
+	if isRepSrc && isRepDst {
+		return false
+	}
+	// a representative peer is redundant (was refined as redundant in a previous iteration of getConnectionsBetweenPeers)
+	if isRepSrc && pe.IsRedundantRepresentativePeer(src) {
+		return false
+	}
+	if isRepDst && pe.IsRedundantRepresentativePeer(dst) {
+		return false
+	}
 	// if one peer is IP and the other is a representative peer
-	if (src.IsPeerIPType() || dst.IsPeerIPType()) &&
-		(pe.IsRepresentativePeer(src) || pe.IsRepresentativePeer(dst)) {
-		return true
+	if (src.IsPeerIPType() || dst.IsPeerIPType()) && (isRepSrc || isRepDst) {
+		return false
 	}
 	// if one peer is fake ingress-pod and the other is a representative peer
 	// todo: might check if peer is a fake ingress-controller by checking name and fakePod flag (within new pe func)
-	if (src.Name() == common.IngressPodName || dst.Name() == common.IngressPodName) &&
-		(pe.IsRepresentativePeer(src) || pe.IsRepresentativePeer(dst)) {
-		return true
+	if (src.Name() == common.IngressPodName || dst.Name() == common.IngressPodName) && (isRepSrc || isRepDst) {
+		return false
 	}
-	return false
+	// the remaining case : one peer is representative, the other is a pod peer
+	return !pe.RepresentativePeerMatchesRealWorkloadPeer(src, dst)
 }
 
 func getPeerNsNameFormat(peer eval.Peer) string {
@@ -503,6 +517,10 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 
 	for i := range peers {
 		srcPeer := peers[i]
+		if ca.exposureAnalysis && pe.IsRedundantRepresentativePeer(srcPeer) {
+			// if the src peer was revealed as redundant peer (while being a dst in prev iter.) then skip
+			continue
+		}
 		for j := range peers {
 			dstPeer := peers[j]
 			if !ca.includePairOfWorkloads(pe, srcPeer, dstPeer) {

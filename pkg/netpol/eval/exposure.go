@@ -95,3 +95,63 @@ func (pe *PolicyEngine) GetPeerNsLabels(p Peer) (map[string]string, error) {
 	}
 	return peer.PotentialNamespaceLabels, nil
 }
+
+// IsRedundantRepresentativePeer returns wether the given peer is a redundant representative peer or not
+func (pe *PolicyEngine) IsRedundantRepresentativePeer(peer Peer) bool {
+	if !pe.IsRepresentativePeer(peer) {
+		return false
+	}
+	return peer.(*k8s.RepresentativePeer).IsRedundant
+}
+
+/////////
+
+// RepresentativePeerMatchesRealWorkloadPeer gets two peers
+// if one is a WorkloadPeer and the other is a RepresentativePeer: returns whether the namespaceLabels (TODO: and podLabels)
+// of the RepresentativePeer are contained in the labels of the WorkloadPeer's namespace
+func (pe *PolicyEngine) RepresentativePeerMatchesRealWorkloadPeer(firstPeer, secondPeer Peer) bool {
+	var repPeer *k8s.RepresentativePeer
+	var wlPeer *k8s.WorkloadPeer
+	if pe.IsRepresentativePeer(firstPeer) {
+		repPeer = firstPeer.(*k8s.RepresentativePeer)
+		// if the second is not a workload peer - no match for sure ; return false
+		if wlPeer, _ = isPeerAWorkloadPeer(secondPeer); wlPeer == nil {
+			return false
+		}
+		// TODO : compare also podLabels
+		return pe.potentialNamespaceLabelsContainedInRealLabels(repPeer, wlPeer)
+	} // else
+	wlPeer, _ = isPeerAWorkloadPeer(firstPeer)
+	if !pe.IsRepresentativePeer(secondPeer) || wlPeer == nil {
+		return false
+	}
+	repPeer = secondPeer.(*k8s.RepresentativePeer)
+	return pe.potentialNamespaceLabelsContainedInRealLabels(repPeer, wlPeer)
+}
+
+// potentialNamespaceLabelsContainedInRealLabels checks if the potential namespaceLabels of the fake peer's namespace are contained in
+// the labels of the namespace of the real workloadpeer;
+// if yes, mark the representative peer as redundant
+func (pe *PolicyEngine) potentialNamespaceLabelsContainedInRealLabels(repPeer *k8s.RepresentativePeer, wlPeer *k8s.WorkloadPeer) bool {
+	// todo : special case: add check for namespaceName and the "name" label of fake namespace
+	potentialNsLabels := repPeer.PotentialNamespaceLabels
+	realPodPeer, _ := pe.convertPeerToPodPeer(wlPeer) // todo: handle err
+	actualWlNsLabels := realPodPeer.NamespaceObject.Labels
+	if isMapContainedInOther(potentialNsLabels, actualWlNsLabels) {
+		repPeer.IsRedundant = true
+		return true
+	}
+	return false
+}
+
+func isMapContainedInOther(subMap, other map[string]string) bool {
+	if len(subMap) > len(other) {
+		return false
+	}
+	for k, v := range subMap {
+		if otherV, ok := other[k]; !ok || v != otherV {
+			return false
+		}
+	}
+	return true
+}
