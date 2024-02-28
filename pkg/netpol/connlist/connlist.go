@@ -352,57 +352,64 @@ func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.Connection
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
+func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, dst eval.Peer) (bool, error) {
 	if src.IsPeerIPType() && dst.IsPeerIPType() {
-		return false
+		return false, nil
 	}
 	// skip self-looped connection,
 	// i.e. a connection from workload to itself (regardless existence of replicas)
 	if src.String() == dst.String() {
-		return false
+		return false, nil
 	}
 	// when exposure-analysis, skip conns between fake pods or ip-peer and fake pods or redundant fake pods
-	if ca.exposureAnalysis && !ca.includePairWithRepresentativePeer(pe, src, dst) {
-		return false
+	if ca.exposureAnalysis {
+		includePair, err := ca.includePairWithRepresentativePeer(pe, src, dst)
+		if err != nil {
+			return false, err
+		}
+		if !includePair {
+			return false, nil
+		}
 	}
 	if ca.focusWorkload == "" {
-		return true
+		return true, nil
 	}
 	// at least one of src/dst should be the focus workload
-	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
+	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst), nil
 }
 
 //nolint:gocyclo // ignore gocyclo
-func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
+func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEngine, src, dst eval.Peer) (bool, error) {
 	isRepSrc := pe.IsRepresentativePeer(src)
 	isRepDst := pe.IsRepresentativePeer(dst)
 	// both peers are not representative, then return with true
 	if !isRepSrc && !isRepDst {
-		return true
+		return true, nil
 	}
 	// cases when at least one of the peers is representative peer; when not to include the peers pair:
 	// both peers are Representative
 	if isRepSrc && isRepDst {
-		return false
+		return false, nil
 	}
 	// a representative peer is redundant (was refined as redundant in a previous iteration of getConnectionsBetweenPeers)
 	if isRepSrc && pe.IsRedundantRepresentativePeer(src) {
-		return false
+		return false, nil
 	}
 	if isRepDst && pe.IsRedundantRepresentativePeer(dst) {
-		return false
+		return false, nil
 	}
 	// if one peer is IP and the other is a representative peer
 	if (src.IsPeerIPType() || dst.IsPeerIPType()) && (isRepSrc || isRepDst) {
-		return false
+		return false, nil
 	}
 	// if one peer is fake ingress-pod and the other is a representative peer
 	// todo: might check if peer is a fake ingress-controller by checking name and fakePod flag (within new pe func)
 	if (src.Name() == common.IngressPodName || dst.Name() == common.IngressPodName) && (isRepSrc || isRepDst) {
-		return false
+		return false, nil
 	}
 	// the remaining case : one peer is representative, the other is a pod peer
-	return !pe.RepresentativePeerMatchesRealWorkloadPeer(src, dst)
+	match, err := pe.RepresentativePeerMatchesRealWorkloadPeer(src, dst)
+	return !match, err
 }
 
 func getPeerNsNameFormat(peer eval.Peer) string {
@@ -523,7 +530,11 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 		}
 		for j := range peers {
 			dstPeer := peers[j]
-			if !ca.includePairOfWorkloads(pe, srcPeer, dstPeer) {
+			includePair, err := ca.includePairOfWorkloads(pe, srcPeer, dstPeer)
+			if err != nil {
+				return nil, nil, err
+			}
+			if !includePair {
 				continue
 			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
@@ -567,7 +578,11 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 	}
 	for peerStr, peerAndConn := range ingressConns {
 		// refines to only relevant connections if ca.focusWorkload is not empty
-		if !ca.includePairOfWorkloads(pe, ingressControllerPod, peerAndConn.Peer) {
+		includePair, err := ca.includePairOfWorkloads(pe, ingressControllerPod, peerAndConn.Peer)
+		if err != nil {
+			return nil, err
+		}
+		if !includePair {
 			continue
 		}
 		// compute allowed connections based on pe.policies to the peer, then intersect the conns with
