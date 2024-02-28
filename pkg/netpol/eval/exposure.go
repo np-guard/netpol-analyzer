@@ -134,26 +134,58 @@ func (pe *PolicyEngine) RepresentativePeerMatchesRealWorkloadPeer(firstPeer, sec
 // if yes, mark the representative peer as redundant
 func (pe *PolicyEngine) potentialNamespaceLabelsContainedInRealLabels(repPeer *k8s.RepresentativePeer,
 	wlPeer *k8s.WorkloadPeer) (bool, error) {
-	// todo : special case: add check for namespaceName and the "name" label of fake namespace
 	potentialNsLabels := repPeer.PotentialNamespaceLabels
 	realPodPeer, err := pe.convertPeerToPodPeer(wlPeer)
 	if err != nil {
 		return false, err
 	}
 	actualWlNsLabels := realPodPeer.NamespaceObject.Labels
-	isRedundant := isMapContainedInOther(potentialNsLabels, actualWlNsLabels)
+	// check if the potential labels map contains a name label key - compare with the actual ns name and ignore it
+	// while compare labels maps
+	nameLabelKey := checkForNameLabelsInTheMap(potentialNsLabels)
+	// if the name value is different from the realPod namespace name then no match
+	if nameLabelKey != "" && realPodPeer.NamespaceObject.Name != potentialNsLabels[nameLabelKey] {
+		return false, nil
+	}
+	isRedundant := isMapContainedInOther(potentialNsLabels, actualWlNsLabels, nameLabelKey)
 	repPeer.IsRedundant = isRedundant
 	return isRedundant, nil
 }
 
-func isMapContainedInOther(subMap, other map[string]string) bool {
-	if len(subMap) > len(other) {
-		return false
+// isMapContainedInOther checks if the subMap is contained in the other map;
+// ignored key : is the name key; its value is already compared so to be ignored if not empty
+func isMapContainedInOther(subMap, other map[string]string, ignoredKey string) bool {
+	if ignoredKey != "" {
+		if len(subMap)-1 > len(other) {
+			return false
+		}
+	} else {
+		if len(subMap) > len(other) {
+			return false
+		}
 	}
+
 	for k, v := range subMap {
+		if ignoredKey != "" && k == ignoredKey {
+			continue
+		}
 		if otherV, ok := other[k]; !ok || v != otherV {
 			return false
 		}
 	}
 	return true
+}
+
+const nameKey = "name"
+
+// checkIfNameLabelsInTheSubMap returns the name label's key in the map if found
+// a name key may be "name" or "kubernetes.io/metadata.name"
+func checkForNameLabelsInTheMap(potentialLabels map[string]string) string {
+	if _, ok := potentialLabels[k8s.K8sNsNameLabelKey]; ok {
+		return k8s.K8sNsNameLabelKey
+	}
+	if _, ok := potentialLabels[nameKey]; ok {
+		return nameKey
+	}
+	return ""
 }
