@@ -75,7 +75,7 @@ func PodNamespace() (string, error) {
 		return ns, nil
 	}
 	if data, err := os.ReadFile(nsFile); err == nil {
-		if ns := strings.TrimSpace(string(data)); len(ns) > 0 {
+		if ns := strings.TrimSpace(string(data)); ns != "" {
 			return ns, nil
 		}
 		return "", err
