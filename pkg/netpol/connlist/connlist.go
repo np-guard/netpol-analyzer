@@ -352,64 +352,44 @@ func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.Connection
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, dst eval.Peer) (bool, error) {
+func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
 	if src.IsPeerIPType() && dst.IsPeerIPType() {
-		return false, nil
+		return false
 	}
 	// skip self-looped connection,
 	// i.e. a connection from workload to itself (regardless existence of replicas)
 	if src.String() == dst.String() {
-		return false, nil
+		return false
 	}
-	// when exposure-analysis, skip conns between fake pods or ip-peer and fake pods or redundant fake pods
-	if ca.exposureAnalysis {
-		includePair, err := ca.includePairWithRepresentativePeer(pe, src, dst)
-		if err != nil {
-			return false, err
-		}
-		if !includePair {
-			return false, nil
-		}
+	// when exposure-analysis, skip conns between fake pods or ip-peer and fake pods
+	if ca.exposureAnalysis && !ca.includePairWithRepresentativePeer(pe, src, dst) {
+		return false
 	}
 	if ca.focusWorkload == "" {
-		return true, nil
+		return true
 	}
 	// at least one of src/dst should be the focus workload
-	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst), nil
+	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
 }
 
-//nolint:gocyclo // ignore gocyclo
-func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEngine, src, dst eval.Peer) (bool, error) {
+func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
 	isRepSrc := pe.IsRepresentativePeer(src)
 	isRepDst := pe.IsRepresentativePeer(dst)
-	// both peers are not representative, then return with true
-	if !isRepSrc && !isRepDst {
-		return true, nil
-	}
 	// cases when at least one of the peers is representative peer; when not to include the peers pair:
 	// both peers are Representative
 	if isRepSrc && isRepDst {
-		return false, nil
-	}
-	// a representative peer is redundant (was refined as redundant in a previous iteration of getConnectionsBetweenPeers)
-	if isRepSrc && pe.IsRedundantRepresentativePeer(src) {
-		return false, nil
-	}
-	if isRepDst && pe.IsRedundantRepresentativePeer(dst) {
-		return false, nil
+		return false
 	}
 	// if one peer is IP and the other is a representative peer
-	if (src.IsPeerIPType() || dst.IsPeerIPType()) && (isRepSrc || isRepDst) {
-		return false, nil
+	if (isRepSrc || isRepDst) && (src.IsPeerIPType() || dst.IsPeerIPType()) {
+		return false
 	}
 	// if one peer is fake ingress-pod and the other is a representative peer
 	// todo: might check if peer is a fake ingress-controller by checking name and fakePod flag (within new pe func)
-	if (src.Name() == common.IngressPodName || dst.Name() == common.IngressPodName) && (isRepSrc || isRepDst) {
-		return false, nil
+	if (isRepSrc || isRepDst) && (src.Name() == common.IngressPodName || dst.Name() == common.IngressPodName) {
+		return false
 	}
-	// the remaining case : one peer is representative, the other is a pod peer
-	match, err := pe.RepresentativePeerMatchesRealWorkloadPeer(src, dst)
-	return !match, err
+	return true
 }
 
 func getPeerNsNameFormat(peer eval.Peer) string {
@@ -524,17 +504,9 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 
 	for i := range peers {
 		srcPeer := peers[i]
-		if ca.exposureAnalysis && pe.IsRedundantRepresentativePeer(srcPeer) {
-			// if the src peer was revealed as redundant peer (while being a dst in prev iter.) then skip
-			continue
-		}
 		for j := range peers {
 			dstPeer := peers[j]
-			includePair, err := ca.includePairOfWorkloads(pe, srcPeer, dstPeer)
-			if err != nil {
-				return nil, nil, err
-			}
-			if !includePair {
+			if !ca.includePairOfWorkloads(pe, srcPeer, dstPeer) {
 				continue
 			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
@@ -578,11 +550,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 	}
 	for peerStr, peerAndConn := range ingressConns {
 		// refines to only relevant connections if ca.focusWorkload is not empty
-		includePair, err := ca.includePairOfWorkloads(pe, ingressControllerPod, peerAndConn.Peer)
-		if err != nil {
-			return nil, err
-		}
-		if !includePair {
+		if !ca.includePairOfWorkloads(pe, ingressControllerPod, peerAndConn.Peer) {
 			continue
 		}
 		// compute allowed connections based on pe.policies to the peer, then intersect the conns with

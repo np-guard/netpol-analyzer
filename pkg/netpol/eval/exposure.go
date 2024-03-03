@@ -16,6 +16,10 @@ package eval
 import (
 	"errors"
 	"fmt"
+	"sort"
+	"strings"
+
+	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
@@ -27,10 +31,12 @@ import (
 // any fake namespace added will start with following prefix for ns name and following pod name
 const repNsNamePrefix = "representative-namespace-"
 
-// generateRepresentativePeers adds representative pods with namespace or pod labels inferred from given selectors
-// which are extracted from network policies rules.
-// for example, if a rule within policy has namespace selector "name: foo", then a representative pod in such a
-// namespace with those labels will be added, representing all potential pods in such a namespace
+// generateRepresentativePeers : generates and adds to policy engine representative peers where each peer
+// has namespace and pod labels inferred from single policy rule labels in the given list of selectors;
+// for example, if a rule within policy has namespaceSelector "foo: managed", then a representative pod in such a
+// namespace with those labels will be added, representing all potential pods in such a namespace.
+// generated representative peers are unique; i.e. if different rules (e.g in different policies or different directions) has same labels :
+// one representative peer is generated to represent both
 func (pe *PolicyEngine) generateRepresentativePeers(selectorsLabels []k8s.SingleRuleLabels, policyName string) error {
 	for i := range selectorsLabels {
 		_, err := pe.AddPodByNameAndNamespace(k8s.RepresentativePodName, repNsNamePrefix+policyName+fmt.Sprint(i), &selectorsLabels[i])
@@ -39,6 +45,36 @@ func (pe *PolicyEngine) generateRepresentativePeers(selectorsLabels []k8s.Single
 		}
 	}
 	return nil
+}
+
+const comma = ","
+
+// getSortedLabelsString returns a sorted string of the given labels  - helping func
+// @todo on podSelector PR : add also sorted podSelector labels to the returned value (for the map key)
+func getSortedLabelsString(selectorLabels *k8s.SingleRuleLabels) string {
+	nsSelectorStr := labels.SelectorFromSet(labels.Set(selectorLabels.NsLabels)).String()
+	selectorSlice := strings.Split(nsSelectorStr, comma)
+	sort.Strings(selectorSlice)
+	return strings.Join(selectorSlice, comma)
+}
+
+// refineRepresentativePeersMatchingLabels removes from the policy engine all representative peers
+// with labels matching the given labels of a real pod
+func (pe *PolicyEngine) refineRepresentativePeersMatchingLabels(realPodLabels, realNsLabels map[string]string) {
+	keysToDelete := make([]string, 0)
+	// look for representative peers with labels matching the given real pod's (and its namespace) labels
+	for key, peer := range pe.representativePeersMap {
+		potentialPodSelector := labels.SelectorFromSet(labels.Set(peer.Pod.Labels))
+		potentialNsSelector := labels.SelectorFromSet(labels.Set(peer.PotentialNamespaceLabels))
+		if potentialPodSelector.Matches(labels.Set(realPodLabels)) && potentialNsSelector.Matches(labels.Set(realNsLabels)) {
+			keysToDelete = append(keysToDelete, key)
+		}
+	}
+
+	// delete redundant representative peers
+	for _, k := range keysToDelete {
+		delete(pe.representativePeersMap, k)
+	}
 }
 
 // /////////////////////////////////
@@ -94,98 +130,4 @@ func (pe *PolicyEngine) GetPeerNsLabels(p Peer) (map[string]string, error) {
 		return nil, errors.New(netpolerrors.NotRepresentativePeerErrStr(p.String()))
 	}
 	return peer.PotentialNamespaceLabels, nil
-}
-
-// IsRedundantRepresentativePeer returns wether the given peer is a redundant representative peer or not
-func (pe *PolicyEngine) IsRedundantRepresentativePeer(peer Peer) bool {
-	if !pe.IsRepresentativePeer(peer) {
-		return false
-	}
-	return peer.(*k8s.RepresentativePeer).IsRedundant
-}
-
-/////////
-
-// RepresentativePeerMatchesRealWorkloadPeer gets two peers
-// if one is a WorkloadPeer and the other is a RepresentativePeer: returns whether the namespaceLabels (TODO: and podLabels)
-// of the RepresentativePeer are contained in the labels of the WorkloadPeer's namespace
-func (pe *PolicyEngine) RepresentativePeerMatchesRealWorkloadPeer(firstPeer, secondPeer Peer) (bool, error) {
-	var repPeer *k8s.RepresentativePeer
-	var wlPeer *k8s.WorkloadPeer
-	if pe.IsRepresentativePeer(firstPeer) {
-		repPeer = firstPeer.(*k8s.RepresentativePeer)
-		// if the second is not a workload peer - no match for sure ; return false
-		if wlPeer, _ = isPeerAWorkloadPeer(secondPeer); wlPeer == nil {
-			return false, nil
-		}
-		// TODO : compare also podLabels
-		return pe.potentialNamespaceLabelsContainedInRealLabels(repPeer, wlPeer)
-	} // else
-	wlPeer, _ = isPeerAWorkloadPeer(firstPeer)
-	if !pe.IsRepresentativePeer(secondPeer) || wlPeer == nil {
-		return false, nil
-	}
-	repPeer = secondPeer.(*k8s.RepresentativePeer)
-	return pe.potentialNamespaceLabelsContainedInRealLabels(repPeer, wlPeer)
-}
-
-// potentialNamespaceLabelsContainedInRealLabels checks if the potential namespaceLabels of the fake peer's namespace are contained in
-// the labels of the namespace of the real workloadpeer;
-// if yes, mark the representative peer as redundant
-func (pe *PolicyEngine) potentialNamespaceLabelsContainedInRealLabels(repPeer *k8s.RepresentativePeer,
-	wlPeer *k8s.WorkloadPeer) (bool, error) {
-	potentialNsLabels := repPeer.PotentialNamespaceLabels
-	realPodPeer, err := pe.convertPeerToPodPeer(wlPeer)
-	if err != nil {
-		return false, err
-	}
-	actualWlNsLabels := realPodPeer.NamespaceObject.Labels
-	// check if the potential labels map contains a name label key - compare with the actual ns name and ignore it
-	// while compare labels maps
-	nameLabelKey := checkForNameLabelsInTheMap(potentialNsLabels)
-	// if the name value is different from the realPod namespace name then no match
-	if nameLabelKey != "" && realPodPeer.NamespaceObject.Name != potentialNsLabels[nameLabelKey] {
-		return false, nil
-	}
-	isRedundant := isMapContainedInOther(potentialNsLabels, actualWlNsLabels, nameLabelKey)
-	repPeer.IsRedundant = isRedundant
-	return isRedundant, nil
-}
-
-// isMapContainedInOther checks if the subMap is contained in the other map;
-// ignored key : is the name key; its value is already compared so to be ignored if not empty
-func isMapContainedInOther(subMap, other map[string]string, ignoredKey string) bool {
-	if ignoredKey != "" {
-		if len(subMap)-1 > len(other) {
-			return false
-		}
-	} else {
-		if len(subMap) > len(other) {
-			return false
-		}
-	}
-
-	for k, v := range subMap {
-		if ignoredKey != "" && k == ignoredKey {
-			continue
-		}
-		if otherV, ok := other[k]; !ok || v != otherV {
-			return false
-		}
-	}
-	return true
-}
-
-const nameKey = "name"
-
-// checkIfNameLabelsInTheSubMap returns the name label's key in the map if found
-// a name key may be "name" or "kubernetes.io/metadata.name"
-func checkForNameLabelsInTheMap(potentialLabels map[string]string) string {
-	if _, ok := potentialLabels[k8s.K8sNsNameLabelKey]; ok {
-		return k8s.K8sNsNameLabelKey
-	}
-	if _, ok := potentialLabels[nameKey]; ok {
-		return nameKey
-	}
-	return ""
 }
