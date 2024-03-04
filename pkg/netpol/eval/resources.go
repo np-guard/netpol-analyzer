@@ -58,7 +58,7 @@ func NewPolicyEngine() *PolicyEngine {
 
 func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, error) {
 	pe := NewPolicyEngine()
-	err := pe.AddObjectsByKind(objects)
+	err := pe.addObjectsByKind(objects)
 	return pe, err
 }
 
@@ -80,11 +80,11 @@ func (pe *PolicyEngine) AddObjects(objects []parser.K8sObject) error {
 		return nil
 	}
 	policies, nonPolicies := splitPoliciesAndOtherObjects(objects)
-	err := pe.addPolicies(policies)
+	err := pe.addObjectsByKind(policies)
 	if err != nil {
 		return err
 	}
-	err = pe.AddObjectsByKind(nonPolicies)
+	err = pe.addObjectsByKind(nonPolicies)
 	return err
 }
 
@@ -100,19 +100,8 @@ func splitPoliciesAndOtherObjects(objects []parser.K8sObject) (policies, nonPoli
 	return policies, nonPolicies
 }
 
-// TBD: may be deprcated and use only AddObjectsByKind even when kind is always Networkpolicy?
-func (pe *PolicyEngine) addPolicies(policies []parser.K8sObject) (err error) {
-	for _, policyObj := range policies {
-		err = pe.UpsertObject(policyObj.Networkpolicy)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// AddObjectsByKind adds different k8s objects from parsed resources to the policy engine
-func (pe *PolicyEngine) AddObjectsByKind(objects []parser.K8sObject) error {
+// addObjectsByKind adds different k8s objects from parsed resources to the policy engine
+func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 	var err error
 	for _, obj := range objects {
 		switch obj.Kind {
@@ -599,15 +588,14 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, objLabels *k8s
 		return nil, err
 	}
 	if pe.exposureAnalysisFlag && newPod.Name == k8s.RepresentativePodName { // if exposure-analysis and this is not a fake ingress-controller
-		// first compute a selector sorted (and unique) string to be used as a map key
-		// todo : the key of the map might also be the representativePeer.String() if fits (sorted and ensures equality)
-		// (when we decide how to implement it)?!
-		keyStrFromLabels := getSortedLabelsString(objLabels)
-		if _, ok := pe.representativePeersMap[keyStrFromLabels]; ok { // we already have a representative peer with same labels
+		// first compute a unique string from labels to be used as a map key
+		keyStrFromNsLabels := k8s.VariantFromLabelsMap(objLabels.NsLabels)
+		// todo : when supporting also pod labels; add also key str from pod labels to the map key
+		if _, ok := pe.representativePeersMap[keyStrFromNsLabels]; ok { // we already have a representative peer with same labels
 			return nil, nil
 		}
 		newRepresentativePeer := &k8s.RepresentativePeer{Pod: newPod, PotentialNamespaceLabels: nsLabels}
-		pe.representativePeersMap[keyStrFromLabels] = newRepresentativePeer
+		pe.representativePeersMap[keyStrFromNsLabels] = newRepresentativePeer
 		return newRepresentativePeer, nil
 	}
 	// ingress-controller will be treated as a real pod, may be added to podsMap

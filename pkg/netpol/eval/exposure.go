@@ -16,8 +16,6 @@ package eval
 import (
 	"errors"
 	"fmt"
-	"sort"
-	"strings"
 
 	"k8s.io/apimachinery/pkg/labels"
 
@@ -31,6 +29,10 @@ import (
 // any fake namespace added will start with following prefix for ns name and following pod name
 const repNsNamePrefix = "representative-namespace-"
 
+func generateNewNamespaceName(policyName string, index int) string {
+	return repNsNamePrefix + policyName + fmt.Sprint(index)
+}
+
 // generateRepresentativePeers : generates and adds to policy engine representative peers where each peer
 // has namespace and pod labels inferred from single policy rule labels in the given list of selectors;
 // for example, if a rule within policy has namespaceSelector "foo: managed", then a representative pod in such a
@@ -39,23 +41,13 @@ const repNsNamePrefix = "representative-namespace-"
 // one representative peer is generated to represent both
 func (pe *PolicyEngine) generateRepresentativePeers(selectorsLabels []k8s.SingleRuleLabels, policyName string) error {
 	for i := range selectorsLabels {
-		_, err := pe.AddPodByNameAndNamespace(k8s.RepresentativePodName, repNsNamePrefix+policyName+fmt.Sprint(i), &selectorsLabels[i])
+		// @todo : when supporting the PodSelector: differentiate also pod names
+		_, err := pe.AddPodByNameAndNamespace(k8s.RepresentativePodName, generateNewNamespaceName(policyName, i), &selectorsLabels[i])
 		if err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-const comma = ","
-
-// getSortedLabelsString returns a sorted string of the given labels  - helping func
-// @todo on podSelector PR : add also sorted podSelector labels to the returned value (for the map key)
-func getSortedLabelsString(selectorLabels *k8s.SingleRuleLabels) string {
-	nsSelectorStr := labels.SelectorFromSet(labels.Set(selectorLabels.NsLabels)).String()
-	selectorSlice := strings.Split(nsSelectorStr, comma)
-	sort.Strings(selectorSlice)
-	return strings.Join(selectorSlice, comma)
 }
 
 // refineRepresentativePeersMatchingLabels removes from the policy engine all representative peers

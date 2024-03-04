@@ -112,7 +112,7 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		ownerRef := p.ObjectMeta.OwnerReferences[refIndex]
 		if *ownerRef.Controller {
 			if addOwner := addPodOwner(&ownerRef, pr); addOwner {
-				pr.Owner.Variant = variantFromLabelsMap(p.Labels)
+				pr.Owner.Variant = VariantFromLabelsMap(p.Labels)
 			}
 			break
 		}
@@ -226,7 +226,7 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		for i := range podTemplate.Spec.Containers {
 			pod.Ports = append(pod.Ports, podTemplate.Spec.Containers[i].Ports...)
 		}
-		pod.Owner.Variant = variantFromLabelsMap(podTemplate.Labels)
+		pod.Owner.Variant = VariantFromLabelsMap(podTemplate.Labels)
 		res[index-1] = pod
 	}
 	return res, nil
@@ -237,7 +237,8 @@ func namespacedName(pod *corev1.Pod) string {
 	return types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}.String()
 }
 
-func variantFromLabelsMap(labels map[string]string) string {
+// VariantFromLabelsMap returns a unique hash key from given labels map
+func VariantFromLabelsMap(labels map[string]string) string {
 	return hex.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%v", labels)))) //nolint:gosec // Non-crypto use
 }
 
