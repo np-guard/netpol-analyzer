@@ -196,16 +196,9 @@ func (ca *ConnlistAnalyzer) getPolicyEngine(objectsList []parser.K8sObject) (*ev
 	if !ca.exposureAnalysis {
 		return eval.NewPolicyEngineWithObjects(objectsList)
 	}
-	// else build new policy engine with exposure analysis
+	// else build new policy engine with exposure analysis option
 	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
-	// add objects from real resources
 	err := pe.AddObjects(objectsList)
-	if err != nil {
-		return nil, err
-	}
-	// TODO: this will be eliminated when adding representative peers while policies upsert
-	// add representative resources
-	err = pe.SetExposureAnalysisResources()
 	return pe, err
 }
 
@@ -225,16 +218,9 @@ func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8
 
 // ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources, and list of all peers names
 func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []Peer, error) {
-	pe := eval.NewPolicyEngine()
-	if ca.exposureAnalysis {
-		err := pe.SetExposureAnalysisResources()
-		if err != nil {
-			return nil, nil, err
-		}
-	}
+	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
 
 	// get all resources from k8s cluster
-
 	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
 	defer cancel()
 
@@ -376,7 +362,7 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, d
 		return false
 	}
 	// when exposure-analysis, skip conns between fake pods or ip-peer and fake pods
-	if ca.exposureAnalysis && ca.hasFakePodsAndIPs(pe, src, dst) {
+	if ca.exposureAnalysis && !ca.includePairWithRepresentativePeer(pe, src, dst) {
 		return false
 	}
 	if ca.focusWorkload == "" {
@@ -386,23 +372,24 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, d
 	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
 }
 
-func (ca *ConnlistAnalyzer) hasFakePodsAndIPs(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
-	// if both peers are Representative
-	if pe.IsRepresentativePeer(src) && pe.IsRepresentativePeer(dst) {
-		return true
+func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
+	isRepSrc := pe.IsRepresentativePeer(src)
+	isRepDst := pe.IsRepresentativePeer(dst)
+	// cases when at least one of the peers is representative peer; when not to include the peers pair:
+	// both peers are Representative
+	if isRepSrc && isRepDst {
+		return false
 	}
 	// if one peer is IP and the other is a representative peer
-	if (src.IsPeerIPType() || dst.IsPeerIPType()) &&
-		(pe.IsRepresentativePeer(src) || pe.IsRepresentativePeer(dst)) {
-		return true
+	if (isRepSrc || isRepDst) && (src.IsPeerIPType() || dst.IsPeerIPType()) {
+		return false
 	}
 	// if one peer is fake ingress-pod and the other is a representative peer
 	// todo: might check if peer is a fake ingress-controller by checking name and fakePod flag (within new pe func)
-	if (src.Name() == common.IngressPodName || dst.Name() == common.IngressPodName) &&
-		(pe.IsRepresentativePeer(src) || pe.IsRepresentativePeer(dst)) {
-		return true
+	if (isRepSrc || isRepDst) && (src.Name() == common.IngressPodName || dst.Name() == common.IngressPodName) {
+		return false
 	}
-	return false
+	return true
 }
 
 func getPeerNsNameFormat(peer eval.Peer) string {
