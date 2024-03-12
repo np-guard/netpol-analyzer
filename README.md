@@ -156,7 +156,7 @@ Additional details about the connectivity diff command and its output is specifi
 
 ## Build the project
 
-Make sure you have golang 1.19+ on your platform
+Make sure you have golang 1.21+ on your platform
 
 ```commandline
 git clone git@github.com:np-guard/netpol-analyzer.git
