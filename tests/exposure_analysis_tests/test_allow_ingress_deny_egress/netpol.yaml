@@ -1,7 +1,7 @@
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: allow-hello-world-b-to-a-app
+  name: allow-ingress-deny-egress
   namespace: hello-world
 spec:
   podSelector:
@@ -11,6 +11,4 @@ spec:
   - Ingress
   - Egress
   ingress:
-  - {}
-  egress:
   - {}

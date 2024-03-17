@@ -10,14 +10,9 @@ import (
 
 // this file contains functions on exposureMap
 
-// initiatePeerEntry initiates an empty entry for the peer in the exposure map
-func (ex exposureMap) initiatePeerEntry(peer Peer) {
-	ex[peer] = &peerExposureData{
-		isIngressProtected: false,
-		isEgressProtected:  false,
-		ingressExposure:    make([]*xgressExposure, 0),
-		egressExposure:     make([]*xgressExposure, 0),
-	}
+// initiateEmptyPeerEntry initiates an empty entry for the peer in the exposure map
+func (ex exposureMap) initiateEmptyPeerEntry(pe *eval.PolicyEngine, peer Peer) error {
+	return ex.addNewEntry(pe, peer, true)
 }
 
 // appendPeerXgressExposureData updates a peer's entry in the map with new ingress/egress exposure data
@@ -52,11 +47,17 @@ func (ex exposureMap) addPeerUnprotectedData(pe *eval.PolicyEngine, peer Peer, i
 	if err != nil {
 		return false, err
 	}
-	if !protected {
-		if _, ok := ex[peer]; !ok {
-			ex.initiatePeerEntry(peer)
+	_, ok := ex[peer]
+	if !ok && !protected {
+		err = ex.initiateEmptyPeerEntry(pe, peer)
+		return true, err
+	}
+	if ok && protected {
+		if isIngress {
+			ex[peer].isIngressProtected = protected
+		} else {
+			ex[peer].isEgressProtected = protected
 		}
-		return true, nil
 	}
 	return false, nil
 }
@@ -73,7 +74,10 @@ func (ex exposureMap) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer 
 	}
 	// exposed to entire cluster
 	if _, ok := ex[peer]; !ok {
-		ex.initiatePeerEntry(peer)
+		err = ex.addNewEntry(pe, peer, false)
+		if err != nil {
+			return err
+		}
 	}
 	expData := &xgressExposure{
 		exposedToEntireCluster: true,
@@ -83,6 +87,28 @@ func (ex exposureMap) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer 
 	}
 	ex.appendPeerXgressExposureData(peer, expData, isIngress)
 
+	return nil
+}
+
+func (ex exposureMap) addNewEntry(pe *eval.PolicyEngine, peer Peer, isEmpty bool) error {
+	var err error
+	ingProtected, egProtected := false, false
+	if !isEmpty {
+		ingProtected, err = pe.IsPeerProtected(peer, true)
+		if err != nil {
+			return err
+		}
+		egProtected, err = pe.IsPeerProtected(peer, false)
+		if err != nil {
+			return err
+		}
+	}
+	ex[peer] = &peerExposureData{
+		isIngressProtected: ingProtected,
+		isEgressProtected:  egProtected,
+		ingressExposure:    make([]*xgressExposure, 0),
+		egressExposure:     make([]*xgressExposure, 0),
+	}
 	return nil
 }
 
@@ -120,7 +146,10 @@ func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnect
 	}
 	// check if peer is in the map; if not initialize an entry
 	if _, ok := ex[peer]; !ok {
-		ex.initiatePeerEntry(peer)
+		err = ex.addNewEntry(pe, peer, false)
+		if err != nil {
+			return err
+		}
 	}
 
 	nsLabels, err := pe.GetPeerNsLabels(representativePeer)
