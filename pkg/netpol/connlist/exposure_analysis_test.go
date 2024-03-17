@@ -8,9 +8,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
-	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
-	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 
 	"github.com/stretchr/testify/require"
@@ -71,7 +68,6 @@ func TestExposureBehavior(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
 		testName                       string
-		numOfParsingErrs               int
 		expectedNumRepresentativePeers int
 		expectedLenOfExposedPeerList   int
 		wl1ExpDataInfo                 expectedPeerResultInfo
@@ -167,7 +163,6 @@ func TestExposureBehavior(t *testing.T) {
 		},
 		{
 			testName:                       "test_with_no_netpols",
-			numOfParsingErrs:               1, // no netpols
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 is not protected by any netpol
@@ -180,7 +175,6 @@ func TestExposureBehavior(t *testing.T) {
 		},
 		{
 			testName:                       "test_allow_ingress_deny_egress",
-			numOfParsingErrs:               0,
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 is exposed to entire cluter on ingress
@@ -199,19 +193,11 @@ func TestExposureBehavior(t *testing.T) {
 		tt := tt
 		t.Run(tt.testName, func(t *testing.T) {
 			t.Parallel()
-			pe := buildPolicyEngineWithExposureAnalysis(t, tt.testName, tt.numOfParsingErrs)
-			// get real peers
-			peerList, err := pe.GetPeersList()
-			require.Nil(t, err, "test %q: error getting peer list", tt.testName)
-			representativePeers := pe.GetRepresentativePeersList()
-			require.Equal(t, tt.expectedNumRepresentativePeers, len(representativePeers),
-				"test %q: mismatch in number of representative peers", tt.testName)
-			peerList = append(peerList, representativePeers...)
-			peers := convertEvalPeersToConnlistPeer(peerList)
 			ca := NewConnlistAnalyzer(WithExposureAnalysis())
-			_, exposureMap, err := ca.getConnectionsBetweenPeers(pe, peers)
-			require.Nil(t, err, "test %q: error getting connections between peers", tt.testName)
-			exposedPeers := buildExposedPeerListFromExposureMap(exposureMap)
+			testDir := testutils.GetTestDirPath(filepath.Join(exposureAnalysisTestsDirName, tt.testName))
+			_, _, err := ca.ConnlistFromDirPath(testDir)
+			require.Empty(t, err, "test %q: err returned from the ConnlistFromDirPath", tt.testName)
+			exposedPeers := ca.ExposedPeers()
 			require.Equal(t, tt.expectedLenOfExposedPeerList, len(exposedPeers),
 				"test %q: mismatch in length of exposedPeer list", tt.testName)
 			for _, ep := range exposedPeers {
@@ -225,19 +211,6 @@ func TestExposureBehavior(t *testing.T) {
 			}
 		})
 	}
-}
-
-func buildPolicyEngineWithExposureAnalysis(t *testing.T, dirName string, numOfParsingErrs int) *eval.PolicyEngine {
-	testDir := testutils.GetTestDirPath(filepath.Join(exposureAnalysisTestsDirName, dirName))
-	rList, errs := fsscanner.GetResourceInfosFromDirPath([]string{testDir}, false, false)
-	require.Empty(t, errs, "test %q: nonempty errs list returned from the fsscanner", dirName)
-	k8sObjects, fpErrs := parser.ResourceInfoListToK8sObjectsList(rList, nil, true)
-	require.Equal(t, numOfParsingErrs, len(fpErrs),
-		"test %q: mismatch in length of errors list returned from the parser", dirName)
-	pe := eval.NewPolicyEngineWithOptions(true)
-	err := pe.AddObjects(k8sObjects)
-	require.Empty(t, err, "test %q: error adding objects to the policy engine", dirName)
-	return pe
 }
 
 func checkExpectedVsActualData(t *testing.T, testName string, actualExp ExposedPeer, expectedData expectedPeerResultInfo) {
