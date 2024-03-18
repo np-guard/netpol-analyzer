@@ -222,7 +222,7 @@ func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 	for _, cPort := range pod.Ports {
 		protocol := corev1.ProtocolTCP
 		if cPort.Protocol == "" || protocol == corev1.ProtocolTCP {
-			ports := common.PortSet{}
+			ports := common.MakePortSet(false)
 			ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort))
 			res.AddConnection(protocol, ports)
 		}

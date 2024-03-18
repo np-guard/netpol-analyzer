@@ -20,6 +20,8 @@ import (
 
 	"k8s.io/cli-runtime/pkg/resource"
 
+	"github.com/np-guard/models/pkg/interval"
+
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
@@ -292,7 +294,7 @@ type connection struct {
 	src               Peer
 	dst               Peer
 	allConnections    bool
-	protocolsAndPorts map[v1.Protocol][]common.PortRange
+	protocolsAndPorts map[v1.Protocol][]interval.Interval
 }
 
 func (c *connection) Src() Peer {
@@ -304,7 +306,7 @@ func (c *connection) Dst() Peer {
 func (c *connection) AllProtocolsAndPorts() bool {
 	return c.allConnections
 }
-func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
+func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]interval.Interval {
 	return c.protocolsAndPorts
 }
 
@@ -312,9 +314,9 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.ConnectionSet {
 	protocolsToPortSetMap := make(map[v1.Protocol]*common.PortSet, len(c.ProtocolsAndPorts()))
 	for protocol, portRageArr := range c.ProtocolsAndPorts() {
-		protocolsToPortSetMap[protocol] = &common.PortSet{}
-		for _, portRange := range portRageArr {
-			protocolsToPortSetMap[protocol].AddPortRange(portRange.Start(), portRange.End())
+		protocolsToPortSetMap[protocol] = common.MakePortSet(false)
+		for _, p := range portRageArr {
+			protocolsToPortSetMap[protocol].AddPortRange(p.Start, p.End)
 		}
 	}
 	connectionSet := &common.ConnectionSet{AllowAll: c.AllProtocolsAndPorts(), AllowedProtocols: protocolsToPortSetMap}
@@ -480,7 +482,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		if err != nil {
 			return nil, err
 		}
-		peerAndConn.ConnSet.Intersection(peConn.(*common.ConnectionSet))
+		peerAndConn.ConnSet.Intersection(peConn)
 		if peerAndConn.ConnSet.IsEmpty() {
 			ca.warnBlockedIngress(peerStr, peerAndConn.IngressObjects)
 			continue

@@ -3,8 +3,9 @@ package diff
 import (
 	v1 "k8s.io/api/core/v1"
 
+	"github.com/np-guard/models/pkg/interval"
+
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // ConnectivityDiff captures the set of differences in terms of connectivity between two input k8s resource sets
@@ -52,7 +53,7 @@ type AllowedConnectivity interface {
 	// AllProtocolsAndPorts returns true if all ports are allowed for all protocols
 	AllProtocolsAndPorts() bool
 	// ProtocolsAndPorts returns the set of allowed connections
-	ProtocolsAndPorts() map[v1.Protocol][]common.PortRange
+	ProtocolsAndPorts() map[v1.Protocol][]interval.Interval
 }
 
 type DiffTypeStr string

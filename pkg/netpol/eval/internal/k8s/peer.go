@@ -14,9 +14,8 @@
 package k8s
 
 import (
+	"github.com/np-guard/models/pkg/ipblock"
 	"k8s.io/apimachinery/pkg/types"
-
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // PeerType is a type to indicate the type of a Peer object (Pod or IP address)
@@ -39,7 +38,7 @@ type Peer interface {
 	// else returns nil
 	GetPeerNamespace() *Namespace
 	// GetPeerIPBlock returns a reference to IPBlock if the peer is IP address, else returns nil
-	GetPeerIPBlock() *common.IPBlock
+	GetPeerIPBlock() *ipblock.IPBlock
 }
 
 // PodPeer implements k8s.Peer interface and eval.Peer interface
@@ -50,7 +49,7 @@ type PodPeer struct {
 
 // IPBlockPeer implements k8s.Peer interface and eval.Peer interface
 type IPBlockPeer struct {
-	IPBlock *common.IPBlock
+	IPBlock *ipblock.IPBlock
 }
 
 // WorkloadPeer implements eval.Peer interface
@@ -114,7 +113,7 @@ func (p *PodPeer) GetPeerNamespace() *Namespace {
 	return p.NamespaceObject
 }
 
-func (p *PodPeer) GetPeerIPBlock() *common.IPBlock {
+func (p *PodPeer) GetPeerIPBlock() *ipblock.IPBlock {
 	return nil
 }
 
@@ -156,7 +155,7 @@ func (p *IPBlockPeer) GetPeerNamespace() *Namespace {
 	return nil
 }
 
-func (p *IPBlockPeer) GetPeerIPBlock() *common.IPBlock {
+func (p *IPBlockPeer) GetPeerIPBlock() *ipblock.IPBlock {
 	return p.IPBlock
 }
 

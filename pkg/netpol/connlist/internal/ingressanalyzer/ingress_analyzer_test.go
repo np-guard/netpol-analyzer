@@ -97,8 +97,8 @@ func checkConnsEquality(t *testing.T, testName string, ingressConns map[string]*
 		require.Len(t, connPortRange, len(expectedIngressToPeer.ports),
 			"test: %q, mismatch in ingress connections to %q", testName, peerStr)
 		for i := range expectedIngressToPeer.ports {
-			require.Equal(t, connPortRange[i].Start(), expectedIngressToPeer.ports[i],
-				"test: %q, ingress connections to peer %q, should not contain port %d", testName, peerStr, connPortRange[i].Start())
+			require.Equal(t, connPortRange[i].Start, expectedIngressToPeer.ports[i],
+				"test: %q, ingress connections to peer %q, should not contain port %d", testName, peerStr, connPortRange[i].Start)
 		}
 	}
 }

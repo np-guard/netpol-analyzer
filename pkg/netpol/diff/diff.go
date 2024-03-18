@@ -14,6 +14,8 @@ import (
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/cli-runtime/pkg/resource"
 
+	"github.com/np-guard/models/pkg/interval"
+
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
@@ -376,14 +378,14 @@ func diffConnectionsLists(conns1, conns2 []connlist.Peer2PeerConnection,
 // allowedConnectivity implements the AllowedConnectivity interface
 type allowedConnectivity struct {
 	allProtocolsAndPorts bool
-	protocolsAndPortsMap map[v1.Protocol][]common.PortRange
+	protocolsAndPortsMap map[v1.Protocol][]interval.Interval
 }
 
 func (a *allowedConnectivity) AllProtocolsAndPorts() bool {
 	return a.allProtocolsAndPorts
 }
 
-func (a *allowedConnectivity) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
+func (a *allowedConnectivity) ProtocolsAndPorts() map[v1.Protocol][]interval.Interval {
 	return a.protocolsAndPortsMap
 }
 
@@ -418,7 +420,7 @@ func (c *connsPair) Ref1Connectivity() AllowedConnectivity {
 	if c.diffType == AddedType {
 		return &allowedConnectivity{
 			allProtocolsAndPorts: false,
-			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+			protocolsAndPortsMap: map[v1.Protocol][]interval.Interval{},
 		}
 	}
 	return &allowedConnectivity{
@@ -431,7 +433,7 @@ func (c *connsPair) Ref2Connectivity() AllowedConnectivity {
 	if c.diffType == RemovedType {
 		return &allowedConnectivity{
 			allProtocolsAndPorts: false,
-			protocolsAndPortsMap: map[v1.Protocol][]common.PortRange{},
+			protocolsAndPortsMap: map[v1.Protocol][]interval.Interval{},
 		}
 	}
 	return &allowedConnectivity{
