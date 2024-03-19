@@ -174,7 +174,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_allow_ingress_deny_egress",
+			testName:                       "test_allow_ingress_deny_egress", // only workload-a in manifests
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 is exposed to entire cluter on ingress
