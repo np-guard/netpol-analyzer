@@ -145,7 +145,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_multiple_unmatched_rules",
+			testName:                       "test_multiple_unmatched_rules", // only workload-a in manifests
 			expectedNumRepresentativePeers: 3,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 is protected by ingress netpol but exposed to unknown namespaces; not protected on egress
