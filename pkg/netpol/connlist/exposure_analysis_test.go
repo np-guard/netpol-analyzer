@@ -74,7 +74,7 @@ func TestExposureBehavior(t *testing.T) {
 		wl2ExpDataInfo                 expectedPeerResultInfo
 	}{
 		{
-			testName:                       "test_allow_all",
+			testName:                       "test_allow_all", // only workload-a in manifests
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 unsecure exposed to all other end-points in the world
