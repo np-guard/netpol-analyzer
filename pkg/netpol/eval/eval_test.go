@@ -1726,12 +1726,13 @@ func simpleConfigurableConnectivityMapTest(
 }
 
 func testConnectivityMapOutput(res []string, expectedFileName string) (bool, error) {
-	outputRes := strings.Join(res, "")
-	expectedStr, err := os.ReadFile(expectedFileName)
+	outputRes := strings.ReplaceAll(strings.Join(res, ""), "\r", "")
+	expectedBytes, err := os.ReadFile(expectedFileName)
 	if err != nil {
 		return false, err
 	}
-	return string(expectedStr) == outputRes, nil
+	expectedStr := strings.ReplaceAll(string(expectedBytes), "\r", "")
+	return expectedStr == outputRes, nil
 }
 
 func TestDisjointIpBlocks(t *testing.T) {
