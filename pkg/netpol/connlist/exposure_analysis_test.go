@@ -92,7 +92,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_allow_all_in_cluster",
+			testName:                       "test_allow_all_in_cluster", // only workload-a in manifests
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 unsecure exposed to all other end-points in the cluster
