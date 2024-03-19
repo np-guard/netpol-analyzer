@@ -1,7 +1,6 @@
 package connlist
 
 import (
-	"path/filepath"
 	"testing"
 
 	v1 "k8s.io/api/core/v1"
@@ -194,7 +193,7 @@ func TestExposureBehavior(t *testing.T) {
 		t.Run(tt.testName, func(t *testing.T) {
 			t.Parallel()
 			ca := NewConnlistAnalyzer(WithExposureAnalysis())
-			testDir := testutils.GetTestDirPath(filepath.Join(exposureAnalysisTestsDirName, tt.testName))
+			testDir := testutils.GetTestDirPath(tt.testName)
 			_, _, err := ca.ConnlistFromDirPath(testDir)
 			require.Empty(t, err, "test %q: err returned from the ConnlistFromDirPath", tt.testName)
 			exposedPeers := ca.ExposedPeers()
