@@ -10,11 +10,6 @@ import (
 
 // this file contains functions on exposureMap
 
-// initiateEmptyPeerEntry initiates an empty entry for the peer in the exposure map
-func (ex exposureMap) initiateEmptyPeerEntry(pe *eval.PolicyEngine, peer Peer) error {
-	return ex.addNewEntry(pe, peer, true)
-}
-
 // appendPeerXgressExposureData updates a peer's entry in the map with new ingress/egress exposure data
 func (ex exposureMap) appendPeerXgressExposureData(peer Peer, expData *xgressExposure, isIngress bool) {
 	if isIngress {
@@ -49,7 +44,7 @@ func (ex exposureMap) addPeerUnprotectedData(pe *eval.PolicyEngine, peer Peer, i
 	}
 	_, ok := ex[peer]
 	if !ok && !protected {
-		err = ex.initiateEmptyPeerEntry(pe, peer)
+		err = ex.addNewEntry(pe, peer, true)
 		return true, err
 	}
 	if ok && protected {
@@ -90,6 +85,8 @@ func (ex exposureMap) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer 
 	return nil
 }
 
+// addNewEntry adds a new entry to the map, for the given peer;
+// isEmpty indicates if to add an empty entry (with false protected flags) otherwise check the peer's protected data and update accordingly
 func (ex exposureMap) addNewEntry(pe *eval.PolicyEngine, peer Peer, isEmpty bool) error {
 	var err error
 	ingProtected, egProtected := false, false
