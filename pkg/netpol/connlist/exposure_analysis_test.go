@@ -162,7 +162,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_with_no_netpols",
+			testName:                       "test_with_no_netpols",  // only workload-a in manifests
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 is not protected by any netpol
