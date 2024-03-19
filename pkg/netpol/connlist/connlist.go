@@ -20,8 +20,6 @@ import (
 
 	"k8s.io/cli-runtime/pkg/resource"
 
-	"github.com/np-guard/models/pkg/interval"
-
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
@@ -294,7 +292,7 @@ type connection struct {
 	src               Peer
 	dst               Peer
 	allConnections    bool
-	protocolsAndPorts map[v1.Protocol][]interval.Interval
+	protocolsAndPorts map[v1.Protocol][]common.PortRange
 }
 
 func (c *connection) Src() Peer {
@@ -306,7 +304,7 @@ func (c *connection) Dst() Peer {
 func (c *connection) AllProtocolsAndPorts() bool {
 	return c.allConnections
 }
-func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]interval.Interval {
+func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 	return c.protocolsAndPorts
 }
 
@@ -316,7 +314,7 @@ func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.Connection
 	for protocol, portRageArr := range c.ProtocolsAndPorts() {
 		protocolsToPortSetMap[protocol] = common.MakePortSet(false)
 		for _, p := range portRageArr {
-			protocolsToPortSetMap[protocol].AddPortRange(p.Start, p.End)
+			protocolsToPortSetMap[protocol].AddPortRange(p.Start(), p.End())
 		}
 	}
 	connectionSet := &common.ConnectionSet{AllowAll: c.AllProtocolsAndPorts(), AllowedProtocols: protocolsToPortSetMap}

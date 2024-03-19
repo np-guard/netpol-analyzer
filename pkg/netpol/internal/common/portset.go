@@ -3,8 +3,9 @@ package common
 import (
 	"maps"
 
-	"github.com/np-guard/models/pkg/interval"
 	"k8s.io/apimachinery/pkg/util/intstr"
+
+	"github.com/np-guard/models/pkg/interval"
 )
 
 const (

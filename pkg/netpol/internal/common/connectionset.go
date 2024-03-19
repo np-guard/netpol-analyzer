@@ -14,12 +14,14 @@
 package common
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
 
-	"github.com/np-guard/models/pkg/interval"
 	v1 "k8s.io/api/core/v1"
+
+	"github.com/np-guard/models/pkg/interval"
 )
 
 // ConnectionSet represents a set of allowed connections between two peers on a k8s env
@@ -200,12 +202,35 @@ func (conn *ConnectionSet) Equal(other *ConnectionSet) bool {
 	return true
 }
 
+// portRange implements the PortRange interface
+type portRange struct {
+	Interval interval.Interval
+}
+
+func (p *portRange) Start() int64 {
+	return p.Interval.Start
+}
+
+func (p *portRange) End() int64 {
+	return p.Interval.End
+}
+
+func (p *portRange) String() string {
+	if p.Interval.End != p.Interval.Start {
+		return fmt.Sprintf("%d-%d", p.Start(), p.End())
+	}
+	return fmt.Sprintf("%d", p.Start())
+}
+
 // ProtocolsAndPortsMap() returns a map from allowed protocol to list of allowed ports ranges.
-func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]interval.Interval {
-	res := make(map[v1.Protocol][]interval.Interval, 0)
+func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
+	res := make(map[v1.Protocol][]PortRange, 0)
 	for protocol, portSet := range conn.AllowedProtocols {
+		res[protocol] = make([]PortRange, 0)
 		// TODO: consider leave the slice of ports empty if portSet covers the full range
-		res[protocol] = portSet.Ports.Intervals()
+		for _, v := range portSet.Ports.Intervals() {
+			res[protocol] = append(res[protocol], &portRange{Interval: v})
+		}
 	}
 	return res
 }
@@ -221,7 +246,7 @@ const (
 	noConnsStr                 = "No Connections"
 )
 
-func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[v1.Protocol][]interval.Interval) string {
+func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[v1.Protocol][]PortRange) string {
 	if allProtocolsAndPorts {
 		return allConnsStr
 	}
@@ -241,7 +266,7 @@ func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[
 }
 
 // get string representation for a list of port ranges
-func portsString(ports []interval.Interval) string {
+func portsString(ports []PortRange) string {
 	portsStr := make([]string, len(ports))
 	for i := range ports {
 		portsStr[i] = ports[i].String()

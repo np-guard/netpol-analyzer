@@ -14,8 +14,9 @@
 package k8s
 
 import (
-	"github.com/np-guard/models/pkg/ipblock"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/np-guard/models/pkg/ipblock"
 )
 
 // PeerType is a type to indicate the type of a Peer object (Pod or IP address)
