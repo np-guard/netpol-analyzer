@@ -1,7 +1,7 @@
 package common
 
 import (
-	"maps"
+	"reflect"
 
 	"k8s.io/apimachinery/pkg/util/intstr"
 
@@ -30,8 +30,8 @@ func MakePortSet(all bool) *PortSet {
 
 // Equal: return true if current object equals another PortSet object
 func (p *PortSet) Equal(other *PortSet) bool {
-	return p.Ports.Equal(other.Ports) && maps.Equal(p.NamedPorts, other.NamedPorts) &&
-		maps.Equal(p.ExcludedNamedPorts, other.ExcludedNamedPorts)
+	return p.Ports.Equal(other.Ports) && reflect.DeepEqual(p.NamedPorts, other.NamedPorts) &&
+		reflect.DeepEqual(p.ExcludedNamedPorts, other.ExcludedNamedPorts)
 }
 
 // IsEmpty: return true if current object is empty (no ports allowed)
@@ -41,11 +41,15 @@ func (p *PortSet) IsEmpty() bool {
 
 // Copy: return a new copy of a PortSet object
 func (p *PortSet) Copy() *PortSet {
-	return &PortSet{
-		Ports:              p.Ports.Copy(),
-		NamedPorts:         maps.Clone(p.NamedPorts),
-		ExcludedNamedPorts: maps.Clone(p.ExcludedNamedPorts),
+	res := PortSet{}
+	res.Ports = p.Ports.Copy()
+	for k, v := range p.NamedPorts {
+		res.NamedPorts[k] = v
 	}
+	for k, v := range p.ExcludedNamedPorts {
+		res.ExcludedNamedPorts[k] = v
+	}
+	return &res
 }
 
 // AddPort: update current PortSet object with new added port as allowed
