@@ -22,6 +22,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/np-guard/models/pkg/ipblock"
+
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -89,7 +91,7 @@ func (pe *PolicyEngine) changePodPeerToAnotherPodObject(peer *k8s.PodPeer) {
 
 // AllAllowedConnectionsBetweenWorkloadPeers returns the allowed connections from srcPeer to dstPeer,
 // expecting that srcPeer and dstPeer are in level of workloads (WorkloadPeer)
-func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer Peer) (common.Connection, error) {
+func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer Peer) (*common.ConnectionSet, error) {
 	if srcPeer.IsPeerIPType() && !dstPeer.IsPeerIPType() {
 		// assuming dstPeer is WorkloadPeer, should be converted to k8s.Peer
 		dstPodPeer, err := pe.convertWorkloadPeerToPodPeer(dstPeer)
@@ -279,9 +281,21 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 
 // isPeerNodeIP returns true if peer1 is an IP address of a node and peer2 is a pod on that node
 func isPeerNodeIP(peer1, peer2 k8s.Peer) bool {
-	return peer2.PeerType() == k8s.PodType && peer1.PeerType() == k8s.IPBlockType &&
-		peer1.GetPeerIPBlock().IsIPAddress(peer2.GetPeerPod().HostIP)
+	if peer2.PeerType() == k8s.PodType && peer1.PeerType() == k8s.IPBlockType {
+		ip2, err := ipblock.FromIPAddress(peer2.GetPeerPod().HostIP)
+		if err != nil {
+			return peer1.GetPeerIPBlock().Equal(ip2)
+		}
+	}
+	return false
 }
+
+// func isPeerNodeIP(peer1, peer2 k8s.Peer) bool {
+// 	if peer2.PeerType() == k8s.PodType && peer1.PeerType() == k8s.IPBlockType {
+// 		return net.ParseIP(peer2.GetPeerPod().HostIP) != nil
+// 	}
+// 	return false
+// }
 
 func isPodToItself(peer1, peer2 k8s.Peer) bool {
 	return peer1.PeerType() == k8s.PodType && peer2.PeerType() == k8s.PodType &&
@@ -291,7 +305,7 @@ func isPodToItself(peer1, peer2 k8s.Peer) bool {
 func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 	// check if input peer is cidr
 	if _, _, err := net.ParseCIDR(p); err == nil {
-		peerIPBlock, err := common.NewIPBlock(p, []string{})
+		peerIPBlock, err := ipblock.FromCidr(p)
 		if err != nil {
 			return nil, err
 		}
@@ -299,7 +313,7 @@ func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 	}
 	// check if input peer is an ip address
 	if net.ParseIP(p) != nil {
-		peerIPBlock, err := common.NewIPBlockFromIPAddress(p)
+		peerIPBlock, err := ipblock.FromIPAddress(p)
 		if err != nil {
 			return nil, err
 		}

@@ -312,9 +312,9 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.ConnectionSet {
 	protocolsToPortSetMap := make(map[v1.Protocol]*common.PortSet, len(c.ProtocolsAndPorts()))
 	for protocol, portRageArr := range c.ProtocolsAndPorts() {
-		protocolsToPortSetMap[protocol] = &common.PortSet{}
-		for _, portRange := range portRageArr {
-			protocolsToPortSetMap[protocol].AddPortRange(portRange.Start(), portRange.End())
+		protocolsToPortSetMap[protocol] = common.MakePortSet(false)
+		for _, p := range portRageArr {
+			protocolsToPortSetMap[protocol].AddPortRange(p.Start(), p.End())
 		}
 	}
 	connectionSet := &common.ConnectionSet{AllowAll: c.AllProtocolsAndPorts(), AllowedProtocols: protocolsToPortSetMap}
@@ -480,7 +480,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		if err != nil {
 			return nil, err
 		}
-		peerAndConn.ConnSet.Intersection(peConn.(*common.ConnectionSet))
+		peerAndConn.ConnSet.Intersection(peConn)
 		if peerAndConn.ConnSet.IsEmpty() {
 			ca.warnBlockedIngress(peerStr, peerAndConn.IngressObjects)
 			continue

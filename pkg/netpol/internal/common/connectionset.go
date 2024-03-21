@@ -20,6 +20,8 @@ import (
 	"strings"
 
 	v1 "k8s.io/api/core/v1"
+
+	"github.com/np-guard/models/pkg/interval"
 )
 
 // ConnectionSet represents a set of allowed connections between two peers on a k8s env
@@ -45,8 +47,7 @@ func (conn *ConnectionSet) Intersection(other *ConnectionSet) {
 	if conn.AllowAll {
 		conn.AllowAll = false
 		for protocol, ports := range other.AllowedProtocols {
-			portsCopy := ports.Copy()
-			conn.AllowedProtocols[protocol] = &portsCopy
+			conn.AllowedProtocols[protocol] = ports.Copy()
 		}
 		return
 	}
@@ -55,7 +56,7 @@ func (conn *ConnectionSet) Intersection(other *ConnectionSet) {
 		if !ok {
 			delete(conn.AllowedProtocols, protocol)
 		} else {
-			conn.AllowedProtocols[protocol].Intersection(*otherPorts)
+			conn.AllowedProtocols[protocol].Intersection(otherPorts)
 			if conn.AllowedProtocols[protocol].IsEmpty() {
 				delete(conn.AllowedProtocols, protocol)
 			}
@@ -104,13 +105,13 @@ func (conn *ConnectionSet) Union(other *ConnectionSet) {
 	}
 	for protocol := range conn.AllowedProtocols {
 		if otherPorts, ok := other.AllowedProtocols[protocol]; ok {
-			conn.AllowedProtocols[protocol].Union(*otherPorts)
+			conn.AllowedProtocols[protocol].Union(otherPorts)
 		}
 	}
 	for protocol := range other.AllowedProtocols {
 		if _, ok := conn.AllowedProtocols[protocol]; !ok {
 			portsCopy := other.AllowedProtocols[protocol].Copy()
-			conn.AllowedProtocols[protocol] = &portsCopy
+			conn.AllowedProtocols[protocol] = portsCopy
 		}
 	}
 	conn.checkIfAllConnections()
@@ -146,7 +147,7 @@ func (conn *ConnectionSet) ContainedIn(other *ConnectionSet) bool {
 		if !ok {
 			return false
 		}
-		if !ports.ContainedIn(*otherPorts) {
+		if !ports.ContainedIn(otherPorts) {
 			return false
 		}
 	}
@@ -154,7 +155,7 @@ func (conn *ConnectionSet) ContainedIn(other *ConnectionSet) bool {
 }
 
 // AddConnection updates current ConnectionSet object with new allowed connection
-func (conn *ConnectionSet) AddConnection(protocol v1.Protocol, ports PortSet) {
+func (conn *ConnectionSet) AddConnection(protocol v1.Protocol, ports *PortSet) {
 	if ports.IsEmpty() {
 		return
 	}
@@ -162,7 +163,7 @@ func (conn *ConnectionSet) AddConnection(protocol v1.Protocol, ports PortSet) {
 	if ok {
 		connPorts.Union(ports)
 	} else {
-		conn.AllowedProtocols[protocol] = &ports
+		conn.AllowedProtocols[protocol] = ports.Copy()
 	}
 }
 
@@ -194,7 +195,7 @@ func (conn *ConnectionSet) Equal(other *ConnectionSet) bool {
 		if !ok {
 			return false
 		}
-		if !ports.Equal(*otherPorts) {
+		if !ports.Equal(otherPorts) {
 			return false
 		}
 	}
@@ -203,20 +204,19 @@ func (conn *ConnectionSet) Equal(other *ConnectionSet) bool {
 
 // portRange implements the PortRange interface
 type portRange struct {
-	start int64
-	end   int64
+	Interval interval.Interval
 }
 
 func (p *portRange) Start() int64 {
-	return p.start
+	return p.Interval.Start
 }
 
 func (p *portRange) End() int64 {
-	return p.end
+	return p.Interval.End
 }
 
 func (p *portRange) String() string {
-	if p.End() != p.Start() {
+	if p.Interval.End != p.Interval.Start {
 		return fmt.Sprintf("%d-%d", p.Start(), p.End())
 	}
 	return fmt.Sprintf("%d", p.Start())
@@ -228,11 +228,8 @@ func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
 	for protocol, portSet := range conn.AllowedProtocols {
 		res[protocol] = make([]PortRange, 0)
 		// TODO: consider leave the slice of ports empty if portSet covers the full range
-		for i := range portSet.Ports.IntervalSet {
-			startPort := portSet.Ports.IntervalSet[i].Start
-			endPort := portSet.Ports.IntervalSet[i].End
-			portRange := &portRange{start: startPort, end: endPort}
-			res[protocol] = append(res[protocol], portRange)
+		for _, v := range portSet.Ports.Intervals() {
+			res[protocol] = append(res[protocol], &portRange{Interval: v})
 		}
 	}
 	return res
