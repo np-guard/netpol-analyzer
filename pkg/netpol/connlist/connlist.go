@@ -453,6 +453,12 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	connsRes = peersAllowedConns
 
 	if ca.exposureAnalysis {
+		// first, check and resolve entries in the map with unknown protected data
+		err = exposuresMap.resolveUnknownProtectedData(pe)
+		if err != nil {
+			return nil, nil, err
+		}
+		// build the final []exposedPeer result
 		ca.exposureResult = buildExposedPeerListFromExposureMap(exposuresMap)
 	}
 

@@ -8,10 +8,21 @@ import (
 // which are computed by the connlist analyzer
 type exposureMap map[Peer]*peerExposureData
 
+// following const implements an enum type for the initial value of a peer's
+// ingressProtected or egressProtected when adding a new entry in the map
+// a peer is protected on a direction (ingress/egress) if there is at least one network-policy
+// (that affects the direction) selecting it;
+// the final value on the map should be protected or notProtected only
+const (
+	unknown = iota
+	protected
+	notProtected
+)
+
 // peerExposureData stores exposure data for a peer
 type peerExposureData struct {
-	isIngressProtected bool
-	isEgressProtected  bool
+	isIngressProtected int
+	isEgressProtected  int
 	ingressExposure    []*xgressExposure
 	egressExposure     []*xgressExposure
 }
@@ -61,7 +72,7 @@ func xgressExposureListToXgressExposureDataList(xgressExp []*xgressExposure) []X
 }
 
 func (ep *exposedPeer) IsProtectedByIngressNetpols() bool {
-	return ep.isIngressProtected
+	return ep.isIngressProtected == protected
 }
 
 func (ep *exposedPeer) IngressExposure() []XgressExposureData {
@@ -69,7 +80,7 @@ func (ep *exposedPeer) IngressExposure() []XgressExposureData {
 }
 
 func (ep *exposedPeer) IsProtectedByEgressNetpols() bool {
-	return ep.isEgressProtected
+	return ep.isEgressProtected == protected
 }
 
 func (ep *exposedPeer) EgressExposure() []XgressExposureData {
@@ -85,10 +96,10 @@ func buildExposedPeerListFromExposureMap(exposuresMap exposureMap) []ExposedPeer
 	for p, expData := range exposuresMap {
 		ingExp := make([]*xgressExposure, 0)
 		egExp := make([]*xgressExposure, 0)
-		if expData.isIngressProtected {
+		if expData.isIngressProtected == protected {
 			ingExp = append(ingExp, expData.ingressExposure...)
 		}
-		if expData.isEgressProtected {
+		if expData.isEgressProtected == protected {
 			egExp = append(egExp, expData.egressExposure...)
 		}
 		// final peer's exposure data
