@@ -946,6 +946,7 @@ type TestEntry struct {
 }
 
 func initTest(test *TestEntry, t *testing.T) (*PolicyEngine, error) {
+	t.Helper()
 	pe := NewPolicyEngine()
 	if len(test.nsList) > 0 || len(test.podsList) > 0 || len(test.policies) > 0 {
 		err := pe.SetResources(test.policies, test.podsList, test.nsList)
@@ -958,6 +959,7 @@ func initTest(test *TestEntry, t *testing.T) (*PolicyEngine, error) {
 }
 
 func checkTestEntry(test *TestEntry, t *testing.T, pe *PolicyEngine) {
+	t.Helper()
 	res, err := pe.CheckIfAllowed(test.src, test.dst, test.protocol, test.port)
 	if err != nil {
 		t.Fatalf("test %v: expected err to be nil, but got %v", test.name, err)
@@ -975,6 +977,7 @@ func checkTestEntry(test *TestEntry, t *testing.T, pe *PolicyEngine) {
 }
 
 func checkTestAllConnectionsEntry(test *TestEntry, t *testing.T, pe *PolicyEngine) {
+	t.Helper()
 	res, err := pe.allAllowedConnections(test.src, test.dst)
 	if err != nil {
 		t.Fatalf("test %v: expected err to be nil, but got %v", test.name, err)
@@ -1723,12 +1726,13 @@ func simpleConfigurableConnectivityMapTest(
 }
 
 func testConnectivityMapOutput(res []string, expectedFileName string) (bool, error) {
-	outputRes := strings.Join(res, "")
-	expectedStr, err := os.ReadFile(expectedFileName)
+	outputRes := strings.ReplaceAll(strings.Join(res, ""), "\r", "")
+	expectedBytes, err := os.ReadFile(expectedFileName)
 	if err != nil {
 		return false, err
 	}
-	return string(expectedStr) == outputRes, nil
+	expectedStr := strings.ReplaceAll(string(expectedBytes), "\r", "")
+	return expectedStr == outputRes, nil
 }
 
 func TestDisjointIpBlocks(t *testing.T) {
