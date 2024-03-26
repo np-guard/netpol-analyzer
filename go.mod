@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/hashicorp/golang-lru/v2 v2.0.7
+	github.com/np-guard/models v0.2.1
 	github.com/openshift/api v0.0.0-20230502160752-c71432710382
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0

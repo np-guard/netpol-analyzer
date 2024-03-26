@@ -13,6 +13,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/np-guard/models/pkg/ipblock"
+
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
@@ -521,8 +523,8 @@ func (pe *PolicyEngine) GetRepresentativePeersList() []Peer {
 }
 
 // getDisjointIPBlocks returns a slice of disjoint ip-blocks from all netpols resources
-func (pe *PolicyEngine) getDisjointIPBlocks() ([]*common.IPBlock, error) {
-	var ipbList []*common.IPBlock
+func (pe *PolicyEngine) getDisjointIPBlocks() ([]*ipblock.IPBlock, error) {
+	var ipbList []*ipblock.IPBlock
 	for _, nsMap := range pe.netpolsMap {
 		for _, policy := range nsMap {
 			policyIPBlocksList, err := policy.GetReferencedIPBlocks()
@@ -532,8 +534,8 @@ func (pe *PolicyEngine) getDisjointIPBlocks() ([]*common.IPBlock, error) {
 			ipbList = append(ipbList, policyIPBlocksList...)
 		}
 	}
-	newAll, _ := common.NewIPBlock("0.0.0.0/0", []string{})
-	disjointRes := common.DisjointIPBlocks(ipbList, []*common.IPBlock{newAll})
+	newAll := ipblock.GetCidrAll()
+	disjointRes := ipblock.DisjointIPBlocks(ipbList, []*ipblock.IPBlock{newAll})
 	return disjointRes, nil
 }
 

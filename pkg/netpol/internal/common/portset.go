@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"k8s.io/apimachinery/pkg/util/intstr"
+
+	"github.com/np-guard/models/pkg/interval"
 )
 
 const (
@@ -16,28 +18,27 @@ const (
 
 // PortSet: represents set of allowed ports in a connection
 type PortSet struct {
-	Ports              CanonicalIntervalSet
+	Ports              *interval.CanonicalSet
 	NamedPorts         map[string]bool
 	ExcludedNamedPorts map[string]bool
 }
 
 // MakePortSet: return a new PortSet object, with all ports or no ports allowed
-func MakePortSet(all bool) PortSet {
+func MakePortSet(all bool) *PortSet {
 	if all {
-		portsInterval := Interval{Start: minPort, End: maxPort}
-		return PortSet{Ports: CanonicalIntervalSet{IntervalSet: []Interval{portsInterval}},
+		return &PortSet{Ports: interval.New(minPort, maxPort).ToSet(),
 			NamedPorts:         map[string]bool{},
 			ExcludedNamedPorts: map[string]bool{},
 		}
 	}
-	return PortSet{
+	return &PortSet{Ports: interval.NewCanonicalSet(),
 		NamedPorts:         map[string]bool{},
 		ExcludedNamedPorts: map[string]bool{},
 	}
 }
 
 // Equal: return true if current object equals another PortSet object
-func (p *PortSet) Equal(other PortSet) bool {
+func (p *PortSet) Equal(other *PortSet) bool {
 	return p.Ports.Equal(other.Ports) && reflect.DeepEqual(p.NamedPorts, other.NamedPorts) &&
 		reflect.DeepEqual(p.ExcludedNamedPorts, other.ExcludedNamedPorts)
 }
@@ -48,7 +49,7 @@ func (p *PortSet) IsEmpty() bool {
 }
 
 // Copy: return a new copy of a PortSet object
-func (p *PortSet) Copy() PortSet {
+func (p *PortSet) Copy() *PortSet {
 	res := MakePortSet(false)
 	res.Ports = p.Ports.Copy()
 	for k, v := range p.NamedPorts {
@@ -66,7 +67,7 @@ func (p *PortSet) AddPort(port intstr.IntOrString) {
 		p.NamedPorts[port.StrVal] = true
 		delete(p.ExcludedNamedPorts, port.StrVal)
 	} else {
-		p.Ports.AddInterval(Interval{Start: int64(port.IntVal), End: int64(port.IntVal)})
+		p.Ports.AddInterval(interval.New(int64(port.IntVal), int64(port.IntVal)))
 	}
 }
 
@@ -76,18 +77,18 @@ func (p *PortSet) RemovePort(port intstr.IntOrString) {
 		delete(p.NamedPorts, port.StrVal)
 		p.ExcludedNamedPorts[port.StrVal] = true
 	} else {
-		p.Ports.AddHole(Interval{Start: int64(port.IntVal), End: int64(port.IntVal)})
+		p.Ports.AddHole(interval.New(int64(port.IntVal), int64(port.IntVal)))
 	}
 }
 
 // AddPortRange: update current PortSet object with new added port range as allowed
 func (p *PortSet) AddPortRange(minPort, maxPort int64) {
-	p.Ports.AddInterval(Interval{Start: minPort, End: maxPort})
+	p.Ports.AddInterval(interval.New(minPort, maxPort))
 }
 
 // Union: update current PortSet object with union of input PortSet object
-func (p *PortSet) Union(other PortSet) {
-	p.Ports.Union(other.Ports)
+func (p *PortSet) Union(other *PortSet) {
+	p.Ports = p.Ports.Union(other.Ports)
 	for k, v := range other.NamedPorts {
 		p.NamedPorts[k] = v
 	}
@@ -97,13 +98,13 @@ func (p *PortSet) Union(other PortSet) {
 }
 
 // ContainedIn: return true if current PortSet object is contained in input PortSet object
-func (p *PortSet) ContainedIn(other PortSet) bool {
+func (p *PortSet) ContainedIn(other *PortSet) bool {
 	return p.Ports.ContainedIn(other.Ports)
 }
 
 // Intersection: update current PortSet object as intersection with input PortSet object
-func (p *PortSet) Intersection(other PortSet) {
-	p.Ports.Intersection(other.Ports)
+func (p *PortSet) Intersection(other *PortSet) {
+	p.Ports = p.Ports.Intersect(other.Ports)
 }
 
 // IsAll: return true if current PortSet object contains all ports
@@ -112,6 +113,7 @@ func (p *PortSet) IsAll() bool {
 }
 
 const comma = ","
+const emptyStr = "Empty"
 
 // String: return string representation of current PortSet
 func (p *PortSet) String() string {
@@ -132,9 +134,7 @@ func (p *PortSet) String() string {
 
 // Contains: return true if current PortSet contains a specific input port
 func (p *PortSet) Contains(port int64) bool {
-	portObj := MakePortSet(false)
-	portObj.AddPortRange(port, port)
-	return portObj.ContainedIn(*p)
+	return p.Ports.Contains(port)
 }
 
 // GetNamedPortsKeys returns the named ports of current portSet
@@ -147,9 +147,3 @@ func (p *PortSet) GetNamedPortsKeys() []string {
 	}
 	return res
 }
-
-/*
-func (p *PortSet) Subtract(other PortSet){
-
-}
-*/
