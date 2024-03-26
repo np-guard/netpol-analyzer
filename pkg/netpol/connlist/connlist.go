@@ -39,6 +39,8 @@ type ConnlistAnalyzer struct {
 	stopOnError      bool
 	errors           []ConnlistError
 	focusWorkload    string
+	exposureAnalysis bool
+	exposureResult   []ExposedPeer
 	outputFormat     string
 	muteErrsAndWarns bool
 }
@@ -65,7 +67,7 @@ func (ca *ConnlistAnalyzer) copyFpErrs(fpErrs []parser.FileProcessingError) {
 	}
 }
 
-// ConnlistFromDirPath returns the allowed connections list from dir path containing k8s resources
+// ConnlistFromDirPath returns the allowed connections list from dir path containing k8s resources,
 // and list of all workloads from the parsed resources
 func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConnection, []Peer, error) {
 	rList, errs := fsscanner.GetResourceInfosFromDirPath([]string{dirPath}, true, ca.stopOnError)
@@ -119,6 +121,14 @@ func WithFocusWorkload(workload string) ConnlistAnalyzerOption {
 	}
 }
 
+// WithExposureAnalysis is a functional option which directs ConnlistAnalyzer to perform exposure analysis
+func WithExposureAnalysis() ConnlistAnalyzerOption {
+	return func(c *ConnlistAnalyzer) {
+		c.exposureAnalysis = true
+		c.exposureResult = []ExposedPeer{}
+	}
+}
+
 // WithOutputFormat is a functional option, allowing user to choose the output format txt/json/dot/csv/md.
 func WithOutputFormat(outputFormat string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
@@ -137,10 +147,12 @@ func WithMuteErrsAndWarns() ConnlistAnalyzerOption {
 func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	// object with default behavior options
 	ca := &ConnlistAnalyzer{
-		logger:       logger.NewDefaultLogger(),
-		stopOnError:  false,
-		errors:       []ConnlistError{},
-		outputFormat: output.DefaultFormat,
+		logger:           logger.NewDefaultLogger(),
+		stopOnError:      false,
+		exposureAnalysis: false,
+		exposureResult:   nil,
+		errors:           []ConnlistError{},
+		outputFormat:     output.DefaultFormat,
 	}
 	for _, o := range options {
 		o(ca)
@@ -151,6 +163,12 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 // Errors returns a slice of ConnlistError with all warnings and errors encountered during processing.
 func (ca *ConnlistAnalyzer) Errors() []ConnlistError {
 	return ca.errors
+}
+
+// ExposedPeers returns a slice of ExposedPeer objects,  capturing for input workloads if/how they  may
+// be exposed to potential cluster entities, based on the input network policies
+func (ca *ConnlistAnalyzer) ExposedPeers() []ExposedPeer {
+	return ca.exposureResult
 }
 
 // return true if has fatal error or severe with flag stopOnError
@@ -172,9 +190,20 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 	return nil
 }
 
-func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
+// getPolicyEngine returns a new policy engine considering the exposure analysis option
+func (ca *ConnlistAnalyzer) getPolicyEngine(objectsList []parser.K8sObject) (*eval.PolicyEngine, error) {
 	// TODO: do we need logger in policyEngine?
-	pe, err := eval.NewPolicyEngineWithObjects(objectsList)
+	if !ca.exposureAnalysis {
+		return eval.NewPolicyEngineWithObjects(objectsList)
+	}
+	// else build new policy engine with exposure analysis option
+	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
+	err := pe.AddObjects(objectsList)
+	return pe, err
+}
+
+func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
+	pe, err := ca.getPolicyEngine(objectsList)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
@@ -187,12 +216,11 @@ func (ca *ConnlistAnalyzer) connslistFromParsedResources(objectsList []parser.K8
 	return ca.getConnectionsList(pe, ia)
 }
 
-// ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources and a list of all peers names
+// ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources, and list of all peers names
 func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []Peer, error) {
-	pe := eval.NewPolicyEngine()
+	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
 
 	// get all resources from k8s cluster
-
 	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
 	defer cancel()
 
@@ -323,7 +351,7 @@ func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.Connection
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
+func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
 	if src.IsPeerIPType() && dst.IsPeerIPType() {
 		return false
 	}
@@ -332,11 +360,35 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(src, dst eval.Peer) bool {
 	if src.String() == dst.String() {
 		return false
 	}
+	// when exposure-analysis, skip conns between fake pods or ip-peer and fake pods
+	if ca.exposureAnalysis && !ca.includePairWithRepresentativePeer(pe, src, dst) {
+		return false
+	}
 	if ca.focusWorkload == "" {
 		return true
 	}
 	// at least one of src/dst should be the focus workload
 	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
+}
+
+func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
+	isRepSrc := pe.IsRepresentativePeer(src)
+	isRepDst := pe.IsRepresentativePeer(dst)
+	// cases when at least one of the peers is representative peer; when not to include the peers pair:
+	// both peers are Representative
+	if isRepSrc && isRepDst {
+		return false
+	}
+	// if one peer is IP and the other is a representative peer
+	if (isRepSrc || isRepDst) && (src.IsPeerIPType() || dst.IsPeerIPType()) {
+		return false
+	}
+	// if one peer is fake ingress-pod and the other is a representative peer
+	// todo: might check if peer is a fake ingress-controller by checking name and fakePod flag (within new pe func)
+	if (isRepSrc || isRepDst) && (src.Name() == common.IngressPodName || dst.Name() == common.IngressPodName) {
+		return false
+	}
+	return true
 }
 
 func getPeerNsNameFormat(peer eval.Peer) string {
@@ -348,6 +400,7 @@ func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer eval.Peer) bool {
 }
 
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
+// if the exposure-analysis option is on, also computes and updates the exposure-analysis results
 func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingressanalyzer.IngressAnalyzer) ([]Peer2PeerConnection,
 	[]Peer, error) {
 	connsRes := make([]Peer2PeerConnection, 0)
@@ -367,6 +420,15 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		peers[i] = p
 	}
 
+	// connPeers represents []connlist.Peer to be sent to ca.getConnectionsBetweenPeers
+	connPeers := peers
+	if ca.exposureAnalysis {
+		representativePeers := pe.GetRepresentativePeersList()
+		for _, p := range representativePeers {
+			connPeers = append(connPeers, p)
+		}
+	}
+
 	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
 
 	// if ca.focusWorkload is not empty, check if it exists in the peers before proceeding
@@ -378,12 +440,17 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	}
 
 	// compute connections between peers based on pe analysis of network policies
-	peersAllowedConns, err := ca.getConnectionsBetweenPeers(pe, peers)
+	// if exposure-analysis is on, also compute and return the exposures-map
+	peersAllowedConns, exposuresMap, err := ca.getConnectionsBetweenPeers(pe, connPeers)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
 	}
 	connsRes = peersAllowedConns
+
+	if ca.exposureAnalysis {
+		ca.exposureResult = buildExposedPeerListFromExposureMap(exposuresMap)
+	}
 
 	if excludeIngressAnalysis {
 		return connsRes, peers, nil
@@ -426,34 +493,45 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnal
 }
 
 // getConnectionsBetweenPeers returns connections list from PolicyEngine object
-func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, peers []Peer) ([]Peer2PeerConnection, error) {
+// and exposures-map containing the exposed peers data if the exposure-analysis is on , else empty map
+func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, peers []Peer) ([]Peer2PeerConnection, exposureMap, error) {
 	connsRes := make([]Peer2PeerConnection, 0)
+	exposuresMap := exposureMap{}
+	// for exposure-analysis use: sets for marking peer checked for ingress/egress exposure to entire cluster data once
+	ingressSet := make(map[Peer]bool, 0)
+	egressSet := make(map[Peer]bool, 0)
+
 	for i := range peers {
 		srcPeer := peers[i]
 		for j := range peers {
 			dstPeer := peers[j]
-			if !ca.includePairOfWorkloads(srcPeer, dstPeer) {
+			if !ca.includePairOfWorkloads(pe, srcPeer, dstPeer) {
 				continue
 			}
 			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
+			}
+			if ca.exposureAnalysis {
+				err = updatePeersGeneralExposureData(pe, srcPeer, dstPeer, ingressSet, egressSet, exposuresMap)
+				if err != nil {
+					return nil, nil, err
+				}
 			}
 			// skip empty connections
 			if allowedConnections.IsEmpty() {
 				continue
 			}
-			p2pConnection := &connection{
-				src:               srcPeer,
-				dst:               dstPeer,
-				allConnections:    allowedConnections.AllConnections(),
-				protocolsAndPorts: allowedConnections.ProtocolsAndPortsMap(),
+			p2pConnection, err := ca.checkIfP2PConnOrExposureConn(pe, allowedConnections, srcPeer, dstPeer, exposuresMap)
+			if err != nil {
+				return nil, nil, err
 			}
-			connsRes = append(connsRes, p2pConnection)
+			if p2pConnection != nil {
+				connsRes = append(connsRes, p2pConnection)
+			}
 		}
 	}
-
-	return connsRes, nil
+	return connsRes, exposuresMap, nil
 }
 
 // getIngressAllowedConnections returns connections list from IngressAnalyzer intersected with PolicyEngine's connections
@@ -465,13 +543,13 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		return nil, err
 	}
 	// adding the ingress controller pod to the policy engine,
-	ingressControllerPod, err := pe.AddPodByNameAndNamespace(common.IngressPodName, common.IngressPodNamespace)
+	ingressControllerPod, err := pe.AddPodByNameAndNamespace(common.IngressPodName, common.IngressPodNamespace, nil)
 	if err != nil {
 		return nil, err
 	}
 	for peerStr, peerAndConn := range ingressConns {
 		// refines to only relevant connections if ca.focusWorkload is not empty
-		if !ca.includePairOfWorkloads(ingressControllerPod, peerAndConn.Peer) {
+		if !ca.includePairOfWorkloads(pe, ingressControllerPod, peerAndConn.Peer) {
 			continue
 		}
 		// compute allowed connections based on pe.policies to the peer, then intersect the conns with
@@ -485,12 +563,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 			ca.warnBlockedIngress(peerStr, peerAndConn.IngressObjects)
 			continue
 		}
-		p2pConnection := &connection{
-			src:               ingressControllerPod,
-			dst:               peerAndConn.Peer,
-			allConnections:    peerAndConn.ConnSet.AllConnections(),
-			protocolsAndPorts: peerAndConn.ConnSet.ProtocolsAndPortsMap(),
-		}
+		p2pConnection := createConnectionObject(peerAndConn.ConnSet, ingressControllerPod, peerAndConn.Peer)
 		res = append(res, p2pConnection)
 	}
 	return res, nil
@@ -515,4 +588,63 @@ func (ca *ConnlistAnalyzer) logWarning(msg string) {
 	if !ca.muteErrsAndWarns {
 		ca.logger.Warnf(msg)
 	}
+}
+
+// checkIfP2PConnOrExposureConn checks if the given connection is between two peers from the parsed resources, if yes returns it,
+// otherwise the connection belongs to exposure-analysis, will be added to the provided map
+func (ca *ConnlistAnalyzer) checkIfP2PConnOrExposureConn(pe *eval.PolicyEngine, allowedConnections common.Connection,
+	src, dst Peer, exposuresMap exposureMap) (*connection, error) {
+	if !ca.exposureAnalysis {
+		// if exposure analysis option is off , the connection is definitely a P2PConnection
+		return createConnectionObject(allowedConnections, src, dst), nil
+	}
+	// else exposure analysis is on
+
+	if !pe.IsRepresentativePeer(src) && !pe.IsRepresentativePeer(dst) {
+		// both src and dst are peers are found in the parsed resources
+		return createConnectionObject(allowedConnections, src, dst), nil
+	}
+	// else: one of the peers is a representative peer (inferred from a netpol-rule) ,
+	// and the other is a peer from the parsed resources
+	// an exposure analysis connection
+	isIngress := pe.IsRepresentativePeer(src)
+	err := exposuresMap.addConnToExposureMap(pe, allowedConnections, src, dst, isIngress)
+	return nil, err
+}
+
+// helper function - returns a connection object from the given fields
+func createConnectionObject(allowedConnections common.Connection, src, dst Peer) *connection {
+	return &connection{
+		src:               src,
+		dst:               dst,
+		allConnections:    allowedConnections.AllConnections(),
+		protocolsAndPorts: allowedConnections.ProtocolsAndPortsMap(),
+	}
+}
+
+// updatePeersGeneralExposureData updates src and dst connections to entire world/cluster on the exposures map
+func updatePeersGeneralExposureData(pe *eval.PolicyEngine, src, dst Peer, ingressSet, egressSet map[Peer]bool, exMap exposureMap) error {
+	// when computing allowed conns between the peers,(even on first time)
+	// if a workload peer is not protected by netpols this was definitely detected;
+	// also exposure to entire cluster was definitely computed for src or/and dst (if its a workload peer)
+	// so we should update the unprotected / entire connection cluster in the map for those real workload peers
+	// this way we ensure updating the xgress exposure data to entire cluster/world of the peer's entry
+	// in the exposure map before adding any other connection
+	// or we might also have a case of no other exposure conns
+	// (e.g. only one peer with one netpol exposing the peer to entire cluster, no netpols)
+	var err error
+	// 1. only on first time : add general exposure data for the src peer (on egress)
+	if !src.IsPeerIPType() && !pe.IsRepresentativePeer(src) && !egressSet[src] {
+		err = exMap.addPeerGeneralExposure(pe, src, false)
+		if err != nil {
+			return err
+		}
+	}
+	egressSet[src] = true
+	// 2. only on first time : add general exposure data for the dst peer (on ingress)
+	if !dst.IsPeerIPType() && !pe.IsRepresentativePeer(dst) && !ingressSet[dst] {
+		err = exMap.addPeerGeneralExposure(pe, dst, true)
+	}
+	ingressSet[dst] = true
+	return err
 }

@@ -39,7 +39,8 @@ func NamespaceFromCoreObject(ns *corev1.Namespace) (*Namespace, error) {
 	for k, v := range ns.Labels {
 		n.Labels[k] = v
 	}
-
+	// @todo/tbd : should also add the name label as "name:<val>"  or assume policy rules
+	// selecting a namespace with name labels always use "kubernetes.io/metadata.name"
 	// if missing, the label set by k8s API server must be added to the namespace labels
 	if _, ok := n.Labels[K8sNsNameLabelKey]; !ok {
 		n.Labels[K8sNsNameLabelKey] = ns.Name

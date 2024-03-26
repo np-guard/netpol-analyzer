@@ -31,6 +31,20 @@ import (
 
 const defaultPortsListSize = 8
 
+type PodExposureInfo struct {
+	// 	IsProtected indicates if the pod is selected by any network-policy or not
+	IsProtected bool
+	// EntireClusterConnection contains the maximal connection-set for which the pod is exposed to all namespaces by network policies
+	EntireClusterConnection *common.ConnectionSet
+}
+
+func initiatePodExposure() PodExposureInfo {
+	return PodExposureInfo{
+		IsProtected:             false,
+		EntireClusterConnection: common.MakeConnectionSet(false),
+	}
+}
+
 // Pod encapsulates k8s Pod fields that are relevant for evaluating network policies
 type Pod struct {
 	Name      string
@@ -41,6 +55,17 @@ type Pod struct {
 	Ports     []corev1.ContainerPort
 	HostIP    string
 	Owner     Owner
+
+	// IngressExposureData contains:
+	// - whether the pod is protected by any network-policy on ingress direction or not;
+	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
+	// on ingress direction
+	IngressExposureData PodExposureInfo
+	// EgressExposureData contains:
+	// - whether the pod is protected by any network-policy on egress direction or not;
+	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
+	// on egress direction
+	EgressExposureData PodExposureInfo
 }
 
 // Owner encapsulates pod owner workload info
@@ -61,14 +86,16 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 	}
 
 	pr := &Pod{
-		Name:      p.Name,
-		Namespace: p.Namespace,
-		Labels:    make(map[string]string, len(p.Labels)),
-		IPs:       make([]corev1.PodIP, len(p.Status.PodIPs)),
-		Ports:     make([]corev1.ContainerPort, 0, defaultPortsListSize),
-		HostIP:    p.Status.HostIP,
-		Owner:     Owner{},
-		FakePod:   false,
+		Name:                p.Name,
+		Namespace:           p.Namespace,
+		Labels:              make(map[string]string, len(p.Labels)),
+		IPs:                 make([]corev1.PodIP, len(p.Status.PodIPs)),
+		Ports:               make([]corev1.ContainerPort, 0, defaultPortsListSize),
+		HostIP:              p.Status.HostIP,
+		Owner:               Owner{},
+		FakePod:             false,
+		IngressExposureData: initiatePodExposure(),
+		EgressExposureData:  initiatePodExposure(),
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -85,7 +112,7 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		ownerRef := p.ObjectMeta.OwnerReferences[refIndex]
 		if *ownerRef.Controller {
 			if addOwner := addPodOwner(&ownerRef, pr); addOwner {
-				pr.Owner.Variant = variantFromLabelsMap(p.Labels)
+				pr.Owner.Variant = VariantFromLabelsMap(p.Labels)
 			}
 			break
 		}
@@ -191,13 +218,15 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.HostIP = getFakePodIP()
 		pod.Owner = Owner{Name: workloadName, Kind: kind, APIVersion: APIVersion}
 		pod.FakePod = false
+		pod.IngressExposureData = initiatePodExposure()
+		pod.EgressExposureData = initiatePodExposure()
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
 		}
 		for i := range podTemplate.Spec.Containers {
 			pod.Ports = append(pod.Ports, podTemplate.Spec.Containers[i].Ports...)
 		}
-		pod.Owner.Variant = variantFromLabelsMap(podTemplate.Labels)
+		pod.Owner.Variant = VariantFromLabelsMap(podTemplate.Labels)
 		res[index-1] = pod
 	}
 	return res, nil
@@ -208,7 +237,8 @@ func namespacedName(pod *corev1.Pod) string {
 	return types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}.String()
 }
 
-func variantFromLabelsMap(labels map[string]string) string {
+// VariantFromLabelsMap returns a unique hash key from given labels map
+func VariantFromLabelsMap(labels map[string]string) string {
 	return hex.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%v", labels)))) //nolint:gosec // Non-crypto use
 }
 
@@ -230,15 +260,57 @@ func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 	return res
 }
 
-const noPort = -1
-
 // ConvertPodNamedPort returns the ContainerPort number that matches the named port
 // if there is no match, returns -1
+// namedPort is unique within the pod
 func (pod *Pod) ConvertPodNamedPort(namedPort string) int32 {
 	for _, containerPort := range pod.Ports {
 		if namedPort == containerPort.Name {
 			return containerPort.ContainerPort
 		}
 	}
-	return noPort
+	return common.NoPort
+}
+
+// updatePodXgressExposureToEntireClusterData updates the pods' fields which are related to entire class exposure on ingress/egress
+func (pod *Pod) UpdatePodXgressExposureToEntireClusterData(ruleConns *common.ConnectionSet, isIngress bool) {
+	if isIngress {
+		// for a dst pod check if the given ruleConns contains namedPorts; if yes replace them with pod's
+		// matching port number
+		convertedConns := pod.checkAndConvertNamedPortsInConnection(ruleConns)
+		if convertedConns != nil {
+			pod.IngressExposureData.EntireClusterConnection.Union(convertedConns)
+		} else {
+			pod.IngressExposureData.EntireClusterConnection.Union(ruleConns)
+		}
+	} else {
+		pod.EgressExposureData.EntireClusterConnection.Union(ruleConns)
+	}
+}
+
+// checkAndConvertNamedPortsInConnection returns the copy of the given connectionSet where named ports are converted;
+// returns nil if the given connectionSet has no named ports
+func (pod *Pod) checkAndConvertNamedPortsInConnection(conns *common.ConnectionSet) *common.ConnectionSet {
+	connNamedPorts := conns.GetNamedPorts()
+	if len(connNamedPorts) == 0 {
+		return nil
+	} // else - found named ports
+	connsCopy := conns.Copy() // copying the connectionSet; in order to replace
+	// the named ports with pod's port numbers
+	for protocol, namedPorts := range connNamedPorts {
+		for _, namedPort := range namedPorts {
+			portNum := pod.ConvertPodNamedPort(namedPort)
+			connsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum)
+		}
+	}
+	return connsCopy
+}
+
+// updatePodXgressProtectedFlag updates to true the relevant ingress/egress protected flag of the pod
+func (pod *Pod) UpdatePodXgressProtectedFlag(isIngress bool) {
+	if isIngress {
+		pod.IngressExposureData.IsProtected = true
+	} else {
+		pod.EgressExposureData.IsProtected = true
+	}
 }

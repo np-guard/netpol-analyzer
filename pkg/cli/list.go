@@ -27,9 +27,10 @@ import (
 )
 
 var (
-	focusWorkload string
-	output        string // output format
-	outFile       string // output file
+	focusWorkload    string
+	exposureAnalysis bool
+	output           string // output format
+	outFile          string // output file
 )
 
 func getOutputFormatDescription(validFormats string) string {
@@ -87,6 +88,9 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 	if stopOnFirstError {
 		res = append(res, connlist.WithStopOnError())
 	}
+	if exposureAnalysis {
+		res = append(res, connlist.WithExposureAnalysis())
+	}
 	return res
 }
 
@@ -131,6 +135,7 @@ defined`,
 	// Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
 	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "",
 		"Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)")
+	c.Flags().BoolVarP(&exposureAnalysis, "exposure", "", false, "Turn on exposure analysis and append results to the output")
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
 	c.Flags().StringVarP(&output, "output", "o", outconsts.DefaultFormat, getOutputFormatDescription(supportedFormats))

@@ -18,6 +18,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 type (
@@ -29,7 +30,10 @@ type (
 		netpolsMap                      map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
 		podOwnersToRepresentativePodMap map[string]map[string]*k8s.Pod           // map from namespace to map from pods' ownerReference name
 		// to its representative pod object
-		cache *evalCache
+		cache                  *evalCache
+		exposureAnalysisFlag   bool
+		representativePeersMap map[string]*k8s.RepresentativePeer // map from unique labels string to representative peer object,
+		// used only with exposure analysis
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -50,11 +54,56 @@ func NewPolicyEngine() *PolicyEngine {
 		netpolsMap:                      make(map[string]map[string]*k8s.NetworkPolicy),
 		podOwnersToRepresentativePodMap: make(map[string]map[string]*k8s.Pod),
 		cache:                           newEvalCache(),
+		exposureAnalysisFlag:            false,
 	}
 }
 
 func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, error) {
 	pe := NewPolicyEngine()
+	err := pe.addObjectsByKind(objects)
+	return pe, err
+}
+
+// NewPolicyEngineWithOptions returns a new policy engine with an empty state but updating the exposure analysis flag,
+// TBD: currently exposure-analysis is the only option supported by policy-engine, so no need for options list param
+func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
+	pe := NewPolicyEngine()
+	pe.exposureAnalysisFlag = exposureFlag
+	if exposureFlag {
+		pe.representativePeersMap = make(map[string]*k8s.RepresentativePeer)
+	}
+	return pe
+}
+
+// AddObjects adds k8s objects to the policy engine: first adds network-policies and then other objects
+// called only for exposure analysis; otherwise does nothing
+func (pe *PolicyEngine) AddObjects(objects []parser.K8sObject) error {
+	if !pe.exposureAnalysisFlag { // should not be true ever
+		return nil
+	}
+	policies, nonPolicies := splitPoliciesAndOtherObjects(objects)
+	err := pe.addObjectsByKind(policies)
+	if err != nil {
+		return err
+	}
+	err = pe.addObjectsByKind(nonPolicies)
+	return err
+}
+
+func splitPoliciesAndOtherObjects(objects []parser.K8sObject) (policies, nonPolicies []parser.K8sObject) {
+	for _, obj := range objects {
+		switch obj.Kind {
+		case parser.Networkpolicy:
+			policies = append(policies, obj)
+		default:
+			nonPolicies = append(nonPolicies, obj)
+		}
+	}
+	return policies, nonPolicies
+}
+
+// addObjectsByKind adds different k8s objects from parsed resources to the policy engine
+func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 	var err error
 	for _, obj := range objects {
 		switch obj.Kind {
@@ -84,18 +133,17 @@ func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, erro
 			fmt.Printf("ignoring resource kind %s", obj.Kind)
 		}
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
-	err = pe.resolveMissingNamespaces()
-	return pe, err
+	return pe.resolveMissingNamespaces()
 }
 
 func (pe *PolicyEngine) resolveMissingNamespaces() error {
 	for _, pod := range pe.podsMap {
 		ns := pod.Namespace
 		if _, ok := pe.namspacesMap[ns]; !ok {
-			if err := pe.resolveSingleMissingNamespace(ns); err != nil {
+			if err := pe.resolveSingleMissingNamespace(ns, nil); err != nil {
 				return err
 			}
 		}
@@ -104,13 +152,17 @@ func (pe *PolicyEngine) resolveMissingNamespaces() error {
 }
 
 // resolveSingleMissingNamespace create a ns object and upsert to PolicyEngine
-func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string) error {
+func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string, nsLabels map[string]string) error {
+	nLabels := nsLabels
+	if len(nLabels) == 0 {
+		nLabels = map[string]string{
+			k8s.K8sNsNameLabelKey: ns,
+		}
+	}
 	nsObj := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: ns,
-			Labels: map[string]string{
-				k8s.K8sNsNameLabelKey: ns,
-			},
+			Name:   ns,
+			Labels: nLabels,
 		},
 	}
 	if err := pe.upsertNamespace(nsObj); err != nil {
@@ -197,6 +249,9 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.podsMap = make(map[string]*k8s.Pod)
 	pe.netpolsMap = make(map[string]map[string]*k8s.NetworkPolicy)
 	pe.podOwnersToRepresentativePodMap = make(map[string]map[string]*k8s.Pod)
+	if pe.exposureAnalysisFlag {
+		pe.representativePeersMap = make(map[string]*k8s.RepresentativePeer)
+	}
 	pe.cache = newEvalCache()
 }
 
@@ -277,11 +332,17 @@ func (pe *PolicyEngine) upsertWorkload(rs interface{}, kind string) error {
 	if err != nil {
 		return err
 	}
-	for _, podObj := range pods {
+	var podObj *k8s.Pod
+	for _, podObj = range pods {
 		podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
 		pe.podsMap[podStr.String()] = podObj
 		// update cache with new pod associated to to its owner
 		pe.cache.addPod(podObj, podStr.String())
+	}
+	// running this on last podObj: as all pods from same workload object are in same namespace and having same pod labels
+	if pe.exposureAnalysisFlag {
+		// check if there are representative peers in the policy engine which match the current pod; if yes remove them
+		pe.refineRepresentativePeersMatchingLabels(podObj.Labels, pe.namspacesMap[podObj.Namespace].Labels)
 	}
 	return nil
 }
@@ -295,7 +356,18 @@ func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
 	pe.podsMap[podStr.String()] = podObj
 	// update cache with new pod associated to to its owner
 	pe.cache.addPod(podObj, podStr.String())
+	if pe.exposureAnalysisFlag {
+		// check if there are representative peers in the policy engine which match the current pod; if yes remove them
+		pe.refineRepresentativePeersMatchingLabels(podObj.Labels, pe.namspacesMap[podObj.Namespace].Labels)
+	}
 	return nil
+}
+
+func initPolicyGeneralConns() k8s.PolicyGeneralRulesConns {
+	return k8s.PolicyGeneralRulesConns{
+		AllDestinationsConns: common.MakeConnectionSet(false),
+		EntireClusterConns:   common.MakeConnectionSet(false),
+	}
 }
 
 func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
@@ -307,11 +379,28 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 	if _, ok := pe.netpolsMap[netpolNamespace]; !ok {
 		pe.netpolsMap[netpolNamespace] = make(map[string]*k8s.NetworkPolicy)
 	}
-	pe.netpolsMap[netpolNamespace][np.Name] = (*k8s.NetworkPolicy)(np)
 
+	newNetpol := &k8s.NetworkPolicy{
+		NetworkPolicy:       np,
+		IngressGeneralConns: initPolicyGeneralConns(),
+		EgressGeneralConns:  initPolicyGeneralConns(),
+	}
+	pe.netpolsMap[netpolNamespace][np.Name] = newNetpol
+
+	var err error
+	// for exposure analysis only: scan policy ingress and egress rules:
+	// 1. to store allowed connections to entire cluster and to all destinations (if such connections are allowed by the policy)
+	// 2. to get selectors and generate representativePeers (each specified rule, gets a representative peer)
+	if pe.exposureAnalysisFlag {
+		rulesSelectors, scanErr := newNetpol.ScanPolicyRulesForGeneralConnsAndRepresentativePeers()
+		if scanErr != nil {
+			return scanErr
+		}
+		err = pe.generateRepresentativePeers(rulesSelectors, np.Name)
+	}
 	// clear the cache on netpols changes
 	pe.cache.clear()
-	return nil
+	return err
 }
 
 func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
@@ -377,6 +466,7 @@ func (pe *PolicyEngine) GetPodsMap() map[string]*k8s.Pod {
 	return pe.podsMap
 }
 
+// HasPodPeers returns if there are pods from parsed pod objects in the policy-engine
 func (pe *PolicyEngine) HasPodPeers() bool {
 	return len(pe.podsMap) > 0
 }
@@ -421,6 +511,17 @@ func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 	return res, nil
 }
 
+// GetRepresentativePeersList returns a slice of representative peers
+func (pe *PolicyEngine) GetRepresentativePeersList() []Peer {
+	res := make([]Peer, len(pe.representativePeersMap))
+	index := 0
+	for _, p := range pe.representativePeersMap {
+		res[index] = p
+		index++
+	}
+	return res
+}
+
 // getDisjointIPBlocks returns a slice of disjoint ip-blocks from all netpols resources
 func (pe *PolicyEngine) getDisjointIPBlocks() ([]*ipblock.IPBlock, error) {
 	var ipbList []*ipblock.IPBlock
@@ -439,6 +540,7 @@ func (pe *PolicyEngine) getDisjointIPBlocks() ([]*ipblock.IPBlock, error) {
 }
 
 // GetSelectedPeers returns list of workload peers in the given namespace which match the given labels selector
+// used only for ingress-analyzer : currently not supported with exposure-analysis
 func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace string) ([]Peer, error) {
 	res := make([]Peer, 0)
 	peers, err := pe.createPodOwnersMap()
@@ -469,17 +571,36 @@ func (pe *PolicyEngine) ConvertPeerNamedPort(namedPort string, peer Peer) (int32
 	}
 }
 
-// AddPodByNameAndNamespace adds a new fake pod to the pe.podsMap, used for adding ingress-controller pod
-func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string) (Peer, error) {
+// AddPodByNameAndNamespace adds a new fake pod to:
+// the pe.podsMap in case of fake ingress-controller pods
+// or the pe.representativePeersMap in case of exposure-analysis peers
+func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, objLabels *k8s.SingleRuleLabels) (Peer, error) {
+	var nsLabels map[string]string
+	if objLabels != nil {
+		nsLabels = objLabels.NsLabels
+	}
+
 	podStr := types.NamespacedName{Namespace: ns, Name: name}.String()
 	newPod := &k8s.Pod{
 		Name:      name,
 		Namespace: ns,
 		FakePod:   true,
 	}
-	if err := pe.resolveSingleMissingNamespace(ns); err != nil {
+	if err := pe.resolveSingleMissingNamespace(ns, nsLabels); err != nil {
 		return nil, err
 	}
+	if pe.exposureAnalysisFlag && newPod.Name == k8s.RepresentativePodName { // if exposure-analysis and this is not a fake ingress-controller
+		// first compute a unique string from labels to be used as a map key
+		keyStrFromNsLabels := k8s.VariantFromLabelsMap(objLabels.NsLabels)
+		// todo : when supporting also pod labels; add also key str from pod labels to the map key
+		if _, ok := pe.representativePeersMap[keyStrFromNsLabels]; ok { // we already have a representative peer with same labels
+			return nil, nil
+		}
+		newRepresentativePeer := &k8s.RepresentativePeer{Pod: newPod, PotentialNamespaceLabels: nsLabels}
+		pe.representativePeersMap[keyStrFromNsLabels] = newRepresentativePeer
+		return newRepresentativePeer, nil
+	}
+	// ingress-controller will be treated as a real pod, may be added to podsMap
 	pe.podsMap[podStr] = newPod
 	return &k8s.WorkloadPeer{Pod: newPod}, nil
 }
