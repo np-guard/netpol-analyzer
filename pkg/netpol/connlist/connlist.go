@@ -399,6 +399,14 @@ func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer eval.Peer) bool {
 	return !peer.IsPeerIPType() && (peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload)
 }
 
+func convertEvalPeersToConnlistPeer(peers []eval.Peer) []Peer {
+	res := make([]Peer, len(peers))
+	for i, p := range peers {
+		res[i] = p
+	}
+	return res
+}
+
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
 // if the exposure-analysis option is on, also computes and updates the exposure-analysis results
 func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingressanalyzer.IngressAnalyzer) ([]Peer2PeerConnection,
@@ -415,18 +423,13 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		return nil, nil, err
 	}
 	// represent peerList as []connlist.Peer list to be returned
-	peers := make([]Peer, len(peerList))
-	for i, p := range peerList {
-		peers[i] = p
-	}
+	peers := convertEvalPeersToConnlistPeer(peerList)
 
 	// connPeers represents []connlist.Peer to be sent to ca.getConnectionsBetweenPeers
 	connPeers := peers
 	if ca.exposureAnalysis {
 		representativePeers := pe.GetRepresentativePeersList()
-		for _, p := range representativePeers {
-			connPeers = append(connPeers, p)
-		}
+		connPeers = append(connPeers, convertEvalPeersToConnlistPeer(representativePeers)...)
 	}
 
 	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
@@ -449,6 +452,12 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	connsRes = peersAllowedConns
 
 	if ca.exposureAnalysis {
+		// first, check and resolve entries in the map with unknown protected data
+		err = exposuresMap.resolveUnknownProtectedData(pe)
+		if err != nil {
+			return nil, nil, err
+		}
+		// build the final []exposedPeer result
 		ca.exposureResult = buildExposedPeerListFromExposureMap(exposuresMap)
 	}
 

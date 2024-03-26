@@ -13,7 +13,6 @@ metadata:
   labels:
     app: a-app
 spec:
-  replicas: 2
   selector:
     matchLabels:
       app: a-app
@@ -30,25 +29,3 @@ spec:
         - containerPort: 8050  # containerport2
         - containerPort: 8090  # containerport3
 ---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: workload-b
-  namespace: hello-world
-  labels:
-    app: b-app
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: b-app
-  template:
-    metadata:
-      labels:
-        app: b-app
-    spec:
-      containers:
-      - name: hello-world
-        image: quay.io/shfa/hello-world:latest
-        ports:
-        - containerPort: 8050
