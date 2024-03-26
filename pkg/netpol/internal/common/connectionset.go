@@ -19,10 +19,11 @@ import (
 	"strconv"
 	"strings"
 
+	"k8s.io/apimachinery/pkg/util/intstr"
+
 	v1 "k8s.io/api/core/v1"
 
 	"github.com/np-guard/models/pkg/interval"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 // ConnectionSet represents a set of allowed connections between two peers on a k8s env
