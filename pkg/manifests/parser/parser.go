@@ -71,7 +71,7 @@ func resourceInfoToK8sObject(info *resource.Info, l logger.Logger, muteErrsAndWa
 			if resourceStr != "" {
 				errStr += " with " + resourceStr
 			}
-			fpErr := malformedYamlDoc(info.Source, 0, -1, fmt.Errorf("%s:  %s", errStr, err))
+			fpErr := malformedYamlDoc(info.Source, 0, -1, fmt.Errorf("%s:  %w", errStr, err))
 			logError(l, fpErr, muteErrsAndWarns)
 			return nil, fpErr
 		}

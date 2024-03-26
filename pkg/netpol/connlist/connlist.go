@@ -313,9 +313,9 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.ConnectionSet {
 	protocolsToPortSetMap := make(map[v1.Protocol]*common.PortSet, len(c.ProtocolsAndPorts()))
 	for protocol, portRageArr := range c.ProtocolsAndPorts() {
-		protocolsToPortSetMap[protocol] = &common.PortSet{}
-		for _, portRange := range portRageArr {
-			protocolsToPortSetMap[protocol].AddPortRange(portRange.Start(), portRange.End())
+		protocolsToPortSetMap[protocol] = common.MakePortSet(false)
+		for _, p := range portRageArr {
+			protocolsToPortSetMap[protocol].AddPortRange(p.Start(), p.End())
 		}
 	}
 	connectionSet := &common.ConnectionSet{AllowAll: c.AllProtocolsAndPorts(), AllowedProtocols: protocolsToPortSetMap}
@@ -569,7 +569,7 @@ func (ca *ConnlistAnalyzer) allowedIngressControllerToPeerFromPoliciesRules(ingr
 	if err != nil {
 		return nil, err
 	}
-	return peConn.(*common.ConnectionSet), nil
+	return peConn, nil
 }
 
 // gets sample ingress controller connection and copies it to a general connection to be allowed from any ingress controller
