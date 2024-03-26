@@ -86,7 +86,7 @@ func InvalidPeerErrStr(peer string) string {
 // BlockedIngressWarning returns warning string of a blocked ingress on peer
 func BlockedIngressWarning(objKind, objName, peerStr string) string {
 	return objKind + " resource " + objName + " specified workload " + peerStr + " as a backend, but network policies are blocking " +
-		"ingress connections from an arbitrary in-cluster source to this workload. " +
+		"ingress access by nginx or openshift ingress controllers." +
 		"Connectivity map will not include a possibly allowed connection between the ingress controller and this workload."
 }
 

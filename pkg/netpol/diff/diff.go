@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	v1 "k8s.io/api/core/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -475,7 +476,7 @@ func (c *connsPair) isSrcOrDstPeerIPType(checkSrc bool) bool {
 }
 
 func isIngressControllerPeer(peer eval.Peer) bool {
-	return peer.Name() == common.IngressPodName
+	return strings.Contains(peer.Name(), common.GeneralIngressControllerName)
 }
 
 // updateNewOrLostFields updates ConnsPair's newOrLostSrc and newOrLostDst values

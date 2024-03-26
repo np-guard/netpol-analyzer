@@ -83,7 +83,7 @@ func (p *WorkloadPeer) Kind() string {
 
 func (p *WorkloadPeer) String() string {
 	if p.Pod.FakePod {
-		return "{" + p.Pod.Name + "}"
+		return "{" + p.Pod.Namespace + "}"
 	}
 	return types.NamespacedName{Name: p.Name(), Namespace: p.Namespace()}.String() + "[" + p.Kind() + "]"
 }

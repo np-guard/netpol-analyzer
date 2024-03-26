@@ -23,15 +23,15 @@
 <polygon fill="none" stroke="black" points="1377,-311 1377,-386 1571,-386 1571,-311 1377,-311"/>
 <text text-anchor="middle" x="1474" y="-370.8" font-family="Times New Roman,serif" font-size="14.00">zeroday</text>
 </g>
-<g id="clust5" class="cluster">
-<title>cluster_legend</title>
-<polygon fill="none" stroke="black" points="1594,-319 1594,-497.79 1989,-497.79 1989,-319 1594,-319"/>
-<text text-anchor="middle" x="1791.5" y="-485.79" font-family="Times New Roman,serif" font-size="10.00">Legend</text>
-</g>
 <g id="clust3" class="cluster">
 <title>cluster_payments</title>
 <polygon fill="none" stroke="black" points="8,-8 8,-170 856,-170 856,-8 8,-8"/>
 <text text-anchor="middle" x="432" y="-154.8" font-family="Times New Roman,serif" font-size="14.00">payments</text>
+</g>
+<g id="clust5" class="cluster">
+<title>cluster_legend</title>
+<polygon fill="none" stroke="black" points="1594,-319 1594,-497.79 1989,-497.79 1989,-319 1594,-319"/>
+<text text-anchor="middle" x="1791.5" y="-485.79" font-family="Times New Roman,serif" font-size="10.00">Legend</text>
 </g>
 <!-- backend/catalog[Deployment] -->
 <g id="node1" class="node">
