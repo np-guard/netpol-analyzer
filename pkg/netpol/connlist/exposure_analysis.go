@@ -13,17 +13,24 @@ type exposureMaps struct {
 
 // peerXgressExposureData store exposure data of a peer on one direction ingress/egress
 type peerXgressExposureData struct {
-	isProtected  bool
+	// isProtected indicates whether the peer is protected by network-policies on the relevant direction or not
+	isProtected bool
+	// exposureInfo list of the exposure-connections data of the peer on the relevant direction.
+	// if isProtected is false (peer is not protected), this field will be empty
 	exposureInfo []*xgressExposure
 }
 
 // ----------------------------------------------------
 // xgressExposure implements XgressExposureData interface
 type xgressExposure struct {
+	// exposedToEntireCluster indicates if the peer is exposed to all namespaces in the cluster for the relevant direction
 	exposedToEntireCluster bool
-	namespaceLabels        map[string]string
-	podLabels              map[string]string
-	potentialConn          *common.ConnectionSet
+	// namespaceLabels are matchLabels of potential namespaces which the peer might be exposed to
+	namespaceLabels map[string]string
+	// podLabels are matchLabels of potential pods which the peer might be exposed to
+	podLabels map[string]string
+	// potentialConn the potential connectivity of the exposure
+	potentialConn *common.ConnectionSet
 }
 
 func (e *xgressExposure) IsExposedToEntireCluster() bool {
@@ -100,10 +107,7 @@ func buildExposedPeerListFromExposureMaps(exposureMaps *exposureMaps) []ExposedP
 	// otherwise it is protected safely on egress (add default value)
 	for p, ingressExpData := range exposureMaps.ingressExposureMap {
 		// default value for egress exposure
-		egressExposureData := &peerXgressExposureData{
-			isProtected:  true,
-			exposureInfo: nil,
-		}
+		egressExposureData := newDefaultXgressExposureData()
 		// check existence in egress map
 		if egressData, ok := exposureMaps.egressExposureMap[p]; ok {
 			egressExposureData = egressData
@@ -123,14 +127,19 @@ func buildExposedPeerListFromExposureMaps(exposureMaps *exposureMaps) []ExposedP
 			continue
 		}
 		expInfo := &exposedPeer{
-			peer: p,
-			ingressExposure: &peerXgressExposureData{
-				isProtected:  true,
-				exposureInfo: nil,
-			},
-			egressExposure: egressExpData,
+			peer:            p,
+			ingressExposure: newDefaultXgressExposureData(),
+			egressExposure:  egressExpData,
 		}
 		res = append(res, expInfo)
 	}
 	return res
+}
+
+// newDefaultXgressExposureData returns new peerXgressExposureData pointer with default values
+func newDefaultXgressExposureData() *peerXgressExposureData {
+	return &peerXgressExposureData{
+		isProtected:  true,
+		exposureInfo: nil,
+	}
 }

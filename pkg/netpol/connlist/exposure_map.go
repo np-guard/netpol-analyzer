@@ -43,7 +43,7 @@ func (ex *exposureMaps) addPeerUnprotectedData(pe *eval.PolicyEngine, peer Peer,
 		return false, err
 	}
 	if !isProtected {
-		ex.addNewEntry(peer, isProtected, isIngress)
+		ex.checkExistanceAndAddNewEntry(peer, isProtected, isIngress)
 		return true, nil
 	}
 	return false, nil
@@ -60,7 +60,7 @@ func (ex *exposureMaps) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, pee
 		return nil
 	}
 	// exposed to entire cluster - first entry of the peer
-	ex.addNewEntry(peer, true, isIngress)
+	ex.checkExistanceAndAddNewEntry(peer, true, isIngress)
 	expData := &xgressExposure{
 		exposedToEntireCluster: true,
 		namespaceLabels:        nil,
@@ -71,17 +71,21 @@ func (ex *exposureMaps) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, pee
 	return nil
 }
 
-// addNewEntry adds a new entry to the relevant ingress/egress map for the given peer
-func (ex *exposureMaps) addNewEntry(peer Peer, isProtected, isIngress bool) {
+// checkExistanceAndAddNewEntry adds a new entry to the relevant ingress/egress map for the given peer
+func (ex *exposureMaps) checkExistanceAndAddNewEntry(peer Peer, isProtected, isIngress bool) {
 	if isIngress {
-		ex.ingressExposureMap[peer] = &peerXgressExposureData{
-			isProtected:  isProtected,
-			exposureInfo: []*xgressExposure{},
+		if _, ok := ex.ingressExposureMap[peer]; !ok {
+			ex.ingressExposureMap[peer] = &peerXgressExposureData{
+				isProtected:  isProtected,
+				exposureInfo: []*xgressExposure{},
+			}
 		}
 	} else {
-		ex.egressExposureMap[peer] = &peerXgressExposureData{
-			isProtected:  isProtected,
-			exposureInfo: []*xgressExposure{},
+		if _, ok := ex.egressExposureMap[peer]; !ok {
+			ex.egressExposureMap[peer] = &peerXgressExposureData{
+				isProtected:  isProtected,
+				exposureInfo: []*xgressExposure{},
+			}
 		}
 	}
 }
@@ -119,15 +123,7 @@ func (ex *exposureMaps) addConnToExposureMap(pe *eval.PolicyEngine, allowedConne
 		return nil // skip
 	}
 	// the peer is protected, check if peer is in the relevant map; if not initialize a new entry
-	if isIngress {
-		if _, ok := ex.ingressExposureMap[peer]; !ok {
-			ex.addNewEntry(peer, true, true)
-		}
-	} else {
-		if _, ok := ex.egressExposureMap[peer]; !ok {
-			ex.addNewEntry(peer, true, false)
-		}
-	}
+	ex.checkExistanceAndAddNewEntry(peer, true, isIngress)
 
 	nsLabels, err := pe.GetPeerNsLabels(representativePeer)
 	if err != nil {
