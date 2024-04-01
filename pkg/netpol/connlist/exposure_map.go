@@ -8,21 +8,22 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
-// this file contains functions on exposureMap
+// this file contains functions on exposureMaps
 
-// appendPeerXgressExposureData updates a peer's entry in the map with new ingress/egress exposure data
-func (ex exposureMap) appendPeerXgressExposureData(peer Peer, expData *xgressExposure, isIngress bool) {
+// appendPeerXgressExposureData updates a peer's entry in the relevant map with new exposure data
+func (ex *exposureMaps) appendPeerXgressExposureData(peer Peer, expData *xgressExposure, isIngress bool) {
 	if isIngress {
-		ex[peer].ingressExposure = append(ex[peer].ingressExposure, expData)
-	} else {
-		ex[peer].egressExposure = append(ex[peer].egressExposure, expData)
+		ex.ingressExposureMap[peer].exposureInfo = append(ex.ingressExposureMap[peer].exposureInfo, expData)
+	} else { // egress
+		ex.egressExposureMap[peer].exposureInfo = append(ex.egressExposureMap[peer].exposureInfo, expData)
 	}
 }
 
 // addPeerGeneralExposure checks if given peer is not protected on given ingress/egress direction;
-// if not protected (no policies selecting it) initialize its data in the map (with unprotected flag)
-// if protected (selected by at least one policy) check and add entire cluster exposure on the ingress/egress direction (if exists)
-func (ex exposureMap) addPeerGeneralExposure(pe *eval.PolicyEngine, peer Peer, isIngress bool) (err error) {
+// if not protected (no policies selecting it) initialize its data in the relevant map (with unprotected flag)
+// if protected (selected by at least one policy) check and add entire cluster exposure on the ingress/egress direction (if exists).
+// the unprotected or entire cluster is always first entry of the peer on its relevant map
+func (ex *exposureMaps) addPeerGeneralExposure(pe *eval.PolicyEngine, peer Peer, isIngress bool) (err error) {
 	added, err := ex.addPeerUnprotectedData(pe, peer, isIngress)
 	if err != nil {
 		return err
@@ -35,50 +36,22 @@ func (ex exposureMap) addPeerGeneralExposure(pe *eval.PolicyEngine, peer Peer, i
 
 // addPeerUnprotectedData getting a peer and a direction; checks if the peer is not protected on that direction;
 // if not protected, i.e. not selected by any network-policy in the manifests in the given direction:
-// adds the peer to the exposure map and returns an indication that an entry was added to the map
-func (ex exposureMap) addPeerUnprotectedData(pe *eval.PolicyEngine, peer Peer, isIngress bool) (bool, error) {
+// adds the peer to the xgress exposure map and returns an indication that an entry was added to the map
+func (ex *exposureMaps) addPeerUnprotectedData(pe *eval.PolicyEngine, peer Peer, isIngress bool) (bool, error) {
 	isProtected, err := pe.IsPeerProtected(peer, isIngress)
 	if err != nil {
 		return false, err
 	}
-	_, ok := ex[peer]
-	// if the peer is not protected by any policy in the given direction; we want to add an entry to the map
-	if !ok && !isProtected {
-		if isIngress {
-			ex.addNewEntry(peer, notProtected, unknown)
-		} else {
-			ex.addNewEntry(peer, unknown, notProtected)
-		}
+	if !isProtected {
+		ex.addNewEntry(peer, isProtected, isIngress)
 		return true, nil
-	}
-	// else :if an entry exists; update the value in the map according to the result (protected/not protected)
-	if ok {
-		ex.updatePeerEntryWithCorrectProtectedData(peer, isIngress, isProtected)
 	}
 	return false, nil
 }
 
-func (ex exposureMap) updatePeerEntryWithCorrectProtectedData(peer Peer, isIngress, isProtected bool) {
-	if isIngress {
-		switch isProtected {
-		case true:
-			ex[peer].isIngressProtected = protected
-		case false:
-			ex[peer].isIngressProtected = notProtected
-		}
-	} else { // egress
-		switch isProtected {
-		case true:
-			ex[peer].isEgressProtected = protected
-		case false:
-			ex[peer].isEgressProtected = notProtected
-		}
-	}
-}
-
 // addPeerXgressEntireClusterExp checks and adds (if exists) ingress/egress entire cluster exposure for the given peer
 // on the given direction
-func (ex exposureMap) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer Peer, isIngress bool) error {
+func (ex *exposureMaps) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer Peer, isIngress bool) error {
 	conn, err := pe.GetPeerXgressEntireClusterConn(peer, isIngress)
 	if err != nil {
 		return err
@@ -86,16 +59,8 @@ func (ex exposureMap) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer 
 	if conn.IsEmpty() {
 		return nil
 	}
-	// if there is no map entry for the peer : add new entry
-	// exposed to entire cluster: means that there is at least one network-policy exposing the peer to entire cluster
-	if _, ok := ex[peer]; !ok {
-		if isIngress {
-			ex.addNewEntry(peer, protected, unknown)
-		} else {
-			ex.addNewEntry(peer, unknown, protected)
-		}
-	}
-	// update the entry of the peer with the entire cluster connection
+	// exposed to entire cluster - first entry of the peer
+	ex.addNewEntry(peer, true, isIngress)
 	expData := &xgressExposure{
 		exposedToEntireCluster: true,
 		namespaceLabels:        nil,
@@ -103,23 +68,27 @@ func (ex exposureMap) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer 
 		potentialConn:          conn,
 	}
 	ex.appendPeerXgressExposureData(peer, expData, isIngress)
-
 	return nil
 }
 
-// addNewEntry adds a new entry to the map, for the given peer;
-func (ex exposureMap) addNewEntry(peer Peer, ingProtected, egProtected int) {
-	ex[peer] = &peerExposureData{
-		isIngressProtected: ingProtected,
-		isEgressProtected:  egProtected,
-		ingressExposure:    make([]*xgressExposure, 0),
-		egressExposure:     make([]*xgressExposure, 0),
+// addNewEntry adds a new entry to the relevant ingress/egress map for the given peer
+func (ex *exposureMaps) addNewEntry(peer Peer, isProtected, isIngress bool) {
+	if isIngress {
+		ex.ingressExposureMap[peer] = &peerXgressExposureData{
+			isProtected:  isProtected,
+			exposureInfo: []*xgressExposure{},
+		}
+	} else {
+		ex.egressExposureMap[peer] = &peerXgressExposureData{
+			isProtected:  isProtected,
+			exposureInfo: []*xgressExposure{},
+		}
 	}
 }
 
-// addConnToExposureMap adds a connection and its data to the exposure-analysis map
-// finally the map will include refined lists of ingress and egress exposure connections for each workload peer
-func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections common.Connection, src, dst Peer,
+// addConnToExposureMap adds a connection and its data to the matching exposure-analysis map
+// finally the maps will include refined lists of ingress and egress exposure connections per each workload peer
+func (ex *exposureMaps) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections common.Connection, src, dst Peer,
 	isIngress bool) error {
 	peer := src               // real peer
 	representativePeer := dst // inferred from netpol rule
@@ -149,12 +118,14 @@ func (ex exposureMap) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnect
 	if contained {
 		return nil // skip
 	}
-	// the peer is protected, check if peer is in the map; if not initialize an entry
-	if _, ok := ex[peer]; !ok {
-		if isIngress {
-			ex.addNewEntry(peer, protected, unknown)
-		} else {
-			ex.addNewEntry(peer, unknown, protected)
+	// the peer is protected, check if peer is in the relevant map; if not initialize a new entry
+	if isIngress {
+		if _, ok := ex.ingressExposureMap[peer]; !ok {
+			ex.addNewEntry(peer, true, true)
+		}
+	} else {
+		if _, ok := ex.egressExposureMap[peer]; !ok {
+			ex.addNewEntry(peer, true, false)
 		}
 	}
 
@@ -190,28 +161,4 @@ func connectionContainedInEntireClusterConn(pe *eval.PolicyEngine, peer Peer, co
 		return false, nil
 	}
 	return conns.ContainedIn(generalConn), nil
-}
-
-// resolveUnknownProtectedData loops the exposure map and checks if there is a peer with unknown protected data on any direction;
-// if yes, gets the peer's data and updates it
-// this func is called after computing all connections of a peer,
-// and hence after updating its protection data (which was updated on the fly when computing allowed conns).
-func (ex exposureMap) resolveUnknownProtectedData(pe *eval.PolicyEngine) error {
-	for peer, exData := range ex {
-		if exData.isIngressProtected == unknown {
-			isProtected, err := pe.IsPeerProtected(peer, true)
-			if err != nil {
-				return err
-			}
-			ex.updatePeerEntryWithCorrectProtectedData(peer, true, isProtected)
-		}
-		if exData.isEgressProtected == unknown {
-			isProtected, err := pe.IsPeerProtected(peer, false)
-			if err != nil {
-				return err
-			}
-			ex.updatePeerEntryWithCorrectProtectedData(peer, false, isProtected)
-		}
-	}
-	return nil
 }

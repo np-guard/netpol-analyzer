@@ -4,27 +4,17 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
-// exposureMap from peer to its exposure data; map that stores refined exposure-analysis allowed connections
-// which are computed by the connlist analyzer
-type exposureMap map[Peer]*peerExposureData
+// exposureMaps is a struct containing two maps from peer to its exposure data, one for each direction ingress/egress;
+// maps that store refined exposure-analysis allowed connections which are computed by the connlist analyzer
+type exposureMaps struct {
+	ingressExposureMap map[Peer]*peerXgressExposureData
+	egressExposureMap  map[Peer]*peerXgressExposureData
+}
 
-// following const implements an enum type for the initial value of a peer's
-// ingressProtected or egressProtected when adding a new entry in the map
-// a peer is protected on a direction (ingress/egress) if there is at least one network-policy
-// (that affects the direction) selecting it;
-// the final value on the map should be protected or notProtected only
-const (
-	unknown = iota
-	protected
-	notProtected
-)
-
-// peerExposureData stores exposure data for a peer
-type peerExposureData struct {
-	isIngressProtected int
-	isEgressProtected  int
-	ingressExposure    []*xgressExposure
-	egressExposure     []*xgressExposure
+// peerXgressExposureData store exposure data of a peer on one direction ingress/egress
+type peerXgressExposureData struct {
+	isProtected  bool
+	exposureInfo []*xgressExposure
 }
 
 // ----------------------------------------------------
@@ -55,8 +45,9 @@ func (e *xgressExposure) PotentialConnectivity() common.Connection {
 // ----------------------------------------------------
 // exposedPeer implements the ExposedPeer interface
 type exposedPeer struct {
-	peer Peer
-	*peerExposureData
+	peer            Peer
+	ingressExposure *peerXgressExposureData
+	egressExposure  *peerXgressExposureData
 }
 
 func (ep *exposedPeer) ExposedPeer() Peer {
@@ -72,45 +63,72 @@ func xgressExposureListToXgressExposureDataList(xgressExp []*xgressExposure) []X
 }
 
 func (ep *exposedPeer) IsProtectedByIngressNetpols() bool {
-	return ep.isIngressProtected == protected
+	return ep.ingressExposure.isProtected
 }
 
 func (ep *exposedPeer) IngressExposure() []XgressExposureData {
-	return xgressExposureListToXgressExposureDataList(ep.ingressExposure)
+	return xgressExposureListToXgressExposureDataList(ep.ingressExposure.exposureInfo)
 }
 
 func (ep *exposedPeer) IsProtectedByEgressNetpols() bool {
-	return ep.isEgressProtected == protected
+	return ep.egressExposure.isProtected
 }
 
 func (ep *exposedPeer) EgressExposure() []XgressExposureData {
-	return xgressExposureListToXgressExposureDataList(ep.egressExposure)
+	return xgressExposureListToXgressExposureDataList(ep.egressExposure.exposureInfo)
 }
 
 // ----------------------------------------------------
 
-// gets an exposure map and builds ExposedPeer slice;
+// exposureMaps struct contains:
+// 1. ingressExposureMap : entries of peer to its ingress exposure-analysis data; which may be:
+// - the peer is not protected by ingress netpols
+// - the peer is protected by ingress netpols and exposed unsecure to unknown end-points.(exposure-analysis case)
+// 2. egressExposureMap : entries of peer to its exposure-analysis data; i.e.:
+// - the peer is not protected by egress netpols.
+// or - the peer is exposed on egress to unknown end-points
+//
+// a peer that exists only in one map (one direction); means its protected and exposed securely (to known hosts)
+// on the other direction
+
+// buildExposedPeerListFromExposureMaps gets an exposureMaps struct and builds ExposedPeer slice;
 // list of entries of peer and its exposure connections each
-func buildExposedPeerListFromExposureMap(exposuresMap exposureMap) []ExposedPeer {
+func buildExposedPeerListFromExposureMaps(exposureMaps *exposureMaps) []ExposedPeer {
 	res := make([]ExposedPeer, 0)
-	for p, expData := range exposuresMap {
-		ingExp := make([]*xgressExposure, 0)
-		egExp := make([]*xgressExposure, 0)
-		if expData.isIngressProtected == protected {
-			ingExp = append(ingExp, expData.ingressExposure...)
+	// first loop the ingressExposureMap : for each peer, fill its ingress exposure data
+	// and check if it exists also in the egressExposureMap too - get its egress exposure data;
+	// otherwise it is protected safely on egress (add default value)
+	for p, ingressExpData := range exposureMaps.ingressExposureMap {
+		// default value for egress exposure
+		egressExposureData := &peerXgressExposureData{
+			isProtected:  true,
+			exposureInfo: nil,
 		}
-		if expData.isEgressProtected == protected {
-			egExp = append(egExp, expData.egressExposure...)
+		// check existence in egress map
+		if egressData, ok := exposureMaps.egressExposureMap[p]; ok {
+			egressExposureData = egressData
 		}
 		// final peer's exposure data
 		expInfo := &exposedPeer{
+			peer:            p,
+			ingressExposure: ingressExpData,
+			egressExposure:  egressExposureData,
+		}
+		res = append(res, expInfo)
+	}
+	// second loop egressExposureMap and add peers that don't exist in the ingressExposureMap
+	for p, egressExpData := range exposureMaps.egressExposureMap {
+		// if p exists in the ingress exposure map so already handled, skip
+		if _, ok := exposureMaps.ingressExposureMap[p]; ok {
+			continue
+		}
+		expInfo := &exposedPeer{
 			peer: p,
-			peerExposureData: &peerExposureData{
-				isIngressProtected: expData.isIngressProtected,
-				isEgressProtected:  expData.isEgressProtected,
-				ingressExposure:    ingExp,
-				egressExposure:     egExp,
+			ingressExposure: &peerXgressExposureData{
+				isProtected:  true,
+				exposureInfo: nil,
 			},
+			egressExposure: egressExpData,
 		}
 		res = append(res, expInfo)
 	}
