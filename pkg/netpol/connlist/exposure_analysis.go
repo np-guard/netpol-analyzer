@@ -25,9 +25,11 @@ type peerXgressExposureData struct {
 type xgressExposure struct {
 	// exposedToEntireCluster indicates if the peer is exposed to all namespaces in the cluster for the relevant direction
 	exposedToEntireCluster bool
-	// namespaceLabels are matchLabels of potential namespaces which the peer might be exposed to
+	// namespaceLabels are matchLabels of potential namespaces which the peer might be exposed to.
+	// if exposedToEntireCluster is true, this field will be empty
 	namespaceLabels map[string]string
-	// podLabels are matchLabels of potential pods which the peer might be exposed to
+	// podLabels are matchLabels of potential pods which the peer might be exposed to.
+	// if exposedToEntireCluster is true, this field will be empty
 	podLabels map[string]string
 	// potentialConn the potential connectivity of the exposure
 	potentialConn *common.ConnectionSet

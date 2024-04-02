@@ -43,7 +43,7 @@ func (ex *exposureMaps) addPeerUnprotectedData(pe *eval.PolicyEngine, peer Peer,
 		return false, err
 	}
 	if !isProtected {
-		ex.checkExistanceAndAddNewEntry(peer, isProtected, isIngress)
+		ex.addNewEntry(peer, isProtected, isIngress)
 		return true, nil
 	}
 	return false, nil
@@ -60,7 +60,7 @@ func (ex *exposureMaps) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, pee
 		return nil
 	}
 	// exposed to entire cluster - first entry of the peer
-	ex.checkExistanceAndAddNewEntry(peer, true, isIngress)
+	ex.addNewEntry(peer, true, isIngress)
 	expData := &xgressExposure{
 		exposedToEntireCluster: true,
 		namespaceLabels:        nil,
@@ -71,8 +71,8 @@ func (ex *exposureMaps) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, pee
 	return nil
 }
 
-// checkExistanceAndAddNewEntry adds a new entry to the relevant ingress/egress map for the given peer
-func (ex *exposureMaps) checkExistanceAndAddNewEntry(peer Peer, isProtected, isIngress bool) {
+// addNewEntry adds a new entry to the relevant ingress/egress map for the given peer, if the peer's key is not in the map
+func (ex *exposureMaps) addNewEntry(peer Peer, isProtected, isIngress bool) {
 	if isIngress {
 		if _, ok := ex.ingressExposureMap[peer]; !ok {
 			ex.ingressExposureMap[peer] = &peerXgressExposureData{
@@ -123,7 +123,7 @@ func (ex *exposureMaps) addConnToExposureMap(pe *eval.PolicyEngine, allowedConne
 		return nil // skip
 	}
 	// the peer is protected, check if peer is in the relevant map; if not initialize a new entry
-	ex.checkExistanceAndAddNewEntry(peer, true, isIngress)
+	ex.addNewEntry(peer, true, isIngress)
 
 	nsLabels, err := pe.GetPeerNsLabels(representativePeer)
 	if err != nil {
