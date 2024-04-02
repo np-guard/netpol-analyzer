@@ -321,7 +321,7 @@ func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*ipblock
 	if err != nil {
 		return nil, np.netpolErr(netpolerrors.CidrErrTitle, err.Error())
 	}
-	ipb, err = ipb.Except(except...)
+	ipb, err = ipb.ExceptCidrs(except...)
 	if err != nil {
 		return nil, np.netpolErr(netpolerrors.CidrErrTitle, err.Error())
 	}
