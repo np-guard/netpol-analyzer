@@ -19,7 +19,8 @@ type peerXgressExposureData struct {
 	// isProtected indicates whether the peer is protected by network-policies on the relevant direction or not
 	isProtected bool
 	// exposureInfo list of the exposure-connections data of the peer on the relevant direction.
-	// if isProtected is false (peer is not protected), this field will be empty
+	// if isProtected is false (peer is not protected), this field will be empty.
+	// this field may include at most one item with entire cluster connection (exposedToEntireCluster == true)
 	exposureInfo []*xgressExposure
 }
 
