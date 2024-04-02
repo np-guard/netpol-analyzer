@@ -8,7 +8,17 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
-// this file contains functions on exposureMaps
+// this file contains functions on exposureMaps and peerXgressExposureMap
+
+// addPeer adds a new entry to the current map for the given peer; if the peer's key is not in the map
+func (m peerXgressExposureMap) addPeer(peer Peer, isProtected bool) {
+	if _, ok := m[peer]; !ok {
+		m[peer] = &peerXgressExposureData{
+			isProtected:  isProtected,
+			exposureInfo: []*xgressExposure{},
+		}
+	}
+}
 
 // appendPeerXgressExposureData updates a peer's entry in the relevant map with new exposure data
 func (ex *exposureMaps) appendPeerXgressExposureData(peer Peer, expData *xgressExposure, isIngress bool) {
@@ -43,14 +53,15 @@ func (ex *exposureMaps) addPeerUnprotectedData(pe *eval.PolicyEngine, peer Peer,
 		return false, err
 	}
 	if !isProtected {
-		ex.addNewEntry(peer, isProtected, isIngress)
+		ex.addNewEntry(peer, false, isIngress)
 		return true, nil
 	}
 	return false, nil
 }
 
 // addPeerXgressEntireClusterExp checks and adds (if exists) ingress/egress entire cluster exposure for the given peer
-// on the given direction
+// on the given direction;
+// each entry in the relevant map may has at-most one connection with entire-cluster (which is added by this func)
 func (ex *exposureMaps) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer Peer, isIngress bool) error {
 	conn, err := pe.GetPeerXgressEntireClusterConn(peer, isIngress)
 	if err != nil {
@@ -74,24 +85,15 @@ func (ex *exposureMaps) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, pee
 // addNewEntry adds a new entry to the relevant ingress/egress map for the given peer, if the peer's key is not in the map
 func (ex *exposureMaps) addNewEntry(peer Peer, isProtected, isIngress bool) {
 	if isIngress {
-		if _, ok := ex.ingressExposureMap[peer]; !ok {
-			ex.ingressExposureMap[peer] = &peerXgressExposureData{
-				isProtected:  isProtected,
-				exposureInfo: []*xgressExposure{},
-			}
-		}
+		ex.ingressExposureMap.addPeer(peer, isProtected)
 	} else {
-		if _, ok := ex.egressExposureMap[peer]; !ok {
-			ex.egressExposureMap[peer] = &peerXgressExposureData{
-				isProtected:  isProtected,
-				exposureInfo: []*xgressExposure{},
-			}
-		}
+		ex.egressExposureMap.addPeer(peer, isProtected)
 	}
 }
 
-// addConnToExposureMap adds a connection and its data to the matching exposure-analysis map
-// finally the maps will include refined lists of ingress and egress exposure connections per each workload peer
+// addConnToExposureMap adds a new connection data to the matching exposure-analysis map;
+// the connection data is inferred from an allowed connection between a real workload peer and a representative peer that was generated
+// from a netpol rule
 func (ex *exposureMaps) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections common.Connection, src, dst Peer,
 	isIngress bool) error {
 	peer := src               // real peer

@@ -4,11 +4,14 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
+// peerXgressExposureMap an alisa for map from peer to its refined exposure-analysis allowed connections on one direction ingress/egress
+type peerXgressExposureMap map[Peer]*peerXgressExposureData
+
 // exposureMaps is a struct containing two maps from peer to its exposure data, one for each direction ingress/egress;
 // maps that store refined exposure-analysis allowed connections which are computed by the connlist analyzer
 type exposureMaps struct {
-	ingressExposureMap map[Peer]*peerXgressExposureData
-	egressExposureMap  map[Peer]*peerXgressExposureData
+	ingressExposureMap peerXgressExposureMap
+	egressExposureMap  peerXgressExposureMap
 }
 
 // peerXgressExposureData store exposure data of a peer on one direction ingress/egress
