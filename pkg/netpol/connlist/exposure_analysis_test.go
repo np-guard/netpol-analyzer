@@ -38,21 +38,23 @@ var peerExposedToEntireCluster *xgressExposure = &xgressExposure{
 
 var peerExposedToEntireClusterOnTCP8050 *xgressExposure = &xgressExposure{
 	exposedToEntireCluster: true,
-	potentialConn:          newTCPConnWithPort(8050),
+	potentialConn:          newTCPConnWithPorts([]int{8050}),
 }
 
-func newTCPConnWithPort(port int) *common.ConnectionSet {
+func newTCPConnWithPorts(ports []int) *common.ConnectionSet {
 	conn := common.MakeConnectionSet(false)
 	portSet := common.MakePortSet(false)
-	portSet.AddPort(intstr.FromInt(port))
+	for i := range ports {
+		portSet.AddPort(intstr.FromInt(ports[i]))
+	}
 	conn.AddConnection(v1.ProtocolTCP, portSet)
 	return conn
 }
 
-func newExpDataWithLabelAndTCPConn(key, val string, portNum int) *xgressExposure {
+func newExpDataWithLabelAndTCPConn(key, val string, ports []int) *xgressExposure {
 	conn := common.MakeConnectionSet(true)
-	if portNum != -1 {
-		conn = newTCPConnWithPort(portNum)
+	if len(ports) > 0 {
+		conn = newTCPConnWithPorts(ports)
 	}
 	return &xgressExposure{
 		exposedToEntireCluster: false,
@@ -131,6 +133,30 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
+			testName:                       "test_new_namespace_conn_and_entire_cluster",
+			expectedNumRepresentativePeers: 1,
+			expectedLenOfExposedPeerList:   2,
+			// workload 1 is protected only on ingress direction and exposed unsecure to entire cluster on TCP 8050
+			// and another namespace with connection different (additional) than the conn with the entire cluster
+			wl1ExpDataInfo: expectedPeerResultInfo{
+				isIngressProtected:     true,
+				isEgressProtected:      false,
+				lenIngressExposedConns: 2,
+				ingressExp: []*xgressExposure{
+					peerExposedToEntireClusterOnTCP8050,
+					newExpDataWithLabelAndTCPConn("foo.com/managed-state", "managed", []int{8050, 8090}),
+				},
+				lenEgressExposedConns: 0,
+			},
+			// workload 2 is not protected at all (unsecure exposed)
+			wl2ExpDataInfo: expectedPeerResultInfo{
+				isIngressProtected:     false,
+				isEgressProtected:      false,
+				lenIngressExposedConns: 0,
+				lenEgressExposedConns:  0,
+			},
+		},
+		{
 			testName:                       "test_only_matched_rules",
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
@@ -153,9 +179,9 @@ func TestExposureBehavior(t *testing.T) {
 				isEgressProtected:      false,
 				lenIngressExposedConns: 3,
 				ingressExp: []*xgressExposure{
-					newExpDataWithLabelAndTCPConn("foo.com/managed-state", "managed", 8050),
-					newExpDataWithLabelAndTCPConn("release", "stable", -1),
-					newExpDataWithLabelAndTCPConn("effect", "NoSchedule", 8050),
+					newExpDataWithLabelAndTCPConn("foo.com/managed-state", "managed", []int{8050}),
+					newExpDataWithLabelAndTCPConn("release", "stable", []int{}),
+					newExpDataWithLabelAndTCPConn("effect", "NoSchedule", []int{8050}),
 				},
 				lenEgressExposedConns: 0,
 			},
