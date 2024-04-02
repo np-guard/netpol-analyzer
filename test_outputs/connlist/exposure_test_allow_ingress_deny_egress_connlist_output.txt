@@ -1,0 +1,5 @@
+0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment] : All Connections
+
+Exposure Analysis Result:
+0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment] : All Connections
+entire-cluster => hello-world/workload-a[Deployment] : All Connections

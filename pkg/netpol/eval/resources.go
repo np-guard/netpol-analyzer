@@ -75,31 +75,37 @@ func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 	return pe
 }
 
-// AddObjects adds k8s objects to the policy engine: first adds network-policies and then other objects
+// AddObjects adds k8s objects to the policy engine: first adds network-policies and namespaces and then other objects
 // called only for exposure analysis; otherwise does nothing
+// for exposure analysis we need to upsert first policies and namespaces so:
+// 1. policies: so representative peer for each policy rule is added
+// 2. namespaces: so when upserting workloads, we'll be able to refine correctly representativePeers with
+// namespace name/ labels similar to those belonging the workloads' namespace
 func (pe *PolicyEngine) AddObjects(objects []parser.K8sObject) error {
 	if !pe.exposureAnalysisFlag { // should not be true ever
 		return nil
 	}
-	policies, nonPolicies := splitPoliciesAndOtherObjects(objects)
-	err := pe.addObjectsByKind(policies)
+	policiesAndNamespaces, otherObjects := splitPoliciesAndNamespacesAndOtherObjects(objects)
+	err := pe.addObjectsByKind(policiesAndNamespaces)
 	if err != nil {
 		return err
 	}
-	err = pe.addObjectsByKind(nonPolicies)
+	err = pe.addObjectsByKind(otherObjects)
 	return err
 }
 
-func splitPoliciesAndOtherObjects(objects []parser.K8sObject) (policies, nonPolicies []parser.K8sObject) {
+func splitPoliciesAndNamespacesAndOtherObjects(objects []parser.K8sObject) (policiesAndNs, others []parser.K8sObject) {
 	for _, obj := range objects {
 		switch obj.Kind {
 		case parser.Networkpolicy:
-			policies = append(policies, obj)
+			policiesAndNs = append(policiesAndNs, obj)
+		case parser.Namespace:
+			policiesAndNs = append(policiesAndNs, obj)
 		default:
-			nonPolicies = append(nonPolicies, obj)
+			others = append(others, obj)
 		}
 	}
-	return policies, nonPolicies
+	return policiesAndNs, others
 }
 
 // addObjectsByKind adds different k8s objects from parsed resources to the policy engine
@@ -136,7 +142,10 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 			return err
 		}
 	}
-	return pe.resolveMissingNamespaces()
+	if !pe.exposureAnalysisFlag { // for exposure analysis; this already done
+		return pe.resolveMissingNamespaces()
+	}
+	return nil
 }
 
 func (pe *PolicyEngine) resolveMissingNamespaces() error {
@@ -341,10 +350,9 @@ func (pe *PolicyEngine) upsertWorkload(rs interface{}, kind string) error {
 	}
 	// running this on last podObj: as all pods from same workload object are in same namespace and having same pod labels
 	if pe.exposureAnalysisFlag {
-		// check if there are representative peers in the policy engine which match the current pod; if yes remove them
-		pe.refineRepresentativePeersMatchingLabels(podObj.Labels, pe.namspacesMap[podObj.Namespace].Labels)
+		err = pe.extractLabelsAndRefineRepresentativePeers(podObj)
 	}
-	return nil
+	return err
 }
 
 func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
@@ -357,10 +365,9 @@ func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
 	// update cache with new pod associated to to its owner
 	pe.cache.addPod(podObj, podStr.String())
 	if pe.exposureAnalysisFlag {
-		// check if there are representative peers in the policy engine which match the current pod; if yes remove them
-		pe.refineRepresentativePeersMatchingLabels(podObj.Labels, pe.namspacesMap[podObj.Namespace].Labels)
+		err = pe.extractLabelsAndRefineRepresentativePeers(podObj)
 	}
-	return nil
+	return err
 }
 
 func initPolicyGeneralConns() k8s.PolicyGeneralRulesConns {

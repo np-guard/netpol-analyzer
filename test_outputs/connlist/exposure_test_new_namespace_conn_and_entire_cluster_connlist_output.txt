@@ -1,0 +1,20 @@
+0.0.0.0-255.255.255.255 => hello-world/workload-b[Deployment] : All Connections
+hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment] : All Connections
+hello-world/workload-b[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment] : All Connections
+
+Exposure Analysis Result:
+any namespace with foo.com/managed-state=managed => hello-world/workload-a[Deployment] : TCP 8050,8090
+entire-cluster => hello-world/workload-a[Deployment] : TCP 8050
+hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-a[Deployment] => entire-cluster : All Connections
+0.0.0.0-255.255.255.255 => hello-world/workload-b[Deployment] : All Connections
+entire-cluster => hello-world/workload-b[Deployment] : All Connections
+hello-world/workload-b[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-b[Deployment] => entire-cluster : All Connections
+
+Workloads which are not protected by network policies:
+hello-world/workload-a[Deployment] is not protected on Egress
+hello-world/workload-b[Deployment] is not protected on Egress
+hello-world/workload-b[Deployment] is not protected on Ingress

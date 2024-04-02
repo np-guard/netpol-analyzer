@@ -21,10 +21,11 @@ func getMDLine(c singleConnFields) string {
 }
 
 // returns a md string form of connections from list of Peer2PeerConnection objects
-func (md formatMD) writeOutput(conns []Peer2PeerConnection) (string, error) {
+// this format is not supported with exposure analysis; exposureConns is not used;
+func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer) (string, error) {
 	mdLines := make([]string, len(conns))
 	for index := range conns {
-		mdLines[index] = getMDLine(formSingleConn(conns[index]))
+		mdLines[index] = getMDLine(formSingleP2PConn(conns[index]))
 	}
 	sort.Strings(mdLines)
 	allLines := []string{getMDHeader()}

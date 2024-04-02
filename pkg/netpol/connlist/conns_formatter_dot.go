@@ -41,7 +41,8 @@ func getPeerLine(peer Peer) (string, bool) {
 }
 
 // returns a dot string form of connections from list of Peer2PeerConnection objects
-func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
+// this format is not supported with exposure analysis; exposureConns is not used;
+func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer) (string, error) {
 	nsPeers := make(map[string][]string)     // map from namespace to its peers (grouping peers by namespaces)
 	externalPeersLines := make([]string, 0)  // list of peers which are not in a cluster's namespace (will not be grouped)
 	edgeLines := make([]string, len(conns))  // list of edges lines

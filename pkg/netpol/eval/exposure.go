@@ -50,6 +50,22 @@ func (pe *PolicyEngine) generateRepresentativePeers(selectorsLabels []k8s.Single
 	return nil
 }
 
+// extractLabelsAndRefineRepresentativePeers extracts the labels of the given pod object and its namespace and refine matching peers
+// helping func - added in order to avoid code dup. in upsertWorkload and upsertPod
+func (pe *PolicyEngine) extractLabelsAndRefineRepresentativePeers(podObj *k8s.Pod) error {
+	// since namespaces are already upserted; if pod's ns not existing resolve it
+	if _, ok := pe.namspacesMap[podObj.Namespace]; !ok {
+		// the "kubernetes.io/metadata.name" is added automatically to the ns; so representative peers with such selector will be refined
+		err := pe.resolveSingleMissingNamespace(podObj.Namespace, nil)
+		if err != nil {
+			return err
+		}
+	}
+	// check if there are representative peers in the policy engine which match the current pod; if yes remove them
+	pe.refineRepresentativePeersMatchingLabels(podObj.Labels, pe.namspacesMap[podObj.Namespace].Labels)
+	return nil
+}
+
 // refineRepresentativePeersMatchingLabels removes from the policy engine all representative peers
 // with labels matching the given labels of a real pod
 func (pe *PolicyEngine) refineRepresentativePeersMatchingLabels(realPodLabels, realNsLabels map[string]string) {

@@ -95,6 +95,8 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 var ValidFormats = []string{output.TextFormat, output.JSONFormat, output.DOTFormat,
 	output.CSVFormat, output.MDFormat}
 
+var ExposureValidFormats = []string{output.TextFormat}
+
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
 type ConnlistAnalyzerOption func(*ConnlistAnalyzer)
@@ -262,12 +264,12 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 
 // ConnectionsListToString returns a string of connections from list of Peer2PeerConnection objects in the required output format
 func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection) (string, error) {
-	connsFormatter, err := getFormatter(ca.outputFormat)
+	connsFormatter, err := ca.getFormatter()
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
 	}
-	out, err := connsFormatter.writeOutput(conns)
+	out, err := connsFormatter.writeOutput(conns, ca.exposureResult)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
@@ -276,8 +278,12 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 }
 
 // validate the value of the output format
-func ValidateOutputFormat(format string) error {
-	for _, formatName := range ValidFormats {
+func ValidateOutputFormat(format string, exposureFlag bool) error {
+	formatList := ValidFormats
+	if exposureFlag {
+		formatList = ExposureValidFormats
+	}
+	for _, formatName := range formatList {
 		if format == formatName {
 			return nil
 		}
@@ -286,23 +292,23 @@ func ValidateOutputFormat(format string) error {
 }
 
 // returns the relevant formatter for the analyzer's outputFormat
-func getFormatter(format string) (connsFormatter, error) {
-	if err := ValidateOutputFormat(format); err != nil {
+func (ca *ConnlistAnalyzer) getFormatter() (connsFormatter, error) {
+	if err := ValidateOutputFormat(ca.outputFormat, ca.exposureAnalysis); err != nil {
 		return nil, err
 	}
-	switch format {
+	switch ca.outputFormat {
 	case output.JSONFormat:
-		return formatJSON{}, nil
+		return &formatJSON{}, nil
 	case output.TextFormat:
-		return formatText{}, nil
+		return &formatText{}, nil
 	case output.DOTFormat:
-		return formatDOT{}, nil
+		return &formatDOT{}, nil
 	case output.CSVFormat:
-		return formatCSV{}, nil
+		return &formatCSV{}, nil
 	case output.MDFormat:
-		return formatMD{}, nil
+		return &formatMD{}, nil
 	default:
-		return formatText{}, nil
+		return &formatText{}, nil
 	}
 }
 

@@ -76,7 +76,7 @@ func TestConnListFromDir(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
-				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format)
+				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format, tt.exposureAnalysis)
 				res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
@@ -95,7 +95,7 @@ func TestConnListFromResourceInfos(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
-				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format)
+				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format, tt.exposureAnalysis)
 				infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
 				// require.Empty(t, errs, testInfo) - TODO: add info about expected errors
 				// from each test here (these errors do not stop the analysis or affect the output)
@@ -189,7 +189,7 @@ func testFatalErr(t *testing.T,
 
 func getAnalysisResFromAPI(apiName, dirName, focusWorkload string) (
 	analyzer *ConnlistAnalyzer, connsRes []Peer2PeerConnection, peersRes []Peer, err error) {
-	pTest := prepareTest(dirName, focusWorkload, output.DefaultFormat)
+	pTest := prepareTest(dirName, focusWorkload, output.DefaultFormat, false)
 	switch apiName {
 	case ResourceInfosFunc:
 		infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
@@ -468,11 +468,15 @@ type preparedTest struct {
 	analyzer               *ConnlistAnalyzer
 }
 
-func prepareTest(dirName, focusWorkload, format string) preparedTest {
+func prepareTest(dirName, focusWorkload, format string, exposureFlag bool) preparedTest {
 	res := preparedTest{}
-	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, format)
+	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, format, exposureFlag)
 	res.testInfo = fmt.Sprintf("test: %q, output format: %q", res.testName, format)
-	res.analyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload))
+	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload))
+	if exposureFlag {
+		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload), WithExposureAnalysis())
+	}
+	res.analyzer = cAnalyzer
 	res.dirPath = testutils.GetTestDirPath(dirName)
 	return res
 }
@@ -488,6 +492,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 		dirName          string
 		format           string
 		errorStrContains string
+		exposureFlag     bool
 	}{
 		{
 			name:             "giving_unsupported_output_format_option_should_return_fatal_error",
@@ -495,12 +500,19 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			format:           "docx",
 			errorStrContains: netpolerrors.FormatNotSupportedErrStr("docx"),
 		},
+		{
+			name:             "unsupported_output_format_for_exposure_analysis_should_return_fatal_error",
+			dirName:          "acs-security-demos",
+			format:           "json",
+			errorStrContains: netpolerrors.FormatNotSupportedErrStr("json"),
+			exposureFlag:     true,
+		},
 	}
 	for _, tt := range cases {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			preparedTest := prepareTest(tt.dirName, "", tt.format)
+			preparedTest := prepareTest(tt.dirName, "", tt.format, tt.exposureFlag)
 			connsRes, peersRes, err := preparedTest.analyzer.ConnlistFromDirPath(preparedTest.dirPath)
 
 			require.Nil(t, err, tt.name)
@@ -514,7 +526,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error())
 
 			// re-run the test with new analyzer (to clear the analyzer.errors array )
-			preparedTest = prepareTest(tt.dirName, "", tt.format)
+			preparedTest = prepareTest(tt.dirName, "", tt.format, tt.exposureFlag)
 			infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{preparedTest.dirPath}, true, false)
 			connsRes2, peersRes2, err2 := preparedTest.analyzer.ConnlistFromResourceInfos(infos)
 
@@ -531,9 +543,10 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 }
 
 var goodPathTests = []struct {
-	testDirName   string
-	outputFormats []string
-	focusWorkload string
+	testDirName      string
+	outputFormats    []string
+	focusWorkload    string
+	exposureAnalysis bool
 }{
 	{
 		testDirName:   "ipblockstest",
@@ -736,5 +749,75 @@ var goodPathTests = []struct {
 		testDirName:   "acs-security-demos-added-workloads",
 		focusWorkload: "ingress-controller",
 		outputFormats: []string{output.TextFormat},
+	},
+	{
+		testDirName:      "acs-security-demos",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_allow_all",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_allow_all_in_cluster",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_allow_egress_deny_ingress",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_allow_ingress_deny_egress",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_matched_and_unmatched_rules",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_only_matched_rules",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_multiple_unmatched_rules",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_new_namespace_conn_and_entire_cluster",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_same_unmatched_rule_in_ingress_egress",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_with_no_netpols",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_egress_to_entire_cluster_with_named_ports",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_ingress_from_entire_cluster_with_named_ports",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_egress_exposure_with_named_port",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.TextFormat},
 	},
 }
