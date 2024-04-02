@@ -187,6 +187,21 @@ func TestExposureBehavior(t *testing.T) {
 				lenEgressExposedConns: 0,
 			},
 		},
+		{
+			testName:                       "test_allow_egress_deny_ingress", // only workload-a in manifests
+			expectedNumRepresentativePeers: 0,
+			expectedLenOfExposedPeerList:   1,
+			// workload 1 is exposed to entire cluter on egress
+			wl1ExpDataInfo: expectedPeerResultInfo{
+				isIngressProtected:     true,
+				isEgressProtected:      true,
+				lenIngressExposedConns: 0,
+				lenEgressExposedConns:  1,
+				egressExp: []*xgressExposure{
+					peerExposedToEntireCluster,
+				},
+			},
+		},
 	}
 	for _, tt := range cases {
 		tt := tt
