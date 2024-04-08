@@ -55,24 +55,22 @@ func formSingleP2PConn(conn Peer2PeerConnection) singleConnFields {
 const entireCluster = "entire-cluster"
 
 // formSingleExposureConn returns a representation of single exposure connection fields as singleConnFields object
-func formSingleExposureConn(src, dst string, conn common.Connection) singleConnFields {
+func formSingleExposureConn(peer, repPeer string, conn common.Connection, isIngress bool) singleConnFields {
 	connStr := conn.(*common.ConnectionSet).String()
-	return singleConnFields{Src: src, Dst: dst, ConnString: connStr}
+	if isIngress {
+		return singleConnFields{Src: repPeer, Dst: peer, ConnString: connStr}
+	}
+	return singleConnFields{Src: peer, Dst: repPeer, ConnString: connStr}
 }
 
 // formExposureItemAsSingleConnFiled returns a singleConnFields object for an item in the XgressExposureData list
 func formExposureItemAsSingleConnFiled(peer Peer, exposureItem XgressExposureData, isIngress bool) singleConnFields {
 	if exposureItem.IsExposedToEntireCluster() {
-		if isIngress {
-			return formSingleExposureConn(entireCluster, peer.String(), exposureItem.PotentialConnectivity())
-		} // else egress
-		return formSingleExposureConn(peer.String(), entireCluster, exposureItem.PotentialConnectivity())
+		return formSingleExposureConn(peer.String(), entireCluster, exposureItem.PotentialConnectivity(), isIngress)
 	}
 	if len(exposureItem.NamespaceLabels()) > 0 {
-		if isIngress {
-			return formSingleExposureConn(peerStrWithNsLabels(exposureItem.NamespaceLabels()), peer.String(), exposureItem.PotentialConnectivity())
-		} // else egress
-		return formSingleExposureConn(peer.String(), peerStrWithNsLabels(exposureItem.NamespaceLabels()), exposureItem.PotentialConnectivity())
+		return formSingleExposureConn(peer.String(), peerStrWithNsLabels(exposureItem.NamespaceLabels()),
+			exposureItem.PotentialConnectivity(), isIngress)
 	}
 	// @todo handle podLabels
 	return singleConnFields{}

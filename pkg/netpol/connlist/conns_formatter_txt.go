@@ -83,14 +83,15 @@ func (t *formatText) writeExposureOutput(exposureResults []ExposedPeer) string {
 	return res
 }
 
+//nolint:dupl //same functionality but on different variables of exposedPeer and formatText so prefer to split
 func (t *formatText) getPeerIngressExposureLines(ep ExposedPeer) (ingressLines []string, ingressUnprotectedLine string) {
 	// if a peer is not protected, two lines are to be added to exposure analysis result:
 	// 1. all conns with entire cluster (added here)
 	// 2. all conns with ip-blocks (all destinations); for sure found in the ip conns map so will be added automatically
 	// also unprotected line will be added
 	if !ep.IsProtectedByIngressNetpols() {
-		ingressLines = append(ingressLines, formSingleExposureConn(entireCluster, ep.ExposedPeer().String(),
-			common.MakeConnectionSet(true)).string())
+		ingressLines = append(ingressLines, formSingleExposureConn(ep.ExposedPeer().String(), entireCluster,
+			common.MakeConnectionSet(true), true).string())
 		ingressUnprotectedLine = ep.ExposedPeer().String() + " is not protected on Ingress"
 	} else { // protected
 		for _, data := range ep.IngressExposure() {
@@ -106,6 +107,7 @@ func (t *formatText) getPeerIngressExposureLines(ep ExposedPeer) (ingressLines [
 	return ingressLines, ingressUnprotectedLine
 }
 
+//nolint:dupl //same functionality but on different variables of exposedPeer and formatText so prefer to split
 func (t *formatText) getPeerEgressExposureLines(ep ExposedPeer) (egressLines []string, egressUnprotectedLine string) {
 	// if a peer is not protected, two lines are to be added to exposure analysis result:
 	// 1. all conns with entire cluster (added here)
@@ -113,7 +115,7 @@ func (t *formatText) getPeerEgressExposureLines(ep ExposedPeer) (egressLines []s
 	// also unprotected line will be added
 	if !ep.IsProtectedByEgressNetpols() {
 		egressLines = append(egressLines, formSingleExposureConn(ep.ExposedPeer().String(), entireCluster,
-			common.MakeConnectionSet(true)).string())
+			common.MakeConnectionSet(true), false).string())
 		egressUnprotectedLine = ep.ExposedPeer().String() + " is not protected on Egress"
 	} else { // protected
 		for _, data := range ep.EgressExposure() {
