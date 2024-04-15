@@ -1,4 +1,7 @@
 Exposure Analysis Result:
-any namespace with foo.com/managed-state=managed => hello-world/workload-a[Deployment] : TCP 8000,8090
-entire-cluster => hello-world/workload-a[Deployment] : TCP 8000
-hello-world/workload-a[Deployment] => any namespace with foo.com/managed-state=managed : TCP 8050
+Egress Exposure:
+hello-world/workload-a[Deployment] 	=> 	namespace with foo.com/managed-state=managed : TCP 8050
+
+Ingress Exposure:
+hello-world/workload-a[Deployment] 	<= 	entire-cluster : TCP 8000
+hello-world/workload-a[Deployment] 	<= 	namespace with foo.com/managed-state=managed : TCP 8000,8090

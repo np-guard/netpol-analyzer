@@ -1,3 +1,6 @@
 Exposure Analysis Result:
-entire-cluster => hello-world/workload-a[Deployment] : TCP 8050
-hello-world/workload-a[Deployment] => entire-cluster : All Connections
+Egress Exposure:
+hello-world/workload-a[Deployment] 	=> 	entire-cluster : All Connections
+
+Ingress Exposure:
+hello-world/workload-a[Deployment] 	<= 	entire-cluster : TCP 8050

@@ -1,11 +1,14 @@
 hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
 
 Exposure Analysis Result:
-any namespace with effect=NoSchedule => hello-world/workload-a[Deployment] : TCP 8050
-any namespace with foo.com/managed-state=managed => hello-world/workload-a[Deployment] : TCP 8050
-any namespace with release=stable => hello-world/workload-a[Deployment] : All Connections
-hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
-hello-world/workload-a[Deployment] => entire-cluster : All Connections
+Egress Exposure:
+hello-world/workload-a[Deployment] 	=> 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-a[Deployment] 	=> 	entire-cluster : All Connections
+
+Ingress Exposure:
+hello-world/workload-a[Deployment] 	<= 	namespace with effect=NoSchedule : TCP 8050
+hello-world/workload-a[Deployment] 	<= 	namespace with foo.com/managed-state=managed : TCP 8050
+hello-world/workload-a[Deployment] 	<= 	namespace with release=stable : All Connections
 
 Workloads which are not protected by network policies:
 hello-world/workload-a[Deployment] is not protected on Egress

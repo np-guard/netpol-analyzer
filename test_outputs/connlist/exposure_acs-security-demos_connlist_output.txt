@@ -14,10 +14,13 @@ payments/gateway[Deployment] => payments/visa-processor[Deployment] : TCP 8080
 {ingress-controller} => frontend/webapp[Deployment] : TCP 8080
 
 Exposure Analysis Result:
-backend/checkout[Deployment] => entire-cluster : UDP 5353
-backend/recommendation[Deployment] => entire-cluster : UDP 5353
-backend/reports[Deployment] => entire-cluster : UDP 5353
-entire-cluster => frontend/asset-cache[Deployment] : TCP 8080
-entire-cluster => frontend/webapp[Deployment] : TCP 8080
-frontend/webapp[Deployment] => entire-cluster : UDP 5353
-payments/gateway[Deployment] => entire-cluster : UDP 5353
+Egress Exposure:
+backend/checkout[Deployment]       	=> 	entire-cluster : UDP 5353
+backend/recommendation[Deployment] 	=> 	entire-cluster : UDP 5353
+backend/reports[Deployment]        	=> 	entire-cluster : UDP 5353
+frontend/webapp[Deployment]        	=> 	entire-cluster : UDP 5353
+payments/gateway[Deployment]       	=> 	entire-cluster : UDP 5353
+
+Ingress Exposure:
+frontend/asset-cache[Deployment]   	<= 	entire-cluster : TCP 8080
+frontend/webapp[Deployment]        	<= 	entire-cluster : TCP 8080

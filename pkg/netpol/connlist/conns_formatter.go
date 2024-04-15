@@ -64,12 +64,12 @@ func formSingleExposureConn(peer, repPeer string, conn common.Connection, isIngr
 }
 
 // formExposureItemAsSingleConnFiled returns a singleConnFields object for an item in the XgressExposureData list
-func formExposureItemAsSingleConnFiled(peer Peer, exposureItem XgressExposureData, isIngress bool) singleConnFields {
+func formExposureItemAsSingleConnFiled(peerStr string, exposureItem XgressExposureData, isIngress bool) singleConnFields {
 	if exposureItem.IsExposedToEntireCluster() {
-		return formSingleExposureConn(peer.String(), entireCluster, exposureItem.PotentialConnectivity(), isIngress)
+		return formSingleExposureConn(peerStr, entireCluster, exposureItem.PotentialConnectivity(), isIngress)
 	}
 	if len(exposureItem.NamespaceLabels()) > 0 {
-		return formSingleExposureConn(peer.String(), peerStrWithNsLabels(exposureItem.NamespaceLabels()),
+		return formSingleExposureConn(peerStr, peerStrWithNsLabels(exposureItem.NamespaceLabels()),
 			exposureItem.PotentialConnectivity(), isIngress)
 	}
 	// @todo handle podLabels
@@ -83,5 +83,5 @@ func convertLabelsMapToString(labelsMap map[string]string) string {
 
 // peerStrWithNsLabels returns a string representation of a potential peer with namespace labels
 func peerStrWithNsLabels(nsLabels map[string]string) string {
-	return "any namespace with " + convertLabelsMapToString(nsLabels)
+	return "namespace with " + convertLabelsMapToString(nsLabels)
 }
