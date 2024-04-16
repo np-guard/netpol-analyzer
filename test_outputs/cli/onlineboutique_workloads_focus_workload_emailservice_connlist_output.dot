@@ -1,5 +1,7 @@
 digraph {
-	subgraph cluster_default {
+	subgraph "cluster_default" {
+		color="black"
+		fontcolor="black"
 		"default/checkoutservice[Deployment]" [label="checkoutservice[Deployment]" color="blue" fontcolor="blue"]
 		"default/emailservice[Deployment]" [label="emailservice[Deployment]" color="blue" fontcolor="blue"]
 		label="default"

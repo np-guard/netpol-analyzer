@@ -18,7 +18,6 @@ const DirPathFunc = "ConnlistFromDirPath"
 const currentPkg = "connlist"
 const notEmptyMsg = "expecting non-empty analysis res"
 
-var allFormats = []string{output.TextFormat, output.JSONFormat, output.CSVFormat, output.MDFormat, output.DOTFormat}
 var connlistTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
 
 /*
@@ -574,31 +573,31 @@ var goodPathTests = []struct {
 	},
 	{
 		testDirName:   "acs_security_frontend_demos",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "demo_app_with_routes_and_ingress",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "k8s_ingress_test",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "multiple_ingress_objects_with_different_ports",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "one_ingress_multiple_ports",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "one_ingress_multiple_services",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "acs-security-demos",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "acs-security-demos-with-netpol-list",
@@ -614,7 +613,7 @@ var goodPathTests = []struct {
 	},
 	{
 		testDirName:   "netpol-analysis-example-minimal",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "with_end_port_example",
@@ -753,71 +752,71 @@ var goodPathTests = []struct {
 	{
 		testDirName:      "acs-security-demos",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 	{
 		testDirName:      "test_allow_all",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 	{
 		testDirName:      "test_allow_all_in_cluster",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 	{
 		testDirName:      "test_allow_egress_deny_ingress",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 	{
 		testDirName:      "test_allow_ingress_deny_egress",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 	{
 		testDirName:      "test_matched_and_unmatched_rules",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 	{
 		testDirName:      "test_only_matched_rules",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 	{
 		testDirName:      "test_multiple_unmatched_rules",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 	{
 		testDirName:      "test_new_namespace_conn_and_entire_cluster",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 	{
 		testDirName:      "test_same_unmatched_rule_in_ingress_egress",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 	{
 		testDirName:      "test_with_no_netpols",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 	{
 		testDirName:      "test_egress_to_entire_cluster_with_named_ports",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 	{
 		testDirName:      "test_ingress_from_entire_cluster_with_named_ports",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 	{
 		testDirName:      "test_egress_exposure_with_named_port",
 		exposureAnalysis: true,
-		outputFormats:    []string{output.TextFormat},
+		outputFormats:    ExposureValidFormats,
 	},
 }
