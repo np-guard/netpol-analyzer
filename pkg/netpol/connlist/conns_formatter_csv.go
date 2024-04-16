@@ -10,7 +10,8 @@ type formatCSV struct {
 }
 
 // returns a CSV string form of connections from list of Peer2PeerConnection objects
-func (cs formatCSV) writeOutput(conns []Peer2PeerConnection) (string, error) {
+// this format is not supported with exposure analysis; exposureConns is not used;
+func (cs *formatCSV) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer) (string, error) {
 	// get an array of sorted conns items ([]singleConnFields)
 	sortedConnItems := sortConnections(conns)
 	var headerCSV = []string{"src", "dst", "conn"}

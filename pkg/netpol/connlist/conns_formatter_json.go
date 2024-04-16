@@ -7,7 +7,8 @@ type formatJSON struct {
 }
 
 // returns a json string form of connections from list of Peer2PeerConnection objects
-func (j formatJSON) writeOutput(conns []Peer2PeerConnection) (string, error) {
+// this format is not supported with exposure analysis; exposureConns is not used;
+func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer) (string, error) {
 	// get an array of sorted conns items ([]singleConnFields)
 	sortedConnItems := sortConnections(conns)
 	jsonConns, err := json.MarshalIndent(sortedConnItems, "", "  ")

@@ -101,7 +101,7 @@ func newCommandDiff() *cobra.Command {
 	c.Flags().StringVarP(&dir1, dir1Arg, "", "", "Original Resources path to be compared")
 	c.Flags().StringVarP(&dir2, dir2Arg, "", "", "New Resources path to compare with original resources path")
 	supportedDiffFormats := strings.Join(diff.ValidDiffFormats, ",")
-	c.Flags().StringVarP(&outFormat, "output", "o", outconsts.DefaultFormat, getOutputFormatDescription(supportedDiffFormats))
+	c.Flags().StringVarP(&outFormat, "output", "o", outconsts.DefaultFormat, getRequiredOutputFormatString(supportedDiffFormats))
 	// out file
 	c.Flags().StringVarP(&outFile, "file", "f", "", "Write output to specified file")
 	return c

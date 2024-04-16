@@ -35,8 +35,12 @@ func GetTestDirPath(dirName string) string {
 }
 
 // ConnlistTestNameByTestArgs returns connlist test name and test's expected output file from some tests args
-func ConnlistTestNameByTestArgs(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
+func ConnlistTestNameByTestArgs(dirName, focusWorkload, format string, exposureFlag bool) (testName, expectedOutputFileName string) {
 	namePrefix := dirName
+	if exposureFlag {
+		// if dir name contains a separator; last element is enough for the test and file names
+		namePrefix = "exposure_" + filepath.Base(dirName)
+	}
 	if focusWorkload != "" {
 		namePrefix += focusWlAnnotation + strings.Replace(focusWorkload, "/", underscore, 1)
 	}
