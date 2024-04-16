@@ -8,5 +8,5 @@ hello-world/workload-a[Deployment] 	=> 	entire-cluster : All Connections
 Ingress Exposure:
 hello-world/workload-a[Deployment] 	<= 	entire-cluster : TCP 8000,8090
 
-Workloads which are not protected by network policies:
+Workloads not protected by network policies:
 hello-world/workload-a[Deployment] is not protected on Egress

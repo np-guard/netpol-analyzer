@@ -10,5 +10,5 @@ hello-world/workload-a[Deployment] 	<= 	namespace with effect=NoSchedule : TCP 8
 hello-world/workload-a[Deployment] 	<= 	namespace with foo.com/managed-state=managed : TCP 8050
 hello-world/workload-a[Deployment] 	<= 	namespace with release=stable : All Connections
 
-Workloads which are not protected by network policies:
+Workloads not protected by network policies:
 hello-world/workload-a[Deployment] is not protected on Egress

@@ -73,14 +73,15 @@ const (
 	exposureAnalysisHeader = "Exposure Analysis Result:\n"
 	egressExpHeader        = "Egress Exposure:\n"
 	ingressExpHeader       = "\nIngress Exposure:\n"
-	unprotectedHeader      = "\nWorkloads which are not protected by network policies:\n"
+	unprotectedHeader      = "\nWorkloads not protected by network policies:\n"
 )
 
 // writeExposureOutput writes the section of the exposure-analysis result
 func (t *formatText) writeExposureOutput(exposureResults []ExposedPeer) string {
 	// sorting the exposed peers slice so we get unique sorted output by Peer.String()
-	// and getting the max peer String length (to be used for writing fixed indented lines)
-	sortedExposureResults, maxPeerStrLen := sortExposedPeerSlice(exposureResults)
+	sortedExposureResults := sortExposedPeerSlice(exposureResults)
+	// getting the max peer String length (to be used for writing fixed indented lines)
+	maxPeerStrLen := getMaxPeerStringLength(exposureResults)
 	// results lines
 	ingressExpLines := make([]string, 0)
 	egressExpLines := make([]string, 0)
@@ -101,6 +102,8 @@ func (t *formatText) writeExposureOutput(exposureResults []ExposedPeer) string {
 	return res
 }
 
+// writePeerExposureAndUnprotectedLines returns exposure lines of given peer; i.e. ingress exposure lines,
+// egress exposure lines and unprotected by policies lines
 func (t *formatText) writePeerExposureAndUnprotectedLines(ep ExposedPeer, maxPeerStrLen int) (ingressLines,
 	egressLines, unprotectedLines []string) {
 	// get ingress lines
@@ -161,16 +164,20 @@ func (t *formatText) getPeerXgressExposureLines(exposedPeerStr string, xgressExp
 	return xgressLines, xgressUnprotectedLine
 }
 
-// sortExposedPeerSlice returns sorted ExposedPeer list, and the length of the longest peer string in the slice
-func sortExposedPeerSlice(exposedPeers []ExposedPeer) (ep []ExposedPeer, maxPeerStrLen int) {
+// sortExposedPeerSlice returns sorted ExposedPeer list
+func sortExposedPeerSlice(exposedPeers []ExposedPeer) (ep []ExposedPeer) {
 	sort.Slice(exposedPeers, func(i, j int) bool {
-		if exposedPeers[i].ExposedPeer().String() < exposedPeers[j].ExposedPeer().String() {
-			maxPeerStrLen = max(maxPeerStrLen, len(exposedPeers[i].ExposedPeer().String()), len(exposedPeers[j].ExposedPeer().String()))
-			return true
-		}
-		return false
+		return exposedPeers[i].ExposedPeer().String() < exposedPeers[j].ExposedPeer().String()
 	})
-	return exposedPeers, maxPeerStrLen
+	return exposedPeers
+}
+
+// getMaxPeerStringLength returns the length of the longest peer string in the given exposed peers slice
+func getMaxPeerStringLength(exposedPeers []ExposedPeer) (maxPeerStrLen int) {
+	for i := range exposedPeers {
+		maxPeerStrLen = max(maxPeerStrLen, len(exposedPeers[i].ExposedPeer().String()))
+	}
+	return maxPeerStrLen
 }
 
 // exposureString writes the current singleConnFields in the format of exposure result line
