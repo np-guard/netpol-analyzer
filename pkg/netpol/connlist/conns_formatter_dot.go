@@ -146,9 +146,9 @@ func getXgressExposureEdges(exposedPeerStr string, xgressExpData []XgressExposur
 			// @todo consider data.PodLabels
 			if len(data.NamespaceLabels()) > 0 {
 				nsRepLabel := convertLabelsMapToString(data.NamespaceLabels())
-				repPeersStr := allPeersLbl + "_in_" + nsRepLabel
-				if !representativeVisited[nsRepLabel] {
-					representativeVisited[nsRepLabel] = true
+				repPeersStr := allPeersLbl + "_in_" + nsRepLabel // used for getting a unique node name for the peer in the graph
+				if !representativeVisited[repPeersStr] {
+					representativeVisited[repPeersStr] = true
 					dotformatting.AddPeerToNsGroup(peerStrWithNsLabels(data.NamespaceLabels()), getRepPeerLine(repPeersStr), nsRepPeers)
 				}
 				xgressEdges = append(xgressEdges, getExposureEdgeLine(exposedPeerStr, repPeersStr, isIngress,
