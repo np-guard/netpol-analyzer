@@ -56,7 +56,8 @@ func NewPolicyEngine() *PolicyEngine {
 func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, error) {
 	pe := NewPolicyEngine()
 	var err error
-	for _, obj := range objects {
+	for i := range objects {
+		obj := objects[i]
 		switch obj.Kind {
 		case parser.Namespace:
 			err = pe.UpsertObject(obj.Namespace)

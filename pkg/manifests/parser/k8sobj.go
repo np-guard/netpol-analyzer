@@ -200,7 +200,8 @@ func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) 
 		nsMap[podNames[i].Namespace] = true
 	}
 	res := make([]K8sObject, 0)
-	for _, obj := range allObjects {
+	for i := range allObjects {
+		obj := allObjects[i]
 		switch obj.Kind {
 		case Namespace:
 			if _, ok := nsMap[obj.Namespace.Name]; ok {

@@ -1055,7 +1055,8 @@ func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) erro
 	var netpols = []*netv1.NetworkPolicy{}
 	var pods = []*v1.Pod{}
 	var ns = []*v1.Namespace{}
-	for _, obj := range objectsList {
+	for i := range objectsList {
+		obj := objectsList[i]
 		switch obj.Kind {
 		case "Pod":
 			pods = append(pods, obj.Pod)

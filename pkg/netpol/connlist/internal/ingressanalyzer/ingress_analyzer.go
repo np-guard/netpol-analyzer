@@ -74,7 +74,8 @@ func NewIngressAnalyzerWithObjects(objects []parser.K8sObject, pe *eval.PolicyEn
 	}
 
 	var err error
-	for _, obj := range objects {
+	for i := range objects {
+		obj := objects[i]
 		switch obj.Kind {
 		case parser.Service:
 			err = ia.mapServiceToPeers(obj.Service)
