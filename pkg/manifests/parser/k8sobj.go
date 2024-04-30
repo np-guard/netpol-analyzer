@@ -5,6 +5,7 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
+	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
 	ocroutev1 "github.com/openshift/api/route/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -13,23 +14,25 @@ import (
 
 // relevant K8s resource kinds as string values
 const (
-	Networkpolicy         string = "NetworkPolicy"
-	Namespace             string = "Namespace"
-	Pod                   string = "Pod"
-	ReplicaSet            string = "ReplicaSet"
-	ReplicationController string = "ReplicationController"
-	Deployment            string = "Deployment"
-	Statefulset           string = "StatefulSet"
-	Daemonset             string = "DaemonSet"
-	Job                   string = "Job"
-	CronJob               string = "CronJob"
-	List                  string = "List"
-	NamespaceList         string = "NamespaceList"
-	NetworkpolicyList     string = "NetworkPolicyList"
-	PodList               string = "PodList"
-	Service               string = "Service"
-	Route                 string = "Route"
-	Ingress               string = "Ingress"
+	Networkpolicy          string = "NetworkPolicy"
+	Namespace              string = "Namespace"
+	Pod                    string = "Pod"
+	ReplicaSet             string = "ReplicaSet"
+	ReplicationController  string = "ReplicationController"
+	Deployment             string = "Deployment"
+	Statefulset            string = "StatefulSet"
+	Daemonset              string = "DaemonSet"
+	Job                    string = "Job"
+	CronJob                string = "CronJob"
+	List                   string = "List"
+	NamespaceList          string = "NamespaceList"
+	NetworkpolicyList      string = "NetworkPolicyList"
+	PodList                string = "PodList"
+	Service                string = "Service"
+	Route                  string = "Route"
+	Ingress                string = "Ingress"
+	AdminNetworkPolicy     string = "AdminNetworkPolicy"
+	AdminNetworkPolicyList string = "AdminNetworkPolicyList"
 )
 
 // K8sObject holds a an object kind and a pointer of the relevant object
@@ -38,8 +41,9 @@ type K8sObject struct {
 	// namespace object
 	Namespace *v1.Namespace
 
-	// netpol object
-	Networkpolicy *netv1.NetworkPolicy
+	// netpol objects
+	Networkpolicy      *netv1.NetworkPolicy
+	AdminNetworkPolicy *apisv1a.AdminNetworkPolicy
 
 	// pod object
 	Pod *v1.Pod
@@ -102,6 +106,9 @@ func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
 	case Namespace:
 		k.Namespace = &v1.Namespace{}
 		return k.Namespace
+	case AdminNetworkPolicy:
+		k.AdminNetworkPolicy = &apisv1a.AdminNetworkPolicy{}
+		return k.AdminNetworkPolicy
 	}
 	return nil
 }
