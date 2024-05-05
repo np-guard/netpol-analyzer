@@ -25,6 +25,9 @@ test:
 	@echo -- $@ --
 	go test ./... -v -cover -coverprofile netpolicy.coverprofile
 
+coverage:
+	go tool cover -html="netpolicy.coverprofile"
+
 test-update: # overrides/ generates tests' expected output files for relevant tests 
 # if the format is dot - generates also png files
 	@echo -- $@ --

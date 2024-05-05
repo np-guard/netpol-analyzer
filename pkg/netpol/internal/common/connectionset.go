@@ -208,15 +208,15 @@ type portRange struct {
 }
 
 func (p *portRange) Start() int64 {
-	return p.Interval.Start
+	return p.Interval.Start()
 }
 
 func (p *portRange) End() int64 {
-	return p.Interval.End
+	return p.Interval.End()
 }
 
 func (p *portRange) String() string {
-	if p.Interval.End != p.Interval.Start {
+	if p.Interval.End() != p.Interval.Start() {
 		return fmt.Sprintf("%d-%d", p.Start(), p.End())
 	}
 	return fmt.Sprintf("%d", p.Start())
