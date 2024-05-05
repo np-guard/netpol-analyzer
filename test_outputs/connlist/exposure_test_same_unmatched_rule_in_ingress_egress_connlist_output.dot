@@ -1,0 +1,18 @@
+digraph {
+	subgraph "cluster_hello_world" {
+		color="black"
+		fontcolor="black"
+		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
+		label="hello-world"
+	}
+	subgraph "cluster_namespace with foo.com/managed_state=managed" {
+		color="red2"
+		fontcolor="red2"
+		"all pods_in_foo.com/managed-state=managed" [label="all pods" color="red2" fontcolor="red2"]
+		label="namespace with foo.com/managed-state=managed"
+	}
+	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
+	"all pods_in_foo.com/managed-state=managed" -> "hello-world/workload-a[Deployment]" [label="TCP 8000,8090" color="gold2" fontcolor="darkgreen"]
+	"entire-cluster" -> "hello-world/workload-a[Deployment]" [label="TCP 8000" color="gold2" fontcolor="darkgreen"]
+	"hello-world/workload-a[Deployment]" -> "all pods_in_foo.com/managed-state=managed" [label="TCP 8050" color="gold2" fontcolor="darkgreen"]
+}

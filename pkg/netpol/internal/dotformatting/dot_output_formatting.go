@@ -1,14 +1,16 @@
 package dotformatting
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 )
 
 // common dot output formatting consts and funcs
 const (
-	DotHeader  = "digraph {"
-	DotClosing = "}"
+	DotHeader           = "digraph {"
+	DotClosing          = "}"
+	DefaultNsGroupColor = "black"
 )
 
 // AddPeerToNsGroup adds the peer line to the namespace list in the given map.
@@ -26,7 +28,7 @@ func NodeClusterPeerLabel(name, kind string) string {
 
 // AddNsGroups gets namespace to peers-lines map, writes a dot subgraph for each namespace with its peers' lines
 // returns all subgraphs sorted by namespace name and each subgraph internally sorted by peers' names
-func AddNsGroups(nsPeersMap map[string][]string) []string {
+func AddNsGroups(nsPeersMap map[string][]string, subgraphColor string) []string {
 	res := []string{}
 	// sort namespaces (map's keys) to ensure same output always
 	nsKeys := sortMapKeys(nsPeersMap)
@@ -35,8 +37,10 @@ func AddNsGroups(nsPeersMap map[string][]string) []string {
 		peersLines := nsPeersMap[ns]
 		sort.Strings(peersLines)
 		// create ns  subgraph cluster
-		nsLabel := strings.ReplaceAll(ns, "-", "_")                 // dot format does not accept "-" in its sub-graphs names (headers)
-		nsLines := []string{"\tsubgraph cluster_" + nsLabel + " {"} // subgraph header
+		nsLabel := strings.ReplaceAll(ns, "-", "_")                          // dot format does not accept "-" in its sub-graphs names (headers)
+		nsLines := []string{"\tsubgraph " + "\"cluster_" + nsLabel + "\" {"} // subgraph header
+		nsLines = append(nsLines, fmt.Sprintf("\t\tcolor=%q", subgraphColor),
+			fmt.Sprintf("\t\tfontcolor=%q", subgraphColor))
 		nsLines = append(nsLines, peersLines...)
 		nsLines = append(nsLines, "\t\tlabel=\""+ns+"\"", "\t}")
 		// add ns section to the res

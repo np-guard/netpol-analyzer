@@ -95,7 +95,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 var ValidFormats = []string{output.TextFormat, output.JSONFormat, output.DOTFormat,
 	output.CSVFormat, output.MDFormat}
 
-var ExposureValidFormats = []string{output.TextFormat}
+var ExposureValidFormats = []string{output.TextFormat, output.DOTFormat}
 
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).

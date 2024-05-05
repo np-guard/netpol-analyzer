@@ -1,0 +1,18 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: exposure-ns-with-multiple-labels
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          release : "stable"
+          effect: "NoSchedule"
+    ports:
+    - port: 8050
+      protocol: TCP

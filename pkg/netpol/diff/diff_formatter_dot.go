@@ -51,7 +51,7 @@ func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 
 	// write graph
 	allLines := []string{dotformatting.DotHeader}
-	allLines = append(allLines, dotformatting.AddNsGroups(nsPeers)...)
+	allLines = append(allLines, dotformatting.AddNsGroups(nsPeers, dotformatting.DefaultNsGroupColor)...)
 	allLines = append(allLines, externalPeersLines...)
 	allLines = append(allLines, edgeLines...)
 	allLines = append(allLines, ingressAnalyzerEdges...)
