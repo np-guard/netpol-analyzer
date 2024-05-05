@@ -819,4 +819,19 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ExposureValidFormats,
 	},
+	{
+		testDirName:      "test_exposure_to_namespace_with_multiple_labels",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		testDirName:      "test_pod_exposed_only_to_representative_peers",
+		exposureAnalysis: false,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_pod_exposed_only_to_representative_peers",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
 }
