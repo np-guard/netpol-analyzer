@@ -153,7 +153,7 @@ func isRepresentativePod(peer Peer) bool {
 	if peer.GetPeerPod() == nil {
 		return false
 	}
-	return peer.GetPeerPod().FakePod && peer.GetPeerPod().Name == RepresentativePodName
+	return peer.GetPeerPod().FakePod && strings.HasPrefix(peer.GetPeerPod().Name, RepresentativePodName)
 }
 
 // ruleConnsContain returns true if the given protocol and port are contained in connections allowed by rulePorts
@@ -461,8 +461,11 @@ func (np *NetworkPolicy) fullName() string {
 // SingleRuleLabels contains maps of <key>:<value> labels inferred from namespaceSelector or/and podSelector
 // within a single rule in the policy
 type SingleRuleLabels struct {
-	NsLabels map[string]string
-	// PodLabels map[string]string (@todo: to be added)
+	NsLabels  map[string]string
+	PodLabels map[string]string
+	// policyNsFlag indicates if the rule contains only podSelector;
+	// so the NsLabels map contains only the default name key of the policy's namespace
+	PolicyNsFlag bool
 }
 
 // ScanPolicyRulesForGeneralConnsAndRepresentativePeers scans policy rules and :
@@ -518,7 +521,8 @@ func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleLabels, error) {
 
 // doRulesExposeToAllDestOrEntireCluster :
 // checks if the given rules list is exposed to entire world or entire cluster
-// (e.g. if the rules list is empty or if there is a rule with empty namespaceSelector) : then updates the policy's general conns
+// (e.g. if the rules list is empty/ if there is a rule with: empty namespaceSelector/ both empty nameSpaceSelector and podSelector) :
+// then updates the policy's general conns
 // else: returns selectors of non-general rules (rules that are not exposed to entire world or cluster).
 // this func assumes rules are legal (rules correctness check occurs later)
 func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
@@ -532,23 +536,42 @@ func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.Net
 		if rules[i].IPBlock != nil {
 			continue
 		}
-		if rules[i].PodSelector != nil {
-			continue
+		// note: LabelSelectorAsMap returns a nil map for nil selector,
+		// and returns empty map (map[string]string{}) for empty selector (all)
+		nsSelectorMap, err := metav1.LabelSelectorAsMap(rules[i].NamespaceSelector)
+		if err != nil {
+			return nil, err
 		}
-		// ns selector is not nil
-		selector, _ := np.parseNetpolLabelSelector(rules[i].NamespaceSelector)
-		if selector.Empty() { // if rules list contains at least one rulePeer with entireCluster; no need to consider other selectors
+		podSelectorMap, err := metav1.LabelSelectorAsMap(rules[i].PodSelector)
+		if err != nil {
+			return nil, err
+		}
+		// a rule is exposed to entire cluster if :
+		// 1. the podSelector is nil (no podselector) but the namespaceSelector is empty ({})
+		// 2. both podSelector and namespaceSelector are empty ({})
+		if (rules[i].PodSelector == nil && isEmptyMap(nsSelectorMap)) ||
+			(isEmptyMap(nsSelectorMap) && isEmptyMap(podSelectorMap)) {
 			err = np.updateNetworkPolicyGeneralConn(false, true, rulePorts, isIngress)
 			return nil, err
 		}
 		// else (selector not empty)
-		ruleSel.NsLabels, err = metav1.LabelSelectorAsMap(rules[i].NamespaceSelector)
-		if err != nil {
-			return nil, err
+		ruleSel.PodLabels = podSelectorMap
+		// special case: ns selector is nil but podSelector is not, so the namespace of the rule is
+		// the policy's namespace; adding the k8s namespace name key to ruleSel.NsLabels
+		if rules[i].NamespaceSelector == nil && rules[i].PodSelector != nil {
+			ruleSel.PolicyNsFlag = true
+			ruleSel.NsLabels = map[string]string{common.K8sNsNameLabelKey: np.Namespace}
+		} else {
+			ruleSel.NsLabels = nsSelectorMap
 		}
 		rulesSelectors = append(rulesSelectors, ruleSel)
 	}
 	return rulesSelectors, nil
+}
+
+// isEmptyMap gets a labels map and returns if it is not nil but empty map
+func isEmptyMap(labelsMap map[string]string) bool {
+	return labelsMap != nil && len(labelsMap) == 0
 }
 
 func (np *NetworkPolicy) updateNetworkPolicyGeneralConn(allDests, entireCluster bool, rulePorts []netv1.NetworkPolicyPort,

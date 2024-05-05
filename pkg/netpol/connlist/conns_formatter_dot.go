@@ -116,10 +116,10 @@ func addExposureOutputData(exposureConns []ExposedPeer, peersVisited map[string]
 			dotformatting.AddPeerToNsGroup(ep.ExposedPeer().Namespace(), exposedPeerLine, nsPeers)
 		}
 		ingressExpEdges := getXgressExposureEdges(ep.ExposedPeer().String(), ep.IngressExposure(), ep.IsProtectedByIngressNetpols(),
-			true, representativeVisited, nsRepPeers)
+			true, representativeVisited, nsPeers, nsRepPeers)
 		exposureEdges = append(exposureEdges, ingressExpEdges...)
 		egressExpEdges := getXgressExposureEdges(ep.ExposedPeer().String(), ep.EgressExposure(), ep.IsProtectedByEgressNetpols(),
-			false, representativeVisited, nsRepPeers)
+			false, representativeVisited, nsPeers, nsRepPeers)
 		exposureEdges = append(exposureEdges, egressExpEdges...)
 	}
 	// if the entire-cluster marked as visited add its line too (this ensures the entire-cluster is added only once to the graph)
@@ -131,7 +131,7 @@ func addExposureOutputData(exposureConns []ExposedPeer, peersVisited map[string]
 
 // getXgressExposureEdges returns the edges' lines of the exposure data in the given direction ingress/egress
 func getXgressExposureEdges(exposedPeerStr string, xgressExpData []XgressExposureData, isProtected, isIngress bool,
-	representativeVisited map[string]bool, nsRepPeers map[string][]string) (xgressEdges []string) {
+	representativeVisited map[string]bool, nsPeers, nsRepPeers map[string][]string) (xgressEdges []string) {
 	if !isProtected { // a connection to entire cluster is enabled, (connection to all ips is already in the graph)
 		representativeVisited[entireCluster] = true
 		xgressEdges = append(xgressEdges, getExposureEdgeLine(exposedPeerStr, entireCluster, isIngress, common.MakeConnectionSet(true)))
@@ -143,17 +143,20 @@ func getXgressExposureEdges(exposedPeerStr string, xgressExpData []XgressExposur
 					data.PotentialConnectivity().(*common.ConnectionSet)))
 				continue // if a data contains exposure to entire cluster it does not specify labels
 			}
-			// @todo consider data.PodLabels
-			if len(data.NamespaceLabels()) > 0 {
-				nsRepLabel := convertLabelsMapToString(data.NamespaceLabels())
-				repPeersStr := allPeersLbl + "_in_" + nsRepLabel // used for getting a unique node name for the peer in the graph
-				if !representativeVisited[repPeersStr] {
-					representativeVisited[repPeersStr] = true
-					dotformatting.AddPeerToNsGroup(peerStrWithNsLabels(data.NamespaceLabels()), getRepPeerLine(repPeersStr), nsRepPeers)
+			nsRepLabel := writeNsLabels(data.NamespaceLabels())
+			repPeerLabel := writePodLabels(data.PodLabels())
+			repPeersStr := repPeerLabel + "_in_" + nsRepLabel // to get a unique string name of the peer node
+			if !representativeVisited[repPeersStr] {
+				representativeVisited[repPeersStr] = true
+				// ns label maybe a name of an existing namespace, so check where to add the peer
+				if _, ok := nsPeers[nsRepLabel]; ok {
+					dotformatting.AddPeerToNsGroup(writeNsLabels(data.NamespaceLabels()), getRepPeerLine(repPeersStr, repPeerLabel), nsPeers)
+				} else {
+					dotformatting.AddPeerToNsGroup(writeNsLabels(data.NamespaceLabels()), getRepPeerLine(repPeersStr, repPeerLabel), nsRepPeers)
 				}
-				xgressEdges = append(xgressEdges, getExposureEdgeLine(exposedPeerStr, repPeersStr, isIngress,
-					data.PotentialConnectivity().(*common.ConnectionSet)))
 			}
+			xgressEdges = append(xgressEdges, getExposureEdgeLine(exposedPeerStr, repPeersStr, isIngress,
+				data.PotentialConnectivity().(*common.ConnectionSet)))
 		}
 	}
 	return xgressEdges
@@ -174,7 +177,6 @@ func getExposureEdgeLine(realPeerStr, repPeerStr string, isIngress bool, conn *c
 }
 
 // getRepPeerLine formats a representative peer line for dot graph
-func getRepPeerLine(peerStr string) string {
-	// todo : support cases of peer is representative is with pod selector labels
-	return fmt.Sprintf(peerLineFormatPrefix+peerLineClosing, peerStr, allPeersLbl, representativeObjColor, representativeObjColor)
+func getRepPeerLine(peerStr, peerLabel string) string {
+	return fmt.Sprintf(peerLineFormatPrefix+peerLineClosing, peerStr, peerLabel, representativeObjColor, representativeObjColor)
 }

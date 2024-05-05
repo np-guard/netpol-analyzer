@@ -1,5 +1,8 @@
 package common
 
+// The Kubernetes API server sets this label on all namespaces
+const K8sNsNameLabelKey = "kubernetes.io/metadata.name"
+
 // NetpolError holds information about a single error/warning that occurred during running
 // connectivity analysis command (list or diff)
 type NetpolError interface {

@@ -3,6 +3,7 @@ package eval
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -64,7 +65,7 @@ func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, erro
 	return pe, err
 }
 
-// NewPolicyEngineWithOptions returns a new policy engine with an empty state but updating the exposure analysis flag,
+// NewPolicyEngineWithOptions returns a new policy engine with an empty state but updating the exposure analysis flag
 // TBD: currently exposure-analysis is the only option supported by policy-engine, so no need for options list param
 func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 	pe := NewPolicyEngine()
@@ -165,7 +166,7 @@ func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string, nsLabels map[st
 	nLabels := nsLabels
 	if len(nLabels) == 0 {
 		nLabels = map[string]string{
-			k8s.K8sNsNameLabelKey: ns,
+			common.K8sNsNameLabelKey: ns,
 		}
 	}
 	nsObj := &corev1.Namespace{
@@ -403,7 +404,7 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		if scanErr != nil {
 			return scanErr
 		}
-		err = pe.generateRepresentativePeers(rulesSelectors, np.Name)
+		err = pe.generateRepresentativePeers(rulesSelectors, np.Name, np.Namespace)
 	}
 	// clear the cache on netpols changes
 	pe.cache.clear()
@@ -582,9 +583,10 @@ func (pe *PolicyEngine) ConvertPeerNamedPort(namedPort string, peer Peer) (int32
 // the pe.podsMap in case of fake ingress-controller pods
 // or the pe.representativePeersMap in case of exposure-analysis peers
 func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, objLabels *k8s.SingleRuleLabels) (Peer, error) {
-	var nsLabels map[string]string
+	var nsLabels, podLabels map[string]string
 	if objLabels != nil {
 		nsLabels = objLabels.NsLabels
+		podLabels = objLabels.PodLabels
 	}
 
 	podStr := types.NamespacedName{Namespace: ns, Name: name}.String()
@@ -592,19 +594,20 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, objLabels *k8s
 		Name:      name,
 		Namespace: ns,
 		FakePod:   true,
+		Labels:    podLabels,
 	}
 	if err := pe.resolveSingleMissingNamespace(ns, nsLabels); err != nil {
 		return nil, err
 	}
-	if pe.exposureAnalysisFlag && newPod.Name == k8s.RepresentativePodName { // if exposure-analysis and this is not a fake ingress-controller
+	// if exposure-analysis and this is not a fake ingress-controller
+	if pe.exposureAnalysisFlag && strings.HasPrefix(newPod.Name, k8s.RepresentativePodName) {
 		// first compute a unique string from labels to be used as a map key
-		keyStrFromNsLabels := k8s.VariantFromLabelsMap(objLabels.NsLabels)
-		// todo : when supporting also pod labels; add also key str from pod labels to the map key
-		if _, ok := pe.representativePeersMap[keyStrFromNsLabels]; ok { // we already have a representative peer with same labels
+		keyStrFromLabels := k8s.VariantFromLabelsMap(objLabels.NsLabels) + k8s.VariantFromLabelsMap(objLabels.PodLabels)
+		if _, ok := pe.representativePeersMap[keyStrFromLabels]; ok { // we already have a representative peer with same labels
 			return nil, nil
 		}
 		newRepresentativePeer := &k8s.RepresentativePeer{Pod: newPod, PotentialNamespaceLabels: nsLabels}
-		pe.representativePeersMap[keyStrFromNsLabels] = newRepresentativePeer
+		pe.representativePeersMap[keyStrFromLabels] = newRepresentativePeer
 		return newRepresentativePeer, nil
 	}
 	// ingress-controller will be treated as a real pod, may be added to podsMap

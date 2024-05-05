@@ -9,9 +9,9 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 336)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-336 726,-336 726,4 -4,4"/>
 <g id="clust2" class="cluster">
-<title>cluster_namespace with foo.com/managed_state=managed</title>
-<polygon fill="none" stroke="#ee0000" points="49,-226 49,-324 347,-324 347,-226 49,-226"/>
-<text text-anchor="middle" x="198" y="-308.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with foo.com/managed&#45;state=managed</text>
+<title>cluster_namespace with {foo.com/managed_state=managed}</title>
+<polygon fill="none" stroke="#ee0000" points="49,-226 49,-324 360,-324 360,-226 49,-226"/>
+<text text-anchor="middle" x="204.5" y="-308.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {foo.com/managed&#45;state=managed}</text>
 </g>
 <g id="clust1" class="cluster">
 <title>cluster_hello_world</title>
@@ -84,15 +84,15 @@
 <polygon fill="#eec900" stroke="#eec900" points="581.32,-48.28 590.43,-42.88 579.93,-41.42 581.32,-48.28"/>
 <text text-anchor="middle" x="290" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- all pods_in_foo.com/managed&#45;state=managed -->
+<!-- all pods_in_namespace with {foo.com/managed&#45;state=managed} -->
 <g id="node3" class="node">
-<title>all pods_in_foo.com/managed&#45;state=managed</title>
+<title>all pods_in_namespace with {foo.com/managed&#45;state=managed}</title>
 <ellipse fill="none" stroke="#ee0000" cx="138" cy="-252" rx="39.79" ry="18"/>
 <text text-anchor="middle" x="138" y="-248.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">all pods</text>
 </g>
-<!-- all pods_in_foo.com/managed&#45;state=managed&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
+<!-- all pods_in_namespace with {foo.com/managed&#45;state=managed}&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
 <g id="edge2" class="edge">
-<title>all pods_in_foo.com/managed&#45;state=managed&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
+<title>all pods_in_namespace with {foo.com/managed&#45;state=managed}&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
 <path fill="none" stroke="#eec900" d="M138,-233.87C138,-212.28 138,-174.91 138,-149.35"/>
 <polygon fill="#eec900" stroke="#eec900" points="141.5,-149.2 138,-139.2 134.5,-149.2 141.5,-149.2"/>
 <text text-anchor="middle" x="182.5" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8050,8090</text>

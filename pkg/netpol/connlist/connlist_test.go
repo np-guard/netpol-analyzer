@@ -834,4 +834,24 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ExposureValidFormats,
 	},
+	{
+		testDirName:      "test_conn_entire_cluster_with_empty_selectors",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		testDirName:      "test_conn_to_all_pods_in_a_new_ns",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		testDirName:      "test_conn_with_new_pod_selector_and_ns_selector",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		testDirName:      "test_conn_with_only_pod_selector",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
 }
