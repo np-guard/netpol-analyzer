@@ -316,7 +316,8 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate
 			for peer, pConn := range ingressObjTargetPeersAndPorts {
 				ingObjStr := types.NamespacedName{Namespace: ns, Name: objName}.String()
 				if _, ok := res[peer.String()]; !ok {
-					ingressObjs := make(map[string][]string, 2)
+					mapLen := 2
+					ingressObjs := make(map[string][]string, mapLen)
 					ingressObjs[ingType] = []string{ingObjStr}
 					res[peer.String()] = &PeerAndIngressConnSet{Peer: peer, ConnSet: pConn, IngressObjects: ingressObjs}
 				} else {
