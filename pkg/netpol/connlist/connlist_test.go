@@ -864,4 +864,9 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ExposureValidFormats,
 	},
+	{
+		testDirName:      "k8s_ingress_test_new",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
 }
