@@ -859,4 +859,9 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ExposureValidFormats,
 	},
+	{
+		testDirName:      "onlineboutique_workloads",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
 }
