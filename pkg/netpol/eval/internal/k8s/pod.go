@@ -18,6 +18,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -306,11 +307,16 @@ func (pod *Pod) checkAndConvertNamedPortsInConnection(conns *common.ConnectionSe
 	return connsCopy
 }
 
-// updatePodXgressProtectedFlag updates to true the relevant ingress/egress protected flag of the pod
+// UpdatePodXgressProtectedFlag updates to true the relevant ingress/egress protected flag of the pod
 func (pod *Pod) UpdatePodXgressProtectedFlag(isIngress bool) {
 	if isIngress {
 		pod.IngressExposureData.IsProtected = true
 	} else {
 		pod.EgressExposureData.IsProtected = true
 	}
+}
+
+// IsPodRepresentative returns if the pod is a representative pod
+func (pod *Pod) IsPodRepresentative() bool {
+	return pod.FakePod && strings.HasPrefix(pod.Name, RepresentativePodName)
 }

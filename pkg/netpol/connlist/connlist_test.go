@@ -854,4 +854,9 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ExposureValidFormats,
 	},
+	{
+		testDirName:      "test_conn_with_pod_selector_in_any_ns",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
 }

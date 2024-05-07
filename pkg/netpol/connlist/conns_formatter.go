@@ -68,11 +68,8 @@ func formExposureItemAsSingleConnFiled(peerStr string, exposureItem XgressExposu
 	if exposureItem.IsExposedToEntireCluster() {
 		return formSingleExposureConn(peerStr, entireCluster, exposureItem.PotentialConnectivity(), isIngress)
 	}
-	repPeerStr := writeNsLabels(exposureItem.NamespaceLabels())
-	if repPeerStr != "" {
-		repPeerStr += "/"
-	}
-	repPeerStr += writePodLabels(exposureItem.PodLabels())
+	repPeerStr := getRepresentativeNamespaceString(exposureItem.NamespaceLabels()) + "/" +
+		getRepresentativePodString(exposureItem.PodLabels())
 	return formSingleExposureConn(peerStr, repPeerStr, exposureItem.PotentialConnectivity(), isIngress)
 }
 
@@ -86,8 +83,8 @@ const (
 	mapClose = "}"
 )
 
-// writeNsLabels returns a string representation of a potential peer with namespace labels
-func writeNsLabels(nsLabels map[string]string) string {
+// getRepresentativeNamespaceString returns a string representation of a potential peer with namespace labels
+func getRepresentativeNamespaceString(nsLabels map[string]string) string {
 	nsName, ok := nsLabels[common.K8sNsNameLabelKey]
 	if len(nsLabels) == 1 && ok {
 		return nsName
@@ -95,12 +92,12 @@ func writeNsLabels(nsLabels map[string]string) string {
 	if len(nsLabels) > 0 {
 		return "namespace with " + mapOpen + convertLabelsMapToString(nsLabels) + mapClose
 	}
-	return ""
+	return allNamespacesLbl
 }
 
-// writePodLabels returns a string representation of potential peer with pod labels
+// getRepresentativePodString returns a string representation of potential peer with pod labels
 // or all pods string for empty pod labels map (which indicates all pods)
-func writePodLabels(podLabels map[string]string) string {
+func getRepresentativePodString(podLabels map[string]string) string {
 	if len(podLabels) == 0 {
 		return allPeersLbl
 	}

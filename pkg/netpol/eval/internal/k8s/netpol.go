@@ -153,7 +153,7 @@ func isRepresentativePod(peer Peer) bool {
 	if peer.GetPeerPod() == nil {
 		return false
 	}
-	return peer.GetPeerPod().FakePod && strings.HasPrefix(peer.GetPeerPod().Name, RepresentativePodName)
+	return peer.GetPeerPod().IsPodRepresentative()
 }
 
 // ruleConnsContain returns true if the given protocol and port are contained in connections allowed by rulePorts

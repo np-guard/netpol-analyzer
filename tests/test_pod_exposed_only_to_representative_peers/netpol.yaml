@@ -1,7 +1,7 @@
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: same-rule-in-different-directions
+  name: exposure-to-unknown-peers
   namespace: hello-world
 spec:
   podSelector:

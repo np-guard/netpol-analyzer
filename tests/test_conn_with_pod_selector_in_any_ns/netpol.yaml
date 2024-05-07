@@ -1,7 +1,7 @@
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: allow-ingress-to-unknown-ns
+  name: allow-ingress-to-pod-in-any-ns
   namespace: hello-world
 spec:
   podSelector:
@@ -9,17 +9,12 @@ spec:
       app: a-app
   policyTypes:
   - Ingress
-  - Egress
   ingress:
   - from:
-    - namespaceSelector: 
+    - namespaceSelector: {}
+      podSelector: 
         matchLabels:
-            kubernetes.io/metadata.name: backend
-      podSelector: {}
+            role: monitoring
     ports:
     - port: 8050
       protocol: TCP
-  egress:
-  - to:
-    - namespaceSelector: {}
-      podSelector: {}

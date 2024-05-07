@@ -3,7 +3,6 @@ package eval
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -600,9 +599,9 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, objLabels *k8s
 		return nil, err
 	}
 	// if exposure-analysis and this is not a fake ingress-controller
-	if pe.exposureAnalysisFlag && strings.HasPrefix(newPod.Name, k8s.RepresentativePodName) {
+	if pe.exposureAnalysisFlag && newPod.IsPodRepresentative() {
 		// first compute a unique string from labels to be used as a map key
-		keyStrFromLabels := k8s.VariantFromLabelsMap(objLabels.NsLabels) + k8s.VariantFromLabelsMap(objLabels.PodLabels)
+		keyStrFromLabels := k8s.VariantFromLabelsMap(objLabels.NsLabels) + "/" + k8s.VariantFromLabelsMap(objLabels.PodLabels)
 		if _, ok := pe.representativePeersMap[keyStrFromLabels]; ok { // we already have a representative peer with same labels
 			return nil, nil
 		}

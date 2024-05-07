@@ -16,6 +16,7 @@ const (
 	entireClusterShape     = " shape=diamond"
 	peerLineClosing        = "]"
 	allPeersLbl            = "all pods"
+	allNamespacesLbl       = "all namespaces"
 )
 
 var edgeLineFormat = fmt.Sprintf("\t%%q -> %%q [label=%%q color=\"gold2\" fontcolor=\"darkgreen\"]")
@@ -143,16 +144,17 @@ func getXgressExposureEdges(exposedPeerStr string, xgressExpData []XgressExposur
 					data.PotentialConnectivity().(*common.ConnectionSet)))
 				continue // if a data contains exposure to entire cluster it does not specify labels
 			}
-			nsRepLabel := writeNsLabels(data.NamespaceLabels())
-			repPeerLabel := writePodLabels(data.PodLabels())
+			nsRepLabel := getRepresentativeNamespaceString(data.NamespaceLabels())
+			repPeerLabel := getRepresentativePodString(data.PodLabels())
 			repPeersStr := repPeerLabel + "_in_" + nsRepLabel // to get a unique string name of the peer node
 			if !representativeVisited[repPeersStr] {
 				representativeVisited[repPeersStr] = true
+				peerLine := getRepPeerLine(repPeersStr, repPeerLabel)
 				// ns label maybe a name of an existing namespace, so check where to add the peer
-				if _, ok := nsPeers[nsRepLabel]; ok {
-					dotformatting.AddPeerToNsGroup(writeNsLabels(data.NamespaceLabels()), getRepPeerLine(repPeersStr, repPeerLabel), nsPeers)
-				} else {
-					dotformatting.AddPeerToNsGroup(writeNsLabels(data.NamespaceLabels()), getRepPeerLine(repPeersStr, repPeerLabel), nsRepPeers)
+				if _, ok := nsPeers[nsRepLabel]; ok { // in real ns
+					dotformatting.AddPeerToNsGroup(getRepresentativeNamespaceString(data.NamespaceLabels()), peerLine, nsPeers)
+				} else { // in a representative ns
+					dotformatting.AddPeerToNsGroup(getRepresentativeNamespaceString(data.NamespaceLabels()), peerLine, nsRepPeers)
 				}
 			}
 			xgressEdges = append(xgressEdges, getExposureEdgeLine(exposedPeerStr, repPeersStr, isIngress,
