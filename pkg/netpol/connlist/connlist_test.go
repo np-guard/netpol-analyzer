@@ -755,6 +755,20 @@ var goodPathTests = []struct {
 		outputFormats:    ExposureValidFormats,
 	},
 	{
+		testDirName:      "acs-security-demos",
+		exposureAnalysis: true,
+		// test with focus-workload that appears in exposure-analysis result
+		focusWorkload: "frontend/webapp",
+		outputFormats: ExposureValidFormats,
+	},
+	{
+		testDirName:      "acs-security-demos",
+		exposureAnalysis: true,
+		// test with focus-workload that does not appear in exposure-analysis result
+		focusWorkload: "backend/catalog",
+		outputFormats: ExposureValidFormats,
+	},
+	{
 		testDirName:      "test_allow_all",
 		exposureAnalysis: true,
 		outputFormats:    ExposureValidFormats,
@@ -777,6 +791,12 @@ var goodPathTests = []struct {
 	{
 		testDirName:      "test_matched_and_unmatched_rules",
 		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		testDirName:      "test_matched_and_unmatched_rules",
+		exposureAnalysis: true,
+		focusWorkload:    "hello-world/workload-a",
 		outputFormats:    ExposureValidFormats,
 	},
 	{
@@ -865,8 +885,26 @@ var goodPathTests = []struct {
 		outputFormats:    ExposureValidFormats,
 	},
 	{
+		testDirName:      "onlineboutique_workloads",
+		exposureAnalysis: true,
+		focusWorkload:    "default/loadgenerator",
+		outputFormats:    ExposureValidFormats,
+	},
+	{
 		testDirName:      "k8s_ingress_test_new",
 		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		testDirName:      "k8s_ingress_test_new",
+		exposureAnalysis: true,
+		focusWorkload:    "details-v1-79f774bdb9",
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		testDirName:      "k8s_ingress_test",
+		exposureAnalysis: true,
+		focusWorkload:    "ratings-v1-b6994bb9",
 		outputFormats:    ExposureValidFormats,
 	},
 }

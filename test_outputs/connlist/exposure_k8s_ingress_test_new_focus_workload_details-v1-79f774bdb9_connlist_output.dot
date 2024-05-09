@@ -1,0 +1,14 @@
+digraph {
+	subgraph "cluster_default" {
+		color="black"
+		fontcolor="black"
+		"default/details-v1-79f774bdb9[ReplicaSet]" [label="details-v1-79f774bdb9[ReplicaSet]" color="blue" fontcolor="blue"]
+		"default/unicorn[Deployment]" [label="unicorn[Deployment]" color="blue" fontcolor="blue"]
+		label="default"
+	}
+	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
+	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
+	"default/unicorn[Deployment]" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="gold2" fontcolor="darkgreen"]
+	"entire-cluster" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="gold2" fontcolor="darkgreen"]
+	"{ingress-controller}" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="gold2" fontcolor="darkgreen"]
+}

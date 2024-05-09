@@ -525,7 +525,7 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 				return nil, nil, err
 			}
 			if ca.exposureAnalysis {
-				err = updatePeersGeneralExposureData(pe, srcPeer, dstPeer, ingressSet, egressSet, exposureMaps)
+				err = ca.updatePeersGeneralExposureData(pe, srcPeer, dstPeer, ingressSet, egressSet, exposureMaps)
 				if err != nil {
 					return nil, nil, err
 				}
@@ -635,7 +635,8 @@ func createConnectionObject(allowedConnections common.Connection, src, dst Peer)
 }
 
 // updatePeersGeneralExposureData updates src and dst connections to entire world/cluster on the exposures map
-func updatePeersGeneralExposureData(pe *eval.PolicyEngine, src, dst Peer, ingressSet, egressSet map[Peer]bool, exMaps *exposureMaps) error {
+func (ca *ConnlistAnalyzer) updatePeersGeneralExposureData(pe *eval.PolicyEngine, src, dst Peer, ingressSet, egressSet map[Peer]bool,
+	exMaps *exposureMaps) error {
 	// when computing allowed conns between the peers,(even on first time)
 	// if a workload peer is not protected by netpols this was definitely detected;
 	// also exposure to entire cluster was definitely computed for src or/and dst (if its a workload peer)
@@ -646,7 +647,7 @@ func updatePeersGeneralExposureData(pe *eval.PolicyEngine, src, dst Peer, ingres
 	// (e.g. only one peer with one netpol exposing the peer to entire cluster, no netpols)
 	var err error
 	// 1. only on first time : add general exposure data for the src peer (on egress)
-	if !src.IsPeerIPType() && !pe.IsRepresentativePeer(src) && !egressSet[src] {
+	if ca.shouldAddPeerGeneralExposureData(pe, src, egressSet) {
 		err = exMaps.addPeerGeneralExposure(pe, src, false)
 		if err != nil {
 			return err
@@ -654,9 +655,21 @@ func updatePeersGeneralExposureData(pe *eval.PolicyEngine, src, dst Peer, ingres
 	}
 	egressSet[src] = true
 	// 2. only on first time : add general exposure data for the dst peer (on ingress)
-	if !dst.IsPeerIPType() && !pe.IsRepresentativePeer(dst) && !ingressSet[dst] {
+	if ca.shouldAddPeerGeneralExposureData(pe, dst, ingressSet) {
 		err = exMaps.addPeerGeneralExposure(pe, dst, true)
 	}
 	ingressSet[dst] = true
 	return err
+}
+
+// shouldAddPeerGeneralExposureData returns whether should add given peer's general
+// exposure data to the exposure results.
+// returns true if :
+// - the peer is not IP type
+// - the peer is not representative peer
+// - focus-workload flag is not used or the peer is the focus-workload
+// - it is first time the peer is visited
+func (ca *ConnlistAnalyzer) shouldAddPeerGeneralExposureData(pe *eval.PolicyEngine, peer Peer, xgressSet map[Peer]bool) bool {
+	return !peer.IsPeerIPType() && !pe.IsRepresentativePeer(peer) && !xgressSet[peer] &&
+		(ca.focusWorkload == "" || ca.isPeerFocusWorkload(peer))
 }
