@@ -68,12 +68,9 @@ func formExposureItemAsSingleConnFiled(peerStr string, exposureItem XgressExposu
 	if exposureItem.IsExposedToEntireCluster() {
 		return formSingleExposureConn(peerStr, entireCluster, exposureItem.PotentialConnectivity(), isIngress)
 	}
-	if len(exposureItem.NamespaceLabels()) > 0 {
-		return formSingleExposureConn(peerStr, peerStrWithNsLabels(exposureItem.NamespaceLabels()),
-			exposureItem.PotentialConnectivity(), isIngress)
-	}
-	// @todo handle podLabels
-	return singleConnFields{}
+	repPeerStr := getRepresentativeNamespaceString(exposureItem.NamespaceLabels()) + "/" +
+		getRepresentativePodString(exposureItem.PodLabels())
+	return formSingleExposureConn(peerStr, repPeerStr, exposureItem.PotentialConnectivity(), isIngress)
 }
 
 // convertLabelsMapToString returns a string representation of the given labels map
@@ -81,7 +78,28 @@ func convertLabelsMapToString(labelsMap map[string]string) string {
 	return labels.SelectorFromSet(labels.Set(labelsMap)).String()
 }
 
-// peerStrWithNsLabels returns a string representation of a potential peer with namespace labels
-func peerStrWithNsLabels(nsLabels map[string]string) string {
-	return "namespace with " + convertLabelsMapToString(nsLabels)
+const (
+	mapOpen  = "{"
+	mapClose = "}"
+)
+
+// getRepresentativeNamespaceString returns a string representation of a potential peer with namespace labels
+func getRepresentativeNamespaceString(nsLabels map[string]string) string {
+	nsName, ok := nsLabels[common.K8sNsNameLabelKey]
+	if len(nsLabels) == 1 && ok {
+		return nsName
+	}
+	if len(nsLabels) > 0 {
+		return "namespace with " + mapOpen + convertLabelsMapToString(nsLabels) + mapClose
+	}
+	return allNamespacesLbl
+}
+
+// getRepresentativePodString returns a string representation of potential peer with pod labels
+// or all pods string for empty pod labels map (which indicates all pods)
+func getRepresentativePodString(podLabels map[string]string) string {
+	if len(podLabels) == 0 {
+		return allPeersLbl
+	}
+	return "pod with " + mapOpen + convertLabelsMapToString(podLabels) + mapClose
 }

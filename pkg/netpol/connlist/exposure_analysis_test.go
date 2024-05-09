@@ -51,15 +51,15 @@ func newTCPConnWithPorts(ports []int) *common.ConnectionSet {
 	return conn
 }
 
-func newExpDataWithLabelAndTCPConn(key, val string, ports []int) *xgressExposure {
+func newExpDataWithLabelAndTCPConn(nsLabels, podLabels map[string]string, ports []int) *xgressExposure {
 	conn := common.MakeConnectionSet(true)
 	if len(ports) > 0 {
 		conn = newTCPConnWithPorts(ports)
 	}
 	return &xgressExposure{
 		exposedToEntireCluster: false,
-		namespaceLabels:        map[string]string{key: val},
-		podLabels:              map[string]string{},
+		namespaceLabels:        nsLabels,
+		podLabels:              podLabels,
 		potentialConn:          conn,
 	}
 }
@@ -144,7 +144,7 @@ func TestExposureBehavior(t *testing.T) {
 				lenIngressExposedConns: 2,
 				ingressExp: []*xgressExposure{
 					peerExposedToEntireClusterOnTCP8050,
-					newExpDataWithLabelAndTCPConn("foo.com/managed-state", "managed", []int{8050, 8090}),
+					newExpDataWithLabelAndTCPConn(map[string]string{"foo.com/managed-state": "managed"}, nil, []int{8050, 8090}),
 				},
 				lenEgressExposedConns: 0,
 			},
@@ -179,9 +179,9 @@ func TestExposureBehavior(t *testing.T) {
 				isEgressProtected:      false,
 				lenIngressExposedConns: 3,
 				ingressExp: []*xgressExposure{
-					newExpDataWithLabelAndTCPConn("foo.com/managed-state", "managed", []int{8050}),
-					newExpDataWithLabelAndTCPConn("release", "stable", []int{}),
-					newExpDataWithLabelAndTCPConn("effect", "NoSchedule", []int{8050}),
+					newExpDataWithLabelAndTCPConn(map[string]string{"foo.com/managed-state": "managed"}, nil, []int{8050}),
+					newExpDataWithLabelAndTCPConn(map[string]string{"release": "stable"}, nil, []int{}),
+					newExpDataWithLabelAndTCPConn(map[string]string{"effect": "NoSchedule"}, nil, []int{8050}),
 				},
 				lenEgressExposedConns: 0,
 			},
@@ -225,6 +225,72 @@ func TestExposureBehavior(t *testing.T) {
 				lenEgressExposedConns:  1,
 				egressExp: []*xgressExposure{
 					peerExposedToEntireCluster,
+				},
+			},
+		},
+		{
+			testName:                       "test_conn_entire_cluster_with_empty_selectors", // only workload-a in manifests
+			expectedNumRepresentativePeers: 0,
+			expectedLenOfExposedPeerList:   1,
+			// workload 1 is exposed to entire cluster on ingress and egress
+			wl1ExpDataInfo: expectedPeerResultInfo{
+				isIngressProtected:     true,
+				isEgressProtected:      true,
+				lenIngressExposedConns: 1,
+				lenEgressExposedConns:  1,
+				ingressExp: []*xgressExposure{
+					peerExposedToEntireClusterOnTCP8050,
+				},
+				egressExp: []*xgressExposure{
+					peerExposedToEntireCluster,
+				},
+			},
+		},
+		{
+			testName:                       "test_conn_to_all_pods_in_a_new_ns", // only workload-a in manifests
+			expectedNumRepresentativePeers: 1,
+			expectedLenOfExposedPeerList:   1,
+			// workload-a is exposed to entire cluster on egress, to a rep. peer on ingress
+			wl1ExpDataInfo: expectedPeerResultInfo{
+				isIngressProtected:     true,
+				isEgressProtected:      true,
+				lenIngressExposedConns: 1,
+				lenEgressExposedConns:  1,
+				ingressExp: []*xgressExposure{
+					newExpDataWithLabelAndTCPConn(map[string]string{common.K8sNsNameLabelKey: "backend"},
+						map[string]string{}, []int{8050}),
+				},
+				egressExp: []*xgressExposure{
+					peerExposedToEntireCluster,
+				},
+			},
+		},
+		{
+			testName:                       "test_conn_with_new_pod_selector_and_ns_selector", // only workload-a in manifests
+			expectedNumRepresentativePeers: 1,
+			expectedLenOfExposedPeerList:   1,
+			wl1ExpDataInfo: expectedPeerResultInfo{
+				isIngressProtected:     true,
+				isEgressProtected:      false,
+				lenIngressExposedConns: 1,
+				lenEgressExposedConns:  0,
+				ingressExp: []*xgressExposure{
+					newExpDataWithLabelAndTCPConn(map[string]string{"effect": "NoSchedule"}, map[string]string{"role": "monitoring"}, []int{8050}),
+				},
+			},
+		},
+		{
+			testName:                       "test_conn_with_only_pod_selector", // only workload-a in manifests
+			expectedNumRepresentativePeers: 1,
+			expectedLenOfExposedPeerList:   1,
+			wl1ExpDataInfo: expectedPeerResultInfo{
+				isIngressProtected:     true,
+				isEgressProtected:      false,
+				lenIngressExposedConns: 1,
+				lenEgressExposedConns:  0,
+				ingressExp: []*xgressExposure{
+					newExpDataWithLabelAndTCPConn(map[string]string{common.K8sNsNameLabelKey: "hello-world"}, map[string]string{"role": "monitoring"},
+						[]int{8050}),
 				},
 			},
 		},

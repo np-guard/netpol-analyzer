@@ -114,7 +114,7 @@ func (p *WorkloadPeer) IsPeerIPType() bool {
 
 // //////////////////////////////////////////////////
 
-const RepresentativePodName = "representative-pod" // todo: use as prefix of pod name when supporting podSelector
+const RepresentativePodName = "representative-pod"
 const representativePodKind = "RepresentativePod"
 
 func (p *RepresentativePeer) Name() string {
@@ -130,7 +130,6 @@ func (p *RepresentativePeer) Kind() string {
 }
 
 func (p *RepresentativePeer) String() string {
-	// TODO: to be changed; to be determined in PR of exposure-analysis results' output representation
 	return types.NamespacedName{Name: p.Name(), Namespace: p.Namespace()}.String()
 }
 

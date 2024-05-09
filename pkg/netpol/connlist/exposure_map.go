@@ -127,7 +127,7 @@ func (ex *exposureMaps) addConnToExposureMap(pe *eval.PolicyEngine, allowedConne
 	// the peer is protected, check if peer is in the relevant map; if not initialize a new entry
 	ex.addNewEntry(peer, true, isIngress)
 
-	nsLabels, err := pe.GetPeerNsLabels(representativePeer)
+	podLabels, nsLabels, err := pe.GetPeerLabels(representativePeer)
 	if err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func (ex *exposureMaps) addConnToExposureMap(pe *eval.PolicyEngine, allowedConne
 	expData := &xgressExposure{
 		exposedToEntireCluster: false,
 		namespaceLabels:        nsLabels,
-		podLabels:              map[string]string{}, // will be empty since in this branch rules with namespaceSelectors only supported
+		podLabels:              podLabels,
 		potentialConn:          allowedConnSet,
 	}
 	ex.appendPeerXgressExposureData(peer, expData, isIngress)

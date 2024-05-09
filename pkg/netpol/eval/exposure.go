@@ -33,16 +33,24 @@ func generateNewNamespaceName(policyName string, index int) string {
 	return repNsNamePrefix + policyName + fmt.Sprint(index)
 }
 
+func generateNewPodName(index int) string {
+	return k8s.RepresentativePodName + "-" + fmt.Sprint(index)
+}
+
 // generateRepresentativePeers : generates and adds to policy engine representative peers where each peer
 // has namespace and pod labels inferred from single policy rule labels in the given list of selectors;
 // for example, if a rule within policy has namespaceSelector "foo: managed", then a representative pod in such a
 // namespace with those labels will be added, representing all potential pods in such a namespace.
 // generated representative peers are unique; i.e. if different rules (e.g in different policies or different directions) has same labels :
 // one representative peer is generated to represent both
-func (pe *PolicyEngine) generateRepresentativePeers(selectorsLabels []k8s.SingleRuleLabels, policyName string) error {
+func (pe *PolicyEngine) generateRepresentativePeers(selectorsLabels []k8s.SingleRuleLabels, policyName, policyNs string) (err error) {
 	for i := range selectorsLabels {
-		// @todo : when supporting the PodSelector: differentiate also pod names
-		_, err := pe.AddPodByNameAndNamespace(k8s.RepresentativePodName, generateNewNamespaceName(policyName, i), &selectorsLabels[i])
+		// if ns labels of the rule selector was nil, then the namespace of the pod is same as the policy's namespace
+		if selectorsLabels[i].PolicyNsFlag {
+			_, err = pe.AddPodByNameAndNamespace(generateNewPodName(i), policyNs, &selectorsLabels[i])
+		} else {
+			_, err = pe.AddPodByNameAndNamespace(generateNewPodName(i), generateNewNamespaceName(policyName, i), &selectorsLabels[i])
+		}
 		if err != nil {
 			return err
 		}
@@ -130,12 +138,12 @@ func (pe *PolicyEngine) IsRepresentativePeer(peer Peer) bool {
 	return ok
 }
 
-// GetPeerNsLabels returns namespace labels defining the given representative peer
+// GetPeerLabels returns the labels defining the given representative peer and its namespace
 // relevant only for RepresentativePeer
-func (pe *PolicyEngine) GetPeerNsLabels(p Peer) (map[string]string, error) {
+func (pe *PolicyEngine) GetPeerLabels(p Peer) (podLabels, nsLabels map[string]string, err error) {
 	peer, ok := p.(*k8s.RepresentativePeer)
 	if !ok { // should not get here
-		return nil, errors.New(netpolerrors.NotRepresentativePeerErrStr(p.String()))
+		return nil, nil, errors.New(netpolerrors.NotRepresentativePeerErrStr(p.String()))
 	}
-	return peer.PotentialNamespaceLabels, nil
+	return peer.Pod.Labels, peer.PotentialNamespaceLabels, nil
 }
