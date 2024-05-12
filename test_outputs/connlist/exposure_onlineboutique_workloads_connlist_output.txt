@@ -18,10 +18,10 @@ default/redis-cart[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
 
 Exposure Analysis Result:
 Egress Exposure:
-default/checkoutservice[Deployment]       	=> 	all namespaces/pod with {k8s-app=kube-dns} : UDP 53
-default/frontend[Deployment]              	=> 	all namespaces/pod with {k8s-app=kube-dns} : UDP 53
-default/loadgenerator[Deployment]         	=> 	all namespaces/pod with {k8s-app=kube-dns} : UDP 53
-default/recommendationservice[Deployment] 	=> 	all namespaces/pod with {k8s-app=kube-dns} : UDP 53
+default/checkoutservice[Deployment]       	=> 	[all namespaces]/[pod with {k8s-app=kube-dns}] : UDP 53
+default/frontend[Deployment]              	=> 	[all namespaces]/[pod with {k8s-app=kube-dns}] : UDP 53
+default/loadgenerator[Deployment]         	=> 	[all namespaces]/[pod with {k8s-app=kube-dns}] : UDP 53
+default/recommendationservice[Deployment] 	=> 	[all namespaces]/[pod with {k8s-app=kube-dns}] : UDP 53
 default/redis-cart[Deployment]            	=> 	0.0.0.0-255.255.255.255 : All Connections
 default/redis-cart[Deployment]            	=> 	entire-cluster : All Connections
 

@@ -6,7 +6,7 @@ hello-world/workload-a[Deployment] 	=> 	0.0.0.0-255.255.255.255 : All Connection
 hello-world/workload-a[Deployment] 	=> 	entire-cluster : All Connections
 
 Ingress Exposure:
-hello-world/workload-a[Deployment] 	<= 	namespace with {effect=NoSchedule,release=stable}/all pods : TCP 8050
+hello-world/workload-a[Deployment] 	<= 	[namespace with {effect=NoSchedule,release=stable}]/[all pods] : TCP 8050
 
 Workloads not protected by network policies:
 hello-world/workload-a[Deployment] is not protected on Egress
