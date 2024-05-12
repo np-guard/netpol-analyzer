@@ -357,7 +357,7 @@ func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.Connection
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
+func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, dst Peer) bool {
 	if src.IsPeerIPType() && dst.IsPeerIPType() {
 		return false
 	}
@@ -370,14 +370,12 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, d
 	if ca.exposureAnalysis && !ca.includePairWithRepresentativePeer(pe, src, dst) {
 		return false
 	}
-	if ca.focusWorkload == "" {
-		return true
-	}
-	// at least one of src/dst should be the focus workload
+
+	// no focusworkload or at least one of src/dst should be the focus workload
 	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
 }
 
-func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
+func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEngine, src, dst Peer) bool {
 	isRepSrc := pe.IsRepresentativePeer(src)
 	isRepDst := pe.IsRepresentativePeer(dst)
 	// cases when at least one of the peers is representative peer; when not to include the peers pair:
@@ -397,12 +395,15 @@ func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEng
 	return true
 }
 
-func getPeerNsNameFormat(peer eval.Peer) string {
+func getPeerNsNameFormat(peer Peer) string {
 	return types.NamespacedName{Namespace: peer.Namespace(), Name: peer.Name()}.String()
 }
 
-func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer eval.Peer) bool {
-	return !peer.IsPeerIPType() && (peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload)
+// isPeerFocusWorkload returns true if focus-workload flag is not used (each peer is included),
+// or if the focus-workload is equal to peer's name
+func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer Peer) bool {
+	return ca.focusWorkload == "" ||
+		(!peer.IsPeerIPType() && (peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload))
 }
 
 func convertEvalPeersToConnlistPeer(peers []eval.Peer) []Peer {
@@ -494,7 +495,7 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnal
 
 	// check if the focusworkload is in the peers
 	for _, peer := range peers {
-		if ca.focusWorkload == peer.Name() || ca.focusWorkload == getPeerNsNameFormat(peer) {
+		if ca.isPeerFocusWorkload(peer) {
 			return true, ""
 		}
 	}
@@ -670,6 +671,5 @@ func (ca *ConnlistAnalyzer) updatePeersGeneralExposureData(pe *eval.PolicyEngine
 // - focus-workload flag is not used or the peer is the focus-workload
 // - it is first time the peer is visited
 func (ca *ConnlistAnalyzer) shouldAddPeerGeneralExposureData(pe *eval.PolicyEngine, peer Peer, xgressSet map[Peer]bool) bool {
-	return !peer.IsPeerIPType() && !pe.IsRepresentativePeer(peer) && !xgressSet[peer] &&
-		(ca.focusWorkload == "" || ca.isPeerFocusWorkload(peer))
+	return !peer.IsPeerIPType() && !pe.IsRepresentativePeer(peer) && !xgressSet[peer] && ca.isPeerFocusWorkload(peer)
 }
