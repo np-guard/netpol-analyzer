@@ -79,10 +79,9 @@ func convertLabelsMapToString(labelsMap map[string]string) string {
 }
 
 const (
-	bracketOpen  = "["
-	bracketClose = "]"
-	mapOpen      = "{"
-	mapClose     = "}"
+	stringInBrackets = "[%s]"
+	mapOpen          = "{"
+	mapClose         = "}"
 )
 
 // getRepresentativeNamespaceString returns a string representation of a potential peer with namespace labels.
@@ -93,16 +92,13 @@ func getRepresentativeNamespaceString(nsLabels map[string]string, txtOutFlag boo
 		return nsName
 	}
 	res := ""
-	if txtOutFlag {
-		res += bracketOpen
-	}
 	if len(nsLabels) > 0 {
 		res += "namespace with " + mapOpen + convertLabelsMapToString(nsLabels) + mapClose
 	} else {
 		res += allNamespacesLbl
 	}
 	if txtOutFlag {
-		res += bracketClose
+		return fmt.Sprintf(stringInBrackets, res)
 	}
 	return res
 }
@@ -112,16 +108,13 @@ func getRepresentativeNamespaceString(nsLabels map[string]string, txtOutFlag boo
 // adds [] in case of textual (non-graphical) output
 func getRepresentativePodString(podLabels map[string]string, txtOutFlag bool) string {
 	res := ""
-	if txtOutFlag {
-		res += bracketOpen
-	}
 	if len(podLabels) == 0 {
 		res += allPeersLbl
 	} else {
 		res += "pod with " + mapOpen + convertLabelsMapToString(podLabels) + mapClose
 	}
 	if txtOutFlag {
-		res += bracketClose
+		return fmt.Sprintf(stringInBrackets, res)
 	}
 	return res
 }
