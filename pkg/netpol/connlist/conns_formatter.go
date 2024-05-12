@@ -74,8 +74,8 @@ func formExposureItemAsSingleConnFiled(peerStr string, exposureItem XgressExposu
 	if exposureItem.IsExposedToEntireCluster() {
 		return formSingleExposureConn(peerStr, entireCluster, exposureItem.PotentialConnectivity(), isIngress)
 	}
-	repPeerStr := getRepresentativeNamespaceString(exposureItem.NamespaceLabels()) + "/" +
-		getRepresentativePodString(exposureItem.PodLabels())
+	repPeerStr := getRepresentativeNamespaceString(exposureItem.NamespaceLabels(), true) + "/" +
+		getRepresentativePodString(exposureItem.PodLabels(), true)
 	return formSingleExposureConn(peerStr, repPeerStr, exposureItem.PotentialConnectivity(), isIngress)
 }
 
@@ -85,27 +85,42 @@ func convertLabelsMapToString(labelsMap map[string]string) string {
 }
 
 const (
-	mapOpen  = "{"
-	mapClose = "}"
+	stringInBrackets = "[%s]"
+	mapOpen          = "{"
+	mapClose         = "}"
 )
 
-// getRepresentativeNamespaceString returns a string representation of a potential peer with namespace labels
-func getRepresentativeNamespaceString(nsLabels map[string]string) string {
+// getRepresentativeNamespaceString returns a string representation of a potential peer with namespace labels.
+// if namespace with multiple words adds [] , in case of textual (non-graphical) output
+func getRepresentativeNamespaceString(nsLabels map[string]string, txtOutFlag bool) string {
 	nsName, ok := nsLabels[common.K8sNsNameLabelKey]
 	if len(nsLabels) == 1 && ok {
 		return nsName
 	}
+	res := ""
 	if len(nsLabels) > 0 {
-		return "namespace with " + mapOpen + convertLabelsMapToString(nsLabels) + mapClose
+		res += "namespace with " + mapOpen + convertLabelsMapToString(nsLabels) + mapClose
+	} else {
+		res += allNamespacesLbl
 	}
-	return allNamespacesLbl
+	if txtOutFlag {
+		return fmt.Sprintf(stringInBrackets, res)
+	}
+	return res
 }
 
 // getRepresentativePodString returns a string representation of potential peer with pod labels
-// or all pods string for empty pod labels map (which indicates all pods)
-func getRepresentativePodString(podLabels map[string]string) string {
+// or all pods string for empty pod labels map (which indicates all pods).
+// adds [] in case of textual (non-graphical) output
+func getRepresentativePodString(podLabels map[string]string, txtOutFlag bool) string {
+	res := ""
 	if len(podLabels) == 0 {
-		return allPeersLbl
+		res += allPeersLbl
+	} else {
+		res += "pod with " + mapOpen + convertLabelsMapToString(podLabels) + mapClose
 	}
-	return "pod with " + mapOpen + convertLabelsMapToString(podLabels) + mapClose
+	if txtOutFlag {
+		return fmt.Sprintf(stringInBrackets, res)
+	}
+	return res
 }

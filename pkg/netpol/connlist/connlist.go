@@ -363,7 +363,7 @@ func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.Connection
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
+func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, dst Peer) bool {
 	if src.IsPeerIPType() && dst.IsPeerIPType() {
 		return false
 	}
@@ -376,14 +376,12 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, d
 	if ca.exposureAnalysis && !ca.includePairWithRepresentativePeer(pe, src, dst) {
 		return false
 	}
-	if ca.focusWorkload == "" {
-		return true
-	}
-	// at least one of src/dst should be the focus workload
+
+	// no focusworkload or at least one of src/dst should be the focus workload
 	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
 }
 
-func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEngine, src, dst eval.Peer) bool {
+func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEngine, src, dst Peer) bool {
 	isRepSrc := pe.IsRepresentativePeer(src)
 	isRepDst := pe.IsRepresentativePeer(dst)
 	// cases when at least one of the peers is representative peer; when not to include the peers pair:
@@ -403,12 +401,15 @@ func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEng
 	return true
 }
 
-func getPeerNsNameFormat(peer eval.Peer) string {
+func getPeerNsNameFormat(peer Peer) string {
 	return types.NamespacedName{Namespace: peer.Namespace(), Name: peer.Name()}.String()
 }
 
-func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer eval.Peer) bool {
-	return !peer.IsPeerIPType() && (peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload)
+// isPeerFocusWorkload returns true if focus-workload flag is not used (each peer is included),
+// or if the focus-workload is equal to peer's name
+func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer Peer) bool {
+	return ca.focusWorkload == "" ||
+		(!peer.IsPeerIPType() && (peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload))
 }
 
 func convertEvalPeersToConnlistPeer(peers []eval.Peer) []Peer {
@@ -500,7 +501,7 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnal
 
 	// check if the focusworkload is in the peers
 	for _, peer := range peers {
-		if ca.focusWorkload == peer.Name() || ca.focusWorkload == getPeerNsNameFormat(peer) {
+		if ca.isPeerFocusWorkload(peer) {
 			return true, ""
 		}
 	}
@@ -531,7 +532,7 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 				return nil, nil, err
 			}
 			if ca.exposureAnalysis {
-				err = updatePeersGeneralExposureData(pe, srcPeer, dstPeer, ingressSet, egressSet, exposureMaps)
+				err = ca.updatePeersGeneralExposureData(pe, srcPeer, dstPeer, ingressSet, egressSet, exposureMaps)
 				if err != nil {
 					return nil, nil, err
 				}
@@ -641,7 +642,8 @@ func createConnectionObject(allowedConnections common.Connection, src, dst Peer)
 }
 
 // updatePeersGeneralExposureData updates src and dst connections to entire world/cluster on the exposures map
-func updatePeersGeneralExposureData(pe *eval.PolicyEngine, src, dst Peer, ingressSet, egressSet map[Peer]bool, exMaps *exposureMaps) error {
+func (ca *ConnlistAnalyzer) updatePeersGeneralExposureData(pe *eval.PolicyEngine, src, dst Peer, ingressSet, egressSet map[Peer]bool,
+	exMaps *exposureMaps) error {
 	// when computing allowed conns between the peers,(even on first time)
 	// if a workload peer is not protected by netpols this was definitely detected;
 	// also exposure to entire cluster was definitely computed for src or/and dst (if its a workload peer)
@@ -652,7 +654,7 @@ func updatePeersGeneralExposureData(pe *eval.PolicyEngine, src, dst Peer, ingres
 	// (e.g. only one peer with one netpol exposing the peer to entire cluster, no netpols)
 	var err error
 	// 1. only on first time : add general exposure data for the src peer (on egress)
-	if !src.IsPeerIPType() && !pe.IsRepresentativePeer(src) && !egressSet[src] {
+	if ca.shouldAddPeerGeneralExposureData(pe, src, egressSet) {
 		err = exMaps.addPeerGeneralExposure(pe, src, false)
 		if err != nil {
 			return err
@@ -660,9 +662,20 @@ func updatePeersGeneralExposureData(pe *eval.PolicyEngine, src, dst Peer, ingres
 	}
 	egressSet[src] = true
 	// 2. only on first time : add general exposure data for the dst peer (on ingress)
-	if !dst.IsPeerIPType() && !pe.IsRepresentativePeer(dst) && !ingressSet[dst] {
+	if ca.shouldAddPeerGeneralExposureData(pe, dst, ingressSet) {
 		err = exMaps.addPeerGeneralExposure(pe, dst, true)
 	}
 	ingressSet[dst] = true
 	return err
+}
+
+// shouldAddPeerGeneralExposureData returns whether should add given peer's general
+// exposure data to the exposure results.
+// returns true if :
+// - the peer is not IP type
+// - the peer is not representative peer
+// - focus-workload flag is not used or the peer is the focus-workload
+// - it is first time the peer is visited
+func (ca *ConnlistAnalyzer) shouldAddPeerGeneralExposureData(pe *eval.PolicyEngine, peer Peer, xgressSet map[Peer]bool) bool {
+	return !peer.IsPeerIPType() && !pe.IsRepresentativePeer(peer) && !xgressSet[peer] && ca.isPeerFocusWorkload(peer)
 }

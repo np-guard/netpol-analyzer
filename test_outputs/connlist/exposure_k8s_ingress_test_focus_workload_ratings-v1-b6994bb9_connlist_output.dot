@@ -1,0 +1,29 @@
+digraph {
+	subgraph "cluster_default" {
+		color="black"
+		fontcolor="black"
+		"default/details-v1-79f774bdb9[ReplicaSet]" [label="details-v1-79f774bdb9[ReplicaSet]" color="blue" fontcolor="blue"]
+		"default/productpage-v1-6b746f74dc[ReplicaSet]" [label="productpage-v1-6b746f74dc[ReplicaSet]" color="blue" fontcolor="blue"]
+		"default/ratings-v1-b6994bb9[ReplicaSet]" [label="ratings-v1-b6994bb9[ReplicaSet]" color="blue" fontcolor="blue"]
+		"default/reviews-v1-545db77b95[ReplicaSet]" [label="reviews-v1-545db77b95[ReplicaSet]" color="blue" fontcolor="blue"]
+		"default/reviews-v2-7bf8c9648f[ReplicaSet]" [label="reviews-v2-7bf8c9648f[ReplicaSet]" color="blue" fontcolor="blue"]
+		"default/reviews-v3-84779c7bbc[ReplicaSet]" [label="reviews-v3-84779c7bbc[ReplicaSet]" color="blue" fontcolor="blue"]
+		label="default"
+	}
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
+	"0.0.0.0-255.255.255.255" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"default/details-v1-79f774bdb9[ReplicaSet]" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"default/productpage-v1-6b746f74dc[ReplicaSet]" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"default/ratings-v1-b6994bb9[ReplicaSet]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"default/ratings-v1-b6994bb9[ReplicaSet]" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"default/ratings-v1-b6994bb9[ReplicaSet]" -> "default/productpage-v1-6b746f74dc[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"default/ratings-v1-b6994bb9[ReplicaSet]" -> "default/reviews-v1-545db77b95[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"default/ratings-v1-b6994bb9[ReplicaSet]" -> "default/reviews-v2-7bf8c9648f[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"default/ratings-v1-b6994bb9[ReplicaSet]" -> "default/reviews-v3-84779c7bbc[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"default/ratings-v1-b6994bb9[ReplicaSet]" -> "entire-cluster" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"default/reviews-v1-545db77b95[ReplicaSet]" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"default/reviews-v2-7bf8c9648f[ReplicaSet]" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"default/reviews-v3-84779c7bbc[ReplicaSet]" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"entire-cluster" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+}
