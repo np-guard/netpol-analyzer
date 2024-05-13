@@ -1,3 +1,9 @@
+/*
+Copyright 2023- IBM Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+*/
+
 // The connlist package of netpol-analyzer allows producing a k8s connectivity report based on several resources:
 // k8s NetworkPolicy, k8s Ingress, openshift Route
 // It lists the set of allowed connections between each pair of different peers (k8s workloads or ip-blocks).

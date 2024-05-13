@@ -1,3 +1,9 @@
+/*
+Copyright 2023- IBM Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+*/
+
 package connlist
 
 import (
@@ -23,7 +29,7 @@ type resourceEvaluationError struct {
 	origErr error
 }
 
-type connlistAnalyzerWarning struct {
+type connlistAnalyzerWarnError struct {
 	origErr error
 }
 
@@ -35,7 +41,7 @@ func (e *resourceEvaluationError) Error() string {
 	return e.origErr.Error()
 }
 
-func (e *connlistAnalyzerWarning) Error() string {
+func (e *connlistAnalyzerWarnError) Error() string {
 	return e.origErr.Error()
 }
 
@@ -70,5 +76,5 @@ func newResourceEvaluationError(err error) *connlistGeneratingError {
 }
 
 func newConnlistAnalyzerWarning(err error) *connlistGeneratingError {
-	return &connlistGeneratingError{err: &connlistAnalyzerWarning{err}, fatal: false, severe: false}
+	return &connlistGeneratingError{err: &connlistAnalyzerWarnError{err}, fatal: false, severe: false}
 }
