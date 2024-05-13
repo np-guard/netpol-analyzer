@@ -23,7 +23,7 @@ build:
 	CGO_ENABLED=0 go build -o ./bin/$(EXE) ./cmd/netpolicy
 
 test:
-	@echo -- $@ --	
+	@echo -- $@ --
 	go test ./... -v -coverpkg=./... -coverprofile $(COVERAGE)
 
 coverage:
