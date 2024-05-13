@@ -1,5 +1,6 @@
 REPOSITORY := github.com/np-guard/netpol-analyzer
 EXE:=k8snetpolicy
+COVERAGE:=netpolicy.coverprofile
 
 mod: go.mod
 	@echo -- $@ --
@@ -23,10 +24,10 @@ build:
 
 test:
 	@echo -- $@ --
-	go test ./... -v -cover -coverprofile netpolicy.coverprofile
+	go test ./... -v -coverpkg=./... -coverprofile $(COVERAGE)
 
 coverage:
-	go tool cover -html="netpolicy.coverprofile"
+	go tool cover -html="$(COVERAGE)"
 
 test-update: # overrides/ generates tests' expected output files for relevant tests 
 # if the format is dot - generates also png files
