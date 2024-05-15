@@ -8,15 +8,15 @@
  viewBox="0.00 0.00 781.00 278.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 274)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-274 777,-274 777,4 -4,4"/>
-<g id="clust2" class="cluster">
-<title>cluster_namespace with {effect=NoSchedule}</title>
-<polygon fill="none" stroke="#ee0000" points="8,-187 8,-262 238,-262 238,-187 8,-187"/>
-<text text-anchor="middle" x="123" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {effect=NoSchedule}</text>
-</g>
 <g id="clust4" class="cluster">
 <title>cluster_namespace with {release=stable}</title>
 <polygon fill="none" stroke="#ee0000" points="565,-187 565,-262 765,-262 765,-187 565,-187"/>
 <text text-anchor="middle" x="665" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {release=stable}</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_namespace with {effect=NoSchedule}</title>
+<polygon fill="none" stroke="#ee0000" points="8,-187 8,-262 238,-262 238,-187 8,-187"/>
+<text text-anchor="middle" x="123" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {effect=NoSchedule}</text>
 </g>
 <g id="clust3" class="cluster">
 <title>cluster_namespace with {foo.com/managed_state=managed}</title>
@@ -37,28 +37,28 @@
 <!-- 0.0.0.0&#45;255.255.255.255 -->
 <g id="node5" class="node">
 <title>0.0.0.0&#45;255.255.255.255</title>
-<ellipse fill="none" stroke="#ee0000" cx="302" cy="-18" rx="98.58" ry="18"/>
-<text text-anchor="middle" x="302" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255</text>
+<ellipse fill="none" stroke="#ee0000" cx="401" cy="-18" rx="98.58" ry="18"/>
+<text text-anchor="middle" x="401" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge4" class="edge">
 <title>hello&#45;world/workload&#45;a[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
-<path fill="none" stroke="#eec900" d="M381.44,-87.21C366.53,-74.4 345.8,-56.61 329.26,-42.4"/>
-<polygon fill="#eec900" stroke="#eec900" points="331.39,-39.62 321.52,-35.76 326.83,-44.93 331.39,-39.62"/>
-<text text-anchor="middle" x="402.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
+<path fill="none" stroke="#eec900" d="M401,-86.8C401,-75.16 401,-59.55 401,-46.24"/>
+<polygon fill="#eec900" stroke="#eec900" points="404.5,-46.18 401,-36.18 397.5,-46.18 404.5,-46.18"/>
+<text text-anchor="middle" x="446.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- entire&#45;cluster -->
 <g id="node6" class="node">
 <title>entire&#45;cluster</title>
-<polygon fill="none" stroke="#ee0000" points="500,-36 419.23,-18 500,0 580.77,-18 500,-36"/>
-<text text-anchor="middle" x="500" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">entire&#45;cluster</text>
+<polygon fill="none" stroke="#ee0000" points="599,-36 518.23,-18 599,0 679.77,-18 599,-36"/>
+<text text-anchor="middle" x="599" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">entire&#45;cluster</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge5" class="edge">
 <title>hello&#45;world/workload&#45;a[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M427.17,-87.54C435.38,-81.98 444.3,-75.53 452,-69 462.08,-60.45 472.34,-50.03 480.78,-40.93"/>
-<polygon fill="#eec900" stroke="#eec900" points="483.54,-43.09 487.67,-33.34 478.36,-38.39 483.54,-43.09"/>
-<text text-anchor="middle" x="512.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
+<path fill="none" stroke="#eec900" d="M445.34,-88.69C461.43,-82.87 479.67,-75.95 496,-69 520.16,-58.72 546.81,-45.73 566.94,-35.58"/>
+<polygon fill="#eec900" stroke="#eec900" points="568.65,-38.63 575.99,-30.98 565.48,-32.39 568.65,-38.63"/>
+<text text-anchor="middle" x="572.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- all pods_in_namespace with {effect=NoSchedule} -->
 <g id="node2" class="node">

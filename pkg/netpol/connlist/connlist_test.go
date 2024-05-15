@@ -913,4 +913,9 @@ var goodPathTests = []struct {
 		focusWorkload:    "ratings-v1-b6994bb9",
 		outputFormats:    ExposureValidFormats,
 	},
+	{
+		testDirName:      "test_exposure_minimal_netpol_analysis",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.DOTFormat},
+	},
 }
