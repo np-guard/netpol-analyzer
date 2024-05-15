@@ -21,9 +21,9 @@ digraph {
 	"default/ratings-v1-b6994bb9[ReplicaSet]" -> "default/reviews-v1-545db77b95[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"default/ratings-v1-b6994bb9[ReplicaSet]" -> "default/reviews-v2-7bf8c9648f[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"default/ratings-v1-b6994bb9[ReplicaSet]" -> "default/reviews-v3-84779c7bbc[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-	"default/ratings-v1-b6994bb9[ReplicaSet]" -> "entire-cluster" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"default/ratings-v1-b6994bb9[ReplicaSet]" -> "entire-cluster" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"default/reviews-v1-545db77b95[ReplicaSet]" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"default/reviews-v2-7bf8c9648f[ReplicaSet]" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"default/reviews-v3-84779c7bbc[ReplicaSet]" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
-	"entire-cluster" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"entire-cluster" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 }
