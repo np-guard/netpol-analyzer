@@ -68,12 +68,19 @@ func (pe *PolicyEngine) extractLabelsAndRefineRepresentativePeers(podObj *k8s.Po
 
 // refineRepresentativePeersMatchingLabels removes from the policy engine all representative peers
 // with labels matching the given labels of a real pod
+// representative peers matching any-namespace will not be removed.
 func (pe *PolicyEngine) refineRepresentativePeersMatchingLabels(realPodLabels, realNsLabels map[string]string) {
 	keysToDelete := make([]string, 0)
 	// look for representative peers with labels matching the given real pod's (and its namespace) labels
 	for key, peer := range pe.representativePeersMap {
 		potentialPodSelector := labels.SelectorFromSet(labels.Set(peer.Pod.Labels))
 		potentialNsSelector := labels.SelectorFromSet(labels.Set(peer.PotentialNamespaceLabels))
+		if potentialNsSelector.Empty() { // representative peer that matches any-namespace, will not be removed
+			continue
+		}
+		// remove representative peer matching both realPodLabels and realNsLabels.
+		// a representative peer that matches any-pod in a specific namespace, and real Labels are for a specific pod in same namespace,
+		// the representative peer will be removed (we have at least one real pod in that namespace)
 		if potentialPodSelector.Matches(labels.Set(realPodLabels)) && potentialNsSelector.Matches(labels.Set(realNsLabels)) {
 			keysToDelete = append(keysToDelete, key)
 		}
