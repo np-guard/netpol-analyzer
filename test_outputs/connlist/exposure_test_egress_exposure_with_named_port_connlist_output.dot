@@ -12,6 +12,6 @@ digraph {
 		label="namespace with {foo.com/managed-state=managed}"
 	}
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
-	"entire-cluster" -> "hello-world/workload-a[Deployment]" [label="TCP 8000" color="gold2" fontcolor="darkgreen"]
-	"hello-world/workload-a[Deployment]" -> "all pods_in_namespace with {foo.com/managed-state=managed}" [label="TCP http" color="gold2" fontcolor="darkgreen"]
+	"entire-cluster" -> "hello-world/workload-a[Deployment]" [label="TCP 8000" color="gold2" fontcolor="darkgreen" weight=1]
+	"hello-world/workload-a[Deployment]" -> "all pods_in_namespace with {foo.com/managed-state=managed}" [label="TCP http" color="gold2" fontcolor="darkgreen" weight=0.5]
 }

@@ -914,6 +914,11 @@ var goodPathTests = []struct {
 		outputFormats:    ExposureValidFormats,
 	},
 	{
+		testDirName:      "test_exposure_minimal_netpol_analysis",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.DOTFormat},
+	},
+	{
 		// test that when the rule enable any-namespace with podSelector, a representative peer is created even
 		// if there is a matching pod in a specific namespace
 		testDirName:      "test_exposure_to_any_namespace_with_podSelector",

@@ -1,0 +1,17 @@
+digraph {
+	subgraph "cluster_default" {
+		color="black"
+		fontcolor="black"
+		"default/backend[Deployment]" [label="backend[Deployment]" color="blue" fontcolor="blue"]
+		"default/frontend[Deployment]" [label="frontend[Deployment]" color="blue" fontcolor="blue"]
+		label="default"
+	}
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
+	"0.0.0.0-255.255.255.255" -> "default/frontend[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"default/frontend[Deployment]" -> "0.0.0.0-255.255.255.255" [label="UDP 53" color="gold2" fontcolor="darkgreen"]
+	"default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090" color="gold2" fontcolor="darkgreen"]
+	"default/frontend[Deployment]" -> "entire-cluster" [label="UDP 53" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"entire-cluster" -> "default/backend[Deployment]" [label="TCP 9090" color="gold2" fontcolor="darkgreen" weight=1]
+	"entire-cluster" -> "default/frontend[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=1]
+}
