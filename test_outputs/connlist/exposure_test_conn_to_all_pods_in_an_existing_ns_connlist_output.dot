@@ -2,6 +2,7 @@ digraph {
 	subgraph "cluster_backend" {
 		color="black"
 		fontcolor="black"
+		"all pods_in_backend" [label="all pods" color="red2" fontcolor="red2"]
 		"backend/backend-app[Deployment]" [label="backend-app[Deployment]" color="blue" fontcolor="blue"]
 		label="backend"
 	}
@@ -14,6 +15,7 @@ digraph {
 	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
 	"0.0.0.0-255.255.255.255" -> "backend/backend-app[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"all pods_in_backend" -> "hello-world/workload-a[Deployment]" [label="TCP 8050" color="gold2" fontcolor="darkgreen" weight=1]
 	"backend/backend-app[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"backend/backend-app[Deployment]" -> "entire-cluster" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"backend/backend-app[Deployment]" -> "hello-world/workload-a[Deployment]" [label="TCP 8050" color="gold2" fontcolor="darkgreen"]

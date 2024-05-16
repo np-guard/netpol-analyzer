@@ -75,14 +75,19 @@ func (pe *PolicyEngine) refineRepresentativePeersMatchingLabels(realPodLabels, r
 	for key, peer := range pe.representativePeersMap {
 		potentialPodSelector := labels.SelectorFromSet(labels.Set(peer.Pod.Labels))
 		potentialNsSelector := labels.SelectorFromSet(labels.Set(peer.PotentialNamespaceLabels))
-		if potentialNsSelector.Empty() { 
-		// empty --representative peer that matches any-namespace, thus will not be removed
-		// note that if the policy had nil namespaceSelector, it would be converted to the namespace of the policy 
+		if potentialNsSelector.Empty() {
+			// empty --representative peer that matches any-namespace, thus will not be removed
+			// note that if the policy had nil namespaceSelector, it would be converted to the namespace of the policy
+			continue
+		}
+		if potentialPodSelector.Empty() {
+			// empty/nil podSelector means representative peer that matches any-pod in the representative namespace,
+			// thus will not be removed
+			// note that there is no representative peer with both empty namespace and pod selector; that case was handled
+			// in the general conns compute and won't get here.
 			continue
 		}
 		// remove representative peer matching both realPodLabels and realNsLabels.
-		// a representative peer that matches any-pod in a specific namespace, and real Labels are for a specific pod in same namespace,
-		// the representative peer will be removed (we have at least one real pod in that namespace)
 		if potentialPodSelector.Matches(labels.Set(realPodLabels)) && potentialNsSelector.Matches(labels.Set(realNsLabels)) {
 			keysToDelete = append(keysToDelete, key)
 		}
