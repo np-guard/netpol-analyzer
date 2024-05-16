@@ -75,7 +75,9 @@ func (pe *PolicyEngine) refineRepresentativePeersMatchingLabels(realPodLabels, r
 	for key, peer := range pe.representativePeersMap {
 		potentialPodSelector := labels.SelectorFromSet(labels.Set(peer.Pod.Labels))
 		potentialNsSelector := labels.SelectorFromSet(labels.Set(peer.PotentialNamespaceLabels))
-		if potentialNsSelector.Empty() { // representative peer that matches any-namespace, will not be removed
+		if potentialNsSelector.Empty() { 
+		// empty --representative peer that matches any-namespace, thus will not be removed
+		// note that if the policy had nil namespaceSelector, it would be converted to the namespace of the policy 
 			continue
 		}
 		// remove representative peer matching both realPodLabels and realNsLabels.
