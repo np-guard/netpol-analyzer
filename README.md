@@ -153,6 +153,8 @@ source: default/redis-cart[Deployment], destination: 0.0.0.0-255.255.255.255, di
 
 Additional details about the connectivity analysis and its output is specified [here](docs/connlist_output.md).
 
+Additional details about running exposure analysis and its output is specified [here](docs/exposure_analysis.md).
+
 Additional details about the connectivity diff command and its output is specified [here](docs/diff_output.md).
 
 ## Build the project
