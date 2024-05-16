@@ -940,4 +940,17 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ExposureValidFormats,
 	},
+	{
+		// following test resources : contains two pods in different namespaces, and two policies, one for each namespace
+		// first policy captures: hello-world/workload-a and exposes it on Ingress to all pods in backend namespace
+		// second policy captures: backend/backend-app and denies all egress from it
+		// so as result hello-world/workload-a is actually exposed to all backend pods except for backend-app
+		// @TODO: following exposure line in output :
+		// `hello-world/workload-a[Deployment]      <=      backend/[all pods] : TCP 8050`
+		// should be replaced with :
+		// `hello-world/workload-a[Deployment]      <=      backend/[all pods except backend/backend-app] : TCP 8050`
+		testDirName:      "test_exposure_to_namespace_except_specific_pod",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
 }

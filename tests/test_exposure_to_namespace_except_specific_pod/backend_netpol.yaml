@@ -1,0 +1,15 @@
+# this policy denies any egress from backend/backend-app
+# however hello_world_netpol.yaml allows ingress to hello-world/workload-a from all pods in backend
+# so the result we should see is that hello-world/workload-a is exposed on Ingress to backend/[all pods except backend-app]
+
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: deny-egress-from-backend-app
+  namespace: backend
+spec:
+  podSelector:
+    matchLabels:
+      app: backend-app
+  policyTypes:
+  - Egress
