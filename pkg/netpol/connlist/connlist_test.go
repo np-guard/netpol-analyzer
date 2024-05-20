@@ -945,10 +945,13 @@ var goodPathTests = []struct {
 		// first policy captures: hello-world/workload-a and exposes it on Ingress to all pods in backend namespace
 		// second policy captures: backend/backend-app and denies all egress from it
 		// so as result hello-world/workload-a is actually exposed to all backend pods except for backend-app
-		// @TODO: following exposure line in output :
+		// note: following exposure line in output :
 		// `hello-world/workload-a[Deployment]      <=      backend/[all pods] : TCP 8050`
-		// should be replaced with :
+		// could have been more accurate with:
 		// `hello-world/workload-a[Deployment]      <=      backend/[pods without app: backend-app] : TCP 8050`
+		// but the goal is to hint where policy can be tightened, thus it is ok to ignore policies that capture 
+		// representative peers in the analysis 
+		
 		testDirName:      "test_exposure_to_namespace_except_specific_pod",
 		exposureAnalysis: true,
 		outputFormats:    ExposureValidFormats,
