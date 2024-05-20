@@ -948,7 +948,7 @@ var goodPathTests = []struct {
 		// @TODO: following exposure line in output :
 		// `hello-world/workload-a[Deployment]      <=      backend/[all pods] : TCP 8050`
 		// should be replaced with :
-		// `hello-world/workload-a[Deployment]      <=      backend/[all pods except backend/backend-app] : TCP 8050`
+		// `hello-world/workload-a[Deployment]      <=      backend/[pods without app: backend-app] : TCP 8050`
 		testDirName:      "test_exposure_to_namespace_except_specific_pod",
 		exposureAnalysis: true,
 		outputFormats:    ExposureValidFormats,
