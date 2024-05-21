@@ -949,9 +949,9 @@ var goodPathTests = []struct {
 		// `hello-world/workload-a[Deployment]      <=      backend/[all pods] : TCP 8050`
 		// could have been more accurate with:
 		// `hello-world/workload-a[Deployment]      <=      backend/[pods without app: backend-app] : TCP 8050`
-		// but the goal is to hint where policy can be tightened, thus it is ok to ignore policies that capture 
-		// representative peers in the analysis 
-		
+		// but the goal is to hint where policy can be tightened, thus it is ok to ignore policies that capture
+		// representative peers in the analysis
+
 		testDirName:      "test_exposure_to_namespace_except_specific_pod",
 		exposureAnalysis: true,
 		outputFormats:    ExposureValidFormats,
