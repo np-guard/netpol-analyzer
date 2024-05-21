@@ -918,4 +918,42 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    []string{output.DOTFormat},
 	},
+	{
+		// test that when the rule enable any-namespace with podSelector, a representative peer is created even
+		// if there is a matching pod in a specific namespace
+		testDirName:      "test_exposure_to_any_namespace_with_podSelector",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		testDirName:      "test_conn_to_all_pods_in_an_existing_ns",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		testDirName:      "test_conn_to_new_pod_in_an_existing_ns",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		testDirName:      "test_conn_to_all_pods_in_an_existing_ns_with_ns_selector_only",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		// following test resources : contains two pods in different namespaces, and two policies, one for each namespace
+		// first policy captures: hello-world/workload-a and exposes it on Ingress to all pods in backend namespace
+		// second policy captures: backend/backend-app and denies all egress from it
+		// so as result hello-world/workload-a is actually exposed to all backend pods except for backend-app
+		// note: following exposure line in output :
+		// `hello-world/workload-a[Deployment]      <=      backend/[all pods] : TCP 8050`
+		// could have been more accurate with:
+		// `hello-world/workload-a[Deployment]      <=      backend/[pods without app: backend-app] : TCP 8050`
+		// but the goal is to hint where policy can be tightened, thus it is ok to ignore policies that capture
+		// representative peers in the analysis
+
+		testDirName:      "test_exposure_to_namespace_except_specific_pod",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
 }

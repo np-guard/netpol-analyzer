@@ -12,6 +12,9 @@ spec:
     - namespaceSelector:
         matchLabels:
           kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: b-app
   - from:
     - namespaceSelector:
            matchExpressions:
