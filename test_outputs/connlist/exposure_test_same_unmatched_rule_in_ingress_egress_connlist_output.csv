@@ -1,0 +1,6 @@
+src,dst,conn
+Exposure Analysis Result:,,
+src,dst,conn
+[namespace with {foo.com/managed-state=managed}]/[all pods],hello-world/workload-a[Deployment],"TCP 8000,8090"
+entire-cluster,hello-world/workload-a[Deployment],TCP 8000
+hello-world/workload-a[Deployment],[namespace with {foo.com/managed-state=managed}]/[all pods],TCP 8050

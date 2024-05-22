@@ -17,20 +17,40 @@ import (
 
 var newLineChar = fmt.Sprintln("")
 
-// gets the conns array and returns a sorted array of singleConnFields structs. helps with forming the json and csv outputs
-func sortConnections(conns []Peer2PeerConnection) []singleConnFields {
-	connItems := make([]singleConnFields, len(conns))
-	for i := range conns {
-		connItems[i] = formSingleP2PConn(conns[i])
-	}
-	sort.Slice(connItems, func(i, j int) bool {
-		if connItems[i].Src != connItems[j].Src {
-			return connItems[i].Src < connItems[j].Src
-		}
-		return connItems[i].Dst < connItems[j].Dst
-	})
+// ipMaps is a struct for saving connections with ip-blocks from connlist
+// connections with IP-peers should appear in both connlist and exposure-analysis output sections
+// used in txt , md, csv , json formats
+type ipMaps struct {
+	// PeerToConnsFromIPs map from real peer.String() to its ingress connections from ip-blocks
+	// extracted from the []Peer2PeerConnection conns to be appended also to the exposure-analysis output
+	// i.e : if connlist output contains `0.0.0.0-255.255.255.255 => ns1/workload-a : All Connections`
+	// the PeerToConnsFromIPs will contain following entry: (to be written also in exposure output)
+	// {ns1/workload-a: []singleConnFields{{src: 0.0.0.0-255.255.255.255, dst: ns1/workload-a, conn: All Connections},}}
+	PeerToConnsFromIPs map[string][]singleConnFields
 
-	return connItems
+	// peerToConnsToIPs map from real peer.String() to its egress connections to ip-blocks
+	// extracted from the []Peer2PeerConnection conns to be appended also to the exposure-analysis output
+	peerToConnsToIPs map[string][]singleConnFields
+}
+
+// saveConnsWithIPs gets a P2P connection; if the connection includes an IP-Peer as one of its end-points; the conn is saved in the
+// matching map of the formatText maps
+func (i *ipMaps) saveConnsWithIPs(conn Peer2PeerConnection) {
+	if conn.Src().IsPeerIPType() {
+		i.PeerToConnsFromIPs[conn.Dst().String()] = append(i.PeerToConnsFromIPs[conn.Dst().String()], formSingleP2PConn(conn))
+	}
+	if conn.Dst().IsPeerIPType() {
+		i.peerToConnsToIPs[conn.Src().String()] = append(i.peerToConnsToIPs[conn.Src().String()], formSingleP2PConn(conn))
+	}
+}
+
+// createIPMaps returns an ipMaps object with empty maps if required
+func createIPMaps(initMapsFlag bool) (ipMaps ipMaps) {
+	if initMapsFlag {
+		ipMaps.peerToConnsToIPs = make(map[string][]singleConnFields)
+		ipMaps.PeerToConnsFromIPs = make(map[string][]singleConnFields)
+	}
+	return ipMaps
 }
 
 // connsFormatter implements output formatting in the required output format
@@ -56,9 +76,10 @@ func formSingleP2PConn(conn Peer2PeerConnection) singleConnFields {
 	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr}
 }
 
-// commonly (to be) used for exposure analysis output formatters
-
-const entireCluster = "entire-cluster"
+const (
+	entireCluster          = "entire-cluster"
+	exposureAnalysisHeader = "Exposure Analysis Result:"
+)
 
 // formSingleExposureConn returns a representation of single exposure connection fields as singleConnFields object
 func formSingleExposureConn(peer, repPeer string, conn common.Connection, isIngress bool) singleConnFields {
@@ -123,4 +144,64 @@ func getRepresentativePodString(podLabels map[string]string, txtOutFlag bool) st
 		return fmt.Sprintf(stringInBrackets, res)
 	}
 	return res
+}
+
+// following code is common for md, csv and json:
+
+// getConnlistAsSortedSingleConnFieldsArray returns a sorted singleConnFields list from Peer2PeerConnection list.
+// creates ipMaps object if the format requires it (to be used for exposure results later)
+func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMaps ipMaps, saveToIPMaps bool) []singleConnFields {
+	connItems := make([]singleConnFields, len(conns))
+	for i := range conns {
+		if saveToIPMaps {
+			ipMaps.saveConnsWithIPs(conns[i])
+		}
+		connItems[i] = formSingleP2PConn(conns[i])
+	}
+	return sortConnFields(connItems)
+}
+
+// sortConnFields returns sorted list from the given singleConnFields list
+func sortConnFields(conns []singleConnFields) []singleConnFields {
+	sort.Slice(conns, func(i, j int) bool {
+		if conns[i].Src != conns[j].Src {
+			return conns[i].Src < conns[j].Src
+		}
+		return conns[i].Dst < conns[j].Dst
+	})
+	return conns
+}
+
+// getExposureConnsAsSortedSingleConnFieldsArray returns a sorted singleConnFields list from ExposedPeer list and ipMaps records.
+func getExposureConnsAsSortedSingleConnFieldsArray(exposureConns []ExposedPeer, ipMaps ipMaps) []singleConnFields {
+	exposureRecords := make([]singleConnFields, 0)
+	for _, ep := range exposureConns {
+		exposureRecords = append(exposureRecords, getXgressExposureConnsAsSingleConnFieldsArray(ep.ExposedPeer().String(),
+			true, ep.IsProtectedByIngressNetpols(), ep.IngressExposure(), ipMaps)...)
+		exposureRecords = append(exposureRecords, getXgressExposureConnsAsSingleConnFieldsArray(ep.ExposedPeer().String(),
+			false, ep.IsProtectedByEgressNetpols(), ep.EgressExposure(), ipMaps)...)
+	}
+	return sortConnFields(exposureRecords)
+}
+
+// getXgressExposureConnsAsSingleConnFieldsArray returns xgress data of an exposed peer as singleConnFields list
+func getXgressExposureConnsAsSingleConnFieldsArray(peerStr string, isIngress, isProtected bool,
+	xgressExp []XgressExposureData, ipMaps ipMaps) []singleConnFields {
+	xgressLines := make([]singleConnFields, 0)
+	if !isProtected {
+		xgressLines = append(xgressLines, formSingleExposureConn(peerStr, entireCluster, common.MakeConnectionSet(true), isIngress))
+	} else { // protected
+		for _, data := range xgressExp {
+			xgressLines = append(xgressLines, formExposureItemAsSingleConnFiled(peerStr, data, isIngress))
+		}
+	}
+	// append xgress ip conns to this peer from the relevant map
+	ipMap := ipMaps.PeerToConnsFromIPs
+	if !isIngress {
+		ipMap = ipMaps.peerToConnsToIPs
+	}
+	if ipConns, ok := ipMap[peerStr]; ok {
+		xgressLines = append(xgressLines, ipConns...)
+	}
+	return xgressLines
 }

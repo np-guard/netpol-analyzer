@@ -1,0 +1,131 @@
+{
+  "connlist_results": [
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "default/redis-cart[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/checkoutservice[Deployment]",
+      "dst": "default/cartservice[Deployment]",
+      "conn": "TCP 7070"
+    },
+    {
+      "src": "default/checkoutservice[Deployment]",
+      "dst": "default/currencyservice[Deployment]",
+      "conn": "TCP 7000"
+    },
+    {
+      "src": "default/checkoutservice[Deployment]",
+      "dst": "default/emailservice[Deployment]",
+      "conn": "TCP 8080"
+    },
+    {
+      "src": "default/checkoutservice[Deployment]",
+      "dst": "default/paymentservice[Deployment]",
+      "conn": "TCP 50051"
+    },
+    {
+      "src": "default/checkoutservice[Deployment]",
+      "dst": "default/productcatalogservice[Deployment]",
+      "conn": "TCP 3550"
+    },
+    {
+      "src": "default/checkoutservice[Deployment]",
+      "dst": "default/shippingservice[Deployment]",
+      "conn": "TCP 50051"
+    },
+    {
+      "src": "default/frontend[Deployment]",
+      "dst": "default/adservice[Deployment]",
+      "conn": "TCP 9555"
+    },
+    {
+      "src": "default/frontend[Deployment]",
+      "dst": "default/cartservice[Deployment]",
+      "conn": "TCP 7070"
+    },
+    {
+      "src": "default/frontend[Deployment]",
+      "dst": "default/checkoutservice[Deployment]",
+      "conn": "TCP 5050"
+    },
+    {
+      "src": "default/frontend[Deployment]",
+      "dst": "default/currencyservice[Deployment]",
+      "conn": "TCP 7000"
+    },
+    {
+      "src": "default/frontend[Deployment]",
+      "dst": "default/productcatalogservice[Deployment]",
+      "conn": "TCP 3550"
+    },
+    {
+      "src": "default/frontend[Deployment]",
+      "dst": "default/recommendationservice[Deployment]",
+      "conn": "TCP 8080"
+    },
+    {
+      "src": "default/frontend[Deployment]",
+      "dst": "default/shippingservice[Deployment]",
+      "conn": "TCP 50051"
+    },
+    {
+      "src": "default/loadgenerator[Deployment]",
+      "dst": "default/frontend[Deployment]",
+      "conn": "TCP 8080"
+    },
+    {
+      "src": "default/recommendationservice[Deployment]",
+      "dst": "default/productcatalogservice[Deployment]",
+      "conn": "TCP 3550"
+    },
+    {
+      "src": "default/redis-cart[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    }
+  ],
+  "exposure_results": [
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "default/redis-cart[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/checkoutservice[Deployment]",
+      "dst": "[all namespaces]/[pod with {k8s-app=kube-dns}]",
+      "conn": "UDP 53"
+    },
+    {
+      "src": "default/frontend[Deployment]",
+      "dst": "[all namespaces]/[pod with {k8s-app=kube-dns}]",
+      "conn": "UDP 53"
+    },
+    {
+      "src": "default/loadgenerator[Deployment]",
+      "dst": "[all namespaces]/[pod with {k8s-app=kube-dns}]",
+      "conn": "UDP 53"
+    },
+    {
+      "src": "default/recommendationservice[Deployment]",
+      "dst": "[all namespaces]/[pod with {k8s-app=kube-dns}]",
+      "conn": "UDP 53"
+    },
+    {
+      "src": "default/redis-cart[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/redis-cart[Deployment]",
+      "dst": "entire-cluster",
+      "conn": "All Connections"
+    },
+    {
+      "src": "entire-cluster",
+      "dst": "default/redis-cart[Deployment]",
+      "conn": "All Connections"
+    }
+  ]
+}

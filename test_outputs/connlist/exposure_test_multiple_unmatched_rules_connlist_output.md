@@ -1,0 +1,11 @@
+| src | dst | conn |
+|-----|-----|------|
+| hello-world/workload-a[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+## Exposure Analysis Result:
+| src | dst | conn |
+|-----|-----|------|
+| [namespace with {effect=NoSchedule}]/[all pods] | hello-world/workload-a[Deployment] | TCP 8050 |
+| [namespace with {foo.com/managed-state=managed}]/[all pods] | hello-world/workload-a[Deployment] | TCP 8050 |
+| [namespace with {release=stable}]/[all pods] | hello-world/workload-a[Deployment] | All Connections |
+| hello-world/workload-a[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/workload-a[Deployment] | entire-cluster | All Connections |

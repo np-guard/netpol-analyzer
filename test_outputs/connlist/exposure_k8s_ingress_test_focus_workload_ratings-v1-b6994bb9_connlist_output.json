@@ -1,0 +1,86 @@
+{
+  "connlist_results": [
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/details-v1-79f774bdb9[ReplicaSet]",
+      "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/productpage-v1-6b746f74dc[ReplicaSet]",
+      "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "dst": "default/details-v1-79f774bdb9[ReplicaSet]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "dst": "default/productpage-v1-6b746f74dc[ReplicaSet]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "dst": "default/reviews-v1-545db77b95[ReplicaSet]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "dst": "default/reviews-v2-7bf8c9648f[ReplicaSet]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "dst": "default/reviews-v3-84779c7bbc[ReplicaSet]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/reviews-v1-545db77b95[ReplicaSet]",
+      "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/reviews-v2-7bf8c9648f[ReplicaSet]",
+      "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/reviews-v3-84779c7bbc[ReplicaSet]",
+      "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "conn": "All Connections"
+    }
+  ],
+  "exposure_results": [
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "dst": "entire-cluster",
+      "conn": "All Connections"
+    },
+    {
+      "src": "entire-cluster",
+      "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "conn": "All Connections"
+    }
+  ]
+}

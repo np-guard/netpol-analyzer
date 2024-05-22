@@ -16,18 +16,7 @@ import (
 
 // formatText: implements the connsFormatter interface for txt output format
 type formatText struct {
-	// connections with IP-peers should appear in both connlist and exposure-analysis output sections
-
-	// PeerToConnsFromIPs map from real peer.String() to its ingress connections from ip-blocks
-	// extracted from the []Peer2PeerConnection conns to be appended also to the exposure-analysis output
-	// i.e : if connlist output contains `0.0.0.0-255.255.255.255 => ns1/workload-a : All Connections`
-	// the PeerToConnsFromIPs will contain following entry: (to be written also in exposure output)
-	// {ns1/workload-a: []singleConnFields{{src: 0.0.0.0-255.255.255.255, dst: ns1/workload-a, conn: All Connections},}}
-	PeerToConnsFromIPs map[string][]singleConnFields
-
-	// peerToConnsToIPs map from real peer.String() to its egress connections to ip-blocks
-	// extracted from the []Peer2PeerConnection conns to be appended also to the exposure-analysis output
-	peerToConnsToIPs map[string][]singleConnFields
+	ipMaps ipMaps
 }
 
 // writeOutput returns a textual string format of connections from list of Peer2PeerConnection objects,
@@ -49,37 +38,22 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 // writeConnlistOutput writes the section of the connlist result of the output
 func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns bool) string {
 	connLines := make([]string, len(conns))
-	if saveIPConns {
-		t.peerToConnsToIPs = make(map[string][]singleConnFields)
-		t.PeerToConnsFromIPs = make(map[string][]singleConnFields)
-	}
+	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
 		connLines[i] = formSingleP2PConn(conns[i]).string()
 		// if we have exposure analysis results, also check if src/dst is an IP and store the connection
 		if saveIPConns {
-			t.saveConnsWithIPs(conns[i])
+			t.ipMaps.saveConnsWithIPs(conns[i])
 		}
 	}
 	sort.Strings(connLines)
 	return strings.Join(connLines, newLineChar)
 }
 
-// saveConnsWithIPs gets a P2P connection; if the connection includes an IP-Peer as one of its end-points; the conn is saved in the
-// matching map of the formatText maps
-func (t *formatText) saveConnsWithIPs(conn Peer2PeerConnection) {
-	if conn.Src().IsPeerIPType() {
-		t.PeerToConnsFromIPs[conn.Dst().String()] = append(t.PeerToConnsFromIPs[conn.Dst().String()], formSingleP2PConn(conn))
-	}
-	if conn.Dst().IsPeerIPType() {
-		t.peerToConnsToIPs[conn.Src().String()] = append(t.peerToConnsToIPs[conn.Src().String()], formSingleP2PConn(conn))
-	}
-}
-
 const (
-	exposureAnalysisHeader = "Exposure Analysis Result:\n"
-	egressExpHeader        = "Egress Exposure:\n"
-	ingressExpHeader       = "\nIngress Exposure:\n"
-	unprotectedHeader      = "\nWorkloads not protected by network policies:\n"
+	egressExpHeader   = "\nEgress Exposure:\n"
+	ingressExpHeader  = "\nIngress Exposure:\n"
+	unprotectedHeader = "\nWorkloads not protected by network policies:\n"
 )
 
 // writeExposureOutput writes the section of the exposure-analysis result
@@ -156,9 +130,9 @@ func (t *formatText) getPeerXgressExposureLines(exposedPeerStr string, xgressExp
 		}
 	}
 	// append xgress ip conns to this peer from the relevant map
-	ipMap := t.PeerToConnsFromIPs
+	ipMap := t.ipMaps.PeerToConnsFromIPs
 	if !isIngress {
-		ipMap = t.peerToConnsToIPs
+		ipMap = t.ipMaps.peerToConnsToIPs
 	}
 	if ipConns, ok := ipMap[exposedPeerStr]; ok {
 		for i := range ipConns {

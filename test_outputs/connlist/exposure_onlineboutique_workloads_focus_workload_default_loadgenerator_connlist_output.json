@@ -1,0 +1,16 @@
+{
+  "connlist_results": [
+    {
+      "src": "default/loadgenerator[Deployment]",
+      "dst": "default/frontend[Deployment]",
+      "conn": "TCP 8080"
+    }
+  ],
+  "exposure_results": [
+    {
+      "src": "default/loadgenerator[Deployment]",
+      "dst": "[all namespaces]/[pod with {k8s-app=kube-dns}]",
+      "conn": "UDP 53"
+    }
+  ]
+}
