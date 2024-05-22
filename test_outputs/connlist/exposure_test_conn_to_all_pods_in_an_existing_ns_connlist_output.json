@@ -1,0 +1,56 @@
+{
+  "connlist_results": [
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "backend/backend-app[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "backend/backend-app[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "backend/backend-app[Deployment]",
+      "dst": "hello-world/workload-a[Deployment]",
+      "conn": "TCP 8050"
+    },
+    {
+      "src": "hello-world/workload-a[Deployment]",
+      "dst": "backend/backend-app[Deployment]",
+      "conn": "All Connections"
+    }
+  ],
+  "exposure_results": [
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "backend/backend-app[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "backend/[all pods]",
+      "dst": "hello-world/workload-a[Deployment]",
+      "conn": "TCP 8050"
+    },
+    {
+      "src": "backend/backend-app[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "backend/backend-app[Deployment]",
+      "dst": "entire-cluster",
+      "conn": "All Connections"
+    },
+    {
+      "src": "entire-cluster",
+      "dst": "backend/backend-app[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-a[Deployment]",
+      "dst": "entire-cluster",
+      "conn": "All Connections"
+    }
+  ]
+}

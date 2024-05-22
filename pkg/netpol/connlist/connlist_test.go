@@ -923,22 +923,22 @@ var goodPathTests = []struct {
 		// if there is a matching pod in a specific namespace
 		testDirName:      "test_exposure_to_any_namespace_with_podSelector",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_conn_to_all_pods_in_an_existing_ns",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_conn_to_new_pod_in_an_existing_ns",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_conn_to_all_pods_in_an_existing_ns_with_ns_selector_only",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		// following test resources : contains two pods in different namespaces, and two policies, one for each namespace
@@ -954,6 +954,6 @@ var goodPathTests = []struct {
 
 		testDirName:      "test_exposure_to_namespace_except_specific_pod",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 }

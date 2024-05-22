@@ -1,0 +1,5 @@
+src,dst,conn
+default/frontend[Deployment],default/backend[Deployment],TCP 9090
+Exposure Analysis Result:,,
+src,dst,conn
+[all namespaces]/[pod with {app=frontend}],default/backend[Deployment],TCP 9090

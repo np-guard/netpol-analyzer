@@ -1,0 +1,16 @@
+{
+  "connlist_results": [
+    {
+      "src": "default/frontend[Deployment]",
+      "dst": "default/backend[Deployment]",
+      "conn": "TCP 9090"
+    }
+  ],
+  "exposure_results": [
+    {
+      "src": "[all namespaces]/[pod with {app=frontend}]",
+      "dst": "default/backend[Deployment]",
+      "conn": "TCP 9090"
+    }
+  ]
+}
