@@ -26,16 +26,20 @@
       "conn": "TCP 8080"
     }
   ],
-  "exposure_results": [
-    {
-      "src": "entire-cluster",
-      "dst": "frontend/webapp[Deployment]",
-      "conn": "TCP 8080"
-    },
-    {
-      "src": "frontend/webapp[Deployment]",
-      "dst": "entire-cluster",
-      "conn": "UDP 5353"
-    }
-  ]
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "frontend/webapp[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "UDP 5353"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "entire-cluster",
+        "dst": "frontend/webapp[Deployment]",
+        "conn": "TCP 8080"
+      }
+    ]
+  }
 }

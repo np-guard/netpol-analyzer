@@ -38,15 +38,21 @@ func (cs *formatCSV) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 }
 
 // writeCsvColumnsHeader writes columns header row
-func writeCsvColumnsHeader(writer *csv.Writer) error {
-	var headerCSV = []string{"src", "dst", "conn"}
+func writeCsvColumnsHeader(writer *csv.Writer, srcFirst bool) error {
+	headerCSV := []string{src, dst, conn}
+	if !srcFirst {
+		headerCSV = []string{dst, src, conn}
+	}
 	return writer.Write(headerCSV)
 }
 
 // writeTableRows writes the given connections list as csv table
-func writeTableRows(conns []singleConnFields, writer *csv.Writer) error {
+func writeTableRows(conns []singleConnFields, writer *csv.Writer, srcFirst bool) error {
 	for _, conn := range conns {
 		row := []string{conn.Src, conn.Dst, conn.ConnString}
+		if !srcFirst {
+			row = []string{conn.Dst, conn.Src, conn.ConnString}
+		}
 		if err := writer.Write(row); err != nil {
 			return err
 		}
@@ -56,27 +62,47 @@ func writeTableRows(conns []singleConnFields, writer *csv.Writer) error {
 
 // writeCsvConnlistTable writes csv table for the Peer2PeerConnection list
 func (cs *formatCSV) writeCsvConnlistTable(conns []Peer2PeerConnection, writer *csv.Writer, saveIPConns bool) error {
-	err := writeCsvColumnsHeader(writer)
+	err := writeCsvColumnsHeader(writer, true)
 	if err != nil {
 		return err
 	}
 	cs.ipMaps = createIPMaps(saveIPConns)
 	// get an array of sorted conns items ([]singleConnFields), if required also save the relevant conns to ipMaps
 	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, cs.ipMaps, saveIPConns)
-	return writeTableRows(sortedConnItems, writer)
+	return writeTableRows(sortedConnItems, writer, true)
 }
 
 // writeCsvExposureTable writes csv table for ExposedPeer list
 func (cs *formatCSV) writeCsvExposureTable(exposureConns []ExposedPeer, writer *csv.Writer) error {
-	exposureRecords := getExposureConnsAsSortedSingleConnFieldsArray(exposureConns, cs.ipMaps)
+	ingressExposure, egressExposure, _ := getExposureConnsAsSortedSingleConnFieldsArray(exposureConns, cs.ipMaps)
 	// start new section for exposure analysis
 	err := writer.Write([]string{exposureAnalysisHeader, "", ""})
 	if err != nil {
 		return err
 	}
-	err = writeCsvColumnsHeader(writer)
+	err = writeCsvSubSection(egressExposure, false, writer)
 	if err != nil {
 		return err
 	}
-	return writeTableRows(exposureRecords, writer)
+	return writeCsvSubSection(ingressExposure, true, writer)
+}
+
+// writeCsvSubSection writes new csv table with its headers for the given xgress section
+func writeCsvSubSection(expData []singleConnFields, isIngress bool, writer *csv.Writer) error {
+	if len(expData) == 0 {
+		return nil
+	}
+	subHeader := egressExposureHeader
+	if isIngress {
+		subHeader = ingressExposureHeader
+	}
+	err := writer.Write([]string{subHeader, "", ""})
+	if err != nil {
+		return err
+	}
+	err = writeCsvColumnsHeader(writer, !isIngress)
+	if err != nil {
+		return err
+	}
+	return writeTableRows(expData, writer, !isIngress)
 }

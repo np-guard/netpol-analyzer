@@ -1,7 +1,12 @@
 | src | dst | conn |
 |-----|-----|------|
 ## Exposure Analysis Result:
+### Egress Exposure:
 | src | dst | conn |
 |-----|-----|------|
-| entire-cluster | hello-world/workload-a[Deployment] | TCP 8000 |
 | hello-world/workload-a[Deployment] | [namespace with {foo.com/managed-state=managed}]/[all pods] | TCP http |
+
+### Ingress Exposure:
+| dst | src | conn |
+|-----|-----|------|
+| hello-world/workload-a[Deployment] | entire-cluster | TCP 8000 |

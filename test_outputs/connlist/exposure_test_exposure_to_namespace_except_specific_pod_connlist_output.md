@@ -2,8 +2,10 @@
 |-----|-----|------|
 | 0.0.0.0-255.255.255.255 | backend/backend-app[Deployment] | All Connections |
 ## Exposure Analysis Result:
-| src | dst | conn |
+
+### Ingress Exposure:
+| dst | src | conn |
 |-----|-----|------|
-| 0.0.0.0-255.255.255.255 | backend/backend-app[Deployment] | All Connections |
-| backend/[all pods] | hello-world/workload-a[Deployment] | TCP 8050 |
-| entire-cluster | backend/backend-app[Deployment] | All Connections |
+| backend/backend-app[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| backend/backend-app[Deployment] | entire-cluster | All Connections |
+| hello-world/workload-a[Deployment] | backend/[all pods] | TCP 8050 |

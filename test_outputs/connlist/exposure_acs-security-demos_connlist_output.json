@@ -71,41 +71,45 @@
       "conn": "TCP 8080"
     }
   ],
-  "exposure_results": [
-    {
-      "src": "backend/checkout[Deployment]",
-      "dst": "entire-cluster",
-      "conn": "UDP 5353"
-    },
-    {
-      "src": "backend/recommendation[Deployment]",
-      "dst": "entire-cluster",
-      "conn": "UDP 5353"
-    },
-    {
-      "src": "backend/reports[Deployment]",
-      "dst": "entire-cluster",
-      "conn": "UDP 5353"
-    },
-    {
-      "src": "entire-cluster",
-      "dst": "frontend/asset-cache[Deployment]",
-      "conn": "TCP 8080"
-    },
-    {
-      "src": "entire-cluster",
-      "dst": "frontend/webapp[Deployment]",
-      "conn": "TCP 8080"
-    },
-    {
-      "src": "frontend/webapp[Deployment]",
-      "dst": "entire-cluster",
-      "conn": "UDP 5353"
-    },
-    {
-      "src": "payments/gateway[Deployment]",
-      "dst": "entire-cluster",
-      "conn": "UDP 5353"
-    }
-  ]
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "backend/checkout[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "UDP 5353"
+      },
+      {
+        "src": "backend/recommendation[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "UDP 5353"
+      },
+      {
+        "src": "backend/reports[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "UDP 5353"
+      },
+      {
+        "src": "frontend/webapp[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "UDP 5353"
+      },
+      {
+        "src": "payments/gateway[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "UDP 5353"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "entire-cluster",
+        "dst": "frontend/asset-cache[Deployment]",
+        "conn": "TCP 8080"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "frontend/webapp[Deployment]",
+        "conn": "TCP 8080"
+      }
+    ]
+  }
 }

@@ -1,15 +1,19 @@
 {
   "connlist_results": [],
-  "exposure_results": [
-    {
-      "src": "backend/[all pods]",
-      "dst": "hello-world/workload-a[Deployment]",
-      "conn": "TCP 8050"
-    },
-    {
-      "src": "hello-world/workload-a[Deployment]",
-      "dst": "entire-cluster",
-      "conn": "All Connections"
-    }
-  ]
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "hello-world/workload-a[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "backend/[all pods]",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "TCP 8050"
+      }
+    ]
+  }
 }

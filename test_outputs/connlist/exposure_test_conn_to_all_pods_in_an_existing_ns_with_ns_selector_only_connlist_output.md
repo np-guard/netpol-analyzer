@@ -5,11 +5,16 @@
 | backend/backend-app[Deployment] | hello-world/workload-a[Deployment] | TCP 8050 |
 | hello-world/workload-a[Deployment] | backend/backend-app[Deployment] | All Connections |
 ## Exposure Analysis Result:
+### Egress Exposure:
 | src | dst | conn |
 |-----|-----|------|
-| 0.0.0.0-255.255.255.255 | backend/backend-app[Deployment] | All Connections |
-| backend/[all pods] | hello-world/workload-a[Deployment] | TCP 8050 |
 | backend/backend-app[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
 | backend/backend-app[Deployment] | entire-cluster | All Connections |
-| entire-cluster | backend/backend-app[Deployment] | All Connections |
 | hello-world/workload-a[Deployment] | entire-cluster | All Connections |
+
+### Ingress Exposure:
+| dst | src | conn |
+|-----|-----|------|
+| backend/backend-app[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| backend/backend-app[Deployment] | entire-cluster | All Connections |
+| hello-world/workload-a[Deployment] | backend/[all pods] | TCP 8050 |

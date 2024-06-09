@@ -61,26 +61,30 @@
       "conn": "All Connections"
     }
   ],
-  "exposure_results": [
-    {
-      "src": "0.0.0.0-255.255.255.255",
-      "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
-      "conn": "All Connections"
-    },
-    {
-      "src": "default/ratings-v1-b6994bb9[ReplicaSet]",
-      "dst": "0.0.0.0-255.255.255.255",
-      "conn": "All Connections"
-    },
-    {
-      "src": "default/ratings-v1-b6994bb9[ReplicaSet]",
-      "dst": "entire-cluster",
-      "conn": "All Connections"
-    },
-    {
-      "src": "entire-cluster",
-      "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
-      "conn": "All Connections"
-    }
-  ]
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "default/ratings-v1-b6994bb9[ReplicaSet]",
+        "dst": "0.0.0.0-255.255.255.255",
+        "conn": "All Connections"
+      },
+      {
+        "src": "default/ratings-v1-b6994bb9[ReplicaSet]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "0.0.0.0-255.255.255.255",
+        "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
+        "conn": "All Connections"
+      }
+    ]
+  }
 }

@@ -12,10 +12,15 @@
 | {ingress-controller} | default/details-v1-79f774bdb9[ReplicaSet] | TCP 9080 |
 | {ingress-controller} | default/unicorn[Deployment] | TCP 8080 |
 ## Exposure Analysis Result:
+### Egress Exposure:
 | src | dst | conn |
 |-----|-----|------|
-| 0.0.0.0-255.255.255.255 | default/unicorn[Deployment] | All Connections |
 | default/unicorn[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
 | default/unicorn[Deployment] | entire-cluster | All Connections |
-| entire-cluster | default/details-v1-79f774bdb9[ReplicaSet] | TCP 9080 |
-| entire-cluster | default/unicorn[Deployment] | All Connections |
+
+### Ingress Exposure:
+| dst | src | conn |
+|-----|-----|------|
+| default/details-v1-79f774bdb9[ReplicaSet] | entire-cluster | TCP 9080 |
+| default/unicorn[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| default/unicorn[Deployment] | entire-cluster | All Connections |

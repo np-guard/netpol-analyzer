@@ -1,20 +1,24 @@
 {
   "connlist_results": [],
-  "exposure_results": [
-    {
-      "src": "[namespace with {foo.com/managed-state=managed}]/[all pods]",
-      "dst": "hello-world/workload-a[Deployment]",
-      "conn": "TCP 8000,8090"
-    },
-    {
-      "src": "entire-cluster",
-      "dst": "hello-world/workload-a[Deployment]",
-      "conn": "TCP 8000"
-    },
-    {
-      "src": "hello-world/workload-a[Deployment]",
-      "dst": "[namespace with {foo.com/managed-state=managed}]/[all pods]",
-      "conn": "TCP 8050"
-    }
-  ]
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "hello-world/workload-a[Deployment]",
+        "dst": "[namespace with {foo.com/managed-state=managed}]/[all pods]",
+        "conn": "TCP 8050"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "[namespace with {foo.com/managed-state=managed}]/[all pods]",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "TCP 8000,8090"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "TCP 8000"
+      }
+    ]
+  }
 }

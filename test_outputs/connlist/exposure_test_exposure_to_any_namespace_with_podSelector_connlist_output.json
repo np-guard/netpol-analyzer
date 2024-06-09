@@ -6,11 +6,14 @@
       "conn": "TCP 9090"
     }
   ],
-  "exposure_results": [
-    {
-      "src": "[all namespaces]/[pod with {app=frontend}]",
-      "dst": "default/backend[Deployment]",
-      "conn": "TCP 9090"
-    }
-  ]
+  "exposure_results": {
+    "egress_exposure": null,
+    "ingress_exposure": [
+      {
+        "src": "[all namespaces]/[pod with {app=frontend}]",
+        "dst": "default/backend[Deployment]",
+        "conn": "TCP 9090"
+      }
+    ]
+  }
 }

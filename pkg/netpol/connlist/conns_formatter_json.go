@@ -19,7 +19,12 @@ const indent = "  "
 
 type jsonFields struct {
 	ConnlistResults []singleConnFields `json:"connlist_results"`
-	ExposureResults []singleConnFields `json:"exposure_results"`
+	ExposureResults exposureFields     `json:"exposure_results"`
+}
+
+type exposureFields struct {
+	EgressExposure  []singleConnFields `json:"egress_exposure"`
+	IngressExposure []singleConnFields `json:"ingress_exposure"`
 }
 
 // writeOutput returns a json string form of connections from list of Peer2PeerConnection objects
@@ -33,8 +38,14 @@ func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, j.ipMaps, exposureFlag)
 	if exposureFlag {
 		// get an array of sorted exposure items
-		exposureConnItems := getExposureConnsAsSortedSingleConnFieldsArray(exposureConns, j.ipMaps)
-		jsonOut := jsonFields{ConnlistResults: sortedConnItems, ExposureResults: exposureConnItems}
+		ingressExposureItems, egressExposureItems, _ := getExposureConnsAsSortedSingleConnFieldsArray(exposureConns, j.ipMaps)
+		jsonOut := jsonFields{
+			ConnlistResults: sortedConnItems,
+			ExposureResults: exposureFields{
+				EgressExposure:  egressExposureItems,
+				IngressExposure: ingressExposureItems,
+			},
+		}
 		jsonConns, err = json.MarshalIndent(jsonOut, "", indent)
 	} else { // no exposure
 		jsonConns, err = json.MarshalIndent(sortedConnItems, "", indent)

@@ -11,11 +11,14 @@
       "conn": "TCP 9080"
     }
   ],
-  "exposure_results": [
-    {
-      "src": "entire-cluster",
-      "dst": "default/details-v1-79f774bdb9[ReplicaSet]",
-      "conn": "TCP 9080"
-    }
-  ]
+  "exposure_results": {
+    "egress_exposure": null,
+    "ingress_exposure": [
+      {
+        "src": "entire-cluster",
+        "dst": "default/details-v1-79f774bdb9[ReplicaSet]",
+        "conn": "TCP 9080"
+      }
+    ]
+  }
 }

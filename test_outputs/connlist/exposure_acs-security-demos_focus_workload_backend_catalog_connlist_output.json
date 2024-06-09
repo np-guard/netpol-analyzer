@@ -11,5 +11,8 @@
       "conn": "TCP 8080"
     }
   ],
-  "exposure_results": []
+  "exposure_results": {
+    "egress_exposure": null,
+    "ingress_exposure": null
+  }
 }

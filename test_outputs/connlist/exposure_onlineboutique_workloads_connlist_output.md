@@ -18,13 +18,18 @@
 | default/recommendationservice[Deployment] | default/productcatalogservice[Deployment] | TCP 3550 |
 | default/redis-cart[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
 ## Exposure Analysis Result:
+### Egress Exposure:
 | src | dst | conn |
 |-----|-----|------|
-| 0.0.0.0-255.255.255.255 | default/redis-cart[Deployment] | All Connections |
 | default/checkoutservice[Deployment] | [all namespaces]/[pod with {k8s-app=kube-dns}] | UDP 53 |
 | default/frontend[Deployment] | [all namespaces]/[pod with {k8s-app=kube-dns}] | UDP 53 |
 | default/loadgenerator[Deployment] | [all namespaces]/[pod with {k8s-app=kube-dns}] | UDP 53 |
 | default/recommendationservice[Deployment] | [all namespaces]/[pod with {k8s-app=kube-dns}] | UDP 53 |
 | default/redis-cart[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
 | default/redis-cart[Deployment] | entire-cluster | All Connections |
-| entire-cluster | default/redis-cart[Deployment] | All Connections |
+
+### Ingress Exposure:
+| dst | src | conn |
+|-----|-----|------|
+| default/redis-cart[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| default/redis-cart[Deployment] | entire-cluster | All Connections |

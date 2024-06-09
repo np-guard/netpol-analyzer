@@ -2,6 +2,8 @@
 |-----|-----|------|
 | default/frontend[Deployment] | default/backend[Deployment] | TCP 9090 |
 ## Exposure Analysis Result:
-| src | dst | conn |
+
+### Ingress Exposure:
+| dst | src | conn |
 |-----|-----|------|
-| [all namespaces]/[pod with {app=frontend}] | default/backend[Deployment] | TCP 9090 |
+| default/backend[Deployment] | [all namespaces]/[pod with {app=frontend}] | TCP 9090 |

@@ -9,6 +9,7 @@ package connlist
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/labels"
 
@@ -79,6 +80,8 @@ func formSingleP2PConn(conn Peer2PeerConnection) singleConnFields {
 const (
 	entireCluster          = "entire-cluster"
 	exposureAnalysisHeader = "Exposure Analysis Result:"
+	egressExposureHeader   = "Egress Exposure:"
+	ingressExposureHeader  = "Ingress Exposure:"
 )
 
 // formSingleExposureConn returns a representation of single exposure connection fields as singleConnFields object
@@ -146,7 +149,7 @@ func getRepresentativePodString(podLabels map[string]string, txtOutFlag bool) st
 	return res
 }
 
-// following code is common for md, csv and json:
+// following code is common for txt, md, csv and json:
 
 // getConnlistAsSortedSingleConnFieldsArray returns a sorted singleConnFields list from Peer2PeerConnection list.
 // creates ipMaps object if the format requires it (to be used for exposure results later)
@@ -158,38 +161,60 @@ func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMap
 		}
 		connItems[i] = formSingleP2PConn(conns[i])
 	}
-	return sortConnFields(connItems)
+	return sortConnFields(connItems, true)
 }
 
-// sortConnFields returns sorted list from the given singleConnFields list
-func sortConnFields(conns []singleConnFields) []singleConnFields {
+// sortConnFields returns sorted list from the given singleConnFields list;
+// list may be sorted by src or by dst field as required
+func sortConnFields(conns []singleConnFields, sortBySrc bool) []singleConnFields {
 	sort.Slice(conns, func(i, j int) bool {
-		if conns[i].Src != conns[j].Src {
-			return conns[i].Src < conns[j].Src
+		if sortBySrc {
+			if conns[i].Src != conns[j].Src {
+				return conns[i].Src < conns[j].Src
+			}
+			return conns[i].Dst < conns[j].Dst
+		} // else sort by dst
+		if conns[i].Dst != conns[j].Dst {
+			return conns[i].Dst < conns[j].Dst
 		}
-		return conns[i].Dst < conns[j].Dst
+		return conns[i].Src < conns[j].Src
 	})
 	return conns
 }
 
-// getExposureConnsAsSortedSingleConnFieldsArray returns a sorted singleConnFields list from ExposedPeer list and ipMaps records.
-func getExposureConnsAsSortedSingleConnFieldsArray(exposureConns []ExposedPeer, ipMaps ipMaps) []singleConnFields {
-	exposureRecords := make([]singleConnFields, 0)
+// getExposureConnsAsSortedSingleConnFieldsArray returns two sorted singleConnFields of ingress exposure and ingress exposure lists from
+// ExposedPeer list and ipMaps records.
+// and for txt output use only, returns unprotected peers' lines
+func getExposureConnsAsSortedSingleConnFieldsArray(exposureConns []ExposedPeer, ipMaps ipMaps) (ingExposure,
+	egExposure []singleConnFields, unprotectedLines []string) {
 	for _, ep := range exposureConns {
-		exposureRecords = append(exposureRecords, getXgressExposureConnsAsSingleConnFieldsArray(ep.ExposedPeer().String(),
-			true, ep.IsProtectedByIngressNetpols(), ep.IngressExposure(), ipMaps)...)
-		exposureRecords = append(exposureRecords, getXgressExposureConnsAsSingleConnFieldsArray(ep.ExposedPeer().String(),
-			false, ep.IsProtectedByEgressNetpols(), ep.EgressExposure(), ipMaps)...)
+		pIngExposure, ingUnprotected := getXgressExposureConnsAsSingleConnFieldsArray(ep.ExposedPeer().String(),
+			true, ep.IsProtectedByIngressNetpols(), ep.IngressExposure(), ipMaps)
+		ingExposure = append(ingExposure, pIngExposure...)
+		unprotectedLines = append(unprotectedLines, ingUnprotected...)
+		pEgExposure, egUnprotected := getXgressExposureConnsAsSingleConnFieldsArray(ep.ExposedPeer().String(),
+			false, ep.IsProtectedByEgressNetpols(), ep.EgressExposure(), ipMaps)
+		egExposure = append(egExposure, pEgExposure...)
+		unprotectedLines = append(unprotectedLines, egUnprotected...)
 	}
-	return sortConnFields(exposureRecords)
+	return sortConnFields(ingExposure, false), sortConnFields(egExposure, true), unprotectedLines
 }
 
-// getXgressExposureConnsAsSingleConnFieldsArray returns xgress data of an exposed peer as singleConnFields list
+// getXgressExposureConnsAsSingleConnFieldsArray returns xgress data of an exposed peer as singleConnFields list.
+// and for txt output use only, returns also the unprotected line of the peer
+// if a peer is not protected, two lines are to be added to exposure analysis result:
+// 1. all conns with entire cluster (added here)
+// 2. all conns with ip-blocks (all destinations); for sure found in the ip conns map so will be added automatically
+// also unprotected line will be added to textual output
 func getXgressExposureConnsAsSingleConnFieldsArray(peerStr string, isIngress, isProtected bool,
-	xgressExp []XgressExposureData, ipMaps ipMaps) []singleConnFields {
-	xgressLines := make([]singleConnFields, 0)
+	xgressExp []XgressExposureData, ipMaps ipMaps) (xgressLines []singleConnFields, xgressUnprotectedLine []string) {
+	direction := "Ingress"
+	if !isIngress {
+		direction = "Egress"
+	}
 	if !isProtected {
 		xgressLines = append(xgressLines, formSingleExposureConn(peerStr, entireCluster, common.MakeConnectionSet(true), isIngress))
+		xgressUnprotectedLine = append(xgressUnprotectedLine, peerStr+" is not protected on "+direction)
 	} else { // protected
 		for _, data := range xgressExp {
 			xgressLines = append(xgressLines, formExposureItemAsSingleConnFiled(peerStr, data, isIngress))
@@ -203,5 +228,16 @@ func getXgressExposureConnsAsSingleConnFieldsArray(peerStr string, isIngress, is
 	if ipConns, ok := ipMap[peerStr]; ok {
 		xgressLines = append(xgressLines, ipConns...)
 	}
-	return xgressLines
+	return xgressLines, xgressUnprotectedLine
+}
+
+// writeExposureSubSection if the list is not empty returns it as string lines with the matching sub section given header
+func writeExposureSubSection(lines []string, header string) string {
+	res := ""
+	if len(lines) > 0 {
+		res += header
+		res += strings.Join(lines, newLineChar)
+		res += newLineChar
+	}
+	return res
 }

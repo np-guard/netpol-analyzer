@@ -86,46 +86,50 @@
       "conn": "All Connections"
     }
   ],
-  "exposure_results": [
-    {
-      "src": "0.0.0.0-255.255.255.255",
-      "dst": "default/redis-cart[Deployment]",
-      "conn": "All Connections"
-    },
-    {
-      "src": "default/checkoutservice[Deployment]",
-      "dst": "[all namespaces]/[pod with {k8s-app=kube-dns}]",
-      "conn": "UDP 53"
-    },
-    {
-      "src": "default/frontend[Deployment]",
-      "dst": "[all namespaces]/[pod with {k8s-app=kube-dns}]",
-      "conn": "UDP 53"
-    },
-    {
-      "src": "default/loadgenerator[Deployment]",
-      "dst": "[all namespaces]/[pod with {k8s-app=kube-dns}]",
-      "conn": "UDP 53"
-    },
-    {
-      "src": "default/recommendationservice[Deployment]",
-      "dst": "[all namespaces]/[pod with {k8s-app=kube-dns}]",
-      "conn": "UDP 53"
-    },
-    {
-      "src": "default/redis-cart[Deployment]",
-      "dst": "0.0.0.0-255.255.255.255",
-      "conn": "All Connections"
-    },
-    {
-      "src": "default/redis-cart[Deployment]",
-      "dst": "entire-cluster",
-      "conn": "All Connections"
-    },
-    {
-      "src": "entire-cluster",
-      "dst": "default/redis-cart[Deployment]",
-      "conn": "All Connections"
-    }
-  ]
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "default/checkoutservice[Deployment]",
+        "dst": "[all namespaces]/[pod with {k8s-app=kube-dns}]",
+        "conn": "UDP 53"
+      },
+      {
+        "src": "default/frontend[Deployment]",
+        "dst": "[all namespaces]/[pod with {k8s-app=kube-dns}]",
+        "conn": "UDP 53"
+      },
+      {
+        "src": "default/loadgenerator[Deployment]",
+        "dst": "[all namespaces]/[pod with {k8s-app=kube-dns}]",
+        "conn": "UDP 53"
+      },
+      {
+        "src": "default/recommendationservice[Deployment]",
+        "dst": "[all namespaces]/[pod with {k8s-app=kube-dns}]",
+        "conn": "UDP 53"
+      },
+      {
+        "src": "default/redis-cart[Deployment]",
+        "dst": "0.0.0.0-255.255.255.255",
+        "conn": "All Connections"
+      },
+      {
+        "src": "default/redis-cart[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "0.0.0.0-255.255.255.255",
+        "dst": "default/redis-cart[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "default/redis-cart[Deployment]",
+        "conn": "All Connections"
+      }
+    ]
+  }
 }
