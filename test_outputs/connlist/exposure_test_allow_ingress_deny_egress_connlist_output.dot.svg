@@ -41,8 +41,8 @@
 <!-- entire&#45;cluster&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
 <g id="edge2" class="edge">
 <title>entire&#45;cluster&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M283.44,-126.7C267.34,-109.47 240.02,-80.22 220.57,-59.39"/>
-<polygon fill="#eec900" stroke="#eec900" points="222.92,-56.78 213.54,-51.86 217.81,-61.56 222.92,-56.78"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M283.44,-126.7C267.34,-109.47 240.02,-80.22 220.57,-59.39"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="222.92,-56.78 213.54,-51.86 217.81,-61.56 222.92,-56.78"/>
 <text text-anchor="middle" x="308.29" y="-94.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 </g>

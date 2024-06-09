@@ -83,8 +83,8 @@
 <!-- backend/checkout[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge3" class="edge">
 <title>backend/checkout[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M415.37,-247.08C434.21,-286.62 476.77,-383.1 457,-409 447.99,-420.81 415.59,-429.6 385.65,-435.42"/>
-<polygon fill="#eec900" stroke="#eec900" points="384.82,-432.01 375.62,-437.28 386.09,-438.89 384.82,-432.01"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M415.37,-247.08C434.21,-286.62 476.77,-383.1 457,-409 447.99,-420.81 415.59,-429.6 385.65,-435.42"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="384.82,-432.01 375.62,-437.28 386.09,-438.89 384.82,-432.01"/>
 <text text-anchor="middle" x="490.5" y="-333.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 5353</text>
 </g>
 <!-- backend/recommendation[Deployment]&#45;&gt;backend/catalog[Deployment] -->
@@ -97,8 +97,8 @@
 <!-- backend/recommendation[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge6" class="edge">
 <title>backend/recommendation[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M493.07,-138.08C517.77,-147.95 550.48,-160.47 580,-170 593.13,-174.24 596.91,-173.62 610,-178 626.83,-183.63 630.37,-186.81 647,-193 670.31,-201.68 685.51,-190.78 700,-211 717.34,-235.21 719.98,-255.92 700,-278 688.01,-291.25 631.99,-272.75 620,-286 615.53,-290.94 616.69,-295.21 620,-301 624.35,-308.61 632.65,-303.39 637,-311 653.55,-339.93 658.26,-360.32 637,-386 607.93,-421.12 484.93,-435.11 403.44,-440.59"/>
-<polygon fill="#eec900" stroke="#eec900" points="402.98,-437.11 393.22,-441.25 403.42,-444.1 402.98,-437.11"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M493.07,-138.08C517.77,-147.95 550.48,-160.47 580,-170 593.13,-174.24 596.91,-173.62 610,-178 626.83,-183.63 630.37,-186.81 647,-193 670.31,-201.68 685.51,-190.78 700,-211 717.34,-235.21 719.98,-255.92 700,-278 688.01,-291.25 631.99,-272.75 620,-286 615.53,-290.94 616.69,-295.21 620,-301 624.35,-308.61 632.65,-303.39 637,-311 653.55,-339.93 658.26,-360.32 637,-386 607.93,-421.12 484.93,-435.11 403.44,-440.59"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="402.98,-437.11 393.22,-441.25 403.42,-444.1 402.98,-437.11"/>
 <text text-anchor="middle" x="649.5" y="-289.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 5353</text>
 </g>
 <!-- backend/reports[Deployment] -->
@@ -124,8 +124,8 @@
 <!-- backend/reports[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge9" class="edge">
 <title>backend/reports[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M600.17,-247.32C590.59,-278.82 566.34,-345.94 524,-386 490.34,-417.85 439.98,-432.28 398.86,-438.79"/>
-<polygon fill="#eec900" stroke="#eec900" points="398.29,-435.34 388.89,-440.25 399.3,-442.27 398.29,-435.34"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M600.17,-247.32C590.59,-278.82 566.34,-345.94 524,-386 490.34,-417.85 439.98,-432.28 398.86,-438.79"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="398.29,-435.34 388.89,-440.25 399.3,-442.27 398.29,-435.34"/>
 <text text-anchor="middle" x="603.5" y="-333.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 5353</text>
 </g>
 <!-- backend/shipping[Deployment] -->
@@ -177,8 +177,8 @@
 <!-- frontend/webapp[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge16" class="edge">
 <title>frontend/webapp[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M359.31,-354.08C380.58,-367.62 403.21,-388.08 391,-409 386,-417.56 378.06,-424.19 369.5,-429.26"/>
-<polygon fill="#eec900" stroke="#eec900" points="367.69,-426.25 360.46,-433.99 370.94,-432.45 367.69,-426.25"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M359.31,-354.08C380.58,-367.62 403.21,-388.08 391,-409 386,-417.56 378.06,-424.19 369.5,-429.26"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="367.69,-426.25 360.46,-433.99 370.94,-432.45 367.69,-426.25"/>
 <text text-anchor="middle" x="423.5" y="-397.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 5353</text>
 </g>
 <!-- payments/mastercard&#45;processor[Deployment] -->
@@ -210,22 +210,22 @@
 <!-- payments/gateway[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge17" class="edge">
 <title>payments/gateway[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M848.55,-139.27C827.27,-193.23 753.39,-358.14 628,-409 588.1,-425.18 475.72,-435.03 400.68,-440"/>
-<polygon fill="#eec900" stroke="#eec900" points="400.1,-436.53 390.35,-440.67 400.55,-443.51 400.1,-436.53"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M848.55,-139.27C827.27,-193.23 753.39,-358.14 628,-409 588.1,-425.18 475.72,-435.03 400.68,-440"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="400.1,-436.53 390.35,-440.67 400.55,-443.51 400.1,-436.53"/>
 <text text-anchor="middle" x="797.5" y="-289.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 5353</text>
 </g>
 <!-- entire&#45;cluster&#45;&gt;frontend/asset&#45;cache[Deployment] -->
 <g id="edge10" class="edge">
 <title>entire&#45;cluster&#45;&gt;frontend/asset&#45;cache[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M284.85,-436.75C247.53,-430.06 197.43,-419.59 180,-409 169.97,-402.91 151.85,-381.11 137.96,-363.25"/>
-<polygon fill="#eec900" stroke="#eec900" points="140.4,-360.68 131.53,-354.89 134.85,-364.95 140.4,-360.68"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M284.85,-436.75C247.53,-430.06 197.43,-419.59 180,-409 169.97,-402.91 151.85,-381.11 137.96,-363.25"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="140.4,-360.68 131.53,-354.89 134.85,-364.95 140.4,-360.68"/>
 <text text-anchor="middle" x="209" y="-397.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
 </g>
 <!-- entire&#45;cluster&#45;&gt;frontend/webapp[Deployment] -->
 <g id="edge11" class="edge">
 <title>entire&#45;cluster&#45;&gt;frontend/webapp[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M329,-426.97C329,-410.38 329,-384.88 329,-365.43"/>
-<polygon fill="#eec900" stroke="#eec900" points="332.5,-365.34 329,-355.34 325.5,-365.34 332.5,-365.34"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M329,-426.97C329,-410.38 329,-384.88 329,-365.43"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="332.5,-365.34 329,-355.34 325.5,-365.34 332.5,-365.34"/>
 <text text-anchor="middle" x="358" y="-397.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
 </g>
 <!-- {ingress&#45;controller} -->

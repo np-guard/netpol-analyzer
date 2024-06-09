@@ -41,8 +41,8 @@
 <!-- entire&#45;cluster&#45;&gt;default/details&#45;v1&#45;79f774bdb9[ReplicaSet] -->
 <g id="edge2" class="edge">
 <title>entire&#45;cluster&#45;&gt;default/details&#45;v1&#45;79f774bdb9[ReplicaSet]</title>
-<path fill="none" stroke="#eec900" d="M357.84,-109.41C320.13,-95.71 253.73,-71.59 206.76,-54.53"/>
-<polygon fill="#eec900" stroke="#eec900" points="207.94,-51.23 197.35,-51.11 205.55,-57.81 207.94,-51.23"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M357.84,-109.41C320.13,-95.71 253.73,-71.59 206.76,-54.53"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="207.94,-51.23 197.35,-51.11 205.55,-57.81 207.94,-51.23"/>
 <text text-anchor="middle" x="313" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 9080</text>
 </g>
 <!-- {ingress&#45;controller} -->

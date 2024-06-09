@@ -46,8 +46,8 @@
 <!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge5" class="edge">
 <title>hello&#45;world/workload&#45;a[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M68.62,-120.91C37.22,-133.25 5.04,-152.68 22,-177 30.66,-189.42 44.24,-197.44 58.46,-202.62"/>
-<polygon fill="#eec900" stroke="#eec900" points="57.76,-206.07 68.35,-205.77 59.89,-199.4 57.76,-206.07"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M68.62,-120.91C37.22,-133.25 5.04,-152.68 22,-177 30.66,-189.42 44.24,-197.44 58.46,-202.62"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="57.76,-206.07 68.35,-205.77 59.89,-199.4 57.76,-206.07"/>
 <text text-anchor="middle" x="67.5" y="-165.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- hello&#45;world/workload&#45;b[Deployment] -->
@@ -65,15 +65,15 @@
 <!-- hello&#45;world/workload&#45;b[Deployment]&#45;&gt;all pods_in_namespace with {foo.com/managed&#45;state=managed} -->
 <g id="edge6" class="edge">
 <title>hello&#45;world/workload&#45;b[Deployment]&#45;&gt;all pods_in_namespace with {foo.com/managed&#45;state=managed}</title>
-<path fill="none" stroke="#eec900" d="M308.26,-122.36C287.11,-135.9 264.87,-156.23 277,-177 282,-185.56 289.94,-192.19 298.5,-197.26"/>
-<polygon fill="#eec900" stroke="#eec900" points="297.06,-200.45 307.54,-201.99 300.31,-194.25 297.06,-200.45"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M308.26,-122.36C287.11,-135.9 264.87,-156.23 277,-177 282,-185.56 289.94,-192.19 298.5,-197.26"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="297.06,-200.45 307.54,-201.99 300.31,-194.25 297.06,-200.45"/>
 <text text-anchor="middle" x="306" y="-165.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8050</text>
 </g>
 <!-- all pods_in_namespace with {foo.com/managed&#45;state=managed}&#45;&gt;hello&#45;world/workload&#45;b[Deployment] -->
 <g id="edge2" class="edge">
 <title>all pods_in_namespace with {foo.com/managed&#45;state=managed}&#45;&gt;hello&#45;world/workload&#45;b[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M339,-194.97C339,-178.38 339,-152.88 339,-133.43"/>
-<polygon fill="#eec900" stroke="#eec900" points="342.5,-133.34 339,-123.34 335.5,-133.34 342.5,-133.34"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M339,-194.97C339,-178.38 339,-152.88 339,-133.43"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="342.5,-133.34 339,-123.34 335.5,-133.34 342.5,-133.34"/>
 <text text-anchor="middle" x="368" y="-165.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8050</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
@@ -86,8 +86,8 @@
 <!-- entire&#45;cluster&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
 <g id="edge3" class="edge">
 <title>entire&#45;cluster&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M117,-194.97C117,-178.38 117,-152.88 117,-133.43"/>
-<polygon fill="#eec900" stroke="#eec900" points="120.5,-133.34 117,-123.34 113.5,-133.34 120.5,-133.34"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M117,-194.97C117,-178.38 117,-152.88 117,-133.43"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="120.5,-133.34 117,-123.34 113.5,-133.34 120.5,-133.34"/>
 <text text-anchor="middle" x="162.5" y="-165.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 </g>

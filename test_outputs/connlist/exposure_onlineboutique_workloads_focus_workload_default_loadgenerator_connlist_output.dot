@@ -13,5 +13,5 @@ digraph {
 		label="all namespaces"
 	}
 	"default/loadgenerator[Deployment]" -> "default/frontend[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
-	"default/loadgenerator[Deployment]" -> "pod with {k8s-app=kube-dns}_in_all namespaces" [label="UDP 53" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/loadgenerator[Deployment]" -> "pod with {k8s-app=kube-dns}_in_all namespaces" [label="UDP 53" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
 }
