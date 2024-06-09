@@ -273,7 +273,7 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
 	}
-	out, err := connsFormatter.writeOutput(conns, ca.exposureResult)
+	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err

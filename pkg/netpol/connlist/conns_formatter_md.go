@@ -28,9 +28,7 @@ func getMDLine(c singleConnFields) string {
 
 // writeOutput returns a md string form of connections from list of Peer2PeerConnection objects,
 // and exposure analysis results from list ExposedPeer if exists
-func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer) (string, error) {
-	exposureFlag := len(exposureConns) > 0
-
+func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error) {
 	connlistMdLines := md.writeMdConnlistLines(conns, exposureFlag)
 	allLines := []string{getMDHeader()}
 	allLines = append(allLines, connlistMdLines...)

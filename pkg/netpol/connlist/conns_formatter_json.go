@@ -24,8 +24,7 @@ type jsonFields struct {
 
 // writeOutput returns a json string form of connections from list of Peer2PeerConnection objects
 // and exposure analysis results from list ExposedPeer if exists
-func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer) (string, error) {
-	exposureFlag := len(exposureConns) > 0
+func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error) {
 	j.ipMaps = createIPMaps(exposureFlag)
 	// output variables
 	var jsonConns []byte

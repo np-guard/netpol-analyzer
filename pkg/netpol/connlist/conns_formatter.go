@@ -55,7 +55,7 @@ func createIPMaps(initMapsFlag bool) (ipMaps ipMaps) {
 
 // connsFormatter implements output formatting in the required output format
 type connsFormatter interface {
-	writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer) (string, error)
+	writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error)
 }
 
 // singleConnFields represents a single connection object

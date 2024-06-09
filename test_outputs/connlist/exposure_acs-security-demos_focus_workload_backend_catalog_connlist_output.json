@@ -1,12 +1,15 @@
-[
-  {
-    "src": "backend/recommendation[Deployment]",
-    "dst": "backend/catalog[Deployment]",
-    "conn": "TCP 8080"
-  },
-  {
-    "src": "backend/reports[Deployment]",
-    "dst": "backend/catalog[Deployment]",
-    "conn": "TCP 8080"
-  }
-]
+{
+  "connlist_results": [
+    {
+      "src": "backend/recommendation[Deployment]",
+      "dst": "backend/catalog[Deployment]",
+      "conn": "TCP 8080"
+    },
+    {
+      "src": "backend/reports[Deployment]",
+      "dst": "backend/catalog[Deployment]",
+      "conn": "TCP 8080"
+    }
+  ],
+  "exposure_results": []
+}
