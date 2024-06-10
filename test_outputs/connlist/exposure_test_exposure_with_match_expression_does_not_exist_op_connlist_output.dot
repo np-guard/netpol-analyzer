@@ -1,0 +1,26 @@
+digraph {
+	subgraph "cluster_hello_world" {
+		color="black"
+		fontcolor="black"
+		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
+		"hello-world/workload-b[Deployment]" [label="workload-b[Deployment]" color="blue" fontcolor="blue"]
+		"pod with {app DoesNotExist}_in_hello-world" [label="pod with {app DoesNotExist}" color="red2" fontcolor="red2"]
+		label="hello-world"
+	}
+	subgraph "cluster_namespace with {env DoesNotExist}" {
+		color="red2"
+		fontcolor="red2"
+		"all pods_in_namespace with {env DoesNotExist}" [label="all pods" color="red2" fontcolor="red2"]
+		label="namespace with {env DoesNotExist}"
+	}
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
+	"0.0.0.0-255.255.255.255" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"all pods_in_namespace with {env DoesNotExist}" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"entire-cluster" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"hello-world/workload-a[Deployment]" -> "pod with {app DoesNotExist}_in_hello-world" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"hello-world/workload-b[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"hello-world/workload-b[Deployment]" -> "entire-cluster" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"hello-world/workload-b[Deployment]" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"pod with {app DoesNotExist}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}

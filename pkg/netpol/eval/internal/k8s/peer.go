@@ -65,6 +65,9 @@ type RepresentativePeer struct {
 	// and its namespace is a fake namespace with the namespaceSelector labels  (those labels also stored in PotentialNamespaceLabels)
 	Pod                      *Pod
 	PotentialNamespaceLabels map[string]string
+	// HasUnusualNsLabels indicates if the potential namespace labels set of the representative peer contains any labels inferred
+	// from a selector with matchExpression with operator:NotIn, Exists, DoesNotExist - which require special handling
+	HasUnusualNsLabels bool
 }
 
 const podKind = "Pod"

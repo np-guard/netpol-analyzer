@@ -9,8 +9,7 @@ package connlist
 import (
 	"fmt"
 	"sort"
-
-	"k8s.io/apimachinery/pkg/labels"
+	"strings"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -57,8 +56,20 @@ func formSingleP2PConn(conn Peer2PeerConnection) singleConnFields {
 }
 
 // commonly (to be) used for exposure analysis output formatters
-
-const entireCluster = "entire-cluster"
+const (
+	entireCluster    = "entire-cluster"
+	stringInBrackets = "[%s]"
+	mapOpen          = "{"
+	mapClose         = "}"
+	equal            = "="
+	comma            = ","
+	key              = "key"
+	colon            = ": "
+	space            = " "
+	notIn            = "NotIn"
+	doesNotExist     = "DoesNotExist"
+	exists           = "Exists"
+)
 
 // formSingleExposureConn returns a representation of single exposure connection fields as singleConnFields object
 func formSingleExposureConn(peer, repPeer string, conn common.Connection, isIngress bool) singleConnFields {
@@ -80,15 +91,27 @@ func formExposureItemAsSingleConnFiled(peerStr string, exposureItem XgressExposu
 }
 
 // convertLabelsMapToString returns a string representation of the given labels map
+// considers the special labels (with requirements such as Exists, DoesNotExist, NotIn)
 func convertLabelsMapToString(labelsMap map[string]string) string {
-	return labels.SelectorFromSet(labels.Set(labelsMap)).String()
+	labelsSrings := make([]string, 0)
+	for k, v := range labelsMap {
+		if v == common.ExistsVal {
+			labelsSrings = append(labelsSrings, k+space+exists)
+			continue
+		}
+		if v == common.DoesNotExistVal {
+			labelsSrings = append(labelsSrings, k+space+doesNotExist)
+			continue
+		}
+		if strings.HasPrefix(v, common.NotPrefix) {
+			labelsSrings = append(labelsSrings, k+space+notIn+space+v[1:])
+			continue
+		}
+		labelsSrings = append(labelsSrings, k+equal+v)
+	}
+	sort.Strings(labelsSrings)
+	return mapOpen + strings.Join(labelsSrings, comma) + mapClose
 }
-
-const (
-	stringInBrackets = "[%s]"
-	mapOpen          = "{"
-	mapClose         = "}"
-)
 
 // getRepresentativeNamespaceString returns a string representation of a potential peer with namespace labels.
 // if namespace with multiple words adds [] , in case of textual (non-graphical) output
@@ -99,7 +122,7 @@ func getRepresentativeNamespaceString(nsLabels map[string]string, txtOutFlag boo
 	}
 	res := ""
 	if len(nsLabels) > 0 {
-		res += "namespace with " + mapOpen + convertLabelsMapToString(nsLabels) + mapClose
+		res += "namespace with " + convertLabelsMapToString(nsLabels)
 	} else {
 		res += allNamespacesLbl
 	}
@@ -117,7 +140,7 @@ func getRepresentativePodString(podLabels map[string]string, txtOutFlag bool) st
 	if len(podLabels) == 0 {
 		res += allPeersLbl
 	} else {
-		res += "pod with " + mapOpen + convertLabelsMapToString(podLabels) + mapClose
+		res += "pod with " + convertLabelsMapToString(podLabels)
 	}
 	if txtOutFlag {
 		return fmt.Sprintf(stringInBrackets, res)

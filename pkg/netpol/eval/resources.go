@@ -403,7 +403,7 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 	var err error
 	// for exposure analysis only: scan policy ingress and egress rules:
 	// 1. to store allowed connections to entire cluster and to all destinations (if such connections are allowed by the policy)
-	// 2. to get selectors and generate representativePeers (each specified rule, gets a representative peer)
+	// 2. to get selectors and generate representativePeers
 	if pe.exposureAnalysisFlag {
 		rulesSelectors, scanErr := newNetpol.ScanPolicyRulesForGeneralConnsAndRepresentativePeers()
 		if scanErr != nil {
@@ -587,19 +587,23 @@ func (pe *PolicyEngine) ConvertPeerNamedPort(namedPort string, peer Peer) (int32
 // AddPodByNameAndNamespace adds a new fake pod to:
 // the pe.podsMap in case of fake ingress-controller pods
 // or the pe.representativePeersMap in case of exposure-analysis peers
-func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, objLabels *k8s.SingleRuleLabels) (Peer, error) {
+func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, objLabels *k8s.RepresentativePeerLabels) (Peer, error) {
 	var nsLabels, podLabels map[string]string
+	var hasUnusualNsLabels, hasUnusualPodLabels bool
 	if objLabels != nil {
 		nsLabels = objLabels.NsLabels
 		podLabels = objLabels.PodLabels
+		hasUnusualNsLabels = objLabels.UnusualNsLabelsFlag
+		hasUnusualPodLabels = objLabels.UnusualPodLabelsFlag
 	}
 
 	podStr := types.NamespacedName{Namespace: ns, Name: name}.String()
 	newPod := &k8s.Pod{
-		Name:      name,
-		Namespace: ns,
-		FakePod:   true,
-		Labels:    podLabels,
+		Name:                name,
+		Namespace:           ns,
+		FakePod:             true,
+		Labels:              podLabels,
+		HasUnusualPodLabels: hasUnusualPodLabels,
 	}
 	if err := pe.resolveSingleMissingNamespace(ns, nsLabels); err != nil {
 		return nil, err
@@ -611,7 +615,7 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, objLabels *k8s
 		if _, ok := pe.representativePeersMap[keyStrFromLabels]; ok { // we already have a representative peer with same labels
 			return nil, nil
 		}
-		newRepresentativePeer := &k8s.RepresentativePeer{Pod: newPod, PotentialNamespaceLabels: nsLabels}
+		newRepresentativePeer := &k8s.RepresentativePeer{Pod: newPod, PotentialNamespaceLabels: nsLabels, HasUnusualNsLabels: hasUnusualNsLabels}
 		pe.representativePeersMap[keyStrFromLabels] = newRepresentativePeer
 		return newRepresentativePeer, nil
 	}

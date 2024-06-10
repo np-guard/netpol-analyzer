@@ -956,4 +956,26 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ExposureValidFormats,
 	},
+	// tests on exposure with matchExpression selectors (generating representative peers from selectors with matchExpression
+	// requires special handling)
+	{
+		testDirName:      "test_exposure_with_match_expression_not_in_op",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_in_op",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_exists_op",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_does_not_exist_op",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
 }

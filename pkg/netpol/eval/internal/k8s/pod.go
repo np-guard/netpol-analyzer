@@ -60,6 +60,9 @@ type Pod struct {
 	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
 	// on egress direction
 	EgressExposureData PodExposureInfo
+	// HasUnusualPodLabels indicates if the pod labels set (in case of representative peer's pod) contains any labels inferred
+	// from a selector with matchExpression with operator:NotIn, Exists, DoesNotExist - which require special handling
+	HasUnusualPodLabels bool
 }
 
 // Owner encapsulates pod owner workload info
@@ -90,6 +93,7 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		FakePod:             false,
 		IngressExposureData: initiatePodExposure(),
 		EgressExposureData:  initiatePodExposure(),
+		HasUnusualPodLabels: false,
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -214,6 +218,7 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.FakePod = false
 		pod.IngressExposureData = initiatePodExposure()
 		pod.EgressExposureData = initiatePodExposure()
+		pod.HasUnusualPodLabels = false
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
 		}

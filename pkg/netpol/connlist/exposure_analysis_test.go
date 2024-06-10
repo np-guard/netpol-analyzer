@@ -149,7 +149,7 @@ func TestExposureBehavior(t *testing.T) {
 				lenIngressExposedConns: 2,
 				ingressExp: []*xgressExposure{
 					peerExposedToEntireClusterOnTCP8050,
-					newExpDataWithLabelAndTCPConn(map[string]string{"foo.com/managed-state": "managed"}, nil, []int{8050, 8090}),
+					newExpDataWithLabelAndTCPConn(map[string]string{"foo.com/managed-state": "managed"}, map[string]string{}, []int{8050, 8090}),
 				},
 				lenEgressExposedConns: 0,
 			},
@@ -184,9 +184,9 @@ func TestExposureBehavior(t *testing.T) {
 				isEgressProtected:      false,
 				lenIngressExposedConns: 3,
 				ingressExp: []*xgressExposure{
-					newExpDataWithLabelAndTCPConn(map[string]string{"foo.com/managed-state": "managed"}, nil, []int{8050}),
-					newExpDataWithLabelAndTCPConn(map[string]string{"release": "stable"}, nil, []int{}),
-					newExpDataWithLabelAndTCPConn(map[string]string{"effect": "NoSchedule"}, nil, []int{8050}),
+					newExpDataWithLabelAndTCPConn(map[string]string{"foo.com/managed-state": "managed"}, map[string]string{}, []int{8050}),
+					newExpDataWithLabelAndTCPConn(map[string]string{"release": "stable"}, map[string]string{}, []int{}),
+					newExpDataWithLabelAndTCPConn(map[string]string{"effect": "NoSchedule"}, map[string]string{}, []int{8050}),
 				},
 				lenEgressExposedConns: 0,
 			},
