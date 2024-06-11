@@ -978,4 +978,55 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
+	{
+		testDirName:      "test_exposure_rule_with_multiple_match_expressions",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		// in this test's netpol, the rules are not equiv
+		// because NotIn means either does not exist or exists with value not in values.
+		// but a pod that matches both rules (like workload-b) connects with workload-a on both ports
+		testDirName:      "test_exposure_with_different_rules_1",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		// in this test's netpol, the rules are not equiv, but the In rule contains the Exists rule
+		// so the representative peer inferred from `In` rule; connects with workload-a on both rules' ports
+		testDirName:      "test_exposure_with_different_rules_2",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		// in this test's netpol, the rules are not equiv, but the DoesNotExist rule contains the NotIn rule
+		// so the representative peer inferred from `DoesNotExist` rule; connects with workload-a on both rules' ports
+		testDirName:      "test_exposure_with_different_rules_3",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		// in this test's netpol,both rules are with NotIn operator, where one values list contains the other.
+		// so the representative peer inferred from `NotIn with the longest values list rule; connects with workload-a on both rules' ports
+		// since workload-b matches both NotIn (does not have key role in its labels), it also connect on both ports to workload-a
+		testDirName:      "test_exposure_with_different_rules_4",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		// in this test's netpol,rules with In and NotIn, where one values list contains the other.
+		// so the representative peers inferred from `In` has different connections from each other, depends if the peer
+		// matches also the NotIn rule or not
+		testDirName:      "test_exposure_with_different_rules_5",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
+	{
+		// in this test's netpol, rules are combined
+		// second rule matches also first rule, so representative peer inferred from second rule
+		// has connections of both rules
+		testDirName:      "test_exposure_with_different_rules_6",
+		exposureAnalysis: true,
+		outputFormats:    ExposureValidFormats,
+	},
 }
