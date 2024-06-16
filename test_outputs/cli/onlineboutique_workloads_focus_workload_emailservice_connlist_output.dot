@@ -1,7 +1,17 @@
 digraph {
 	subgraph cluster_default {
+		"default/adservice[Deployment]" [label="adservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/cartservice[Deployment]" [label="cartservice[Deployment]" color="blue" fontcolor="blue"]
 		"default/checkoutservice[Deployment]" [label="checkoutservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/currencyservice[Deployment]" [label="currencyservice[Deployment]" color="blue" fontcolor="blue"]
 		"default/emailservice[Deployment]" [label="emailservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/frontend[Deployment]" [label="frontend[Deployment]" color="blue" fontcolor="blue"]
+		"default/loadgenerator[Deployment]" [label="loadgenerator[Deployment]" color="blue" fontcolor="blue"]
+		"default/paymentservice[Deployment]" [label="paymentservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/productcatalogservice[Deployment]" [label="productcatalogservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/recommendationservice[Deployment]" [label="recommendationservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/redis-cart[Deployment]" [label="redis-cart[Deployment]" color="blue" fontcolor="blue"]
+		"default/shippingservice[Deployment]" [label="shippingservice[Deployment]" color="blue" fontcolor="blue"]
 		label="default"
 	}
 	"default/checkoutservice[Deployment]" -> "default/emailservice[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]

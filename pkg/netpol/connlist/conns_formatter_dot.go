@@ -73,7 +73,9 @@ func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
 		externalPeersLines = categorizeAndAddPeerLine(conns[index].Dst(), peersVisited, externalPeersLines, nsPeers)
 	}
 	for _, val := range d.peersList {
-		externalPeersLines = categorizeAndAddPeerLine(val, peersVisited, externalPeersLines, nsPeers)
+		if !val.IsPeerIPType() {
+			externalPeersLines = categorizeAndAddPeerLine(val, peersVisited, externalPeersLines, nsPeers)
+		}
 	}
 
 	// sort graph lines

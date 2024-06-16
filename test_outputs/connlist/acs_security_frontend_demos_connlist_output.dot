@@ -1,2 +1,7 @@
 digraph {
+	subgraph cluster_frontend {
+		"frontend/asset-cache[Deployment]" [label="asset-cache[Deployment]" color="blue" fontcolor="blue"]
+		"frontend/webapp[Deployment]" [label="webapp[Deployment]" color="blue" fontcolor="blue"]
+		label="frontend"
+	}
 }
