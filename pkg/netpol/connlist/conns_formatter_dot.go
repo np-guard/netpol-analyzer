@@ -22,6 +22,7 @@ const (
 
 // formatDOT: implements the connsFormatter interface for dot output format
 type formatDOT struct {
+	peersList []Peer // internally used peersList; in case of focusWorkload option contains only relevant peers
 }
 
 // formats an edge line from a singleConnFields struct , to be used for dot graph
@@ -46,6 +47,20 @@ func getPeerLine(peer Peer) (string, bool) {
 	return fmt.Sprintf("\t%q [label=%q color=%q fontcolor=%q]", peer.String(), peerNameLabel, peerColor, peerColor), isExternalPeer
 }
 
+func categorizeAndAddPeerLine(peer Peer, peersVisited map[string]bool, externalPeersLines []string, nsPeers map[string][]string) []string {
+	peerStr := peer.String()
+	if !peersVisited[peerStr] {
+		peersVisited[peerStr] = true
+		peerLine, isExternalPeer := getPeerLine(peer)
+		if isExternalPeer { // peer that does not belong to a cluster's namespace (i.e. ip/ ingress-controller)
+			externalPeersLines = append(externalPeersLines, peerLine)
+		} else { // add to Ns group
+			dotformatting.AddPeerToNsGroup(peer.Namespace(), peerLine, nsPeers)
+		}
+	}
+	return externalPeersLines
+}
+
 // returns a dot string form of connections from list of Peer2PeerConnection objects
 func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	nsPeers := make(map[string][]string)     // map from namespace to its peers (grouping peers by namespaces)
@@ -53,27 +68,16 @@ func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	edgeLines := make([]string, len(conns))  // list of edges lines
 	peersVisited := make(map[string]bool, 0) // acts as a set
 	for index := range conns {
-		srcStr, dstStr := conns[index].Src().String(), conns[index].Dst().String()
 		edgeLines[index] = getEdgeLine(conns[index])
-		if !peersVisited[srcStr] {
-			peersVisited[srcStr] = true
-			peerLine, isExternalPeer := getPeerLine(conns[index].Src())
-			if isExternalPeer { // peer that does not belong to a cluster's namespace (i.e. ip/ ingress-controller)
-				externalPeersLines = append(externalPeersLines, peerLine)
-			} else { // add to Ns group
-				dotformatting.AddPeerToNsGroup(conns[index].Src().Namespace(), peerLine, nsPeers)
-			}
-		}
-		if !peersVisited[dstStr] {
-			peersVisited[dstStr] = true
-			peerLine, isExternalPeer := getPeerLine(conns[index].Dst())
-			if isExternalPeer {
-				externalPeersLines = append(externalPeersLines, peerLine)
-			} else {
-				dotformatting.AddPeerToNsGroup(conns[index].Dst().Namespace(), peerLine, nsPeers)
-			}
+		externalPeersLines = categorizeAndAddPeerLine(conns[index].Src(), peersVisited, externalPeersLines, nsPeers)
+		externalPeersLines = categorizeAndAddPeerLine(conns[index].Dst(), peersVisited, externalPeersLines, nsPeers)
+	}
+	for _, val := range d.peersList {
+		if !val.IsPeerIPType() {
+			externalPeersLines = categorizeAndAddPeerLine(val, peersVisited, externalPeersLines, nsPeers)
 		}
 	}
+
 	// sort graph lines
 	sort.Strings(edgeLines)
 	sort.Strings(externalPeersLines)
