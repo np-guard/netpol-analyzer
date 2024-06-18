@@ -371,13 +371,10 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	// represent peerList as []connlist.Peer list to be returned
 	peers := make([]Peer, len(peerList))
 	ca.peersList = make([]Peer, 0, len(peerList))
-	lastInd := 0
 	for i, p := range peerList {
 		peers[i] = p
 		if ca.focusWorkload == "" || ca.isPeerFocusWorkload(p) {
-			ca.peersList = ca.peersList[:lastInd+1]
-			ca.peersList[lastInd] = p
-			lastInd++
+			ca.peersList = append(ca.peersList, p)
 		}
 	}
 
