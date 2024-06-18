@@ -22,7 +22,7 @@ const (
 
 // formatDOT: implements the connsFormatter interface for dot output format
 type formatDOT struct {
-	peersList []Peer
+	peersList []Peer // internally used peersList; in case of focusWorkload option contains only relevant peers
 }
 
 // formats an edge line from a singleConnFields struct , to be used for dot graph

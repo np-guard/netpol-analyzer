@@ -47,7 +47,7 @@ type ConnlistAnalyzer struct {
 	focusWorkload    string
 	outputFormat     string
 	muteErrsAndWarns bool
-	peersList        []Peer
+	peersList        []Peer // internally used peersList used in dot formatting; in case of focusWorkload option contains only relevant peers
 }
 
 // The new interface
@@ -400,7 +400,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	connsRes = peersAllowedConns
 
 	if excludeIngressAnalysis {
-		return connsRes, ca.peersList, nil
+		return connsRes, peers, nil
 	}
 
 	// analyze ingress connections - create connection objects for relevant ingress analyzer connections
@@ -415,7 +415,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		ca.logWarning(netpolerrors.NoAllowedConnsWarning)
 	}
 
-	return connsRes, ca.peersList, nil
+	return connsRes, peers, nil
 }
 
 // existsFocusWorkload checks if the provided focus workload is ingress-controller
