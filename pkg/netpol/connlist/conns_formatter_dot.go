@@ -22,7 +22,8 @@ const (
 
 // formatDOT: implements the connsFormatter interface for dot output format
 type formatDOT struct {
-	peersList []Peer
+	focusWorkload string
+	peersList     []Peer
 }
 
 // formats an edge line from a singleConnFields struct , to be used for dot graph
@@ -72,9 +73,11 @@ func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
 		externalPeersLines = categorizeAndAddPeerLine(conns[index].Src(), peersVisited, externalPeersLines, nsPeers)
 		externalPeersLines = categorizeAndAddPeerLine(conns[index].Dst(), peersVisited, externalPeersLines, nsPeers)
 	}
-	for _, val := range d.peersList {
-		if !val.IsPeerIPType() {
-			externalPeersLines = categorizeAndAddPeerLine(val, peersVisited, externalPeersLines, nsPeers)
+	if d.focusWorkload == "" {
+		for _, val := range d.peersList {
+			if !val.IsPeerIPType() {
+				externalPeersLines = categorizeAndAddPeerLine(val, peersVisited, externalPeersLines, nsPeers)
+			}
 		}
 	}
 

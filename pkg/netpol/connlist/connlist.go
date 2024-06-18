@@ -241,7 +241,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 
 // ConnectionsListToString returns a string of connections from list of Peer2PeerConnection objects in the required output format
 func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection) (string, error) {
-	connsFormatter, err := getFormatter(ca.outputFormat, ca.peersList)
+	connsFormatter, err := getFormatter(ca.outputFormat, ca.focusWorkload, ca.peersList)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
@@ -265,7 +265,7 @@ func ValidateOutputFormat(format string) error {
 }
 
 // returns the relevant formatter for the analyzer's outputFormat
-func getFormatter(format string, peersList []Peer) (connsFormatter, error) {
+func getFormatter(format string, focusWorkload string, peersList []Peer) (connsFormatter, error) {
 	if err := ValidateOutputFormat(format); err != nil {
 		return nil, err
 	}
@@ -275,7 +275,7 @@ func getFormatter(format string, peersList []Peer) (connsFormatter, error) {
 	case output.TextFormat:
 		return formatText{}, nil
 	case output.DOTFormat:
-		return formatDOT{peersList: peersList}, nil
+		return formatDOT{focusWorkload: focusWorkload, peersList: peersList}, nil
 	case output.CSVFormat:
 		return formatCSV{}, nil
 	case output.MDFormat:
