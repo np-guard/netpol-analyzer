@@ -241,7 +241,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 
 // ConnectionsListToString returns a string of connections from list of Peer2PeerConnection objects in the required output format
 func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection) (string, error) {
-	connsFormatter, err := getFormatter(ca.outputFormat, ca.focusWorkload, ca.peersList)
+	connsFormatter, err := getFormatter(ca.outputFormat, ca.peersList)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
@@ -265,7 +265,7 @@ func ValidateOutputFormat(format string) error {
 }
 
 // returns the relevant formatter for the analyzer's outputFormat
-func getFormatter(format string, focusWorkload string, peersList []Peer) (connsFormatter, error) {
+func getFormatter(format string, peersList []Peer) (connsFormatter, error) {
 	if err := ValidateOutputFormat(format); err != nil {
 		return nil, err
 	}
@@ -275,7 +275,7 @@ func getFormatter(format string, focusWorkload string, peersList []Peer) (connsF
 	case output.TextFormat:
 		return formatText{}, nil
 	case output.DOTFormat:
-		return formatDOT{focusWorkload: focusWorkload, peersList: peersList}, nil
+		return formatDOT{peersList: peersList}, nil
 	case output.CSVFormat:
 		return formatCSV{}, nil
 	case output.MDFormat:
@@ -351,7 +351,7 @@ func getPeerNsNameFormat(peer eval.Peer) string {
 }
 
 func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer eval.Peer) bool {
-	return !peer.IsPeerIPType() && (peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload)
+	return peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload
 }
 
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
@@ -369,9 +369,16 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		return nil, nil, err
 	}
 	// represent peerList as []connlist.Peer list to be returned
-	ca.peersList = make([]Peer, len(peerList))
+	peers := make([]Peer, len(peerList))
+	ca.peersList = make([]Peer, 0, len(peerList))
+	lastInd := 0
 	for i, p := range peerList {
-		ca.peersList[i] = p
+		peers[i] = p
+		if ca.focusWorkload == "" || ca.isPeerFocusWorkload(p) {
+			ca.peersList = ca.peersList[:lastInd+1]
+			ca.peersList[lastInd] = p
+			lastInd++
+		}
 	}
 
 	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
@@ -385,7 +392,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	}
 
 	// compute connections between peers based on pe analysis of network policies
-	peersAllowedConns, err := ca.getConnectionsBetweenPeers(pe)
+	peersAllowedConns, err := ca.getConnectionsBetweenPeers(pe, peers)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
@@ -425,7 +432,7 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(excludeIngressAnalysis bool) (ex
 
 	// check if the focusworkload is in the peers
 	for _, peer := range ca.peersList {
-		if ca.focusWorkload == peer.Name() || ca.focusWorkload == getPeerNsNameFormat(peer) {
+		if ca.isPeerFocusWorkload(peer) {
 			return true, ""
 		}
 	}
@@ -433,12 +440,12 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(excludeIngressAnalysis bool) (ex
 }
 
 // getConnectionsBetweenPeers returns connections list from PolicyEngine object
-func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine) ([]Peer2PeerConnection, error) {
+func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, peers []Peer) ([]Peer2PeerConnection, error) {
 	connsRes := make([]Peer2PeerConnection, 0)
-	for i := range ca.peersList {
-		srcPeer := ca.peersList[i]
-		for j := range ca.peersList {
-			dstPeer := ca.peersList[j]
+	for i := range peers {
+		srcPeer := peers[i]
+		for j := range peers {
+			dstPeer := peers[j]
 			if !ca.includePairOfWorkloads(srcPeer, dstPeer) {
 				continue
 			}
