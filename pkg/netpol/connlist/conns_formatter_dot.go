@@ -16,29 +16,34 @@ import (
 )
 
 const (
-	ipColor                = "red2"
-	nonIPPeerColor         = "blue"
-	representativeObjColor = "red2"
-	entireClusterShape     = " shape=diamond"
-	peerLineClosing        = "]"
-	allPeersLbl            = "all pods"
-	allNamespacesLbl       = "all namespaces"
-	edgeWeightLabel        = " weight="
-	ingWeight              = "1"
-	egWeight               = "0.5"
+	ipColor                  = "red2"
+	nonIPPeerColor           = "blue"
+	representativeObjColor   = "red2"
+	entireClusterShape       = " shape=diamond"
+	peerLineClosing          = "]"
+	allPeersLbl              = "all pods"
+	allNamespacesLbl         = "all namespaces"
+	edgeWeightLabel          = " weight="
+	ingWeight                = "1"
+	egWeight                 = "0.5"
+	ingressExposureEdgeColor = "darkorange2"
+	egressExposureEdgeColor  = "darkorange4"
+	connlistEdgeColor        = "gold2"
+	exposureEdgeStyle        = " style=dashed"
 )
 
-var edgeLineFormat = fmt.Sprintf("\t%%q -> %%q [label=%%q color=\"gold2\" fontcolor=\"darkgreen\"%%s]")
+var edgeLineFormat = fmt.Sprintf("\t%%q -> %%q [label=%%q color=%%q fontcolor=\"darkgreen\"%%s]")
 var peerLineFormatPrefix = fmt.Sprintf("\t%%q [label=%%q color=%%q fontcolor=%%q")
 
 // formatDOT: implements the connsFormatter interface for dot output format
 type formatDOT struct {
+	peersList []Peer // internally used peersList; in case of focusWorkload option contains only relevant peers
 }
 
 // getEdgeLine formats an edge line from a Peer2PeerConnection struct , to be used for dot graph
 func getEdgeLine(c Peer2PeerConnection) string {
 	connStr := common.ConnStrFromConnProperties(c.AllProtocolsAndPorts(), c.ProtocolsAndPorts())
-	return fmt.Sprintf(edgeLineFormat, c.Src().String(), c.Dst().String(), connStr, "")
+	return fmt.Sprintf(edgeLineFormat, c.Src().String(), c.Dst().String(), connStr, connlistEdgeColor, "")
 }
 
 // peerNameAndColorByType returns the peer label and color to be represented in the graph, and whether the peer is
@@ -60,7 +65,7 @@ func getPeerLine(peer Peer) (string, bool) {
 
 // returns a dot string form of connections from list of Peer2PeerConnection objects
 // and from exposure-analysis results if exists
-func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer) (string, error) {
+func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error) {
 	// 1. declaration of maps and slices to be used for forming the graph lines
 	nsPeers := make(map[string][]string)     // map from namespace to its peers (grouping peers by namespaces)
 	nsRepPeers := make(map[string][]string)  // map from representative namespace to its representative peers
@@ -68,7 +73,7 @@ func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []Exp
 	edgeLines := make([]string, 0)           // list of edges lines (connections of connlist + exposure)
 	peersVisited := make(map[string]bool, 0) // acts as a set
 	// 2. add connlist results to the graph lines
-	connsEdges, connsExternalPeers := addConnlistOutputData(conns, nsPeers, peersVisited)
+	connsEdges, connsExternalPeers := d.addConnlistOutputData(conns, nsPeers, peersVisited)
 	edgeLines = append(edgeLines, connsEdges...)
 	externalPeersLines = append(externalPeersLines, connsExternalPeers...)
 	// 3. add exposure-analysis results to the graph lines
@@ -89,7 +94,7 @@ func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []Exp
 }
 
 // addConnlistOutputData updates namespace peers groups and returns edge lines and external peers lines from connlist results
-func addConnlistOutputData(conns []Peer2PeerConnection, nsPeers map[string][]string,
+func (d *formatDOT) addConnlistOutputData(conns []Peer2PeerConnection, nsPeers map[string][]string,
 	peersVisited map[string]bool) (eLines, externalPeersLines []string) {
 	edgeLines := make([]string, len(conns))
 	for index := range conns {
@@ -97,13 +102,19 @@ func addConnlistOutputData(conns []Peer2PeerConnection, nsPeers map[string][]str
 		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Src(), nsPeers, peersVisited)...)
 		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Dst(), nsPeers, peersVisited)...)
 	}
+	for _, val := range d.peersList {
+		if !val.IsPeerIPType() {
+			externalPeersLines = append(externalPeersLines, addConnlistPeerLine(val, nsPeers, peersVisited)...)
+		}
+	}
 	return edgeLines, externalPeersLines
 }
 
 // addConnlistPeerLine if the given peer is not visited yet, adds it to the relevant lines' group (namespace group/ external)
 func addConnlistPeerLine(peer Peer, nsPeers map[string][]string, peersVisited map[string]bool) (externalPeerLine []string) {
-	if !peersVisited[peer.String()] {
-		peersVisited[peer.String()] = true
+	peerStr := peer.String()
+	if !peersVisited[peerStr] {
+		peersVisited[peerStr] = true
 		peerLine, isExternalPeer := getPeerLine(peer)
 		if isExternalPeer { // peer that does not belong to a cluster's namespace (i.e. ip/ ingress-controller)
 			externalPeerLine = []string{peerLine}
@@ -182,9 +193,11 @@ func getEntireClusterLine() string {
 // getExposureEdgeLine formats an exposure connection edge line for dot graph
 func getExposureEdgeLine(realPeerStr, repPeerStr string, isIngress bool, conn *common.ConnectionSet) string {
 	if isIngress {
-		return fmt.Sprintf(edgeLineFormat, repPeerStr, realPeerStr, conn.String(), edgeWeightLabel+ingWeight)
+		return fmt.Sprintf(edgeLineFormat, repPeerStr, realPeerStr, conn.String(), ingressExposureEdgeColor,
+			edgeWeightLabel+ingWeight+exposureEdgeStyle)
 	}
-	return fmt.Sprintf(edgeLineFormat, realPeerStr, repPeerStr, conn.String(), edgeWeightLabel+egWeight)
+	return fmt.Sprintf(edgeLineFormat, realPeerStr, repPeerStr, conn.String(), egressExposureEdgeColor,
+		edgeWeightLabel+egWeight+exposureEdgeStyle)
 }
 
 // getRepPeerLine formats a representative peer line for dot graph

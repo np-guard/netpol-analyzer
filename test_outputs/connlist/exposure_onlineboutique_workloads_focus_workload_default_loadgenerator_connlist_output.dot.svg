@@ -46,8 +46,8 @@
 <!-- default/loadgenerator[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces -->
 <g id="edge2" class="edge">
 <title>default/loadgenerator[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces</title>
-<path fill="none" stroke="#eec900" d="M164.33,-125.13C209.44,-106.45 284.42,-75.4 333.53,-55.07"/>
-<polygon fill="#eec900" stroke="#eec900" points="335.09,-58.21 342.99,-51.15 332.41,-51.74 335.09,-58.21"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M164.33,-125.13C209.44,-106.45 284.42,-75.4 333.53,-55.07"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="335.09,-58.21 342.99,-51.15 332.41,-51.74 335.09,-58.21"/>
 <text text-anchor="middle" x="269" y="-94.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 53</text>
 </g>
 </g>

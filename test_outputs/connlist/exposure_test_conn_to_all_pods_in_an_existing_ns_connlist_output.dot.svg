@@ -33,8 +33,8 @@
 <!-- all pods_in_backend&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
 <g id="edge2" class="edge">
 <title>all pods_in_backend&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M52.63,-123.82C51.51,-113.7 51.69,-100.96 57,-91 64.72,-76.52 78.04,-64.98 91.62,-56.24"/>
-<polygon fill="#eec900" stroke="#eec900" points="93.76,-59.04 100.53,-50.89 90.16,-53.04 93.76,-59.04"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M52.63,-123.82C51.51,-113.7 51.69,-100.96 57,-91 64.72,-76.52 78.04,-64.98 91.62,-56.24"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="93.76,-59.04 100.53,-50.89 90.16,-53.04 93.76,-59.04"/>
 <text text-anchor="middle" x="86" y="-94.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8050</text>
 </g>
 <!-- backend/backend&#45;app[Deployment] -->
@@ -72,8 +72,8 @@
 <!-- backend/backend&#45;app[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge4" class="edge">
 <title>backend/backend&#45;app[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M269.21,-158.27C299.54,-170.74 330.43,-190.16 314,-214 305.65,-226.12 292.5,-234.04 278.73,-239.23"/>
-<polygon fill="#eec900" stroke="#eec900" points="277.55,-235.93 269.15,-242.39 279.75,-242.58 277.55,-235.93"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M269.21,-158.27C299.54,-170.74 330.43,-190.16 314,-214 305.65,-226.12 292.5,-234.04 278.73,-239.23"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="277.55,-235.93 269.15,-242.39 279.75,-242.58 277.55,-235.93"/>
 <text text-anchor="middle" x="364.5" y="-202.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;backend/backend&#45;app[Deployment] -->
@@ -86,8 +86,8 @@
 <!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge8" class="edge">
 <title>hello&#45;world/workload&#45;a[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M177.08,-50.64C207.96,-61.9 252,-76.24 292,-83 304.72,-85.15 515.04,-81.72 524,-91 528.63,-95.79 527.56,-100.36 524,-106 518.48,-114.74 511.3,-109.84 503,-116 455.77,-151.09 465.44,-185.44 414,-214 379.61,-233.09 336.93,-242.07 300.55,-246.18"/>
-<polygon fill="#eec900" stroke="#eec900" points="300.06,-242.71 290.47,-247.21 300.77,-249.67 300.06,-242.71"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M177.08,-50.64C207.96,-61.9 252,-76.24 292,-83 304.72,-85.15 515.04,-81.72 524,-91 528.63,-95.79 527.56,-100.36 524,-106 518.48,-114.74 511.3,-109.84 503,-116 455.77,-151.09 465.44,-185.44 414,-214 379.61,-233.09 336.93,-242.07 300.55,-246.18"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="300.06,-242.71 290.47,-247.21 300.77,-249.67 300.06,-242.71"/>
 <text text-anchor="middle" x="548.5" y="-138.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;backend/backend&#45;app[Deployment] -->
@@ -100,8 +100,8 @@
 <!-- entire&#45;cluster&#45;&gt;backend/backend&#45;app[Deployment] -->
 <g id="edge6" class="edge">
 <title>entire&#45;cluster&#45;&gt;backend/backend&#45;app[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M220.27,-232.28C219.75,-226.5 219.26,-219.97 219,-214 218.39,-199.65 218.95,-183.67 219.75,-170.51"/>
-<polygon fill="#eec900" stroke="#eec900" points="223.26,-170.43 220.45,-160.22 216.28,-169.95 223.26,-170.43"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M220.27,-232.28C219.75,-226.5 219.26,-219.97 219,-214 218.39,-199.65 218.95,-183.67 219.75,-170.51"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="223.26,-170.43 220.45,-160.22 216.28,-169.95 223.26,-170.43"/>
 <text text-anchor="middle" x="264.5" y="-202.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 </g>

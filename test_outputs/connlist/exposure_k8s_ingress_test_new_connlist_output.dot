@@ -23,9 +23,9 @@ digraph {
 	"default/reviews-v3-84779c7bbc[ReplicaSet]" -> "default/ratings-v1-b6994bb9[ReplicaSet]" [label="TCP 9080" color="gold2" fontcolor="darkgreen"]
 	"default/unicorn[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"default/unicorn[Deployment]" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="gold2" fontcolor="darkgreen"]
-	"default/unicorn[Deployment]" -> "entire-cluster" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"entire-cluster" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="gold2" fontcolor="darkgreen" weight=1]
-	"entire-cluster" -> "default/unicorn[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/unicorn[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"entire-cluster" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"entire-cluster" -> "default/unicorn[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 	"{ingress-controller}" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="gold2" fontcolor="darkgreen"]
 	"{ingress-controller}" -> "default/unicorn[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
 }

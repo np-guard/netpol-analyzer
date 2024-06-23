@@ -46,8 +46,8 @@
 <!-- pod with {app=frontend}_in_all namespaces&#45;&gt;default/backend[Deployment] -->
 <g id="edge2" class="edge">
 <title>pod with {app=frontend}_in_all namespaces&#45;&gt;default/backend[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M285.58,-104.31C249,-90.12 195.05,-69.18 156.03,-54.03"/>
-<polygon fill="#eec900" stroke="#eec900" points="157.04,-50.67 146.45,-50.31 154.51,-57.19 157.04,-50.67"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M285.58,-104.31C249,-90.12 195.05,-69.18 156.03,-54.03"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="157.04,-50.67 146.45,-50.31 154.51,-57.19 157.04,-50.67"/>
 <text text-anchor="middle" x="258" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 9090</text>
 </g>
 </g>

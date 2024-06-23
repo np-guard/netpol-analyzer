@@ -120,8 +120,8 @@
 <!-- default/ratings&#45;v1&#45;b6994bb9[ReplicaSet]&#45;&gt;entire&#45;cluster -->
 <g id="edge10" class="edge">
 <title>default/ratings&#45;v1&#45;b6994bb9[ReplicaSet]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M944.37,-135.45C1021.65,-148.83 1143.09,-170.17 1248,-190 1259.32,-192.14 1271.48,-194.52 1282.95,-196.81"/>
-<polygon fill="#eec900" stroke="#eec900" points="1282.33,-200.25 1292.82,-198.78 1283.7,-193.39 1282.33,-200.25"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M944.37,-135.45C1021.65,-148.83 1143.09,-170.17 1248,-190 1259.32,-192.14 1271.48,-194.52 1282.95,-196.81"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="1282.33,-200.25 1292.82,-198.78 1283.7,-193.39 1282.33,-200.25"/>
 <text text-anchor="middle" x="1188.5" y="-160.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- default/reviews&#45;v1&#45;545db77b95[ReplicaSet]&#45;&gt;default/ratings&#45;v1&#45;b6994bb9[ReplicaSet] -->
@@ -155,8 +155,8 @@
 <!-- entire&#45;cluster&#45;&gt;default/ratings&#45;v1&#45;b6994bb9[ReplicaSet] -->
 <g id="edge14" class="edge">
 <title>entire&#45;cluster&#45;&gt;default/ratings&#45;v1&#45;b6994bb9[ReplicaSet]</title>
-<path fill="none" stroke="#eec900" d="M1313.95,-194.09C1295.42,-182.26 1266.05,-165.34 1238,-157 1194,-143.91 1084.93,-134.6 996.2,-128.88"/>
-<polygon fill="#eec900" stroke="#eec900" points="996.24,-125.38 986.04,-128.24 995.79,-132.36 996.24,-125.38"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M1313.95,-194.09C1295.42,-182.26 1266.05,-165.34 1238,-157 1194,-143.91 1084.93,-134.6 996.2,-128.88"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="996.24,-125.38 986.04,-128.24 995.79,-132.36 996.24,-125.38"/>
 <text text-anchor="middle" x="1318.5" y="-160.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 </g>

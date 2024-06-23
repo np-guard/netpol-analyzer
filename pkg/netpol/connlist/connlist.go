@@ -49,6 +49,7 @@ type ConnlistAnalyzer struct {
 	exposureResult   []ExposedPeer
 	outputFormat     string
 	muteErrsAndWarns bool
+	peersList        []Peer // internally used peersList used in dot formatting; in case of focusWorkload option contains only relevant peers
 }
 
 // The new interface
@@ -100,8 +101,6 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 // ValidFormats array of possible values of output format
 var ValidFormats = []string{output.TextFormat, output.JSONFormat, output.DOTFormat,
 	output.CSVFormat, output.MDFormat}
-
-var ExposureValidFormats = []string{output.TextFormat, output.DOTFormat}
 
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
@@ -275,7 +274,7 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
 	}
-	out, err := connsFormatter.writeOutput(conns, ca.exposureResult)
+	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
@@ -284,12 +283,8 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 }
 
 // validate the value of the output format
-func ValidateOutputFormat(format string, exposureFlag bool) error {
-	formatList := ValidFormats
-	if exposureFlag {
-		formatList = ExposureValidFormats
-	}
-	for _, formatName := range formatList {
+func ValidateOutputFormat(format string) error {
+	for _, formatName := range ValidFormats {
 		if format == formatName {
 			return nil
 		}
@@ -299,7 +294,7 @@ func ValidateOutputFormat(format string, exposureFlag bool) error {
 
 // returns the relevant formatter for the analyzer's outputFormat
 func (ca *ConnlistAnalyzer) getFormatter() (connsFormatter, error) {
-	if err := ValidateOutputFormat(ca.outputFormat, ca.exposureAnalysis); err != nil {
+	if err := ValidateOutputFormat(ca.outputFormat); err != nil {
 		return nil, err
 	}
 	switch ca.outputFormat {
@@ -308,7 +303,7 @@ func (ca *ConnlistAnalyzer) getFormatter() (connsFormatter, error) {
 	case output.TextFormat:
 		return &formatText{}, nil
 	case output.DOTFormat:
-		return &formatDOT{}, nil
+		return &formatDOT{ca.peersList}, nil
 	case output.CSVFormat:
 		return &formatCSV{}, nil
 	case output.MDFormat:
@@ -408,8 +403,7 @@ func getPeerNsNameFormat(peer Peer) string {
 // isPeerFocusWorkload returns true if focus-workload flag is not used (each peer is included),
 // or if the focus-workload is equal to peer's name
 func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer Peer) bool {
-	return ca.focusWorkload == "" ||
-		(!peer.IsPeerIPType() && (peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload))
+	return ca.focusWorkload == "" || peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload
 }
 
 func convertEvalPeersToConnlistPeer(peers []eval.Peer) []Peer {
@@ -444,11 +438,17 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		representativePeers := pe.GetRepresentativePeersList()
 		connPeers = append(connPeers, convertEvalPeersToConnlistPeer(representativePeers)...)
 	}
+	ca.peersList = make([]Peer, 0, len(peerList))
+	for _, p := range peerList {
+		if ca.isPeerFocusWorkload(p) {
+			ca.peersList = append(ca.peersList, p)
+		}
+	}
 
 	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
 
 	// if ca.focusWorkload is not empty, check if it exists in the peers before proceeding
-	existFocusWorkload, warningMsg := ca.existsFocusWorkload(peers, excludeIngressAnalysis)
+	existFocusWorkload, warningMsg := ca.existsFocusWorkload(excludeIngressAnalysis)
 	if ca.focusWorkload != "" && !existFocusWorkload {
 		ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
 		ca.logWarning(warningMsg)
@@ -490,7 +490,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 // existsFocusWorkload checks if the provided focus workload is ingress-controller
 // or if it exists in the peers list from the parsed resources
 // if not returns a suitable warning message
-func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnalysis bool) (existFocusWorkload bool, warning string) {
+func (ca *ConnlistAnalyzer) existsFocusWorkload(excludeIngressAnalysis bool) (existFocusWorkload bool, warning string) {
 	if ca.focusWorkload == common.IngressPodName {
 		if excludeIngressAnalysis { // if the ingress-analyzer is empty,
 			// then no routes/k8s-ingress objects -> ingrss-controller pod will not be added
@@ -500,7 +500,7 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnal
 	}
 
 	// check if the focusworkload is in the peers
-	for _, peer := range peers {
+	for _, peer := range ca.peersList {
 		if ca.isPeerFocusWorkload(peer) {
 			return true, ""
 		}

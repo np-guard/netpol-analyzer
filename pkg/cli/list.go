@@ -31,15 +31,6 @@ func getRequiredOutputFormatString(validFormats string) string {
 	return fmt.Sprintf("Required output format (%s)", validFormats)
 }
 
-// getListOutputFormatDescription returns the description of the required formats of the list command
-// exposure analysis is supported with less formats
-func getListOutputFormatDescription() string {
-	comma := ","
-	supportedFormats := strings.Join(connlist.ValidFormats, comma)
-	supportedExposureFormats := strings.Join(connlist.ExposureValidFormats, comma)
-	return getRequiredOutputFormatString(supportedFormats) + " or (" + supportedExposureFormats + " with exposure analysis) "
-}
-
 func runListCommand() error {
 	var conns []connlist.Peer2PeerConnection
 	var err error
@@ -111,7 +102,7 @@ defined`,
   k8snetpolicy list -k ./kube/config`,
 
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			if err := connlist.ValidateOutputFormat(output, exposureAnalysis); err != nil {
+			if err := connlist.ValidateOutputFormat(output); err != nil {
 				return err
 			}
 			// call parent pre-run
@@ -140,7 +131,9 @@ defined`,
 		"Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)")
 	c.Flags().BoolVarP(&exposureAnalysis, "exposure", "", false, "Turn on exposure analysis and append results to the output")
 	// output format - default txt
-	c.Flags().StringVarP(&output, "output", "o", outconsts.DefaultFormat, getListOutputFormatDescription())
+	// output format - default txt
+	supportedFormats := strings.Join(connlist.ValidFormats, ",")
+	c.Flags().StringVarP(&output, "output", "o", outconsts.DefaultFormat, getRequiredOutputFormatString(supportedFormats))
 	// out file
 	c.Flags().StringVarP(&outFile, "file", "f", "", "Write output to specified file")
 

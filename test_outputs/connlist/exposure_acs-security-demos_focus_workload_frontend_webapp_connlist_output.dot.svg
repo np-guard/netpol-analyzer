@@ -8,15 +8,15 @@
  viewBox="0.00 0.00 877.00 276.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 272)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-272 873,-272 873,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_backend</title>
-<polygon fill="none" stroke="black" points="8,-8 8,-83 861,-83 861,-8 8,-8"/>
-<text text-anchor="middle" x="434.5" y="-67.8" font-family="Times New Roman,serif" font-size="14.00">backend</text>
-</g>
 <g id="clust2" class="cluster">
 <title>cluster_frontend</title>
 <polygon fill="none" stroke="black" points="357,-116 357,-191 551,-191 551,-116 357,-116"/>
 <text text-anchor="middle" x="454" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">frontend</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_backend</title>
+<polygon fill="none" stroke="black" points="8,-8 8,-83 861,-83 861,-8 8,-8"/>
+<text text-anchor="middle" x="434.5" y="-67.8" font-family="Times New Roman,serif" font-size="14.00">backend</text>
 </g>
 <!-- backend/checkout[Deployment] -->
 <g id="node1" class="node">
@@ -85,15 +85,15 @@
 <!-- frontend/webapp[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge6" class="edge">
 <title>frontend/webapp[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M390.92,-154.79C365.21,-162.89 337.67,-176.43 321,-199 316.17,-205.54 314.2,-213.94 313.64,-221.98"/>
-<polygon fill="#eec900" stroke="#eec900" points="310.14,-222.15 313.59,-232.16 317.14,-222.18 310.14,-222.15"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M390.92,-154.79C365.21,-162.89 337.67,-176.43 321,-199 316.17,-205.54 314.2,-213.94 313.64,-221.98"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="310.14,-222.15 313.59,-232.16 317.14,-222.18 310.14,-222.15"/>
 <text text-anchor="middle" x="350.5" y="-202.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 5353</text>
 </g>
 <!-- entire&#45;cluster&#45;&gt;frontend/webapp[Deployment] -->
 <g id="edge1" class="edge">
 <title>entire&#45;cluster&#45;&gt;frontend/webapp[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M342.31,-237.85C355.42,-231.72 371.16,-223.44 384,-214 402.24,-200.59 420.11,-182.35 433.23,-167.72"/>
-<polygon fill="#eec900" stroke="#eec900" points="436.03,-169.84 440,-160.01 430.77,-165.21 436.03,-169.84"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M342.31,-237.85C355.42,-231.72 371.16,-223.44 384,-214 402.24,-200.59 420.11,-182.35 433.23,-167.72"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="436.03,-169.84 440,-160.01 430.77,-165.21 436.03,-169.84"/>
 <text text-anchor="middle" x="429" y="-202.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
 </g>
 <!-- {ingress&#45;controller} -->
