@@ -33,6 +33,7 @@ var peerLineFormatPrefix = fmt.Sprintf("\t%%q [label=%%q color=%%q fontcolor=%%q
 
 // formatDOT: implements the connsFormatter interface for dot output format
 type formatDOT struct {
+	peersList []Peer // internally used peersList; in case of focusWorkload option contains only relevant peers
 }
 
 // getEdgeLine formats an edge line from a Peer2PeerConnection struct , to be used for dot graph
@@ -68,7 +69,7 @@ func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []Exp
 	edgeLines := make([]string, 0)           // list of edges lines (connections of connlist + exposure)
 	peersVisited := make(map[string]bool, 0) // acts as a set
 	// 2. add connlist results to the graph lines
-	connsEdges, connsExternalPeers := addConnlistOutputData(conns, nsPeers, peersVisited)
+	connsEdges, connsExternalPeers := d.addConnlistOutputData(conns, nsPeers, peersVisited)
 	edgeLines = append(edgeLines, connsEdges...)
 	externalPeersLines = append(externalPeersLines, connsExternalPeers...)
 	// 3. add exposure-analysis results to the graph lines
@@ -89,7 +90,7 @@ func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []Exp
 }
 
 // addConnlistOutputData updates namespace peers groups and returns edge lines and external peers lines from connlist results
-func addConnlistOutputData(conns []Peer2PeerConnection, nsPeers map[string][]string,
+func (d *formatDOT) addConnlistOutputData(conns []Peer2PeerConnection, nsPeers map[string][]string,
 	peersVisited map[string]bool) (eLines, externalPeersLines []string) {
 	edgeLines := make([]string, len(conns))
 	for index := range conns {
@@ -97,13 +98,19 @@ func addConnlistOutputData(conns []Peer2PeerConnection, nsPeers map[string][]str
 		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Src(), nsPeers, peersVisited)...)
 		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Dst(), nsPeers, peersVisited)...)
 	}
+	for _, val := range d.peersList {
+		if !val.IsPeerIPType() {
+			externalPeersLines = append(externalPeersLines, addConnlistPeerLine(val, nsPeers, peersVisited)...)
+		}
+	}
 	return edgeLines, externalPeersLines
 }
 
 // addConnlistPeerLine if the given peer is not visited yet, adds it to the relevant lines' group (namespace group/ external)
 func addConnlistPeerLine(peer Peer, nsPeers map[string][]string, peersVisited map[string]bool) (externalPeerLine []string) {
-	if !peersVisited[peer.String()] {
-		peersVisited[peer.String()] = true
+	peerStr := peer.String()
+	if !peersVisited[peerStr] {
+		peersVisited[peerStr] = true
 		peerLine, isExternalPeer := getPeerLine(peer)
 		if isExternalPeer { // peer that does not belong to a cluster's namespace (i.e. ip/ ingress-controller)
 			externalPeerLine = []string{peerLine}
