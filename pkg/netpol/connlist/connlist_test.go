@@ -508,8 +508,8 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 		{
 			name:             "unsupported_output_format_for_exposure_analysis_should_return_fatal_error",
 			dirName:          "acs-security-demos",
-			format:           "json",
-			errorStrContains: netpolerrors.FormatNotSupportedErrStr("json"),
+			format:           "gif",
+			errorStrContains: netpolerrors.FormatNotSupportedErrStr("gif"),
 			exposureFlag:     true,
 		},
 	}
@@ -758,97 +758,97 @@ var goodPathTests = []struct {
 	{
 		testDirName:      "acs-security-demos",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "acs-security-demos",
 		exposureAnalysis: true,
 		// test with focus-workload that appears in exposure-analysis result
 		focusWorkload: "frontend/webapp",
-		outputFormats: ExposureValidFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:      "acs-security-demos",
 		exposureAnalysis: true,
 		// test with focus-workload that does not appear in exposure-analysis result
 		focusWorkload: "backend/catalog",
-		outputFormats: ExposureValidFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:      "test_allow_all",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_allow_all_in_cluster",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_allow_egress_deny_ingress",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_allow_ingress_deny_egress",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_matched_and_unmatched_rules",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_matched_and_unmatched_rules",
 		exposureAnalysis: true,
 		focusWorkload:    "hello-world/workload-a",
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_only_matched_rules",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_multiple_unmatched_rules",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_new_namespace_conn_and_entire_cluster",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_same_unmatched_rule_in_ingress_egress",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_with_no_netpols",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_egress_to_entire_cluster_with_named_ports",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_ingress_from_entire_cluster_with_named_ports",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_egress_exposure_with_named_port",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_exposure_to_namespace_with_multiple_labels",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_pod_exposed_only_to_representative_peers",
@@ -858,60 +858,60 @@ var goodPathTests = []struct {
 	{
 		testDirName:      "test_pod_exposed_only_to_representative_peers",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_conn_entire_cluster_with_empty_selectors",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_conn_to_all_pods_in_a_new_ns",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_conn_with_new_pod_selector_and_ns_selector",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_conn_with_only_pod_selector",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_conn_with_pod_selector_in_any_ns",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "onlineboutique_workloads",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "onlineboutique_workloads",
 		exposureAnalysis: true,
 		focusWorkload:    "default/loadgenerator",
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "k8s_ingress_test_new",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "k8s_ingress_test_new",
 		exposureAnalysis: true,
 		focusWorkload:    "details-v1-79f774bdb9",
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "k8s_ingress_test",
 		exposureAnalysis: true,
 		focusWorkload:    "ratings-v1-b6994bb9",
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_exposure_minimal_netpol_analysis",
@@ -923,22 +923,22 @@ var goodPathTests = []struct {
 		// if there is a matching pod in a specific namespace
 		testDirName:      "test_exposure_to_any_namespace_with_podSelector",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_conn_to_all_pods_in_an_existing_ns",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_conn_to_new_pod_in_an_existing_ns",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "test_conn_to_all_pods_in_an_existing_ns_with_ns_selector_only",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		// following test resources : contains two pods in different namespaces, and two policies, one for each namespace
@@ -954,6 +954,6 @@ var goodPathTests = []struct {
 
 		testDirName:      "test_exposure_to_namespace_except_specific_pod",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 }

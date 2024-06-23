@@ -11,7 +11,7 @@ digraph {
 	"0.0.0.0-255.255.255.255" -> "default/frontend[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
 	"default/frontend[Deployment]" -> "0.0.0.0-255.255.255.255" [label="UDP 53" color="gold2" fontcolor="darkgreen"]
 	"default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090" color="gold2" fontcolor="darkgreen"]
-	"default/frontend[Deployment]" -> "entire-cluster" [label="UDP 53" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"entire-cluster" -> "default/backend[Deployment]" [label="TCP 9090" color="gold2" fontcolor="darkgreen" weight=1]
-	"entire-cluster" -> "default/frontend[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/frontend[Deployment]" -> "entire-cluster" [label="UDP 53" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"entire-cluster" -> "default/backend[Deployment]" [label="TCP 9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"entire-cluster" -> "default/frontend[Deployment]" [label="TCP 8080" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 }

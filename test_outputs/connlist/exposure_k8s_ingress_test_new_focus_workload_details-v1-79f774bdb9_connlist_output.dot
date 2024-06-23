@@ -9,6 +9,6 @@ digraph {
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
 	"default/unicorn[Deployment]" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="gold2" fontcolor="darkgreen"]
-	"entire-cluster" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="gold2" fontcolor="darkgreen" weight=1]
+	"entire-cluster" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 	"{ingress-controller}" -> "default/details-v1-79f774bdb9[ReplicaSet]" [label="TCP 9080" color="gold2" fontcolor="darkgreen"]
 }

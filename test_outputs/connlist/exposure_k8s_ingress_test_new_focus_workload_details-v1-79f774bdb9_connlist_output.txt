@@ -2,6 +2,5 @@ default/unicorn[Deployment] => default/details-v1-79f774bdb9[ReplicaSet] : TCP 9
 {ingress-controller} => default/details-v1-79f774bdb9[ReplicaSet] : TCP 9080
 
 Exposure Analysis Result:
-
 Ingress Exposure:
 default/details-v1-79f774bdb9[ReplicaSet] 	<= 	entire-cluster : TCP 9080

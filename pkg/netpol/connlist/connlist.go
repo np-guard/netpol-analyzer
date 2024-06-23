@@ -102,8 +102,6 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 var ValidFormats = []string{output.TextFormat, output.JSONFormat, output.DOTFormat,
 	output.CSVFormat, output.MDFormat}
 
-var ExposureValidFormats = []string{output.TextFormat, output.DOTFormat}
-
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
 type ConnlistAnalyzerOption func(*ConnlistAnalyzer)
@@ -276,7 +274,7 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
 	}
-	out, err := connsFormatter.writeOutput(conns, ca.exposureResult)
+	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
@@ -285,12 +283,8 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 }
 
 // validate the value of the output format
-func ValidateOutputFormat(format string, exposureFlag bool) error {
-	formatList := ValidFormats
-	if exposureFlag {
-		formatList = ExposureValidFormats
-	}
-	for _, formatName := range formatList {
+func ValidateOutputFormat(format string) error {
+	for _, formatName := range ValidFormats {
 		if format == formatName {
 			return nil
 		}
@@ -300,7 +294,7 @@ func ValidateOutputFormat(format string, exposureFlag bool) error {
 
 // returns the relevant formatter for the analyzer's outputFormat
 func (ca *ConnlistAnalyzer) getFormatter() (connsFormatter, error) {
-	if err := ValidateOutputFormat(ca.outputFormat, ca.exposureAnalysis); err != nil {
+	if err := ValidateOutputFormat(ca.outputFormat); err != nil {
 		return nil, err
 	}
 	switch ca.outputFormat {

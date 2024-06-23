@@ -117,8 +117,8 @@
 <!-- default/checkoutservice[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces -->
 <g id="edge8" class="edge">
 <title>default/checkoutservice[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces</title>
-<path fill="none" stroke="#eec900" d="M696.96,-138.73C722.48,-156.42 764.79,-182.45 806,-193 911.3,-219.95 1382.86,-224.38 1507,-193 1544.27,-183.58 1582.47,-161.6 1608.5,-144.38"/>
-<polygon fill="#eec900" stroke="#eec900" points="1610.51,-147.25 1616.84,-138.75 1606.6,-141.45 1610.51,-147.25"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M696.96,-138.73C722.48,-156.42 764.79,-182.45 806,-193 911.3,-219.95 1382.86,-224.38 1507,-193 1544.27,-183.58 1582.47,-161.6 1608.5,-144.38"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="1610.51,-147.25 1616.84,-138.75 1606.6,-141.45 1610.51,-147.25"/>
 <text text-anchor="middle" x="1028" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 53</text>
 </g>
 <!-- default/frontend[Deployment] -->
@@ -185,8 +185,8 @@
 <!-- default/frontend[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces -->
 <g id="edge16" class="edge">
 <title>default/frontend[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces</title>
-<path fill="none" stroke="#eec900" d="M914.76,-246.53C1045.29,-239.61 1286.05,-226.06 1372,-216 1432.45,-208.93 1449.38,-212.61 1507,-193 1542.67,-180.86 1580.34,-160.1 1606.63,-144.16"/>
-<polygon fill="#eec900" stroke="#eec900" points="1608.74,-146.96 1615.43,-138.74 1605.07,-141 1608.74,-146.96"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M914.76,-246.53C1045.29,-239.61 1286.05,-226.06 1372,-216 1432.45,-208.93 1449.38,-212.61 1507,-193 1542.67,-180.86 1580.34,-160.1 1606.63,-144.16"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="1608.74,-146.96 1615.43,-138.74 1605.07,-141 1608.74,-146.96"/>
 <text text-anchor="middle" x="1502" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 53</text>
 </g>
 <!-- default/loadgenerator[Deployment] -->
@@ -205,8 +205,8 @@
 <!-- default/loadgenerator[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces -->
 <g id="edge18" class="edge">
 <title>default/loadgenerator[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces</title>
-<path fill="none" stroke="#eec900" d="M903.66,-325.92C1079.05,-297.76 1500.66,-229.18 1529,-216 1564.83,-199.34 1598.49,-168.19 1619.38,-146.33"/>
-<polygon fill="#eec900" stroke="#eec900" points="1621.94,-148.71 1626.22,-139.02 1616.83,-143.93 1621.94,-148.71"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M903.66,-325.92C1079.05,-297.76 1500.66,-229.18 1529,-216 1564.83,-199.34 1598.49,-168.19 1619.38,-146.33"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="1621.94,-148.71 1626.22,-139.02 1616.83,-143.93 1621.94,-148.71"/>
 <text text-anchor="middle" x="1465" y="-248.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 53</text>
 </g>
 <!-- default/recommendationservice[Deployment]&#45;&gt;default/productcatalogservice[Deployment] -->
@@ -219,8 +219,8 @@
 <!-- default/recommendationservice[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces -->
 <g id="edge20" class="edge">
 <title>default/recommendationservice[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces</title>
-<path fill="none" stroke="#eec900" d="M1180.53,-138.72C1212.41,-156.73 1265.31,-183.44 1315,-194 1347.89,-200.99 1425.87,-213.71 1507,-193 1544.24,-183.49 1582.45,-161.52 1608.49,-144.33"/>
-<polygon fill="#eec900" stroke="#eec900" points="1610.5,-147.2 1616.83,-138.71 1606.59,-141.4 1610.5,-147.2"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M1180.53,-138.72C1212.41,-156.73 1265.31,-183.44 1315,-194 1347.89,-200.99 1425.87,-213.71 1507,-193 1544.24,-183.49 1582.45,-161.52 1608.49,-144.33"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="1610.5,-147.2 1616.83,-138.71 1606.59,-141.4 1610.5,-147.2"/>
 <text text-anchor="middle" x="1338" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 53</text>
 </g>
 <!-- default/redis&#45;cart[Deployment] -->
@@ -251,8 +251,8 @@
 <!-- default/redis&#45;cart[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge22" class="edge">
 <title>default/redis&#45;cart[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M1355.94,-355.1C1314.56,-371.74 1262.4,-400.62 1287,-434 1297.8,-448.65 1314.65,-457.35 1332.08,-462.46"/>
-<polygon fill="#eec900" stroke="#eec900" points="1331.23,-465.86 1341.79,-464.95 1332.97,-459.08 1331.23,-465.86"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M1355.94,-355.1C1314.56,-371.74 1262.4,-400.62 1287,-434 1297.8,-448.65 1314.65,-457.35 1332.08,-462.46"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="1331.23,-465.86 1341.79,-464.95 1332.97,-459.08 1331.23,-465.86"/>
 <text text-anchor="middle" x="1332.5" y="-422.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;default/redis&#45;cart[Deployment] -->
@@ -265,8 +265,8 @@
 <!-- entire&#45;cluster&#45;&gt;default/redis&#45;cart[Deployment] -->
 <g id="edge23" class="edge">
 <title>entire&#45;cluster&#45;&gt;default/redis&#45;cart[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M1400,-451.87C1400,-430.28 1400,-392.91 1400,-367.35"/>
-<polygon fill="#eec900" stroke="#eec900" points="1403.5,-367.2 1400,-357.2 1396.5,-367.2 1403.5,-367.2"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M1400,-451.87C1400,-430.28 1400,-392.91 1400,-367.35"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="1403.5,-367.2 1400,-357.2 1396.5,-367.2 1403.5,-367.2"/>
 <text text-anchor="middle" x="1445.5" y="-422.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 </g>

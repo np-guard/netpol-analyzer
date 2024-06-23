@@ -8,33 +8,86 @@ package connlist
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 )
 
 // formatMD: implements the connsFormatter interface for md output format
 type formatMD struct {
+	ipMaps ipMaps
 }
 
-// formats the md output header
-func getMDHeader() string {
-	return "| src | dst | conn |\n|-----|-----|------|"
+const (
+	src             = "src"
+	dst             = "dst"
+	conn            = "conn"
+	mdUnderLine     = "|-----|-----|------|"
+	headerPrefix    = "## "
+	subHeaderPrefix = "### "
+	mdRowFormat     = "| %s | %s | %s |"
+)
+
+// getMDHeader formats the md output table header
+func getMDHeader(srcFirst bool) string {
+	tableHeaderForm := mdRowFormat + newLineChar + mdUnderLine
+	if srcFirst {
+		return fmt.Sprintf(tableHeaderForm, src, dst, conn)
+	} // else dst first
+	return fmt.Sprintf(tableHeaderForm, dst, src, conn)
 }
 
-// formats a connection line for md output
-func getMDLine(c singleConnFields) string {
-	return fmt.Sprintf("| %s | %s | %s |", c.Src, c.Dst, c.ConnString)
+// getMDLine formats a connection line for md output
+func getMDLine(c singleConnFields, srcFirst bool) string {
+	if srcFirst {
+		return fmt.Sprintf(mdRowFormat, c.Src, c.Dst, c.ConnString)
+	} // else dst first
+	return fmt.Sprintf(mdRowFormat, c.Dst, c.Src, c.ConnString)
 }
 
-// returns a md string form of connections from list of Peer2PeerConnection objects
-// this format is not supported with exposure analysis; exposureConns is not used;
-func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer) (string, error) {
-	mdLines := make([]string, len(conns))
-	for index := range conns {
-		mdLines[index] = getMDLine(formSingleP2PConn(conns[index]))
+// writeOutput returns a md string form of connections from list of Peer2PeerConnection objects,
+// and exposure analysis results from list ExposedPeer if exists
+func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error) {
+	// first write connlist lines
+	allLines := md.writeMdConnlistLines(conns, exposureFlag)
+	if exposureFlag {
+		allLines = append(allLines, md.writeMdExposureLines(exposureConns)...)
 	}
-	sort.Strings(mdLines)
-	allLines := []string{getMDHeader()}
-	allLines = append(allLines, mdLines...)
 	return strings.Join(allLines, newLineChar), nil
+}
+
+// writeMdLines returns sorted md lines from the sorted singleConnFields list
+func writeMdLines(conns []singleConnFields, srcFirst bool) []string {
+	res := make([]string, len(conns))
+	for i := range conns {
+		res[i] = getMDLine(conns[i], srcFirst)
+	}
+	return res
+}
+
+// writeMdConnlistLines returns md lines from the list of Peer2PeerConnection
+func (md *formatMD) writeMdConnlistLines(conns []Peer2PeerConnection, saveIPConns bool) []string {
+	md.ipMaps = createIPMaps(saveIPConns)
+	sortedConns := getConnlistAsSortedSingleConnFieldsArray(conns, md.ipMaps, saveIPConns)
+	connlistLines := []string{getMDHeader(true)} // connlist results are formatted: src | dst | conn
+	connlistLines = append(connlistLines, writeMdLines(sortedConns, true)...)
+	return connlistLines
+}
+
+// writeMdExposureLines returns md lines from exposure conns list
+func (md *formatMD) writeMdExposureLines(exposureConns []ExposedPeer) []string {
+	exposureMdLines := []string{headerPrefix + exposureAnalysisHeader}
+	sortedIngExpConns, sortedEgExpConns, _ := getExposureConnsAsSortedSingleConnFieldsArray(exposureConns, md.ipMaps)
+	// egress exposure formatted src | dst | conn
+	// ingress exposure formatted: dst | src | conn
+	exposureMdLines = append(exposureMdLines,
+		writeExposureSubSection(writeMdLines(sortedEgExpConns, true), getMdSubSectionHeader(false)),
+		writeExposureSubSection(writeMdLines(sortedIngExpConns, false), getMdSubSectionHeader(true)))
+	return exposureMdLines
+}
+
+// getMdSubSectionHeader returns the headers of a new section in md result and its table's header
+func getMdSubSectionHeader(isIngress bool) string {
+	if isIngress {
+		return subHeaderPrefix + ingressExposureHeader + newLineChar + getMDHeader(false) + newLineChar
+	}
+	return subHeaderPrefix + egressExposureHeader + newLineChar + getMDHeader(true) + newLineChar
 }
