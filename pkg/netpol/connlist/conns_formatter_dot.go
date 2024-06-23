@@ -37,7 +37,8 @@ func getEdgeLine(c Peer2PeerConnection) string {
 	} else {
 		weight = moreWeight
 	}
-	return fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\" %s=%s]", c.Src().String(), c.Dst().String(), connStr, edgeWeightLabel, weight)
+	return fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\" %s=%s]",
+		c.Src().String(), c.Dst().String(), connStr, edgeWeightLabel, weight)
 }
 
 // returns the peer label and color to be represented in the graph, and whether the peer is external to cluster's namespaces

@@ -165,7 +165,8 @@ func getEdgeLine(src, dst, connStr, edgeColor string) string {
 	} else {
 		weight = moreWeight
 	}
-	return fmt.Sprintf("\t%q -> %q [label=%q color=%q fontcolor=%q %s=%s]", src, dst, connStr, edgeColor, edgeColor, edgeWeightLabel, weight)
+	return fmt.Sprintf("\t%q -> %q [label=%q color=%q fontcolor=%q %s=%s]",
+		src, dst, connStr, edgeColor, edgeColor, edgeWeightLabel, weight)
 }
 
 // kept empty for dot format, used to implement the diffFormatter interface in other formats
