@@ -47,6 +47,7 @@ type ConnlistAnalyzer struct {
 	focusWorkload    string
 	outputFormat     string
 	muteErrsAndWarns bool
+	peersList        []Peer // internally used peersList used in dot formatting; in case of focusWorkload option contains only relevant peers
 }
 
 // The new interface
@@ -240,7 +241,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 
 // ConnectionsListToString returns a string of connections from list of Peer2PeerConnection objects in the required output format
 func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection) (string, error) {
-	connsFormatter, err := getFormatter(ca.outputFormat)
+	connsFormatter, err := getFormatter(ca.outputFormat, ca.peersList)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
@@ -264,7 +265,7 @@ func ValidateOutputFormat(format string) error {
 }
 
 // returns the relevant formatter for the analyzer's outputFormat
-func getFormatter(format string) (connsFormatter, error) {
+func getFormatter(format string, peersList []Peer) (connsFormatter, error) {
 	if err := ValidateOutputFormat(format); err != nil {
 		return nil, err
 	}
@@ -274,7 +275,7 @@ func getFormatter(format string) (connsFormatter, error) {
 	case output.TextFormat:
 		return formatText{}, nil
 	case output.DOTFormat:
-		return formatDOT{}, nil
+		return formatDOT{peersList: peersList}, nil
 	case output.CSVFormat:
 		return formatCSV{}, nil
 	case output.MDFormat:
@@ -350,7 +351,7 @@ func getPeerNsNameFormat(peer eval.Peer) string {
 }
 
 func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer eval.Peer) bool {
-	return !peer.IsPeerIPType() && (peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload)
+	return peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload
 }
 
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
@@ -369,14 +370,18 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	}
 	// represent peerList as []connlist.Peer list to be returned
 	peers := make([]Peer, len(peerList))
+	ca.peersList = make([]Peer, 0, len(peerList))
 	for i, p := range peerList {
 		peers[i] = p
+		if ca.focusWorkload == "" || ca.isPeerFocusWorkload(p) {
+			ca.peersList = append(ca.peersList, p)
+		}
 	}
 
 	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
 
 	// if ca.focusWorkload is not empty, check if it exists in the peers before proceeding
-	existFocusWorkload, warningMsg := ca.existsFocusWorkload(peers, excludeIngressAnalysis)
+	existFocusWorkload, warningMsg := ca.existsFocusWorkload(excludeIngressAnalysis)
 	if ca.focusWorkload != "" && !existFocusWorkload {
 		ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
 		ca.logWarning(warningMsg)
@@ -413,7 +418,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 // existsFocusWorkload checks if the provided focus workload is ingress-controller
 // or if it exists in the peers list from the parsed resources
 // if not returns a suitable warning message
-func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnalysis bool) (existFocusWorkload bool, warning string) {
+func (ca *ConnlistAnalyzer) existsFocusWorkload(excludeIngressAnalysis bool) (existFocusWorkload bool, warning string) {
 	if ca.focusWorkload == common.IngressPodName {
 		if excludeIngressAnalysis { // if the ingress-analyzer is empty,
 			// then no routes/k8s-ingress objects -> ingrss-controller pod will not be added
@@ -423,8 +428,8 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(peers []Peer, excludeIngressAnal
 	}
 
 	// check if the focusworkload is in the peers
-	for _, peer := range peers {
-		if ca.focusWorkload == peer.Name() || ca.focusWorkload == getPeerNsNameFormat(peer) {
+	for _, peer := range ca.peersList {
+		if ca.isPeerFocusWorkload(peer) {
 			return true, ""
 		}
 	}
