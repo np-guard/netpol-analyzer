@@ -30,18 +30,40 @@ func generateNewPodName(index int) string {
 }
 
 // generateRepresentativePeers : generates and adds to policy engine representative peers where each peer
-// has namespace and pod labels inferred from single policy rule labels in the given list of selectors;
-// for example, if a rule within policy has namespaceSelector "foo: managed", then a representative pod in such a
+// has namespace and pod labels inferred from single entry of selectors in a policy rule list;
+//
+// - for example, if a rule within policy has an entry: namespaceSelector "foo: managed", then a representative pod in such a
 // namespace with those labels will be added, representing all potential pods in such a namespace.
-// generated representative peers are unique; i.e. if different rules (e.g in different policies or different directions) has same labels :
-// one representative peer is generated to represent both
-func (pe *PolicyEngine) generateRepresentativePeers(selectorsLabels []k8s.SingleRuleLabels, policyName, policyNs string) (err error) {
-	for i := range selectorsLabels {
+// - generated representative peers are unique; i.e. if different rules (e.g in different policies or different directions)
+// has same labels, one representative peer is generated to represent both
+func (pe *PolicyEngine) generateRepresentativePeers(selectors []k8s.SingleRuleSelectors, policyName, policyNs string) (err error) {
+	for i := range selectors {
+		// 1. first convert each rule selectors' pair (podSelector and namespaceSelector) to pairs of its matching labels maps.
+		// each pair contains map of namespaceLabels and map of podLabels
+		// a representative peer will be generated for each pair
+		labelsPairs := k8s.ConvertSelectorsToLabelsCombinations(&selectors[i])
+		// 2. secondly: for each pair of labels, generate a representative peer
+		err := pe.generateRepresentativePeerPerLabelsPair(labelsPairs, selectors[i].PolicyNsFlag, policyName, policyNs, i)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// generateRepresentativePeerPerLabelsPair : gets list of pairs of namespaceLabels and podLabels maps,
+// and creates a new representative peer for each pair.
+// if policyNsFlag is true, i.e. the namespaceSelector is nil, a representative peer is created in
+// the namespace of the policy with given podLabels maps.
+func (pe *PolicyEngine) generateRepresentativePeerPerLabelsPair(labelsPairs k8s.LabelsPairsList, policyNsFlag bool, policyName,
+	policyNs string, selectorNum int) (err error) {
+	for i := range labelsPairs {
 		// if ns labels of the rule selector was nil, then the namespace of the pod is same as the policy's namespace
-		if selectorsLabels[i].PolicyNsFlag {
-			_, err = pe.AddPodByNameAndNamespace(generateNewPodName(i), policyNs, &selectorsLabels[i])
+		if policyNsFlag {
+			_, err = pe.AddPodByNameAndNamespace(generateNewPodName(i+selectorNum), policyNs, &labelsPairs[i])
 		} else {
-			_, err = pe.AddPodByNameAndNamespace(generateNewPodName(i), generateNewNamespaceName(policyName, i), &selectorsLabels[i])
+			_, err = pe.AddPodByNameAndNamespace(generateNewPodName(i+selectorNum), generateNewNamespaceName(policyName, i+selectorNum),
+				&labelsPairs[i])
 		}
 		if err != nil {
 			return err
@@ -68,7 +90,7 @@ func (pe *PolicyEngine) extractLabelsAndRefineRepresentativePeers(podObj *k8s.Po
 
 // refineRepresentativePeersMatchingLabels removes from the policy engine all representative peers
 // with labels matching the given labels of a real pod
-// representative peers matching any-namespace will not be removed.
+// representative peers matching any-namespace or any-pod in a namespace will not be removed.
 func (pe *PolicyEngine) refineRepresentativePeersMatchingLabels(realPodLabels, realNsLabels map[string]string) {
 	keysToDelete := make([]string, 0)
 	// look for representative peers with labels matching the given real pod's (and its namespace) labels
@@ -87,7 +109,13 @@ func (pe *PolicyEngine) refineRepresentativePeersMatchingLabels(realPodLabels, r
 			// in the general conns compute and won't get here.
 			continue
 		}
-		// remove representative peer matching both realPodLabels and realNsLabels.
+		if peer.HasUnusualNsLabels || peer.Pod.HasUnusualPodLabels {
+			// a representative peer with labels inferred from requirements of matchExpression with operators : Exists/DoesNotExist/NotIn
+			// will not be refined
+			continue
+		}
+		// representative peer with regular labels inferred from selectors with matchLabels or matchExpression with operator In;
+		// is removed (refined) if matches both realPodLabels and realNsLabels.
 		if potentialPodSelector.Matches(labels.Set(realPodLabels)) && potentialNsSelector.Matches(labels.Set(realNsLabels)) {
 			keysToDelete = append(keysToDelete, key)
 		}

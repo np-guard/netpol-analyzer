@@ -1,0 +1,30 @@
+digraph {
+	subgraph "cluster_hello_world" {
+		color="black"
+		fontcolor="black"
+		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
+		label="hello-world"
+	}
+	subgraph "cluster_namespace with {env=env_1}" {
+		color="red2"
+		fontcolor="red2"
+		"pod with {app=app-1}_in_namespace with {env=env-1}" [label="pod with {app=app-1}" color="red2" fontcolor="red2"]
+		"pod with {app=app-2}_in_namespace with {env=env-1}" [label="pod with {app=app-2}" color="red2" fontcolor="red2"]
+		label="namespace with {env=env-1}"
+	}
+	subgraph "cluster_namespace with {env=env_2}" {
+		color="red2"
+		fontcolor="red2"
+		"pod with {app=app-1}_in_namespace with {env=env-2}" [label="pod with {app=app-1}" color="red2" fontcolor="red2"]
+		"pod with {app=app-2}_in_namespace with {env=env-2}" [label="pod with {app=app-2}" color="red2" fontcolor="red2"]
+		label="namespace with {env=env-2}"
+	}
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
+	"hello-world/workload-a[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"hello-world/workload-a[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"pod with {app=app-1}_in_namespace with {env=env-1}" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"pod with {app=app-1}_in_namespace with {env=env-2}" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"pod with {app=app-2}_in_namespace with {env=env-1}" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"pod with {app=app-2}_in_namespace with {env=env-2}" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+}

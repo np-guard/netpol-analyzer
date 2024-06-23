@@ -1,0 +1,17 @@
+| src | dst | conn |
+|-----|-----|------|
+| hello-world/workload-a[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+## Exposure Analysis Result:
+### Egress Exposure:
+| src | dst | conn |
+|-----|-----|------|
+| hello-world/workload-a[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/workload-a[Deployment] | entire-cluster | All Connections |
+
+### Ingress Exposure:
+| dst | src | conn |
+|-----|-----|------|
+| hello-world/workload-a[Deployment] | [namespace with {env=env-1}]/[pod with {app=app-1}] | All Connections |
+| hello-world/workload-a[Deployment] | [namespace with {env=env-1}]/[pod with {app=app-2}] | All Connections |
+| hello-world/workload-a[Deployment] | [namespace with {env=env-2}]/[pod with {app=app-1}] | All Connections |
+| hello-world/workload-a[Deployment] | [namespace with {env=env-2}]/[pod with {app=app-2}] | All Connections |
