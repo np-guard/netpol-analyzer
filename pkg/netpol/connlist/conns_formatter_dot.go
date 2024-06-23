@@ -16,8 +16,11 @@ import (
 )
 
 const (
-	ipColor        = "red2"
-	nonIPPeerColor = "blue"
+	ipColor         = "red2"
+	nonIPPeerColor  = "blue"
+	edgeWeightLabel = "weight"
+	lessWeight      = "0.5"
+	moreWeight      = "1"
 )
 
 // formatDOT: implements the connsFormatter interface for dot output format
@@ -28,7 +31,13 @@ type formatDOT struct {
 // formats an edge line from a singleConnFields struct , to be used for dot graph
 func getEdgeLine(c Peer2PeerConnection) string {
 	connStr := common.ConnStrFromConnProperties(c.AllProtocolsAndPorts(), c.ProtocolsAndPorts())
-	return fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\"]", c.Src().String(), c.Dst().String(), connStr)
+	var weight string
+	if c.Src().String() <= c.Dst().String() {
+		weight = lessWeight
+	} else {
+		weight = moreWeight
+	}
+	return fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\" %s=%s]", c.Src().String(), c.Dst().String(), connStr, edgeWeightLabel, weight)
 }
 
 // returns the peer label and color to be represented in the graph, and whether the peer is external to cluster's namespaces

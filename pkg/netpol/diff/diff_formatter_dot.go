@@ -133,6 +133,9 @@ const (
 	changedConnColor    = "magenta"
 	removedConnColor    = "red2"
 	addedConnColor      = "#008000"
+	edgeWeightLabel     = "weight"
+	lessWeight          = "0.5"
+	moreWeight          = "1"
 )
 
 // addEdgesLines forms the appropriate edge line of the given conns pair
@@ -156,7 +159,13 @@ func (df *diffFormatDOT) addEdgesLines(connsPair SrcDstDiff) string {
 
 // getEdgeLine returns a single edge line string in the dot format
 func getEdgeLine(src, dst, connStr, edgeColor string) string {
-	return fmt.Sprintf("\t%q -> %q [label=%q color=%q fontcolor=%q]", src, dst, connStr, edgeColor, edgeColor)
+	var weight string
+	if src <= dst {
+		weight = lessWeight
+	} else {
+		weight = moreWeight
+	}
+	return fmt.Sprintf("\t%q -> %q [label=%q color=%q fontcolor=%q %s=%s]", src, dst, connStr, edgeColor, edgeColor, edgeWeightLabel, weight)
 }
 
 // kept empty for dot format, used to implement the diffFormatter interface in other formats
