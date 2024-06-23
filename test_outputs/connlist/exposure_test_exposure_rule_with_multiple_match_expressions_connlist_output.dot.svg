@@ -54,8 +54,8 @@
 <!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge4" class="edge">
 <title>hello&#45;world/workload&#45;a[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M1234.05,-121C994.86,-121 400.23,-121 172.04,-121"/>
-<polygon fill="#eec900" stroke="#eec900" points="171.78,-117.5 161.78,-121 171.78,-124.5 171.78,-117.5"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M1234.05,-121C994.86,-121 400.23,-121 172.04,-121"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="171.78,-117.5 161.78,-121 171.78,-124.5 171.78,-117.5"/>
 <text text-anchor="middle" x="698.13" y="-127.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- hello&#45;world/workload&#45;b[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
@@ -68,8 +68,8 @@
 <!-- hello&#45;world/workload&#45;b[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge7" class="edge">
 <title>hello&#45;world/workload&#45;b[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M1234.42,-37.07C1074.18,-40.81 752.78,-50.21 480.89,-70 340.49,-80.22 305.05,-81.84 165.89,-103 153.91,-104.82 141.07,-107.18 129.08,-109.55"/>
-<polygon fill="#eec900" stroke="#eec900" points="128.36,-106.13 119.26,-111.54 129.75,-112.99 128.36,-106.13"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M1234.42,-37.07C1074.18,-40.81 752.78,-50.21 480.89,-70 340.49,-80.22 305.05,-81.84 165.89,-103 153.91,-104.82 141.07,-107.18 129.08,-109.55"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="128.36,-106.13 119.26,-111.54 129.75,-112.99 128.36,-106.13"/>
 <text text-anchor="middle" x="526.39" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- pod with {app NotIn (b&#45;app,c&#45;app,d&#45;app),env DoesNotExist,role=api,tier Exists}_in_hello&#45;world -->
@@ -81,8 +81,8 @@
 <!-- pod with {app NotIn (b&#45;app,c&#45;app,d&#45;app),env DoesNotExist,role=api,tier Exists}_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
 <g id="edge8" class="edge">
 <title>pod with {app NotIn (b&#45;app,c&#45;app,d&#45;app),env DoesNotExist,role=api,tier Exists}_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M1708.55,-190.71C1623.18,-174.97 1495.12,-151.36 1413.55,-136.32"/>
-<polygon fill="#eec900" stroke="#eec900" points="1413.82,-132.81 1403.35,-134.44 1412.55,-139.69 1413.82,-132.81"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M1708.55,-190.71C1623.18,-174.97 1495.12,-151.36 1413.55,-136.32"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="1413.82,-132.81 1403.35,-134.44 1412.55,-139.69 1413.82,-132.81"/>
 <text text-anchor="middle" x="1639.39" y="-160.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- pod with {app NotIn (b&#45;app,c&#45;app,d&#45;app),env DoesNotExist,role=frontend,tier Exists}_in_hello&#45;world -->
@@ -94,8 +94,8 @@
 <!-- pod with {app NotIn (b&#45;app,c&#45;app,d&#45;app),env DoesNotExist,role=frontend,tier Exists}_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
 <g id="edge9" class="edge">
 <title>pod with {app NotIn (b&#45;app,c&#45;app,d&#45;app),env DoesNotExist,role=frontend,tier Exists}_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M1183.08,-190C1214.09,-176.2 1257.9,-156.71 1290.66,-142.12"/>
-<polygon fill="#eec900" stroke="#eec900" points="1292.31,-145.22 1300.02,-137.96 1289.46,-138.83 1292.31,-145.22"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M1183.08,-190C1214.09,-176.2 1257.9,-156.71 1290.66,-142.12"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="1292.31,-145.22 1300.02,-137.96 1289.46,-138.83 1292.31,-145.22"/>
 <text text-anchor="middle" x="1296.39" y="-160.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- pod with {app NotIn (b&#45;app,c&#45;app,d&#45;app),env DoesNotExist,role=web,tier Exists}_in_hello&#45;world -->
@@ -107,8 +107,8 @@
 <!-- pod with {app NotIn (b&#45;app,c&#45;app,d&#45;app),env DoesNotExist,role=web,tier Exists}_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
 <g id="edge10" class="edge">
 <title>pod with {app NotIn (b&#45;app,c&#45;app,d&#45;app),env DoesNotExist,role=web,tier Exists}_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M636.91,-192.15C810.22,-174.75 1092.26,-146.45 1239.5,-131.67"/>
-<polygon fill="#eec900" stroke="#eec900" points="1240.26,-135.11 1249.86,-130.63 1239.56,-128.15 1240.26,-135.11"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M636.91,-192.15C810.22,-174.75 1092.26,-146.45 1239.5,-131.67"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="1240.26,-135.11 1249.86,-130.63 1239.56,-128.15 1240.26,-135.11"/>
 <text text-anchor="middle" x="1008.39" y="-160.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;hello&#45;world/workload&#45;b[Deployment] -->
@@ -121,8 +121,8 @@
 <!-- entire&#45;cluster&#45;&gt;hello&#45;world/workload&#45;b[Deployment] -->
 <g id="edge2" class="edge">
 <title>entire&#45;cluster&#45;&gt;hello&#45;world/workload&#45;b[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M118.34,-111.22C133.08,-108.1 150.2,-104.9 165.89,-103 346.96,-81.05 393.76,-94.99 575.89,-85 810.87,-72.11 1086.46,-52.98 1232.62,-42.51"/>
-<polygon fill="#eec900" stroke="#eec900" points="1233.19,-45.98 1242.91,-41.77 1232.69,-39 1233.19,-45.98"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M118.34,-111.22C133.08,-108.1 150.2,-104.9 165.89,-103 346.96,-81.05 393.76,-94.99 575.89,-85 810.87,-72.11 1086.46,-52.98 1232.62,-42.51"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="1233.19,-45.98 1242.91,-41.77 1232.69,-39 1233.19,-45.98"/>
 <text text-anchor="middle" x="871.39" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 </g>

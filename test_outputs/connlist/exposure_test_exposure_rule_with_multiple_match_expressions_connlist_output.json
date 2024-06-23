@@ -1,0 +1,75 @@
+{
+  "connlist_results": [
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "hello-world/workload-b[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-a[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-a[Deployment]",
+      "dst": "hello-world/workload-b[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-b[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    }
+  ],
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "hello-world/workload-a[Deployment]",
+        "dst": "0.0.0.0-255.255.255.255",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/workload-a[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/workload-b[Deployment]",
+        "dst": "0.0.0.0-255.255.255.255",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/workload-b[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "hello-world/[pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=api,tier Exists}]",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/[pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=frontend,tier Exists}]",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/[pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=web,tier Exists}]",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "0.0.0.0-255.255.255.255",
+        "dst": "hello-world/workload-b[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "hello-world/workload-b[Deployment]",
+        "conn": "All Connections"
+      }
+    ]
+  }
+}

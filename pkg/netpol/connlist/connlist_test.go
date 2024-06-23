@@ -981,7 +981,7 @@ var goodPathTests = []struct {
 	{
 		testDirName:      "test_exposure_rule_with_multiple_match_expressions",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		// in this test's netpol, the rules are not equiv
@@ -989,21 +989,21 @@ var goodPathTests = []struct {
 		// but a pod that matches both rules (like workload-b) connects with workload-a on both ports
 		testDirName:      "test_exposure_with_different_rules_1",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		// in this test's netpol, the rules are not equiv, but the In rule contains the Exists rule
 		// so the representative peer inferred from `In` rule; connects with workload-a on both rules' ports
 		testDirName:      "test_exposure_with_different_rules_2",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		// in this test's netpol, the rules are not equiv, but the DoesNotExist rule contains the NotIn rule
 		// so the representative peer inferred from `DoesNotExist` rule; connects with workload-a on both rules' ports
 		testDirName:      "test_exposure_with_different_rules_3",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		// in this test's netpol,both rules are with NotIn operator, where one values list contains the other.
@@ -1011,7 +1011,7 @@ var goodPathTests = []struct {
 		// since workload-b matches both NotIn (does not have key role in its labels), it also connect on both ports to workload-a
 		testDirName:      "test_exposure_with_different_rules_4",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		// in this test's netpol,rules with In and NotIn, where one values list contains the other.
@@ -1019,7 +1019,7 @@ var goodPathTests = []struct {
 		// matches also the NotIn rule or not
 		testDirName:      "test_exposure_with_different_rules_5",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 	{
 		// in this test's netpol, rules are combined
@@ -1027,6 +1027,6 @@ var goodPathTests = []struct {
 		// has connections of both rules
 		testDirName:      "test_exposure_with_different_rules_6",
 		exposureAnalysis: true,
-		outputFormats:    ExposureValidFormats,
+		outputFormats:    ValidFormats,
 	},
 }

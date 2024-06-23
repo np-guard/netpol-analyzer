@@ -54,8 +54,8 @@
 <!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge4" class="edge">
 <title>hello&#45;world/workload&#45;a[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M423.46,-121C347.71,-121 245.06,-121 171.92,-121"/>
-<polygon fill="#eec900" stroke="#eec900" points="171.81,-117.5 161.81,-121 171.81,-124.5 171.81,-117.5"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M423.46,-121C347.71,-121 245.06,-121 171.92,-121"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="171.81,-117.5 161.81,-121 171.81,-124.5 171.81,-117.5"/>
 <text text-anchor="middle" x="292.63" y="-127.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- hello&#45;world/workload&#45;b[Deployment]&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
@@ -75,8 +75,8 @@
 <!-- hello&#45;world/workload&#45;b[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge7" class="edge">
 <title>hello&#45;world/workload&#45;b[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#eec900" d="M345.11,-40.61C272.45,-45.92 179.24,-55.3 143.89,-70 128.17,-76.53 113.14,-88.18 101.7,-98.59"/>
-<polygon fill="#eec900" stroke="#eec900" points="99.24,-96.1 94.4,-105.52 104.06,-101.18 99.24,-96.1"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M345.11,-40.61C272.45,-45.92 179.24,-55.3 143.89,-70 128.17,-76.53 113.14,-88.18 101.7,-98.59"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="99.24,-96.1 94.4,-105.52 104.06,-101.18 99.24,-96.1"/>
 <text text-anchor="middle" x="189.39" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- pod with {app DoesNotExist}_in_hello&#45;world -->
@@ -88,8 +88,8 @@
 <!-- pod with {app DoesNotExist}_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
 <g id="edge9" class="edge">
 <title>pod with {app DoesNotExist}_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M524.89,-189.8C524.89,-178.16 524.89,-162.55 524.89,-149.24"/>
-<polygon fill="#eec900" stroke="#eec900" points="528.39,-149.18 524.89,-139.18 521.39,-149.18 528.39,-149.18"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M524.89,-189.8C524.89,-178.16 524.89,-162.55 524.89,-149.24"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="528.39,-149.18 524.89,-139.18 521.39,-149.18 528.39,-149.18"/>
 <text text-anchor="middle" x="569.39" y="-160.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080,9090</text>
 </g>
 <!-- pod with {app NotIn (x)}_in_hello&#45;world -->
@@ -101,8 +101,8 @@
 <!-- pod with {app NotIn (x)}_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
 <g id="edge10" class="edge">
 <title>pod with {app NotIn (x)}_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M325.89,-191.61C366.83,-177.29 427.93,-155.92 471.61,-140.64"/>
-<polygon fill="#eec900" stroke="#eec900" points="472.92,-143.88 481.21,-137.28 470.61,-137.28 472.92,-143.88"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M325.89,-191.61C366.83,-177.29 427.93,-155.92 471.61,-140.64"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="472.92,-143.88 481.21,-137.28 470.61,-137.28 472.92,-143.88"/>
 <text text-anchor="middle" x="446.89" y="-160.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 9090</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;hello&#45;world/workload&#45;b[Deployment] -->
@@ -115,8 +115,8 @@
 <!-- entire&#45;cluster&#45;&gt;hello&#45;world/workload&#45;b[Deployment] -->
 <g id="edge2" class="edge">
 <title>entire&#45;cluster&#45;&gt;hello&#45;world/workload&#45;b[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M118.06,-111.22C177.97,-97.08 296.82,-69.02 372.39,-51.17"/>
-<polygon fill="#eec900" stroke="#eec900" points="373.37,-54.54 382.3,-48.83 371.77,-47.72 373.37,-54.54"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M118.06,-111.22C177.97,-97.08 296.82,-69.02 372.39,-51.17"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="373.37,-54.54 382.3,-48.83 371.77,-47.72 373.37,-54.54"/>
 <text text-anchor="middle" x="327.39" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 </g>
