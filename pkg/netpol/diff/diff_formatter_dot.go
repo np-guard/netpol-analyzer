@@ -141,22 +141,17 @@ func (df *diffFormatDOT) addEdgesLines(connsPair SrcDstDiff) string {
 	firstConn, secondConn := getDirsConnsStrings(connsPair)
 	switch connsPair.DiffType() {
 	case UnchangedType:
-		return getEdgeLine(src, dst, firstConn, nonChangedConnColor)
+		return dotformatting.GetEdgeLine(src, dst, firstConn, nonChangedConnColor, nonChangedConnColor)
 	case ChangedType:
 		changedEdgeLabel := fmt.Sprintf("%s (%s: %s)", secondConn, df.ref1, firstConn)
-		return getEdgeLine(src, dst, changedEdgeLabel, changedConnColor)
+		return dotformatting.GetEdgeLine(src, dst, changedEdgeLabel, changedConnColor, changedConnColor)
 	case RemovedType:
-		return getEdgeLine(src, dst, firstConn, removedConnColor)
+		return dotformatting.GetEdgeLine(src, dst, firstConn, removedConnColor, removedConnColor)
 	case AddedType:
-		return getEdgeLine(src, dst, secondConn, addedConnColor)
+		return dotformatting.GetEdgeLine(src, dst, secondConn, addedConnColor, addedConnColor)
 	default:
 		return "" // should not get here
 	}
-}
-
-// getEdgeLine returns a single edge line string in the dot format
-func getEdgeLine(src, dst, connStr, edgeColor string) string {
-	return fmt.Sprintf("\t%q -> %q [label=%q color=%q fontcolor=%q]", src, dst, connStr, edgeColor, edgeColor)
 }
 
 // kept empty for dot format, used to implement the diffFormatter interface in other formats
