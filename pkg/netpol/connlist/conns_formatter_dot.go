@@ -16,8 +16,10 @@ import (
 )
 
 const (
-	ipColor        = "red2"
-	nonIPPeerColor = "blue"
+	ipColor           = "red2"
+	nonIPPeerColor    = "blue"
+	connlistEdgeColor = "gold2"
+	edgeFontColor     = "darkgreen"
 )
 
 // formatDOT: implements the connsFormatter interface for dot output format
@@ -64,7 +66,7 @@ func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	for index := range conns {
 		c := conns[index]
 		connStr := common.ConnStrFromConnProperties(c.AllProtocolsAndPorts(), c.ProtocolsAndPorts())
-		edgeLines[index] = dotformatting.GetEdgeLine(c.Src().String(), c.Dst().String(), connStr, "gold2", "darkgreen")
+		edgeLines[index] = dotformatting.GetEdgeLine(c.Src().String(), c.Dst().String(), connStr, connlistEdgeColor, edgeFontColor)
 		externalPeersLines = categorizeAndAddPeerLine(c.Src(), peersVisited, externalPeersLines, nsPeers)
 		externalPeersLines = categorizeAndAddPeerLine(c.Dst(), peersVisited, externalPeersLines, nsPeers)
 	}
