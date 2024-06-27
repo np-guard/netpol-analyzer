@@ -21,8 +21,8 @@
 <!-- default/adservice[Deployment] -->
 <g id="node1" class="node">
 <title>default/adservice[Deployment]</title>
-<ellipse fill="none" stroke="blue" cx="271" cy="-121" rx="94.78" ry="18"/>
-<text text-anchor="middle" x="271" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">adservice[Deployment]</text>
+<ellipse fill="none" stroke="blue" cx="111" cy="-121" rx="94.78" ry="18"/>
+<text text-anchor="middle" x="111" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">adservice[Deployment]</text>
 </g>
 <!-- default/cartservice[Deployment] -->
 <g id="node2" class="node">
@@ -33,15 +33,15 @@
 <!-- default/checkoutservice[Deployment] -->
 <g id="node3" class="node">
 <title>default/checkoutservice[Deployment]</title>
-<ellipse fill="none" stroke="blue" cx="673" cy="-121" rx="118.88" ry="18"/>
-<text text-anchor="middle" x="673" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">checkoutservice[Deployment]</text>
+<ellipse fill="none" stroke="blue" cx="437" cy="-121" rx="118.88" ry="18"/>
+<text text-anchor="middle" x="437" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">checkoutservice[Deployment]</text>
 </g>
 <!-- default/checkoutservice[Deployment]&#45;&gt;default/cartservice[Deployment] -->
 <g id="edge2" class="edge">
 <title>default/checkoutservice[Deployment]&#45;&gt;default/cartservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M581.33,-109.53C516.14,-101.68 437.64,-91.25 423,-85 413.11,-80.77 413.98,-74.03 404,-70 329.04,-39.74 303.18,-62.29 223,-52 214.15,-50.86 204.91,-49.57 195.72,-48.22"/>
-<polygon fill="#eec900" stroke="#eec900" points="196.2,-44.75 185.79,-46.73 195.16,-51.68 196.2,-44.75"/>
-<text text-anchor="middle" x="452" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 7070</text>
+<path fill="none" stroke="#eec900" d="M366.68,-106.39C340.48,-100.67 310.64,-93.39 284,-85 267.07,-79.67 263.83,-75.62 247,-70 226.32,-63.1 203.47,-56.64 182.68,-51.2"/>
+<polygon fill="#eec900" stroke="#eec900" points="183.53,-47.8 172.97,-48.69 181.78,-54.58 183.53,-47.8"/>
+<text text-anchor="middle" x="313" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 7070</text>
 </g>
 <!-- default/currencyservice[Deployment] -->
 <g id="node4" class="node">
@@ -52,9 +52,9 @@
 <!-- default/checkoutservice[Deployment]&#45;&gt;default/currencyservice[Deployment] -->
 <g id="edge3" class="edge">
 <title>default/checkoutservice[Deployment]&#45;&gt;default/currencyservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M669.67,-102.78C668.64,-92.12 669.38,-78.84 677,-70 685.07,-60.64 706.77,-53.5 731.29,-48.18"/>
-<polygon fill="#eec900" stroke="#eec900" points="732.08,-51.59 741.18,-46.15 730.68,-44.73 732.08,-51.59"/>
-<text text-anchor="middle" x="706" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 7000</text>
+<path fill="none" stroke="#eec900" d="M479.21,-104.16C494.88,-98.22 512.78,-91.37 529,-85 545.52,-78.51 548.85,-74.54 566,-70 624.51,-54.51 641,-60.02 701,-52 711.19,-50.64 721.85,-49.21 732.46,-47.79"/>
+<polygon fill="#eec900" stroke="#eec900" points="733.16,-51.23 742.61,-46.44 732.23,-44.29 733.16,-51.23"/>
+<text text-anchor="middle" x="595" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 7000</text>
 </g>
 <!-- default/emailservice[Deployment] -->
 <g id="node5" class="node">
@@ -65,9 +65,9 @@
 <!-- default/checkoutservice[Deployment]&#45;&gt;default/emailservice[Deployment] -->
 <g id="edge4" class="edge">
 <title>default/checkoutservice[Deployment]&#45;&gt;default/emailservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M600,-106.73C573.81,-101.13 544.28,-93.84 518,-85 502.73,-79.87 500.24,-75.21 485,-70 462.16,-62.19 436.75,-55.49 413.53,-50.11"/>
-<polygon fill="#eec900" stroke="#eec900" points="414.25,-46.69 403.72,-47.89 412.7,-53.51 414.25,-46.69"/>
-<text text-anchor="middle" x="547" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
+<path fill="none" stroke="#eec900" d="M383.51,-104.71C373.03,-99.77 362.86,-93.33 355,-85 348.97,-78.61 344.93,-70.05 342.24,-61.82"/>
+<polygon fill="#eec900" stroke="#eec900" points="345.6,-60.84 339.59,-52.12 338.85,-62.69 345.6,-60.84"/>
+<text text-anchor="middle" x="384" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
 </g>
 <!-- default/paymentservice[Deployment] -->
 <g id="node8" class="node">
@@ -78,9 +78,9 @@
 <!-- default/checkoutservice[Deployment]&#45;&gt;default/paymentservice[Deployment] -->
 <g id="edge5" class="edge">
 <title>default/checkoutservice[Deployment]&#45;&gt;default/paymentservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M616.76,-105.06C606.37,-100.11 596.46,-93.59 589,-85 583.46,-78.62 580.24,-70.16 578.37,-62.02"/>
-<polygon fill="#eec900" stroke="#eec900" points="581.81,-61.33 576.67,-52.06 574.91,-62.51 581.81,-61.33"/>
-<text text-anchor="middle" x="621.5" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 50051</text>
+<path fill="none" stroke="#eec900" d="M442.41,-102.97C446.67,-92.11 453.65,-78.53 464,-70 473.15,-62.46 483.93,-56.54 495.12,-51.89"/>
+<polygon fill="#eec900" stroke="#eec900" points="496.5,-55.11 504.6,-48.28 494.01,-48.57 496.5,-55.11"/>
+<text text-anchor="middle" x="496.5" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 50051</text>
 </g>
 <!-- default/productcatalogservice[Deployment] -->
 <g id="node9" class="node">
@@ -91,9 +91,9 @@
 <!-- default/checkoutservice[Deployment]&#45;&gt;default/productcatalogservice[Deployment] -->
 <g id="edge6" class="edge">
 <title>default/checkoutservice[Deployment]&#45;&gt;default/productcatalogservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M740.11,-106.05C761.13,-102.04 784.47,-97.95 806,-95 856.83,-88.03 869.96,-90.16 921,-85 1032.53,-73.73 1159.95,-58.8 1247.73,-48.2"/>
-<polygon fill="#eec900" stroke="#eec900" points="1248.19,-51.67 1257.7,-47 1247.35,-44.72 1248.19,-51.67"/>
-<text text-anchor="middle" x="1081" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 3550</text>
+<path fill="none" stroke="#eec900" d="M531.98,-110.15C582.45,-105.14 645.55,-99.24 702,-95 781.46,-89.03 801.57,-91.26 881,-85 1025.3,-73.63 1061.09,-67.48 1205,-52 1217.67,-50.64 1230.93,-49.18 1244.11,-47.71"/>
+<polygon fill="#eec900" stroke="#eec900" points="1244.61,-51.18 1254.16,-46.59 1243.83,-44.22 1244.61,-51.18"/>
+<text text-anchor="middle" x="1072" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 3550</text>
 </g>
 <!-- default/shippingservice[Deployment] -->
 <g id="node12" class="node">
@@ -104,9 +104,9 @@
 <!-- default/checkoutservice[Deployment]&#45;&gt;default/shippingservice[Deployment] -->
 <g id="edge7" class="edge">
 <title>default/checkoutservice[Deployment]&#45;&gt;default/shippingservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M722.37,-104.49C758.1,-93.68 807.68,-79.55 852,-70 877.42,-64.52 935.7,-55.6 986.98,-48.13"/>
-<polygon fill="#eec900" stroke="#eec900" points="987.74,-51.56 997.13,-46.66 986.73,-44.63 987.74,-51.56"/>
-<text text-anchor="middle" x="884.5" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 50051</text>
+<path fill="none" stroke="#eec900" d="M524.09,-108.69C627.03,-95.3 803.51,-72.24 955,-52 965.03,-50.66 975.52,-49.25 985.97,-47.84"/>
+<polygon fill="#eec900" stroke="#eec900" points="986.52,-51.29 995.96,-46.48 985.58,-44.36 986.52,-51.29"/>
+<text text-anchor="middle" x="844.5" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 50051</text>
 </g>
 <!-- pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces -->
 <g id="node13" class="node">
@@ -117,111 +117,111 @@
 <!-- default/checkoutservice[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces -->
 <g id="edge8" class="edge">
 <title>default/checkoutservice[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces</title>
-<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M696.96,-138.73C722.48,-156.42 764.79,-182.45 806,-193 911.3,-219.95 1382.86,-224.38 1507,-193 1544.27,-183.58 1582.47,-161.6 1608.5,-144.38"/>
-<polygon fill="#8b4500" stroke="#8b4500" points="1610.51,-147.25 1616.84,-138.75 1606.6,-141.45 1610.51,-147.25"/>
-<text text-anchor="middle" x="1028" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 53</text>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M483.62,-137.68C535.96,-155.46 623.8,-182.47 702,-193 790.64,-204.94 1420.29,-214.95 1507,-193 1544.26,-183.57 1582.47,-161.59 1608.5,-144.38"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="1610.51,-147.24 1616.84,-138.75 1606.6,-141.44 1610.51,-147.24"/>
+<text text-anchor="middle" x="1138" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 53</text>
 </g>
 <!-- default/frontend[Deployment] -->
 <g id="node6" class="node">
 <title>default/frontend[Deployment]</title>
-<ellipse fill="none" stroke="blue" cx="828" cy="-252" rx="90.98" ry="18"/>
-<text text-anchor="middle" x="828" y="-248.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">frontend[Deployment]</text>
+<ellipse fill="none" stroke="blue" cx="339" cy="-252" rx="90.98" ry="18"/>
+<text text-anchor="middle" x="339" y="-248.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">frontend[Deployment]</text>
 </g>
 <!-- default/frontend[Deployment]&#45;&gt;default/adservice[Deployment] -->
 <g id="edge9" class="edge">
 <title>default/frontend[Deployment]&#45;&gt;default/adservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M738.34,-248.66C606.68,-244.62 372.91,-234.88 339,-216 312.17,-201.06 293.18,-170.59 282.21,-148.37"/>
-<polygon fill="#eec900" stroke="#eec900" points="285.29,-146.69 277.87,-139.13 278.95,-149.67 285.29,-146.69"/>
-<text text-anchor="middle" x="368" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 9555</text>
+<path fill="none" stroke="#eec900" d="M255.97,-244.53C229.75,-239.53 201.71,-230.88 179,-216 153.61,-199.37 134.55,-169.74 123.16,-148.19"/>
+<polygon fill="#eec900" stroke="#eec900" points="126.26,-146.55 118.62,-139.21 120.01,-149.72 126.26,-146.55"/>
+<text text-anchor="middle" x="208" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 9555</text>
 </g>
 <!-- default/frontend[Deployment]&#45;&gt;default/cartservice[Deployment] -->
 <g id="edge10" class="edge">
 <title>default/frontend[Deployment]&#45;&gt;default/cartservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M738.18,-248.99C666.99,-244.35 566.59,-230.83 487,-193 427.26,-164.61 433.89,-125.12 375,-95 343.78,-79.03 258.55,-60.96 194.11,-48.87"/>
-<polygon fill="#eec900" stroke="#eec900" points="194.43,-45.37 183.96,-46.98 193.15,-52.25 194.43,-45.37"/>
-<text text-anchor="middle" x="516" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 7070</text>
+<path fill="none" stroke="#eec900" d="M305.05,-235.3C286.86,-225.4 265.32,-211.07 251,-193 222.18,-156.63 244.58,-130.75 215,-95 201.2,-78.32 181.48,-65.1 163.19,-55.37"/>
+<polygon fill="#eec900" stroke="#eec900" points="164.58,-52.15 154.08,-50.74 161.41,-58.39 164.58,-52.15"/>
+<text text-anchor="middle" x="280" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 7070</text>
 </g>
 <!-- default/frontend[Deployment]&#45;&gt;default/checkoutservice[Deployment] -->
 <g id="edge11" class="edge">
 <title>default/frontend[Deployment]&#45;&gt;default/checkoutservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M795.15,-235.08C785.1,-229.61 774.25,-223.06 765,-216 738.03,-195.43 711.39,-167.08 693.77,-146.91"/>
-<polygon fill="#eec900" stroke="#eec900" points="696.2,-144.37 687.02,-139.08 690.9,-148.94 696.2,-144.37"/>
-<text text-anchor="middle" x="794" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 5050</text>
+<path fill="none" stroke="#eec900" d="M351.81,-234.14C368.59,-212.05 398.17,-173.12 417.68,-147.44"/>
+<polygon fill="#eec900" stroke="#eec900" points="420.61,-149.36 423.87,-139.28 415.04,-145.13 420.61,-149.36"/>
+<text text-anchor="middle" x="405" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 5050</text>
 </g>
 <!-- default/frontend[Deployment]&#45;&gt;default/currencyservice[Deployment] -->
 <g id="edge12" class="edge">
 <title>default/frontend[Deployment]&#45;&gt;default/currencyservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M828,-233.69C828,-196.23 828,-107.42 828,-62.31"/>
-<polygon fill="#eec900" stroke="#eec900" points="831.5,-62.09 828,-52.09 824.5,-62.09 831.5,-62.09"/>
-<text text-anchor="middle" x="857" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 7000</text>
+<path fill="none" stroke="#eec900" d="M404.42,-239.44C450.44,-230.07 512.87,-214.8 565,-193 654.29,-155.66 749.31,-91.74 796.96,-57.77"/>
+<polygon fill="#eec900" stroke="#eec900" points="799.2,-60.46 805.29,-51.79 795.12,-54.78 799.2,-60.46"/>
+<text text-anchor="middle" x="769" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 7000</text>
 </g>
 <!-- default/frontend[Deployment]&#45;&gt;default/productcatalogservice[Deployment] -->
 <g id="edge13" class="edge">
 <title>default/frontend[Deployment]&#45;&gt;default/productcatalogservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M914.24,-246.09C1064.37,-237.45 1358.22,-220.04 1362,-216 1382.2,-194.43 1368.97,-106.99 1360.51,-62.01"/>
-<polygon fill="#eec900" stroke="#eec900" points="1363.92,-61.22 1358.58,-52.07 1357.05,-62.55 1363.92,-61.22"/>
-<text text-anchor="middle" x="1401" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 3550</text>
+<path fill="none" stroke="#eec900" d="M428.33,-248.46C696.73,-240.81 1477.71,-218.36 1480,-216 1505.19,-190.02 1454.99,-198.28 1449,-193 1413.83,-162.01 1434.91,-134.71 1410,-95 1401.9,-82.09 1390.87,-69.41 1380.81,-59.06"/>
+<polygon fill="#eec900" stroke="#eec900" points="1383.26,-56.56 1373.71,-51.96 1378.31,-61.51 1383.26,-56.56"/>
+<text text-anchor="middle" x="1478" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 3550</text>
 </g>
 <!-- default/recommendationservice[Deployment] -->
 <g id="node10" class="node">
 <title>default/recommendationservice[Deployment]</title>
-<ellipse fill="none" stroke="blue" cx="1151" cy="-121" rx="146.47" ry="18"/>
-<text text-anchor="middle" x="1151" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">recommendationservice[Deployment]</text>
+<ellipse fill="none" stroke="blue" cx="1255" cy="-121" rx="146.47" ry="18"/>
+<text text-anchor="middle" x="1255" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">recommendationservice[Deployment]</text>
 </g>
 <!-- default/frontend[Deployment]&#45;&gt;default/recommendationservice[Deployment] -->
 <g id="edge14" class="edge">
 <title>default/frontend[Deployment]&#45;&gt;default/recommendationservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M909.05,-243.77C963.55,-237.92 1029.86,-228.58 1055,-216 1087.19,-199.9 1115.45,-169.06 1132.82,-147.1"/>
-<polygon fill="#eec900" stroke="#eec900" points="1135.6,-149.22 1138.93,-139.16 1130.06,-144.95 1135.6,-149.22"/>
-<text text-anchor="middle" x="1105" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
+<path fill="none" stroke="#eec900" d="M428.96,-248.99C636.17,-244.11 1131.96,-230.94 1165,-216 1196.99,-201.53 1223.3,-170 1239.04,-147.45"/>
+<polygon fill="#eec900" stroke="#eec900" points="1242.05,-149.25 1244.74,-139 1236.25,-145.33 1242.05,-149.25"/>
+<text text-anchor="middle" x="1218" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
 </g>
 <!-- default/frontend[Deployment]&#45;&gt;default/shippingservice[Deployment] -->
 <g id="edge15" class="edge">
 <title>default/frontend[Deployment]&#45;&gt;default/shippingservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M850.93,-234.51C864.07,-223.98 879.9,-209.28 890,-193 920.1,-144.5 885.3,-108.99 927,-70 936.49,-61.13 960.12,-54.01 986.05,-48.57"/>
-<polygon fill="#eec900" stroke="#eec900" points="986.96,-51.96 996.08,-46.57 985.59,-45.1 986.96,-51.96"/>
-<text text-anchor="middle" x="940.5" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 50051</text>
+<path fill="none" stroke="#eec900" d="M426.95,-247.38C542.68,-241.37 738.83,-226.48 802,-193 866.28,-158.93 847.11,-106.57 910,-70 923.87,-61.94 955.61,-54.52 987.96,-48.62"/>
+<polygon fill="#eec900" stroke="#eec900" points="988.77,-52.03 998,-46.84 987.55,-45.14 988.77,-52.03"/>
+<text text-anchor="middle" x="910.5" y="-117.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 50051</text>
 </g>
 <!-- default/frontend[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces -->
 <g id="edge16" class="edge">
 <title>default/frontend[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces</title>
-<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M914.76,-246.53C1045.29,-239.61 1286.05,-226.06 1372,-216 1432.45,-208.93 1449.38,-212.61 1507,-193 1542.67,-180.86 1580.34,-160.1 1606.63,-144.16"/>
-<polygon fill="#8b4500" stroke="#8b4500" points="1608.74,-146.96 1615.43,-138.74 1605.07,-141 1608.74,-146.96"/>
-<text text-anchor="middle" x="1502" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 53</text>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M428.51,-248.44C698.49,-240.7 1486.65,-217.95 1493,-216 1539.87,-201.6 1586.36,-168.1 1614.39,-145.24"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="1616.67,-147.89 1622.13,-138.81 1612.2,-142.51 1616.67,-147.89"/>
+<text text-anchor="middle" x="1551" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 53</text>
 </g>
 <!-- default/loadgenerator[Deployment] -->
 <g id="node7" class="node">
 <title>default/loadgenerator[Deployment]</title>
-<ellipse fill="none" stroke="blue" cx="828" cy="-339" rx="109.68" ry="18"/>
-<text text-anchor="middle" x="828" y="-335.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">loadgenerator[Deployment]</text>
+<ellipse fill="none" stroke="blue" cx="339" cy="-339" rx="109.68" ry="18"/>
+<text text-anchor="middle" x="339" y="-335.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">loadgenerator[Deployment]</text>
 </g>
 <!-- default/loadgenerator[Deployment]&#45;&gt;default/frontend[Deployment] -->
 <g id="edge17" class="edge">
 <title>default/loadgenerator[Deployment]&#45;&gt;default/frontend[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M828,-320.8C828,-309.16 828,-293.55 828,-280.24"/>
-<polygon fill="#eec900" stroke="#eec900" points="831.5,-280.18 828,-270.18 824.5,-280.18 831.5,-280.18"/>
-<text text-anchor="middle" x="857" y="-291.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
+<path fill="none" stroke="#eec900" d="M339,-320.8C339,-309.16 339,-293.55 339,-280.24"/>
+<polygon fill="#eec900" stroke="#eec900" points="342.5,-280.18 339,-270.18 335.5,-280.18 342.5,-280.18"/>
+<text text-anchor="middle" x="368" y="-291.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
 </g>
 <!-- default/loadgenerator[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces -->
 <g id="edge18" class="edge">
 <title>default/loadgenerator[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces</title>
-<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M903.66,-325.92C1079.05,-297.76 1500.66,-229.18 1529,-216 1564.83,-199.34 1598.49,-168.19 1619.38,-146.33"/>
-<polygon fill="#8b4500" stroke="#8b4500" points="1621.94,-148.71 1626.22,-139.02 1616.83,-143.93 1621.94,-148.71"/>
-<text text-anchor="middle" x="1465" y="-248.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 53</text>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M433.54,-329.77C718.87,-304.81 1553.41,-230.71 1578,-216 1603.44,-200.78 1620.77,-170.84 1630.72,-148.83"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="1634.06,-149.92 1634.78,-139.35 1627.63,-147.17 1634.06,-149.92"/>
+<text text-anchor="middle" x="1474" y="-248.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 53</text>
 </g>
 <!-- default/recommendationservice[Deployment]&#45;&gt;default/productcatalogservice[Deployment] -->
 <g id="edge19" class="edge">
 <title>default/recommendationservice[Deployment]&#45;&gt;default/productcatalogservice[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M1190.33,-103.61C1223.35,-89.85 1270.68,-70.13 1306.13,-55.36"/>
-<polygon fill="#eec900" stroke="#eec900" points="1307.9,-58.42 1315.79,-51.34 1305.21,-51.95 1307.9,-58.42"/>
-<text text-anchor="middle" x="1294" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 3550</text>
+<path fill="none" stroke="#eec900" d="M1261.41,-102.99C1266.09,-92.42 1273.3,-79.15 1283,-70 1288.49,-64.82 1294.89,-60.26 1301.57,-56.3"/>
+<polygon fill="#eec900" stroke="#eec900" points="1303.7,-59.12 1310.79,-51.25 1300.34,-52.98 1303.7,-59.12"/>
+<text text-anchor="middle" x="1312" y="-73.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 3550</text>
 </g>
 <!-- default/recommendationservice[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces -->
 <g id="edge20" class="edge">
 <title>default/recommendationservice[Deployment]&#45;&gt;pod with {k8s&#45;app=kube&#45;dns}_in_all namespaces</title>
-<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M1180.53,-138.72C1212.41,-156.73 1265.31,-183.44 1315,-194 1347.89,-200.99 1425.87,-213.71 1507,-193 1544.24,-183.49 1582.45,-161.52 1608.49,-144.33"/>
-<polygon fill="#8b4500" stroke="#8b4500" points="1610.5,-147.2 1616.83,-138.71 1606.59,-141.4 1610.5,-147.2"/>
-<text text-anchor="middle" x="1338" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 53</text>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M1282.52,-138.91C1328.76,-166.75 1425.05,-215.03 1507,-193 1543.89,-183.08 1581.87,-161.38 1607.94,-144.39"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="1609.91,-147.28 1616.3,-138.83 1606.03,-141.45 1609.91,-147.28"/>
+<text text-anchor="middle" x="1453" y="-204.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 53</text>
 </g>
 <!-- default/redis&#45;cart[Deployment] -->
 <g id="node11" class="node">

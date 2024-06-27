@@ -12,6 +12,6 @@ digraph {
 		"pod with {app=frontend}_in_all namespaces" [label="pod with {app=frontend}" color="red2" fontcolor="red2"]
 		label="all namespaces"
 	}
-	"default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090" color="gold2" fontcolor="darkgreen"]
+	"default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090" color="gold2" fontcolor="darkgreen" weight=1]
 	"pod with {app=frontend}_in_all namespaces" -> "default/backend[Deployment]" [label="TCP 9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 }

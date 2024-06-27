@@ -17,7 +17,11 @@ const (
 	DotHeader           = "digraph {"
 	DotClosing          = "}"
 	DefaultNsGroupColor = "black"
+	LessWeight          = "0.5"
+	MoreWeight          = "1"
 )
+
+var EdgeLineFormat = fmt.Sprintf("\t%%q -> %%q [label=%%q color=%%q fontcolor=%%q weight=%%s%%s]")
 
 // AddPeerToNsGroup adds the peer line to the namespace list in the given map.
 func AddPeerToNsGroup(peerNs, peerLine string, mapNsToPeers map[string][]string) {
@@ -62,4 +66,15 @@ func sortMapKeys(nsPeersMap map[string][]string) []string {
 	}
 	sort.Strings(keys)
 	return keys
+}
+
+// returns a single edge line string in the dot format
+func GetEdgeLine(src, dst, connStr, edgeColor, fontColor string) string {
+	var weight string
+	if src <= dst {
+		weight = LessWeight
+	} else {
+		weight = MoreWeight
+	}
+	return fmt.Sprintf(EdgeLineFormat, src, dst, connStr, edgeColor, fontColor, weight, "")
 }

@@ -30,20 +30,14 @@ const (
 	egressExposureEdgeColor  = "darkorange4"
 	connlistEdgeColor        = "gold2"
 	exposureEdgeStyle        = " style=dashed"
+	edgeFontColor            = "darkgreen"
 )
 
-var edgeLineFormat = fmt.Sprintf("\t%%q -> %%q [label=%%q color=%%q fontcolor=\"darkgreen\"%%s]")
 var peerLineFormatPrefix = fmt.Sprintf("\t%%q [label=%%q color=%%q fontcolor=%%q")
 
 // formatDOT: implements the connsFormatter interface for dot output format
 type formatDOT struct {
 	peersList []Peer // internally used peersList; in case of focusWorkload option contains only relevant peers
-}
-
-// getEdgeLine formats an edge line from a Peer2PeerConnection struct , to be used for dot graph
-func getEdgeLine(c Peer2PeerConnection) string {
-	connStr := common.ConnStrFromConnProperties(c.AllProtocolsAndPorts(), c.ProtocolsAndPorts())
-	return fmt.Sprintf(edgeLineFormat, c.Src().String(), c.Dst().String(), connStr, connlistEdgeColor, "")
 }
 
 // peerNameAndColorByType returns the peer label and color to be represented in the graph, and whether the peer is
@@ -98,7 +92,9 @@ func (d *formatDOT) addConnlistOutputData(conns []Peer2PeerConnection, nsPeers m
 	peersVisited map[string]bool) (eLines, externalPeersLines []string) {
 	edgeLines := make([]string, len(conns))
 	for index := range conns {
-		edgeLines[index] = getEdgeLine(conns[index])
+		c := conns[index]
+		connStr := common.ConnStrFromConnProperties(c.AllProtocolsAndPorts(), c.ProtocolsAndPorts())
+		edgeLines[index] = dotformatting.GetEdgeLine(c.Src().String(), c.Dst().String(), connStr, connlistEdgeColor, edgeFontColor)
 		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Src(), nsPeers, peersVisited)...)
 		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Dst(), nsPeers, peersVisited)...)
 	}
@@ -193,11 +189,11 @@ func getEntireClusterLine() string {
 // getExposureEdgeLine formats an exposure connection edge line for dot graph
 func getExposureEdgeLine(realPeerStr, repPeerStr string, isIngress bool, conn *common.ConnectionSet) string {
 	if isIngress {
-		return fmt.Sprintf(edgeLineFormat, repPeerStr, realPeerStr, conn.String(), ingressExposureEdgeColor,
-			edgeWeightLabel+ingWeight+exposureEdgeStyle)
+		return fmt.Sprintf(dotformatting.EdgeLineFormat, repPeerStr, realPeerStr, conn.String(), ingressExposureEdgeColor, edgeFontColor,
+			ingWeight, exposureEdgeStyle)
 	}
-	return fmt.Sprintf(edgeLineFormat, realPeerStr, repPeerStr, conn.String(), egressExposureEdgeColor,
-		edgeWeightLabel+egWeight+exposureEdgeStyle)
+	return fmt.Sprintf(dotformatting.EdgeLineFormat, realPeerStr, repPeerStr, conn.String(), egressExposureEdgeColor, edgeFontColor,
+		egWeight, exposureEdgeStyle)
 }
 
 // getRepPeerLine formats a representative peer line for dot graph

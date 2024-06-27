@@ -14,12 +14,12 @@ digraph {
 	}
 	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
-	"0.0.0.0-255.255.255.255" -> "backend/backend-app[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"0.0.0.0-255.255.255.255" -> "backend/backend-app[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"all pods_in_backend" -> "hello-world/workload-a[Deployment]" [label="TCP 8050" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
-	"backend/backend-app[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"backend/backend-app[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"backend/backend-app[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
-	"backend/backend-app[Deployment]" -> "hello-world/workload-a[Deployment]" [label="TCP 8050" color="gold2" fontcolor="darkgreen"]
+	"backend/backend-app[Deployment]" -> "hello-world/workload-a[Deployment]" [label="TCP 8050" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"entire-cluster" -> "backend/backend-app[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
-	"hello-world/workload-a[Deployment]" -> "backend/backend-app[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
+	"hello-world/workload-a[Deployment]" -> "backend/backend-app[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"hello-world/workload-a[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
 }
