@@ -51,29 +51,14 @@
     ],
     "ingress_exposure": [
       {
-        "src": "hello-world/[pod with {role NotIn (x,y)}]",
+        "src": "hello-world/[pod with {{Key:role,Operator:In,Values:[w x y z],}}]",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "TCP 8080"
+      },
+      {
+        "src": "hello-world/[pod with {{Key:role,Operator:NotIn,Values:[x y],}}]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "TCP 9090"
-      },
-      {
-        "src": "hello-world/[pod with {role=w}]",
-        "dst": "hello-world/workload-a[Deployment]",
-        "conn": "TCP 8080,9090"
-      },
-      {
-        "src": "hello-world/[pod with {role=x}]",
-        "dst": "hello-world/workload-a[Deployment]",
-        "conn": "TCP 8080"
-      },
-      {
-        "src": "hello-world/[pod with {role=y}]",
-        "dst": "hello-world/workload-a[Deployment]",
-        "conn": "TCP 8080"
-      },
-      {
-        "src": "hello-world/[pod with {role=z}]",
-        "dst": "hello-world/workload-a[Deployment]",
-        "conn": "TCP 8080,9090"
       },
       {
         "src": "0.0.0.0-255.255.255.255",

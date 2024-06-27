@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package k8s
 
 import (
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/models/pkg/ipblock"
@@ -58,16 +59,14 @@ type WorkloadPeer struct {
 type RepresentativePeer struct {
 	// Pod is a fake pod originated as following:
 	// - if inferred from a policy rule, which contains only non-empty namespaceSelector; the pod's namespace is a fake namespace
-	// with the labels from the selector (those labels also stored in PotentialNamespaceLabels)
+	// with the labels and requirements from the selector
 	// - if inferred from a policy rule, which contains only podSelector; the pod's namespace is same as the policy's namespace;
-	// and its labels are taken from the selector labels
-	// - if inferred from selector combining a namespaceSelector and a podSelector: the pod's labels will contain the podSelector labels
-	// and its namespace is a fake namespace with the namespaceSelector labels  (those labels also stored in PotentialNamespaceLabels)
-	Pod                      *Pod
-	PotentialNamespaceLabels map[string]string
-	// HasUnusualNsLabels indicates if the potential namespace labels set of the representative peer contains any labels inferred
-	// from a selector with matchExpression with operator:NotIn, Exists, DoesNotExist - which require special handling
-	HasUnusualNsLabels bool
+	// and pod's labels and requirements are taken from the podSelector
+	// - if inferred from selector combining a namespaceSelector and a podSelector:
+	// the pod's labels and requirements will contain the podSelector's ones
+	// and its namespace is a fake namespace with the namespaceSelector
+	Pod                             *Pod
+	PotentialNamespaceLabelSelector v1.LabelSelector
 }
 
 const podKind = "Pod"

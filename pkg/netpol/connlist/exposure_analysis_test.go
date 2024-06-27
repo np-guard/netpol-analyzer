@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	v1 "k8s.io/api/core/v1"
+	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
@@ -46,6 +47,9 @@ var peerExposedToEntireClusterOnTCP8050 *xgressExposure = &xgressExposure{
 	potentialConn:          newTCPConnWithPorts([]int{8050}),
 }
 
+var matchExpression []metaV1.LabelSelectorRequirement = []metaV1.LabelSelectorRequirement{{Key: "foo.com/managed-state",
+	Operator: metaV1.LabelSelectorOpIn, Values: []string{"managed"}}}
+
 func newTCPConnWithPorts(ports []int) *common.ConnectionSet {
 	conn := common.MakeConnectionSet(false)
 	portSet := common.MakePortSet(false)
@@ -56,15 +60,15 @@ func newTCPConnWithPorts(ports []int) *common.ConnectionSet {
 	return conn
 }
 
-func newExpDataWithLabelAndTCPConn(nsLabels, podLabels map[string]string, ports []int) *xgressExposure {
+func newExpDataWithLabelAndTCPConn(nsSel, podSel metaV1.LabelSelector, ports []int) *xgressExposure {
 	conn := common.MakeConnectionSet(true)
 	if len(ports) > 0 {
 		conn = newTCPConnWithPorts(ports)
 	}
 	return &xgressExposure{
 		exposedToEntireCluster: false,
-		namespaceLabels:        nsLabels,
-		podLabels:              podLabels,
+		namespaceLabels:        nsSel,
+		podLabels:              podSel,
 		potentialConn:          conn,
 	}
 }
@@ -149,7 +153,7 @@ func TestExposureBehavior(t *testing.T) {
 				lenIngressExposedConns: 2,
 				ingressExp: []*xgressExposure{
 					peerExposedToEntireClusterOnTCP8050,
-					newExpDataWithLabelAndTCPConn(map[string]string{"foo.com/managed-state": "managed"}, map[string]string{}, []int{8050, 8090}),
+					newExpDataWithLabelAndTCPConn(metaV1.LabelSelector{MatchExpressions: matchExpression}, metaV1.LabelSelector{}, []int{8050, 8090}),
 				},
 				lenEgressExposedConns: 0,
 			},
@@ -184,9 +188,11 @@ func TestExposureBehavior(t *testing.T) {
 				isEgressProtected:      false,
 				lenIngressExposedConns: 3,
 				ingressExp: []*xgressExposure{
-					newExpDataWithLabelAndTCPConn(map[string]string{"foo.com/managed-state": "managed"}, map[string]string{}, []int{8050}),
-					newExpDataWithLabelAndTCPConn(map[string]string{"release": "stable"}, map[string]string{}, []int{}),
-					newExpDataWithLabelAndTCPConn(map[string]string{"effect": "NoSchedule"}, map[string]string{}, []int{8050}),
+					newExpDataWithLabelAndTCPConn(metaV1.LabelSelector{MatchExpressions: matchExpression}, metaV1.LabelSelector{}, []int{8050}),
+					newExpDataWithLabelAndTCPConn(metaV1.LabelSelector{MatchLabels: map[string]string{"release": "stable"}},
+						metaV1.LabelSelector{}, []int{}),
+					newExpDataWithLabelAndTCPConn(metaV1.LabelSelector{MatchLabels: map[string]string{"effect": "NoSchedule"}},
+						metaV1.LabelSelector{}, []int{8050}),
 				},
 				lenEgressExposedConns: 0,
 			},
@@ -262,8 +268,8 @@ func TestExposureBehavior(t *testing.T) {
 				lenIngressExposedConns: 1,
 				lenEgressExposedConns:  1,
 				ingressExp: []*xgressExposure{
-					newExpDataWithLabelAndTCPConn(map[string]string{common.K8sNsNameLabelKey: "backend"},
-						map[string]string{}, []int{8050}),
+					newExpDataWithLabelAndTCPConn(metaV1.LabelSelector{MatchLabels: map[string]string{common.K8sNsNameLabelKey: "backend"}},
+						metaV1.LabelSelector{}, []int{8050}),
 				},
 				egressExp: []*xgressExposure{
 					peerExposedToEntireCluster,
@@ -280,7 +286,8 @@ func TestExposureBehavior(t *testing.T) {
 				lenIngressExposedConns: 1,
 				lenEgressExposedConns:  0,
 				ingressExp: []*xgressExposure{
-					newExpDataWithLabelAndTCPConn(map[string]string{"effect": "NoSchedule"}, map[string]string{"role": "monitoring"}, []int{8050}),
+					newExpDataWithLabelAndTCPConn(metaV1.LabelSelector{MatchLabels: map[string]string{"effect": "NoSchedule"}},
+						metaV1.LabelSelector{MatchLabels: map[string]string{"role": "monitoring"}}, []int{8050}),
 				},
 			},
 		},
@@ -294,7 +301,8 @@ func TestExposureBehavior(t *testing.T) {
 				lenIngressExposedConns: 1,
 				lenEgressExposedConns:  0,
 				ingressExp: []*xgressExposure{
-					newExpDataWithLabelAndTCPConn(map[string]string{common.K8sNsNameLabelKey: "hello-world"}, map[string]string{"role": "monitoring"},
+					newExpDataWithLabelAndTCPConn(metaV1.LabelSelector{MatchLabels: map[string]string{common.K8sNsNameLabelKey: "hello-world"}},
+						metaV1.LabelSelector{MatchLabels: map[string]string{"role": "monitoring"}},
 						[]int{8050}),
 				},
 			},

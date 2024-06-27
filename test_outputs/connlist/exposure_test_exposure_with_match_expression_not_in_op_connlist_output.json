@@ -20,7 +20,7 @@
     "egress_exposure": [
       {
         "src": "hello-world/workload-a[Deployment]",
-        "dst": "hello-world/[pod with {app NotIn (a-app,b-app)}]",
+        "dst": "hello-world/[pod with {{Key:app,Operator:NotIn,Values:[a-app b-app],}}]",
         "conn": "All Connections"
       },
       {
@@ -36,12 +36,12 @@
     ],
     "ingress_exposure": [
       {
-        "src": "[namespace with {env NotIn (env-a,env-b)}]/[all pods]",
+        "src": "[namespace with {{Key:env,Operator:NotIn,Values:[env-a env-b],}}]/[all pods]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "All Connections"
       },
       {
-        "src": "hello-world/[pod with {app NotIn (a-app,b-app)}]",
+        "src": "hello-world/[pod with {{Key:app,Operator:NotIn,Values:[a-app b-app],}}]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "All Connections"
       },

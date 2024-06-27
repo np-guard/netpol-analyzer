@@ -4,9 +4,7 @@ digraph {
 		fontcolor="black"
 		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
 		"hello-world/workload-b[Deployment]" [label="workload-b[Deployment]" color="blue" fontcolor="blue"]
-		"pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=api,tier Exists}_in_hello-world" [label="pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=api,tier Exists}" color="red2" fontcolor="red2"]
-		"pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=frontend,tier Exists}_in_hello-world" [label="pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=frontend,tier Exists}" color="red2" fontcolor="red2"]
-		"pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=web,tier Exists}_in_hello-world" [label="pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=web,tier Exists}" color="red2" fontcolor="red2"]
+		"pod with {{Key:app,Operator:NotIn,Values:[b-app c-app d-app],},{Key:env,Operator:DoesNotExist,Values:[],},{Key:role,Operator:In,Values:[frontend web api],},{Key:tier,Operator:Exists,Values:[],}}_in_hello-world" [label="pod with {{Key:app,Operator:NotIn,Values:[b-app c-app d-app],},{Key:env,Operator:DoesNotExist,Values:[],},{Key:role,Operator:In,Values:[frontend web api],},{Key:tier,Operator:Exists,Values:[],}}" color="red2" fontcolor="red2"]
 		label="hello-world"
 	}
 	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
@@ -18,7 +16,5 @@ digraph {
 	"hello-world/workload-a[Deployment]" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"hello-world/workload-b[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"hello-world/workload-b[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
-	"pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=api,tier Exists}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
-	"pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=frontend,tier Exists}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
-	"pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=web,tier Exists}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"pod with {{Key:app,Operator:NotIn,Values:[b-app c-app d-app],},{Key:env,Operator:DoesNotExist,Values:[],},{Key:role,Operator:In,Values:[frontend web api],},{Key:tier,Operator:Exists,Values:[],}}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 }

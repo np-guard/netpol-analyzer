@@ -5,7 +5,11 @@ SPDX-License-Identifier: Apache-2.0
 */
 package connlist
 
-import "github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
+import (
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
+)
 
 // ExposedPeer captures potential ingress and egress connections data for an exposed Peer
 type ExposedPeer interface {
@@ -32,10 +36,10 @@ type ExposedPeer interface {
 type XgressExposureData interface {
 	// IsExposedToEntireCluster indicates if the peer is exposed to all namespaces in the cluster for the relevant direction
 	IsExposedToEntireCluster() bool
-	// NamespaceLabels are matchLabels of potential namespaces which the peer might be exposed to
-	NamespaceLabels() map[string]string
-	// PodLabels are matchLabels of potential pods which the peer might be exposed to
-	PodLabels() map[string]string
+	// NamespaceLabels are label selectors of potential namespaces which the peer might be exposed to
+	NamespaceLabels() v1.LabelSelector
+	// PodLabels are label selectors of potential pods which the peer might be exposed to
+	PodLabels() v1.LabelSelector
 	// PotentialConnectivity the potential connectivity of the exposure
 	PotentialConnectivity() common.Connection
 }

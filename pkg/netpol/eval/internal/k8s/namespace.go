@@ -8,6 +8,7 @@ package k8s
 
 import (
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -16,6 +17,8 @@ import (
 type Namespace struct {
 	Name   string
 	Labels map[string]string
+	// RepresentativeNsRequirements list of requirements to be applied by namespace labels in case of representative namespace
+	RepresentativeNsRequirements []v1.LabelSelectorRequirement
 }
 
 // @todo need a Namespace collection type along with convenience methods?

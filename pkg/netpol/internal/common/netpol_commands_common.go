@@ -25,10 +25,3 @@ const (
 	IngressPodName      = "ingress-controller"
 	IngressPodNamespace = "ingress-controller-ns"
 )
-
-// common consts
-const (
-	ExistsVal       = "<exists>"
-	DoesNotExistVal = "<does-not-exist>"
-	NotPrefix       = "!("
-)

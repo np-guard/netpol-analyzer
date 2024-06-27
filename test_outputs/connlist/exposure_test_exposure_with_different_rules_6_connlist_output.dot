@@ -6,17 +6,17 @@ digraph {
 		"hello-world/workload-b[Deployment]" [label="workload-b[Deployment]" color="blue" fontcolor="blue"]
 		label="hello-world"
 	}
-	subgraph "cluster_namespace with {app DoesNotExist,env Exists,foo=managed}" {
-		color="red2"
-		fontcolor="red2"
-		"pod with {app=app-x,role NotIn (monitoring,search,web)}_in_namespace with {app DoesNotExist,env Exists,foo=managed}" [label="pod with {app=app-x,role NotIn (monitoring,search,web)}" color="red2" fontcolor="red2"]
-		label="namespace with {app DoesNotExist,env Exists,foo=managed}"
-	}
 	subgraph "cluster_namespace with {env=env_1,foo=managed}" {
 		color="red2"
 		fontcolor="red2"
-		"pod with {app=app-x,role=api}_in_namespace with {env=env-1,foo=managed}" [label="pod with {app=app-x,role=api}" color="red2" fontcolor="red2"]
+		"pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}_in_namespace with {env=env-1,foo=managed}" [label="pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}" color="red2" fontcolor="red2"]
 		label="namespace with {env=env-1,foo=managed}"
+	}
+	subgraph "cluster_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}" {
+		color="red2"
+		fontcolor="red2"
+		"pod with {app=app-x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}_in_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}" [label="pod with {app=app-x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}" color="red2" fontcolor="red2"]
+		label="namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}"
 	}
 	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
@@ -27,6 +27,6 @@ digraph {
 	"hello-world/workload-a[Deployment]" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"hello-world/workload-b[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"hello-world/workload-b[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
-	"pod with {app=app-x,role NotIn (monitoring,search,web)}_in_namespace with {app DoesNotExist,env Exists,foo=managed}" -> "hello-world/workload-a[Deployment]" [label="TCP 9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
-	"pod with {app=app-x,role=api}_in_namespace with {env=env-1,foo=managed}" -> "hello-world/workload-a[Deployment]" [label="TCP 8080,9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}_in_namespace with {env=env-1,foo=managed}" -> "hello-world/workload-a[Deployment]" [label="TCP 8080,9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"pod with {app=app-x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}_in_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}" -> "hello-world/workload-a[Deployment]" [label="TCP 9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 }

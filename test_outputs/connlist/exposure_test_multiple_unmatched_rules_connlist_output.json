@@ -26,14 +26,14 @@
         "conn": "TCP 8050"
       },
       {
-        "src": "[namespace with {foo.com/managed-state=managed}]/[all pods]",
-        "dst": "hello-world/workload-a[Deployment]",
-        "conn": "TCP 8050"
-      },
-      {
         "src": "[namespace with {release=stable}]/[all pods]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "All Connections"
+      },
+      {
+        "src": "[namespace with {{Key:foo.com/managed-state,Operator:In,Values:[managed],}}]/[all pods]",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "TCP 8050"
       }
     ]
   }

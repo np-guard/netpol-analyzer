@@ -4,8 +4,8 @@ digraph {
 		fontcolor="black"
 		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
 		"hello-world/workload-b[Deployment]" [label="workload-b[Deployment]" color="blue" fontcolor="blue"]
-		"pod with {app DoesNotExist}_in_hello-world" [label="pod with {app DoesNotExist}" color="red2" fontcolor="red2"]
-		"pod with {app NotIn (x)}_in_hello-world" [label="pod with {app NotIn (x)}" color="red2" fontcolor="red2"]
+		"pod with {{Key:app,Operator:DoesNotExist,Values:[],}}_in_hello-world" [label="pod with {{Key:app,Operator:DoesNotExist,Values:[],}}" color="red2" fontcolor="red2"]
+		"pod with {{Key:app,Operator:NotIn,Values:[x],}}_in_hello-world" [label="pod with {{Key:app,Operator:NotIn,Values:[x],}}" color="red2" fontcolor="red2"]
 		label="hello-world"
 	}
 	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
@@ -18,6 +18,6 @@ digraph {
 	"hello-world/workload-b[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen"]
 	"hello-world/workload-b[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
 	"hello-world/workload-b[Deployment]" -> "hello-world/workload-a[Deployment]" [label="TCP 9090" color="gold2" fontcolor="darkgreen"]
-	"pod with {app DoesNotExist}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="TCP 8080,9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
-	"pod with {app NotIn (x)}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="TCP 9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"pod with {{Key:app,Operator:DoesNotExist,Values:[],}}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="TCP 8080,9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"pod with {{Key:app,Operator:NotIn,Values:[x],}}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="TCP 9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 }

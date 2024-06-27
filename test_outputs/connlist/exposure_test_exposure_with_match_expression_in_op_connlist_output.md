@@ -11,7 +11,4 @@
 ### Ingress Exposure:
 | dst | src | conn |
 |-----|-----|------|
-| hello-world/workload-a[Deployment] | [namespace with {env=env-1}]/[pod with {app=app-1}] | All Connections |
-| hello-world/workload-a[Deployment] | [namespace with {env=env-1}]/[pod with {app=app-2}] | All Connections |
-| hello-world/workload-a[Deployment] | [namespace with {env=env-2}]/[pod with {app=app-1}] | All Connections |
-| hello-world/workload-a[Deployment] | [namespace with {env=env-2}]/[pod with {app=app-2}] | All Connections |
+| hello-world/workload-a[Deployment] | [namespace with {{Key:env,Operator:In,Values:[env-1 env-2],}}]/[pod with {{Key:app,Operator:In,Values:[app-1 app-2],}}] | All Connections |

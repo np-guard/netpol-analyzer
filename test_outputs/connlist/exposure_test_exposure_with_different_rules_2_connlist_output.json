@@ -51,12 +51,12 @@
     ],
     "ingress_exposure": [
       {
-        "src": "hello-world/[pod with {app Exists}]",
+        "src": "hello-world/[pod with {{Key:app,Operator:Exists,Values:[],}}]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "TCP 8080"
       },
       {
-        "src": "hello-world/[pod with {app=x}]",
+        "src": "hello-world/[pod with {{Key:app,Operator:In,Values:[x],}}]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "TCP 8080,9090"
       },

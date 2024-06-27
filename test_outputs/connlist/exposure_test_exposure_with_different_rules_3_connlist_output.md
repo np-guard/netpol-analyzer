@@ -17,7 +17,7 @@
 ### Ingress Exposure:
 | dst | src | conn |
 |-----|-----|------|
-| hello-world/workload-a[Deployment] | hello-world/[pod with {app DoesNotExist}] | TCP 8080,9090 |
-| hello-world/workload-a[Deployment] | hello-world/[pod with {app NotIn (x)}] | TCP 9090 |
+| hello-world/workload-a[Deployment] | hello-world/[pod with {{Key:app,Operator:DoesNotExist,Values:[],}}] | TCP 8080,9090 |
+| hello-world/workload-a[Deployment] | hello-world/[pod with {{Key:app,Operator:NotIn,Values:[x],}}] | TCP 9090 |
 | hello-world/workload-b[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
 | hello-world/workload-b[Deployment] | entire-cluster | All Connections |

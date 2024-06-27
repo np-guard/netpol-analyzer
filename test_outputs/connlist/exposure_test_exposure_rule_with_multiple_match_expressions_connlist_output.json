@@ -46,17 +46,7 @@
     ],
     "ingress_exposure": [
       {
-        "src": "hello-world/[pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=api,tier Exists}]",
-        "dst": "hello-world/workload-a[Deployment]",
-        "conn": "All Connections"
-      },
-      {
-        "src": "hello-world/[pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=frontend,tier Exists}]",
-        "dst": "hello-world/workload-a[Deployment]",
-        "conn": "All Connections"
-      },
-      {
-        "src": "hello-world/[pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=web,tier Exists}]",
+        "src": "hello-world/[pod with {{Key:app,Operator:NotIn,Values:[b-app c-app d-app],},{Key:env,Operator:DoesNotExist,Values:[],},{Key:role,Operator:In,Values:[frontend web api],},{Key:tier,Operator:Exists,Values:[],}}]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "All Connections"
       },

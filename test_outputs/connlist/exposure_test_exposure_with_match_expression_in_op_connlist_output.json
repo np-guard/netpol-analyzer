@@ -21,22 +21,7 @@
     ],
     "ingress_exposure": [
       {
-        "src": "[namespace with {env=env-1}]/[pod with {app=app-1}]",
-        "dst": "hello-world/workload-a[Deployment]",
-        "conn": "All Connections"
-      },
-      {
-        "src": "[namespace with {env=env-1}]/[pod with {app=app-2}]",
-        "dst": "hello-world/workload-a[Deployment]",
-        "conn": "All Connections"
-      },
-      {
-        "src": "[namespace with {env=env-2}]/[pod with {app=app-1}]",
-        "dst": "hello-world/workload-a[Deployment]",
-        "conn": "All Connections"
-      },
-      {
-        "src": "[namespace with {env=env-2}]/[pod with {app=app-2}]",
+        "src": "[namespace with {{Key:env,Operator:In,Values:[env-1 env-2],}}]/[pod with {{Key:app,Operator:In,Values:[app-1 app-2],}}]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "All Connections"
       }

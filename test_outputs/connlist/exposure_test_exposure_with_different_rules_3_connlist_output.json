@@ -51,12 +51,12 @@
     ],
     "ingress_exposure": [
       {
-        "src": "hello-world/[pod with {app DoesNotExist}]",
+        "src": "hello-world/[pod with {{Key:app,Operator:DoesNotExist,Values:[],}}]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "TCP 8080,9090"
       },
       {
-        "src": "hello-world/[pod with {app NotIn (x)}]",
+        "src": "hello-world/[pod with {{Key:app,Operator:NotIn,Values:[x],}}]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "TCP 9090"
       },

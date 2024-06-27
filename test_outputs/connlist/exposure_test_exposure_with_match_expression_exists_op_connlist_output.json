@@ -20,7 +20,7 @@
     "egress_exposure": [
       {
         "src": "hello-world/workload-a[Deployment]",
-        "dst": "hello-world/[pod with {app Exists}]",
+        "dst": "hello-world/[pod with {{Key:app,Operator:Exists,Values:[],}}]",
         "conn": "All Connections"
       },
       {
@@ -36,7 +36,7 @@
     ],
     "ingress_exposure": [
       {
-        "src": "[namespace with {env Exists}]/[all pods]",
+        "src": "[namespace with {{Key:env,Operator:Exists,Values:[],}}]/[all pods]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "All Connections"
       },

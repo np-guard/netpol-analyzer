@@ -43,7 +43,7 @@ func initiatePodExposure() PodExposureInfo {
 type Pod struct {
 	Name      string
 	Namespace string
-	FakePod   bool // this flag is used to indicate if the pod is created from scanner objects or fake (ingress-controller)
+	FakePod   bool // this flag is used to indicate if the pod is created from scanner objects or fake (ingress-controller/ representative pod)
 	Labels    map[string]string
 	IPs       []corev1.PodIP
 	Ports     []corev1.ContainerPort
@@ -60,9 +60,10 @@ type Pod struct {
 	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
 	// on egress direction
 	EgressExposureData PodExposureInfo
-	// HasUnusualPodLabels indicates if the pod labels set (in case of representative peer's pod) contains any labels inferred
-	// from a selector with matchExpression with operator:NotIn, Exists, DoesNotExist - which require special handling
-	HasUnusualPodLabels bool
+	// RepresentativePodRequirements contains requirements inferred from pod label selector with matchExpression
+	// i.e. with operator:In, NotIn, Exists, DoesNotExist;
+	// used only with representative Pods
+	RepresentativePodRequirements []v1.LabelSelectorRequirement
 }
 
 // Owner encapsulates pod owner workload info
@@ -83,17 +84,17 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 	}
 
 	pr := &Pod{
-		Name:                p.Name,
-		Namespace:           p.Namespace,
-		Labels:              make(map[string]string, len(p.Labels)),
-		IPs:                 make([]corev1.PodIP, len(p.Status.PodIPs)),
-		Ports:               make([]corev1.ContainerPort, 0, defaultPortsListSize),
-		HostIP:              p.Status.HostIP,
-		Owner:               Owner{},
-		FakePod:             false,
-		IngressExposureData: initiatePodExposure(),
-		EgressExposureData:  initiatePodExposure(),
-		HasUnusualPodLabels: false,
+		Name:                          p.Name,
+		Namespace:                     p.Namespace,
+		Labels:                        make(map[string]string, len(p.Labels)),
+		IPs:                           make([]corev1.PodIP, len(p.Status.PodIPs)),
+		Ports:                         make([]corev1.ContainerPort, 0, defaultPortsListSize),
+		HostIP:                        p.Status.HostIP,
+		Owner:                         Owner{},
+		FakePod:                       false,
+		IngressExposureData:           initiatePodExposure(),
+		EgressExposureData:            initiatePodExposure(),
+		RepresentativePodRequirements: make([]v1.LabelSelectorRequirement, 0),
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -110,7 +111,7 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		ownerRef := p.ObjectMeta.OwnerReferences[refIndex]
 		if *ownerRef.Controller {
 			if addOwner := addPodOwner(&ownerRef, pr); addOwner {
-				pr.Owner.Variant = VariantFromLabelsMap(p.Labels)
+				pr.Owner.Variant = variantFromLabelsMap(p.Labels)
 			}
 			break
 		}
@@ -218,14 +219,14 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.FakePod = false
 		pod.IngressExposureData = initiatePodExposure()
 		pod.EgressExposureData = initiatePodExposure()
-		pod.HasUnusualPodLabels = false
+		pod.RepresentativePodRequirements = make([]v1.LabelSelectorRequirement, 0)
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
 		}
 		for i := range podTemplate.Spec.Containers {
 			pod.Ports = append(pod.Ports, podTemplate.Spec.Containers[i].Ports...)
 		}
-		pod.Owner.Variant = VariantFromLabelsMap(podTemplate.Labels)
+		pod.Owner.Variant = variantFromLabelsMap(podTemplate.Labels)
 		res[index-1] = pod
 	}
 	return res, nil
@@ -236,8 +237,8 @@ func namespacedName(pod *corev1.Pod) string {
 	return types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}.String()
 }
 
-// VariantFromLabelsMap returns a unique hash key from given labels map
-func VariantFromLabelsMap(labels map[string]string) string {
+// variantFromLabelsMap returns a unique hash key from given labels map
+func variantFromLabelsMap(labels map[string]string) string {
 	return hex.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%v", labels)))) //nolint:gosec // Non-crypto use
 }
 

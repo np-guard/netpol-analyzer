@@ -11,6 +11,9 @@ import (
 	"sort"
 	"strings"
 
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -84,14 +87,7 @@ const (
 	stringInBrackets       = "[%s]"
 	mapOpen                = "{"
 	mapClose               = "}"
-	equal                  = "="
 	comma                  = ","
-	key                    = "key"
-	colon                  = ": "
-	space                  = " "
-	notIn                  = "NotIn"
-	doesNotExist           = "DoesNotExist"
-	exists                 = "Exists"
 )
 
 // formSingleExposureConn returns a representation of single exposure connection fields as singleConnFields object
@@ -114,40 +110,50 @@ func formExposureItemAsSingleConnFiled(peerStr string, exposureItem XgressExposu
 }
 
 // convertLabelsMapToString returns a string representation of the given labels map
-// considers the special labels (with requirements such as Exists, DoesNotExist, NotIn)
 func convertLabelsMapToString(labelsMap map[string]string) string {
-	labelsSrings := make([]string, 0)
-	for k, v := range labelsMap {
-		if v == common.ExistsVal {
-			labelsSrings = append(labelsSrings, k+space+exists)
-			continue
-		}
-		if v == common.DoesNotExistVal {
-			labelsSrings = append(labelsSrings, k+space+doesNotExist)
-			continue
-		}
-		if strings.HasPrefix(v, common.NotPrefix) {
-			labelsSrings = append(labelsSrings, k+space+notIn+space+v[1:])
-			continue
-		}
-		labelsSrings = append(labelsSrings, k+equal+v)
+	return labels.SelectorFromSet(labels.Set(labelsMap)).String()
+}
+
+// convertRequirementsToString returns a string representation of the given requirements list
+func convertRequirementsToString(reqs []v1.LabelSelectorRequirement) string {
+	const strPrefix = "&LabelSelectorRequirement"
+	reqStrings := make([]string, len(reqs))
+	for i, req := range reqs {
+		reqStrings[i] = strings.ReplaceAll(req.String(), strPrefix, "")
 	}
-	sort.Strings(labelsSrings)
-	return mapOpen + strings.Join(labelsSrings, comma) + mapClose
+	sort.Strings(reqStrings)
+	return strings.Join(reqStrings, comma)
+}
+
+// writeLabelSelectorAsString returns a string representation of the label selector
+func writeLabelSelectorAsString(labelSel v1.LabelSelector) string {
+	var res string
+	if len(labelSel.MatchLabels) > 0 {
+		res = convertLabelsMapToString(labelSel.MatchLabels)
+	}
+	if len(labelSel.MatchExpressions) > 0 {
+		if len(labelSel.MatchLabels) > 0 {
+			res += comma
+		}
+		res += convertRequirementsToString(labelSel.MatchExpressions)
+	}
+	return res
 }
 
 // getRepresentativeNamespaceString returns a string representation of a potential peer with namespace labels.
 // if namespace with multiple words adds [] , in case of textual (non-graphical) output
-func getRepresentativeNamespaceString(nsLabels map[string]string, txtOutFlag bool) string {
-	nsName, ok := nsLabels[common.K8sNsNameLabelKey]
-	if len(nsLabels) == 1 && ok {
+func getRepresentativeNamespaceString(nsLabels v1.LabelSelector, txtOutFlag bool) string {
+	// if ns selector contains only namespace name label - return ns name
+	nsName, ok := nsLabels.MatchLabels[common.K8sNsNameLabelKey]
+	if len(nsLabels.MatchLabels) == 1 && len(nsLabels.MatchExpressions) == 0 && ok {
 		return nsName
 	}
-	res := ""
-	if len(nsLabels) > 0 {
-		res += "namespace with " + convertLabelsMapToString(nsLabels)
+	// else if ns labels are empty - res = all namespaces
+	var res string
+	if nsLabels.Size() == 0 {
+		res = allNamespacesLbl
 	} else {
-		res += allNamespacesLbl
+		res = "namespace with " + mapOpen + writeLabelSelectorAsString(nsLabels) + mapClose
 	}
 	if txtOutFlag {
 		return fmt.Sprintf(stringInBrackets, res)
@@ -158,12 +164,12 @@ func getRepresentativeNamespaceString(nsLabels map[string]string, txtOutFlag boo
 // getRepresentativePodString returns a string representation of potential peer with pod labels
 // or all pods string for empty pod labels map (which indicates all pods).
 // adds [] in case of textual (non-graphical) output
-func getRepresentativePodString(podLabels map[string]string, txtOutFlag bool) string {
-	res := ""
-	if len(podLabels) == 0 {
-		res += allPeersLbl
+func getRepresentativePodString(podLabels v1.LabelSelector, txtOutFlag bool) string {
+	var res string
+	if podLabels.Size() == 0 {
+		res = allPeersLbl
 	} else {
-		res += "pod with " + convertLabelsMapToString(podLabels)
+		res = "pod with " + mapOpen + writeLabelSelectorAsString(podLabels) + mapClose
 	}
 	if txtOutFlag {
 		return fmt.Sprintf(stringInBrackets, res)

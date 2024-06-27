@@ -4,7 +4,7 @@
 ### Egress Exposure:
 | src | dst | conn |
 |-----|-----|------|
-| hello-world/workload-a[Deployment] | [namespace with {foo.com/managed-state=managed}]/[all pods] | TCP http |
+| hello-world/workload-a[Deployment] | [namespace with {{Key:foo.com/managed-state,Operator:In,Values:[managed],}}]/[all pods] | TCP http |
 
 ### Ingress Exposure:
 | dst | src | conn |

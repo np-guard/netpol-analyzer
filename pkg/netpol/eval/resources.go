@@ -149,41 +149,38 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 		}
 	}
 	if !pe.exposureAnalysisFlag { // for exposure analysis; this already done
-		return pe.resolveMissingNamespaces()
+		pe.resolveMissingNamespaces()
 	}
 	return nil
 }
 
-func (pe *PolicyEngine) resolveMissingNamespaces() error {
+func (pe *PolicyEngine) resolveMissingNamespaces() {
 	for _, pod := range pe.podsMap {
 		ns := pod.Namespace
 		if _, ok := pe.namspacesMap[ns]; !ok {
-			if err := pe.resolveSingleMissingNamespace(ns, nil); err != nil {
-				return err
-			}
+			pe.resolveSingleMissingNamespace(ns, metav1.LabelSelector{})
 		}
 	}
-	return nil
 }
 
-// resolveSingleMissingNamespace create a ns object and upsert to PolicyEngine
-func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string, nsLabels map[string]string) error {
-	nLabels := nsLabels
+// resolveSingleMissingNamespace create a ns object and add to PolicyEngine
+// used for resolving real namespaces which are not sourced in the manifests
+// and for adding representative namespaces inferred from policy rules (with representative selectors)
+func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string, nsLabelsSelector metav1.LabelSelector) {
+	nLabels := nsLabelsSelector.MatchLabels
+	nReqs := nsLabelsSelector.MatchExpressions
 	if len(nLabels) == 0 {
 		nLabels = map[string]string{
 			common.K8sNsNameLabelKey: ns,
 		}
 	}
-	nsObj := &corev1.Namespace{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:   ns,
-			Labels: nLabels,
-		},
+	nsObj := &k8s.Namespace{ // creating a namespace object with potential labels and requirements
+		Name:                         ns,
+		Labels:                       nLabels,
+		RepresentativeNsRequirements: nReqs,
 	}
-	if err := pe.upsertNamespace(nsObj); err != nil {
-		return err
-	}
-	return nil
+
+	pe.namspacesMap[nsObj.Name] = nsObj // upserting the namespace directly to the policy engine
 }
 
 // SetResources: updates the set of all relevant k8s resources
@@ -356,9 +353,9 @@ func (pe *PolicyEngine) upsertWorkload(rs interface{}, kind string) error {
 	}
 	// running this on last podObj: as all pods from same workload object are in same namespace and having same pod labels
 	if pe.exposureAnalysisFlag {
-		err = pe.extractLabelsAndRefineRepresentativePeers(podObj)
+		pe.extractLabelsAndRefineRepresentativePeers(podObj)
 	}
-	return err
+	return nil
 }
 
 func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
@@ -371,9 +368,9 @@ func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
 	// update cache with new pod associated to to its owner
 	pe.cache.addPod(podObj, podStr.String())
 	if pe.exposureAnalysisFlag {
-		err = pe.extractLabelsAndRefineRepresentativePeers(podObj)
+		pe.extractLabelsAndRefineRepresentativePeers(podObj)
 	}
-	return err
+	return nil
 }
 
 func initPolicyGeneralConns() k8s.PolicyGeneralRulesConns {
@@ -587,35 +584,33 @@ func (pe *PolicyEngine) ConvertPeerNamedPort(namedPort string, peer Peer) (int32
 // AddPodByNameAndNamespace adds a new fake pod to:
 // the pe.podsMap in case of fake ingress-controller pods
 // or the pe.representativePeersMap in case of exposure-analysis peers
-func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, objLabels *k8s.RepresentativePeerLabels) (Peer, error) {
-	var nsLabels, podLabels map[string]string
-	var hasUnusualNsLabels, hasUnusualPodLabels bool
+func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, objLabels *k8s.SingleRuleSelectors) (Peer, error) {
+	var podSelector, nsSelector metav1.LabelSelector
 	if objLabels != nil {
-		nsLabels = objLabels.NsLabels
-		podLabels = objLabels.PodLabels
-		hasUnusualNsLabels = objLabels.UnusualNsLabelsFlag
-		hasUnusualPodLabels = objLabels.UnusualPodLabelsFlag
+		podSelector = objLabels.PodSelector
+		nsSelector = objLabels.NsSelector
 	}
 
 	podStr := types.NamespacedName{Namespace: ns, Name: name}.String()
 	newPod := &k8s.Pod{
-		Name:                name,
-		Namespace:           ns,
-		FakePod:             true,
-		Labels:              podLabels,
-		HasUnusualPodLabels: hasUnusualPodLabels,
+		Name:                          name,
+		Namespace:                     ns,
+		FakePod:                       true,
+		Labels:                        podSelector.MatchLabels,
+		RepresentativePodRequirements: podSelector.MatchExpressions,
 	}
-	if err := pe.resolveSingleMissingNamespace(ns, nsLabels); err != nil {
-		return nil, err
-	}
+
+	// adding ns to the policy engine
+	pe.resolveSingleMissingNamespace(ns, nsSelector)
 	// if exposure-analysis and this is not a fake ingress-controller
 	if pe.exposureAnalysisFlag && newPod.IsPodRepresentative() {
 		// first compute a unique string from labels to be used as a map key
-		keyStrFromLabels := k8s.VariantFromLabelsMap(objLabels.NsLabels) + "/" + k8s.VariantFromLabelsMap(objLabels.PodLabels)
+		keyStrFromLabels := k8s.VariantFromLabelsSelector(nsSelector) + "/" + k8s.VariantFromLabelsSelector(podSelector)
 		if _, ok := pe.representativePeersMap[keyStrFromLabels]; ok { // we already have a representative peer with same labels
 			return nil, nil
 		}
-		newRepresentativePeer := &k8s.RepresentativePeer{Pod: newPod, PotentialNamespaceLabels: nsLabels, HasUnusualNsLabels: hasUnusualNsLabels}
+		newRepresentativePeer := &k8s.RepresentativePeer{Pod: newPod,
+			PotentialNamespaceLabelSelector: nsSelector}
 		pe.representativePeersMap[keyStrFromLabels] = newRepresentativePeer
 		return newRepresentativePeer, nil
 	}

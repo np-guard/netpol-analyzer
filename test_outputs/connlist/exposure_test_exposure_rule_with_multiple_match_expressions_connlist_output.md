@@ -16,8 +16,6 @@
 ### Ingress Exposure:
 | dst | src | conn |
 |-----|-----|------|
-| hello-world/workload-a[Deployment] | hello-world/[pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=api,tier Exists}] | All Connections |
-| hello-world/workload-a[Deployment] | hello-world/[pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=frontend,tier Exists}] | All Connections |
-| hello-world/workload-a[Deployment] | hello-world/[pod with {app NotIn (b-app,c-app,d-app),env DoesNotExist,role=web,tier Exists}] | All Connections |
+| hello-world/workload-a[Deployment] | hello-world/[pod with {{Key:app,Operator:NotIn,Values:[b-app c-app d-app],},{Key:env,Operator:DoesNotExist,Values:[],},{Key:role,Operator:In,Values:[frontend web api],},{Key:tier,Operator:Exists,Values:[],}}] | All Connections |
 | hello-world/workload-b[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
 | hello-world/workload-b[Deployment] | entire-cluster | All Connections |

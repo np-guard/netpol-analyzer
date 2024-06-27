@@ -51,12 +51,12 @@
     ],
     "ingress_exposure": [
       {
-        "src": "hello-world/[pod with {role NotIn (w,x,y,z)}]",
+        "src": "hello-world/[pod with {{Key:role,Operator:NotIn,Values:[w x y z],}}]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "TCP 8080,9090"
       },
       {
-        "src": "hello-world/[pod with {role NotIn (x,y)}]",
+        "src": "hello-world/[pod with {{Key:role,Operator:NotIn,Values:[x y],}}]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "TCP 9090"
       },
