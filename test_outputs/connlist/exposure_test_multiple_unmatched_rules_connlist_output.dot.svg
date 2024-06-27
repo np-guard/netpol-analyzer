@@ -18,15 +18,15 @@
 <polygon fill="none" stroke="black" points="232,-79 232,-154 450,-154 450,-79 232,-79"/>
 <text text-anchor="middle" x="341" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
 </g>
-<g id="clust3" class="cluster">
-<title>cluster_namespace with {release=stable}</title>
-<polygon fill="none" stroke="#ee0000" points="246,-187 246,-262 446,-262 446,-187 246,-187"/>
-<text text-anchor="middle" x="346" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {release=stable}</text>
-</g>
 <g id="clust2" class="cluster">
 <title>cluster_namespace with {effect=NoSchedule}</title>
 <polygon fill="none" stroke="#ee0000" points="8,-187 8,-262 238,-262 238,-187 8,-187"/>
 <text text-anchor="middle" x="123" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {effect=NoSchedule}</text>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_namespace with {release=stable}</title>
+<polygon fill="none" stroke="#ee0000" points="246,-187 246,-262 446,-262 446,-187 246,-187"/>
+<text text-anchor="middle" x="346" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {release=stable}</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
 <g id="node1" class="node">
