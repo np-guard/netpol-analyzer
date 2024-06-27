@@ -1,0 +1,35 @@
+| src | dst | conn |
+|-----|-----|------|
+| 0.0.0.0-255.255.255.255 | default/redis-cart[Deployment] | All Connections |
+| default/checkoutservice[Deployment] | default/cartservice[Deployment] | TCP 7070 |
+| default/checkoutservice[Deployment] | default/currencyservice[Deployment] | TCP 7000 |
+| default/checkoutservice[Deployment] | default/emailservice[Deployment] | TCP 8080 |
+| default/checkoutservice[Deployment] | default/paymentservice[Deployment] | TCP 50051 |
+| default/checkoutservice[Deployment] | default/productcatalogservice[Deployment] | TCP 3550 |
+| default/checkoutservice[Deployment] | default/shippingservice[Deployment] | TCP 50051 |
+| default/frontend[Deployment] | default/adservice[Deployment] | TCP 9555 |
+| default/frontend[Deployment] | default/cartservice[Deployment] | TCP 7070 |
+| default/frontend[Deployment] | default/checkoutservice[Deployment] | TCP 5050 |
+| default/frontend[Deployment] | default/currencyservice[Deployment] | TCP 7000 |
+| default/frontend[Deployment] | default/productcatalogservice[Deployment] | TCP 3550 |
+| default/frontend[Deployment] | default/recommendationservice[Deployment] | TCP 8080 |
+| default/frontend[Deployment] | default/shippingservice[Deployment] | TCP 50051 |
+| default/loadgenerator[Deployment] | default/frontend[Deployment] | TCP 8080 |
+| default/recommendationservice[Deployment] | default/productcatalogservice[Deployment] | TCP 3550 |
+| default/redis-cart[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+## Exposure Analysis Result:
+### Egress Exposure:
+| src | dst | conn |
+|-----|-----|------|
+| default/checkoutservice[Deployment] | [all namespaces]/[pod with {k8s-app=kube-dns}] | UDP 53 |
+| default/frontend[Deployment] | [all namespaces]/[pod with {k8s-app=kube-dns}] | UDP 53 |
+| default/loadgenerator[Deployment] | [all namespaces]/[pod with {k8s-app=kube-dns}] | UDP 53 |
+| default/recommendationservice[Deployment] | [all namespaces]/[pod with {k8s-app=kube-dns}] | UDP 53 |
+| default/redis-cart[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| default/redis-cart[Deployment] | entire-cluster | All Connections |
+
+### Ingress Exposure:
+| dst | src | conn |
+|-----|-----|------|
+| default/redis-cart[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| default/redis-cart[Deployment] | entire-cluster | All Connections |

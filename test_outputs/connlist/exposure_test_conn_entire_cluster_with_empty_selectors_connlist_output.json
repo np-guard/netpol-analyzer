@@ -1,0 +1,19 @@
+{
+  "connlist_results": [],
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "hello-world/workload-a[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "entire-cluster",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "TCP 8050"
+      }
+    ]
+  }
+}

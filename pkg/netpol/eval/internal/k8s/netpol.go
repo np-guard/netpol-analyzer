@@ -24,14 +24,36 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
-// NetworkPolicy is an alias for k8s network policy object
-// @todo is there a preprocessed form of the object that would make more sense?
+// @todo is there another preprocessed form of the object that would make more sense?
 //
 //	for example, converting Spec.PodSelector to labels.Selector on initialization
 //	or preprocessing namespaces and pods that match selector in ingress/egress rules, etc
 //
 // -> might help to preprocess and store peers that match policy selectors + selectors in rules + set of allowed connections per rule
-type NetworkPolicy netv1.NetworkPolicy
+type NetworkPolicy struct {
+	*netv1.NetworkPolicy // embedding k8s network policy object
+	// following data stored in preprocessing when exposure-analysis is on;
+	// IngressGeneralConns contains:
+	// - the maximal connection-set which the policy's rules allow to all destinations on ingress direction
+	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on ingress direction
+	IngressGeneralConns PolicyGeneralRulesConns
+	// EgressGeneralConns contains:
+	// - the maximal connection-set which the policy's rules allow to all destinations on egress direction
+	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on egress direction
+	EgressGeneralConns PolicyGeneralRulesConns
+}
+
+// @todo might help if while pre-process, to check containment of all rules' connections; if all "specific" rules
+// connections are contained in the "general" rules connections, then we can avoid iterating policy rules for computing
+// connections between two peers
+
+type PolicyGeneralRulesConns struct {
+	// AllDestinationsConns contains the maximal connection-set which the policy's rules allow to all destinations
+	// (all namespaces, pods and IP addresses)
+	AllDestinationsConns *common.ConnectionSet
+	// EntireClusterConns contains the maximal connection-set which the policy's rules allow to all namespaces in the cluster
+	EntireClusterConns *common.ConnectionSet
+}
 
 // @todo need a network policy collection type along with convenience methods?
 // 	if so, also consider concurrent access (or declare not goroutine safe?)
@@ -53,15 +75,22 @@ func (np *NetworkPolicy) convertNamedPort(namedPort string, pod *Pod) int32 {
 }
 
 // getPortsRange returns the start and end port numbers given input port, endPort and dest peer
-// if input port is a named port, and the dst peer does not have a matching named port defined, return
+// and the portName if it is a named port
+// if input port is a named port, and the dst peer is nil or  does not have a matching named port defined, return
 // an empty range represented by (-1,-1)
-func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (startNum, endNum int32, err error) {
+func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (startNum, endNum int32,
+	namedPort string, err error) {
 	var start, end int32
+	portName := ""
 	if port.Type == intstr.String {
-		if dst.PeerType() != PodType {
-			return start, end, np.netpolErr(netpolerrors.NamedPortErrTitle, netpolerrors.ConvertNamedPortErrStr)
+		if dst == nil {
+			return common.NoPort, common.NoPort, port.StrVal, nil
 		}
-		portNum := np.convertNamedPort(port.StrVal, dst.GetPeerPod())
+		if dst.PeerType() != PodType {
+			return start, end, "", np.netpolErr(netpolerrors.NamedPortErrTitle, netpolerrors.ConvertNamedPortErrStr)
+		}
+		portName = port.StrVal
+		portNum := np.convertNamedPort(portName, dst.GetPeerPod())
 		start = portNum
 		end = portNum
 	} else {
@@ -71,11 +100,11 @@ func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32,
 			end = *endPort
 		}
 	}
-	return start, end, nil
+	return start, end, portName, nil
 }
 
 func isEmptyPortRange(start, end int32) bool {
-	return start == noPort && end == noPort
+	return start == common.NoPort && end == common.NoPort
 }
 
 func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) (*common.ConnectionSet, error) {
@@ -93,19 +122,31 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 		if rulePorts[i].Port == nil {
 			ports = common.MakePortSet(true)
 		} else {
-			startPort, endPort, err := np.getPortsRange(rulePorts[i].Port, rulePorts[i].EndPort, dst)
+			startPort, endPort, portName, err := np.getPortsRange(rulePorts[i].Port, rulePorts[i].EndPort, dst)
 			if err != nil {
 				return res, err
 			}
-			if isEmptyPortRange(startPort, endPort) {
-				continue
+			if (dst == nil || isRepresentativePod(dst)) && portName != "" {
+				// adding namedPort to connectionSet in case of :
+				// - dst is nil - for general connections;
+				// - if dst is a representative pod (its namedPorts are unknown)
+				ports.AddPort(intstr.FromString(portName))
 			}
-
-			ports.AddPortRange(int64(startPort), int64(endPort))
+			if !isEmptyPortRange(startPort, endPort) {
+				ports.AddPortRange(int64(startPort), int64(endPort))
+			}
 		}
 		res.AddConnection(protocol, ports)
 	}
 	return res, nil
+}
+
+// isRepresentativePod determines if the peer's source is representativePeer; i.e. its pod fake and has RepresentativePodName
+func isRepresentativePod(peer Peer) bool {
+	if peer.GetPeerPod() == nil {
+		return false
+	}
+	return peer.GetPeerPod().IsPodRepresentative()
 }
 
 // ruleConnsContain returns true if the given protocol and port are contained in connections allowed by rulePorts
@@ -120,7 +161,7 @@ func (np *NetworkPolicy) ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, p
 		if rulePorts[i].Port == nil { // If this field is not provided, this matches all port names and numbers.
 			return true, nil
 		}
-		startPort, endPort, err := np.getPortsRange(rulePorts[i].Port, rulePorts[i].EndPort, dst)
+		startPort, endPort, _, err := np.getPortsRange(rulePorts[i].Port, rulePorts[i].EndPort, dst)
 		if err != nil {
 			return false, err
 		}
@@ -205,7 +246,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 	return false, nil
 }
 
-// GetIngressAllowedConns returns true  if the given connections from src to any of the pods captured by the policy is allowed
+// IngressAllowedConn returns true  if the given connections from src to any of the pods captured by the policy is allowed
 func (np *NetworkPolicy) IngressAllowedConn(src Peer, protocol, port string, dst Peer) (bool, error) {
 	// iterate list of rules: []NetworkPolicyIngressRule
 	for i := range np.Spec.Ingress {
@@ -230,7 +271,7 @@ func (np *NetworkPolicy) IngressAllowedConn(src Peer, protocol, port string, dst
 	return false, nil
 }
 
-// GetEgressAllowedConns returns true if the given connection to dst from any of the pods captured by the policy is allowed
+// EgressAllowedConn returns true if the given connection to dst from any of the pods captured by the policy is allowed
 func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (bool, error) {
 	for i := range np.Spec.Egress {
 		rulePeers := np.Spec.Egress[i].To
@@ -254,7 +295,7 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 	return false, nil
 }
 
-// GetEgressAllowedConns returns the set of allowed connetions from any captured pod to the destination peer
+// GetEgressAllowedConns returns the set of allowed connections from any captured pod to the destination peer
 func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
 	for _, rule := range np.Spec.Egress {
@@ -405,4 +446,146 @@ func (np *NetworkPolicy) Selects(p *Pod, direction netv1.PolicyType) (bool, erro
 
 func (np *NetworkPolicy) fullName() string {
 	return types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String()
+}
+
+// /////////////////////////////////////////////////////////////////////////////////////////////
+// pre-processing computations - currently performed for exposure-analysis goals only;
+
+// SingleRuleLabels contains maps of <key>:<value> labels inferred from namespaceSelector or/and podSelector
+// within a single rule in the policy
+type SingleRuleLabels struct {
+	NsLabels  map[string]string
+	PodLabels map[string]string
+	// policyNsFlag indicates if the rule contains only podSelector;
+	// so the NsLabels map contains only the default name key of the policy's namespace
+	PolicyNsFlag bool
+}
+
+// ScanPolicyRulesForGeneralConnsAndRepresentativePeers scans policy rules and :
+// - updates policy's general connections with all destinations or/ and with entire cluster for ingress and/ or egress directions
+// - returns list of selectors labels from rules which has non-empty namespace selectors  (from rules with namespaceSelector only)
+// TODO: support checking rules with podSelector
+func (np *NetworkPolicy) ScanPolicyRulesForGeneralConnsAndRepresentativePeers() (rulesSelectors []SingleRuleLabels, err error) {
+	if np.policyAffectsDirection(netv1.PolicyTypeIngress) {
+		selectors, err := np.scanIngressRules()
+		if err != nil {
+			return nil, err
+		}
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	if np.policyAffectsDirection(netv1.PolicyTypeEgress) {
+		selectors, err := np.scanEgressRules()
+		if err != nil {
+			return nil, err
+		}
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	return rulesSelectors, nil
+}
+
+func (np *NetworkPolicy) scanIngressRules() ([]SingleRuleLabels, error) {
+	rulesSelectors := []SingleRuleLabels{}
+	for _, rule := range np.Spec.Ingress {
+		rulePeers := rule.From
+		rulePorts := rule.Ports
+		selectors, err := np.doRulesExposeToAllDestOrEntireCluster(rulePeers, rulePorts, true)
+		if err != nil {
+			return nil, err
+		}
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	return rulesSelectors, nil
+}
+
+func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleLabels, error) {
+	rulesSelectors := []SingleRuleLabels{}
+	for _, rule := range np.Spec.Egress {
+		rulePeers := rule.To
+		rulePorts := rule.Ports
+		selectors, err := np.doRulesExposeToAllDestOrEntireCluster(rulePeers, rulePorts, false)
+		if err != nil {
+			return nil, err
+		}
+		// rule with selectors selecting specific namespaces/ pods
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	return rulesSelectors, nil
+}
+
+// doRulesExposeToAllDestOrEntireCluster :
+// checks if the given rules list is exposed to entire world or entire cluster
+// (e.g. if the rules list is empty/ if there is a rule with: empty namespaceSelector/ both empty nameSpaceSelector and podSelector) :
+// then updates the policy's general conns
+// else: returns selectors of non-general rules (rules that are not exposed to entire world or cluster).
+// this func assumes rules are legal (rules correctness check occurs later)
+func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
+	isIngress bool) (rulesSelectors []SingleRuleLabels, err error) {
+	if len(rules) == 0 {
+		err = np.updateNetworkPolicyGeneralConn(true, true, rulePorts, isIngress)
+		return nil, err
+	}
+	for i := range rules {
+		var ruleSel SingleRuleLabels
+		if rules[i].IPBlock != nil {
+			continue
+		}
+		// note: LabelSelectorAsMap returns a nil map for nil selector,
+		// and returns empty map (map[string]string{}) for empty selector (all)
+		nsSelectorMap, err := metav1.LabelSelectorAsMap(rules[i].NamespaceSelector)
+		if err != nil {
+			return nil, err
+		}
+		podSelectorMap, err := metav1.LabelSelectorAsMap(rules[i].PodSelector)
+		if err != nil {
+			return nil, err
+		}
+		// a rule is exposed to entire cluster if :
+		// 1. the podSelector is nil (no podselector) but the namespaceSelector is empty ({})
+		// 2. both podSelector and namespaceSelector are empty ({})
+		if (rules[i].PodSelector == nil && isEmptyMap(nsSelectorMap)) ||
+			(isEmptyMap(nsSelectorMap) && isEmptyMap(podSelectorMap)) {
+			err = np.updateNetworkPolicyGeneralConn(false, true, rulePorts, isIngress)
+			return nil, err
+		}
+		// else (selector not empty)
+		ruleSel.PodLabels = podSelectorMap
+		// special case: ns selector is nil but podSelector is not, so the namespace of the rule is
+		// the policy's namespace; adding the k8s namespace name key to ruleSel.NsLabels
+		if rules[i].NamespaceSelector == nil && rules[i].PodSelector != nil {
+			ruleSel.PolicyNsFlag = true
+			ruleSel.NsLabels = map[string]string{common.K8sNsNameLabelKey: np.Namespace}
+		} else {
+			ruleSel.NsLabels = nsSelectorMap
+		}
+		rulesSelectors = append(rulesSelectors, ruleSel)
+	}
+	return rulesSelectors, nil
+}
+
+// isEmptyMap gets a labels map and returns if it is not nil but empty map
+func isEmptyMap(labelsMap map[string]string) bool {
+	return labelsMap != nil && len(labelsMap) == 0
+}
+
+func (np *NetworkPolicy) updateNetworkPolicyGeneralConn(allDests, entireCluster bool, rulePorts []netv1.NetworkPolicyPort,
+	isIngress bool) error {
+	ruleConns, err := np.ruleConnections(rulePorts, nil)
+	if err != nil {
+		return err
+	}
+	if allDests {
+		if isIngress {
+			np.IngressGeneralConns.AllDestinationsConns.Union(ruleConns)
+		} else {
+			np.EgressGeneralConns.AllDestinationsConns.Union(ruleConns)
+		}
+	}
+	if entireCluster {
+		if isIngress {
+			np.IngressGeneralConns.EntireClusterConns.Union(ruleConns)
+		} else {
+			np.EgressGeneralConns.EntireClusterConns.Union(ruleConns)
+		}
+	}
+	return nil
 }

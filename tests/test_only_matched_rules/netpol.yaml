@@ -1,0 +1,25 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: only-matched-rules
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: b-app
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: b-app

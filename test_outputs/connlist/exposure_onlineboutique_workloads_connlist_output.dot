@@ -1,0 +1,50 @@
+digraph {
+	subgraph "cluster_default" {
+		color="black"
+		fontcolor="black"
+		"default/adservice[Deployment]" [label="adservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/cartservice[Deployment]" [label="cartservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/checkoutservice[Deployment]" [label="checkoutservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/currencyservice[Deployment]" [label="currencyservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/emailservice[Deployment]" [label="emailservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/frontend[Deployment]" [label="frontend[Deployment]" color="blue" fontcolor="blue"]
+		"default/loadgenerator[Deployment]" [label="loadgenerator[Deployment]" color="blue" fontcolor="blue"]
+		"default/paymentservice[Deployment]" [label="paymentservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/productcatalogservice[Deployment]" [label="productcatalogservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/recommendationservice[Deployment]" [label="recommendationservice[Deployment]" color="blue" fontcolor="blue"]
+		"default/redis-cart[Deployment]" [label="redis-cart[Deployment]" color="blue" fontcolor="blue"]
+		"default/shippingservice[Deployment]" [label="shippingservice[Deployment]" color="blue" fontcolor="blue"]
+		label="default"
+	}
+	subgraph "cluster_all namespaces" {
+		color="red2"
+		fontcolor="red2"
+		"pod with {k8s-app=kube-dns}_in_all namespaces" [label="pod with {k8s-app=kube-dns}" color="red2" fontcolor="red2"]
+		label="all namespaces"
+	}
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
+	"0.0.0.0-255.255.255.255" -> "default/redis-cart[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/checkoutservice[Deployment]" -> "default/cartservice[Deployment]" [label="TCP 7070" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/checkoutservice[Deployment]" -> "default/currencyservice[Deployment]" [label="TCP 7000" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/checkoutservice[Deployment]" -> "default/emailservice[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/checkoutservice[Deployment]" -> "default/paymentservice[Deployment]" [label="TCP 50051" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/checkoutservice[Deployment]" -> "default/productcatalogservice[Deployment]" [label="TCP 3550" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/checkoutservice[Deployment]" -> "default/shippingservice[Deployment]" [label="TCP 50051" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/checkoutservice[Deployment]" -> "pod with {k8s-app=kube-dns}_in_all namespaces" [label="UDP 53" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"default/frontend[Deployment]" -> "default/adservice[Deployment]" [label="TCP 9555" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/frontend[Deployment]" -> "default/cartservice[Deployment]" [label="TCP 7070" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/frontend[Deployment]" -> "default/checkoutservice[Deployment]" [label="TCP 5050" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/frontend[Deployment]" -> "default/currencyservice[Deployment]" [label="TCP 7000" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/frontend[Deployment]" -> "default/productcatalogservice[Deployment]" [label="TCP 3550" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/frontend[Deployment]" -> "default/recommendationservice[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/frontend[Deployment]" -> "default/shippingservice[Deployment]" [label="TCP 50051" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/frontend[Deployment]" -> "pod with {k8s-app=kube-dns}_in_all namespaces" [label="UDP 53" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"default/loadgenerator[Deployment]" -> "default/frontend[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/loadgenerator[Deployment]" -> "pod with {k8s-app=kube-dns}_in_all namespaces" [label="UDP 53" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"default/recommendationservice[Deployment]" -> "default/productcatalogservice[Deployment]" [label="TCP 3550" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/recommendationservice[Deployment]" -> "pod with {k8s-app=kube-dns}_in_all namespaces" [label="UDP 53" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"default/redis-cart[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/redis-cart[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"entire-cluster" -> "default/redis-cart[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+}

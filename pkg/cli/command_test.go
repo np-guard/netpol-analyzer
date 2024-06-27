@@ -57,7 +57,7 @@ func buildAndExecuteCommand(args []string) (string, error) {
 }
 
 // append the optional args of a command if the values are not empty
-func addCmdOptionalArgs(format, outputFile, focusWorkload string) []string {
+func addCmdOptionalArgs(format, outputFile, focusWorkload string, exposure bool) []string {
 	res := []string{}
 	if focusWorkload != "" {
 		res = append(res, "--focusworkload", focusWorkload)
@@ -67,6 +67,9 @@ func addCmdOptionalArgs(format, outputFile, focusWorkload string) []string {
 	}
 	if outputFile != "" {
 		res = append(res, "-f", outputFile)
+	}
+	if exposure {
+		res = append(res, "--exposure")
 	}
 	return res
 }
@@ -81,9 +84,10 @@ func determineFileSuffix(format string) string {
 }
 
 // gets the test name and name of expected output file for a list command from its args
-func getListCmdTestNameAndExpectedOutputFile(dirName, focusWorkload, format string) (testName, expectedOutputFileName string) {
+func getListCmdTestNameAndExpectedOutputFile(dirName, focusWorkload, format string, exposureFlag bool) (testName,
+	expectedOutputFileName string) {
 	fileSuffix := determineFileSuffix(format)
-	return testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, fileSuffix)
+	return testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, fileSuffix, exposureFlag)
 }
 
 func testInfo(testName string) string {
@@ -217,6 +221,7 @@ func TestListCommandOutput(t *testing.T) {
 		focusWorkload string
 		format        string
 		outputFile    string
+		exposureFlag  bool
 	}{
 		// when focusWorkload is empty, output should be the connlist of the dir
 		// when format is empty - output should be in defaultFormat (txt)
@@ -265,13 +270,17 @@ func TestListCommandOutput(t *testing.T) {
 			dirName:    "onlineboutique",
 			outputFile: outFileName,
 		},
+		{
+			dirName:      "acs-security-demos",
+			exposureFlag: true,
+		},
 	}
 	for _, tt := range cases {
 		tt := tt
-		testName, expectedOutputFileName := getListCmdTestNameAndExpectedOutputFile(tt.dirName, tt.focusWorkload, tt.format)
+		testName, expectedOutputFileName := getListCmdTestNameAndExpectedOutputFile(tt.dirName, tt.focusWorkload, tt.format, tt.exposureFlag)
 		t.Run(testName, func(t *testing.T) {
 			args := []string{"list", "--dirpath", testutils.GetTestDirPath(tt.dirName)}
-			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, tt.focusWorkload)...)
+			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, tt.focusWorkload, tt.exposureFlag)...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
 			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), currentPkg)
@@ -324,7 +333,7 @@ func TestDiffCommandOutput(t *testing.T) {
 		t.Run(testName, func(t *testing.T) {
 			args := []string{"diff", "--dir1", testutils.GetTestDirPath(tt.dir1), "--dir2",
 				testutils.GetTestDirPath(tt.dir2)}
-			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, "")...)
+			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, "", false)...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
 			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), currentPkg)

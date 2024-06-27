@@ -1,0 +1,6 @@
+| src | dst | conn |
+|-----|-----|------|
+| backend/recommendation[Deployment] | backend/catalog[Deployment] | TCP 8080 |
+| backend/reports[Deployment] | backend/catalog[Deployment] | TCP 8080 |
+## Exposure Analysis Result:
+

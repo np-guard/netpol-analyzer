@@ -1,5 +1,7 @@
 digraph {
-	subgraph cluster_default {
+	subgraph "cluster_default" {
+		color="black"
+		fontcolor="black"
 		"default/details-v1-79f774bdb9[ReplicaSet]" [label="details-v1-79f774bdb9[ReplicaSet]" color="blue" fontcolor="blue"]
 		"default/productpage-v1-6b746f74dc[ReplicaSet]" [label="productpage-v1-6b746f74dc[ReplicaSet]" color="blue" fontcolor="blue"]
 		"default/ratings-v1-b6994bb9[ReplicaSet]" [label="ratings-v1-b6994bb9[ReplicaSet]" color="blue" fontcolor="blue"]

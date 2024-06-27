@@ -1,0 +1,31 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: combined-ingress-rules
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          release : "stable"
+  - from:
+    - namespaceSelector:
+           matchExpressions:
+           - key: foo.com/managed-state
+             operator: In
+             values:
+             - managed
+    ports:
+    - port: 8050
+      protocol: TCP
+  - from:
+    - namespaceSelector: 
+        matchLabels:
+          effect: "NoSchedule"
+    ports:
+    - port: 8050
+      protocol: TCP

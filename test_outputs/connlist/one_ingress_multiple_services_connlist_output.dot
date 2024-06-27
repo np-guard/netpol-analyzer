@@ -1,5 +1,7 @@
 digraph {
-	subgraph cluster_ingressworld {
+	subgraph "cluster_ingressworld" {
+		color="black"
+		fontcolor="black"
 		"ingressworld/ingress-world-multiple-ports[Deployment]" [label="ingress-world-multiple-ports[Deployment]" color="blue" fontcolor="blue"]
 		label="ingressworld"
 	}

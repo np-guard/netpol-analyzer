@@ -24,7 +24,6 @@ const DirPathFunc = "ConnlistFromDirPath"
 const currentPkg = "connlist"
 const notEmptyMsg = "expecting non-empty analysis res"
 
-var allFormats = []string{output.TextFormat, output.JSONFormat, output.CSVFormat, output.MDFormat, output.DOTFormat}
 var connlistTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
 
 /*
@@ -82,7 +81,7 @@ func TestConnListFromDir(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
-				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format)
+				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format, tt.exposureAnalysis)
 				res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
@@ -101,7 +100,7 @@ func TestConnListFromResourceInfos(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
-				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format)
+				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format, tt.exposureAnalysis)
 				infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
 				// require.Empty(t, errs, testInfo) - TODO: add info about expected errors
 				// from each test here (these errors do not stop the analysis or affect the output)
@@ -195,7 +194,7 @@ func testFatalErr(t *testing.T,
 
 func getAnalysisResFromAPI(apiName, dirName, focusWorkload string) (
 	analyzer *ConnlistAnalyzer, connsRes []Peer2PeerConnection, peersRes []Peer, err error) {
-	pTest := prepareTest(dirName, focusWorkload, output.DefaultFormat)
+	pTest := prepareTest(dirName, focusWorkload, output.DefaultFormat, false)
 	switch apiName {
 	case ResourceInfosFunc:
 		infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
@@ -474,11 +473,15 @@ type preparedTest struct {
 	analyzer               *ConnlistAnalyzer
 }
 
-func prepareTest(dirName, focusWorkload, format string) preparedTest {
+func prepareTest(dirName, focusWorkload, format string, exposureFlag bool) preparedTest {
 	res := preparedTest{}
-	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, format)
+	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, format, exposureFlag)
 	res.testInfo = fmt.Sprintf("test: %q, output format: %q", res.testName, format)
-	res.analyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload))
+	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload))
+	if exposureFlag {
+		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload), WithExposureAnalysis())
+	}
+	res.analyzer = cAnalyzer
 	res.dirPath = testutils.GetTestDirPath(dirName)
 	return res
 }
@@ -494,6 +497,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 		dirName          string
 		format           string
 		errorStrContains string
+		exposureFlag     bool
 	}{
 		{
 			name:             "giving_unsupported_output_format_option_should_return_fatal_error",
@@ -501,12 +505,19 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			format:           "docx",
 			errorStrContains: netpolerrors.FormatNotSupportedErrStr("docx"),
 		},
+		{
+			name:             "unsupported_output_format_for_exposure_analysis_should_return_fatal_error",
+			dirName:          "acs-security-demos",
+			format:           "gif",
+			errorStrContains: netpolerrors.FormatNotSupportedErrStr("gif"),
+			exposureFlag:     true,
+		},
 	}
 	for _, tt := range cases {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			preparedTest := prepareTest(tt.dirName, "", tt.format)
+			preparedTest := prepareTest(tt.dirName, "", tt.format, tt.exposureFlag)
 			connsRes, peersRes, err := preparedTest.analyzer.ConnlistFromDirPath(preparedTest.dirPath)
 
 			require.Nil(t, err, tt.name)
@@ -520,7 +531,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error())
 
 			// re-run the test with new analyzer (to clear the analyzer.errors array )
-			preparedTest = prepareTest(tt.dirName, "", tt.format)
+			preparedTest = prepareTest(tt.dirName, "", tt.format, tt.exposureFlag)
 			infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{preparedTest.dirPath}, true, false)
 			connsRes2, peersRes2, err2 := preparedTest.analyzer.ConnlistFromResourceInfos(infos)
 
@@ -537,9 +548,10 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 }
 
 var goodPathTests = []struct {
-	testDirName   string
-	outputFormats []string
-	focusWorkload string
+	testDirName      string
+	outputFormats    []string
+	focusWorkload    string
+	exposureAnalysis bool
 }{
 	{
 		testDirName:   "ipblockstest",
@@ -567,31 +579,31 @@ var goodPathTests = []struct {
 	},
 	{
 		testDirName:   "acs_security_frontend_demos",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "demo_app_with_routes_and_ingress",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "k8s_ingress_test",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "multiple_ingress_objects_with_different_ports",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "one_ingress_multiple_ports",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "one_ingress_multiple_services",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "acs-security-demos",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "acs-security-demos-with-netpol-list",
@@ -607,7 +619,7 @@ var goodPathTests = []struct {
 	},
 	{
 		testDirName:   "netpol-analysis-example-minimal",
-		outputFormats: allFormats,
+		outputFormats: ValidFormats,
 	},
 	{
 		testDirName:   "with_end_port_example",
@@ -742,5 +754,206 @@ var goodPathTests = []struct {
 		testDirName:   "acs-security-demos-added-workloads",
 		focusWorkload: "ingress-controller",
 		outputFormats: []string{output.TextFormat},
+	},
+	{
+		testDirName:      "acs-security-demos",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "acs-security-demos",
+		exposureAnalysis: true,
+		// test with focus-workload that appears in exposure-analysis result
+		focusWorkload: "frontend/webapp",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:      "acs-security-demos",
+		exposureAnalysis: true,
+		// test with focus-workload that does not appear in exposure-analysis result
+		focusWorkload: "backend/catalog",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:      "test_allow_all",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_allow_all_in_cluster",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_allow_egress_deny_ingress",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_allow_ingress_deny_egress",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_matched_and_unmatched_rules",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_matched_and_unmatched_rules",
+		exposureAnalysis: true,
+		focusWorkload:    "hello-world/workload-a",
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_only_matched_rules",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_multiple_unmatched_rules",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_new_namespace_conn_and_entire_cluster",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_same_unmatched_rule_in_ingress_egress",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_with_no_netpols",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_egress_to_entire_cluster_with_named_ports",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_ingress_from_entire_cluster_with_named_ports",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_egress_exposure_with_named_port",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_to_namespace_with_multiple_labels",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_pod_exposed_only_to_representative_peers",
+		exposureAnalysis: false,
+		outputFormats:    []string{output.TextFormat},
+	},
+	{
+		testDirName:      "test_pod_exposed_only_to_representative_peers",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_conn_entire_cluster_with_empty_selectors",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_conn_to_all_pods_in_a_new_ns",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_conn_with_new_pod_selector_and_ns_selector",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_conn_with_only_pod_selector",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_conn_with_pod_selector_in_any_ns",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "onlineboutique_workloads",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "onlineboutique_workloads",
+		exposureAnalysis: true,
+		focusWorkload:    "default/loadgenerator",
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "k8s_ingress_test_new",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "k8s_ingress_test_new",
+		exposureAnalysis: true,
+		focusWorkload:    "details-v1-79f774bdb9",
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "k8s_ingress_test",
+		exposureAnalysis: true,
+		focusWorkload:    "ratings-v1-b6994bb9",
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_minimal_netpol_analysis",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.DOTFormat},
+	},
+	{
+		// test that when the rule enable any-namespace with podSelector, a representative peer is created even
+		// if there is a matching pod in a specific namespace
+		testDirName:      "test_exposure_to_any_namespace_with_podSelector",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_conn_to_all_pods_in_an_existing_ns",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_conn_to_new_pod_in_an_existing_ns",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_conn_to_all_pods_in_an_existing_ns_with_ns_selector_only",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// following test resources : contains two pods in different namespaces, and two policies, one for each namespace
+		// first policy captures: hello-world/workload-a and exposes it on Ingress to all pods in backend namespace
+		// second policy captures: backend/backend-app and denies all egress from it
+		// so as result hello-world/workload-a is actually exposed to all backend pods except for backend-app
+		// note: following exposure line in output :
+		// `hello-world/workload-a[Deployment]      <=      backend/[all pods] : TCP 8050`
+		// could have been more accurate with:
+		// `hello-world/workload-a[Deployment]      <=      backend/[pods without app: backend-app] : TCP 8050`
+		// but the goal is to hint where policy can be tightened, thus it is ok to ignore policies that capture
+		// representative peers in the analysis
+
+		testDirName:      "test_exposure_to_namespace_except_specific_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
 	},
 }

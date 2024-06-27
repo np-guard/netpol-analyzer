@@ -1,0 +1,24 @@
+{
+  "connlist_results": [
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "hello-world/workload-a[Deployment]",
+      "conn": "All Connections"
+    }
+  ],
+  "exposure_results": {
+    "egress_exposure": null,
+    "ingress_exposure": [
+      {
+        "src": "0.0.0.0-255.255.255.255",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "All Connections"
+      }
+    ]
+  }
+}

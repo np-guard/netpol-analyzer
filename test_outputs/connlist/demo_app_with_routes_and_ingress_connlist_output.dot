@@ -1,13 +1,19 @@
 digraph {
-	subgraph cluster_helloworld {
+	subgraph "cluster_helloworld" {
+		color="black"
+		fontcolor="black"
 		"helloworld/hello-world[Deployment]" [label="hello-world[Deployment]" color="blue" fontcolor="blue"]
 		label="helloworld"
 	}
-	subgraph cluster_ingressworld {
+	subgraph "cluster_ingressworld" {
+		color="black"
+		fontcolor="black"
 		"ingressworld/ingress-world[Deployment]" [label="ingress-world[Deployment]" color="blue" fontcolor="blue"]
 		label="ingressworld"
 	}
-	subgraph cluster_routeworld {
+	subgraph "cluster_routeworld" {
+		color="black"
+		fontcolor="black"
 		"routeworld/route-world[Deployment]" [label="route-world[Deployment]" color="blue" fontcolor="blue"]
 		label="routeworld"
 	}

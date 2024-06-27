@@ -1,5 +1,7 @@
 digraph {
-	subgraph cluster_backend {
+	subgraph "cluster_backend" {
+		color="black"
+		fontcolor="black"
 		"backend/catalog[Deployment]" [label="catalog[Deployment]" color="blue" fontcolor="blue"]
 		"backend/checkout[Deployment]" [label="checkout[Deployment]" color="blue" fontcolor="blue"]
 		"backend/notification[Deployment]" [label="notification[Deployment]" color="blue" fontcolor="blue"]
@@ -8,20 +10,26 @@ digraph {
 		"backend/shipping[Deployment]" [label="shipping[Deployment]" color="blue" fontcolor="blue"]
 		label="backend"
 	}
-	subgraph cluster_frontend {
+	subgraph "cluster_frontend" {
+		color="black"
+		fontcolor="black"
 		"frontend/asset-cache[Deployment]" [label="asset-cache[Deployment]" color="blue" fontcolor="blue"]
 		"frontend/blog[Deployment]" [label="blog[Deployment]" color="#008000" fontcolor="#008000"]
 		"frontend/webapp[Deployment]" [label="webapp[Deployment]" color="blue" fontcolor="blue"]
 		label="frontend"
 	}
-	subgraph cluster_payments {
+	subgraph "cluster_payments" {
+		color="black"
+		fontcolor="black"
 		"payments/gateway[Deployment]" [label="gateway[Deployment]" color="blue" fontcolor="blue"]
 		"payments/mastercard-processor[Deployment]" [label="mastercard-processor[Deployment]" color="blue" fontcolor="blue"]
 		"payments/visa-processor-v2[Deployment]" [label="visa-processor-v2[Deployment]" color="#008000" fontcolor="#008000"]
 		"payments/visa-processor[Deployment]" [label="visa-processor[Deployment]" color="blue" fontcolor="blue"]
 		label="payments"
 	}
-	subgraph cluster_zeroday {
+	subgraph "cluster_zeroday" {
+		color="black"
+		fontcolor="black"
 		"zeroday/zeroday[Deployment]" [label="zeroday[Deployment]" color="#008000" fontcolor="#008000"]
 		label="zeroday"
 	}

@@ -64,12 +64,13 @@ Flags:
   -f, --file string            Write output to specified file
       --focusworkload       Focus connections of specified workload in the output (supported formats: <workload-name>, <workload-namespace>/<workload-name>)
                             (to focus connections from Ingress/Route only, use `ingress-controller` as <workload-name>)
-  -o, --output string       Required output format (txt, json, dot, csv, md) (default "txt")
+  -o, --output string       Required output format (txt, json, dot, csv, md) or (txt, dot) with exposure analysis (default "txt")
   -h, --help   help for list
 
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
+      --exposure            Runs also exposure analysis
       --fail                fail on the first encountered error
       --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
   -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
