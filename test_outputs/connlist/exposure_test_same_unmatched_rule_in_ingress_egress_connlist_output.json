@@ -4,13 +4,13 @@
     "egress_exposure": [
       {
         "src": "hello-world/workload-a[Deployment]",
-        "dst": "[namespace with {foo.com/managed-state=managed}]/[all pods]",
+        "dst": "[namespace with {{Key:foo.com/managed-state,Operator:In,Values:[managed],}}]/[all pods]",
         "conn": "TCP 8050"
       }
     ],
     "ingress_exposure": [
       {
-        "src": "[namespace with {foo.com/managed-state=managed}]/[all pods]",
+        "src": "[namespace with {{Key:foo.com/managed-state,Operator:In,Values:[managed],}}]/[all pods]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "TCP 8000,8090"
       },

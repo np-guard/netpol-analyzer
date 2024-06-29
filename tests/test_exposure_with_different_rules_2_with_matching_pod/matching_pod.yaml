@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matching-workload
+  namespace: hello-world
+  labels:
+    app: x
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: x
+  template:
+    metadata:
+      labels:
+        app: x
+    spec:
+      containers:
+      - name: hello-world
+        image: quay.io/shfa/hello-world:latest
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: http-2
+          containerPort: 9090
+---

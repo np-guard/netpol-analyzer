@@ -1,0 +1,31 @@
+digraph {
+	subgraph "cluster_hello_world" {
+		color="black"
+		fontcolor="black"
+		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
+		label="hello-world"
+	}
+	subgraph "cluster_matching_ns" {
+		color="black"
+		fontcolor="black"
+		"matching-ns/matching-workload1[Deployment]" [label="matching-workload1[Deployment]" color="blue" fontcolor="blue"]
+		label="matching-ns"
+	}
+	subgraph "cluster_namespace with {{Key:env,Operator:In,Values:[env_1 env_2],}}" {
+		color="red2"
+		fontcolor="red2"
+		"pod with {{Key:app,Operator:In,Values:[app-1 app-2],}}_in_namespace with {{Key:env,Operator:In,Values:[env-1 env-2],}}" [label="pod with {{Key:app,Operator:In,Values:[app-1 app-2],}}" color="red2" fontcolor="red2"]
+		label="namespace with {{Key:env,Operator:In,Values:[env-1 env-2],}}"
+	}
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
+	"0.0.0.0-255.255.255.255" -> "matching-ns/matching-workload1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"entire-cluster" -> "matching-ns/matching-workload1[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"hello-world/workload-a[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"hello-world/workload-a[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"hello-world/workload-a[Deployment]" -> "matching-ns/matching-workload1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"matching-ns/matching-workload1[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"matching-ns/matching-workload1[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"matching-ns/matching-workload1[Deployment]" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"pod with {{Key:app,Operator:In,Values:[app-1 app-2],}}_in_namespace with {{Key:env,Operator:In,Values:[env-1 env-2],}}" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+}

@@ -208,7 +208,18 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 					return false, err
 				}
 				peerNamespace := peer.GetPeerNamespace()
-				peerMatchesNamespaceSelector = selector.Matches(labels.Set(peerNamespace.Labels))
+				// checking if a selector matches labels by peer type; since representative peers selectors may need special handling
+				if isRepresentativePod(peer) {
+					// representative peer's namespace labels may be inferred from a rule with special matchExpression requirements
+					// and also contains the representative ns name label which is not relevant for comparison
+					peerMatchesNamespaceSelector, err = SelectorMatchesRepresentativePeerLabels(selector, peerNamespace.Labels,
+						peerNamespace.RepresentativeNsRequirements)
+					if err != nil {
+						return false, err
+					}
+				} else {
+					peerMatchesNamespaceSelector = selector.Matches(labels.Set(peerNamespace.Labels))
+				}
 			}
 			if !peerMatchesNamespaceSelector {
 				continue // skip to next peerObj
@@ -220,7 +231,16 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 				if err != nil {
 					return false, err
 				}
-				peerMatchesPodSelector = selector.Matches(labels.Set(peer.GetPeerPod().Labels))
+				// checking if a selector matches labels by peer type; since representative peers selectors may need special handling
+				if isRepresentativePod(peer) {
+					peerMatchesPodSelector, err = SelectorMatchesRepresentativePeerLabels(selector, peer.GetPeerPod().Labels,
+						peer.GetPeerPod().RepresentativePodRequirements)
+					if err != nil {
+						return false, err
+					}
+				} else {
+					peerMatchesPodSelector = selector.Matches(labels.Set(peer.GetPeerPod().Labels))
+				}
 			}
 			if peerMatchesPodSelector {
 				return true, nil //  matching both pod selector and ns_selector here
@@ -431,6 +451,11 @@ func (np *NetworkPolicy) Selects(p *Pod, direction netv1.PolicyType) (bool, erro
 	if !np.policyAffectsDirection(direction) {
 		return false, nil
 	}
+	// currently ignoring policies which select representative peers, as exposure analysis goal is
+	// to hint where a policy selecting real workloads can be tightened
+	if p.IsPodRepresentative() {
+		return false, nil
+	}
 
 	//  @todo check if the empty selector is handled by Matches() below
 	if len(np.Spec.PodSelector.MatchLabels) == 0 && len(np.Spec.PodSelector.MatchExpressions) == 0 {
@@ -451,11 +476,11 @@ func (np *NetworkPolicy) fullName() string {
 // /////////////////////////////////////////////////////////////////////////////////////////////
 // pre-processing computations - currently performed for exposure-analysis goals only;
 
-// SingleRuleLabels contains maps of <key>:<value> labels inferred from namespaceSelector or/and podSelector
-// within a single rule in the policy
-type SingleRuleLabels struct {
-	NsLabels  map[string]string
-	PodLabels map[string]string
+// SingleRuleSelectors contains LabelSelector objects representing namespaceSelector or/and podSelector
+// of a single rule in the policy
+type SingleRuleSelectors struct {
+	NsSelector  metav1.LabelSelector
+	PodSelector metav1.LabelSelector
 	// policyNsFlag indicates if the rule contains only podSelector;
 	// so the NsLabels map contains only the default name key of the policy's namespace
 	PolicyNsFlag bool
@@ -463,9 +488,8 @@ type SingleRuleLabels struct {
 
 // ScanPolicyRulesForGeneralConnsAndRepresentativePeers scans policy rules and :
 // - updates policy's general connections with all destinations or/ and with entire cluster for ingress and/ or egress directions
-// - returns list of selectors labels from rules which has non-empty namespace selectors  (from rules with namespaceSelector only)
-// TODO: support checking rules with podSelector
-func (np *NetworkPolicy) ScanPolicyRulesForGeneralConnsAndRepresentativePeers() (rulesSelectors []SingleRuleLabels, err error) {
+// - returns list of labels.selectors from rules which has non-empty selectors
+func (np *NetworkPolicy) ScanPolicyRulesForGeneralConnsAndRepresentativePeers() (rulesSelectors []SingleRuleSelectors, err error) {
 	if np.policyAffectsDirection(netv1.PolicyTypeIngress) {
 		selectors, err := np.scanIngressRules()
 		if err != nil {
@@ -483,8 +507,8 @@ func (np *NetworkPolicy) ScanPolicyRulesForGeneralConnsAndRepresentativePeers() 
 	return rulesSelectors, nil
 }
 
-func (np *NetworkPolicy) scanIngressRules() ([]SingleRuleLabels, error) {
-	rulesSelectors := []SingleRuleLabels{}
+func (np *NetworkPolicy) scanIngressRules() ([]SingleRuleSelectors, error) {
+	rulesSelectors := []SingleRuleSelectors{}
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
@@ -497,8 +521,8 @@ func (np *NetworkPolicy) scanIngressRules() ([]SingleRuleLabels, error) {
 	return rulesSelectors, nil
 }
 
-func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleLabels, error) {
-	rulesSelectors := []SingleRuleLabels{}
+func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
+	rulesSelectors := []SingleRuleSelectors{}
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
@@ -519,52 +543,47 @@ func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleLabels, error) {
 // else: returns selectors of non-general rules (rules that are not exposed to entire world or cluster).
 // this func assumes rules are legal (rules correctness check occurs later)
 func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
-	isIngress bool) (rulesSelectors []SingleRuleLabels, err error) {
+	isIngress bool) (rulesSelectors []SingleRuleSelectors, err error) {
 	if len(rules) == 0 {
 		err = np.updateNetworkPolicyGeneralConn(true, true, rulePorts, isIngress)
 		return nil, err
 	}
 	for i := range rules {
-		var ruleSel SingleRuleLabels
+		var ruleSel SingleRuleSelectors
 		if rules[i].IPBlock != nil {
 			continue
 		}
-		// note: LabelSelectorAsMap returns a nil map for nil selector,
-		// and returns empty map (map[string]string{}) for empty selector (all)
-		nsSelectorMap, err := metav1.LabelSelectorAsMap(rules[i].NamespaceSelector)
-		if err != nil {
-			return nil, err
-		}
-		podSelectorMap, err := metav1.LabelSelectorAsMap(rules[i].PodSelector)
-		if err != nil {
-			return nil, err
-		}
 		// a rule is exposed to entire cluster if :
-		// 1. the podSelector is nil (no podselector) but the namespaceSelector is empty ({})
+		// 1. the podSelector is nil (no podselector) but the namespaceSelector is empty ({}) not nil
 		// 2. both podSelector and namespaceSelector are empty ({})
-		if (rules[i].PodSelector == nil && isEmptyMap(nsSelectorMap)) ||
-			(isEmptyMap(nsSelectorMap) && isEmptyMap(podSelectorMap)) {
+		if rules[i].NamespaceSelector != nil && rules[i].NamespaceSelector.Size() == 0 &&
+			(rules[i].PodSelector == nil || rules[i].PodSelector.Size() == 0) {
 			err = np.updateNetworkPolicyGeneralConn(false, true, rulePorts, isIngress)
 			return nil, err
 		}
-		// else (selector not empty)
-		ruleSel.PodLabels = podSelectorMap
-		// special case: ns selector is nil but podSelector is not, so the namespace of the rule is
-		// the policy's namespace; adding the k8s namespace name key to ruleSel.NsLabels
-		if rules[i].NamespaceSelector == nil && rules[i].PodSelector != nil {
+		// else selectors' combination specifies end-points
+		switch { // cases of ns selector
+		case rules[i].NamespaceSelector == nil:
+			// special case: ns selector is nil but podSelector is not, so the namespace of the rule is
+			// the policy's namespace; adding the k8s namespace name key to ruleSel.NsLabels
 			ruleSel.PolicyNsFlag = true
-			ruleSel.NsLabels = map[string]string{common.K8sNsNameLabelKey: np.Namespace}
-		} else {
-			ruleSel.NsLabels = nsSelectorMap
+			nsNameLabelSel := map[string]string{common.K8sNsNameLabelKey: np.Namespace}
+			ruleSel.NsSelector = metav1.LabelSelector{MatchLabels: nsNameLabelSel}
+		case rules[i].NamespaceSelector.Size() == 0:
+			ruleSel.NsSelector = metav1.LabelSelector{}
+		default:
+			ruleSel.NsSelector = *rules[i].NamespaceSelector.DeepCopy()
+		}
+		// cases of podSelector
+		switch {
+		case rules[i].PodSelector != nil:
+			ruleSel.PodSelector = *rules[i].PodSelector.DeepCopy()
+		default:
+			ruleSel.PodSelector = metav1.LabelSelector{}
 		}
 		rulesSelectors = append(rulesSelectors, ruleSel)
 	}
 	return rulesSelectors, nil
-}
-
-// isEmptyMap gets a labels map and returns if it is not nil but empty map
-func isEmptyMap(labelsMap map[string]string) bool {
-	return labelsMap != nil && len(labelsMap) == 0
 }
 
 func (np *NetworkPolicy) updateNetworkPolicyGeneralConn(allDests, entireCluster bool, rulePorts []netv1.NetworkPolicyPort,

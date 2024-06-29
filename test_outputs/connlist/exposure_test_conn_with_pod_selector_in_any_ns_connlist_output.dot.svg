@@ -8,15 +8,15 @@
  viewBox="0.00 0.00 414.89 278.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 274)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-274 410.89,-274 410.89,4 -4,4"/>
-<g id="clust2" class="cluster">
-<title>cluster_all namespaces</title>
-<polygon fill="none" stroke="#ee0000" points="8,-187 8,-262 248,-262 248,-187 8,-187"/>
-<text text-anchor="middle" x="128" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">all namespaces</text>
-</g>
 <g id="clust1" class="cluster">
 <title>cluster_hello_world</title>
 <polygon fill="none" stroke="black" points="19,-79 19,-154 237,-154 237,-79 19,-79"/>
 <text text-anchor="middle" x="128" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_all namespaces</title>
+<polygon fill="none" stroke="#ee0000" points="8,-187 8,-262 248,-262 248,-187 8,-187"/>
+<text text-anchor="middle" x="128" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">all namespaces</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
 <g id="node1" class="node">

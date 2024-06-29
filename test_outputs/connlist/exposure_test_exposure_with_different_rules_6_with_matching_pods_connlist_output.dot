@@ -1,0 +1,62 @@
+digraph {
+	subgraph "cluster_hello_world" {
+		color="black"
+		fontcolor="black"
+		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
+		"hello-world/workload-b[Deployment]" [label="workload-b[Deployment]" color="blue" fontcolor="blue"]
+		label="hello-world"
+	}
+	subgraph "cluster_matching_ns1" {
+		color="black"
+		fontcolor="black"
+		"matching-ns1/matching-rule1[Deployment]" [label="matching-rule1[Deployment]" color="blue" fontcolor="blue"]
+		label="matching-ns1"
+	}
+	subgraph "cluster_matching_ns2" {
+		color="black"
+		fontcolor="black"
+		"matching-ns2/matching-rule2-and-1[Deployment]" [label="matching-rule2-and-1[Deployment]" color="blue" fontcolor="blue"]
+		label="matching-ns2"
+	}
+	subgraph "cluster_namespace with {env=env_1,foo=managed}" {
+		color="red2"
+		fontcolor="red2"
+		"pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}_in_namespace with {env=env-1,foo=managed}" [label="pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}" color="red2" fontcolor="red2"]
+		label="namespace with {env=env-1,foo=managed}"
+	}
+	subgraph "cluster_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}" {
+		color="red2"
+		fontcolor="red2"
+		"pod with {app=app-x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}_in_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}" [label="pod with {app=app-x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}" color="red2" fontcolor="red2"]
+		label="namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}"
+	}
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
+	"0.0.0.0-255.255.255.255" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255" -> "matching-ns1/matching-rule1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255" -> "matching-ns2/matching-rule2-and-1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"entire-cluster" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"entire-cluster" -> "matching-ns1/matching-rule1[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"entire-cluster" -> "matching-ns2/matching-rule2-and-1[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"hello-world/workload-a[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"hello-world/workload-a[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"hello-world/workload-a[Deployment]" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"hello-world/workload-a[Deployment]" -> "matching-ns1/matching-rule1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"hello-world/workload-a[Deployment]" -> "matching-ns2/matching-rule2-and-1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"hello-world/workload-b[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"hello-world/workload-b[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"hello-world/workload-b[Deployment]" -> "matching-ns1/matching-rule1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"hello-world/workload-b[Deployment]" -> "matching-ns2/matching-rule2-and-1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"matching-ns1/matching-rule1[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"matching-ns1/matching-rule1[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"matching-ns1/matching-rule1[Deployment]" -> "hello-world/workload-a[Deployment]" [label="TCP 9090" color="gold2" fontcolor="darkgreen" weight=1]
+	"matching-ns1/matching-rule1[Deployment]" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"matching-ns1/matching-rule1[Deployment]" -> "matching-ns2/matching-rule2-and-1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"matching-ns2/matching-rule2-and-1[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"matching-ns2/matching-rule2-and-1[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"matching-ns2/matching-rule2-and-1[Deployment]" -> "hello-world/workload-a[Deployment]" [label="TCP 8080,9090" color="gold2" fontcolor="darkgreen" weight=1]
+	"matching-ns2/matching-rule2-and-1[Deployment]" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"matching-ns2/matching-rule2-and-1[Deployment]" -> "matching-ns1/matching-rule1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}_in_namespace with {env=env-1,foo=managed}" -> "hello-world/workload-a[Deployment]" [label="TCP 8080,9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"pod with {app=app-x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}_in_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}" -> "hello-world/workload-a[Deployment]" [label="TCP 9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+}

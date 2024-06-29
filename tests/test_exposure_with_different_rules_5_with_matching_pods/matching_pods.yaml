@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matching-two-rules
+  namespace: hello-world
+  labels:
+    role: w
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: w
+  template:
+    metadata:
+      labels:
+        role: w
+    spec:
+      containers:
+      - name: hello-world
+        image: quay.io/shfa/hello-world:latest
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: http-2
+          containerPort: 9090
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matching-one-rule
+  namespace: hello-world
+  labels:
+    role: x
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: x
+  template:
+    metadata:
+      labels:
+        role: x
+    spec:
+      containers:
+      - name: hello-world
+        image: quay.io/shfa/hello-world:latest
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: http-2
+          containerPort: 9090
+---

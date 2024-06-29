@@ -956,4 +956,138 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
+	// tests on exposure with matchExpression selectors (generating representative peers from selectors with matchExpression
+	// requires special handling)
+	{
+		testDirName:      "test_exposure_with_match_expression_not_in_op",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_in_op",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_exists_op",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_does_not_exist_op",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_rule_with_multiple_match_expressions",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// in this test's netpol, the rules are not equiv
+		// because NotIn means either does not exist or exists with value not in values.
+		// but a pod that matches both rules (like workload-b) connects with workload-a on both ports
+		testDirName:      "test_exposure_with_different_rules_1",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// in this test's netpol, the rules are not equiv, but the In rule contains the Exists rule
+		// so the representative peer inferred from `In` rule; connects with workload-a on both rules' ports
+		testDirName:      "test_exposure_with_different_rules_2",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// in this test's netpol, the rules are not equiv, but the DoesNotExist rule contains the NotIn rule
+		// so the representative peer inferred from `DoesNotExist` rule; connects with workload-a on both rules' ports
+		testDirName:      "test_exposure_with_different_rules_3",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// in this test's netpol,both rules are with NotIn operator, where one values list contains the other.
+		// so the representative peer inferred from `NotIn with the longest values list rule; connects with workload-a on both rules' ports
+		// since workload-b matches both NotIn (does not have key role in its labels), it also connect on both ports to workload-a
+		testDirName:      "test_exposure_with_different_rules_4",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// in this test's netpol,rules with In and NotIn, where one values list contains the other.
+		// so the representative peers inferred from `In` has different connections from each other, depends if the peer
+		// matches also the NotIn rule or not
+		testDirName:      "test_exposure_with_different_rules_5",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// in this test's netpol, rules are combined
+		// second rule matches also first rule, so representative peer inferred from second rule
+		// has connections of both rules
+		testDirName:      "test_exposure_with_different_rules_6",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	// some exposure tests with matching expressions (from above) with also matching pod/s in the manifests
+	{
+		testDirName:      "test_egress_exposure_with_named_port_with_matching_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_rule_with_multiple_match_expressions_with_matching_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_different_rules_2_with_matching_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_different_rules_3_with_matching_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_different_rules_4_with_matching_pods",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_different_rules_5_with_matching_pods",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_different_rules_6_with_matching_pods",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_does_not_exist_op_with_matching_pods",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_exists_op_with_matching_pods",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_in_op_with_matching_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_not_in_op_with_matching_pods",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_new_namespace_conn_and_entire_cluster_with_matching_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
 }

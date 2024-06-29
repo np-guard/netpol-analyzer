@@ -1,0 +1,30 @@
+digraph {
+	subgraph "cluster_hello_world" {
+		color="black"
+		fontcolor="black"
+		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
+		label="hello-world"
+	}
+	subgraph "cluster_matching_ns" {
+		color="black"
+		fontcolor="black"
+		"matching-ns/matching-workload[Deployment]" [label="matching-workload[Deployment]" color="blue" fontcolor="blue"]
+		label="matching-ns"
+	}
+	subgraph "cluster_namespace with {{Key:foo.com/managed_state,Operator:In,Values:[managed],}}" {
+		color="red2"
+		fontcolor="red2"
+		"all pods_in_namespace with {{Key:foo.com/managed-state,Operator:In,Values:[managed],}}" [label="all pods" color="red2" fontcolor="red2"]
+		label="namespace with {{Key:foo.com/managed-state,Operator:In,Values:[managed],}}"
+	}
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
+	"0.0.0.0-255.255.255.255" -> "matching-ns/matching-workload[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"entire-cluster" -> "hello-world/workload-a[Deployment]" [label="TCP 8000" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"entire-cluster" -> "matching-ns/matching-workload[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"hello-world/workload-a[Deployment]" -> "all pods_in_namespace with {{Key:foo.com/managed-state,Operator:In,Values:[managed],}}" [label="TCP http" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"hello-world/workload-a[Deployment]" -> "matching-ns/matching-workload[Deployment]" [label="TCP 8090" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"matching-ns/matching-workload[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"matching-ns/matching-workload[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"matching-ns/matching-workload[Deployment]" -> "hello-world/workload-a[Deployment]" [label="TCP 8000" color="gold2" fontcolor="darkgreen" weight=1]
+}

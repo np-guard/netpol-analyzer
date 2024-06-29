@@ -1,0 +1,28 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: match-exp-5
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  ingress:
+  - from: 
+    - podSelector:
+          matchExpressions:
+          - key: role
+            operator: NotIn
+            values: ["x", "y"]
+    ports:
+    - port: 9090
+      protocol: TCP
+  - from:
+    - podSelector:
+          matchExpressions:
+          - key: role
+            operator: In
+            values: ["w", "x", "y", "z"]
+    ports:
+    - port: 8080
+      protocol: TCP
