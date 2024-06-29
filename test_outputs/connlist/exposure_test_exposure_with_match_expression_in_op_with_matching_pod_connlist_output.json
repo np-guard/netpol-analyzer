@@ -1,0 +1,70 @@
+{
+  "connlist_results": [
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "matching-ns/matching-workload1[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-a[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-a[Deployment]",
+      "dst": "matching-ns/matching-workload1[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "matching-ns/matching-workload1[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "matching-ns/matching-workload1[Deployment]",
+      "dst": "hello-world/workload-a[Deployment]",
+      "conn": "All Connections"
+    }
+  ],
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "hello-world/workload-a[Deployment]",
+        "dst": "0.0.0.0-255.255.255.255",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/workload-a[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      },
+      {
+        "src": "matching-ns/matching-workload1[Deployment]",
+        "dst": "0.0.0.0-255.255.255.255",
+        "conn": "All Connections"
+      },
+      {
+        "src": "matching-ns/matching-workload1[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "[namespace with {{Key:env,Operator:In,Values:[env-1 env-2],}}]/[pod with {{Key:app,Operator:In,Values:[app-1 app-2],}}]",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "0.0.0.0-255.255.255.255",
+        "dst": "matching-ns/matching-workload1[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "matching-ns/matching-workload1[Deployment]",
+        "conn": "All Connections"
+      }
+    ]
+  }
+}

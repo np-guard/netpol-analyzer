@@ -1,0 +1,59 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: matching-ns
+  labels:
+    foo.com/managed-state: managed
+spec: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matching-workload1
+  namespace: matching-ns
+  labels:
+    app: matching
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: matching
+  template:
+    metadata:
+      labels:
+        app: matching
+    spec:
+      containers:
+      - name: matching
+        image: quay.io/shfa/matching:latest
+        ports:
+        - name: http
+          containerPort: 8090
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matching-workload2
+  namespace: hello-world
+  labels:
+    role: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: web
+  template:
+    metadata:
+      labels:
+        role: web
+    spec:
+      containers:
+      - name: hello-world
+        image: quay.io/shfa/hello-world:latest
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: http-2
+          containerPort: 9090
+---

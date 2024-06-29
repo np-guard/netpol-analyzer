@@ -1029,4 +1029,65 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
+	// some exposure tests with matching expressions (from above) with also matching pod/s in the manifests
+	{
+		testDirName:      "test_egress_exposure_with_named_port_with_matching_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_rule_with_multiple_match_expressions_with_matching_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_different_rules_2_with_matching_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_different_rules_3_with_matching_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_different_rules_4_with_matching_pods",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_different_rules_5_with_matching_pods",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_different_rules_6_with_matching_pods",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_does_not_exist_op_with_matching_pods",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_exists_op_with_matching_pods",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_in_op_with_matching_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_exposure_with_match_expression_not_in_op_with_matching_pods",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "test_new_namespace_conn_and_entire_cluster_with_matching_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
 }

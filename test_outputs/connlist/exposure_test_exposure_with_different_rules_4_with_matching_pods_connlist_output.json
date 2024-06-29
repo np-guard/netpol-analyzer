@@ -1,0 +1,185 @@
+{
+  "connlist_results": [
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "hello-world/matching-one-rule[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "hello-world/matching-two-rules[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "hello-world/workload-b[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/matching-one-rule[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/matching-one-rule[Deployment]",
+      "dst": "hello-world/matching-two-rules[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/matching-one-rule[Deployment]",
+      "dst": "hello-world/workload-a[Deployment]",
+      "conn": "TCP 9090"
+    },
+    {
+      "src": "hello-world/matching-one-rule[Deployment]",
+      "dst": "hello-world/workload-b[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/matching-two-rules[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/matching-two-rules[Deployment]",
+      "dst": "hello-world/matching-one-rule[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/matching-two-rules[Deployment]",
+      "dst": "hello-world/workload-a[Deployment]",
+      "conn": "TCP 8080,9090"
+    },
+    {
+      "src": "hello-world/matching-two-rules[Deployment]",
+      "dst": "hello-world/workload-b[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-a[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-a[Deployment]",
+      "dst": "hello-world/matching-one-rule[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-a[Deployment]",
+      "dst": "hello-world/matching-two-rules[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-a[Deployment]",
+      "dst": "hello-world/workload-b[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-b[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-b[Deployment]",
+      "dst": "hello-world/matching-one-rule[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-b[Deployment]",
+      "dst": "hello-world/matching-two-rules[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "hello-world/workload-b[Deployment]",
+      "dst": "hello-world/workload-a[Deployment]",
+      "conn": "TCP 8080,9090"
+    }
+  ],
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "hello-world/matching-one-rule[Deployment]",
+        "dst": "0.0.0.0-255.255.255.255",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/matching-one-rule[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/matching-two-rules[Deployment]",
+        "dst": "0.0.0.0-255.255.255.255",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/matching-two-rules[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/workload-a[Deployment]",
+        "dst": "0.0.0.0-255.255.255.255",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/workload-a[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/workload-b[Deployment]",
+        "dst": "0.0.0.0-255.255.255.255",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/workload-b[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "0.0.0.0-255.255.255.255",
+        "dst": "hello-world/matching-one-rule[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "hello-world/matching-one-rule[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "0.0.0.0-255.255.255.255",
+        "dst": "hello-world/matching-two-rules[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "hello-world/matching-two-rules[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/[pod with {{Key:role,Operator:NotIn,Values:[w x y z],}}]",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "TCP 8080,9090"
+      },
+      {
+        "src": "hello-world/[pod with {{Key:role,Operator:NotIn,Values:[x y],}}]",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "TCP 9090"
+      },
+      {
+        "src": "0.0.0.0-255.255.255.255",
+        "dst": "hello-world/workload-b[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "hello-world/workload-b[Deployment]",
+        "conn": "All Connections"
+      }
+    ]
+  }
+}

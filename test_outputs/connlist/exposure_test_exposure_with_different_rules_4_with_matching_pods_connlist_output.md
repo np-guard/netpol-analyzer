@@ -1,0 +1,45 @@
+| src | dst | conn |
+|-----|-----|------|
+| 0.0.0.0-255.255.255.255 | hello-world/matching-one-rule[Deployment] | All Connections |
+| 0.0.0.0-255.255.255.255 | hello-world/matching-two-rules[Deployment] | All Connections |
+| 0.0.0.0-255.255.255.255 | hello-world/workload-b[Deployment] | All Connections |
+| hello-world/matching-one-rule[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/matching-one-rule[Deployment] | hello-world/matching-two-rules[Deployment] | All Connections |
+| hello-world/matching-one-rule[Deployment] | hello-world/workload-a[Deployment] | TCP 9090 |
+| hello-world/matching-one-rule[Deployment] | hello-world/workload-b[Deployment] | All Connections |
+| hello-world/matching-two-rules[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/matching-two-rules[Deployment] | hello-world/matching-one-rule[Deployment] | All Connections |
+| hello-world/matching-two-rules[Deployment] | hello-world/workload-a[Deployment] | TCP 8080,9090 |
+| hello-world/matching-two-rules[Deployment] | hello-world/workload-b[Deployment] | All Connections |
+| hello-world/workload-a[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/workload-a[Deployment] | hello-world/matching-one-rule[Deployment] | All Connections |
+| hello-world/workload-a[Deployment] | hello-world/matching-two-rules[Deployment] | All Connections |
+| hello-world/workload-a[Deployment] | hello-world/workload-b[Deployment] | All Connections |
+| hello-world/workload-b[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/workload-b[Deployment] | hello-world/matching-one-rule[Deployment] | All Connections |
+| hello-world/workload-b[Deployment] | hello-world/matching-two-rules[Deployment] | All Connections |
+| hello-world/workload-b[Deployment] | hello-world/workload-a[Deployment] | TCP 8080,9090 |
+## Exposure Analysis Result:
+### Egress Exposure:
+| src | dst | conn |
+|-----|-----|------|
+| hello-world/matching-one-rule[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/matching-one-rule[Deployment] | entire-cluster | All Connections |
+| hello-world/matching-two-rules[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/matching-two-rules[Deployment] | entire-cluster | All Connections |
+| hello-world/workload-a[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/workload-a[Deployment] | entire-cluster | All Connections |
+| hello-world/workload-b[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/workload-b[Deployment] | entire-cluster | All Connections |
+
+### Ingress Exposure:
+| dst | src | conn |
+|-----|-----|------|
+| hello-world/matching-one-rule[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/matching-one-rule[Deployment] | entire-cluster | All Connections |
+| hello-world/matching-two-rules[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/matching-two-rules[Deployment] | entire-cluster | All Connections |
+| hello-world/workload-a[Deployment] | hello-world/[pod with {{Key:role,Operator:NotIn,Values:[w x y z],}}] | TCP 8080,9090 |
+| hello-world/workload-a[Deployment] | hello-world/[pod with {{Key:role,Operator:NotIn,Values:[x y],}}] | TCP 9090 |
+| hello-world/workload-b[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/workload-b[Deployment] | entire-cluster | All Connections |
