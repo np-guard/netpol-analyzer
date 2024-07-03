@@ -17,8 +17,10 @@ import (
 type Namespace struct {
 	Name   string
 	Labels map[string]string
-	// RepresentativeNsRequirements list of requirements to be applied by namespace labels in case of representative namespace
-	RepresentativeNsRequirements []v1.LabelSelectorRequirement
+	// RepresentativeNsLabelSelector points to the namespaceSelector of the policy rule which this
+	// representative namespace was inferred from
+	// used only with representative peers (exposure-analysis)
+	RepresentativeNsLabelSelector *v1.LabelSelector
 }
 
 // @todo need a Namespace collection type along with convenience methods?

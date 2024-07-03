@@ -123,9 +123,9 @@
 <!-- hello&#45;world/workload&#45;b[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge14" class="edge">
 <title>hello&#45;world/workload&#45;b[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M551.91,-118.81C736.3,-154.7 1244.39,-254.14 1250,-261 1268.85,-284.05 1268.94,-305.02 1250,-328 1241.51,-338.31 1145.21,-349.01 1132,-351 1041.55,-364.6 936.34,-374.82 869.72,-380.61"/>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M551.19,-118.95C735.49,-155.58 1247.19,-257.56 1250,-261 1268.85,-284.05 1268.94,-305.02 1250,-328 1241.51,-338.31 1145.21,-349.01 1132,-351 1041.55,-364.6 936.34,-374.82 869.72,-380.61"/>
 <polygon fill="#8b4500" stroke="#8b4500" points="869.03,-377.15 859.37,-381.5 869.63,-384.13 869.03,-377.15"/>
-<text text-anchor="middle" x="1218.5" y="-231.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
+<text text-anchor="middle" x="1208.5" y="-231.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- pod with {{Key:app,Operator:DoesNotExist,Values:[],}}_in_hello&#45;world -->
 <g id="node4" class="node">
@@ -138,7 +138,7 @@
 <title>pod with {{Key:app,Operator:DoesNotExist,Values:[],}}_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
 <path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M516.56,-260.68C518.42,-250.96 519.59,-238.68 517,-228 516.31,-225.14 515.34,-222.24 514.2,-219.41"/>
 <polygon fill="#ee7600" stroke="#ee7600" points="517.28,-217.74 509.88,-210.17 510.94,-220.71 517.28,-217.74"/>
-<text text-anchor="middle" x="562.5" y="-231.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080,9090</text>
+<text text-anchor="middle" x="547" y="-231.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
 </g>
 <!-- pod with {{Key:app,Operator:NotIn,Values:[x],}}_in_hello&#45;world -->
 <g id="node5" class="node">
@@ -177,8 +177,8 @@
 <!-- entire&#45;cluster&#45;&gt;hello&#45;world/workload&#45;b[Deployment] -->
 <g id="edge4" class="edge">
 <title>entire&#45;cluster&#45;&gt;hello&#45;world/workload&#45;b[Deployment]</title>
-<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M867.78,-383.36C996.38,-377.44 1273.91,-360.94 1301,-328 1319.92,-305 1317.15,-286.02 1301,-261 1225.83,-144.52 802.88,-115.57 597.68,-108.38"/>
-<polygon fill="#ee7600" stroke="#ee7600" points="597.59,-104.87 587.48,-108.03 597.35,-111.87 597.59,-104.87"/>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M867.78,-383.36C996.38,-377.44 1273.91,-360.94 1301,-328 1319.92,-305 1317.39,-285.86 1301,-261 1224.69,-145.27 802.31,-115.94 597.47,-108.52"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="597.4,-105.01 587.29,-108.16 597.16,-112.01 597.4,-105.01"/>
 <text text-anchor="middle" x="1328.5" y="-231.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 </g>

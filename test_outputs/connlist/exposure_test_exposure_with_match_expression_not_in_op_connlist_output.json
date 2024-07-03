@@ -41,11 +41,6 @@
         "conn": "All Connections"
       },
       {
-        "src": "hello-world/[pod with {{Key:app,Operator:NotIn,Values:[a-app b-app],}}]",
-        "dst": "hello-world/workload-a[Deployment]",
-        "conn": "All Connections"
-      },
-      {
         "src": "0.0.0.0-255.255.255.255",
         "dst": "hello-world/workload-b[Deployment]",
         "conn": "All Connections"

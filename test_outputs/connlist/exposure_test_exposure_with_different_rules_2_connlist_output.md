@@ -18,6 +18,6 @@
 | dst | src | conn |
 |-----|-----|------|
 | hello-world/workload-a[Deployment] | hello-world/[pod with {{Key:app,Operator:Exists,Values:[],}}] | TCP 8080 |
-| hello-world/workload-a[Deployment] | hello-world/[pod with {{Key:app,Operator:In,Values:[x],}}] | TCP 8080,9090 |
+| hello-world/workload-a[Deployment] | hello-world/[pod with {{Key:app,Operator:In,Values:[x],}}] | TCP 9090 |
 | hello-world/workload-b[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
 | hello-world/workload-b[Deployment] | entire-cluster | All Connections |

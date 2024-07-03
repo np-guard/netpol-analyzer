@@ -30,7 +30,7 @@ matching-ns2/matching-rule2-and-1[Deployment],0.0.0.0-255.255.255.255,All Connec
 matching-ns2/matching-rule2-and-1[Deployment],entire-cluster,All Connections
 Ingress Exposure:,,
 dst,src,conn
-hello-world/workload-a[Deployment],"[namespace with {env=env-1,foo=managed}]/[pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}]","TCP 8080,9090"
+hello-world/workload-a[Deployment],"[namespace with {env=env-1,foo=managed}]/[pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}]",TCP 8080
 hello-world/workload-a[Deployment],"[namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}]/[pod with {app=app-x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}]",TCP 9090
 hello-world/workload-b[Deployment],0.0.0.0-255.255.255.255,All Connections
 hello-world/workload-b[Deployment],entire-cluster,All Connections

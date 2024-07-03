@@ -19,5 +19,5 @@ digraph {
 	"hello-world/workload-b[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
 	"hello-world/workload-b[Deployment]" -> "hello-world/workload-a[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=1]
 	"pod with {{Key:app,Operator:Exists,Values:[],}}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="TCP 8080" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
-	"pod with {{Key:app,Operator:In,Values:[x],}}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="TCP 8080,9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"pod with {{Key:app,Operator:In,Values:[x],}}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="TCP 9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 }

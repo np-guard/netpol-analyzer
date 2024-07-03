@@ -46,5 +46,4 @@ digraph {
 	"matching-ns/matching-workload1[Deployment]" -> "hello-world/matching-workload2[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"matching-ns/matching-workload1[Deployment]" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"matching-ns/matching-workload1[Deployment]" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"pod with {{Key:app,Operator:DoesNotExist,Values:[],}}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 }

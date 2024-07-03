@@ -59,14 +59,14 @@ type WorkloadPeer struct {
 type RepresentativePeer struct {
 	// Pod is a fake pod originated as following:
 	// - if inferred from a policy rule, which contains only non-empty namespaceSelector; the pod's namespace is a fake namespace
-	// with the labels and requirements from the selector
+	// with the labelSelector from the rule's namespaceSelector
 	// - if inferred from a policy rule, which contains only podSelector; the pod's namespace is same as the policy's namespace;
-	// and pod's labels and requirements are taken from the podSelector
+	// and pod's labelSelector is taken from the rule's podSelector
 	// - if inferred from selector combining a namespaceSelector and a podSelector:
-	// the pod's labels and requirements will contain the podSelector's ones
+	// the pod's labelSelector will contain the reference to rule's podSelector
 	// and its namespace is a fake namespace with the namespaceSelector
 	Pod                             *Pod
-	PotentialNamespaceLabelSelector v1.LabelSelector
+	PotentialNamespaceLabelSelector *v1.LabelSelector
 }
 
 const podKind = "Pod"

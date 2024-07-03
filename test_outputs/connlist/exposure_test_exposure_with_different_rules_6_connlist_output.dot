@@ -27,6 +27,6 @@ digraph {
 	"hello-world/workload-a[Deployment]" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"hello-world/workload-b[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"hello-world/workload-b[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
-	"pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}_in_namespace with {env=env-1,foo=managed}" -> "hello-world/workload-a[Deployment]" [label="TCP 8080,9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}_in_namespace with {env=env-1,foo=managed}" -> "hello-world/workload-a[Deployment]" [label="TCP 8080" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 	"pod with {app=app-x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}_in_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}" -> "hello-world/workload-a[Deployment]" [label="TCP 9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 }

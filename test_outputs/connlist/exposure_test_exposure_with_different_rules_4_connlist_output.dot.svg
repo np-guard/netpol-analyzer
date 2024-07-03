@@ -90,7 +90,7 @@
 <title>pod with {{Key:role,Operator:NotIn,Values:[w x y z],}}_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
 <path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M744.94,-261.81C684.72,-246.8 595.53,-224.57 534.95,-209.47"/>
 <polygon fill="#ee7600" stroke="#ee7600" points="535.66,-206.04 525.11,-207.01 533.97,-212.83 535.66,-206.04"/>
-<text text-anchor="middle" x="703.39" y="-231.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080,9090</text>
+<text text-anchor="middle" x="687.89" y="-231.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
 </g>
 <!-- pod with {{Key:role,Operator:NotIn,Values:[x y],}}_in_hello&#45;world -->
 <g id="node4" class="node">

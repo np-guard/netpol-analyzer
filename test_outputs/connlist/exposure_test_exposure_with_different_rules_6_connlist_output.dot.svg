@@ -13,74 +13,74 @@
 <polygon fill="none" stroke="#ee0000" points="8,-274 8,-349 478,-349 478,-274 8,-274"/>
 <text text-anchor="middle" x="243" y="-333.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {env=env&#45;1,foo=managed}</text>
 </g>
+<g id="clust1" class="cluster">
+<title>cluster_hello_world</title>
+<polygon fill="none" stroke="black" points="472,-79 472,-241 694,-241 694,-79 472,-79"/>
+<text text-anchor="middle" x="583" y="-225.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
+</g>
 <g id="clust3" class="cluster">
 <title>cluster_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}</title>
 <polygon fill="none" stroke="#ee0000" points="486,-274 486,-349 1151,-349 1151,-274 486,-274"/>
 <text text-anchor="middle" x="818.5" y="-333.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}</text>
 </g>
-<g id="clust1" class="cluster">
-<title>cluster_hello_world</title>
-<polygon fill="none" stroke="black" points="469,-79 469,-241 691,-241 691,-79 469,-79"/>
-<text text-anchor="middle" x="580" y="-225.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
-</g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
 <g id="node1" class="node">
 <title>hello&#45;world/workload&#45;a[Deployment]</title>
-<ellipse fill="none" stroke="blue" cx="582" cy="-192" rx="101.28" ry="18"/>
-<text text-anchor="middle" x="582" y="-188.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">workload&#45;a[Deployment]</text>
+<ellipse fill="none" stroke="blue" cx="585" cy="-192" rx="101.28" ry="18"/>
+<text text-anchor="middle" x="585" y="-188.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">workload&#45;a[Deployment]</text>
 </g>
 <!-- hello&#45;world/workload&#45;b[Deployment] -->
 <g id="node2" class="node">
 <title>hello&#45;world/workload&#45;b[Deployment]</title>
-<ellipse fill="none" stroke="blue" cx="580" cy="-105" rx="102.88" ry="18"/>
-<text text-anchor="middle" x="580" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">workload&#45;b[Deployment]</text>
+<ellipse fill="none" stroke="blue" cx="583" cy="-105" rx="102.88" ry="18"/>
+<text text-anchor="middle" x="583" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">workload&#45;b[Deployment]</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;hello&#45;world/workload&#45;b[Deployment] -->
 <g id="edge5" class="edge">
 <title>hello&#45;world/workload&#45;a[Deployment]&#45;&gt;hello&#45;world/workload&#45;b[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M581.6,-173.8C581.32,-162.16 580.95,-146.55 580.64,-133.24"/>
-<polygon fill="#eec900" stroke="#eec900" points="584.14,-133.09 580.4,-123.18 577.14,-133.26 584.14,-133.09"/>
-<text text-anchor="middle" x="626.5" y="-144.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
+<path fill="none" stroke="#eec900" d="M584.6,-173.8C584.32,-162.16 583.95,-146.55 583.64,-133.24"/>
+<polygon fill="#eec900" stroke="#eec900" points="587.14,-133.09 583.4,-123.18 580.14,-133.26 587.14,-133.09"/>
+<text text-anchor="middle" x="629.5" y="-144.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255 -->
 <g id="node5" class="node">
 <title>0.0.0.0&#45;255.255.255.255</title>
-<ellipse fill="none" stroke="#ee0000" cx="596" cy="-18" rx="98.58" ry="18"/>
-<text text-anchor="middle" x="596" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255</text>
+<ellipse fill="none" stroke="#ee0000" cx="599" cy="-18" rx="98.58" ry="18"/>
+<text text-anchor="middle" x="599" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge3" class="edge">
 <title>hello&#45;world/workload&#45;a[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
-<path fill="none" stroke="#eec900" d="M638.53,-176.95C651.77,-171.84 665.16,-165.02 676,-156 710.62,-127.18 716.01,-112.42 728,-69 733.93,-47.5 718.97,-34.97 697.22,-27.75"/>
-<polygon fill="#eec900" stroke="#eec900" points="698.1,-24.36 687.52,-24.97 696.17,-31.09 698.1,-24.36"/>
-<text text-anchor="middle" x="769.5" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
+<path fill="none" stroke="#eec900" d="M641.53,-176.95C654.77,-171.84 668.16,-165.02 679,-156 713.62,-127.18 719.01,-112.42 731,-69 736.93,-47.5 721.97,-34.97 700.22,-27.75"/>
+<polygon fill="#eec900" stroke="#eec900" points="701.1,-24.36 690.52,-24.97 699.17,-31.09 701.1,-24.36"/>
+<text text-anchor="middle" x="772.5" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- entire&#45;cluster -->
 <g id="node6" class="node">
 <title>entire&#45;cluster</title>
-<polygon fill="none" stroke="#ee0000" points="291,-210 210.23,-192 291,-174 371.77,-192 291,-210"/>
-<text text-anchor="middle" x="291" y="-188.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">entire&#45;cluster</text>
+<polygon fill="none" stroke="#ee0000" points="294,-210 213.23,-192 294,-174 374.77,-192 294,-210"/>
+<text text-anchor="middle" x="294" y="-188.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">entire&#45;cluster</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge4" class="edge">
 <title>hello&#45;world/workload&#45;a[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M480.61,-192C448.55,-192 413.35,-192 382.07,-192"/>
-<polygon fill="#8b4500" stroke="#8b4500" points="382.06,-188.5 372.06,-192 382.06,-195.5 382.06,-188.5"/>
-<text text-anchor="middle" x="426.25" y="-198.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M483.61,-192C451.55,-192 416.35,-192 385.07,-192"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="385.06,-188.5 375.06,-192 385.06,-195.5 385.06,-188.5"/>
+<text text-anchor="middle" x="429.25" y="-198.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- hello&#45;world/workload&#45;b[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge6" class="edge">
 <title>hello&#45;world/workload&#45;b[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
-<path fill="none" stroke="#eec900" d="M550.98,-87.52C538.8,-78.36 528.92,-66.33 536,-54 538.96,-48.84 543.01,-44.37 547.62,-40.52"/>
-<polygon fill="#eec900" stroke="#eec900" points="549.75,-43.29 555.8,-34.6 545.65,-37.62 549.75,-43.29"/>
-<text text-anchor="middle" x="581.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
+<path fill="none" stroke="#eec900" d="M553.98,-87.52C541.8,-78.36 531.92,-66.33 539,-54 541.96,-48.84 546.01,-44.37 550.62,-40.52"/>
+<polygon fill="#eec900" stroke="#eec900" points="552.75,-43.29 558.8,-34.6 548.65,-37.62 552.75,-43.29"/>
+<text text-anchor="middle" x="584.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- hello&#45;world/workload&#45;b[Deployment]&#45;&gt;entire&#45;cluster -->
 <g id="edge7" class="edge">
 <title>hello&#45;world/workload&#45;b[Deployment]&#45;&gt;entire&#45;cluster</title>
-<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M482.55,-110.84C421.29,-115.48 349.09,-124.34 323,-141 313.62,-146.99 306.46,-156.83 301.31,-166.2"/>
-<polygon fill="#8b4500" stroke="#8b4500" points="298.13,-164.74 296.83,-175.25 304.41,-167.84 298.13,-164.74"/>
-<text text-anchor="middle" x="368.5" y="-144.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
+<path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M485.55,-110.84C424.29,-115.48 352.09,-124.34 326,-141 316.62,-146.99 309.46,-156.83 304.31,-166.2"/>
+<polygon fill="#8b4500" stroke="#8b4500" points="301.13,-164.74 299.83,-175.25 307.41,-167.84 301.13,-164.74"/>
+<text text-anchor="middle" x="371.5" y="-144.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- pod with {app=app&#45;x,{Key:role,Operator:In,Values:[api],}}_in_namespace with {env=env&#45;1,foo=managed} -->
 <g id="node3" class="node">
@@ -91,9 +91,9 @@
 <!-- pod with {app=app&#45;x,{Key:role,Operator:In,Values:[api],}}_in_namespace with {env=env&#45;1,foo=managed}&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
 <g id="edge8" class="edge">
 <title>pod with {app=app&#45;x,{Key:role,Operator:In,Values:[api],}}_in_namespace with {env=env&#45;1,foo=managed}&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
-<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M295.97,-282.44C358.01,-263.04 460.43,-231.01 524.4,-211.01"/>
-<polygon fill="#ee7600" stroke="#ee7600" points="525.83,-214.23 534.33,-207.91 523.74,-207.55 525.83,-214.23"/>
-<text text-anchor="middle" x="446.5" y="-252.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080,9090</text>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M296.44,-282.44C359.16,-263 462.78,-230.88 527.29,-210.89"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="528.39,-214.21 536.91,-207.91 526.32,-207.52 528.39,-214.21"/>
+<text text-anchor="middle" x="432" y="-252.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 8080</text>
 </g>
 <!-- pod with {app=app&#45;x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}_in_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}} -->
 <g id="node4" class="node">
@@ -104,23 +104,23 @@
 <!-- pod with {app=app&#45;x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}_in_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
 <g id="edge9" class="edge">
 <title>pod with {app=app&#45;x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}_in_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
-<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M770.85,-281.97C731.24,-263.31 667.71,-233.38 625.43,-213.46"/>
-<polygon fill="#ee7600" stroke="#ee7600" points="626.75,-210.22 616.22,-209.12 623.77,-216.55 626.75,-210.22"/>
-<text text-anchor="middle" x="756" y="-252.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 9090</text>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M771.33,-281.97C732.25,-263.31 669.57,-233.38 627.85,-213.46"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="629.29,-210.27 618.76,-209.12 626.28,-216.59 629.29,-210.27"/>
+<text text-anchor="middle" x="757" y="-252.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 9090</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;hello&#45;world/workload&#45;b[Deployment] -->
 <g id="edge1" class="edge">
 <title>0.0.0.0&#45;255.255.255.255&#45;&gt;hello&#45;world/workload&#45;b[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M619.2,-35.9C629.1,-45.28 637.12,-57.37 631,-69 628.56,-73.63 625.2,-77.77 621.36,-81.43"/>
-<polygon fill="#eec900" stroke="#eec900" points="619,-78.84 613.5,-87.9 623.44,-84.25 619,-78.84"/>
-<text text-anchor="middle" x="678.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
+<path fill="none" stroke="#eec900" d="M622.2,-35.9C632.1,-45.28 640.12,-57.37 634,-69 631.56,-73.63 628.2,-77.77 624.36,-81.43"/>
+<polygon fill="#eec900" stroke="#eec900" points="622,-78.84 616.5,-87.9 626.44,-84.25 622,-78.84"/>
+<text text-anchor="middle" x="681.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- entire&#45;cluster&#45;&gt;hello&#45;world/workload&#45;b[Deployment] -->
 <g id="edge2" class="edge">
 <title>entire&#45;cluster&#45;&gt;hello&#45;world/workload&#45;b[Deployment]</title>
-<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M324.15,-181.25C371.9,-167.2 460.82,-141.05 520.21,-123.58"/>
-<polygon fill="#ee7600" stroke="#ee7600" points="521.24,-126.93 529.85,-120.75 519.26,-120.22 521.24,-126.93"/>
-<text text-anchor="middle" x="497.5" y="-144.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M327.15,-181.25C374.9,-167.2 463.82,-141.05 523.21,-123.58"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="524.24,-126.93 532.85,-120.75 522.26,-120.22 524.24,-126.93"/>
+<text text-anchor="middle" x="500.5" y="-144.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 </g>
 </svg>

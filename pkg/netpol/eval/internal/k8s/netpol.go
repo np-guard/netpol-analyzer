@@ -200,25 +200,22 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			// peer is a pod
 			peerMatchesPodSelector := false
 			peerMatchesNamespaceSelector := false
+			var err error
+			var selector labels.Selector
 			if rulePeers[i].NamespaceSelector == nil {
 				peerMatchesNamespaceSelector = (np.ObjectMeta.Namespace == peer.GetPeerPod().Namespace)
 			} else {
-				selector, err := np.parseNetpolLabelSelector(rulePeers[i].NamespaceSelector)
-				if err != nil {
-					return false, err
-				}
 				peerNamespace := peer.GetPeerNamespace()
 				// checking if a selector matches labels by peer type; since representative peers selectors may need special handling
 				if isRepresentativePod(peer) {
-					// representative peer's namespace labels may be inferred from a rule with special matchExpression requirements
-					// and also contains the representative ns name label which is not relevant for comparison
-					peerMatchesNamespaceSelector, err = SelectorMatchesRepresentativePeerLabels(selector, peerNamespace.Labels,
-						peerNamespace.RepresentativeNsRequirements)
-					if err != nil {
-						return false, err
-					}
+					// representative peer's is inferred from a rule with its labelSelector
+					peerMatchesNamespaceSelector, err = areRequirementsEqual(rulePeers[i].NamespaceSelector, peerNamespace.RepresentativeNsLabelSelector)
 				} else {
+					selector, err = np.parseNetpolLabelSelector(rulePeers[i].NamespaceSelector)
 					peerMatchesNamespaceSelector = selector.Matches(labels.Set(peerNamespace.Labels))
+				}
+				if err != nil {
+					return false, err
 				}
 			}
 			if !peerMatchesNamespaceSelector {
@@ -227,19 +224,15 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			if rulePeers[i].PodSelector == nil {
 				peerMatchesPodSelector = true
 			} else {
-				selector, err := np.parseNetpolLabelSelector(rulePeers[i].PodSelector)
-				if err != nil {
-					return false, err
-				}
 				// checking if a selector matches labels by peer type; since representative peers selectors may need special handling
 				if isRepresentativePod(peer) {
-					peerMatchesPodSelector, err = SelectorMatchesRepresentativePeerLabels(selector, peer.GetPeerPod().Labels,
-						peer.GetPeerPod().RepresentativePodRequirements)
-					if err != nil {
-						return false, err
-					}
+					peerMatchesPodSelector, err = areRequirementsEqual(rulePeers[i].PodSelector, peer.GetPeerPod().RepresentativeLabelSelector)
 				} else {
+					selector, err = np.parseNetpolLabelSelector(rulePeers[i].PodSelector)
 					peerMatchesPodSelector = selector.Matches(labels.Set(peer.GetPeerPod().Labels))
+				}
+				if err != nil {
+					return false, err
 				}
 			}
 			if peerMatchesPodSelector {
@@ -479,10 +472,10 @@ func (np *NetworkPolicy) fullName() string {
 // SingleRuleSelectors contains LabelSelector objects representing namespaceSelector or/and podSelector
 // of a single rule in the policy
 type SingleRuleSelectors struct {
-	NsSelector  metav1.LabelSelector
-	PodSelector metav1.LabelSelector
+	NsSelector  *metav1.LabelSelector
+	PodSelector *metav1.LabelSelector
 	// policyNsFlag indicates if the rule contains only podSelector;
-	// so the NsLabels map contains only the default name key of the policy's namespace
+	// so the representative peer will be created in the policy's namespace
 	PolicyNsFlag bool
 }
 
@@ -561,25 +554,15 @@ func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.Net
 			err = np.updateNetworkPolicyGeneralConn(false, true, rulePorts, isIngress)
 			return nil, err
 		}
-		// else selectors' combination specifies end-points
-		switch { // cases of ns selector
-		case rules[i].NamespaceSelector == nil:
+		// else selectors' combination specifies end-points (at least one is not nil)
+		ruleSel.PodSelector = rules[i].PodSelector
+		ruleSel.NsSelector = rules[i].NamespaceSelector
+		if rules[i].NamespaceSelector == nil {
 			// special case: ns selector is nil but podSelector is not, so the namespace of the rule is
-			// the policy's namespace; adding the k8s namespace name key to ruleSel.NsLabels
+			// the policy's namespace; (turn on the indicator)
 			ruleSel.PolicyNsFlag = true
 			nsNameLabelSel := map[string]string{common.K8sNsNameLabelKey: np.Namespace}
-			ruleSel.NsSelector = metav1.LabelSelector{MatchLabels: nsNameLabelSel}
-		case rules[i].NamespaceSelector.Size() == 0:
-			ruleSel.NsSelector = metav1.LabelSelector{}
-		default:
-			ruleSel.NsSelector = *rules[i].NamespaceSelector.DeepCopy()
-		}
-		// cases of podSelector
-		switch {
-		case rules[i].PodSelector != nil:
-			ruleSel.PodSelector = *rules[i].PodSelector.DeepCopy()
-		default:
-			ruleSel.PodSelector = metav1.LabelSelector{}
+			ruleSel.NsSelector = &metav1.LabelSelector{MatchLabels: nsNameLabelSel}
 		}
 		rulesSelectors = append(rulesSelectors, ruleSel)
 	}

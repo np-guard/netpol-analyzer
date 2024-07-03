@@ -48,7 +48,7 @@
       {
         "src": "[namespace with {env=env-1,foo=managed}]/[pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}]",
         "dst": "hello-world/workload-a[Deployment]",
-        "conn": "TCP 8080,9090"
+        "conn": "TCP 8080"
       },
       {
         "src": "[namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}]/[pod with {app=app-x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}]",

@@ -103,7 +103,7 @@
       {
         "src": "hello-world/[pod with {{Key:app,Operator:DoesNotExist,Values:[],}}]",
         "dst": "hello-world/workload-a[Deployment]",
-        "conn": "TCP 8080,9090"
+        "conn": "TCP 8080"
       },
       {
         "src": "hello-world/[pod with {{Key:app,Operator:NotIn,Values:[x],}}]",

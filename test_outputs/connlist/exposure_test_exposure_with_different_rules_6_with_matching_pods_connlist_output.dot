@@ -57,6 +57,6 @@ digraph {
 	"matching-ns2/matching-rule2-and-1[Deployment]" -> "hello-world/workload-a[Deployment]" [label="TCP 8080,9090" color="gold2" fontcolor="darkgreen" weight=1]
 	"matching-ns2/matching-rule2-and-1[Deployment]" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"matching-ns2/matching-rule2-and-1[Deployment]" -> "matching-ns1/matching-rule1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}_in_namespace with {env=env-1,foo=managed}" -> "hello-world/workload-a[Deployment]" [label="TCP 8080,9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}_in_namespace with {env=env-1,foo=managed}" -> "hello-world/workload-a[Deployment]" [label="TCP 8080" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 	"pod with {app=app-x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}_in_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}" -> "hello-world/workload-a[Deployment]" [label="TCP 9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 }

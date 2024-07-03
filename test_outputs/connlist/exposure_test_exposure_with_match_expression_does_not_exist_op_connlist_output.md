@@ -15,6 +15,5 @@
 | dst | src | conn |
 |-----|-----|------|
 | hello-world/workload-a[Deployment] | [namespace with {{Key:env,Operator:DoesNotExist,Values:[],}}]/[all pods] | All Connections |
-| hello-world/workload-a[Deployment] | hello-world/[pod with {{Key:app,Operator:DoesNotExist,Values:[],}}] | All Connections |
 | hello-world/workload-b[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
 | hello-world/workload-b[Deployment] | entire-cluster | All Connections |

@@ -58,7 +58,7 @@
       {
         "src": "hello-world/[pod with {{Key:app,Operator:In,Values:[x],}}]",
         "dst": "hello-world/workload-a[Deployment]",
-        "conn": "TCP 8080,9090"
+        "conn": "TCP 9090"
       },
       {
         "src": "0.0.0.0-255.255.255.255",
