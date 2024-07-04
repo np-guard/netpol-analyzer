@@ -16,19 +16,15 @@ import (
 )
 
 const (
-	ipColor        = "red2"
-	nonIPPeerColor = "blue"
+	ipColor           = "red2"
+	nonIPPeerColor    = "blue"
+	connlistEdgeColor = "gold2"
+	edgeFontColor     = "darkgreen"
 )
 
 // formatDOT: implements the connsFormatter interface for dot output format
 type formatDOT struct {
 	peersList []Peer // internally used peersList; in case of focusWorkload option contains only relevant peers
-}
-
-// formats an edge line from a singleConnFields struct , to be used for dot graph
-func getEdgeLine(c Peer2PeerConnection) string {
-	connStr := common.ConnStrFromConnProperties(c.AllProtocolsAndPorts(), c.ProtocolsAndPorts())
-	return fmt.Sprintf("\t%q -> %q [label=%q color=\"gold2\" fontcolor=\"darkgreen\"]", c.Src().String(), c.Dst().String(), connStr)
 }
 
 // returns the peer label and color to be represented in the graph, and whether the peer is external to cluster's namespaces
@@ -68,9 +64,11 @@ func (d formatDOT) writeOutput(conns []Peer2PeerConnection) (string, error) {
 	edgeLines := make([]string, len(conns))  // list of edges lines
 	peersVisited := make(map[string]bool, 0) // acts as a set
 	for index := range conns {
-		edgeLines[index] = getEdgeLine(conns[index])
-		externalPeersLines = categorizeAndAddPeerLine(conns[index].Src(), peersVisited, externalPeersLines, nsPeers)
-		externalPeersLines = categorizeAndAddPeerLine(conns[index].Dst(), peersVisited, externalPeersLines, nsPeers)
+		c := conns[index]
+		connStr := common.ConnStrFromConnProperties(c.AllProtocolsAndPorts(), c.ProtocolsAndPorts())
+		edgeLines[index] = dotformatting.GetEdgeLine(c.Src().String(), c.Dst().String(), connStr, connlistEdgeColor, edgeFontColor)
+		externalPeersLines = categorizeAndAddPeerLine(c.Src(), peersVisited, externalPeersLines, nsPeers)
+		externalPeersLines = categorizeAndAddPeerLine(c.Dst(), peersVisited, externalPeersLines, nsPeers)
 	}
 	for _, val := range d.peersList {
 		if !val.IsPeerIPType() {

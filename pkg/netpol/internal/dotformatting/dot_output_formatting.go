@@ -7,14 +7,18 @@ SPDX-License-Identifier: Apache-2.0
 package dotformatting
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 )
 
 // common dot output formatting consts and funcs
 const (
-	DotHeader  = "digraph {"
-	DotClosing = "}"
+	DotHeader       = "digraph {"
+	DotClosing      = "}"
+	EdgeWeightLabel = "weight"
+	LessWeight      = "0.5"
+	MoreWeight      = "1"
 )
 
 // AddPeerToNsGroup adds the peer line to the namespace list in the given map.
@@ -58,4 +62,16 @@ func sortMapKeys(nsPeersMap map[string][]string) []string {
 	}
 	sort.Strings(keys)
 	return keys
+}
+
+// returns a single edge line string in the dot format
+func GetEdgeLine(src, dst, connStr, edgeColor, fontColor string) string {
+	var weight string
+	if src <= dst {
+		weight = LessWeight
+	} else {
+		weight = MoreWeight
+	}
+	return fmt.Sprintf("\t%q -> %q [label=%q color=%q fontcolor=%q %s=%s]",
+		src, dst, connStr, edgeColor, fontColor, EdgeWeightLabel, weight)
 }
