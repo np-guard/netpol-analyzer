@@ -18,6 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
 	"github.com/np-guard/models/pkg/ipblock"
 
@@ -35,7 +36,8 @@ type (
 		netpolsMap                      map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
 		podOwnersToRepresentativePodMap map[string]map[string]*k8s.Pod           // map from namespace to map from pods' ownerReference name
 		// to its representative pod object
-		cache *evalCache
+		adminNetpolsMap map[string]*k8s.AdminNetworkPolicy // map from adminNetworkPolicy name to its object
+		cache           *evalCache
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -55,6 +57,7 @@ func NewPolicyEngine() *PolicyEngine {
 		podsMap:                         make(map[string]*k8s.Pod),
 		netpolsMap:                      make(map[string]map[string]*k8s.NetworkPolicy),
 		podOwnersToRepresentativePodMap: make(map[string]map[string]*k8s.Pod),
+		adminNetpolsMap:                 make(map[string]*k8s.AdminNetworkPolicy),
 		cache:                           newEvalCache(),
 	}
 }
@@ -85,6 +88,8 @@ func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, erro
 			err = pe.UpsertObject(obj.Job)
 		case parser.CronJob:
 			err = pe.UpsertObject(obj.CronJob)
+		case parser.AdminNetworkPolicy:
+			err = pe.UpsertObject(obj.AdminNetworkPolicy)
 		case parser.Service, parser.Route, parser.Ingress:
 			continue
 		default:
@@ -181,6 +186,8 @@ func (pe *PolicyEngine) UpsertObject(rtobj runtime.Object) error {
 		return pe.upsertWorkload(obj, parser.CronJob)
 	case *batchv1.Job:
 		return pe.upsertWorkload(obj, parser.Job)
+	case *apisv1a.AdminNetworkPolicy:
+		return pe.upsertAdminNetworkPolicy(obj)
 	}
 	return nil
 }
@@ -194,6 +201,8 @@ func (pe *PolicyEngine) DeleteObject(rtobj runtime.Object) error {
 		return pe.deletePod(obj)
 	case *netv1.NetworkPolicy:
 		return pe.deleteNetworkPolicy(obj)
+	case *apisv1a.AdminNetworkPolicy:
+		return pe.deleteAdminNetworkPolicy(obj)
 	}
 	return nil
 }
@@ -205,6 +214,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.netpolsMap = make(map[string]map[string]*k8s.NetworkPolicy)
 	pe.podOwnersToRepresentativePodMap = make(map[string]map[string]*k8s.Pod)
 	pe.cache = newEvalCache()
+	pe.adminNetpolsMap = make(map[string]*k8s.AdminNetworkPolicy)
 }
 
 func (pe *PolicyEngine) upsertNamespace(ns *corev1.Namespace) error {
@@ -321,6 +331,11 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 	return nil
 }
 
+func (pe *PolicyEngine) upsertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy) error {
+	pe.adminNetpolsMap[anp.Name] = (*k8s.AdminNetworkPolicy)(anp)
+	return nil
+}
+
 func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
 	delete(pe.namspacesMap, ns.Name)
 	return nil
@@ -376,6 +391,11 @@ func (pe *PolicyEngine) deleteNetworkPolicy(np *netv1.NetworkPolicy) error {
 
 	// clear the cache on netpols changes
 	pe.cache.clear()
+	return nil
+}
+
+func (pe *PolicyEngine) deleteAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy) error {
+	delete(pe.adminNetpolsMap, anp.Name)
 	return nil
 }
 
@@ -468,9 +488,11 @@ func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace st
 func (pe *PolicyEngine) ConvertPeerNamedPort(namedPort string, peer Peer) (int32, error) {
 	switch currPeer := peer.(type) {
 	case *k8s.WorkloadPeer:
-		return currPeer.Pod.ConvertPodNamedPort(namedPort), nil
+		_, portNum := currPeer.Pod.ConvertPodNamedPort(namedPort)
+		return portNum, nil
 	case *k8s.PodPeer:
-		return currPeer.Pod.ConvertPodNamedPort(namedPort), nil
+		_, portNum := currPeer.Pod.ConvertPodNamedPort(namedPort)
+		return portNum, nil
 	default:
 		return 0, errors.New("peer type does not have ports") // should not get here
 	}

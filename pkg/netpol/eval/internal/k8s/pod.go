@@ -225,13 +225,13 @@ func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 
 const noPort = -1
 
-// ConvertPodNamedPort returns the ContainerPort number that matches the named port
-// if there is no match, returns -1
-func (pod *Pod) ConvertPodNamedPort(namedPort string) int32 {
+// ConvertPodNamedPort returns the ContainerPort's protocol and number that matches the named port
+// if there is no match, returns empty string for protocol and -1 for number
+func (pod *Pod) ConvertPodNamedPort(namedPort string) (protocol corev1.Protocol, portNum int32) {
 	for _, containerPort := range pod.Ports {
 		if namedPort == containerPort.Name {
-			return containerPort.ContainerPort
+			return containerPort.Protocol, containerPort.ContainerPort
 		}
 	}
-	return noPort
+	return "", noPort
 }

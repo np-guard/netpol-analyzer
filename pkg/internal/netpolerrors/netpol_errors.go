@@ -60,6 +60,14 @@ const (
 	UnmarshalErr            = "cannot unmarshal array into Go value of type unstructured.detector"
 	UnableToDecodeErr       = "unable to decode"
 
+	// errors consts from adminNetworkPolicy
+	SubjectErrTitle        = "ivalid Subject:"
+	SubjectFieldsErr       = "Exactly one field must be set"
+	UnknownRuleActionErr   = "unrecognized action"
+	ANPPortsError          = "exactly one field must be set in an AdminNetworkPolicyPort"
+	ANPIngressRulePeersErr = "From field must be defined and contain at least one item"
+	ANPEgressRulePeersErr  = "To field must be defined and contain at least one item"
+
 	UnknownCommandErr = "unknown command"
 )
 
@@ -116,4 +124,15 @@ const colonSep = ": "
 // ConcatErrors returns the given errors' messages concatenated by colon
 func ConcatErrors(err1, err2 string) string {
 	return err1 + colonSep + err2
+}
+
+// SamePriorityErr returns the error message of a priority appears more than once in different admin-network-policies
+func SamePriorityErr(name1, name2 string) string {
+	return "Admin Network Policies: " + name1 + " and " + name2 + " has same priority;" +
+		"Two policies are considered to be conflicting if they are assigned the same priority."
+}
+
+// PriorityValueErr returns error message of invalid priority value in an admin-network-policy
+func PriorityValueErr(name string, priority int32) string {
+	return fmt.Sprintf("Invalid Priority Value: %d in Admin Network Policy: %q; Priority value must be between 0-1000", priority, name)
 }

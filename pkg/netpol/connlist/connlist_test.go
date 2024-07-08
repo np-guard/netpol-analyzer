@@ -743,4 +743,17 @@ var goodPathTests = []struct {
 		focusWorkload: "ingress-controller",
 		outputFormats: []string{output.TextFormat},
 	},
+	// tests with adminNetworkPolicy
+	{
+		testDirName:   "anp_test1_deny_traffic_at_cluster_level",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		testDirName:   "anp_test2_allow_traffic_at_cluster_level",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		testDirName:   "anp_test3_pass_traffic",
+		outputFormats: []string{output.TextFormat},
+	},
 }

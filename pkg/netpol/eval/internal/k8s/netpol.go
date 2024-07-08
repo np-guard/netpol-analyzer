@@ -49,7 +49,8 @@ func getProtocolStr(p *v1.Protocol) string {
 }
 
 func (np *NetworkPolicy) convertNamedPort(namedPort string, pod *Pod) int32 {
-	return pod.ConvertPodNamedPort(namedPort)
+	_, portNum := pod.ConvertPodNamedPort(namedPort)
+	return portNum
 }
 
 // getPortsRange returns the start and end port numbers given input port, endPort and dest peer

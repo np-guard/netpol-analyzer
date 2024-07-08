@@ -118,3 +118,18 @@ func (p *PortSet) String() string {
 func (p *PortSet) Contains(port int64) bool {
 	return p.Ports.Contains(port)
 }
+
+// subtract: updates current portSet with the result of subtracting the given portSet from it
+func (p *PortSet) subtract(other *PortSet) {
+	p.Ports.Subtract(other.Ports)
+	p.subtractNamedPorts(other.NamedPorts)
+}
+
+// subtractNamedPorts: deletes given named ports from current portSet's named ports set
+// and adds the deleted named ports to its excluded named ports set
+func (p *PortSet) subtractNamedPorts(otherNamedPorts map[string]bool) {
+	for namedPort := range otherNamedPorts {
+		delete(p.NamedPorts, namedPort)
+		p.ExcludedNamedPorts[namedPort] = true
+	}
+}
