@@ -756,4 +756,16 @@ var goodPathTests = []struct {
 		testDirName:   "anp_test3_pass_traffic",
 		outputFormats: []string{output.TextFormat},
 	},
+	{
+		// Should Deny traffic from slytherin to gryffindor and
+		// Deny traffic to slytherin from gryffindor respecting ANP with priority 50, ignoring ANP with priority 60
+		testDirName:   "anp_test_4",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// Should support a pass-egress to slytherin from gryffindor for ANP and respect the match for network policy
+		// And Dney ingress from slytherin to gryffindor - respecting the ANP ingress rule
+		testDirName:   "anp_test_5",
+		outputFormats: []string{output.TextFormat},
+	},
 }
