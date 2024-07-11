@@ -14,16 +14,14 @@ spec:
     action: "Deny" 
     from:
     - namespaces:
-        namespaceSelector:
-          matchLabels:
+        matchLabels:
             conformance-house: slytherin
   egress:
   - name: "pass-all-egress-to-slytherin" 
     action: "Pass"
     to:
     - namespaces:
-        namespaceSelector:
-          matchLabels:
+        matchLabels:
             conformance-house: slytherin
 ---
 apiVersion: networking.k8s.io/v1
