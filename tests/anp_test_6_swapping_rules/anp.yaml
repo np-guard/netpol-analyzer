@@ -1,0 +1,65 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: ingress-udp-rules-swap
+spec:
+  priority: 4
+  subject:
+    namespaces:
+      matchLabels:
+        kubernetes.io/metadata.name: network-policy-conformance-hufflepuff
+  ingress:
+  - name: "deny-from-ravenclaw-everything" # swapped with allow-from-ravenclaw-everything, all conns will be denied
+    action: "Deny"
+    from:
+    - namespaces:
+        matchLabels:
+          kubernetes.io/metadata.name: network-policy-conformance-ravenclaw
+  - name: "allow-from-ravenclaw-everything"
+    action: "Allow"
+    from:
+    - namespaces:
+        matchLabels:
+          kubernetes.io/metadata.name: network-policy-conformance-ravenclaw
+  - name: "pass-from-ravenclaw-everything"
+    action: "Pass"
+    from:
+    - namespaces:
+        matchLabels:
+          kubernetes.io/metadata.name: network-policy-conformance-ravenclaw
+  - name: "pass-from-slytherin-at-port-5353" # swapped with deny-from-slytherin-at-port-5353 from previous test all conns will be allowed
+    action: "Pass"
+    from:
+    - namespaces:
+        matchLabels:
+          kubernetes.io/metadata.name: network-policy-conformance-slytherin
+    ports:
+    - portNumber:
+        protocol: UDP
+        port: 5353
+  - name: "deny-from-slytherin-at-port-5353"
+    action: "Deny"
+    from:
+    - namespaces:
+        matchLabels:
+          kubernetes.io/metadata.name: network-policy-conformance-slytherin
+    ports:
+    - portNumber:
+        protocol: UDP
+        port: 5353
+  - name: "allow-from-gryffindor-at-port-53"
+    action: "Allow"
+    from:
+    - namespaces:
+        matchLabels:
+          kubernetes.io/metadata.name: network-policy-conformance-gryffindor
+    ports:
+    - portNumber:
+        protocol: UDP
+        port: 53
+  - name: "deny-from-gryffindor-everything-else"
+    action: "Deny"
+    from:
+    - namespaces:
+        matchLabels:
+          kubernetes.io/metadata.name: network-policy-conformance-gryffindor

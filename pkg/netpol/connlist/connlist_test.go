@@ -773,4 +773,9 @@ var goodPathTests = []struct {
 		testDirName:   "anp_test_6",
 		outputFormats: []string{output.TextFormat},
 	},
+	{
+		// rules are similar to the ones from anp_test_6 but with swaps, so we expect some different results
+		testDirName:   "anp_test_6_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
 }

@@ -622,6 +622,14 @@ var goodPathTests = []struct {
 		secondDirName: "test_with_named_ports_changed_netpol_3",
 		formats:       []string{output.DefaultFormat},
 	},
+	{
+		// description:
+		// **changed netpols: anp : ingress-udp to ingress-udp-rules-swap
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_6",
+		secondDirName: "anp_test_6_swapping_rules",
+		formats:       []string{output.DefaultFormat},
+	},
 }
 
 var commonBadPathTestsFatalErr = []struct {
