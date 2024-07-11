@@ -121,7 +121,7 @@ func (p *PortSet) Contains(port int64) bool {
 
 // subtract: updates current portSet with the result of subtracting the given portSet from it
 func (p *PortSet) subtract(other *PortSet) {
-	p.Ports.Subtract(other.Ports)
+	p.Ports = p.Ports.Subtract(other.Ports)
 	p.subtractNamedPorts(other.NamedPorts)
 }
 

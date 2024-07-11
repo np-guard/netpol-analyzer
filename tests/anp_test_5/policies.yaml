@@ -30,7 +30,7 @@ metadata:
   name: allow-gress-from-to-slytherin-to-gryffindor
   namespace: network-policy-conformance-gryffindor
 spec:
-  podSelector:
+  podSelector: {}
   policyTypes:
     - Ingress
     - Egress

@@ -768,4 +768,9 @@ var goodPathTests = []struct {
 		testDirName:   "anp_test_5",
 		outputFormats: []string{output.TextFormat},
 	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_6",
+		outputFormats: []string{output.TextFormat},
+	},
 }
