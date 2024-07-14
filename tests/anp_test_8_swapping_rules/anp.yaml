@@ -1,0 +1,68 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: ingress-sctp-with-swapped-rules
+spec:
+  priority: 5
+  subject:
+    namespaces:
+      matchLabels:
+          kubernetes.io/metadata.name: network-policy-conformance-ravenclaw
+  ingress:
+  - name: "deny-from-gryffindor-everything" # swapped with allow-from-gryffindor-everything
+    action: "Deny"
+    from:
+    - namespaces:
+        matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-gryffindor
+  - name: "allow-from-gryffindor-everything"
+    action: "Allow"
+    from:
+    - namespaces:
+        matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-gryffindor
+  - name: "pass-from-gryffindor-everything"
+    action: "Pass"
+    from:
+    - namespaces:
+        matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-gryffindor
+  - name: "pass-from-slytherin-at-port-9003" # swapped with deny-from-slytherin-at-port-9003
+    action: "Pass"
+    from:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-slytherin
+    ports:
+      - portNumber:
+          protocol: SCTP
+          port: 9003
+  - name: "deny-from-slytherin-at-port-9003"
+    action: "Deny"
+    from:
+    - namespaces:
+        matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-slytherin
+    ports:
+      - portNumber:
+          protocol: SCTP
+          port: 9003
+  - name: "allow-from-hufflepuff-at-port-9003"
+    action: "Allow"
+    from:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-hufflepuff
+    ports:
+      - portNumber:
+          protocol: SCTP
+          port: 9003
+  - name: "deny-from-hufflepuff-everything-else"
+    action: "Deny"
+    from:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-hufflepuff

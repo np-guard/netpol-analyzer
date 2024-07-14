@@ -242,12 +242,12 @@ func (anp *AdminNetworkPolicy) ruleConnections(ports *[]apisv1a.AdminNetworkPoli
 		return common.MakeConnectionSet(true), nil // If Ports is not set then the rule does not filter traffic via port.
 	}
 	res := common.MakeConnectionSet(false)
-	protocol := v1.ProtocolTCP
-	portSet := common.MakePortSet(false)
 	for _, anpPort := range *ports {
 		if !onlyOnePortFieldsSet(anpPort) {
 			return nil, anp.anpErr(fmt.Sprintf("Error in Ports : %v", ports), netpolerrors.ANPPortsError)
 		}
+		protocol := v1.ProtocolTCP
+		portSet := common.MakePortSet(false)
 		switch {
 		case anpPort.PortNumber != nil:
 			if anpPort.PortNumber.Protocol != "" {

@@ -778,4 +778,69 @@ var goodPathTests = []struct {
 		testDirName:   "anp_test_6_swapping_rules",
 		outputFormats: []string{output.TextFormat},
 	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_7",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// rules are similar to the ones from anp_test_7 but with swaps, so we expect some different results
+		testDirName:   "anp_test_7_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_8",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// rules are similar to the ones from anp_test_8 but with swaps, so we expect some different results
+		testDirName:   "anp_test_8_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected, with both ingress and egress
+		testDirName:   "anp_test_9",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// rules are similar to the ones from anp_test_9 but with swaps, so we expect some different results
+		testDirName:   "anp_test_9_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_10",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// rules are similar to the ones from anp_test_10 but with swaps, so we expect some different results
+		testDirName:   "anp_test_10_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_11",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// rules are similar to the ones from anp_test_11 but with swaps, so we expect some different results
+		testDirName:   "anp_test_11_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_12",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// rules are similar to the ones from anp_test_12 but with swaps, so we expect some different results
+		testDirName:   "anp_test_12_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// test with two ANPs selecting same subject (one is an ingress ANP the other is egress ANP)
+		testDirName:   "anp_test_combining_test6_and_test10",
+		outputFormats: []string{output.TextFormat},
+	},
 }

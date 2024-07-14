@@ -630,6 +630,54 @@ var goodPathTests = []struct {
 		secondDirName: "anp_test_6_swapping_rules",
 		formats:       []string{output.DefaultFormat},
 	},
+	{
+		// description:
+		// **changed netpols: anp : ingress-tcp to ingress-tcp-with-swapped-rules
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_7",
+		secondDirName: "anp_test_7_swapping_rules",
+		formats:       []string{output.DefaultFormat},
+	},
+	{
+		// description:
+		// **changed netpols: anp : ingress-sctp to ingress-sctp-with-swapped-rules
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_8",
+		secondDirName: "anp_test_8_swapping_rules",
+		formats:       []string{output.DefaultFormat},
+	},
+	{
+		// description:
+		// **changed netpols: anp : gress-rules to gress-rules-with-swapped-rules
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_9",
+		secondDirName: "anp_test_9_swapping_rules",
+		formats:       []string{output.DefaultFormat},
+	},
+	{
+		// description:
+		// **changed netpols: anp : egress-udp to egress-udp-with-swapped-rules
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_10",
+		secondDirName: "anp_test_10_swapping_rules",
+		formats:       []string{output.DefaultFormat},
+	},
+	{
+		// description:
+		// **changed netpols: anp : egress-tcp to egress-tcp-with-swapped-rules
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_11",
+		secondDirName: "anp_test_11_swapping_rules",
+		formats:       []string{output.DefaultFormat},
+	},
+	{
+		// description:
+		// **changed netpols: anp : egress-sctp to egress-sctp-with-swapped-rules
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_12",
+		secondDirName: "anp_test_12_swapping_rules",
+		formats:       []string{output.DefaultFormat},
+	},
 }
 
 var commonBadPathTestsFatalErr = []struct {
