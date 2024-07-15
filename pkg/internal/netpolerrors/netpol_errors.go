@@ -98,8 +98,8 @@ func BlockedIngressWarning(objKind, objName, peerStr string) string {
 }
 
 // MissingNamespaceErrStr returns error string of a missing namespace of a peer
-func MissingNamespaceErrStr(peerStr string) string {
-	return "error: namespace of pod " + peerStr + " is missing"
+func MissingNamespaceErrStr(nsName, peerName string) string {
+	return "error: namespace " + nsName + " of pod " + peerName + " is missing"
 }
 
 // NotPeerErrStr returns error string of a peer that is not workload peer

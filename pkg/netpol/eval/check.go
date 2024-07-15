@@ -65,10 +65,10 @@ func (pe *PolicyEngine) convertPeerToPodPeer(peer Peer) (*k8s.PodPeer, error) {
 	switch currPeer := peer.(type) {
 	case *k8s.WorkloadPeer:
 		podObj = currPeer.Pod
-		podNamespace, err = pe.getPeerNamespaceObject(currPeer.Pod.Namespace, currPeer.String())
+		podNamespace, err = pe.getPeerNamespaceObject(currPeer.Pod.Namespace, currPeer.Name())
 	case *k8s.RepresentativePeer:
 		podObj = currPeer.Pod
-		podNamespace, err = pe.getPeerNamespaceObject(currPeer.Pod.Namespace, currPeer.String())
+		podNamespace, err = pe.getPeerNamespaceObject(currPeer.Pod.Namespace, currPeer.Name())
 	default: // should not get here
 		return nil, errors.New(netpolerrors.InvalidPeerErrStr(peer.String()))
 	}
@@ -79,10 +79,16 @@ func (pe *PolicyEngine) convertPeerToPodPeer(peer Peer) (*k8s.PodPeer, error) {
 	return podPeer, nil
 }
 
-func (pe *PolicyEngine) getPeerNamespaceObject(namespaceName, peerStr string) (*k8s.Namespace, error) {
+func (pe *PolicyEngine) getPeerNamespaceObject(namespaceName, peerName string) (*k8s.Namespace, error) {
+	// if this is a representative peer which is not in a real namespace return nil;
+	// PolicyEngine does not contain representative namespaces.
+	if namespaceName == "" && strings.HasPrefix(peerName, k8s.RepresentativePodName) {
+		return nil, nil
+	}
+	// else , should have the namespace of the pod in policy-engine
 	podNamespace, ok := pe.namspacesMap[namespaceName]
 	if !ok {
-		return nil, errors.New(netpolerrors.MissingNamespaceErrStr(peerStr))
+		return nil, errors.New(netpolerrors.MissingNamespaceErrStr(namespaceName, peerName))
 	}
 	return podNamespace, nil
 }

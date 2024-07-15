@@ -562,7 +562,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		return nil, err
 	}
 	// adding the ingress controller pod to the policy engine,
-	ingressControllerPod, err := pe.AddPodByNameAndNamespace(common.IngressPodName, common.IngressPodNamespace, nil)
+	ingressControllerPod, err := pe.AddPodByNameAndNamespace(common.IngressPodName, common.IngressPodNamespace)
 	if err != nil {
 		return nil, err
 	}

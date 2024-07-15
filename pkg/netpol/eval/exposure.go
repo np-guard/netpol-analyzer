@@ -19,32 +19,32 @@ import (
 
 // this file contains eval.PolicyEngine funcs which are related to exposure-analysis feature
 
-// any fake namespace added will start with following prefix for ns name and following pod name
-const repNsNamePrefix = "representative-namespace-"
-
-func generateNewNamespaceName(policyName string, index int) string {
-	return repNsNamePrefix + policyName + fmt.Sprint(index)
-}
-
 func generateNewPodName(index int) string {
 	return k8s.RepresentativePodName + "-" + fmt.Sprint(index)
 }
 
 // generateRepresentativePeers : generates and adds to policy engine representative peers where each peer
-// has namespace and pod labels and requirements inferred from single entry of selectors in a policy rule list;
+// has namespace and pod labelSelectors inferred from single entry of selectors in a policy rule list;
 //
-// - for example, if a rule within policy has an entry: namespaceSelector "foo: managed", then a representative pod in such a
-// namespace with those labels will be added, representing all potential pods in such a namespace.
+// - for example, if a rule within policy has an entry: namespaceSelector "foo: managed", then a representative pod
+// with this labelSelector will be added, representing all potential pods in such a namespace.
 // - generated representative peers are unique; i.e. if different rules (e.g in different policies or different directions)
-// has same labels, one representative peer is generated to represent both
-func (pe *PolicyEngine) generateRepresentativePeers(selectors []k8s.SingleRuleSelectors, policyName, policyNs string) (err error) {
+// has same selectors, one representative peer is generated to represent both.
+// - note that :
+// - if the rule's namespaceSelector is nil, then the representative pod is created in the policyNamespace (as it is a real namespace)
+// - but if the rule's namespaceSelector is not nil, the representative pod will store this selector in its field,
+// and no representative namespace will be generated
+func (pe *PolicyEngine) generateRepresentativePeers(selectors []k8s.SingleRuleSelectors, policyNs string) (err error) {
 	for i := range selectors {
-		// if ns labels of the rule selector was nil, then the namespace of the pod is same as the policy's namespace
+		// if namespaceSelector of the rule was nil, then the namespace of the pod is same as the policy's namespace
+		// i.e. the representative pod should be created in the real namespace of the policy
 		if selectors[i].PolicyNsFlag {
-			_, err = pe.AddPodByNameAndNamespace(generateNewPodName(i), policyNs, &selectors[i])
+			err = pe.addRepresentativePod(generateNewPodName(i), policyNs, &selectors[i])
 		} else {
-			_, err = pe.AddPodByNameAndNamespace(generateNewPodName(i), generateNewNamespaceName(policyName, i),
-				&selectors[i])
+			// if the namespaceSelector is not nil, it is assigned to the selectors[i].NsSelector, that will be assigned to the matching
+			// field on the representative pod; and the representative pod will have no namespace,
+			// i.e. no need to upsert a representative namespace to the policy-engine (has no meaning)
+			err = pe.addRepresentativePod(generateNewPodName(i), "", &selectors[i])
 		}
 		if err != nil {
 			return err
@@ -57,14 +57,18 @@ func (pe *PolicyEngine) generateRepresentativePeers(selectors []k8s.SingleRuleSe
 // representative-peers, i.e. delete a representative pod if the given real pod matches its selectors
 // (applied for representative-peers with matchLabels only, no matchExpression).
 // helping func - added in order to avoid code dup. in upsertWorkload and upsertPod
-func (pe *PolicyEngine) extractLabelsAndRefineRepresentativePeers(podObj *k8s.Pod) {
+func (pe *PolicyEngine) extractLabelsAndRefineRepresentativePeers(podObj *k8s.Pod) error {
 	// since namespaces are already upserted; if pod's ns not existing resolve it
 	if _, ok := pe.namspacesMap[podObj.Namespace]; !ok {
 		// the "kubernetes.io/metadata.name" is added automatically to the ns; so representative peers with such selector will be refined
-		pe.resolveSingleMissingNamespace(podObj.Namespace)
+		err := pe.resolveSingleMissingNamespace(podObj.Namespace)
+		if err != nil {
+			return err
+		}
 	}
 	// check if there are representative peers in the policy engine which match the current pod; if yes remove them
 	pe.refineRepresentativePeersMatchingLabels(podObj.Labels, pe.namspacesMap[podObj.Namespace].Labels)
+	return nil
 }
 
 // refineRepresentativePeersMatchingLabels removes from the policy engine all representative peers
