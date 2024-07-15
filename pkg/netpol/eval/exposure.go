@@ -53,7 +53,9 @@ func (pe *PolicyEngine) generateRepresentativePeers(selectors []k8s.SingleRuleSe
 	return nil
 }
 
-// extractLabelsAndRefineRepresentativePeers extracts the labels of the given pod object and its namespace and refine matching peers
+// extractLabelsAndRefineRepresentativePeers extracts the labels of the given pod object and its namespace and refine matching
+// representative-peers, i.e. delete a representative pod if the given real pod matches its selectors
+// (applied for representative-peers with matchLabels only, no matchExpression).
 // helping func - added in order to avoid code dup. in upsertWorkload and upsertPod
 func (pe *PolicyEngine) extractLabelsAndRefineRepresentativePeers(podObj *k8s.Pod) {
 	// since namespaces are already upserted; if pod's ns not existing resolve it
@@ -68,6 +70,7 @@ func (pe *PolicyEngine) extractLabelsAndRefineRepresentativePeers(podObj *k8s.Po
 // refineRepresentativePeersMatchingLabels removes from the policy engine all representative peers
 // with labels matching the given labels of a real pod
 // representative peers matching any-namespace or any-pod in a namespace will not be removed.
+// representative peers inferred from rules containing matchExpressions will not be removed either
 func (pe *PolicyEngine) refineRepresentativePeersMatchingLabels(realPodLabels, realNsLabels map[string]string) {
 	keysToDelete := make([]string, 0)
 	// look for representative peers with labels matching the given real pod's (and its namespace) labels

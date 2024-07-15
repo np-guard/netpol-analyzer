@@ -27,7 +27,6 @@ spec:
     ports:
     - port: 9090
       protocol: TCP
-  # following rule matches the first one (will connect on 8080, 9090)
   - from:
     - podSelector:
           matchLabels:
