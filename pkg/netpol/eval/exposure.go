@@ -61,7 +61,7 @@ func (pe *PolicyEngine) extractLabelsAndRefineRepresentativePeers(podObj *k8s.Po
 	// since namespaces are already upserted; if pod's ns not existing resolve it
 	if _, ok := pe.namspacesMap[podObj.Namespace]; !ok {
 		// the "kubernetes.io/metadata.name" is added automatically to the ns; so representative peers with such selector will be refined
-		pe.resolveSingleMissingNamespace(podObj.Namespace, nil)
+		pe.resolveSingleMissingNamespace(podObj.Namespace)
 	}
 	// check if there are representative peers in the policy engine which match the current pod; if yes remove them
 	pe.refineRepresentativePeersMatchingLabels(podObj.Labels, pe.namspacesMap[podObj.Namespace].Labels)
@@ -75,20 +75,20 @@ func (pe *PolicyEngine) refineRepresentativePeersMatchingLabels(realPodLabels, r
 	keysToDelete := make([]string, 0)
 	// look for representative peers with labels matching the given real pod's (and its namespace) labels
 	for key, repPeer := range pe.representativePeersMap {
-		if repPeer.Pod.RepresentativeLabelSelector == nil {
+		if repPeer.Pod.RepresentativePodLabelSelector == nil {
 			continue // nil podSelector means any-pod
 		}
 		// note that if the policy had nil namespaceSelector, it would be converted to the namespace of the policy
 		// note that there is no representative peer with both empty namespace and pod selector; that case was handled
 		// in the general conns compute and won't get here.
-		if len(repPeer.Pod.RepresentativeLabelSelector.MatchExpressions) > 0 ||
+		if len(repPeer.Pod.RepresentativePodLabelSelector.MatchExpressions) > 0 ||
 			len(repPeer.PotentialNamespaceLabelSelector.MatchExpressions) > 0 {
 			// a representative peer with requirements inferred from selectors with matchExpression will not be refined
 			continue
 		}
 
 		// matchExpressions of representative peer are empty , check labels
-		potentialPodSelector := labels.SelectorFromSet(labels.Set(repPeer.Pod.RepresentativeLabelSelector.MatchLabels))
+		potentialPodSelector := labels.SelectorFromSet(labels.Set(repPeer.Pod.RepresentativePodLabelSelector.MatchLabels))
 		potentialNsSelector := labels.SelectorFromSet(labels.Set(repPeer.PotentialNamespaceLabelSelector.MatchLabels))
 		if potentialNsSelector.Empty() {
 			// empty --representative peer that matches any-namespace, thus will not be removed
@@ -168,8 +168,8 @@ func (pe *PolicyEngine) GetPeerLabels(p Peer) (podLabels, nsLabels v1.LabelSelec
 		return v1.LabelSelector{}, v1.LabelSelector{}, errors.New(netpolerrors.NotRepresentativePeerErrStr(p.String()))
 	}
 	podLabels = v1.LabelSelector{}
-	if peer.Pod.RepresentativeLabelSelector != nil {
-		podLabels = *peer.Pod.RepresentativeLabelSelector.DeepCopy()
+	if peer.Pod.RepresentativePodLabelSelector != nil {
+		podLabels = *peer.Pod.RepresentativePodLabelSelector.DeepCopy()
 	}
 	nsLabels = v1.LabelSelector{}
 	if peer.PotentialNamespaceLabelSelector != nil {

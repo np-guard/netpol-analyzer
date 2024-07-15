@@ -158,7 +158,7 @@ func (pe *PolicyEngine) resolveMissingNamespaces() {
 	for _, pod := range pe.podsMap {
 		ns := pod.Namespace
 		if _, ok := pe.namspacesMap[ns]; !ok {
-			pe.resolveSingleMissingNamespace(ns, nil)
+			pe.resolveSingleMissingNamespace(ns)
 		}
 	}
 }
@@ -166,14 +166,13 @@ func (pe *PolicyEngine) resolveMissingNamespaces() {
 // resolveSingleMissingNamespace create a ns object and add to PolicyEngine
 // used for resolving real namespaces which are not sourced in the manifests
 // and for adding representative namespaces inferred from policy rules (with representative selectors)
-func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string, nsLabelsSelector *metav1.LabelSelector) {
+func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string) {
 	nLabels := map[string]string{
 		common.K8sNsNameLabelKey: ns,
 	}
 	nsObj := &k8s.Namespace{ // creating a namespace object with potential labels and requirements
-		Name:                          ns,
-		Labels:                        nLabels,
-		RepresentativeNsLabelSelector: nsLabelsSelector,
+		Name:   ns,
+		Labels: nLabels,
 	}
 	pe.namspacesMap[nsObj.Name] = nsObj // upserting the namespace directly to the policy engine
 }
@@ -587,14 +586,15 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string, objSelectors *
 	}
 	podStr := types.NamespacedName{Namespace: ns, Name: name}.String()
 	newPod := &k8s.Pod{
-		Name:                        name,
-		Namespace:                   ns,
-		FakePod:                     true,
-		RepresentativeLabelSelector: podSelector,
+		Name:                           name,
+		Namespace:                      ns,
+		FakePod:                        true,
+		RepresentativePodLabelSelector: podSelector,
+		RepresentativeNsLabelSelector:  nsSelector,
 	}
 
 	// adding ns to the policy engine
-	pe.resolveSingleMissingNamespace(ns, nsSelector)
+	pe.resolveSingleMissingNamespace(ns)
 	// if exposure-analysis and this is not a fake ingress-controller
 	if pe.exposureAnalysisFlag && newPod.IsPodRepresentative() {
 		// first compute a unique string from labels to be used as a map key

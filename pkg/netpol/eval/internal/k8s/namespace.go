@@ -8,7 +8,6 @@ package k8s
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -17,10 +16,6 @@ import (
 type Namespace struct {
 	Name   string
 	Labels map[string]string
-	// RepresentativeNsLabelSelector points to the namespaceSelector of the policy rule which this
-	// representative namespace was inferred from
-	// used only with representative peers (exposure-analysis)
-	RepresentativeNsLabelSelector *v1.LabelSelector
 }
 
 // @todo need a Namespace collection type along with convenience methods?

@@ -60,9 +60,12 @@ type Pod struct {
 	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
 	// on egress direction
 	EgressExposureData PodExposureInfo
-	// RepresentativeLabelSelector contains reference to the podSelector of the policy-rule which the representative peer was inferred from
+	// RepresentativePodLabelSelector contains reference to the podSelector of the policy-rule which the representative peer was inferred from
 	// used only with representative Pods
-	RepresentativeLabelSelector *v1.LabelSelector
+	RepresentativePodLabelSelector *v1.LabelSelector
+	// RepresentativeNsLabelSelector points to the namespaceSelector of the policy rule which this representative pod was inferred from
+	// used only with representative peers (exposure-analysis)
+	RepresentativeNsLabelSelector *v1.LabelSelector
 }
 
 // Owner encapsulates pod owner workload info
@@ -83,17 +86,18 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 	}
 
 	pr := &Pod{
-		Name:                        p.Name,
-		Namespace:                   p.Namespace,
-		Labels:                      make(map[string]string, len(p.Labels)),
-		IPs:                         make([]corev1.PodIP, len(p.Status.PodIPs)),
-		Ports:                       make([]corev1.ContainerPort, 0, defaultPortsListSize),
-		HostIP:                      p.Status.HostIP,
-		Owner:                       Owner{},
-		FakePod:                     false,
-		IngressExposureData:         initiatePodExposure(),
-		EgressExposureData:          initiatePodExposure(),
-		RepresentativeLabelSelector: nil,
+		Name:                           p.Name,
+		Namespace:                      p.Namespace,
+		Labels:                         make(map[string]string, len(p.Labels)),
+		IPs:                            make([]corev1.PodIP, len(p.Status.PodIPs)),
+		Ports:                          make([]corev1.ContainerPort, 0, defaultPortsListSize),
+		HostIP:                         p.Status.HostIP,
+		Owner:                          Owner{},
+		FakePod:                        false,
+		IngressExposureData:            initiatePodExposure(),
+		EgressExposureData:             initiatePodExposure(),
+		RepresentativePodLabelSelector: nil,
+		RepresentativeNsLabelSelector:  nil,
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -218,7 +222,8 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.FakePod = false
 		pod.IngressExposureData = initiatePodExposure()
 		pod.EgressExposureData = initiatePodExposure()
-		pod.RepresentativeLabelSelector = nil
+		pod.RepresentativePodLabelSelector = nil
+		pod.RepresentativeNsLabelSelector = nil
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
 		}
