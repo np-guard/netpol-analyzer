@@ -481,6 +481,12 @@ type SingleRuleSelectors struct {
 	PolicyNsFlag bool
 }
 
+// DefaultNamespaceLabelsMap returns a map with a single key: val for the default K8s namespace name key.
+// to be used in case the labels representing a namespace should contain this matchLabel only.
+func DefaultNamespaceLabelsMap(namespaceName string) map[string]string {
+	return map[string]string{common.K8sNsNameLabelKey: namespaceName}
+}
+
 // ScanPolicyRulesForGeneralConnsAndRepresentativePeers scans policy rules and :
 // - updates policy's general connections with all destinations or/ and with entire cluster for ingress and/ or egress directions
 // - returns list of labels.selectors from rules which has non-empty selectors
@@ -502,12 +508,13 @@ func (np *NetworkPolicy) ScanPolicyRulesForGeneralConnsAndRepresentativePeers() 
 	return rulesSelectors, nil
 }
 
+// scanIngressRules handles policy's ingress rules (for updating policy's general conns/ returning specific rules' selectors)
 func (np *NetworkPolicy) scanIngressRules() ([]SingleRuleSelectors, error) {
 	rulesSelectors := []SingleRuleSelectors{}
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		selectors, err := np.doRulesExposeToAllDestOrEntireCluster(rulePeers, rulePorts, true)
+		selectors, err := np.handleRulesSelectors(rulePeers, rulePorts, true)
 		if err != nil {
 			return nil, err
 		}
@@ -516,12 +523,13 @@ func (np *NetworkPolicy) scanIngressRules() ([]SingleRuleSelectors, error) {
 	return rulesSelectors, nil
 }
 
+// scanEgressRules handles policy's egress rules (for updating policy's general conns/ returning specific rules' selectors)
 func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 	rulesSelectors := []SingleRuleSelectors{}
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		selectors, err := np.doRulesExposeToAllDestOrEntireCluster(rulePeers, rulePorts, false)
+		selectors, err := np.handleRulesSelectors(rulePeers, rulePorts, false)
 		if err != nil {
 			return nil, err
 		}
@@ -531,13 +539,13 @@ func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 	return rulesSelectors, nil
 }
 
-// doRulesExposeToAllDestOrEntireCluster :
-// checks if the given rules list is exposed to entire world or entire cluster
+// handleRulesSelectors :
+// - checks if the given rules list is exposed to entire world or entire cluster
 // (e.g. if the rules list is empty/ if there is a rule with: empty namespaceSelector/ both empty nameSpaceSelector and podSelector) :
 // then updates the policy's general conns
-// else: returns selectors of non-general rules (rules that are not exposed to entire world or cluster).
+// - else: returns selectors of non-general rules (rules that are not exposed to entire world or cluster).
 // this func assumes rules are legal (rules correctness check occurs later)
-func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
+func (np *NetworkPolicy) handleRulesSelectors(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
 	isIngress bool) (rulesSelectors []SingleRuleSelectors, err error) {
 	if len(rules) == 0 {
 		err = np.updateNetworkPolicyGeneralConn(true, true, rulePorts, isIngress)
@@ -563,14 +571,14 @@ func (np *NetworkPolicy) doRulesExposeToAllDestOrEntireCluster(rules []netv1.Net
 			// special case: ns selector is nil but podSelector is not, so the namespace of the rule is
 			// the policy's namespace; (turn on the indicator)
 			ruleSel.PolicyNsFlag = true
-			nsNameLabelSel := map[string]string{common.K8sNsNameLabelKey: np.Namespace}
-			ruleSel.NsSelector = &metav1.LabelSelector{MatchLabels: nsNameLabelSel}
+			ruleSel.NsSelector = &metav1.LabelSelector{MatchLabels: DefaultNamespaceLabelsMap(np.Namespace)}
 		}
 		rulesSelectors = append(rulesSelectors, ruleSel)
 	}
 	return rulesSelectors, nil
 }
 
+// updateNetworkPolicyGeneralConn updates the general connections of the policy
 func (np *NetworkPolicy) updateNetworkPolicyGeneralConn(allDests, entireCluster bool, rulePorts []netv1.NetworkPolicyPort,
 	isIngress bool) error {
 	ruleConns, err := np.ruleConnections(rulePorts, nil)

@@ -170,10 +170,8 @@ func (pe *PolicyEngine) resolveMissingNamespaces() error {
 func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string) error {
 	nsObj := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: ns,
-			Labels: map[string]string{
-				common.K8sNsNameLabelKey: ns,
-			},
+			Name:   ns,
+			Labels: k8s.DefaultNamespaceLabelsMap(ns),
 		},
 	}
 	if err := pe.upsertNamespace(nsObj); err != nil {
