@@ -86,14 +86,14 @@ func (pe *PolicyEngine) refineRepresentativePeersMatchingLabels(realPodLabels, r
 		// note that there is no representative peer with both empty namespace and pod selector; that case was handled
 		// in the general conns compute and won't get here.
 		if len(repPeer.Pod.RepresentativePodLabelSelector.MatchExpressions) > 0 ||
-			len(repPeer.PotentialNamespaceLabelSelector.MatchExpressions) > 0 {
+			len(repPeer.Pod.RepresentativeNsLabelSelector.MatchExpressions) > 0 {
 			// a representative peer with requirements inferred from selectors with matchExpression will not be refined
 			continue
 		}
 
 		// matchExpressions of representative peer are empty , check labels
 		potentialPodSelector := labels.SelectorFromSet(labels.Set(repPeer.Pod.RepresentativePodLabelSelector.MatchLabels))
-		potentialNsSelector := labels.SelectorFromSet(labels.Set(repPeer.PotentialNamespaceLabelSelector.MatchLabels))
+		potentialNsSelector := labels.SelectorFromSet(labels.Set(repPeer.Pod.RepresentativeNsLabelSelector.MatchLabels))
 		if potentialNsSelector.Empty() {
 			// empty --representative peer that matches any-namespace, thus will not be removed
 			// note that if the policy had nil namespaceSelector, it would be converted to the namespace of the policy
@@ -176,8 +176,8 @@ func (pe *PolicyEngine) GetPeerLabels(p Peer) (podLabels, nsLabels v1.LabelSelec
 		podLabels = *peer.Pod.RepresentativePodLabelSelector.DeepCopy()
 	}
 	nsLabels = v1.LabelSelector{}
-	if peer.PotentialNamespaceLabelSelector != nil {
-		nsLabels = *peer.PotentialNamespaceLabelSelector.DeepCopy()
+	if peer.Pod.RepresentativeNsLabelSelector != nil {
+		nsLabels = *peer.Pod.RepresentativeNsLabelSelector.DeepCopy()
 	}
 	return podLabels, nsLabels, nil
 }

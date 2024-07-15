@@ -631,8 +631,7 @@ func (pe *PolicyEngine) addRepresentativePod(name, ns string, objSelectors *k8s.
 		return nil
 	}
 	// create a new representative peer
-	newRepresentativePeer := &k8s.RepresentativePeer{Pod: newPod,
-		PotentialNamespaceLabelSelector: nsSelector}
+	newRepresentativePeer := &k8s.RepresentativePeer{Pod: newPod}
 	// add the new representative peer to the policy-engine
 	pe.representativePeersMap[keyStrFromLabels] = newRepresentativePeer
 	return nil

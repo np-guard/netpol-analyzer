@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package k8s
 
 import (
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/models/pkg/ipblock"
@@ -65,8 +64,7 @@ type RepresentativePeer struct {
 	// - if inferred from selector combining a namespaceSelector and a podSelector:
 	// the pod's labelSelector will contain the reference to rule's podSelector
 	// and its namespace is a fake namespace with the namespaceSelector
-	Pod                             *Pod
-	PotentialNamespaceLabelSelector *v1.LabelSelector
+	Pod *Pod
 }
 
 const podKind = "Pod"
@@ -124,8 +122,8 @@ func (p *RepresentativePeer) Kind() string {
 	return representativePodKind
 }
 
-func (p *RepresentativePeer) String() string {
-	return types.NamespacedName{Name: p.Name(), Namespace: p.Namespace()}.String()
+func (p *RepresentativePeer) String() string { // not used
+	return ""
 }
 
 func (p *RepresentativePeer) IP() string {
