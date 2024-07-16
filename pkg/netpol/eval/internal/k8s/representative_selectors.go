@@ -17,13 +17,14 @@ import (
 // with rule selectors from policies
 // since a representative peer is a peer inferred from a network-policy rule
 
-// doSelectorsMatch given two labelSelector objects, one from a policy rule and the other from a representative pod,
+// SelectorsFullMatch given two labelSelector objects, one from a policy rule and the other from a representative pod,
 // returns true if:
 // 1. both selectors point to same reference (rule and its matching representative pod/ns)
 // 2. if the rule's selector is empty (matches all pods/namespaces)
 // 3. if the requirements of both rules are equal (same)
-// i.e. checks if the selector from the policy rule matches the selector of the representative peer
-func doSelectorsMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, error) {
+// i.e. checks if the selector from the policy rule fully matches the selector of the representative peer
+// note that : for selectors that partly match/ contained in each other the func returns false
+func SelectorsFullMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, error) {
 	if ruleSelector == repSelector { // both label selectors point to same reference
 		return true, nil
 	}

@@ -211,7 +211,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 					// representative peer's is inferred from a rule with its labelSelector
 					// note that if the namespaceSelector in the rule is nil, we don't get here,
 					// since that means the peer is in same namespace of the policy, and this was checked above
-					peerMatchesNamespaceSelector, err = doSelectorsMatch(rulePeers[i].NamespaceSelector, peer.GetPeerPod().RepresentativeNsLabelSelector)
+					peerMatchesNamespaceSelector, err = SelectorsFullMatch(rulePeers[i].NamespaceSelector, peer.GetPeerPod().RepresentativeNsLabelSelector)
 				} else {
 					selector, err = np.parseNetpolLabelSelector(rulePeers[i].NamespaceSelector)
 					peerMatchesNamespaceSelector = selector.Matches(labels.Set(peerNamespace.Labels))
@@ -228,7 +228,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			} else {
 				// checking if a selector matches labels by peer type; since representative peers selectors may need special handling
 				if isRepresentativePod(peer) {
-					peerMatchesPodSelector, err = doSelectorsMatch(rulePeers[i].PodSelector, peer.GetPeerPod().RepresentativePodLabelSelector)
+					peerMatchesPodSelector, err = SelectorsFullMatch(rulePeers[i].PodSelector, peer.GetPeerPod().RepresentativePodLabelSelector)
 				} else {
 					selector, err = np.parseNetpolLabelSelector(rulePeers[i].PodSelector)
 					peerMatchesPodSelector = selector.Matches(labels.Set(peer.GetPeerPod().Labels))
