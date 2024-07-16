@@ -11,6 +11,8 @@ import (
 	"encoding/hex"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
 )
 
 // this file handles checking matching of representative peers' selectors' requirements
@@ -23,7 +25,7 @@ import (
 // 2. if the rule's selector is empty (matches all pods/namespaces)
 // 3. if the requirements of both rules are equal (same)
 // i.e. checks if the selector from the policy rule fully matches the selector of the representative peer
-// note that : for selectors that partly match/ contained in each other the func returns false
+// note that : for non-empty selectors that partly match/ contained in each other the func returns false
 func SelectorsFullMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, error) {
 	if ruleSelector == repSelector { // both label selectors point to same reference
 		return true, nil
@@ -58,11 +60,34 @@ func SelectorsFullMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, erro
 		// however, `Requirement.String` sorts the values using `safeSort`, so will compare by string
 		// link to Requirement.String() :
 		// https://github.com/kubernetes/apimachinery/blob/d7e1c5311169d5ece2db0ae0118066859aa6f7d8/pkg/labels/selector.go#L310
-		if requirements1[i].String() != requirements2[i].String() {
+		str1 := requirements1[i].String()
+		str2 := requirements2[i].String()
+
+		// handling special case of one requirement has `In` operator with 1 value, and other requirement has "=" operator (from matchLabel)
+		// for example : req1 := (app in x), req2 := (app=x) >> we expect a full match, however,
+		// labels pkg treats them as different requirements
+		// i.e. requirements1[i].Equal(requirements2[i]) and requirements1[i].String() != requirements2[i].String() return false in this case
+		// requirement.String() : returns <key>=<values> string for "Equals" operator and returns (<key> in (<values));
+		// so, in case on requirement is "in" with one value only , will convert its string to the <key>=<values> format to get correct result
+		if newStr1 := handleRequirementWithInOpAndSingleValue(requirements1[i]); newStr1 != "" {
+			str1 = newStr1
+		}
+		if newStr2 := handleRequirementWithInOpAndSingleValue(requirements2[i]); newStr2 != "" {
+			str2 = newStr2
+		}
+		if str1 != str2 {
 			return false, nil
 		}
 	}
 	return true, nil
+}
+
+// handleRequirementWithInOpAndSingleValue returns a <key>=<val> string format if the input Requirement is with In operator and single value
+func handleRequirementWithInOpAndSingleValue(req labels.Requirement) string {
+	if req.Operator() == selection.In && len(req.Values()) == 1 {
+		return req.Key() + "=" + req.Values().List()[0]
+	}
+	return ""
 }
 
 // VariantFromLabelsSelector returns a unique hash key from given labelSelector, so selectors with same keys, operators and values
@@ -78,7 +103,14 @@ func VariantFromLabelsSelector(ls *v1.LabelSelector) (string, error) {
 	// calculating string of requirements (`values` list in a requirement is not sorted internally, Requirement.String() - sorts it)
 	reqStr := ""
 	for _, req := range requirements {
-		reqStr += req.String()
+		currStr := req.String()
+		// for special case of a requirement with In operator and only one value, convert its string to "key=val" (instead of key in (val))
+		// example: so only one representative peer is generated for both rules : app In [x] and app=x
+		// (see tests/test_exposure_different_but_equiv_rules)
+		if newStr := handleRequirementWithInOpAndSingleValue(req); newStr != "" {
+			currStr = newStr
+		}
+		reqStr += currStr
 	}
 	return hex.EncodeToString(sha1.New().Sum([]byte(reqStr))), nil //nolint:gosec // Non-crypto use
 }
