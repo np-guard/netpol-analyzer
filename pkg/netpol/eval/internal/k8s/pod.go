@@ -86,18 +86,16 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 	}
 
 	pr := &Pod{
-		Name:                           p.Name,
-		Namespace:                      p.Namespace,
-		Labels:                         make(map[string]string, len(p.Labels)),
-		IPs:                            make([]corev1.PodIP, len(p.Status.PodIPs)),
-		Ports:                          make([]corev1.ContainerPort, 0, defaultPortsListSize),
-		HostIP:                         p.Status.HostIP,
-		Owner:                          Owner{},
-		FakePod:                        false,
-		IngressExposureData:            initiatePodExposure(),
-		EgressExposureData:             initiatePodExposure(),
-		RepresentativePodLabelSelector: nil,
-		RepresentativeNsLabelSelector:  nil,
+		Name:                p.Name,
+		Namespace:           p.Namespace,
+		Labels:              make(map[string]string, len(p.Labels)),
+		IPs:                 make([]corev1.PodIP, len(p.Status.PodIPs)),
+		Ports:               make([]corev1.ContainerPort, 0, defaultPortsListSize),
+		HostIP:              p.Status.HostIP,
+		Owner:               Owner{},
+		FakePod:             false,
+		IngressExposureData: initiatePodExposure(),
+		EgressExposureData:  initiatePodExposure(),
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -222,8 +220,6 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.FakePod = false
 		pod.IngressExposureData = initiatePodExposure()
 		pod.EgressExposureData = initiatePodExposure()
-		pod.RepresentativePodLabelSelector = nil
-		pod.RepresentativeNsLabelSelector = nil
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
 		}
