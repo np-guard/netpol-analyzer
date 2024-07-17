@@ -62,10 +62,19 @@ type Pod struct {
 	EgressExposureData PodExposureInfo
 	// RepresentativePodLabelSelector contains reference to the podSelector of the policy-rule which the representative peer was inferred from
 	// used only with representative Pods
+	// RepresentativePodLabelSelector might be nil/ represents an empty selector / a specific non-empty selector
 	RepresentativePodLabelSelector *v1.LabelSelector
 	// RepresentativeNsLabelSelector points to the namespaceSelector of the policy rule which this representative pod was inferred from
 	// used only with representative peers (exposure-analysis)
+	// RepresentativeNsLabelSelector might represent an empty selector / a specific non-empty selector (might not be nil)
 	RepresentativeNsLabelSelector *v1.LabelSelector
+
+	// possible combinations of RepresentativePodLabelSelector and RepresentativeNsLabelSelector:
+	// - both are specific non-empty selectors
+	// - RepresentativePodLabelSelector is nil + RepresentativeNsLabelSelector is a specific non-empty selector
+	// - RepresentativePodLabelSelector is empty + RepresentativeNsLabelSelector is a specific non-empty selector
+	// - RepresentativePodLabelSelector a specific non-empty selector + RepresentativeNsLabelSelector is an empty selector
+	// both might not be nil / empty at same time
 }
 
 // Owner encapsulates pod owner workload info
