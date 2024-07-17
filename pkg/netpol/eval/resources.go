@@ -599,17 +599,15 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string) (Peer, error) 
 // and its "namespace" requirements will be stored in its RepresentativeNsLabelSelector field to be used when needed
 // used only in exposure-analysis
 func (pe *PolicyEngine) addRepresentativePod(name, ns string, objSelectors *k8s.SingleRuleSelectors) error {
-	var nsSelector, podSelector *metav1.LabelSelector
-	if objSelectors != nil {
-		nsSelector = objSelectors.NsSelector
-		podSelector = objSelectors.PodSelector
+	if objSelectors == nil { // should not get here
+		return errors.New(netpolerrors.NilRepresentativePodSelectorsErr)
 	}
 	newPod := &k8s.Pod{
 		Name:                           name,
 		Namespace:                      ns,
 		FakePod:                        true,
-		RepresentativePodLabelSelector: podSelector,
-		RepresentativeNsLabelSelector:  nsSelector,
+		RepresentativePodLabelSelector: objSelectors.PodSelector,
+		RepresentativeNsLabelSelector:  objSelectors.NsSelector,
 	}
 	if ns != "" { // if the policy namespace is not in the policy-engine yet, add it (as it is a real namespace)
 		if err := pe.resolveSingleMissingNamespace(ns); err != nil {
@@ -618,11 +616,12 @@ func (pe *PolicyEngine) addRepresentativePod(name, ns string, objSelectors *k8s.
 	}
 
 	//  compute a unique string from the label selectors to be used as the map key
-	nsKey, err := k8s.VariantFromLabelsSelector(nsSelector)
+	// note that objSelectors.NsSelector might not be nil
+	nsKey, err := k8s.VariantFromLabelsSelector(objSelectors.NsSelector)
 	if err != nil {
 		return err
 	}
-	podKey, err := k8s.VariantFromLabelsSelector(podSelector)
+	podKey, err := k8s.VariantFromLabelsSelector(objSelectors.PodSelector)
 	if err != nil {
 		return err
 	}
