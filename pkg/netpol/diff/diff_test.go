@@ -628,7 +628,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_6",
 		secondDirName: "anp_test_6_swapping_rules",
-		formats:       []string{output.DefaultFormat},
+		formats:       allFormats,
 	},
 	{
 		// description:
@@ -636,7 +636,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_7",
 		secondDirName: "anp_test_7_swapping_rules",
-		formats:       []string{output.DefaultFormat},
+		formats:       allFormats,
 	},
 	{
 		// description:
@@ -644,7 +644,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_8",
 		secondDirName: "anp_test_8_swapping_rules",
-		formats:       []string{output.DefaultFormat},
+		formats:       allFormats,
 	},
 	{
 		// description:
@@ -652,7 +652,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_9",
 		secondDirName: "anp_test_9_swapping_rules",
-		formats:       []string{output.DefaultFormat},
+		formats:       allFormats,
 	},
 	{
 		// description:
@@ -660,7 +660,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_10",
 		secondDirName: "anp_test_10_swapping_rules",
-		formats:       []string{output.DefaultFormat},
+		formats:       allFormats,
 	},
 	{
 		// description:
@@ -668,7 +668,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_11",
 		secondDirName: "anp_test_11_swapping_rules",
-		formats:       []string{output.DefaultFormat},
+		formats:       allFormats,
 	},
 	{
 		// description:
@@ -676,7 +676,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_12",
 		secondDirName: "anp_test_12_swapping_rules",
-		formats:       []string{output.DefaultFormat},
+		formats:       allFormats,
 	},
 }
 

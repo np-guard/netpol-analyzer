@@ -760,18 +760,18 @@ var goodPathTests = []struct {
 		// Should Deny traffic from slytherin to gryffindor and
 		// Deny traffic to slytherin from gryffindor respecting ANP with priority 50, ignoring ANP with priority 60
 		testDirName:   "anp_test_4",
-		outputFormats: []string{output.TextFormat},
+		outputFormats: allFormats,
 	},
 	{
 		// Should support a pass-egress to slytherin from gryffindor for ANP and respect the match for network policy
 		// And Dney ingress from slytherin to gryffindor - respecting the ANP ingress rule
 		testDirName:   "anp_test_5",
-		outputFormats: []string{output.TextFormat},
+		outputFormats: allFormats,
 	},
 	{
 		// this test to ensure rule ordering is respected
 		testDirName:   "anp_test_6",
-		outputFormats: []string{output.TextFormat},
+		outputFormats: allFormats,
 	},
 	{
 		// rules are similar to the ones from anp_test_6 but with swaps, so we expect some different results
@@ -781,7 +781,7 @@ var goodPathTests = []struct {
 	{
 		// this test to ensure rule ordering is respected
 		testDirName:   "anp_test_7",
-		outputFormats: []string{output.TextFormat},
+		outputFormats: allFormats,
 	},
 	{
 		// rules are similar to the ones from anp_test_7 but with swaps, so we expect some different results
@@ -791,7 +791,7 @@ var goodPathTests = []struct {
 	{
 		// this test to ensure rule ordering is respected
 		testDirName:   "anp_test_8",
-		outputFormats: []string{output.TextFormat},
+		outputFormats: allFormats,
 	},
 	{
 		// rules are similar to the ones from anp_test_8 but with swaps, so we expect some different results
@@ -801,7 +801,7 @@ var goodPathTests = []struct {
 	{
 		// this test to ensure rule ordering is respected, with both ingress and egress
 		testDirName:   "anp_test_9",
-		outputFormats: []string{output.TextFormat},
+		outputFormats: allFormats,
 	},
 	{
 		// rules are similar to the ones from anp_test_9 but with swaps, so we expect some different results
@@ -811,7 +811,7 @@ var goodPathTests = []struct {
 	{
 		// this test to ensure rule ordering is respected
 		testDirName:   "anp_test_10",
-		outputFormats: []string{output.TextFormat},
+		outputFormats: allFormats,
 	},
 	{
 		// rules are similar to the ones from anp_test_10 but with swaps, so we expect some different results
@@ -821,7 +821,7 @@ var goodPathTests = []struct {
 	{
 		// this test to ensure rule ordering is respected
 		testDirName:   "anp_test_11",
-		outputFormats: []string{output.TextFormat},
+		outputFormats: allFormats,
 	},
 	{
 		// rules are similar to the ones from anp_test_11 but with swaps, so we expect some different results
@@ -831,7 +831,7 @@ var goodPathTests = []struct {
 	{
 		// this test to ensure rule ordering is respected
 		testDirName:   "anp_test_12",
-		outputFormats: []string{output.TextFormat},
+		outputFormats: allFormats,
 	},
 	{
 		// rules are similar to the ones from anp_test_12 but with swaps, so we expect some different results
@@ -846,6 +846,6 @@ var goodPathTests = []struct {
 	{
 		// test with multiple ANPs
 		testDirName:   "anp_test_multiple_anps",
-		outputFormats: []string{output.TextFormat},
+		outputFormats: allFormats,
 	},
 }
