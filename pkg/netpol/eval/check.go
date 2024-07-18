@@ -124,30 +124,57 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 
 // allAllowedConnectionsBetweenPeers: returns the allowed connections from srcPeer to dstPeer
 // expecting that srcPeer and dstPeer are in level of pods (PodPeer)
+// allowed conns are computed considering all policy resources available, admin-network-policies and network-policies
 func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer) (*common.ConnectionSet, error) {
 	srcK8sPeer := srcPeer.(k8s.Peer)
 	dstK8sPeer := dstPeer.(k8s.Peer)
-	var res *common.ConnectionSet
 	var err error
 	// cases where any connection is always allowed
 	if isPodToItself(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(dstK8sPeer, srcK8sPeer) {
 		return common.MakeConnectionSet(true), nil
 	}
-	// egress
-	res, err = pe.allAllowedXgressConnections(srcK8sPeer, dstK8sPeer, false)
+
+	// default connection: (@todo:when supporting BANP, default will be extracted from it)
+	defaultAllowedConns := common.MakeConnectionSet(true) // default is allowAll conns ,  @todo: type will be changed to *PolicyConnections
+
+	// first get conns from AdminNetworkPolicies:
+	// unless one peer is IP, skip, since ANPs are a cluster level resources
+	anpCaptured := false
+	var anpConns *k8s.PolicyConnections
+	if dstK8sPeer.PeerType() != k8s.IPBlockType && srcK8sPeer.PeerType() != k8s.IPBlockType {
+		anpConns, anpCaptured, err = pe.getAllConnsFromAdminNetpols(srcK8sPeer, dstK8sPeer)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// get conns from networkPolicies:
+	var npAllowedConns *common.ConnectionSet
+	npCaptured := false
+	npAllowedConns, npCaptured, err = pe.getAllAllowedConnsFromNetpols(srcK8sPeer, dstK8sPeer)
 	if err != nil {
 		return nil, err
 	}
-	if res.IsEmpty() {
-		return res, nil
+
+	// compute the result considering all captured conns
+	if !anpCaptured && !npCaptured {
+		// if no ANPs nor NPs capturing the peers, return the default allowed conns
+		return defaultAllowedConns, nil
 	}
-	// ingress
-	ingressRes, err := pe.allAllowedXgressConnections(srcK8sPeer, dstK8sPeer, true)
-	if err != nil {
-		return nil, err
+	// else, either ANPs capture the peers, or NPs or both
+	if !anpCaptured {
+		// only netpols capture the peers, return allowed conns from netpols
+		return npAllowedConns, nil
 	}
-	res.Intersection(ingressRes)
-	return res, nil
+	if !npCaptured {
+		// only ANPs capture the peers , return the allowed conns from ANPs.
+		// passed conns will be determined by the default allowed conns, since no netpols captured the traffic.
+		anpConns.UpdateWithOtherLayerConns(defaultAllowedConns)
+		return anpConns.AllowedConns, nil
+	}
+	// both admin-network-policies and network-policies capture the peers
+	anpConns.UpdateWithOtherLayerConns(npAllowedConns)
+	return anpConns.AllowedConns, nil
 }
 
 // getPod: returns a Pod object corresponding to the input pod name
@@ -225,53 +252,6 @@ func (pe *PolicyEngine) allowedXgressConnection(src, dst k8s.Peer, isIngress boo
 	return false, nil
 }
 
-// @todo: check correctness by adding more complicated tests : current implementation first analyze egress conns
-// between src and dst (from ANPs and NPs)
-// then analyzes ingress conns on ANPs and NPs and finally the intersection of ingress and egress allowed conns is returned
-
-// allAllowedXgressConnections returns the set of allowed connections from src to dst on given
-// direction(ingress/egress), by admin-network-policies and network-policies rules
-func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress bool) (allowedConns *common.ConnectionSet, err error) {
-	// default conns from IPs  (on egress) or to IPs (on ingress)
-	if isIngress {
-		if dst.PeerType() == k8s.IPBlockType {
-			return common.MakeConnectionSet(true), nil // all connections allowed - no restrictions on ingress to externalIP
-		}
-	} else {
-		if src.PeerType() == k8s.IPBlockType {
-			return common.MakeConnectionSet(true), nil // all connections allowed - no restrictions on egress from externalIP
-		}
-	}
-
-	defaultAllowedConns := common.MakeConnectionSet(true) // default is allowAll conns (@todo:if there is an BANP,
-	// default will be extracted from it, @todo: this will be changed to *PolicyConnections)
-
-	anpConns, anpCaptured, err := pe.getAllAllowedXgressConnsFromAdminNetpols(src, dst, isIngress)
-	if err != nil {
-		return nil, err
-	}
-	// @todo : change returned value from getAllAllowedXgressConnsFromNetpols to PolicyConnections (with only allowedConns)
-	npAllowedConns, npCaptured, err := pe.getAllAllowedXgressConnsFromNetpols(src, dst, isIngress)
-	if err != nil {
-		return nil, err
-	}
-
-	if !anpCaptured && !npCaptured { // if no ANPs nor NPs capturing the peers, return the default allowed conns
-		return defaultAllowedConns, nil
-	}
-	// else, either ANPs capture the peers, or NPs or both
-	if !anpCaptured { // only netpols capture the peers, return allowed conns from netpols
-		return npAllowedConns, nil
-	}
-	if !npCaptured { // only ANPs capture the peers , return the allowed conns from ANPs
-		anpConns.UpdateWithOtherLayerConns(defaultAllowedConns)
-		return anpConns.AllowedConns, nil
-	}
-	// both admin-network-policies and network-policies capture the peers
-	anpConns.UpdateWithOtherLayerConns(npAllowedConns)
-	return anpConns.AllowedConns, nil
-}
-
 // isPeerNodeIP returns true if peer1 is an IP address of a node and peer2 is a pod on that node
 func isPeerNodeIP(peer1, peer2 k8s.Peer) bool {
 	if peer2.PeerType() == k8s.PodType && peer1.PeerType() == k8s.IPBlockType {
@@ -345,7 +325,7 @@ func (pe *PolicyEngine) checkIfAllowedNew(src, dst, protocol, port string) (bool
 }
 
 // allAllowedConnections: returns allowed connection between input strings of src and dst
-// currently used only for testing
+// currently used only for testing (computations based on all policy resources (e.g. ANP, NP))
 func (pe *PolicyEngine) allAllowedConnections(src, dst string) (*common.ConnectionSet, error) {
 	srcPeer, err := pe.getPeer(src)
 	if err != nil {
@@ -373,16 +353,45 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 	}
 }
 
+// analyzing network-policies for conns between peers (object kind == NetworkPolicy):
+
+// getAllAllowedConnsFromNetpols : returns set of allowed connections between src and dst by analyzing the network-policies rules
+func (pe *PolicyEngine) getAllAllowedConnsFromNetpols(src, dst k8s.Peer) (allowedConns *common.ConnectionSet, npCaptured bool, err error) {
+	var res, ingressRes *common.ConnectionSet
+	egressCaptured, ingressCaptured := false, false
+	// egress
+	res, egressCaptured, err = pe.getAllAllowedXgressConnsFromNetpols(src, dst, false)
+	if err != nil {
+		return nil, false, err
+	}
+	if egressCaptured && res.IsEmpty() {
+		return res, egressCaptured, nil
+	}
+	// ingress
+	ingressRes, ingressCaptured, err = pe.getAllAllowedXgressConnsFromNetpols(src, dst, true)
+	if err != nil {
+		return nil, false, err
+	}
+	res.Intersection(ingressRes)
+	return res, ingressCaptured || egressCaptured, nil
+}
+
 // getAllAllowedXgressConnsFromNetpols returns the set of allowed connections from src to dst on given
-// direction(ingress/egress), by network policies rules (object kind == NetworkPolicy)
+// direction(ingress/egress), by network policies rules
 func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, isIngress bool) (allowedConns *common.ConnectionSet,
 	captured bool, err error) {
-	// note that if isIngress : dst is not an IP , and if !isIngress src can not be IP (case already handled)
 	// relevant policies: policies that capture dst if isIngress, else policies that capture src
 	var netpols []*k8s.NetworkPolicy
 	if isIngress {
+		if dst.PeerType() == k8s.IPBlockType {
+			return common.MakeConnectionSet(true), true, nil // all connections allowed - no restrictions on ingress to externalIP.
+			// returning true as captured because other policy resources are clustered only (only netpols may affect conns to and from IPs)
+		}
 		netpols, err = pe.getPoliciesSelectingPod(dst.GetPeerPod(), netv1.PolicyTypeIngress)
 	} else {
+		if src.PeerType() == k8s.IPBlockType {
+			return common.MakeConnectionSet(true), true, nil // all connections allowed - no restrictions on egress from externalIP
+		}
 		netpols, err = pe.getPoliciesSelectingPod(src.GetPeerPod(), netv1.PolicyTypeEgress)
 	}
 	if err != nil {
@@ -390,9 +399,9 @@ func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, i
 	}
 
 	if len(netpols) == 0 {
-		//  no network policy captures the relevant pod on the required direction, returning nil conns,
-		// conns will be determined by other policy objects/ default value
-		return nil, false, nil
+		// default of network-policies is allow all, if both directions not capturing the conn,
+		// this will be ignored and skipped so allowed conns will be determined by BANP, or system-default
+		return common.MakeConnectionSet(true), false, nil
 	}
 
 	allowedConns = common.MakeConnectionSet(false)
@@ -417,68 +426,94 @@ func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, i
 	return allowedConns, true, nil
 }
 
-// analyzing admin network policies for conns between peers
+// analyzing admin-network-policies for conns between peers (object kind == AdminNetworkPolicy):
 
-// getAllAllowedXgressConnsFromAdminNetpols returns the set of allowed connections from src to dst on given
-// direction(ingress/egress), by admin network policies rules (object kind == AdminNetworkPolicy)
-func (pe *PolicyEngine) getAllAllowedXgressConnsFromAdminNetpols(src, dst k8s.Peer, isIngress bool) (anpsConns *k8s.PolicyConnections,
+// getAllConnsFromAdminNetpols returns the connections from src to dst by analyzing admin network policies rules
+func (pe *PolicyEngine) getAllConnsFromAdminNetpols(src, dst k8s.Peer) (anpsConns *k8s.PolicyConnections,
 	captured bool, err error) {
 	var adminNetpols []*k8s.AdminNetworkPolicy
-	if isIngress {
-		adminNetpols, err = pe.getAdminNetpolsSelectingPeerSortedByPriority(dst, true)
-	} else {
-		adminNetpols, err = pe.getAdminNetpolsSelectingPeerSortedByPriority(src, false)
+	// since the priority of policies is critical for computing the conns between peers, we need all admin policies capturing both peers.
+	// get all admin policies selecting the dst in Ingress direction
+	dstAdminNetpols, err := pe.getAdminNetpolsSelectingPeer(dst, true)
+	if err != nil {
+		return nil, false, err
 	}
+	// get all admin policies selecting the src in egress direction
+	srcAdminNetpols, err := pe.getAdminNetpolsSelectingPeer(src, false)
 	if err != nil {
 		return nil, false, err
 	}
 
-	if len(adminNetpols) == 0 {
-		// if there are no admin netpols selecting the pods, returning nil conns,
+	if len(dstAdminNetpols) == 0 && len(srcAdminNetpols) == 0 {
+		// if there are no admin netpols selecting the peers, returning nil conns,
 		// conns will be determined by other policy objects/ default value
 		return nil, false, nil
+	}
+
+	// admin netpols may select subjects by namespaces, so an ANP may appear in both dstAminNetpols, and srcAdminNetpols.
+	// then merging both sets into one unique and sorted by priority list of admin-network-policies.
+	adminNetpols, err = getUniqueAndSortedANPsList(dstAdminNetpols, srcAdminNetpols)
+	if err != nil {
+		return nil, false, err
 	}
 
 	policiesConns := k8s.InitEmptyPolicyConnections()
 	// iterate the related sorted admin network policies in order to compute the allowed, pass, and denied connections between the peers
 	for _, anp := range adminNetpols {
-		// if isIngress: check for ingress rules that capture src;
-		// if not isIngress: check for egress rules that capture dst;
 		// collect the allowed, pass, and denied connectivity from the relevant rules into policiesConns
-		var policyConnsPerDirection *k8s.PolicyConnections
-		var err error
-		if isIngress {
-			policyConnsPerDirection, err = anp.GetIngressPolicyConns(src, dst)
-		} else {
-			policyConnsPerDirection, err = anp.GetEgressPolicyConns(dst)
+		// note that anp may capture both the src and dst (by namespaces field), so both ingress and egress sections might be helpful
+
+		// if the anp captures the src, get the relevant egress conns between src and dst
+		if srcAdminNetpols[anp] {
+			policyConnsPerDirection, err := anp.GetEgressPolicyConns(dst)
+			if err != nil {
+				return nil, false, err
+			}
+			policiesConns.CollectANPConns(policyConnsPerDirection)
 		}
-		if err != nil {
-			return nil, false, err
+		// if the anp captures the dst, get the relevant ingress conns (from src to dst)
+		if dstAdminNetpols[anp] {
+			policyConnsPerDirection, err := anp.GetIngressPolicyConns(src, dst)
+			if err != nil {
+				return nil, false, err
+			}
+			policiesConns.CollectANPConns(policyConnsPerDirection)
 		}
-		policiesConns.CollectANPConns(policyConnsPerDirection)
 	}
+
 	if policiesConns.IsEmpty() { // conns between src and dst were not captured by the adminNetpols, to be determined by netpols/default conns
 		return nil, false, nil
 	}
+
 	return policiesConns, true, nil
 }
 
-// getAdminNetpolsSelectingPeer returns list of adminNetworkPolicies which select the input peer and have rules on the required direction
-func (pe *PolicyEngine) getAdminNetpolsSelectingPeerSortedByPriority(peer k8s.Peer, isIngress bool) ([]*k8s.AdminNetworkPolicy, error) {
-	res := []*k8s.AdminNetworkPolicy{}
+// getAdminNetpolsSelectingPeer returns set of adminNetworkPolicies which select the input peer and have rules on the required direction
+func (pe *PolicyEngine) getAdminNetpolsSelectingPeer(peer k8s.Peer, isIngress bool) (map[*k8s.AdminNetworkPolicy]bool, error) {
+	res := make(map[*k8s.AdminNetworkPolicy]bool, 0) // set
 	for _, anp := range pe.adminNetpolsMap {
 		selects, err := anp.Selects(peer, isIngress)
 		if err != nil {
 			return nil, err
 		}
 		if selects {
-			res = append(res, anp)
+			res[anp] = true
 		}
 	}
-	if len(res) == 0 { // no anps selecting the peer
-		return res, nil
+	return res, nil
+}
+
+// getUniqueANPsList gets two sets of adminNetpols and merges them into one list with unique ANP objects
+func getUniqueAndSortedANPsList(ingressAnps, egressAnps map[*k8s.AdminNetworkPolicy]bool) ([]*k8s.AdminNetworkPolicy, error) {
+	res := []*k8s.AdminNetworkPolicy{}
+	for key := range ingressAnps {
+		res = append(res, key)
 	}
-	// sort ANPs by priority
+	for key := range egressAnps {
+		if !ingressAnps[key] {
+			res = append(res, key)
+		}
+	}
 	return sortAdminNetpolsByPriority(res)
 }
 

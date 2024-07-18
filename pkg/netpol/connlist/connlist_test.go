@@ -843,4 +843,9 @@ var goodPathTests = []struct {
 		testDirName:   "anp_test_combining_test6_and_test10",
 		outputFormats: []string{output.TextFormat},
 	},
+	{
+		// test with multiple ANPs
+		testDirName:   "anp_test_multiple_anps",
+		outputFormats: []string{output.TextFormat},
+	},
 }
