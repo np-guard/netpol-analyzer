@@ -431,7 +431,6 @@ func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, i
 // getAllConnsFromAdminNetpols returns the connections from src to dst by analyzing admin network policies rules
 func (pe *PolicyEngine) getAllConnsFromAdminNetpols(src, dst k8s.Peer) (anpsConns *k8s.PolicyConnections,
 	captured bool, err error) {
-	var adminNetpols []*k8s.AdminNetworkPolicy
 	// since the priority of policies is critical for computing the conns between peers, we need all admin policies capturing both peers.
 	// get all admin policies selecting the dst in Ingress direction
 	dstAdminNetpols, err := pe.getAdminNetpolsSelectingPeer(dst, true)
@@ -452,7 +451,7 @@ func (pe *PolicyEngine) getAllConnsFromAdminNetpols(src, dst k8s.Peer) (anpsConn
 
 	// admin netpols may select subjects by namespaces, so an ANP may appear in both dstAminNetpols, and srcAdminNetpols.
 	// then merging both sets into one unique and sorted by priority list of admin-network-policies.
-	adminNetpols, err = getUniqueAndSortedANPsList(dstAdminNetpols, srcAdminNetpols)
+	adminNetpols, err := getUniqueAndSortedANPsList(dstAdminNetpols, srcAdminNetpols)
 	if err != nil {
 		return nil, false, err
 	}
