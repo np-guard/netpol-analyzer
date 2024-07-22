@@ -7,7 +7,6 @@ package eval
 
 import (
 	"errors"
-	"fmt"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -19,33 +18,26 @@ import (
 
 // this file contains eval.PolicyEngine funcs which are related to exposure-analysis feature
 
-func generateNewPodName(index int) string {
-	return k8s.RepresentativePodName + "-" + fmt.Sprint(index)
-}
-
 // generateRepresentativePeers : generates and adds to policy engine representative peers where each peer
-// has namespace and pod labelSelectors inferred from single entry of selectors in a policy rule list;
+// has namespace labelSelector and pod labelSelector inferred from single entry of selectors in a policy rules list;
 //
 // - for example, if a rule within policy has an entry: namespaceSelector "foo: managed", then a representative pod
 // with this labelSelector will be added, representing all potential pods in such a namespace.
 // - generated representative peers are unique; i.e. if different rules (e.g in different policies or different directions)
 // has same selectors, one representative peer is generated to represent both.
 // - note that :
-// - if the rule's namespaceSelector is nil, then the representative pod is created in the policyNamespace (as it is a real namespace)
-// - but if the rule's namespaceSelector is not nil, the representative pod will store this selector in its field,
-// and no representative namespace will be generated
+// - if the rule's namespaceSelector is nil, then the representative pod is created in the policy's Namespace (as it is a real namespace)
+// - if the rule's namespaceSelector is not nil, no representative namespace will be generated (representative pod has empty namespace name)
+// anyway, the representative pod will store the namespace data.
 func (pe *PolicyEngine) generateRepresentativePeers(selectors []k8s.SingleRuleSelectors, policyNs string) (err error) {
 	for i := range selectors {
-		// if namespaceSelector of the rule was nil, then the namespace of the pod is same as the policy's namespace
-		// i.e. the representative pod should be created in the real namespace of the policy
+		podNs := "" // by default: representative peer has no namespace; (don't generate representative namespaces)
 		if selectors[i].PolicyNsFlag {
-			err = pe.addRepresentativePod(generateNewPodName(i), policyNs, &selectors[i])
-		} else {
-			// if the namespaceSelector is not nil, it is assigned to the selectors[i].NsSelector, that will be assigned to the matching
-			// field on the representative pod; and the representative pod will have no namespace,
-			// i.e. no need to upsert a representative namespace to the policy-engine (has no meaning)
-			err = pe.addRepresentativePod(generateNewPodName(i), "", &selectors[i])
+			// if namespaceSelector of the rule was nil, then the namespace of the pod is same as the policy's namespace
+			// i.e. the namespace name of the policy should be assigned to the representative pod's Namespace (string field)
+			podNs = policyNs
 		}
+		err = pe.addRepresentativePod(podNs, &selectors[i])
 		if err != nil {
 			return err
 		}

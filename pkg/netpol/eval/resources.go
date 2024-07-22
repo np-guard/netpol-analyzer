@@ -597,28 +597,24 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string) (Peer, error) 
 	return &k8s.WorkloadPeer{Pod: newPod}, nil
 }
 
-// addRepresentativePod adds a new representative pod to the policy-engine (to pe.representativePeersMap)
-// if the given namespace string (ns) is not empty (i.e. a real namespace name), the representative pod is created in that namespace
+// addRepresentativePod adds a new representative pod to the policy-engine (to pe.representativePeersMap).
+// if the given namespace string (podNs) is not empty (i.e. a real (policy's) namespace name), it will be assigned to the pod's Namespace
 // else, the representative pod will have no namespace (will not add a representative namespace to the policy-engine)
-// and its "namespace" requirements will be stored in its RepresentativeNsLabelSelector field to be used when needed
-// used only in exposure-analysis
-func (pe *PolicyEngine) addRepresentativePod(name, ns string, objSelectors *k8s.SingleRuleSelectors) error {
+// anyway the "namespace" requirements of the representative pod will be stored in its RepresentativeNsLabelSelector field.
+// this func is used only with exposure-analysis
+func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.SingleRuleSelectors) error {
 	if objSelectors == nil { // should not get here
 		return errors.New(netpolerrors.NilRepresentativePodSelectorsErr)
 	}
 	newPod := &k8s.Pod{
-		Name:                           name,
-		Namespace:                      ns,
+		// all representative pods are having same name since this name is used only to indicate that this Fake Pod is representative;
+		// this name is not used for storing it in the policy-engine/ comparing with other peers/ or representing it.
+		Name:                           k8s.RepresentativePodName,
+		Namespace:                      podNs,
 		FakePod:                        true,
 		RepresentativePodLabelSelector: objSelectors.PodSelector,
 		RepresentativeNsLabelSelector:  objSelectors.NsSelector,
 	}
-	if ns != "" { // if the policy namespace is not in the policy-engine yet, add it (as it is a real namespace)
-		if err := pe.resolveSingleMissingNamespace(ns); err != nil {
-			return err
-		}
-	}
-
 	//  compute a unique string from the label selectors to be used as the map key
 	// note that objSelectors.NsSelector might not be nil
 	nsKey, err := k8s.VariantFromLabelsSelector(objSelectors.NsSelector)
