@@ -487,10 +487,10 @@ func DefaultNamespaceLabelsMap(namespaceName string) map[string]string {
 	return map[string]string{common.K8sNsNameLabelKey: namespaceName}
 }
 
-// ScanPolicyRulesForGeneralConnsAndRepresentativePeers scans policy rules and :
-// - updates policy's general connections with all destinations or/ and with entire cluster for ingress and/ or egress directions
+// ScanPolicyRulesAndUpdateExposedWideConns scans policy rules and :
+// - updates policy's exposed wide connections for all destinations or/ and for entire cluster on ingress and/ or egress directions
 // - returns list of labels.selectors from rules which has non-empty selectors, for which the representative peers should be generated
-func (np *NetworkPolicy) ScanPolicyRulesForGeneralConnsAndRepresentativePeers() (rulesSelectors []SingleRuleSelectors, err error) {
+func (np *NetworkPolicy) ScanPolicyRulesAndUpdateExposedWideConns() (rulesSelectors []SingleRuleSelectors, err error) {
 	if np.policyAffectsDirection(netv1.PolicyTypeIngress) {
 		selectors, err := np.scanIngressRules()
 		if err != nil {
@@ -508,13 +508,13 @@ func (np *NetworkPolicy) ScanPolicyRulesForGeneralConnsAndRepresentativePeers() 
 	return rulesSelectors, nil
 }
 
-// scanIngressRules handles policy's ingress rules (for updating policy's general conns/ returning specific rules' selectors)
+// scanIngressRules handles policy's ingress rules (for updating policy's wide conns/ returning specific rules' selectors)
 func (np *NetworkPolicy) scanIngressRules() ([]SingleRuleSelectors, error) {
 	rulesSelectors := []SingleRuleSelectors{}
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		selectors, err := np.handleRulesSelectors(rulePeers, rulePorts, true)
+		selectors, err := np.getSelectorsAndUpdateExposedWideConns(rulePeers, rulePorts, true)
 		if err != nil {
 			return nil, err
 		}
@@ -523,13 +523,13 @@ func (np *NetworkPolicy) scanIngressRules() ([]SingleRuleSelectors, error) {
 	return rulesSelectors, nil
 }
 
-// scanEgressRules handles policy's egress rules (for updating policy's general conns/ returning specific rules' selectors)
+// scanEgressRules handles policy's egress rules (for updating policy's wide conns/ returning specific rules' selectors)
 func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 	rulesSelectors := []SingleRuleSelectors{}
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		selectors, err := np.handleRulesSelectors(rulePeers, rulePorts, false)
+		selectors, err := np.getSelectorsAndUpdateExposedWideConns(rulePeers, rulePorts, false)
 		if err != nil {
 			return nil, err
 		}
@@ -539,13 +539,13 @@ func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 	return rulesSelectors, nil
 }
 
-// handleRulesSelectors :
+// getSelectorsAndUpdateExposedWideConns:
 // - checks if the given rules list is exposed to entire world or entire cluster
 // (e.g. if the rules list is empty/ if there is a rule with: empty namespaceSelector/ both empty nameSpaceSelector and podSelector) :
 // then updates the policy's general conns
 // - else: returns selectors of non-general rules (rules that are not exposed to entire world or cluster).
 // this func assumes rules are legal (rules correctness check occurs later)
-func (np *NetworkPolicy) handleRulesSelectors(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
+func (np *NetworkPolicy) getSelectorsAndUpdateExposedWideConns(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
 	isIngress bool) (rulesSelectors []SingleRuleSelectors, err error) {
 	if len(rules) == 0 {
 		err = np.updateNetworkPolicyGeneralConn(true, true, rulePorts, isIngress)
