@@ -205,7 +205,7 @@ func (ca *ConnlistAnalyzer) getPolicyEngine(objectsList []parser.K8sObject) (*ev
 	}
 	// else build new policy engine with exposure analysis option
 	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
-	err := pe.AddObjects(objectsList)
+	err := pe.AddObjectsForExposureAnalysis(objectsList)
 	return pe, err
 }
 

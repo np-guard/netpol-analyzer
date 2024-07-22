@@ -81,13 +81,13 @@ func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 	return pe
 }
 
-// AddObjects adds k8s objects to the policy engine: first adds network-policies and namespaces and then other objects
-// called only for exposure analysis; otherwise does nothing
+// AddObjectsForExposureAnalysis adds k8s objects to the policy engine: first adds network-policies and namespaces and then other objects.
 // for exposure analysis we need to upsert first policies and namespaces so:
-// 1. policies: so representative peer for each policy rule is added
-// 2. namespaces: so when upserting workloads, we'll be able to refine correctly representativePeers with
-// namespace name/ labels similar to those belonging the workloads' namespace
-func (pe *PolicyEngine) AddObjects(objects []parser.K8sObject) error {
+// 1. policies: so a representative peer for each policy rule is added
+// 2. namespaces: so when inserting workloads, we'll be able to check correctly check if a generated representative peer
+// should be removed, i.e. its labels and namespace correspond to a real pod.
+// this func is called only for exposure analysis; otherwise does nothing
+func (pe *PolicyEngine) AddObjectsForExposureAnalysis(objects []parser.K8sObject) error {
 	if !pe.exposureAnalysisFlag { // should not be true ever
 		return nil
 	}
