@@ -92,10 +92,14 @@ func (pe *PolicyEngine) AddObjects(objects []parser.K8sObject) error {
 		return nil
 	}
 	policiesAndNamespaces, otherObjects := splitPoliciesAndNamespacesAndOtherObjects(objects)
+	// note: in the first call addObjectsByKind with policy objects, will add
+	// the representative peers
 	err := pe.addObjectsByKind(policiesAndNamespaces)
 	if err != nil {
 		return err
 	}
+	// note: in the second call addObjectsByKind with workload objects, will possibly remove some
+	// representative peers (for which there is already an identical actual workload with simple selectors)
 	err = pe.addObjectsByKind(otherObjects)
 	return err
 }

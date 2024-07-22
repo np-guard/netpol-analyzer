@@ -489,7 +489,7 @@ func DefaultNamespaceLabelsMap(namespaceName string) map[string]string {
 
 // ScanPolicyRulesForGeneralConnsAndRepresentativePeers scans policy rules and :
 // - updates policy's general connections with all destinations or/ and with entire cluster for ingress and/ or egress directions
-// - returns list of labels.selectors from rules which has non-empty selectors
+// - returns list of labels.selectors from rules which has non-empty selectors, for which the representative peers should be generated
 func (np *NetworkPolicy) ScanPolicyRulesForGeneralConnsAndRepresentativePeers() (rulesSelectors []SingleRuleSelectors, err error) {
 	if np.policyAffectsDirection(netv1.PolicyTypeIngress) {
 		selectors, err := np.scanIngressRules()
@@ -557,14 +557,16 @@ func (np *NetworkPolicy) handleRulesSelectors(rules []netv1.NetworkPolicyPeer, r
 			continue
 		}
 		// a rule is exposed to entire cluster if :
-		// 1. the podSelector is nil (no podselector) but the namespaceSelector is empty ({}) not nil
+		// 1. the podSelector is nil (no podSelector) but the namespaceSelector is empty ({}) not nil
 		// 2. both podSelector and namespaceSelector are empty ({})
+		// (note that podSelector and namespaceSelector cannot be both nil, this is invalid )
+		// if podSelector is not nil but namespaceSelector is nil, this is the netpol's namespace
 		if rules[i].NamespaceSelector != nil && rules[i].NamespaceSelector.Size() == 0 &&
 			(rules[i].PodSelector == nil || rules[i].PodSelector.Size() == 0) {
 			err = np.updateNetworkPolicyGeneralConn(false, true, rulePorts, isIngress)
 			return nil, err
 		}
-		// else selectors' combination specifies end-points (at least one is not nil)
+		// else selectors' combination specifies workloads by labels (at least one is not nil and not empty)
 		ruleSel.PodSelector = rules[i].PodSelector
 		ruleSel.NsSelector = rules[i].NamespaceSelector
 		if rules[i].NamespaceSelector == nil {
