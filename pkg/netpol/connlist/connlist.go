@@ -432,11 +432,11 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	// represent peerList as []connlist.Peer list to be returned
 	peers := convertEvalPeersToConnlistPeer(peerList)
 
-	// connPeers represents []connlist.Peer to be sent to ca.getConnectionsBetweenPeers
-	connPeers := peers
+	// realAndRepresentativePeers represents []connlist.Peer to be sent to ca.getConnectionsBetweenPeers
+	realAndRepresentativePeers := peers
 	if ca.exposureAnalysis {
 		representativePeers := pe.GetRepresentativePeersList()
-		connPeers = append(connPeers, convertEvalPeersToConnlistPeer(representativePeers)...)
+		realAndRepresentativePeers = append(realAndRepresentativePeers, convertEvalPeersToConnlistPeer(representativePeers)...)
 	}
 	ca.peersList = make([]Peer, 0, len(peerList))
 	for _, p := range peerList {
@@ -457,7 +457,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 
 	// compute connections between peers based on pe analysis of network policies
 	// if exposure-analysis is on, also compute and return the exposures-map
-	peersAllowedConns, exposureMaps, err := ca.getConnectionsBetweenPeers(pe, connPeers)
+	peersAllowedConns, exposureMaps, err := ca.getConnectionsBetweenPeers(pe, realAndRepresentativePeers)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
