@@ -414,13 +414,13 @@ zz/c[Pod] => yy/b[Pod] : All Connections`,
 		podList = append(podList, podObj)
 	}
 	nsList := []*v1.Namespace{}
-	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "xx", Labels: map[string]string{"ns": "xx"}}})
-	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "yy", Labels: map[string]string{"ns": "yy"}}})
+	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "xx", Labels: map[string]string{"ns": "xx"}}},
+		&v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "yy", Labels: map[string]string{"ns": "yy"}}})
 
 	for _, test := range testList {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
-			//t.Parallel()
+			// t.Parallel()
 			test.initTest(podList, nsList)
 			res, _, err := test.analyzer.connslistFromParsedResources(test.resources)
 			require.Nil(t, err, test.testInfo)
@@ -431,7 +431,6 @@ zz/c[Pod] => yy/b[Pod] : All Connections`,
 				"output mismatch for %s, actual output: %q vs expected output: %q",
 				test.testInfo, out, test.expectedOutput)
 		})
-
 	}
 }
 
