@@ -15,6 +15,13 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
+	"sigs.k8s.io/yaml"
+
+	v1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1alpha1 "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
 	"github.com/stretchr/testify/require"
 )
@@ -114,6 +121,317 @@ func TestConnListFromResourceInfos(t *testing.T) {
 					pTest.testInfo, currentPkg)
 			}
 		})
+	}
+}
+
+//////////////////////////////////// The following tests are taken from /////////////////////////////////////
+// https://github.com/kubernetes-sigs/network-policy-api/blob/main/cmd/policy-assistant/test/integration/integration_test.go
+
+const (
+	podA = `
+apiVersion: v1
+kind: Pod
+metadata:
+  name: a
+  namespace: xx
+  labels:
+    pod: a
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - name: serve-80-tcp
+      containerPort: 80
+      protocol: TCP
+status:
+  podIPs:
+  - ip: 192.168.49.2
+  hostIP: 192.168.49.2`
+
+	podB = `
+apiVersion: v1
+kind: Pod
+metadata:
+  name: b
+  namespace: yy
+  labels:
+    pod: b
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+status:
+  podIPs:
+  - ip: 192.168.49.2
+  hostIP: 192.168.49.2`
+
+	podC = `
+apiVersion: v1
+kind: Pod
+metadata:
+  name: c
+  namespace: zz
+  labels:
+    pod: c
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+status:
+  podIPs:
+  - ip: 192.168.49.2
+  hostIP: 192.168.49.2`
+)
+
+var serve80tcp = "serve-80-tcp"
+
+func podFromYaml(podYamlStr string) (*v1.Pod, error) {
+	podObj := v1.Pod{}
+	err := yaml.Unmarshal([]byte(podYamlStr), &podObj)
+	if err != nil {
+		return nil, err
+	}
+	return &podObj, nil
+}
+
+type parsedResourcesTest struct {
+	name           string
+	testInfo       string
+	npList         []*netv1.NetworkPolicy
+	anpList        []*v1alpha1.AdminNetworkPolicy
+	outputFormat   string
+	expectedOutput string
+	resources      []parser.K8sObject
+	analyzer       *ConnlistAnalyzer
+}
+
+func (test *parsedResourcesTest) initTest(podList []*v1.Pod, nsList []*v1.Namespace) {
+	test.testInfo = fmt.Sprintf("test: %q, output format: %q", test.name, test.outputFormat)
+	for _, ns := range nsList {
+		k8sObj := parser.CreateNamespaceK8sObject(ns)
+		test.resources = append(test.resources, k8sObj)
+	}
+	for _, pod := range podList {
+		k8sObj := parser.CreatePodK8sObject(pod)
+		test.resources = append(test.resources, k8sObj)
+	}
+	for _, np := range test.npList {
+		k8sObj := parser.CreateNetwordPolicyK8sObject(np)
+		test.resources = append(test.resources, k8sObj)
+	}
+	for _, anp := range test.anpList {
+		k8sObj := parser.CreateAdminNetwordPolicyK8sObject(anp)
+		test.resources = append(test.resources, k8sObj)
+	}
+	test.analyzer = NewConnlistAnalyzer(WithOutputFormat(test.outputFormat))
+}
+
+func TestANPConnectivityFromParsedResources(t *testing.T) {
+	testList := []parsedResourcesTest{
+		{
+			name:         "egress port number protocol unspecified",
+			outputFormat: string(output.TextFormat),
+			expectedOutput: `0.0.0.0-255.255.255.255 => xx/a[Pod] : All Connections
+0.0.0.0-255.255.255.255 => yy/b[Pod] : All Connections
+0.0.0.0-255.255.255.255 => zz/c[Pod] : All Connections
+xx/a[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+xx/a[Pod] => yy/b[Pod] : All but: TCP 80
+xx/a[Pod] => zz/c[Pod] : All Connections
+yy/b[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+yy/b[Pod] => xx/a[Pod] : All Connections
+yy/b[Pod] => zz/c[Pod] : All Connections
+zz/c[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+zz/c[Pod] => xx/a[Pod] : All Connections
+zz/c[Pod] => yy/b[Pod] : All Connections`,
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 100,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Pods: &v1alpha1.NamespacedPod{
+								NamespaceSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"ns": "xx"},
+								},
+								PodSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"pod": "a"},
+								},
+							},
+						},
+						Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
+								To: []v1alpha1.AdminNetworkPolicyEgressPeer{
+									{
+										Pods: &v1alpha1.NamespacedPod{
+											NamespaceSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"ns": "yy"},
+											},
+											PodSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"pod": "b"},
+											},
+										},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortNumber: &v1alpha1.Port{
+											Port: 80,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:         "ingress port number protocol unspecified",
+			outputFormat: string(output.TextFormat),
+			expectedOutput: `0.0.0.0-255.255.255.255 => xx/a[Pod] : All Connections
+0.0.0.0-255.255.255.255 => yy/b[Pod] : All Connections
+0.0.0.0-255.255.255.255 => zz/c[Pod] : All Connections
+xx/a[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+xx/a[Pod] => yy/b[Pod] : All Connections
+xx/a[Pod] => zz/c[Pod] : All Connections
+yy/b[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+yy/b[Pod] => xx/a[Pod] : All but: TCP 80
+yy/b[Pod] => zz/c[Pod] : All Connections
+zz/c[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+zz/c[Pod] => xx/a[Pod] : All Connections
+zz/c[Pod] => yy/b[Pod] : All Connections`,
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 100,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Pods: &v1alpha1.NamespacedPod{
+								NamespaceSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"ns": "xx"},
+								},
+								PodSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"pod": "a"},
+								},
+							},
+						},
+						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
+								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+									{
+										Pods: &v1alpha1.NamespacedPod{
+											NamespaceSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"ns": "yy"},
+											},
+											PodSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"pod": "b"},
+											},
+										},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortNumber: &v1alpha1.Port{
+											Port: 80,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:         "ingress named port",
+			outputFormat: string(output.TextFormat),
+			expectedOutput: `0.0.0.0-255.255.255.255 => xx/a[Pod] : All Connections
+0.0.0.0-255.255.255.255 => yy/b[Pod] : All Connections
+0.0.0.0-255.255.255.255 => zz/c[Pod] : All Connections
+xx/a[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+xx/a[Pod] => yy/b[Pod] : All Connections
+xx/a[Pod] => zz/c[Pod] : All Connections
+yy/b[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+yy/b[Pod] => xx/a[Pod] : All but: TCP 80
+yy/b[Pod] => zz/c[Pod] : All Connections
+zz/c[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+zz/c[Pod] => xx/a[Pod] : All Connections
+zz/c[Pod] => yy/b[Pod] : All Connections`,
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 100,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Pods: &v1alpha1.NamespacedPod{
+								NamespaceSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"ns": "xx"},
+								},
+								PodSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"pod": "a"},
+								},
+							},
+						},
+						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
+								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+									{
+										Pods: &v1alpha1.NamespacedPod{
+											NamespaceSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"ns": "yy"},
+											},
+											PodSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"pod": "b"},
+											},
+										},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										NamedPort: &serve80tcp,
+									},
+								}),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	podList := []*v1.Pod{}
+	podsYamlList := []string{podA, podB, podC}
+	for _, podYaml := range podsYamlList {
+		podObj, err := podFromYaml(podYaml)
+		if err != nil {
+			t.Fatalf("error getting pod object")
+		}
+		podList = append(podList, podObj)
+	}
+	nsList := []*v1.Namespace{}
+	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "xx", Labels: map[string]string{"ns": "xx"}}})
+	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "yy", Labels: map[string]string{"ns": "yy"}}})
+
+	for _, test := range testList {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			//t.Parallel()
+			test.initTest(podList, nsList)
+			res, _, err := test.analyzer.connslistFromParsedResources(test.resources)
+			require.Nil(t, err, test.testInfo)
+			out, err := test.analyzer.ConnectionsListToString(res)
+			fmt.Printf("The result of %s:\n%s\n\n", test.testInfo, out)
+			require.Nil(t, err, test.testInfo)
+			require.Equal(t, test.expectedOutput, out,
+				"output mismatch for %s, actual output: %q vs expected output: %q",
+				test.testInfo, out, test.expectedOutput)
+		})
+
 	}
 }
 
