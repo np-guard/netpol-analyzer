@@ -609,8 +609,9 @@ func (ca *ConnlistAnalyzer) logWarning(msg string) {
 	}
 }
 
-// getP2PConnOrUpdateExposureConn if the given connection is between two peers from the parsed resources returns it as P2P connection object,
-// otherwise the connection belongs to exposure-analysis, will be added to the provided exposure-map
+// getP2PConnOrUpdateExposureConn if the given connection is between two peers from the parsed resources
+// returns it as P2P connection object, otherwise the connection belongs to exposure-analysis,
+// will be added to the provided exposure-map
 func (ca *ConnlistAnalyzer) getP2PConnOrUpdateExposureConn(pe *eval.PolicyEngine, allowedConnections common.Connection,
 	src, dst Peer, exposureMaps *exposureMaps) (*connection, error) {
 	if !ca.exposureAnalysis {
