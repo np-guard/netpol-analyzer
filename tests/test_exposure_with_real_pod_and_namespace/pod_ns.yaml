@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hello-world
+spec: {}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns2
+  labels:
+    name: ns2
+    env: production
+spec: {}

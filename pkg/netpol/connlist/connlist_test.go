@@ -1089,4 +1089,13 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
+	{
+		// this test to emphasize why namespaces should be split with policies at the beginning,
+		// if the namespaces are not split the analyzer will not recognize that there is a real pod in a real
+		// namespace which exactly match the netpol's rule and will add an unnecessary exposure line in the results
+		// hello-world/workload-a[Deployment]      <=      [namespace with {name=ns2}]/[pod with {app=b-app}] : All Connections
+		testDirName:      "test_exposure_with_real_pod_and_namespace",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.DefaultFormat},
+	},
 }
