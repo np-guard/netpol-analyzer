@@ -33,21 +33,21 @@ import (
 type NetworkPolicy struct {
 	*netv1.NetworkPolicy // embedding k8s network policy object
 	// following data stored in preprocessing when exposure-analysis is on;
-	// IngressGeneralConns contains:
+	// IngressExposedGeneralConns contains:
 	// - the maximal connection-set which the policy's rules allow to all destinations on ingress direction
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on ingress direction
-	IngressGeneralConns PolicyGeneralRulesConns
-	// EgressGeneralConns contains:
+	IngressExposedGeneralConns PolicyExposedGeneralConns
+	// EgressExposedGeneralConns contains:
 	// - the maximal connection-set which the policy's rules allow to all destinations on egress direction
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on egress direction
-	EgressGeneralConns PolicyGeneralRulesConns
+	EgressExposedGeneralConns PolicyExposedGeneralConns
 }
 
 // @todo might help if while pre-process, to check containment of all rules' connections; if all "specific" rules
 // connections are contained in the "general" rules connections, then we can avoid iterating policy rules for computing
 // connections between two peers
 
-type PolicyGeneralRulesConns struct {
+type PolicyExposedGeneralConns struct {
 	// AllDestinationsConns contains the maximal connection-set which the policy's rules allow to all destinations
 	// (all namespaces, pods and IP addresses)
 	AllDestinationsConns *common.ConnectionSet
@@ -128,7 +128,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 			}
 			if (dst == nil || isRepresentativePod(dst)) && portName != "" {
 				// adding namedPort to connectionSet in case of :
-				// - dst is nil - for general connections;
+				// - dst is nil - for updating exposed general connections;
 				// - if dst is a representative pod (its namedPorts are unknown)
 				ports.AddPort(intstr.FromString(portName))
 			}
@@ -514,7 +514,7 @@ func (np *NetworkPolicy) scanIngressRules() ([]SingleRuleSelectors, error) {
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		selectors, err := np.getSelectorsAndUpdateExposedWideConns(rulePeers, rulePorts, true)
+		selectors, err := np.getSelectorsAndUpdateExposedGeneralConns(rulePeers, rulePorts, true)
 		if err != nil {
 			return nil, err
 		}
@@ -529,7 +529,7 @@ func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		selectors, err := np.getSelectorsAndUpdateExposedWideConns(rulePeers, rulePorts, false)
+		selectors, err := np.getSelectorsAndUpdateExposedGeneralConns(rulePeers, rulePorts, false)
 		if err != nil {
 			return nil, err
 		}
@@ -539,16 +539,16 @@ func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 	return rulesSelectors, nil
 }
 
-// getSelectorsAndUpdateExposedWideConns:
+// getSelectorsAndUpdateExposedGeneralConns:
 // - checks if the given rules list is exposed to entire world or entire cluster
 // (e.g. if the rules list is empty/ if there is a rule with: empty namespaceSelector/ both empty nameSpaceSelector and podSelector) :
 // then updates the policy's general conns
 // - else: returns selectors of non-general rules (rules that are not exposed to entire world or cluster).
 // this func assumes rules are legal (rules correctness check occurs later)
-func (np *NetworkPolicy) getSelectorsAndUpdateExposedWideConns(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
+func (np *NetworkPolicy) getSelectorsAndUpdateExposedGeneralConns(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
 	isIngress bool) (rulesSelectors []SingleRuleSelectors, err error) {
 	if len(rules) == 0 {
-		err = np.updateNetworkPolicyGeneralConn(true, true, rulePorts, isIngress)
+		err = np.updateNetworkPolicyExposedGeneralConn(true, true, rulePorts, isIngress)
 		return nil, err
 	}
 	for i := range rules {
@@ -563,7 +563,7 @@ func (np *NetworkPolicy) getSelectorsAndUpdateExposedWideConns(rules []netv1.Net
 		// if podSelector is not nil but namespaceSelector is nil, this is the netpol's namespace
 		if rules[i].NamespaceSelector != nil && rules[i].NamespaceSelector.Size() == 0 &&
 			(rules[i].PodSelector == nil || rules[i].PodSelector.Size() == 0) {
-			err = np.updateNetworkPolicyGeneralConn(false, true, rulePorts, isIngress)
+			err = np.updateNetworkPolicyExposedGeneralConn(false, true, rulePorts, isIngress)
 			return nil, err
 		}
 		// else selectors' combination specifies workloads by labels (at least one is not nil and not empty)
@@ -580,8 +580,8 @@ func (np *NetworkPolicy) getSelectorsAndUpdateExposedWideConns(rules []netv1.Net
 	return rulesSelectors, nil
 }
 
-// updateNetworkPolicyGeneralConn updates the general connections of the policy
-func (np *NetworkPolicy) updateNetworkPolicyGeneralConn(allDests, entireCluster bool, rulePorts []netv1.NetworkPolicyPort,
+// updateNetworkPolicyExposedGeneralConn updates the general connections of the policy
+func (np *NetworkPolicy) updateNetworkPolicyExposedGeneralConn(allDests, entireCluster bool, rulePorts []netv1.NetworkPolicyPort,
 	isIngress bool) error {
 	ruleConns, err := np.ruleConnections(rulePorts, nil)
 	if err != nil {
@@ -589,16 +589,16 @@ func (np *NetworkPolicy) updateNetworkPolicyGeneralConn(allDests, entireCluster 
 	}
 	if allDests {
 		if isIngress {
-			np.IngressGeneralConns.AllDestinationsConns.Union(ruleConns)
+			np.IngressExposedGeneralConns.AllDestinationsConns.Union(ruleConns)
 		} else {
-			np.EgressGeneralConns.AllDestinationsConns.Union(ruleConns)
+			np.EgressExposedGeneralConns.AllDestinationsConns.Union(ruleConns)
 		}
 	}
 	if entireCluster {
 		if isIngress {
-			np.IngressGeneralConns.EntireClusterConns.Union(ruleConns)
+			np.IngressExposedGeneralConns.EntireClusterConns.Union(ruleConns)
 		} else {
-			np.EgressGeneralConns.EntireClusterConns.Union(ruleConns)
+			np.EgressExposedGeneralConns.EntireClusterConns.Union(ruleConns)
 		}
 	}
 	return nil

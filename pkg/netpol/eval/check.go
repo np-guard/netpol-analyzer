@@ -292,13 +292,13 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 				// policy selecting dst (dst pod is real)
 				// if this is first time scanning policies selecting this dst peer,
 				// update its ingress entire cluster connection relying on policy data
-				dst.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.IngressGeneralConns.EntireClusterConns, isIngress)
+				dst.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.IngressExposedGeneralConns.EntireClusterConns, isIngress)
 			}
 			if !isIngress && !egressSet[src] {
 				// policy selecting src
 				// if this is first time scanning policies selecting this src peer,
 				// update its egress entire cluster connection relying on policy data
-				src.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.EgressGeneralConns.EntireClusterConns, isIngress)
+				src.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.EgressExposedGeneralConns.EntireClusterConns, isIngress)
 			}
 		}
 		// determine policy's allowed connections between the peers for the direction
@@ -329,20 +329,20 @@ func (pe *PolicyEngine) allallowedXgressConnections(src, dst k8s.Peer, isIngress
 func determineAllowedConnsPerDirection(policy *k8s.NetworkPolicy, src, dst k8s.Peer, isIngress bool) (*common.ConnectionSet, error) {
 	if isIngress {
 		switch {
-		case policy.IngressGeneralConns.AllDestinationsConns.AllowAll:
-			return policy.IngressGeneralConns.AllDestinationsConns, nil
-		case policy.IngressGeneralConns.EntireClusterConns.AllowAll && src.PeerType() == k8s.PodType:
-			return policy.IngressGeneralConns.EntireClusterConns, nil
+		case policy.IngressExposedGeneralConns.AllDestinationsConns.AllowAll:
+			return policy.IngressExposedGeneralConns.AllDestinationsConns, nil
+		case policy.IngressExposedGeneralConns.EntireClusterConns.AllowAll && src.PeerType() == k8s.PodType:
+			return policy.IngressExposedGeneralConns.EntireClusterConns, nil
 		default:
 			return policy.GetIngressAllowedConns(src, dst)
 		}
 	}
 	// else egress
 	switch {
-	case policy.EgressGeneralConns.AllDestinationsConns.AllowAll:
-		return policy.EgressGeneralConns.AllDestinationsConns, nil
-	case policy.EgressGeneralConns.EntireClusterConns.AllowAll && dst.PeerType() == k8s.PodType:
-		return policy.EgressGeneralConns.EntireClusterConns, nil
+	case policy.EgressExposedGeneralConns.AllDestinationsConns.AllowAll:
+		return policy.EgressExposedGeneralConns.AllDestinationsConns, nil
+	case policy.EgressExposedGeneralConns.EntireClusterConns.AllowAll && dst.PeerType() == k8s.PodType:
+		return policy.EgressExposedGeneralConns.EntireClusterConns, nil
 	default:
 		return policy.GetEgressAllowedConns(dst)
 	}
