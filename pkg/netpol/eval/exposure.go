@@ -45,11 +45,11 @@ func (pe *PolicyEngine) generateRepresentativePeers(selectors []k8s.SingleRuleSe
 	return nil
 }
 
-// extractLabelsAndRefineRepresentativePeers extracts the labels of the given pod object and its namespace and refine matching
+// removeRedundantRepresentativePeers extracts the labels of the given pod object and its namespace and refine matching
 // representative-peers, i.e. delete a representative pod if the given real pod matches its selectors
 // (applied for representative-peers with matchLabels only, no matchExpression).
 // helping func - added in order to avoid code dup. in upsertWorkload and upsertPod
-func (pe *PolicyEngine) extractLabelsAndRefineRepresentativePeers(podObj *k8s.Pod) error {
+func (pe *PolicyEngine) removeRedundantRepresentativePeers(podObj *k8s.Pod) error {
 	// since namespaces are already upserted; if pod's ns not existing resolve it
 	if _, ok := pe.namspacesMap[podObj.Namespace]; !ok {
 		// the "kubernetes.io/metadata.name" is added automatically to the ns; so representative peers with such selector will be refined
@@ -59,15 +59,15 @@ func (pe *PolicyEngine) extractLabelsAndRefineRepresentativePeers(podObj *k8s.Po
 		}
 	}
 	// check if there are representative peers in the policy engine which match the current pod; if yes remove them
-	pe.refineRepresentativePeersMatchingLabels(podObj.Labels, pe.namspacesMap[podObj.Namespace].Labels)
+	pe.removeRepresentativePeersMatchingLabels(podObj.Labels, pe.namspacesMap[podObj.Namespace].Labels)
 	return nil
 }
 
-// refineRepresentativePeersMatchingLabels removes from the policy engine all representative peers
+// removeRepresentativePeersMatchingLabels removes from the policy engine all representative peers
 // with labels matching the given labels of a real pod
 // representative peers matching any-namespace or any-pod in a namespace will not be removed.
 // representative peers inferred from rules containing matchExpressions will not be removed either
-func (pe *PolicyEngine) refineRepresentativePeersMatchingLabels(realPodLabels, realNsLabels map[string]string) {
+func (pe *PolicyEngine) removeRepresentativePeersMatchingLabels(realPodLabels, realNsLabels map[string]string) {
 	keysToDelete := make([]string, 0)
 	// look for representative peers with labels matching the given real pod's (and its namespace) labels
 	for key, repPeer := range pe.representativePeersMap {

@@ -359,7 +359,7 @@ func (pe *PolicyEngine) upsertWorkload(rs interface{}, kind string) error {
 	}
 	// running this on last podObj: as all pods from same workload object are in same namespace and having same pod labels
 	if pe.exposureAnalysisFlag {
-		err = pe.extractLabelsAndRefineRepresentativePeers(podObj)
+		err = pe.removeRedundantRepresentativePeers(podObj)
 	}
 	return err
 }
@@ -374,7 +374,7 @@ func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
 	// update cache with new pod associated to to its owner
 	pe.cache.addPod(podObj, podStr.String())
 	if pe.exposureAnalysisFlag {
-		err = pe.extractLabelsAndRefineRepresentativePeers(podObj)
+		err = pe.removeRedundantRepresentativePeers(podObj)
 	}
 	return err
 }
