@@ -170,12 +170,17 @@ func (pe *PolicyEngine) resolveMissingNamespaces() error {
 	return nil
 }
 
+// defaultNamespaceLabelsMap returns a map with a single key: val for the default K8s namespace name key.
+func defaultNamespaceLabelsMap(namespaceName string) map[string]string {
+	return map[string]string{common.K8sNsNameLabelKey: namespaceName}
+}
+
 // resolveSingleMissingNamespace create a ns object and upsert to PolicyEngine
 func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string) error {
 	nsObj := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   ns,
-			Labels: k8s.DefaultNamespaceLabelsMap(ns),
+			Labels: defaultNamespaceLabelsMap(ns),
 		},
 	}
 	if err := pe.upsertNamespace(nsObj); err != nil {
@@ -600,11 +605,21 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string) (Peer, error) 
 // addRepresentativePod adds a new representative pod to the policy-engine (to pe.representativePeersMap).
 // if the given namespace string (podNs) is not empty (i.e. a real (policy's) namespace name), it will be assigned to the pod's Namespace
 // else, the representative pod will have no namespace (will not add a representative namespace to the policy-engine)
-// anyway the "namespace" requirements of the representative pod will be stored in its RepresentativeNsLabelSelector field.
+// anyway the "namespace name" requirement of the representative pod will be stored in its RepresentativeNsLabelSelector field.
 // this func is used only with exposure-analysis
 func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.SingleRuleSelectors) error {
 	if objSelectors == nil { // should not get here
 		return errors.New(netpolerrors.NilRepresentativePodSelectorsErr)
+	}
+	nsLabelSelector := objSelectors.NsSelector
+	if nsLabelSelector == nil { // equal to podNs != ""
+		// if the objSelectors.NsSelector is nil, means inferred from a rule with nil nsSelector, which means the namespace of the
+		// pod is the namespace of the policy, so adding it as its RepresentativeNsLabelSelector requirement.
+		// by this, we ensure a representative peer may only represent the rule it was inferred from
+		// and uniquness of representative peers.
+		// (another policy in another namespace, may have a rule with same podSelector, but the namespace will be different-
+		// so a different representative peer will be generated)
+		nsLabelSelector = &metav1.LabelSelector{MatchLabels: defaultNamespaceLabelsMap(podNs)}
 	}
 	newPod := &k8s.Pod{
 		// all representative pods are having same name since this name is used only to indicate that this Fake Pod is representative;
@@ -613,11 +628,11 @@ func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.Sin
 		Namespace:                      podNs,
 		FakePod:                        true,
 		RepresentativePodLabelSelector: objSelectors.PodSelector,
-		RepresentativeNsLabelSelector:  objSelectors.NsSelector,
+		RepresentativeNsLabelSelector:  nsLabelSelector,
 	}
 	//  compute a unique string from the label selectors to be used as the map key
-	// note that objSelectors.NsSelector might not be nil
-	nsKey, err := k8s.VariantFromLabelsSelector(objSelectors.NsSelector)
+	// note that nsLabelSelector might not be nil
+	nsKey, err := k8s.VariantFromLabelsSelector(nsLabelSelector)
 	if err != nil {
 		return err
 	}

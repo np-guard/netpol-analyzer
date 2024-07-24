@@ -32,7 +32,7 @@ import (
 func (pe *PolicyEngine) generateRepresentativePeers(selectors []k8s.SingleRuleSelectors, policyNs string) (err error) {
 	for i := range selectors {
 		podNs := "" // by default: representative peer has no namespace; (don't generate representative namespaces)
-		if selectors[i].PolicyNsFlag {
+		if selectors[i].NsSelector == nil {
 			// if namespaceSelector of the rule was nil, then the namespace of the pod is same as the policy's namespace
 			// i.e. the namespace name of the policy should be assigned to the representative pod's Namespace (string field)
 			podNs = policyNs
@@ -74,9 +74,10 @@ func (pe *PolicyEngine) refineRepresentativePeersMatchingLabels(realPodLabels, r
 		if repPeer.Pod.RepresentativePodLabelSelector == nil {
 			continue // nil podSelector means any-pod
 		}
-		// note that if the policy had nil namespaceSelector, it would be converted to the namespace of the policy
+		// note that if the policy had nil namespaceSelector, then representative pod's RepresentativeNsLabelSelector would
+		// contain the namespace of the policy requirement
 		// note that there is no representative peer with both empty namespace and pod selector; that case was handled
-		// in the general conns compute and won't get here.
+		// and assigned to the policy's cluster wide exposure and won't get here.
 		if len(repPeer.Pod.RepresentativePodLabelSelector.MatchExpressions) > 0 ||
 			len(repPeer.Pod.RepresentativeNsLabelSelector.MatchExpressions) > 0 {
 			// a representative peer with requirements inferred from selectors with matchExpression will not be refined

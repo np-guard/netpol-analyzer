@@ -476,15 +476,6 @@ func (np *NetworkPolicy) fullName() string {
 type SingleRuleSelectors struct {
 	NsSelector  *metav1.LabelSelector
 	PodSelector *metav1.LabelSelector
-	// policyNsFlag indicates if the rule contains only podSelector;
-	// so the representative peer will be created in the policy's namespace
-	PolicyNsFlag bool
-}
-
-// DefaultNamespaceLabelsMap returns a map with a single key: val for the default K8s namespace name key.
-// to be used in case the labels representing a namespace should contain this matchLabel only.
-func DefaultNamespaceLabelsMap(namespaceName string) map[string]string {
-	return map[string]string{common.K8sNsNameLabelKey: namespaceName}
 }
 
 // ScanPolicyRulesAndUpdateExposedWideConns scans policy rules and :
@@ -569,12 +560,6 @@ func (np *NetworkPolicy) getSelectorsAndUpdateExposedGeneralConns(rules []netv1.
 		// else selectors' combination specifies workloads by labels (at least one is not nil and not empty)
 		ruleSel.PodSelector = rules[i].PodSelector
 		ruleSel.NsSelector = rules[i].NamespaceSelector
-		if rules[i].NamespaceSelector == nil {
-			// special case: ns selector is nil but podSelector is not, so the namespace of the rule is
-			// the policy's namespace; (turn on the indicator)
-			ruleSel.PolicyNsFlag = true
-			ruleSel.NsSelector = &metav1.LabelSelector{MatchLabels: DefaultNamespaceLabelsMap(np.Namespace)}
-		}
 		rulesSelectors = append(rulesSelectors, ruleSel)
 	}
 	return rulesSelectors, nil
