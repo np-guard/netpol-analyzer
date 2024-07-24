@@ -33,26 +33,28 @@ import (
 type NetworkPolicy struct {
 	*netv1.NetworkPolicy // embedding k8s network policy object
 	// following data stored in preprocessing when exposure-analysis is on;
-	// IngressExposedGeneralConns contains:
+	// IngressPolicyExposure contains:
 	// - the maximal connection-set which the policy's rules allow to all destinations on ingress direction
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on ingress direction
-	IngressExposedGeneralConns PolicyExposedGeneralConns
-	// EgressExposedGeneralConns contains:
+	IngressPolicyExposure PolicyExposureWithoutSelectors
+	// EgressPolicyExposure contains:
 	// - the maximal connection-set which the policy's rules allow to all destinations on egress direction
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on egress direction
-	EgressExposedGeneralConns PolicyExposedGeneralConns
+	EgressPolicyExposure PolicyExposureWithoutSelectors
 }
 
 // @todo might help if while pre-process, to check containment of all rules' connections; if all "specific" rules
 // connections are contained in the "general" rules connections, then we can avoid iterating policy rules for computing
 // connections between two peers
 
-type PolicyExposedGeneralConns struct {
-	// AllDestinationsConns contains the maximal connection-set which the policy's rules allow to all destinations
+// PolicyExposureWithoutSelectors describes the maximum allowed conns that the policy exposes as cluster wide or as external,
+// those conns are inferred when the policy has no rules, or from empty rules
+type PolicyExposureWithoutSelectors struct {
+	// ExternalExposure  contains the maximal connection-set which the policy's rules allow to all destinations
 	// (all namespaces, pods and IP addresses)
-	AllDestinationsConns *common.ConnectionSet
-	// EntireClusterConns contains the maximal connection-set which the policy's rules allow to all namespaces in the cluster
-	EntireClusterConns *common.ConnectionSet
+	ExternalExposure *common.ConnectionSet
+	// ClusterWideExposure  contains the maximal connection-set which the policy's rules allow to all namespaces in the cluster
+	ClusterWideExposure *common.ConnectionSet
 }
 
 // @todo need a network policy collection type along with convenience methods?
@@ -574,16 +576,16 @@ func (np *NetworkPolicy) updateNetworkPolicyExposedGeneralConn(allDests, entireC
 	}
 	if allDests {
 		if isIngress {
-			np.IngressExposedGeneralConns.AllDestinationsConns.Union(ruleConns)
+			np.IngressPolicyExposure.ExternalExposure.Union(ruleConns)
 		} else {
-			np.EgressExposedGeneralConns.AllDestinationsConns.Union(ruleConns)
+			np.EgressPolicyExposure.ExternalExposure.Union(ruleConns)
 		}
 	}
 	if entireCluster {
 		if isIngress {
-			np.IngressExposedGeneralConns.EntireClusterConns.Union(ruleConns)
+			np.IngressPolicyExposure.ClusterWideExposure.Union(ruleConns)
 		} else {
-			np.EgressExposedGeneralConns.EntireClusterConns.Union(ruleConns)
+			np.EgressPolicyExposure.ClusterWideExposure.Union(ruleConns)
 		}
 	}
 	return nil

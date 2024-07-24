@@ -144,9 +144,9 @@ func (pe *PolicyEngine) GetPeerXgressEntireClusterConn(p Peer, isIngress bool) (
 		return nil, err
 	}
 	if isIngress {
-		return peer.Pod.IngressExposureData.EntireClusterConnection, nil
+		return peer.Pod.IngressExposureData.ClusterWideConnection, nil
 	}
-	return peer.Pod.EgressExposureData.EntireClusterConnection, nil
+	return peer.Pod.EgressExposureData.ClusterWideConnection, nil
 }
 
 /////////////////////////////////////////////

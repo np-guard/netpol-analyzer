@@ -28,14 +28,14 @@ const defaultPortsListSize = 8
 type PodExposureInfo struct {
 	// 	IsProtected indicates if the pod is selected by any network-policy or not
 	IsProtected bool
-	// EntireClusterConnection contains the maximal connection-set for which the pod is exposed to all namespaces by network policies
-	EntireClusterConnection *common.ConnectionSet
+	// ClusterWideConnection contains the maximal connection-set for which the pod is exposed to all namespaces by network policies
+	ClusterWideConnection *common.ConnectionSet
 }
 
 func initiatePodExposure() PodExposureInfo {
 	return PodExposureInfo{
-		IsProtected:             false,
-		EntireClusterConnection: common.MakeConnectionSet(false),
+		IsProtected:           false,
+		ClusterWideConnection: common.MakeConnectionSet(false),
 	}
 }
 
@@ -288,12 +288,12 @@ func (pod *Pod) UpdatePodXgressExposureToEntireClusterData(ruleConns *common.Con
 		// matching port number
 		convertedConns := pod.checkAndConvertNamedPortsInConnection(ruleConns)
 		if convertedConns != nil {
-			pod.IngressExposureData.EntireClusterConnection.Union(convertedConns)
+			pod.IngressExposureData.ClusterWideConnection.Union(convertedConns)
 		} else {
-			pod.IngressExposureData.EntireClusterConnection.Union(ruleConns)
+			pod.IngressExposureData.ClusterWideConnection.Union(ruleConns)
 		}
 	} else {
-		pod.EgressExposureData.EntireClusterConnection.Union(ruleConns)
+		pod.EgressExposureData.ClusterWideConnection.Union(ruleConns)
 	}
 }
 

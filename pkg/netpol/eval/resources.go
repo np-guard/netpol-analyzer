@@ -379,10 +379,10 @@ func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
 	return err
 }
 
-func initPolicyExposedGeneralConns() k8s.PolicyExposedGeneralConns {
-	return k8s.PolicyExposedGeneralConns{
-		AllDestinationsConns: common.MakeConnectionSet(false),
-		EntireClusterConns:   common.MakeConnectionSet(false),
+func initPolicyExposureWithoutSelectors() k8s.PolicyExposureWithoutSelectors {
+	return k8s.PolicyExposureWithoutSelectors{
+		ExternalExposure:    common.MakeConnectionSet(false),
+		ClusterWideExposure: common.MakeConnectionSet(false),
 	}
 }
 
@@ -397,9 +397,9 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 	}
 
 	newNetpol := &k8s.NetworkPolicy{
-		NetworkPolicy:              np,
-		IngressExposedGeneralConns: initPolicyExposedGeneralConns(),
-		EgressExposedGeneralConns:  initPolicyExposedGeneralConns(),
+		NetworkPolicy:         np,
+		IngressPolicyExposure: initPolicyExposureWithoutSelectors(),
+		EgressPolicyExposure:  initPolicyExposureWithoutSelectors(),
 	}
 	pe.netpolsMap[netpolNamespace][np.Name] = newNetpol
 
