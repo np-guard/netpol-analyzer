@@ -262,7 +262,7 @@ func (anp *AdminNetworkPolicy) ruleConnections(ports *[]apisv1a.AdminNetworkPoli
 			if podProtocol != "" {
 				protocol = podProtocol
 			}
-			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port))
+			portSet.AddPort(intstr.FromInt32(podPort))
 		case anpPort.PortRange != nil:
 			if anpPort.PortRange.Protocol != "" {
 				protocol = anpPort.PortRange.Protocol
