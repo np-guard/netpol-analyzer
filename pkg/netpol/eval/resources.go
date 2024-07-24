@@ -81,17 +81,20 @@ func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 	return pe
 }
 
-// AddObjectsForExposureAnalysis adds k8s objects to the policy engine: first adds network-policies and then other objects.
-// for exposure analysis we need first to add the policies so a representative peer for each policy rule is added.
+// AddObjectsForExposureAnalysis adds k8s objects to the policy engine: first adds network-policies and namespaces and then other objects.
+// for exposure analysis we need to upsert first policies and namespaces so:
+// 1. policies: so a representative peer for each policy rule is added
+// 2. namespaces: so when inserting workloads, we'll be able to check correctly check if a generated representative peer
+// should be removed, i.e. its labels and namespace correspond to a real pod.
 // this func is called only for exposure analysis; otherwise does nothing
 func (pe *PolicyEngine) AddObjectsForExposureAnalysis(objects []parser.K8sObject) error {
 	if !pe.exposureAnalysisFlag { // should not be true ever
 		return nil
 	}
-	policies, otherObjects := splitPoliciesAndOtherObjects(objects)
+	policiesAndNamespaces, otherObjects := splitPoliciesAndNamespacesAndOtherObjects(objects)
 	// note: in the first call addObjectsByKind with policy objects, will add
 	// the representative peers
-	err := pe.addObjectsByKind(policies)
+	err := pe.addObjectsByKind(policiesAndNamespaces)
 	if err != nil {
 		return err
 	}
@@ -101,17 +104,18 @@ func (pe *PolicyEngine) AddObjectsForExposureAnalysis(objects []parser.K8sObject
 	return err
 }
 
-// splitPoliciesAndOtherObjects gets a k8s-objects list and splits it into two lists: policies only list, and list of all other objects
-func splitPoliciesAndOtherObjects(objects []parser.K8sObject) (policies, others []parser.K8sObject) {
+func splitPoliciesAndNamespacesAndOtherObjects(objects []parser.K8sObject) (policiesAndNs, others []parser.K8sObject) {
 	for _, obj := range objects {
 		switch obj.Kind {
 		case parser.Networkpolicy:
-			policies = append(policies, obj)
+			policiesAndNs = append(policiesAndNs, obj)
+		case parser.Namespace:
+			policiesAndNs = append(policiesAndNs, obj)
 		default:
 			others = append(others, obj)
 		}
 	}
-	return policies, others
+	return policiesAndNs, others
 }
 
 // addObjectsByKind adds different k8s objects from parsed resources to the policy engine
