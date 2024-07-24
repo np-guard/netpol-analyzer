@@ -541,7 +541,7 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 			if allowedConnections.IsEmpty() {
 				continue
 			}
-			p2pConnection, err := ca.checkIfP2PConnOrExposureConn(pe, allowedConnections, srcPeer, dstPeer, exposureMaps)
+			p2pConnection, err := ca.getP2PConnOrUpdateExposureConn(pe, allowedConnections, srcPeer, dstPeer, exposureMaps)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -609,9 +609,9 @@ func (ca *ConnlistAnalyzer) logWarning(msg string) {
 	}
 }
 
-// checkIfP2PConnOrExposureConn checks if the given connection is between two peers from the parsed resources, if yes returns it,
-// otherwise the connection belongs to exposure-analysis, will be added to the provided map
-func (ca *ConnlistAnalyzer) checkIfP2PConnOrExposureConn(pe *eval.PolicyEngine, allowedConnections common.Connection,
+// getP2PConnOrUpdateExposureConn if the given connection is between two peers from the parsed resources returns it as P2P connection object,
+// otherwise the connection belongs to exposure-analysis, will be added to the provided exposure-map
+func (ca *ConnlistAnalyzer) getP2PConnOrUpdateExposureConn(pe *eval.PolicyEngine, allowedConnections common.Connection,
 	src, dst Peer, exposureMaps *exposureMaps) (*connection, error) {
 	if !ca.exposureAnalysis {
 		// if exposure analysis option is off , the connection is definitely a P2PConnection
