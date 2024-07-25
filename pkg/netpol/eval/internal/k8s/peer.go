@@ -51,23 +51,14 @@ type WorkloadPeer struct {
 	Pod *Pod
 }
 
-// RepresentativePeer implements eval.Peer interface
+const podKind = "Pod"
+
+// A WorkloadPeer with kind == RepresentativePeer is a representativePeer
 // a representative peer is a peer inferred from a policy rule (selector) not a parsed pod/deployment object
 // and is used to represent a potential pod/ns entity in the cluster (that does not exist on the input resources)
 // but may have enabled connectivity to input resources (pods/deployments) based on input network policies.
-type RepresentativePeer struct {
-	// Pod is a fake pod originated as following:
-	// - if inferred from a policy rule, which contains only non-empty namespaceSelector; the pod's namespace is a fake namespace
-	// with the labelSelector from the rule's namespaceSelector
-	// - if inferred from a policy rule, which contains only podSelector; the pod's namespace is same as the policy's namespace;
-	// and pod's labelSelector is taken from the rule's podSelector
-	// - if inferred from selector combining a namespaceSelector and a podSelector:
-	// the pod's labelSelector will contain the reference to rule's podSelector
-	// and its namespace is a fake namespace with the namespaceSelector
-	Pod *Pod
-}
-
-const podKind = "Pod"
+const RepresentativePodName = "representative-pod"
+const RepresentativePeerKind = "RepresentativePeer"
 
 // //////////////////////////////////////////////////
 func (p *WorkloadPeer) Name() string {
@@ -83,6 +74,9 @@ func (p *WorkloadPeer) Namespace() string {
 }
 
 func (p *WorkloadPeer) Kind() string {
+	if p.Pod.IsPodRepresentative() {
+		return RepresentativePeerKind
+	}
 	ownerKind := p.Pod.Owner.Kind
 	if ownerKind == "" { // no owner -- workload is a Pod
 		return podKind
@@ -91,7 +85,7 @@ func (p *WorkloadPeer) Kind() string {
 }
 
 func (p *WorkloadPeer) String() string {
-	if p.Pod.FakePod { // ingress-controller
+	if p.Pod.FakePod && !p.Pod.IsPodRepresentative() { // ingress-controller
 		return "{" + p.Pod.Name + "}"
 	}
 	return types.NamespacedName{Name: p.Name(), Namespace: p.Namespace()}.String() + "[" + p.Kind() + "]"
@@ -102,35 +96,6 @@ func (p *WorkloadPeer) IP() string {
 }
 
 func (p *WorkloadPeer) IsPeerIPType() bool {
-	return false
-}
-
-// //////////////////////////////////////////////////
-
-const RepresentativePodName = "representative-pod"
-const representativePodKind = "RepresentativePod"
-
-func (p *RepresentativePeer) Name() string {
-	return p.Pod.Name
-}
-
-func (p *RepresentativePeer) Namespace() string {
-	return p.Pod.Namespace
-}
-
-func (p *RepresentativePeer) Kind() string {
-	return representativePodKind
-}
-
-func (p *RepresentativePeer) String() string { // not used
-	return ""
-}
-
-func (p *RepresentativePeer) IP() string {
-	return ""
-}
-
-func (p *RepresentativePeer) IsPeerIPType() bool {
 	return false
 }
 

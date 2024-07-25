@@ -11,7 +11,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -326,5 +325,8 @@ func (pod *Pod) UpdatePodXgressProtectedFlag(isIngress bool) {
 
 // IsPodRepresentative returns if the pod is a representative pod
 func (pod *Pod) IsPodRepresentative() bool {
-	return pod.FakePod && strings.HasPrefix(pod.Name, RepresentativePodName)
+	return pod.FakePod && pod.Name == RepresentativePodName
+	// representative Pod is always generated with the RepresentativePodName (in pe.addRepresentativePod)
+	// all representative pods have same name, since the name is used only here (to indicate if it is a representative)
+	// not used for storing/ comparing with other pods
 }

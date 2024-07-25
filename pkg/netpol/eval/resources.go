@@ -38,8 +38,8 @@ type (
 		// to its representative pod object
 		cache                  *evalCache
 		exposureAnalysisFlag   bool
-		representativePeersMap map[string]*k8s.RepresentativePeer // map from unique labels string to representative peer object,
-		// used only with exposure analysis
+		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
+		// used only with exposure analysis // representative peer object is a workloadPeer with kind == "RepresentativePeer"
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -76,7 +76,7 @@ func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 	pe := NewPolicyEngine()
 	pe.exposureAnalysisFlag = exposureFlag
 	if exposureFlag {
-		pe.representativePeersMap = make(map[string]*k8s.RepresentativePeer)
+		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)
 	}
 	return pe
 }
@@ -270,7 +270,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.netpolsMap = make(map[string]map[string]*k8s.NetworkPolicy)
 	pe.podOwnersToRepresentativePodMap = make(map[string]map[string]*k8s.Pod)
 	if pe.exposureAnalysisFlag {
-		pe.representativePeersMap = make(map[string]*k8s.RepresentativePeer)
+		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)
 	}
 	pe.cache = newEvalCache()
 }
@@ -647,7 +647,7 @@ func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.Sin
 		return nil
 	}
 	// create a new representative peer
-	newRepresentativePeer := &k8s.RepresentativePeer{Pod: newPod}
+	newRepresentativePeer := &k8s.WorkloadPeer{Pod: newPod}
 	// add the new representative peer to the policy-engine
 	pe.representativePeersMap[keyStrFromLabels] = newRepresentativePeer
 	return nil

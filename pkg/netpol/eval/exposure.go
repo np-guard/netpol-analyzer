@@ -152,16 +152,20 @@ func (pe *PolicyEngine) GetPeerXgressEntireClusterConn(p Peer, isIngress bool) (
 /////////////////////////////////////////////
 
 // IsRepresentativePeer returns whether the peer is representative peer (inferred from netpol rule)
+// i.e. if the peer is a WorkloadPeer with kind == RepresentativePeer
 func (pe *PolicyEngine) IsRepresentativePeer(peer Peer) bool {
-	_, ok := peer.(*k8s.RepresentativePeer)
-	return ok
+	p, ok := peer.(*k8s.WorkloadPeer)
+	return ok && p.Kind() == k8s.RepresentativePeerKind
 }
 
 // GetPeerLabels returns the labels defining the given representative peer and its namespace
-// relevant only for RepresentativePeer
+// relevant only for WorkloadPeer with kind == RepresentativePeer
 func (pe *PolicyEngine) GetPeerLabels(p Peer) (podLabels, nsLabels v1.LabelSelector, err error) {
-	peer, ok := p.(*k8s.RepresentativePeer)
-	if !ok { // should not get here
+	peer, err := isPeerAWorkloadPeer(p)
+	if err != nil {
+		return v1.LabelSelector{}, v1.LabelSelector{}, err
+	}
+	if peer.Kind() != k8s.RepresentativePeerKind { // should not get here
 		return v1.LabelSelector{}, v1.LabelSelector{}, errors.New(netpolerrors.NotRepresentativePeerErrStr(p.String()))
 	}
 	podLabels = v1.LabelSelector{}

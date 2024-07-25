@@ -66,9 +66,6 @@ func (pe *PolicyEngine) convertPeerToPodPeer(peer Peer) (*k8s.PodPeer, error) {
 	case *k8s.WorkloadPeer:
 		podObj = currPeer.Pod
 		podNamespace, err = pe.getPeerNamespaceObject(podObj)
-	case *k8s.RepresentativePeer:
-		podObj = currPeer.Pod
-		podNamespace, err = pe.getPeerNamespaceObject(podObj)
 	default: // should not get here
 		return nil, errors.New(netpolerrors.InvalidPeerErrStr(peer.String()))
 	}
