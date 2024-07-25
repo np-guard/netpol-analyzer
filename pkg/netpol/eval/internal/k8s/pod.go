@@ -170,14 +170,14 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		workloadNamespace = obj.Namespace
 		podTemplate = obj.Spec.Template
 		APIVersion = obj.APIVersion
-	case parser.Statefulset:
+	case parser.StatefulSet:
 		obj := workload.(*appsv1.StatefulSet)
 		replicas = getReplicas(obj.Spec.Replicas)
 		workloadName = obj.Name
 		workloadNamespace = obj.Namespace
 		podTemplate = obj.Spec.Template
 		APIVersion = obj.APIVersion
-	case parser.Daemonset:
+	case parser.DaemonSet:
 		obj := workload.(*appsv1.DaemonSet)
 		replicas = 1
 		workloadName = obj.Name

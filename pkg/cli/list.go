@@ -35,8 +35,8 @@ func runListCommand() error {
 	var conns []connlist.Peer2PeerConnection
 	var err error
 
-	clogger := logger.NewDefaultLoggerWithVerbosity(detrmineLogVerbosity())
-	analyzer := connlist.NewConnlistAnalyzer(getConnlistOptions(clogger)...)
+	cLogger := logger.NewDefaultLoggerWithVerbosity(determineLogVerbosity())
+	analyzer := connlist.NewConnlistAnalyzer(getConnlistOptions(cLogger)...)
 
 	if dirPath != "" {
 		conns, _, err = analyzer.ConnlistFromDirPath(dirPath)

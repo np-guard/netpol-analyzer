@@ -29,7 +29,7 @@ import (
 //	for example, converting Spec.PodSelector to labels.Selector on initialization
 //	or preprocessing namespaces and pods that match selector in ingress/egress rules, etc
 //
-// -> might help to preprocess and store peers that match policy selectors + selectors in rules + set of allowed connections per rule
+// -> might help to pre-process and store peers that match policy selectors + selectors in rules + set of allowed connections per rule
 type NetworkPolicy struct {
 	*netv1.NetworkPolicy // embedding k8s network policy object
 	// following data stored in preprocessing when exposure-analysis is on;
@@ -270,11 +270,11 @@ func (np *NetworkPolicy) IngressAllowedConn(src Peer, protocol, port string, dst
 		rulePeers := np.Spec.Ingress[i].From
 		rulePorts := np.Spec.Ingress[i].Ports
 
-		peerSselected, err := np.ruleSelectsPeer(rulePeers, src)
+		peerSelected, err := np.ruleSelectsPeer(rulePeers, src)
 		if err != nil {
 			return false, err
 		}
-		if !peerSselected {
+		if !peerSelected {
 			continue
 		}
 		connSelected, err := np.ruleConnsContain(rulePorts, protocol, port, dst)
@@ -294,11 +294,11 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 		rulePeers := np.Spec.Egress[i].To
 		rulePorts := np.Spec.Egress[i].Ports
 
-		peerSselected, err := np.ruleSelectsPeer(rulePeers, dst)
+		peerSelected, err := np.ruleSelectsPeer(rulePeers, dst)
 		if err != nil {
 			return false, err
 		}
-		if !peerSselected {
+		if !peerSelected {
 			continue
 		}
 		connSelected, err := np.ruleConnsContain(rulePorts, protocol, port, dst)
@@ -318,11 +318,11 @@ func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet,
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		peerSselected, err := np.ruleSelectsPeer(rulePeers, dst)
+		peerSelected, err := np.ruleSelectsPeer(rulePeers, dst)
 		if err != nil {
 			return res, err
 		}
-		if !peerSselected {
+		if !peerSelected {
 			continue
 		}
 		ruleConns, err := np.ruleConnections(rulePorts, dst)
@@ -343,11 +343,11 @@ func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (*common.Connecti
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		peerSselected, err := np.ruleSelectsPeer(rulePeers, src)
+		peerSelected, err := np.ruleSelectsPeer(rulePeers, src)
 		if err != nil {
 			return res, err
 		}
-		if !peerSselected {
+		if !peerSelected {
 			continue
 		}
 
@@ -568,13 +568,13 @@ func (np *NetworkPolicy) getSelectorsAndUpdateExposedGeneralConns(rules []netv1.
 }
 
 // updateNetworkPolicyExposedGeneralConn updates the general connections of the policy
-func (np *NetworkPolicy) updateNetworkPolicyExposedGeneralConn(allDests, entireCluster bool, rulePorts []netv1.NetworkPolicyPort,
+func (np *NetworkPolicy) updateNetworkPolicyExposedGeneralConn(external, entireCluster bool, rulePorts []netv1.NetworkPolicyPort,
 	isIngress bool) error {
 	ruleConns, err := np.ruleConnections(rulePorts, nil)
 	if err != nil {
 		return err
 	}
-	if allDests {
+	if external {
 		if isIngress {
 			np.IngressPolicyExposure.ExternalExposure.Union(ruleConns)
 		} else {

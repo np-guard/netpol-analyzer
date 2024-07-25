@@ -48,10 +48,10 @@ func (pe *PolicyEngine) generateRepresentativePeers(selectors []k8s.SingleRuleSe
 // removeRedundantRepresentativePeers extracts the labels of the given pod object and its namespace and refine matching
 // representative-peers, i.e. delete a representative pod if the given real pod matches its selectors
 // (applied for representative-peers with matchLabels only, no matchExpression).
-// helping func - added in order to avoid code dup. in upsertWorkload and upsertPod
+// helping func - added in order to avoid code dup. in insertWorkload and insertPod
 func (pe *PolicyEngine) removeRedundantRepresentativePeers(podObj *k8s.Pod) error {
-	// since namespaces are already upserted; if pod's ns not existing resolve it
-	if _, ok := pe.namspacesMap[podObj.Namespace]; !ok {
+	// since namespaces are already inserted to policy-engine; if pod's ns not existing resolve it
+	if _, ok := pe.namespacesMap[podObj.Namespace]; !ok {
 		// the "kubernetes.io/metadata.name" is added automatically to the ns; so representative peers with such selector will be refined
 		err := pe.resolveSingleMissingNamespace(podObj.Namespace)
 		if err != nil {
@@ -59,7 +59,7 @@ func (pe *PolicyEngine) removeRedundantRepresentativePeers(podObj *k8s.Pod) erro
 		}
 	}
 	// check if there are representative peers in the policy engine which match the current pod; if yes remove them
-	pe.removeRepresentativePeersMatchingLabels(podObj.Labels, pe.namspacesMap[podObj.Namespace].Labels)
+	pe.removeRepresentativePeersMatchingLabels(podObj.Labels, pe.namespacesMap[podObj.Namespace].Labels)
 	return nil
 }
 

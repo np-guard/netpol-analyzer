@@ -41,7 +41,7 @@ const (
 	NotFoundNamespace      = "could not find peer namespace"
 	OnlyOneSrcFlagErrStr   = "only one of source pod and namespace or external IP can be defined, not both"
 	NoDestDefinedErr       = "no destination defined, destination pod and namespace or external IP required"
-	OnlyOneDstFalgErrStr   = "only one of destination pod and namespace or external IP can be defined, not both"
+	OnlyOneDstFlagErrStr   = "only one of destination pod and namespace or external IP can be defined, not both"
 	OnlyOneIPPeerErrStr    = "only one of source or destination can be defined as external IP, not both"
 	RequiredDstPortFlagErr = "destination port name or value is required"
 
@@ -49,7 +49,7 @@ const (
 	RequiredFlagsErr = "both directory paths dir1 and dir2 are required"
 	FlagMisUseErr    = "dirpath flag is not used with diff command"
 
-	// errors consts from `orig errors` that are raised by external libraries
+	// errors constants from `orig errors` that are raised by external libraries
 	InvalidCIDRAddr         = "invalid CIDR address"
 	InvalidKeyVal           = "key: Invalid value"
 	UnrecognizedValType     = "unrecognized type"

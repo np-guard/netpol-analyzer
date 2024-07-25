@@ -238,7 +238,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 	}
 	for i := range nsList.Items {
 		ns := &nsList.Items[i]
-		if err := pe.UpsertObject(ns); err != nil {
+		if err := pe.InsertObject(ns); err != nil {
 			return nil, nil, err
 		}
 	}
@@ -249,7 +249,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 		return nil, nil, apierr
 	}
 	for i := range podList.Items {
-		if err := pe.UpsertObject(&podList.Items[i]); err != nil {
+		if err := pe.InsertObject(&podList.Items[i]); err != nil {
 			return nil, nil, err
 		}
 	}
@@ -260,7 +260,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 		return nil, nil, apierr
 	}
 	for i := range npList.Items {
-		if err := pe.UpsertObject(&npList.Items[i]); err != nil {
+		if err := pe.InsertObject(&npList.Items[i]); err != nil {
 			return nil, nil, err
 		}
 	}
