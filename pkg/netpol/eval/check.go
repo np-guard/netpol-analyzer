@@ -283,7 +283,7 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 		// if isIngress: check for ingress rules that capture src within 'from'
 		// if not isIngress: check for egress rules that capture dst within 'to'
 		// collect the allowed connectivity from the relevant rules into allowedConns
-		// and in case of exposure-analysis: update exposure data for relevant pod
+		// and in case of exposure-analysis: update cluster wide exposure data for relevant pod
 		policyAllowedConnectionsPerDirection, err := pe.determineAllowedConnsPerDirection(policy, src, dst, isIngress)
 		if err != nil {
 			return allowedConns, err
@@ -294,7 +294,7 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 }
 
 // determineAllowedConnsPerDirection - helping func, determine policy's allowed connections between the
-// peers in the given direction and updates the wide cluster exposure of the selected pod
+// peers in the given direction and when exposure-analysis is on updates the wide cluster exposure of the selected pod
 func (pe *PolicyEngine) determineAllowedConnsPerDirection(policy *k8s.NetworkPolicy, src, dst k8s.Peer,
 	isIngress bool) (*common.ConnectionSet, error) {
 	if isIngress {

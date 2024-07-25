@@ -132,7 +132,7 @@ func writeLabelSelectorAsString(labelSel v1.LabelSelector) string {
 		res = convertLabelsMapToString(labelSel.MatchLabels)
 	}
 	if len(labelSel.MatchExpressions) > 0 {
-		if len(labelSel.MatchLabels) > 0 {
+		if res != "" {
 			res += comma
 		}
 		res += convertRequirementsToString(labelSel.MatchExpressions)
@@ -141,7 +141,7 @@ func writeLabelSelectorAsString(labelSel v1.LabelSelector) string {
 }
 
 // getRepresentativeNamespaceString returns a string representation of a potential peer with namespace labels.
-// if namespace with multiple words adds [] , in case of textual (non-graphical) output
+// if namespace string is with multiple words, returns it in brackets ([]) in case of textual (non-graphical) output
 func getRepresentativeNamespaceString(nsLabels v1.LabelSelector, txtOutFlag bool) string {
 	// if ns selector contains only namespace name label - return ns name
 	nsName, ok := nsLabels.MatchLabels[common.K8sNsNameLabelKey]

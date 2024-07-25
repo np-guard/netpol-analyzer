@@ -51,21 +51,22 @@ type Pod struct {
 
 	// IngressExposureData contains:
 	// - whether the pod is protected by any network-policy on ingress direction or not;
-	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
-	// on ingress direction
+	// - the maximal connection-set for which the pod is exposed to all namespaces  in the cluster by
+	// network policies on ingress direction
 	IngressExposureData PodExposureInfo
 	// EgressExposureData contains:
 	// - whether the pod is protected by any network-policy on egress direction or not;
-	// - and the maximal connection-set for which the pod is exposed to all namespaces by network policies
-	// on egress direction
+	// - the maximal connection-set for which the pod is exposed to all namespaces in the cluster by
+	// network policies on egress direction
 	EgressExposureData PodExposureInfo
 	// RepresentativePodLabelSelector contains reference to the podSelector of the policy-rule which the representative peer was inferred from
 	// used only with representative Pods
-	// RepresentativePodLabelSelector might be nil/ represents an empty selector / a specific non-empty selector
+	// RepresentativePodLabelSelector might be nil/ empty selector / a specific non-empty selector
 	RepresentativePodLabelSelector *v1.LabelSelector
 	// RepresentativeNsLabelSelector points to the namespaceSelector of the policy rule which this representative pod was inferred from
 	// used only with representative peers (exposure-analysis)
 	// RepresentativeNsLabelSelector might represent an empty selector / a specific non-empty selector (might not be nil)
+	// nil namespaceSelector in a policy-rule will be converted to the namespace name label when creating the representative pod.
 	RepresentativeNsLabelSelector *v1.LabelSelector
 
 	// possible combinations of RepresentativePodLabelSelector and RepresentativeNsLabelSelector:

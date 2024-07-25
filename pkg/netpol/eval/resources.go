@@ -163,13 +163,19 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 func (pe *PolicyEngine) resolveMissingNamespaces() error {
 	for _, pod := range pe.podsMap {
 		ns := pod.Namespace
-		if _, ok := pe.namespacesMap[ns]; !ok {
-			if err := pe.resolveSingleMissingNamespace(ns); err != nil {
-				return err
-			}
+		if err := pe.addIfMissingNamespace(ns); err != nil {
+			return err
 		}
 	}
 	return nil
+}
+
+// addMissingNamespace - helping func (to avoid duplicates); checks if the ns is not in the namespacesMap, resolves it
+func (pe *PolicyEngine) addIfMissingNamespace(ns string) (err error) {
+	if _, ok := pe.namespacesMap[ns]; !ok {
+		err = pe.resolveSingleMissingNamespace(ns)
+	}
+	return err
 }
 
 // defaultNamespaceLabelsMap returns a map with a single key: val for the default K8s namespace name key.
@@ -407,7 +413,7 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 
 	var err error
 	// for exposure analysis only: scan policy ingress and egress rules:
-	// 1. to store allowed connections to entire cluster and to all destinations (if such connections are allowed by the policy)
+	// 1. to store allowed connections to entire cluster and to external destinations (if such connections are allowed by the policy)
 	// 2. to get selectors and generate representativePeers
 	if pe.exposureAnalysisFlag {
 		rulesSelectors, scanErr := newNetpol.ScanPolicyRulesAndUpdateExposedWideConns()
@@ -605,9 +611,9 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string) (Peer, error) 
 }
 
 // addRepresentativePod adds a new representative pod to the policy-engine (to pe.representativePeersMap).
-// if the given namespace string (podNs) is not empty (i.e. a real (policy's) namespace name), it will be assigned to the pod's Namespace
-// else, the representative pod will have no namespace (will not add a representative namespace to the policy-engine)
-// anyway the "namespace name" requirement of the representative pod will be stored in its RepresentativeNsLabelSelector field.
+// if the given namespace string (podNs) is not empty (i.e. a real (policy's) namespace name), it will be assigned to the pod's Namespace;
+// and the "namespace name" requirement of the representative pod will be stored in its RepresentativeNsLabelSelector field.
+// if the representative pod will have no namespace (will not add a representative namespace to the policy-engine).
 // this func is used only with exposure-analysis
 func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.SingleRuleSelectors) error {
 	if objSelectors == nil { // should not get here

@@ -34,11 +34,11 @@ type NetworkPolicy struct {
 	*netv1.NetworkPolicy // embedding k8s network policy object
 	// following data stored in preprocessing when exposure-analysis is on;
 	// IngressPolicyExposure contains:
-	// - the maximal connection-set which the policy's rules allow to all destinations on ingress direction
-	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on ingress direction
+	// - the maximal connection-set which the policy's rules allow from external destinations on ingress direction
+	// - the maximal connection-set which the policy's rules allow from all namespaces in the cluster on ingress direction
 	IngressPolicyExposure PolicyExposureWithoutSelectors
 	// EgressPolicyExposure contains:
-	// - the maximal connection-set which the policy's rules allow to all destinations on egress direction
+	// - the maximal connection-set which the policy's rules allow to external destinations on egress direction
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on egress direction
 	EgressPolicyExposure PolicyExposureWithoutSelectors
 }
@@ -50,10 +50,10 @@ type NetworkPolicy struct {
 // PolicyExposureWithoutSelectors describes the maximum allowed conns that the policy exposes as cluster wide or as external,
 // those conns are inferred when the policy has no rules, or from empty rules
 type PolicyExposureWithoutSelectors struct {
-	// ExternalExposure  contains the maximal connection-set which the policy's rules allow to all destinations
+	// ExternalExposure  contains the maximal connection-set which the policy's rules allow from/to external destinations
 	// (all namespaces, pods and IP addresses)
 	ExternalExposure *common.ConnectionSet
-	// ClusterWideExposure  contains the maximal connection-set which the policy's rules allow to all namespaces in the cluster
+	// ClusterWideExposure  contains the maximal connection-set which the policy's rules allow from/to all namespaces in the cluster
 	ClusterWideExposure *common.ConnectionSet
 }
 
@@ -128,9 +128,9 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 			if err != nil {
 				return res, err
 			}
-			if (dst == nil || isRepresentativePod(dst)) && portName != "" {
-				// adding namedPort to connectionSet in case of :
-				// - dst is nil - for updating exposed general connections;
+			if (dst == nil || hasRepresentativePod(dst)) && portName != "" {
+				// adding namedPort string to connectionSet in case of :
+				// - dst is nil - for updating wide exposure connections;
 				// - if dst is a representative pod (its namedPorts are unknown)
 				ports.AddPort(intstr.FromString(portName))
 			}
@@ -143,8 +143,8 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 	return res, nil
 }
 
-// isRepresentativePod determines if the peer's source is representativePeer; i.e. its pod fake and has RepresentativePodName
-func isRepresentativePod(peer Peer) bool {
+// hasRepresentativePod determines if the peer's source is representativePeer; i.e. its pod fake and has RepresentativePodName
+func hasRepresentativePod(peer Peer) bool {
 	if peer.GetPeerPod() == nil {
 		return false
 	}
@@ -209,8 +209,8 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			} else {
 				peerNamespace := peer.GetPeerNamespace()
 				// checking if a selector matches labels by peer type; since representative peers selectors may need special handling
-				if isRepresentativePod(peer) {
-					// representative peer's is inferred from a rule with its labelSelector
+				if hasRepresentativePod(peer) {
+					// representative peer is inferred from a rule with its/same labelSelector.
 					// note that if the namespaceSelector in the rule is nil, we don't get here,
 					// since that means the peer is in same namespace of the policy, and this was checked above
 					peerMatchesNamespaceSelector, err = SelectorsFullMatch(rulePeers[i].NamespaceSelector, peer.GetPeerPod().RepresentativeNsLabelSelector)
@@ -229,7 +229,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 				peerMatchesPodSelector = true
 			} else {
 				// checking if a selector matches labels by peer type; since representative peers selectors may need special handling
-				if isRepresentativePod(peer) {
+				if hasRepresentativePod(peer) {
 					peerMatchesPodSelector, err = SelectorsFullMatch(rulePeers[i].PodSelector, peer.GetPeerPod().RepresentativePodLabelSelector)
 				} else {
 					selector, err = np.parseNetpolLabelSelector(rulePeers[i].PodSelector)
@@ -481,7 +481,8 @@ type SingleRuleSelectors struct {
 }
 
 // ScanPolicyRulesAndUpdateExposedWideConns scans policy rules and :
-// - updates policy's exposed wide connections for all destinations or/ and for entire cluster on ingress and/ or egress directions
+// - updates policy's exposed wide connections from/to external resources or/and from/to all namespaces in the cluster on
+// ingress and egress directions
 // - returns list of labels.selectors from rules which has non-empty selectors, for which the representative peers should be generated
 func (np *NetworkPolicy) ScanPolicyRulesAndUpdateExposedWideConns() (rulesSelectors []SingleRuleSelectors, err error) {
 	if np.policyAffectsDirection(netv1.PolicyTypeIngress) {
@@ -533,15 +534,16 @@ func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 }
 
 // getSelectorsAndUpdateExposedGeneralConns:
-// - checks if the given rules list is exposed to entire world or entire cluster
-// (e.g. if the rules list is empty/ if there is a rule with: empty namespaceSelector/ both empty nameSpaceSelector and podSelector) :
-// then updates the policy's general conns
-// - else: returns selectors of non-general rules (rules that are not exposed to entire world or cluster).
+// loops given rules list:
+// - if the rules list is empty updates the external and cluster wide exposure of the policy
+// - if a rule have empty selectors (podSelector and namespaceSelector)or just empty namespaceSelector (nil podSelector)
+// updates the cluster wide exposure of the policy
+// - if a rule contains at least one defined selector : appends the rule selectors to a selector list which will be returned.
 // this func assumes rules are legal (rules correctness check occurs later)
 func (np *NetworkPolicy) getSelectorsAndUpdateExposedGeneralConns(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
 	isIngress bool) (rulesSelectors []SingleRuleSelectors, err error) {
 	if len(rules) == 0 {
-		err = np.updateNetworkPolicyExposedGeneralConn(true, true, rulePorts, isIngress)
+		err = np.updateNetworkPolicyWideExposureConns(true, true, rulePorts, isIngress)
 		return nil, err
 	}
 	for i := range rules {
@@ -556,7 +558,7 @@ func (np *NetworkPolicy) getSelectorsAndUpdateExposedGeneralConns(rules []netv1.
 		// if podSelector is not nil but namespaceSelector is nil, this is the netpol's namespace
 		if rules[i].NamespaceSelector != nil && rules[i].NamespaceSelector.Size() == 0 &&
 			(rules[i].PodSelector == nil || rules[i].PodSelector.Size() == 0) {
-			err = np.updateNetworkPolicyExposedGeneralConn(false, true, rulePorts, isIngress)
+			err = np.updateNetworkPolicyWideExposureConns(false, true, rulePorts, isIngress)
 			return nil, err
 		}
 		// else selectors' combination specifies workloads by labels (at least one is not nil and not empty)
@@ -567,14 +569,14 @@ func (np *NetworkPolicy) getSelectorsAndUpdateExposedGeneralConns(rules []netv1.
 	return rulesSelectors, nil
 }
 
-// updateNetworkPolicyExposedGeneralConn updates the general connections of the policy
-func (np *NetworkPolicy) updateNetworkPolicyExposedGeneralConn(external, entireCluster bool, rulePorts []netv1.NetworkPolicyPort,
+// updateNetworkPolicyWideExposureConns updates the wide exposure connections of the policy
+func (np *NetworkPolicy) updateNetworkPolicyWideExposureConns(externalExposure, entireCluster bool, rulePorts []netv1.NetworkPolicyPort,
 	isIngress bool) error {
 	ruleConns, err := np.ruleConnections(rulePorts, nil)
 	if err != nil {
 		return err
 	}
-	if external {
+	if externalExposure {
 		if isIngress {
 			np.IngressPolicyExposure.ExternalExposure.Union(ruleConns)
 		} else {
