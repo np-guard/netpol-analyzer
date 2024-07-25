@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-// common dot output formatting consts and funcs
+// common dot output formatting constants and funcs
 const (
 	DotHeader           = "digraph {"
 	DotClosing          = "}"

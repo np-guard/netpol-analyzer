@@ -103,14 +103,14 @@ func VariantFromLabelsSelector(ls *v1.LabelSelector) (string, error) {
 	// calculating string of requirements (`values` list in a requirement is not sorted internally, Requirement.String() - sorts it)
 	reqStr := ""
 	for _, req := range requirements {
-		currStr := req.String()
+		currentStr := req.String()
 		// for special case of a requirement with In operator and only one value, convert its string to "key=val" (instead of key in (val))
 		// example: so only one representative peer is generated for both rules : app In [x] and app=x
 		// (see tests/test_exposure_different_but_equiv_rules)
 		if newStr := handleRequirementWithInOpAndSingleValue(req); newStr != "" {
-			currStr = newStr
+			currentStr = newStr
 		}
-		reqStr += currStr
+		reqStr += currentStr
 	}
 	return hex.EncodeToString(sha1.New().Sum([]byte(reqStr))), nil //nolint:gosec // Non-crypto use
 }

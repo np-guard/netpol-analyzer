@@ -51,7 +51,7 @@ interfaces to  test:
 
 	TODO: add tests to check the Info message is added to the log
 
-	Example for possible fatal-Errors returned from the call below: (connslistFromParsedResources)
+	Example for possible fatal-Errors returned from the call below: (connsListFromParsedResources)
 	(1) (fatal-err) netpol-err: CIDR error (not a valid ipv4 CIDR)
 	(2) additional netpol-err... (e.g. LabelSelector error), and more..
 */

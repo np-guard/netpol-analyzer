@@ -34,10 +34,10 @@ func (df *diffFormatDOT) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 	edgeLines = append(edgeLines, nonChangedEdges...)
 	ingressAnalyzerEdges = append(ingressAnalyzerEdges, nonChangedIngressEdges...)
 	// changed
-	externalCPeers, changedEedges, changedIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.ChangedConnections(),
+	externalCPeers, changedEdges, changedIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.ChangedConnections(),
 		peersVisited, nsPeers)
 	externalPeersLines = append(externalPeersLines, externalCPeers...)
-	edgeLines = append(edgeLines, changedEedges...)
+	edgeLines = append(edgeLines, changedEdges...)
 	ingressAnalyzerEdges = append(ingressAnalyzerEdges, changedIngressEdges...)
 	// added
 	externalNPeers, newEdges, newIngressEdges := df.getEdgesAndPeersLinesByCategory(connsDiff.AddedConnections(), peersVisited, nsPeers)

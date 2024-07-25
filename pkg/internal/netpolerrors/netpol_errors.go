@@ -72,7 +72,7 @@ func NotSupportedPodResourcesErrorStr(ownerRefName string) string {
 		ownerRefName + " but with different set of labels."
 }
 
-// WorkloadDoesNotExistErrStr returns error string of missing workload for connlist with focusworkload
+// WorkloadDoesNotExistErrStr returns error string of missing workload for connlist with focus-workload
 func WorkloadDoesNotExistErrStr(workload string) string {
 	return "Workload " + workload + " does not exist in the input resources." + EmptyConnListErrStr
 }

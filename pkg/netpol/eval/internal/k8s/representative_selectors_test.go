@@ -73,13 +73,13 @@ func TestSelectorsFullMatch(t *testing.T) {
 			expectedResult:         true,
 		},
 		{
-			testName:               "an_empty_real_selectormatches_any_representative_selector",
+			testName:               "an_empty_real_selector_matches_any_representative_selector",
 			realSelector:           &emptySelector,
 			representativeSelector: &selector1,
 			expectedResult:         true,
 		},
 		{
-			testName:               "matchLabels_selectorand_match_expression_selectorwith_exact_same_requirement_are_full_match",
+			testName:               "matchLabels_selector_and_match_expression_selector_with_exact_same_requirement_are_full_match",
 			realSelector:           &selector3,
 			representativeSelector: &selector4,
 			expectedResult:         true,
@@ -103,7 +103,7 @@ func TestSelectorsFullMatch(t *testing.T) {
 			expectedResult:         true,
 		},
 		{
-			testName:               "an_emptyselectormatches_any_namespace",
+			testName:               "an_empty_selector_matches_any_namespace",
 			realSelector:           &emptySelector,
 			representativeSelector: &nsSelector,
 			expectedResult:         true,
