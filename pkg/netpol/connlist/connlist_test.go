@@ -341,7 +341,8 @@ func TestANPConnectivityFromParsedResources(t *testing.T) {
 			name:                   "ingress same labels port range",
 			outputFormat:           string(output.TextFormat),
 			expectedOutputFileName: "test4_anp_conn_from_parsed_res.txt",
-			podResources:           podInfo{[]string{"x", "y", "z"}, []string{"a", "b", "c"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			podResources: podInfo{[]string{"x", "y", "z"}, []string{"a", "b", "c"}, []int{80, 81},
+				[]v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
 			anpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
