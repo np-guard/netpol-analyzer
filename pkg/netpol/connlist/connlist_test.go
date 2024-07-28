@@ -9,9 +9,8 @@ package connlist
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"testing"
-
-	"sigs.k8s.io/yaml"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
@@ -128,98 +127,63 @@ func TestConnListFromResourceInfos(t *testing.T) {
 //////////////////////////////////// The following tests are taken from /////////////////////////////////////
 // https://github.com/kubernetes-sigs/network-policy-api/blob/main/cmd/policy-assistant/test/integration/integration_test.go
 
-const (
-	podA = `
-apiVersion: v1
-kind: Pod
-metadata:
-  name: a
-  namespace: xx
-  labels:
-    pod: a
-spec:
-  containers:
-  - name: nginx
-    image: nginx:1.14.2
-    ports:
-    - name: serve-80-tcp
-      containerPort: 80
-      protocol: TCP
-status:
-  podIPs:
-  - ip: 192.168.49.2
-  hostIP: 192.168.49.2`
-
-	podB = `
-apiVersion: v1
-kind: Pod
-metadata:
-  name: b
-  namespace: yy
-  labels:
-    pod: b
-spec:
-  containers:
-  - name: nginx
-    image: nginx:1.14.2
-    ports:
-    - containerPort: 80
-status:
-  podIPs:
-  - ip: 192.168.49.2
-  hostIP: 192.168.49.2`
-
-	podC = `
-apiVersion: v1
-kind: Pod
-metadata:
-  name: c
-  namespace: zz
-  labels:
-    pod: c
-spec:
-  containers:
-  - name: nginx
-    image: nginx:1.14.2
-    ports:
-    - containerPort: 80
-status:
-  podIPs:
-  - ip: 192.168.49.2
-  hostIP: 192.168.49.2`
-)
-
 var serve80tcp = "serve-80-tcp"
 
-func podFromYaml(podYamlStr string) (*v1.Pod, error) {
+func NewDefaultPod(namespace, name string, ports []int, protocols []v1.Protocol) v1.Pod {
 	podObj := v1.Pod{}
-	err := yaml.Unmarshal([]byte(podYamlStr), &podObj)
-	if err != nil {
-		return nil, err
+	podObj.TypeMeta.APIVersion = "v1"
+	podObj.TypeMeta.Kind = "Pod"
+	podObj.ObjectMeta.Name = name
+	podObj.ObjectMeta.Namespace = namespace
+	podObj.Labels = map[string]string{"pod": name}
+	for _, port := range ports {
+		for _, protocol := range protocols {
+			podObj.Spec.Containers = append(podObj.Spec.Containers, NewDefaultContainer(port, protocol))
+		}
 	}
-	return &podObj, nil
+	return podObj
+}
+
+func NewDefaultContainer(port int, protocol v1.Protocol) v1.Container {
+	contObj := v1.Container{}
+	contObj.Name = fmt.Sprintf("cont-%d-%s", port, strings.ToLower(string(protocol)))
+	contObj.Ports = make([]v1.ContainerPort, 1)
+	contObj.Ports[0].Name = fmt.Sprintf("serve-%d-%s", port, strings.ToLower(string(protocol)))
+	contObj.Ports[0].ContainerPort = int32(port)
+	contObj.Ports[0].Protocol = protocol
+	return contObj
+}
+
+type podInfo struct {
+	namespaces []string
+	podNames   []string
+	ports      []int
+	protocols  []v1.Protocol
 }
 
 type parsedResourcesTest struct {
-	name           string
-	testInfo       string
-	npList         []*netv1.NetworkPolicy
-	anpList        []*v1alpha1.AdminNetworkPolicy
-	outputFormat   string
-	expectedOutput string
-	resources      []parser.K8sObject
-	analyzer       *ConnlistAnalyzer
+	name                   string
+	outputFormat           string
+	expectedOutputFileName string
+	podResources           podInfo
+	anpList                []*v1alpha1.AdminNetworkPolicy
+	npList                 []*netv1.NetworkPolicy
+	testInfo               string
+	resources              []parser.K8sObject
+	analyzer               *ConnlistAnalyzer
 }
 
-func (test *parsedResourcesTest) initTest(podList []*v1.Pod, nsList []*v1.Namespace) {
+func (test *parsedResourcesTest) initTest() {
 	test.testInfo = fmt.Sprintf("test: %q, output format: %q", test.name, test.outputFormat)
-	for _, ns := range nsList {
-		k8sObj := parser.CreateNamespaceK8sObject(ns)
+	for _, ns := range test.podResources.namespaces {
+		parsedNs := &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ns, Labels: map[string]string{"ns": ns}}}
+		k8sObj := parser.CreateNamespaceK8sObject(parsedNs)
 		test.resources = append(test.resources, k8sObj)
-	}
-	for _, pod := range podList {
-		k8sObj := parser.CreatePodK8sObject(pod)
-		test.resources = append(test.resources, k8sObj)
+		for _, pod := range test.podResources.podNames {
+			parsedPod := NewDefaultPod(ns, pod, test.podResources.ports, test.podResources.protocols)
+			k8sObj := parser.CreatePodK8sObject(&parsedPod)
+			test.resources = append(test.resources, k8sObj)
+		}
 	}
 	for _, np := range test.npList {
 		k8sObj := parser.CreateNetwordPolicyK8sObject(np)
@@ -235,20 +199,10 @@ func (test *parsedResourcesTest) initTest(podList []*v1.Pod, nsList []*v1.Namesp
 func TestANPConnectivityFromParsedResources(t *testing.T) {
 	testList := []parsedResourcesTest{
 		{
-			name:         "egress port number protocol unspecified",
-			outputFormat: string(output.TextFormat),
-			expectedOutput: `0.0.0.0-255.255.255.255 => xx/a[Pod] : All Connections
-0.0.0.0-255.255.255.255 => yy/b[Pod] : All Connections
-0.0.0.0-255.255.255.255 => zz/c[Pod] : All Connections
-xx/a[Pod] => 0.0.0.0-255.255.255.255 : All Connections
-xx/a[Pod] => yy/b[Pod] : All but: TCP 80
-xx/a[Pod] => zz/c[Pod] : All Connections
-yy/b[Pod] => 0.0.0.0-255.255.255.255 : All Connections
-yy/b[Pod] => xx/a[Pod] : All Connections
-yy/b[Pod] => zz/c[Pod] : All Connections
-zz/c[Pod] => 0.0.0.0-255.255.255.255 : All Connections
-zz/c[Pod] => xx/a[Pod] : All Connections
-zz/c[Pod] => yy/b[Pod] : All Connections`,
+			name:                   "egress port number protocol unspecified",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test1_anp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
 			anpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
@@ -256,7 +210,7 @@ zz/c[Pod] => yy/b[Pod] : All Connections`,
 						Subject: v1alpha1.AdminNetworkPolicySubject{
 							Pods: &v1alpha1.NamespacedPod{
 								NamespaceSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"ns": "xx"},
+									MatchLabels: map[string]string{"ns": "x"},
 								},
 								PodSelector: metav1.LabelSelector{
 									MatchLabels: map[string]string{"pod": "a"},
@@ -270,7 +224,7 @@ zz/c[Pod] => yy/b[Pod] : All Connections`,
 									{
 										Pods: &v1alpha1.NamespacedPod{
 											NamespaceSelector: metav1.LabelSelector{
-												MatchLabels: map[string]string{"ns": "yy"},
+												MatchLabels: map[string]string{"ns": "x"},
 											},
 											PodSelector: metav1.LabelSelector{
 												MatchLabels: map[string]string{"pod": "b"},
@@ -292,20 +246,10 @@ zz/c[Pod] => yy/b[Pod] : All Connections`,
 			},
 		},
 		{
-			name:         "ingress port number protocol unspecified",
-			outputFormat: string(output.TextFormat),
-			expectedOutput: `0.0.0.0-255.255.255.255 => xx/a[Pod] : All Connections
-0.0.0.0-255.255.255.255 => yy/b[Pod] : All Connections
-0.0.0.0-255.255.255.255 => zz/c[Pod] : All Connections
-xx/a[Pod] => 0.0.0.0-255.255.255.255 : All Connections
-xx/a[Pod] => yy/b[Pod] : All Connections
-xx/a[Pod] => zz/c[Pod] : All Connections
-yy/b[Pod] => 0.0.0.0-255.255.255.255 : All Connections
-yy/b[Pod] => xx/a[Pod] : All but: TCP 80
-yy/b[Pod] => zz/c[Pod] : All Connections
-zz/c[Pod] => 0.0.0.0-255.255.255.255 : All Connections
-zz/c[Pod] => xx/a[Pod] : All Connections
-zz/c[Pod] => yy/b[Pod] : All Connections`,
+			name:                   "ingress port number protocol unspecified",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test2_anp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
 			anpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
@@ -313,7 +257,7 @@ zz/c[Pod] => yy/b[Pod] : All Connections`,
 						Subject: v1alpha1.AdminNetworkPolicySubject{
 							Pods: &v1alpha1.NamespacedPod{
 								NamespaceSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"ns": "xx"},
+									MatchLabels: map[string]string{"ns": "x"},
 								},
 								PodSelector: metav1.LabelSelector{
 									MatchLabels: map[string]string{"pod": "a"},
@@ -327,7 +271,7 @@ zz/c[Pod] => yy/b[Pod] : All Connections`,
 									{
 										Pods: &v1alpha1.NamespacedPod{
 											NamespaceSelector: metav1.LabelSelector{
-												MatchLabels: map[string]string{"ns": "yy"},
+												MatchLabels: map[string]string{"ns": "x"},
 											},
 											PodSelector: metav1.LabelSelector{
 												MatchLabels: map[string]string{"pod": "b"},
@@ -349,20 +293,10 @@ zz/c[Pod] => yy/b[Pod] : All Connections`,
 			},
 		},
 		{
-			name:         "ingress named port",
-			outputFormat: string(output.TextFormat),
-			expectedOutput: `0.0.0.0-255.255.255.255 => xx/a[Pod] : All Connections
-0.0.0.0-255.255.255.255 => yy/b[Pod] : All Connections
-0.0.0.0-255.255.255.255 => zz/c[Pod] : All Connections
-xx/a[Pod] => 0.0.0.0-255.255.255.255 : All Connections
-xx/a[Pod] => yy/b[Pod] : All Connections
-xx/a[Pod] => zz/c[Pod] : All Connections
-yy/b[Pod] => 0.0.0.0-255.255.255.255 : All Connections
-yy/b[Pod] => xx/a[Pod] : All but: TCP 80
-yy/b[Pod] => zz/c[Pod] : All Connections
-zz/c[Pod] => 0.0.0.0-255.255.255.255 : All Connections
-zz/c[Pod] => xx/a[Pod] : All Connections
-zz/c[Pod] => yy/b[Pod] : All Connections`,
+			name:                   "ingress named port",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test3_anp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
 			anpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
@@ -370,7 +304,7 @@ zz/c[Pod] => yy/b[Pod] : All Connections`,
 						Subject: v1alpha1.AdminNetworkPolicySubject{
 							Pods: &v1alpha1.NamespacedPod{
 								NamespaceSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"ns": "xx"},
+									MatchLabels: map[string]string{"ns": "x"},
 								},
 								PodSelector: metav1.LabelSelector{
 									MatchLabels: map[string]string{"pod": "a"},
@@ -384,7 +318,7 @@ zz/c[Pod] => yy/b[Pod] : All Connections`,
 									{
 										Pods: &v1alpha1.NamespacedPod{
 											NamespaceSelector: metav1.LabelSelector{
-												MatchLabels: map[string]string{"ns": "yy"},
+												MatchLabels: map[string]string{"ns": "x"},
 											},
 											PodSelector: metav1.LabelSelector{
 												MatchLabels: map[string]string{"pod": "b"},
@@ -403,34 +337,445 @@ zz/c[Pod] => yy/b[Pod] : All Connections`,
 				},
 			},
 		},
+		{
+			name:                   "ingress same labels port range",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test4_anp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y", "z"}, []string{"a", "b", "c"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 100,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Pods: &v1alpha1.NamespacedPod{
+								NamespaceSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"ns": "x"},
+								},
+								PodSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"pod": "a"},
+								},
+							},
+						},
+						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolTCP,
+											Start:    80,
+											End:      81,
+										},
+									},
+								}),
+								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+									{
+										Pods: &v1alpha1.NamespacedPod{
+											NamespaceSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"ns": "x"},
+											},
+											PodSelector: metav1.LabelSelector{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:                   "not same labels",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test5_anp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 100,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Pods: &v1alpha1.NamespacedPod{
+								NamespaceSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"ns": "x"},
+								},
+								PodSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"pod": "a"},
+								},
+							},
+						},
+						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
+								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+									{
+										Pods: &v1alpha1.NamespacedPod{
+											NamespaceSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"ns": "y"},
+											},
+											PodSelector: metav1.LabelSelector{},
+										},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortNumber: &v1alpha1.Port{
+											Port:     80,
+											Protocol: v1.ProtocolUDP,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:                   "ordering matters for overlapping rules (order #1)",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test6_anp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 100,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Pods: &v1alpha1.NamespacedPod{
+								NamespaceSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"ns": "x"},
+								},
+								PodSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"pod": "a"},
+								},
+							},
+						},
+						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
+								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+									{
+										Pods: &v1alpha1.NamespacedPod{
+											NamespaceSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"ns": "y"},
+											},
+											PodSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"pod": "a"},
+											},
+										},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortNumber: &v1alpha1.Port{
+											Port:     80,
+											Protocol: v1.ProtocolUDP,
+										},
+									},
+								}),
+							},
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
+								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+									{
+										Pods: &v1alpha1.NamespacedPod{
+											NamespaceSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"ns": "y"},
+											},
+											PodSelector: metav1.LabelSelector{},
+										},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortNumber: &v1alpha1.Port{
+											Port:     80,
+											Protocol: v1.ProtocolUDP,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:                   "ordering matters for overlapping rules (order #2)",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test7_anp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 100,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Pods: &v1alpha1.NamespacedPod{
+								NamespaceSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"ns": "x"},
+								},
+								PodSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"pod": "a"},
+								},
+							},
+						},
+						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
+								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+									{
+										Pods: &v1alpha1.NamespacedPod{
+											NamespaceSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"ns": "y"},
+											},
+											PodSelector: metav1.LabelSelector{},
+										},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortNumber: &v1alpha1.Port{
+											Port:     80,
+											Protocol: v1.ProtocolUDP,
+										},
+									},
+								}),
+							},
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
+								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+									{
+										Pods: &v1alpha1.NamespacedPod{
+											NamespaceSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"ns": "y"},
+											},
+											PodSelector: metav1.LabelSelector{
+												MatchLabels: map[string]string{"pod": "a"},
+											},
+										},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortNumber: &v1alpha1.Port{
+											Port:     80,
+											Protocol: v1.ProtocolUDP,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+			},
+		},
+		{ // Tanya - This test result differs from the result in policy-assistant, but seems to be correct
+			name:                   "deny all egress",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test8_anp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 100,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Namespaces: &metav1.LabelSelector{},
+						},
+						Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
+								To: []v1alpha1.AdminNetworkPolicyEgressPeer{
+									{
+										Namespaces: &metav1.LabelSelector{},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolTCP,
+											Start:    80,
+											End:      81,
+										},
+									},
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolUDP,
+											Start:    80,
+											End:      81,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+			},
+		},
+		{ // Tanya - This test result differs from the result in policy-assistant, but seems to be correct
+			name:                   "multiple ANPs (priority order #1)",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test9_anp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 99,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Namespaces: &metav1.LabelSelector{},
+						},
+						Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
+								To: []v1alpha1.AdminNetworkPolicyEgressPeer{
+									{
+										Namespaces: &metav1.LabelSelector{},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolTCP,
+											Start:    80,
+											End:      81,
+										},
+									},
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolUDP,
+											Start:    80,
+											End:      81,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 100,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Namespaces: &metav1.LabelSelector{},
+						},
+						Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
+								To: []v1alpha1.AdminNetworkPolicyEgressPeer{
+									{
+										Namespaces: &metav1.LabelSelector{},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolTCP,
+											Start:    80,
+											End:      81,
+										},
+									},
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolUDP,
+											Start:    80,
+											End:      81,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:                   "multiple ANPs (priority order #2)",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test10_anp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 101,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Namespaces: &metav1.LabelSelector{},
+						},
+						Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
+								To: []v1alpha1.AdminNetworkPolicyEgressPeer{
+									{
+										Namespaces: &metav1.LabelSelector{},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolTCP,
+											Start:    80,
+											End:      81,
+										},
+									},
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolUDP,
+											Start:    80,
+											End:      81,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 100,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Namespaces: &metav1.LabelSelector{},
+						},
+						Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
+								To: []v1alpha1.AdminNetworkPolicyEgressPeer{
+									{
+										Namespaces: &metav1.LabelSelector{},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolTCP,
+											Start:    80,
+											End:      81,
+										},
+									},
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolUDP,
+											Start:    80,
+											End:      81,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+			},
+		},
 	}
-
-	podList := []*v1.Pod{}
-	podsYamlList := []string{podA, podB, podC}
-	for _, podYaml := range podsYamlList {
-		podObj, err := podFromYaml(podYaml)
-		if err != nil {
-			t.Fatalf("error getting pod object")
-		}
-		podList = append(podList, podObj)
-	}
-	nsList := []*v1.Namespace{}
-	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "xx", Labels: map[string]string{"ns": "xx"}}},
-		&v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "yy", Labels: map[string]string{"ns": "yy"}}})
 
 	for _, test := range testList {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			// t.Parallel()
-			test.initTest(podList, nsList)
+			test.initTest()
 			res, _, err := test.analyzer.connslistFromParsedResources(test.resources)
 			require.Nil(t, err, test.testInfo)
 			out, err := test.analyzer.ConnectionsListToString(res)
 			fmt.Printf("The result of %s:\n%s\n\n", test.testInfo, out)
 			require.Nil(t, err, test.testInfo)
-			require.Equal(t, test.expectedOutput, out,
-				"output mismatch for %s, actual output: %q vs expected output: %q",
-				test.testInfo, out, test.expectedOutput)
+			testutils.CheckActualVsExpectedOutputMatch(t, test.expectedOutputFileName, out,
+				test.testInfo, currentPkg)
 		})
 	}
 }
