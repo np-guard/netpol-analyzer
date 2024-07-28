@@ -11,12 +11,13 @@ import (
 	"path/filepath"
 	"testing"
 
+	"sigs.k8s.io/yaml"
+
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
-	"sigs.k8s.io/yaml"
 
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
