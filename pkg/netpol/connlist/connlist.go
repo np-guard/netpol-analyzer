@@ -243,6 +243,17 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 		}
 	}
 
+	// get all netpols
+	npList, apiErr := clientset.NetworkingV1().NetworkPolicies(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	if apiErr != nil {
+		return nil, nil, apiErr
+	}
+	for i := range npList.Items {
+		if err := pe.InsertObject(&npList.Items[i]); err != nil {
+			return nil, nil, err
+		}
+	}
+
 	// get all pods
 	podList, apiErr := clientset.CoreV1().Pods(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	if apiErr != nil {
@@ -254,16 +265,6 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 		}
 	}
 
-	// get all netpols
-	npList, apiErr := clientset.NetworkingV1().NetworkPolicies(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
-	if apiErr != nil {
-		return nil, nil, apiErr
-	}
-	for i := range npList.Items {
-		if err := pe.InsertObject(&npList.Items[i]); err != nil {
-			return nil, nil, err
-		}
-	}
 	return ca.getConnectionsList(pe, nil)
 }
 
