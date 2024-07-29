@@ -111,7 +111,7 @@ func (conn *ConnectionSet) Union(other *ConnectionSet) {
 	conn.checkIfAllConnections()
 }
 
-// Subtract : updates ConnectionSet object with the result of
+// Subtract : updates current ConnectionSet object with the result of
 // subtracting other ConnectionSet from current ConnectionSet
 func (conn *ConnectionSet) Subtract(other *ConnectionSet) {
 	if other.IsEmpty() { // nothing to subtract
@@ -286,9 +286,9 @@ func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[
 		return noConnsStr
 	}
 	var connStr string
-	// connStrings will contain the conns' protocols and ports as is
+	// connStrings will contain the string of given conns protocols and ports as is
 	connStrings := make([]string, len(protocolsAndPorts))
-	// connAsComplementStr will contain the conns' as "All but" + conns complement to the All conns
+	// connAsComplementStr will contain the conns representation as "All but: " + conns complement of the given conns
 	connAsComplementStr := make([]string, 0)
 	index := 0
 	for protocol, ports := range protocolsAndPorts {
