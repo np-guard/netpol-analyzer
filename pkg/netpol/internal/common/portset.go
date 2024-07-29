@@ -125,8 +125,8 @@ func (p *PortSet) subtract(other *PortSet) {
 	p.subtractNamedPorts(other.NamedPorts)
 }
 
-// subtractNamedPorts: deletes given named ports from current portSet's named ports set
-// and adds the deleted named ports to its excluded named ports set
+// subtractNamedPorts: deletes given named ports from current portSet's named ports map
+// and adds the deleted named ports to excluded named ports map
 func (p *PortSet) subtractNamedPorts(otherNamedPorts map[string]bool) {
 	for namedPort := range otherNamedPorts {
 		delete(p.NamedPorts, namedPort)
