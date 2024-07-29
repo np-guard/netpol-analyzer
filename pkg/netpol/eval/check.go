@@ -471,7 +471,7 @@ func (pe *PolicyEngine) getAllConnsFromAdminNetpols(src, dst k8s.Peer) (anpsConn
 			policiesConns.CollectANPConns(policyConnsPerDirection)
 		}
 		// if the anp captures the dst, get the relevant ingress conns (from src to dst)
-		if dstAdminNetpols[anp] {
+		if dstAdminNetpols[anp] { // @todo should replace with else if (rules in a single policy should be matching for same src, dst?)
 			policyConnsPerDirection, err := anp.GetIngressPolicyConns(src, dst)
 			if err != nil {
 				return nil, false, err
