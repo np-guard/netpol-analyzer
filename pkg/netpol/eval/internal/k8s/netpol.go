@@ -480,11 +480,11 @@ type SingleRuleSelectors struct {
 	PodSelector *metav1.LabelSelector
 }
 
-// ScanPolicyRulesAndUpdateExposedWideConns scans policy rules and :
+// GetPolicyRulesSelectorsAndUpdateExposureClusterWideConns scans policy rules and :
 // - updates policy's exposed cluster-wide connections from/to external resources or/and from/to all namespaces in the cluster on
 // ingress and egress directions
 // - returns list of labels.selectors from rules which have non-empty selectors, for which the representative peers should be generated
-func (np *NetworkPolicy) ScanPolicyRulesAndUpdateExposedWideConns() (rulesSelectors []SingleRuleSelectors, err error) {
+func (np *NetworkPolicy) GetPolicyRulesSelectorsAndUpdateExposureClusterWideConns() (rulesSelectors []SingleRuleSelectors, err error) {
 	if np.policyAffectsDirection(netv1.PolicyTypeIngress) {
 		selectors, err := np.scanIngressRules()
 		if err != nil {

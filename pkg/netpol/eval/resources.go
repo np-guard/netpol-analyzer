@@ -416,7 +416,7 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 	// 1. to store allowed connections to entire cluster and to external destinations (if such connections are allowed by the policy)
 	// 2. to get selectors and generate representativePeers
 	if pe.exposureAnalysisFlag {
-		rulesSelectors, scanErr := newNetpol.ScanPolicyRulesAndUpdateExposedWideConns()
+		rulesSelectors, scanErr := newNetpol.GetPolicyRulesSelectorsAndUpdateExposureClusterWideConns()
 		if scanErr != nil {
 			return scanErr
 		}
