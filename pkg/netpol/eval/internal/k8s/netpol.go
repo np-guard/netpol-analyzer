@@ -130,7 +130,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 			}
 			if (dst == nil || hasRepresentativePod(dst)) && portName != "" {
 				// adding namedPort string to connectionSet in case of :
-				// - dst is nil - for updating wide exposure connections;
+				// - dst is nil - for updating cluster-wide exposure connections;
 				// - if dst is a representative pod (its namedPorts are unknown)
 				ports.AddPort(intstr.FromString(portName))
 			}
