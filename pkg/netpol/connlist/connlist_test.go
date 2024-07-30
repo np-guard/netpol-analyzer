@@ -1290,7 +1290,8 @@ func TestANPWithBANPFromParsedResources(t *testing.T) {
 }
 
 func runParsedResourcesTests(t *testing.T, testList ...parsedResourcesTest) {
-	for _, test := range testList {
+	for i := 0; i < len(testList); i++ {
+		test := &testList[i]
 		t.Run(test.name, func(t *testing.T) {
 			// t.Parallel()
 			test.initTest()
