@@ -189,7 +189,7 @@ func addMetaData(meta *metav1.ObjectMeta, cnt *int) {
 }
 
 func (test *parsedResourcesTest) initTest() {
-	var gen_cnt = 0
+	var genCnt = 0
 	test.testInfo = fmt.Sprintf("test: %q, output format: %q", test.name, test.outputFormat)
 	for _, ns := range test.podResources.namespaces {
 		parsedNs := &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ns, Labels: map[string]string{"ns": ns}}}
@@ -202,13 +202,12 @@ func (test *parsedResourcesTest) initTest() {
 		}
 	}
 	for _, np := range test.npList {
-
-		addMetaData(&np.ObjectMeta, &gen_cnt)
+		addMetaData(&np.ObjectMeta, &genCnt)
 		k8sObj := parser.CreateNetwordPolicyK8sObject(np)
 		test.resources = append(test.resources, k8sObj)
 	}
 	for _, anp := range test.anpList {
-		addMetaData(&anp.ObjectMeta, &gen_cnt)
+		addMetaData(&anp.ObjectMeta, &genCnt)
 		k8sObj := parser.CreateAdminNetwordPolicyK8sObject(anp)
 		test.resources = append(test.resources, k8sObj)
 	}
@@ -1292,7 +1291,6 @@ func TestANPWithBANPFromParsedResources(t *testing.T) {
 
 func runParsedResourcesTests(t *testing.T, testList ...parsedResourcesTest) {
 	for _, test := range testList {
-		test := test
 		t.Run(test.name, func(t *testing.T) {
 			// t.Parallel()
 			test.initTest()
