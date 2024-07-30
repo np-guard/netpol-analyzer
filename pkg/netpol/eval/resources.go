@@ -332,6 +332,12 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 }
 
 func (pe *PolicyEngine) upsertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy) error {
+	if anp.Name == "" {
+		return errors.New(netpolerrors.ANPMissingNameErr)
+	}
+	if _, ok := pe.adminNetpolsMap[anp.Name]; ok {
+		return errors.New(netpolerrors.ANPsWithSameNameErr(anp.Name))
+	}
 	pe.adminNetpolsMap[anp.Name] = (*k8s.AdminNetworkPolicy)(anp)
 	return nil
 }
