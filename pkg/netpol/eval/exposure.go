@@ -49,7 +49,6 @@ func (pe *PolicyEngine) generateRepresentativePeers(selectors []k8s.SingleRuleSe
 // The motivation is that exposure analysis will not report exposure to a representative-pod that has selectors
 // exactly matched by a real pod. (This removal applies only to selectors of matchLabels, not matchExpression).
 // representative-peers, i.e. delete a representative pod if the given real pod matches its selectors
-// (applied for representative-peers with matchLabels only, no matchExpression).
 func (pe *PolicyEngine) removeRedundantRepresentativePeers(podObj *k8s.Pod) error {
 	// since namespaces are already inserted to policy-engine; if pod's ns not existing resolve it
 	if err := pe.addIfMissingNamespace(podObj.Namespace); err != nil {
