@@ -24,7 +24,7 @@ import (
 // - for example, if a rule within policy has an entry: namespaceSelector "foo: managed", then a representative pod
 // with this labelSelector will be added, representing all potential pods in such a namespace.
 // - generated representative peers are unique; i.e. if different rules (e.g in different policies or different directions)
-// has same selectors, one representative peer is generated to represent both.
+// have same selectors, one representative peer is generated to represent both.
 // - note that :
 // - if the rule's namespaceSelector is nil, then the representative pod is created in the policy's Namespace (as it is a real namespace)
 // - if the rule's namespaceSelector is not nil, no representative namespace will be generated (representative pod has empty namespace name)
