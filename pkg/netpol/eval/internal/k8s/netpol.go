@@ -483,7 +483,7 @@ type SingleRuleSelectors struct {
 // ScanPolicyRulesAndUpdateExposedWideConns scans policy rules and :
 // - updates policy's exposed wide connections from/to external resources or/and from/to all namespaces in the cluster on
 // ingress and egress directions
-// - returns list of labels.selectors from rules which has non-empty selectors, for which the representative peers should be generated
+// - returns list of labels.selectors from rules which have non-empty selectors, for which the representative peers should be generated
 func (np *NetworkPolicy) ScanPolicyRulesAndUpdateExposedWideConns() (rulesSelectors []SingleRuleSelectors, err error) {
 	if np.policyAffectsDirection(netv1.PolicyTypeIngress) {
 		selectors, err := np.scanIngressRules()
