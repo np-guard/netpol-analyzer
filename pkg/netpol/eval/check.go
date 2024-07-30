@@ -294,7 +294,7 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 }
 
 // determineAllowedConnsPerDirection returns the policy's allowed connections between the
-// peers in the given direction and when exposure-analysis is on updates the wide cluster exposure of the selected pod
+// peers in the given direction, and when exposure-analysis is on it also updates the cluster-wide exposure of the selected pod
 func (pe *PolicyEngine) determineAllowedConnsPerDirection(policy *k8s.NetworkPolicy, src, dst k8s.Peer,
 	isIngress bool) (*common.ConnectionSet, error) {
 	if isIngress {
