@@ -21,6 +21,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	v1alpha1 "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
 	"github.com/stretchr/testify/require"
@@ -127,7 +128,10 @@ func TestConnListFromResourceInfos(t *testing.T) {
 //////////////////////////////////// The following tests are taken from /////////////////////////////////////
 // https://github.com/kubernetes-sigs/network-policy-api/blob/main/cmd/policy-assistant/test/integration/integration_test.go
 
-var serve80tcp = "serve-80-tcp"
+var (
+	udp        = v1.ProtocolUDP
+	serve80tcp = "serve-80-tcp"
+)
 
 func NewDefaultPod(namespace, name string, ports []int, protocols []v1.Protocol) v1.Pod {
 	podObj := v1.Pod{}
@@ -167,13 +171,25 @@ type parsedResourcesTest struct {
 	expectedOutputFileName string
 	podResources           podInfo
 	anpList                []*v1alpha1.AdminNetworkPolicy
+	banp                   *v1alpha1.BaselineAdminNetworkPolicy
 	npList                 []*netv1.NetworkPolicy
 	testInfo               string
 	resources              []parser.K8sObject
 	analyzer               *ConnlistAnalyzer
 }
 
+func addMetaData(meta *metav1.ObjectMeta, cnt *int) {
+	if meta.Name == "" {
+		meta.Name = fmt.Sprintf("generated_name_%q", *cnt)
+		*cnt++
+	}
+	if meta.Namespace == "" {
+		meta.Namespace = "default"
+	}
+}
+
 func (test *parsedResourcesTest) initTest() {
+	var gen_cnt = 0
 	test.testInfo = fmt.Sprintf("test: %q, output format: %q", test.name, test.outputFormat)
 	for _, ns := range test.podResources.namespaces {
 		parsedNs := &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ns, Labels: map[string]string{"ns": ns}}}
@@ -186,13 +202,22 @@ func (test *parsedResourcesTest) initTest() {
 		}
 	}
 	for _, np := range test.npList {
+
+		addMetaData(&np.ObjectMeta, &gen_cnt)
 		k8sObj := parser.CreateNetwordPolicyK8sObject(np)
 		test.resources = append(test.resources, k8sObj)
 	}
 	for _, anp := range test.anpList {
+		addMetaData(&anp.ObjectMeta, &gen_cnt)
 		k8sObj := parser.CreateAdminNetwordPolicyK8sObject(anp)
 		test.resources = append(test.resources, k8sObj)
 	}
+	// Tanya: uncomment the code below when BaselineAdminNetworkPolicy is implemented
+	// if test.banp != nil {
+	//  addMetaData(&test.banp.ObjectMeta, &gen_cnt)
+	// 	k8sObj := parser.CreateBaselineAdminNetwordPolicyK8sObject(test.banp)
+	// 	test.resources = append(test.resources, k8sObj)
+	// }
 	test.analyzer = NewConnlistAnalyzer(WithOutputFormat(test.outputFormat))
 }
 
@@ -569,7 +594,7 @@ func TestANPConnectivityFromParsedResources(t *testing.T) {
 				},
 			},
 		},
-		{ // Tanya - This test result differs from the result in policy-assistant, but seems to be correct
+		{
 			name:                   "deny all egress",
 			outputFormat:           string(output.TextFormat),
 			expectedOutputFileName: "test8_anp_conn_from_parsed_res.txt",
@@ -611,7 +636,7 @@ func TestANPConnectivityFromParsedResources(t *testing.T) {
 				},
 			},
 		},
-		{ // Tanya - This test result differs from the result in policy-assistant, but seems to be correct
+		{
 			name:                   "multiple ANPs (priority order #1)",
 			outputFormat:           string(output.TextFormat),
 			expectedOutputFileName: "test9_anp_conn_from_parsed_res.txt",
@@ -765,6 +790,507 @@ func TestANPConnectivityFromParsedResources(t *testing.T) {
 		},
 	}
 
+	runParsedResourcesTests(t, testList...)
+}
+
+func TestBANPConnectivityFromParsedResources(t *testing.T) {
+	testList := []parsedResourcesTest{
+		{
+			name:                   "egress",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test1_banp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			banp: &v1alpha1.BaselineAdminNetworkPolicy{
+				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
+					Subject: v1alpha1.AdminNetworkPolicySubject{
+						Pods: &v1alpha1.NamespacedPod{
+							NamespaceSelector: metav1.LabelSelector{
+								MatchLabels: map[string]string{"ns": "x"},
+							},
+							PodSelector: metav1.LabelSelector{
+								MatchLabels: map[string]string{"pod": "a"},
+							},
+						},
+					},
+					Egress: []v1alpha1.BaselineAdminNetworkPolicyEgressRule{
+						{
+							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
+							To: []v1alpha1.AdminNetworkPolicyEgressPeer{
+								{
+									Pods: &v1alpha1.NamespacedPod{
+										NamespaceSelector: metav1.LabelSelector{},
+										PodSelector: metav1.LabelSelector{
+											MatchLabels: map[string]string{"pod": "b"},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:                   "ingress",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test2_banp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			banp: &v1alpha1.BaselineAdminNetworkPolicy{
+				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
+					Subject: v1alpha1.AdminNetworkPolicySubject{
+						Pods: &v1alpha1.NamespacedPod{
+							NamespaceSelector: metav1.LabelSelector{
+								MatchLabels: map[string]string{"ns": "x"},
+							},
+							PodSelector: metav1.LabelSelector{
+								MatchLabels: map[string]string{"pod": "a"},
+							},
+						},
+					},
+					Ingress: []v1alpha1.BaselineAdminNetworkPolicyIngressRule{
+						{
+							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
+							From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+								{
+									Pods: &v1alpha1.NamespacedPod{
+										NamespaceSelector: metav1.LabelSelector{},
+										PodSelector: metav1.LabelSelector{
+											MatchLabels: map[string]string{"pod": "b"},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:                   "ordering matters for overlapping rules (order #1)",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test3_banp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80}, []v1.Protocol{v1.ProtocolTCP}},
+			banp: &v1alpha1.BaselineAdminNetworkPolicy{
+				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
+					Subject: v1alpha1.AdminNetworkPolicySubject{
+						Namespaces: &metav1.LabelSelector{},
+					},
+					Ingress: []v1alpha1.BaselineAdminNetworkPolicyIngressRule{
+						{
+							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionAllow,
+							From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+								{
+									Pods: &v1alpha1.NamespacedPod{
+										NamespaceSelector: metav1.LabelSelector{
+											MatchLabels: map[string]string{"ns": "y"},
+										},
+										PodSelector: metav1.LabelSelector{
+											MatchLabels: map[string]string{"pod": "b"},
+										},
+									},
+								},
+							},
+						},
+						{
+							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
+							From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+								{
+									Namespaces: &metav1.LabelSelector{},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:                   "ordering matters for overlapping rules (order #2)",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test4_banp_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80}, []v1.Protocol{v1.ProtocolTCP}},
+			banp: &v1alpha1.BaselineAdminNetworkPolicy{
+				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
+					Subject: v1alpha1.AdminNetworkPolicySubject{
+						Namespaces: &metav1.LabelSelector{},
+					},
+					Ingress: []v1alpha1.BaselineAdminNetworkPolicyIngressRule{
+						{
+							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
+							From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+								{
+									Namespaces: &metav1.LabelSelector{},
+								},
+							},
+						},
+						{
+							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
+							From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+								{
+									Pods: &v1alpha1.NamespacedPod{
+										NamespaceSelector: metav1.LabelSelector{
+											MatchLabels: map[string]string{"ns": "y"},
+										},
+										PodSelector: metav1.LabelSelector{
+											MatchLabels: map[string]string{"pod": "b"},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	runParsedResourcesTests(t, testList...)
+}
+
+func TestANPWithNetPolV1FromParsedResources(t *testing.T) {
+	testList := []parsedResourcesTest{
+		{
+			name:                   "ANP allow all over NetPol",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test1_anp_npv1_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			npList: []*netv1.NetworkPolicy{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "x",
+						Name:      "base",
+					},
+					Spec: netv1.NetworkPolicySpec{
+						PodSelector: metav1.LabelSelector{
+							MatchLabels: map[string]string{"pod": "a"},
+						},
+						Ingress: []netv1.NetworkPolicyIngressRule{
+							{
+								Ports: []netv1.NetworkPolicyPort{
+									{
+										Protocol: &udp,
+										Port:     &intstr.IntOrString{Type: intstr.Int, IntVal: 80},
+									},
+								},
+							},
+						},
+						PolicyTypes: []netv1.PolicyType{netv1.PolicyTypeIngress},
+					},
+				},
+			},
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 99,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Namespaces: &metav1.LabelSelector{},
+						},
+						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
+								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+									{
+										Namespaces: &metav1.LabelSelector{},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolTCP,
+											Start:    80,
+											End:      81,
+										},
+									},
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolUDP,
+											Start:    80,
+											End:      81,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:                   "ANP allow some over NetPol",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test2_anp_npv1_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			npList: []*netv1.NetworkPolicy{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "x",
+						Name:      "base",
+					},
+					Spec: netv1.NetworkPolicySpec{
+						PodSelector: metav1.LabelSelector{
+							MatchLabels: map[string]string{"pod": "a"},
+						},
+						Ingress: []netv1.NetworkPolicyIngressRule{
+							{
+								Ports: []netv1.NetworkPolicyPort{
+									{
+										Protocol: &udp,
+										Port:     &intstr.IntOrString{Type: intstr.Int, IntVal: 80},
+									},
+								},
+							},
+						},
+						PolicyTypes: []netv1.PolicyType{netv1.PolicyTypeIngress},
+					},
+				},
+			},
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 99,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Namespaces: &metav1.LabelSelector{},
+						},
+						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
+								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+									{
+										Namespaces: &metav1.LabelSelector{
+											MatchLabels: map[string]string{"ns": "x"},
+										},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolTCP,
+											Start:    80,
+											End:      81,
+										},
+									},
+									{
+										PortRange: &v1alpha1.PortRange{
+											Protocol: v1.ProtocolUDP,
+											Start:    80,
+											End:      81,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	runParsedResourcesTests(t, testList...)
+}
+
+func TestBANPWithNetPolV1FromParsedResources(t *testing.T) {
+	testList := []parsedResourcesTest{
+		{
+			name:                   "BANP deny all after NetPol",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test1_banp_npv1_conn_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			npList: []*netv1.NetworkPolicy{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "x",
+						Name:      "base",
+					},
+					Spec: netv1.NetworkPolicySpec{
+						PodSelector: metav1.LabelSelector{
+							MatchLabels: map[string]string{"pod": "a"},
+						},
+						Ingress: []netv1.NetworkPolicyIngressRule{
+							{
+								From: []netv1.NetworkPolicyPeer{
+									{
+										PodSelector: &metav1.LabelSelector{
+											MatchLabels: map[string]string{"pod": "b"},
+										},
+									},
+								},
+								Ports: []netv1.NetworkPolicyPort{
+									{
+										Protocol: &udp,
+										Port:     &intstr.IntOrString{Type: intstr.Int, IntVal: 80},
+									},
+								},
+							},
+						},
+						PolicyTypes: []netv1.PolicyType{netv1.PolicyTypeIngress},
+					},
+				},
+			},
+			banp: &v1alpha1.BaselineAdminNetworkPolicy{
+				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
+					Subject: v1alpha1.AdminNetworkPolicySubject{
+						Namespaces: &metav1.LabelSelector{},
+					},
+					Ingress: []v1alpha1.BaselineAdminNetworkPolicyIngressRule{
+						{
+							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
+							From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+								{
+									Namespaces: &metav1.LabelSelector{},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	runParsedResourcesTests(t, testList...)
+}
+
+func TestANPWithBANPFromParsedResources(t *testing.T) {
+	testList := []parsedResourcesTest{
+		{
+			name:                   "BANP deny all after ANP",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test1_anp_banp_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 100,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Pods: &v1alpha1.NamespacedPod{
+								NamespaceSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"ns": "x"},
+								},
+								PodSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"pod": "a"},
+								},
+							},
+						},
+						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
+								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+									{
+										Namespaces: &metav1.LabelSelector{
+											MatchLabels: map[string]string{"ns": "x"},
+										},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortNumber: &v1alpha1.Port{
+											Protocol: v1.ProtocolUDP,
+											Port:     80,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+			},
+			banp: &v1alpha1.BaselineAdminNetworkPolicy{
+				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
+					Subject: v1alpha1.AdminNetworkPolicySubject{
+						Namespaces: &metav1.LabelSelector{},
+					},
+					Ingress: []v1alpha1.BaselineAdminNetworkPolicyIngressRule{
+						{
+							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
+							From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+								{
+									Namespaces: &metav1.LabelSelector{},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:                   "ANP pass some and allow rest over BANP",
+			outputFormat:           string(output.TextFormat),
+			expectedOutputFileName: "test2_anp_banp_from_parsed_res.txt",
+			podResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			anpList: []*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 100,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Pods: &v1alpha1.NamespacedPod{
+								NamespaceSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"ns": "x"},
+								},
+								PodSelector: metav1.LabelSelector{
+									MatchLabels: map[string]string{"pod": "a"},
+								},
+							},
+						},
+						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionPass,
+								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+									{
+										Namespaces: &metav1.LabelSelector{
+											MatchLabels: map[string]string{"ns": "x"},
+										},
+									},
+								},
+								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
+									{
+										PortNumber: &v1alpha1.Port{
+											Protocol: v1.ProtocolUDP,
+											Port:     80,
+										},
+									},
+								}),
+							},
+						},
+					},
+				},
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 101,
+						Subject: v1alpha1.AdminNetworkPolicySubject{
+							Namespaces: &metav1.LabelSelector{},
+						},
+						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
+							{
+								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
+								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+									{
+										Namespaces: &metav1.LabelSelector{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			banp: &v1alpha1.BaselineAdminNetworkPolicy{
+				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
+					Subject: v1alpha1.AdminNetworkPolicySubject{
+						Namespaces: &metav1.LabelSelector{},
+					},
+					Ingress: []v1alpha1.BaselineAdminNetworkPolicyIngressRule{
+						{
+							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
+							From: []v1alpha1.AdminNetworkPolicyIngressPeer{
+								{
+									Namespaces: &metav1.LabelSelector{},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	runParsedResourcesTests(t, testList...)
+}
+
+func runParsedResourcesTests(t *testing.T, testList ...parsedResourcesTest) {
 	for _, test := range testList {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
@@ -775,8 +1301,10 @@ func TestANPConnectivityFromParsedResources(t *testing.T) {
 			out, err := test.analyzer.ConnectionsListToString(res)
 			fmt.Printf("The result of %s:\n%s\n\n", test.testInfo, out)
 			require.Nil(t, err, test.testInfo)
-			testutils.CheckActualVsExpectedOutputMatch(t, test.expectedOutputFileName, out,
-				test.testInfo, currentPkg)
+			if test.banp == nil { // Tanya - remove this 'if' whenever BaselineAdminNetworkPolicy is implemented
+				testutils.CheckActualVsExpectedOutputMatch(t, test.expectedOutputFileName, out,
+					test.testInfo, currentPkg)
+			}
 		})
 	}
 }
