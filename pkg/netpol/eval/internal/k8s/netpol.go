@@ -543,7 +543,7 @@ func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 func (np *NetworkPolicy) getSelectorsAndUpdateExposureClusterWideConns(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
 	isIngress bool) (rulesSelectors []SingleRuleSelectors, err error) {
 	if len(rules) == 0 {
-		err = np.updateNetworkPolicyWideExposureConns(true, true, rulePorts, isIngress)
+		err = np.updateNetworkPolicyExposureClusterWideConns(true, true, rulePorts, isIngress)
 		return nil, err
 	}
 	for i := range rules {
@@ -558,7 +558,7 @@ func (np *NetworkPolicy) getSelectorsAndUpdateExposureClusterWideConns(rules []n
 		// if podSelector is not nil but namespaceSelector is nil, this is the netpol's namespace
 		if rules[i].NamespaceSelector != nil && rules[i].NamespaceSelector.Size() == 0 &&
 			(rules[i].PodSelector == nil || rules[i].PodSelector.Size() == 0) {
-			err = np.updateNetworkPolicyWideExposureConns(false, true, rulePorts, isIngress)
+			err = np.updateNetworkPolicyExposureClusterWideConns(false, true, rulePorts, isIngress)
 			return nil, err
 		}
 		// else selectors' combination specifies workloads by labels (at least one is not nil and not empty)
@@ -569,9 +569,9 @@ func (np *NetworkPolicy) getSelectorsAndUpdateExposureClusterWideConns(rules []n
 	return rulesSelectors, nil
 }
 
-// updateNetworkPolicyWideExposureConns updates the cluster-wide exposure connections of the policy
-func (np *NetworkPolicy) updateNetworkPolicyWideExposureConns(externalExposure, entireCluster bool, rulePorts []netv1.NetworkPolicyPort,
-	isIngress bool) error {
+// updateNetworkPolicyExposureClusterWideConns updates the cluster-wide exposure connections of the policy
+func (np *NetworkPolicy) updateNetworkPolicyExposureClusterWideConns(externalExposure, entireCluster bool,
+	rulePorts []netv1.NetworkPolicyPort, isIngress bool) error {
 	ruleConns, err := np.ruleConnections(rulePorts, nil)
 	if err != nil {
 		return err
