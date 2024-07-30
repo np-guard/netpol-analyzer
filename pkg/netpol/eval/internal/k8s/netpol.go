@@ -569,7 +569,7 @@ func (np *NetworkPolicy) getSelectorsAndUpdateExposedGeneralConns(rules []netv1.
 	return rulesSelectors, nil
 }
 
-// updateNetworkPolicyWideExposureConns updates the wide exposure connections of the policy
+// updateNetworkPolicyWideExposureConns updates the cluster-wide exposure connections of the policy
 func (np *NetworkPolicy) updateNetworkPolicyWideExposureConns(externalExposure, entireCluster bool, rulePorts []netv1.NetworkPolicyPort,
 	isIngress bool) error {
 	ruleConns, err := np.ruleConnections(rulePorts, nil)
