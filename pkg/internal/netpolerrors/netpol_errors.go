@@ -67,8 +67,8 @@ const (
 	ANPPortsError          = "exactly one field must be set in an AdminNetworkPolicyPort"
 	ANPIngressRulePeersErr = "From field must be defined and contain at least one item"
 	ANPEgressRulePeersErr  = "To field must be defined and contain at least one item"
-	ANPMissingNameErr      = "missing name for an AdminNetworkPolicy object"
-	UnknownCommandErr      = "unknown command"
+
+	UnknownCommandErr = "unknown command"
 )
 
 // NotSupportedPodResourcesErrorStr returns error string of not supported pods with same ownerRef but different labels
@@ -135,8 +135,4 @@ func SamePriorityErr(name1, name2 string) string {
 // PriorityValueErr returns error message of invalid priority value in an admin-network-policy
 func PriorityValueErr(name string, priority int32) string {
 	return fmt.Sprintf("Invalid Priority Value: %d in Admin Network Policy: %q; Priority value must be between 0-1000", priority, name)
-}
-
-func ANPsWithSameNameErr(anpName string) string {
-	return fmt.Sprintf("an AdminNetworkPolicy with name %q is already found; objects names should be unique", anpName)
 }
