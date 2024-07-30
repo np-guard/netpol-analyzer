@@ -508,7 +508,7 @@ func (np *NetworkPolicy) scanIngressRules() ([]SingleRuleSelectors, error) {
 	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		selectors, err := np.getSelectorsAndUpdateExposedGeneralConns(rulePeers, rulePorts, true)
+		selectors, err := np.getSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, true)
 		if err != nil {
 			return nil, err
 		}
@@ -523,7 +523,7 @@ func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		selectors, err := np.getSelectorsAndUpdateExposedGeneralConns(rulePeers, rulePorts, false)
+		selectors, err := np.getSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, false)
 		if err != nil {
 			return nil, err
 		}
@@ -533,14 +533,14 @@ func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 	return rulesSelectors, nil
 }
 
-// getSelectorsAndUpdateExposedGeneralConns:
+// getSelectorsAndUpdateExposureClusterWideConns:
 // loops given rules list:
 // - if the rules list is empty updates the external and cluster wide exposure of the policy
 // - if a rule have empty selectors (podSelector and namespaceSelector)or just empty namespaceSelector (nil podSelector)
 // updates the cluster wide exposure of the policy
 // - if a rule contains at least one defined selector : appends the rule selectors to a selector list which will be returned.
 // this func assumes rules are legal (rules correctness check occurs later)
-func (np *NetworkPolicy) getSelectorsAndUpdateExposedGeneralConns(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
+func (np *NetworkPolicy) getSelectorsAndUpdateExposureClusterWideConns(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
 	isIngress bool) (rulesSelectors []SingleRuleSelectors, err error) {
 	if len(rules) == 0 {
 		err = np.updateNetworkPolicyWideExposureConns(true, true, rulePorts, isIngress)
