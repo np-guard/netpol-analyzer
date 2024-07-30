@@ -50,7 +50,7 @@ type NetworkPolicy struct {
 // PolicyExposureWithoutSelectors describes the maximum allowed conns that the policy exposes as cluster wide or as external,
 // those conns are inferred when the policy has no rules, or from empty rules
 type PolicyExposureWithoutSelectors struct {
-	// ExternalExposure  contains the maximal connection-set which the policy's rules allow from/to external destinations
+	// ExternalExposure  contains the maximal connection-set which the policy's rules allow from/to external and cluster-wide destinations
 	// (all namespaces, pods and IP addresses)
 	ExternalExposure *common.ConnectionSet
 	// ClusterWideExposure  contains the maximal connection-set which the policy's rules allow from/to all namespaces in the cluster
