@@ -45,7 +45,9 @@ func (pe *PolicyEngine) generateRepresentativePeers(selectors []k8s.SingleRuleSe
 	return nil
 }
 
-// removeRedundantRepresentativePeers extracts the labels of the given pod object and its namespace and refine matching
+// removeRedundantRepresentativePeers removes redundant representative peers, given an input real pod.
+// The motivation is that exposure analysis will not report exposure to a representative-pod that has selectors
+// exactly matched by a real pod. (This removal applies only to selectors of matchLabels, not matchExpression).
 // representative-peers, i.e. delete a representative pod if the given real pod matches its selectors
 // (applied for representative-peers with matchLabels only, no matchExpression).
 // helping func - added in order to avoid code dup. in insertWorkload and insertPod
