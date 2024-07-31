@@ -56,7 +56,7 @@ const podKind = "Pod"
 // A WorkloadPeer with kind == RepresentativePeer is a representativePeer
 // a representative peer is a peer inferred from a policy rule (selectors), not a parsed pod/deployment object
 // and is used to represent a potential pod/ns entity in the cluster (that does not exist on the input resources)
-// but may have enabled connectivity to input resources (pods/deployments) based on input network policies.
+// but may have permitted connectivity to input resources (pods/deployments) based on input network policies.
 const RepresentativePodName = "representative-pod"
 const RepresentativePeerKind = "RepresentativePeer"
 
