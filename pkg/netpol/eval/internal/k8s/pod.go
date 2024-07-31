@@ -69,7 +69,7 @@ type Pod struct {
 	RepresentativePodLabelSelector *v1.LabelSelector
 	// RepresentativeNsLabelSelector points to the namespaceSelector of the policy rule which this representative pod was inferred from
 	// used only with representative peers (exposure-analysis)
-	// RepresentativeNsLabelSelector might represent an empty selector / a specific non-empty selector (might not be nil)
+	// RepresentativeNsLabelSelector might represent an empty selector / a specific non-empty selector (will not be nil)
 	// nil namespaceSelector in a policy-rule will be converted to the namespace name label when creating the representative pod.
 	RepresentativeNsLabelSelector *v1.LabelSelector
 
