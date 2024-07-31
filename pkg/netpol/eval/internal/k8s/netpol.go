@@ -128,7 +128,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 			if err != nil {
 				return res, err
 			}
-			if (dst == nil || hasRepresentativePod(dst)) && portName != "" {
+			if (dst == nil || isPeerRepresentative(dst)) && portName != "" {
 				// adding namedPort string to connectionSet in case of :
 				// - dst is nil - for updating cluster-wide exposure connections;
 				// - if dst is a representative pod (its namedPorts are unknown)
@@ -143,8 +143,8 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 	return res, nil
 }
 
-// hasRepresentativePod determines if the peer's source is representativePeer; i.e. its pod fake and has RepresentativePodName
-func hasRepresentativePod(peer Peer) bool {
+// isPeerRepresentative  determines if the peer's source is representativePeer; i.e. its pod fake and has RepresentativePodName
+func isPeerRepresentative(peer Peer) bool {
 	if peer.GetPeerPod() == nil {
 		return false
 	}
@@ -209,7 +209,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			} else {
 				peerNamespace := peer.GetPeerNamespace()
 				// for exposure analysis, use relevant func to check if representative peer is matched by rule's selector
-				if hasRepresentativePod(peer) {
+				if isPeerRepresentative(peer) {
 					// representative peer is inferred from a rule with its/same labelSelector.
 					// note that if the namespaceSelector in the rule is nil, we don't get here,
 					// since that means the peer is in same namespace of the policy, and this was checked above
@@ -229,7 +229,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 				peerMatchesPodSelector = true
 			} else {
 				// checking if a selector matches labels by peer type; since representative peers selectors may need special handling
-				if hasRepresentativePod(peer) {
+				if isPeerRepresentative(peer) {
 					peerMatchesPodSelector, err = SelectorsFullMatch(rulePeers[i].PodSelector, peer.GetPeerPod().RepresentativePodLabelSelector)
 				} else {
 					selector, err = np.parseNetpolLabelSelector(rulePeers[i].PodSelector)
