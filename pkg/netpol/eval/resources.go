@@ -39,7 +39,7 @@ type (
 		cache                  *evalCache
 		exposureAnalysisFlag   bool
 		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
-		// used only with exposure analysis // representative peer object is a workloadPeer with kind == "RepresentativePeer"
+		// used only with exposure analysis (representative peer object is a workloadPeer with kind == "RepresentativePeer")
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
