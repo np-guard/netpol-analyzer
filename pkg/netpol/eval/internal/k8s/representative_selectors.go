@@ -18,11 +18,12 @@ import (
 // this file handles checking matching of representative peers' selectors' requirements
 // with rule selectors from policies
 // since a representative peer is a peer inferred from a network-policy rule
+
+// SelectorsFullMatch checks if there is a match between two input labelSelector objects,
+// one from a policy rule and the other from a representative pod.
 // for example, if a policy that captures a real workload `A` has a rule permitting egress connection,
 // with selectors that match a representative peer `B`, we need to capture this match,
-// and thus infer the exposure connectivity from `A` to `B`
-
-// SelectorsFullMatch is given two labelSelector objects, one from a policy rule and the other from a representative pod,
+// and thus infer the exposure connectivity from `A` to `B`.
 // returns true if:
 // 1. both selectors point to same reference (rule and its matching representative pod/ns)
 // 2. if the rule's selector is empty (matches all pods/namespaces)
