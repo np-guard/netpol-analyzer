@@ -19,7 +19,7 @@ import (
 // with rule selectors from policies
 // since a representative peer is a peer inferred from a network-policy rule
 // for example, if a policy that captures a real workload `A` has a rule permitting egress connection,
-// with selectors that match a representative peer `B`,
+// SelectorsFullMatch is given two labelSelector objects, one from a policy rule and the other from a representative pod,
 // we need to capture this match, and thus infer the exposure connectivity from `A` to `B`
 
 // SelectorsFullMatch given two labelSelector objects, one from a policy rule and the other from a representative pod,
