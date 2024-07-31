@@ -129,9 +129,11 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 				return res, err
 			}
 			if (dst == nil || isPeerRepresentative(dst)) && portName != "" {
-				// this func may be called also when computing cluster-wide exposure of the policy;
-				// or in-order to get a connection from a real workload to a representative dst.
-				// in both cases, we can't convert the named port to its number, like when dst peer is a real
+				// this func may be called:
+				// - for computing cluster-wide exposure of the policy (dst is nil);
+				// - in-order to get a connection from a real workload to a representative dst.
+				// - in order to get a connection from any pod to a real dst or an ip dst (will not get to this if)
+				// in both first cases, we can't convert the named port to its number, like when dst peer is a real
 				// pod from manifests, so we use the named-port as is.
 				// adding portName string to the portSet
 				ports.AddPort(intstr.FromString(portName))
