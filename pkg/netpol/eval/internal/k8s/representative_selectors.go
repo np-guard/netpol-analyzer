@@ -41,6 +41,8 @@ func SelectorsFullMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, erro
 	}
 	if ruleSelectorConverted.Empty() { // empty rule matches everything
 		// returning true, so we can capture the connection with this rule and add it to the exposure connection of the representative peer.
+		// (even if there is a line in the report with connections to entire-cluster, the rep-per connections will
+		// be a union of its own exposure and the ones from the entire-cluster).
 		// note that:
 		// 1. if the connection to this representative peer is contained in the connection to entire-cluster; we will not
 		// see this representative peer in the output (see example: tests/test_matched_and_unmatched_rules)
