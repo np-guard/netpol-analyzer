@@ -613,7 +613,7 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string) (Peer, error) 
 // addRepresentativePod adds a new representative pod to the policy-engine (to pe.representativePeersMap).
 // if the given namespace string (podNs) is not empty (i.e. a real (policy's) namespace name), it will be assigned to the pod's Namespace;
 // and the "namespace name" requirement of the representative pod will be stored in its RepresentativeNsLabelSelector field.
-// if the representative pod will have no namespace (will not add a representative namespace to the policy-engine).
+// Otherwise, the representative pod will have no namespace (will not add a representative namespace to the policy-engine).
 // this func is used only with exposure-analysis
 func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.SingleRuleSelectors) error {
 	if objSelectors == nil { // should not get here
