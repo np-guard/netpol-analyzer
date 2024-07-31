@@ -208,7 +208,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 				peerMatchesNamespaceSelector = (np.ObjectMeta.Namespace == peer.GetPeerPod().Namespace)
 			} else {
 				peerNamespace := peer.GetPeerNamespace()
-				// checking if a selector matches labels by peer type; since representative peers selectors may need special handling
+				// for exposure analysis, use relevant func to check if representative peer is matched by rule's selector 
 				if hasRepresentativePod(peer) {
 					// representative peer is inferred from a rule with its/same labelSelector.
 					// note that if the namespaceSelector in the rule is nil, we don't get here,
