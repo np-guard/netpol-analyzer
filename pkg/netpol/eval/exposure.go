@@ -165,11 +165,11 @@ func (pe *PolicyEngine) GetPeerLabels(p Peer) (podLabels, nsLabels v1.LabelSelec
 	}
 	podLabels = v1.LabelSelector{}
 	if peer.Pod.RepresentativePodLabelSelector != nil {
-		podLabels = *peer.Pod.RepresentativePodLabelSelector.DeepCopy()
+		podLabels = *peer.Pod.RepresentativePodLabelSelector
 	}
 	nsLabels = v1.LabelSelector{}
 	if peer.Pod.RepresentativeNsLabelSelector != nil {
-		nsLabels = *peer.Pod.RepresentativeNsLabelSelector.DeepCopy()
+		nsLabels = *peer.Pod.RepresentativeNsLabelSelector
 	}
 	return podLabels, nsLabels, nil
 }
