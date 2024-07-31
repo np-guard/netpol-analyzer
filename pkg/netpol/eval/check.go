@@ -283,8 +283,11 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 		// if isIngress: check for ingress rules that capture src within 'from'
 		// if not isIngress: check for egress rules that capture dst within 'to'
 		// collect the allowed connectivity from the relevant rules into allowedConns
-		// and in case of exposure-analysis: update cluster wide exposure data for relevant pod
 		policyAllowedConnectionsPerDirection, err := pe.determineAllowedConnsPerDirection(policy, src, dst, isIngress)
+		// in case of exposure-analysis: update cluster wide exposure data for relevant pod
+		if pe.exposureAnalysisFlag {
+			updatePeerXgressClusterWideExposure(policy, src, dst, isIngress)
+		}
 		if err != nil {
 			return allowedConns, err
 		}
@@ -294,15 +297,10 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 }
 
 // determineAllowedConnsPerDirection returns the policy's allowed connections between the
-// peers in the given direction, and when exposure-analysis is on it also updates the cluster-wide exposure of the selected pod
+// peers in the given direction
 func (pe *PolicyEngine) determineAllowedConnsPerDirection(policy *k8s.NetworkPolicy, src, dst k8s.Peer,
 	isIngress bool) (*common.ConnectionSet, error) {
 	if isIngress {
-		if pe.exposureAnalysisFlag {
-			// policy selecting dst (dst pod is real)
-			// update its ingress entire cluster connection relying on policy data
-			dst.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.IngressPolicyExposure.ClusterWideExposure, isIngress)
-		}
 		// get ingress allowed conns between src and dst
 		switch {
 		case policy.IngressPolicyExposure.ExternalExposure.AllowAll:
@@ -313,13 +311,7 @@ func (pe *PolicyEngine) determineAllowedConnsPerDirection(policy *k8s.NetworkPol
 			return policy.GetIngressAllowedConns(src, dst)
 		}
 	}
-	// else egress
-	if pe.exposureAnalysisFlag {
-		// policy selecting src
-		// update its egress entire cluster connection relying on policy data
-		src.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.EgressPolicyExposure.ClusterWideExposure, isIngress)
-	}
-	// get egress allowed conns between src and dst
+	// else get egress allowed conns between src and dst
 	switch {
 	case policy.EgressPolicyExposure.ExternalExposure.AllowAll:
 		return policy.EgressPolicyExposure.ExternalExposure, nil
@@ -327,6 +319,20 @@ func (pe *PolicyEngine) determineAllowedConnsPerDirection(policy *k8s.NetworkPol
 		return policy.EgressPolicyExposure.ClusterWideExposure, nil
 	default:
 		return policy.GetEgressAllowedConns(dst)
+	}
+}
+
+// updatePeerXgressClusterWideExposure updates the cluster-wide exposure of the pod which is selected by input policy.
+// used only when exposure-analysis is active
+func updatePeerXgressClusterWideExposure(policy *k8s.NetworkPolicy, src, dst k8s.Peer, isIngress bool) {
+	if isIngress {
+		// policy selecting dst (dst pod is real)
+		// update its ingress entire cluster connection relying on policy data
+		dst.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.IngressPolicyExposure.ClusterWideExposure, isIngress)
+	} else {
+		// policy selecting src
+		// update its egress entire cluster connection relying on policy data
+		src.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.EgressPolicyExposure.ClusterWideExposure, isIngress)
 	}
 }
 
