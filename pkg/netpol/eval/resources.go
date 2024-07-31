@@ -639,7 +639,7 @@ func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.Sin
 		RepresentativeNsLabelSelector:  nsLabelSelector,
 	}
 	//  compute a unique string from the label selectors to be used as the map key
-	// note that nsLabelSelector might not be nil
+	// note that nsLabelSelector will not be nil
 	nsKey, err := k8s.VariantFromLabelsSelector(nsLabelSelector)
 	if err != nil {
 		return err
