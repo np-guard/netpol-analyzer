@@ -50,8 +50,8 @@ type Pod struct {
 	Owner     Owner
 
 	// The fields below are relevant to real pods when exposure analysis is active:
-    
-    // IngressExposureData contains:
+
+	// IngressExposureData contains:
 	// - whether the pod is protected by any network-policy on ingress direction or not;
 	// - the maximal connection-set for which the pod is exposed to all namespaces  in the cluster by
 	// network policies on ingress direction
@@ -65,7 +65,7 @@ type Pod struct {
 	// used only with representative Pods
 	// RepresentativePodLabelSelector might be nil/ empty selector / a specific non-empty selector
 
-    // The fields below are relevant only to representative pod: 
+	// The fields below are relevant only to representative pod:
 	RepresentativePodLabelSelector *v1.LabelSelector
 	// RepresentativeNsLabelSelector points to the namespaceSelector of the policy rule which this representative pod was inferred from
 	// used only with representative peers (exposure-analysis)
