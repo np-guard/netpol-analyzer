@@ -210,7 +210,9 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 				peerNamespace := peer.GetPeerNamespace()
 				// for exposure analysis, use relevant func to check if representative peer is matched by rule's selector
 				if isPeerRepresentative(peer) {
-					// representative peer is inferred from a rule with its/same labelSelector.
+					// representative peer is inferred from a rule:
+					// - by having representative selector pointing to same reference of the rule's selector
+					// - or by having representative labelSelector with requirements equal to the rule's requirements
 					// note that if the namespaceSelector in the rule is nil, we don't get here,
 					// since that means the peer is in same namespace of the policy, and this was checked above
 					peerMatchesNamespaceSelector, err = SelectorsFullMatch(rulePeers[i].NamespaceSelector, peer.GetPeerPod().RepresentativeNsLabelSelector)
