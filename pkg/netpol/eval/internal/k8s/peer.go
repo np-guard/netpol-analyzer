@@ -85,7 +85,7 @@ func (p *WorkloadPeer) Kind() string {
 }
 
 func (p *WorkloadPeer) String() string {
-	if p.Pod.FakePod && !p.Pod.IsPodRepresentative() { // ingress-controller
+	if p.Pod.FakePod { // ingress-controller or representative-pod
 		return "{" + p.Pod.Name + "}"
 	}
 	return types.NamespacedName{Name: p.Name(), Namespace: p.Namespace()}.String() + "[" + p.Kind() + "]"
