@@ -49,7 +49,9 @@ type Pod struct {
 	HostIP    string
 	Owner     Owner
 
-	// IngressExposureData contains:
+	// The fields below are relevant to real pods when exposure analysis is active:
+    
+    // IngressExposureData contains:
 	// - whether the pod is protected by any network-policy on ingress direction or not;
 	// - the maximal connection-set for which the pod is exposed to all namespaces  in the cluster by
 	// network policies on ingress direction
