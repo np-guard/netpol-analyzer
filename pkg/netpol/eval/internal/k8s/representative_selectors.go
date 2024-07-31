@@ -35,14 +35,21 @@ func SelectorsFullMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, erro
 		return true, nil
 	}
 	// otherwise, check requirements equality
-	selector1, err := v1.LabelSelectorAsSelector(ruleSelector)
+	ruleSelectorConverted, err := v1.LabelSelectorAsSelector(ruleSelector)
 	if err != nil {
 		return false, err
 	}
-	if selector1.Empty() { // empty rule matches everything
+	if ruleSelectorConverted.Empty() { // empty rule matches everything
+		// returning true, so we can capture the connection with this rule and add it to the exposure connection of the representative peer.
+		// note that:
+		// 1. if the connection to this representative peer is contained in the connection to entire-cluster; we will not
+		// see this representative peer in the output (see example: tests/test_matched_and_unmatched_rules)
+		// 2. if the representative peer's selectors are contained (not equal) in another's representative peer selectors, the connection of the
+		// other representative-peer will not be captured to this representative peer also
+		// (see example: tests/test_exposure_with_different_rules_4)
 		return true, nil
 	}
-	selector2, err := v1.LabelSelectorAsSelector(repSelector)
+	repSelectorConverted, err := v1.LabelSelectorAsSelector(repSelector)
 	if err != nil {
 		return false, err
 	}
@@ -53,30 +60,30 @@ func SelectorsFullMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, erro
 	// v1.LabelSelectorAsSelector:
 	// https://github.com/kubernetes/apimachinery/blob/dc7e034c86479d49be4b0eefad307621e10caa0e/pkg/apis/meta/v1/helpers.go#L34
 	// Requirements.Add : https://github.com/kubernetes/apimachinery/blob/d7e1c5311169d5ece2db0ae0118066859aa6f7d8/pkg/labels/selector.go#L373
-	requirements1, _ := selector1.Requirements() // sorted
-	requirements2, _ := selector2.Requirements() // sorted
-	if len(requirements1) != len(requirements2) {
+	ruleRequirements, _ := ruleSelectorConverted.Requirements() // sorted
+	repRequirements, _ := repSelectorConverted.Requirements()   // sorted
+	if len(ruleRequirements) != len(repRequirements) {
 		return false, nil
 	}
-	for i := range requirements1 {
-		// requirements1[i].Equal(requirements2[i]) returns false if the values are not in same order
+	for i := range ruleRequirements {
+		// ruleRequirements[i].Equal(repRequirements[i]) returns false if the values are not in same order
 		// (stringslices.Equal returns true only if two slices have same length and same order of items)
 		// however, `Requirement.String` sorts the values using `safeSort`, so will compare by string
 		// link to Requirement.String() :
 		// https://github.com/kubernetes/apimachinery/blob/d7e1c5311169d5ece2db0ae0118066859aa6f7d8/pkg/labels/selector.go#L310
-		str1 := requirements1[i].String()
-		str2 := requirements2[i].String()
+		str1 := ruleRequirements[i].String()
+		str2 := repRequirements[i].String()
 
 		// handling special case of one requirement has `In` operator with 1 value, and other requirement has "=" operator (from matchLabel)
 		// for example : req1 := (app in x), req2 := (app=x) >> we expect a full match, however,
 		// labels pkg treats them as different requirements
-		// i.e. requirements1[i].Equal(requirements2[i]) and requirements1[i].String() != requirements2[i].String() return false in this case
+		// i.e. ruleRequirements[i].Equal(repRequirements[i]) and ruleRequirements[i].String() == repRequirements[i].String() return false
 		// requirement.String() : returns <key>=<values> string for "Equals" operator and returns (<key> in (<values));
-		// so, in case on requirement is "in" with one value only , will convert its string to the <key>=<values> format to get correct result
-		if newStr1 := handleRequirementWithInOpAndSingleValue(requirements1[i]); newStr1 != "" {
+		// so, in case on requirement is "in" with one value only, will convert its string to the <key>=<values> format to get correct result
+		if newStr1 := handleRequirementWithInOpAndSingleValue(ruleRequirements[i]); newStr1 != "" {
 			str1 = newStr1
 		}
-		if newStr2 := handleRequirementWithInOpAndSingleValue(requirements2[i]); newStr2 != "" {
+		if newStr2 := handleRequirementWithInOpAndSingleValue(repRequirements[i]); newStr2 != "" {
 			str2 = newStr2
 		}
 		if str1 != str2 {
@@ -94,9 +101,9 @@ func handleRequirementWithInOpAndSingleValue(req labels.Requirement) string {
 	return ""
 }
 
-// VariantFromLabelsSelector returns a unique hash key from given labelSelector, so selectors with same keys, operators and values
+// UniqueKeyFromLabelsSelector returns a unique hash key from given labelSelector, so selectors with same keys, operators and values
 // will get same hash key (even if the order of keys was not same in different rules/policies)
-func VariantFromLabelsSelector(ls *v1.LabelSelector) (string, error) {
+func UniqueKeyFromLabelsSelector(ls *v1.LabelSelector) (string, error) {
 	// since labels.selector.Requirements() returns sorted by key list of requirements, its string used to generate the hash-key
 	// this will ensure keeping uniqueness of representative peers in the policy-engine
 	selector, err := v1.LabelSelectorAsSelector(ls)
