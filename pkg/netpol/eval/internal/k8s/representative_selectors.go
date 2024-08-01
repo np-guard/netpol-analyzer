@@ -82,10 +82,10 @@ func SelectorsFullMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, erro
 		// i.e. ruleRequirements[i].Equal(repRequirements[i]) and ruleRequirements[i].String() == repRequirements[i].String() return false
 		// requirement.String() : returns <key>=<values> string for "Equals" operator and returns (<key> in (<values));
 		// so, in case on requirement is "in" with one value only, will convert its string to the <key>=<values> format to get correct result
-		if newRuleRequirementsStr := handleRequirementWithInOpAndSingleValue(ruleRequirements[i]); newRuleRequirementsStr != "" {
+		if newRuleRequirementsStr := replaceStringOfRequirementWithInOpAndSingleValue(ruleRequirements[i]); newRuleRequirementsStr != "" {
 			ruleRequirementsStr = newRuleRequirementsStr
 		}
-		if newRepRequirementsStr := handleRequirementWithInOpAndSingleValue(repRequirements[i]); newRepRequirementsStr != "" {
+		if newRepRequirementsStr := replaceStringOfRequirementWithInOpAndSingleValue(repRequirements[i]); newRepRequirementsStr != "" {
 			repRequirementsStr = newRepRequirementsStr
 		}
 		if ruleRequirementsStr != repRequirementsStr {
@@ -95,8 +95,9 @@ func SelectorsFullMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, erro
 	return true, nil
 }
 
-// handleRequirementWithInOpAndSingleValue returns a <key>=<val> string format if the input Requirement is with In operator and single value
-func handleRequirementWithInOpAndSingleValue(req labels.Requirement) string {
+// replaceStringOfRequirementWithInOpAndSingleValue returns a <key>=<val> string format
+// if the input Requirement is with In operator and single value
+func replaceStringOfRequirementWithInOpAndSingleValue(req labels.Requirement) string {
 	if req.Operator() == selection.In && len(req.Values()) == 1 {
 		return req.Key() + "=" + req.Values().List()[0]
 	}
@@ -120,7 +121,7 @@ func UniqueKeyFromLabelsSelector(ls *v1.LabelSelector) (string, error) {
 		// for special case of a requirement with In operator and only one value, convert its string to "key=val" (instead of key in (val))
 		// example: so only one representative peer is generated for both rules : app In [x] and app=x
 		// (see tests/test_exposure_different_but_equiv_rules)
-		if newStr := handleRequirementWithInOpAndSingleValue(req); newStr != "" {
+		if newStr := replaceStringOfRequirementWithInOpAndSingleValue(req); newStr != "" {
 			currentStr = newStr
 		}
 		reqStr += currentStr
