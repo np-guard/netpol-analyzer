@@ -163,19 +163,11 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 func (pe *PolicyEngine) resolveMissingNamespaces() error {
 	for _, pod := range pe.podsMap {
 		ns := pod.Namespace
-		if err := pe.addIfMissingNamespace(ns); err != nil {
+		if err := pe.resolveSingleMissingNamespace(ns); err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-// addMissingNamespace - helping func (to avoid duplicates); checks if the ns is not in the namespacesMap, resolves it
-func (pe *PolicyEngine) addIfMissingNamespace(ns string) (err error) {
-	if _, ok := pe.namespacesMap[ns]; !ok {
-		err = pe.resolveSingleMissingNamespace(ns)
-	}
-	return err
 }
 
 // defaultNamespaceLabelsMap returns a map with a single key: val for the default K8s namespace name key.
@@ -183,8 +175,11 @@ func defaultNamespaceLabelsMap(namespaceName string) map[string]string {
 	return map[string]string{common.K8sNsNameLabelKey: namespaceName}
 }
 
-// resolveSingleMissingNamespace create a ns object and insert to PolicyEngine
+// resolveSingleMissingNamespace for missing ns: create a ns object and insert to PolicyEngine
 func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string) error {
+	if _, ok := pe.namespacesMap[ns]; ok {
+		return nil // namespace is not missing - do nothing
+	}
 	nsObj := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   ns,

@@ -50,7 +50,7 @@ func (pe *PolicyEngine) generateRepresentativePeers(selectors []k8s.SingleRuleSe
 // exactly matched by a real pod. (This removal applies only to selectors of matchLabels, not matchExpression).
 func (pe *PolicyEngine) removeRedundantRepresentativePeers(podObj *k8s.Pod) error {
 	// since namespaces are already inserted to policy-engine; if pod's ns not existing resolve it
-	if err := pe.addIfMissingNamespace(podObj.Namespace); err != nil {
+	if err := pe.resolveSingleMissingNamespace(podObj.Namespace); err != nil {
 		return err
 	}
 	// check if there are representative peers in the policy engine which match the current pod; if yes remove them
