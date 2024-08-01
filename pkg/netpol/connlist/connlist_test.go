@@ -1098,4 +1098,25 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    []string{output.DefaultFormat},
 	},
+	{
+		// in exposure-analysis : representative-peers are compared (to be removed) with real pods only.
+		// in this example: we have a defined namespace `ns1` with a label {x:xval}
+		// and we have a pod `app:app-1` in `ns1` and two different policies capturing this pod.
+		// one policy has rule with : nil ns selector and pod selector {app: foo}
+		// and the second policy has rule with : ns selector {x: xval} and pod selecotr {app: foo}
+		// since we don't have a real pod in `ns1` with {app: foo};
+		// we'll see two representative peers in the output
+		// one in `ns1` and the second in any ns with {x:xval}
+		testDirName:      "test_exposure_real_namespace_without_real_pod",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.DefaultFormat},
+	},
+	{
+		// this test has same namespace, pod and netpols  like the previous one `test_exposure_real_namespace_without_real_pod`
+		// with a new pod in `ns1` with the {app:foo} label.
+		// i.e. this real pod has pod and ns labels matching both rules, so we don't see any representative peer in the output
+		testDirName:      "test_exposure_real_namespace_with_matching_pod",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.DefaultFormat},
+	},
 }
