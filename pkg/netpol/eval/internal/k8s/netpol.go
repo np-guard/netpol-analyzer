@@ -207,23 +207,16 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			peerMatchesPodSelector := false
 			peerMatchesNamespaceSelector := false
 			var err error
-			var selector labels.Selector
 			if rulePeers[i].NamespaceSelector == nil {
 				peerMatchesNamespaceSelector = (np.ObjectMeta.Namespace == peer.GetPeerPod().Namespace)
 			} else {
 				peerNamespace := peer.GetPeerNamespace()
-				// for exposure analysis, use relevant func to check if representative peer is matched by rule's selector
-				if isPeerRepresentative(peer) {
-					// representative peer is inferred from a rule:
-					// - by having representative selector pointing to same reference of the rule's selector
-					// - or by having representative labelSelector with requirements equal to the rule's requirements
-					// note that if the namespaceSelector in the rule is nil, we don't get here,
-					// since that means the peer is in same namespace of the policy, and this was checked above
-					peerMatchesNamespaceSelector, err = SelectorsFullMatch(rulePeers[i].NamespaceSelector, peer.GetPeerPod().RepresentativeNsLabelSelector)
-				} else { // for real peer just check if the selector matches the peer's labels
-					selector, err = np.parseNetpolLabelSelector(rulePeers[i].NamespaceSelector)
-					peerMatchesNamespaceSelector = selector.Matches(labels.Set(peerNamespace.Labels))
+				var peerNsLabels map[string]string
+				if peerNamespace != nil { // peerNamespace may be nil for representative peers
+					peerNsLabels = peerNamespace.Labels
 				}
+				peerMatchesNamespaceSelector, err = np.selectorsMatch(rulePeers[i].NamespaceSelector, peer.GetPeerPod().RepresentativeNsLabelSelector,
+					peerNsLabels, isPeerRepresentative(peer))
 				if err != nil {
 					return false, err
 				}
@@ -234,13 +227,8 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			if rulePeers[i].PodSelector == nil {
 				peerMatchesPodSelector = true
 			} else {
-				// checking if a selector matches labels by peer type; since representative peers selectors may need special handling
-				if isPeerRepresentative(peer) {
-					peerMatchesPodSelector, err = SelectorsFullMatch(rulePeers[i].PodSelector, peer.GetPeerPod().RepresentativePodLabelSelector)
-				} else {
-					selector, err = np.parseNetpolLabelSelector(rulePeers[i].PodSelector)
-					peerMatchesPodSelector = selector.Matches(labels.Set(peer.GetPeerPod().Labels))
-				}
+				peerMatchesPodSelector, err = np.selectorsMatch(rulePeers[i].PodSelector, peer.GetPeerPod().RepresentativePodLabelSelector,
+					peer.GetPeerPod().Labels, isPeerRepresentative(peer))
 				if err != nil {
 					return false, err
 				}
@@ -267,6 +255,27 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 		}
 	}
 	return false, nil
+}
+
+// selectorsMatch checks if the given selectors match each other.
+// called either with namespace-selectors, or with pod-selectors
+// when exposure analysis is on : checks the match between rule selector and the relevant representativePeer selector
+// otherwise, checks match between rule-selector and pod/namespace labels
+func (np *NetworkPolicy) selectorsMatch(ruleSelector, peerSelector *metav1.LabelSelector, peerLabels map[string]string,
+	isPeerRepresentative bool) (selectorsMatch bool, err error) {
+	// for exposure analysis (representative-peer), use relevant func to check if representative peer is matched by rule's selector
+	if isPeerRepresentative {
+		// representative peer is inferred from a rule:
+		// - by having representative selector pointing to same reference of the rule's selector
+		// - or by having representative labelSelector with requirements equal to the rule's requirements
+		// note that if the given ruleSelector is nil, we don't get here.
+		return SelectorsFullMatch(ruleSelector, peerSelector)
+	} // else for real peer just check if the selector matches the peer's labels
+	selector, err := np.parseNetpolLabelSelector(ruleSelector)
+	if err != nil {
+		return false, err
+	}
+	return selector.Matches(labels.Set(peerLabels)), nil
 }
 
 // IngressAllowedConn returns true  if the given connections from src to any of the pods captured by the policy is allowed
