@@ -84,6 +84,7 @@ func (p *WorkloadPeer) Kind() string {
 	return ownerKind
 }
 
+// this func is not expected to be used for WorkloadPeer with kind == RepresentativePeer
 func (p *WorkloadPeer) String() string {
 	if p.Pod.FakePod { // ingress-controller or representative-pod
 		return "{" + p.Pod.Name + "}"
