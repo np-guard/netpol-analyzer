@@ -73,8 +73,8 @@ func SelectorsFullMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, erro
 		// however, `Requirement.String` sorts the values using `safeSort`, so will compare by string
 		// link to Requirement.String() :
 		// https://github.com/kubernetes/apimachinery/blob/d7e1c5311169d5ece2db0ae0118066859aa6f7d8/pkg/labels/selector.go#L310
-		str1 := ruleRequirements[i].String()
-		str2 := repRequirements[i].String()
+		ruleRequirementsStr := ruleRequirements[i].String()
+		repRequirementsStr := repRequirements[i].String()
 
 		// handling special case of one requirement has `In` operator with 1 value, and other requirement has "=" operator (from matchLabel)
 		// for example : req1 := (app in x), req2 := (app=x) >> we expect a full match, however,
@@ -82,13 +82,13 @@ func SelectorsFullMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, erro
 		// i.e. ruleRequirements[i].Equal(repRequirements[i]) and ruleRequirements[i].String() == repRequirements[i].String() return false
 		// requirement.String() : returns <key>=<values> string for "Equals" operator and returns (<key> in (<values));
 		// so, in case on requirement is "in" with one value only, will convert its string to the <key>=<values> format to get correct result
-		if newStr1 := handleRequirementWithInOpAndSingleValue(ruleRequirements[i]); newStr1 != "" {
-			str1 = newStr1
+		if newRuleRequirementsStr := handleRequirementWithInOpAndSingleValue(ruleRequirements[i]); newRuleRequirementsStr != "" {
+			ruleRequirementsStr = newRuleRequirementsStr
 		}
-		if newStr2 := handleRequirementWithInOpAndSingleValue(repRequirements[i]); newStr2 != "" {
-			str2 = newStr2
+		if newRepRequirementsStr := handleRequirementWithInOpAndSingleValue(repRequirements[i]); newRepRequirementsStr != "" {
+			repRequirementsStr = newRepRequirementsStr
 		}
-		if str1 != str2 {
+		if ruleRequirementsStr != repRequirementsStr {
 			return false, nil
 		}
 	}
