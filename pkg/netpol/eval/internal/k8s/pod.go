@@ -74,10 +74,14 @@ type Pod struct {
 	RepresentativeNsLabelSelector *v1.LabelSelector
 
 	// possible combinations of RepresentativePodLabelSelector and RepresentativeNsLabelSelector:
-	// - both are specific non-empty selectors
-	// - RepresentativePodLabelSelector is nil + RepresentativeNsLabelSelector is a specific non-empty selector
-	// - RepresentativePodLabelSelector is empty + RepresentativeNsLabelSelector is a specific non-empty selector
-	// - RepresentativePodLabelSelector a specific non-empty selector + RepresentativeNsLabelSelector is an empty selector
+	// - both are specific non-empty selectors : implies for any pod with labels matching RepresentativePodLabelSelector;
+	// in a any namespace with labels matching RepresentativeNsLabelSelector.
+	// - RepresentativePodLabelSelector is nil + RepresentativeNsLabelSelector is a specific non-empty selector : implies
+	// for all pods in a namespace with labels matching RepresentativeNsLabelSelector.
+	// - RepresentativePodLabelSelector is empty + RepresentativeNsLabelSelector is a specific non-empty selector : also
+	// implies for all pods in a namespace with labels matching RepresentativeNsLabelSelector.
+	// - RepresentativePodLabelSelector a specific non-empty selector + RepresentativeNsLabelSelector is an empty selector :
+	// implies for any pod with labels matching RepresentativePodLabelSelector in any namespace in the cluster.
 	// both might not be nil / empty at same time
 }
 
