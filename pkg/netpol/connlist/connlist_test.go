@@ -775,113 +775,113 @@ var goodPathTests = []struct {
 		outputFormats: ValidFormats,
 	},
 	{
-		testDirName:      "test_allow_all",
+		testDirName:      "exposure_allow_all_test",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_allow_all_in_cluster",
+		testDirName:      "exposure_allow_all_in_cluster_test",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_allow_egress_deny_ingress",
+		testDirName:      "exposure_allow_egress_deny_ingress_test",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_allow_ingress_deny_egress",
+		testDirName:      "exposure_allow_ingress_deny_egress_test",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_matched_and_unmatched_rules",
+		testDirName:      "exposure_matched_and_unmatched_rules_test",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_matched_and_unmatched_rules",
+		testDirName:      "exposure_matched_and_unmatched_rules_test",
 		exposureAnalysis: true,
 		focusWorkload:    "hello-world/workload-a",
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_only_matched_rules",
+		testDirName:      "exposure_only_matched_rules_test",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_multiple_unmatched_rules",
+		testDirName:      "exposure_multiple_unmatched_rules_test",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_new_namespace_conn_and_entire_cluster",
+		testDirName:      "exposure_to_new_namespace_conn_and_entire_cluster",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_same_unmatched_rule_in_ingress_egress",
+		testDirName:      "exposure_test_same_unmatched_rule_in_ingress_egress",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_with_no_netpols",
+		testDirName:      "exposure_test_with_no_netpols",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_egress_to_entire_cluster_with_named_ports",
+		testDirName:      "exposure_test_egress_to_entire_cluster_with_named_ports",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_ingress_from_entire_cluster_with_named_ports",
+		testDirName:      "exposure_test_ingress_from_entire_cluster_with_named_ports",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_egress_exposure_with_named_port",
+		testDirName:      "exposure_test_egress_with_named_port",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_to_namespace_with_multiple_labels",
+		testDirName:      "exposure_to_namespace_with_multiple_labels_test",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_pod_exposed_only_to_representative_peers",
+		testDirName:      "exposure_test_pod_exposed_only_to_representative_peers",
 		exposureAnalysis: false,
 		outputFormats:    []string{output.TextFormat},
 	},
 	{
-		testDirName:      "test_pod_exposed_only_to_representative_peers",
+		testDirName:      "exposure_test_pod_exposed_only_to_representative_peers",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_conn_entire_cluster_with_empty_selectors",
+		testDirName:      "exposure_test_conn_entire_cluster_with_empty_selectors",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_conn_to_all_pods_in_a_new_ns",
+		testDirName:      "exposure_test_conn_to_all_pods_in_a_new_ns",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_conn_with_new_pod_selector_and_ns_selector",
+		testDirName:      "exposure_test_conn_with_new_pod_selector_and_ns_selector",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_conn_with_only_pod_selector",
+		testDirName:      "exposure_test_conn_with_only_pod_selector",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_conn_with_pod_selector_in_any_ns",
+		testDirName:      "exposure_test_conn_with_pod_selector_in_any_ns",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
@@ -914,29 +914,29 @@ var goodPathTests = []struct {
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_minimal_netpol_analysis",
+		testDirName:      "exposure_test_minimal_netpol_analysis",
 		exposureAnalysis: true,
 		outputFormats:    []string{output.DOTFormat},
 	},
 	{
 		// test that when the rule enable any-namespace with podSelector, a representative peer is created even
 		// if there is a matching pod in a specific namespace
-		testDirName:      "test_exposure_to_any_namespace_with_podSelector",
+		testDirName:      "exposure_test_to_any_namespace_with_podSelector",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_conn_to_all_pods_in_an_existing_ns",
+		testDirName:      "exposure_test_conn_to_all_pods_in_an_existing_ns",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_conn_to_new_pod_in_an_existing_ns",
+		testDirName:      "exposure_test_conn_to_new_pod_in_an_existing_ns",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_conn_to_all_pods_in_an_existing_ns_with_ns_selector_only",
+		testDirName:      "exposure_test_conn_to_all_pods_in_an_existing_ns_with_ns_selector_only",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
@@ -952,149 +952,154 @@ var goodPathTests = []struct {
 		// but the goal is to hint where policy can be tightened, thus it is ok to ignore policies that capture
 		// representative peers in the analysis
 
-		testDirName:      "test_exposure_to_namespace_except_specific_pod",
+		testDirName:      "exposure_test_to_namespace_except_specific_pod",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	// tests on exposure with matchExpression selectors (generating representative peers from selectors with matchExpression
 	// requires special handling)
 	{
-		testDirName:      "test_exposure_with_match_expression_not_in_op",
+		testDirName:      "exposure_test_with_match_expression_not_in_op",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_match_expression_in_op",
+		testDirName:      "exposure_test_with_match_expression_in_op",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_match_expression_exists_op",
+		testDirName:      "exposure_test_with_match_expression_exists_op",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_match_expression_does_not_exist_op",
+		testDirName:      "exposure_test_with_match_expression_does_not_exist_op",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_rule_with_multiple_match_expressions",
+		testDirName:      "exposure_test_rule_with_multiple_match_expressions",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_different_rules_1",
+		testDirName:      "exposure_test_with_different_rules_1",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_different_rules_2",
+		testDirName:      "exposure_test_with_different_rules_2",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_different_rules_3",
+		testDirName:      "exposure_test_with_different_rules_3",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_different_rules_4",
+		testDirName:      "exposure_test_with_different_rules_4",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_different_rules_5",
+		testDirName:      "exposure_test_with_different_rules_5",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_different_rules_6",
+		testDirName:      "exposure_test_with_different_rules_6",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_multiple_policies_1", // one workload in manifests
+		testDirName:      "exposure_test_with_multiple_policies_1", // one workload in manifests
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_multiple_policies_2", // two workloads in manifests, each policy captures one
+		testDirName:      "exposure_test_with_multiple_policies_2", // two workloads in manifests, each policy captures one
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	// some exposure tests with matching expressions (from above) with also matching pod/s in the manifests
 	{
-		testDirName:      "test_egress_exposure_with_named_port_with_matching_pod",
+		testDirName:      "exposure_test_egress_with_named_port_with_matching_pod",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_rule_with_multiple_match_expressions_with_matching_pod",
+		testDirName:      "exposure_test_rule_with_multiple_match_expressions_with_matching_pod",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_different_rules_2_with_matching_pod",
+		testDirName:      "exposure_test_with_different_rules_2_with_matching_pod",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_different_rules_3_with_matching_pod",
+		testDirName:      "exposure_test_with_different_rules_3_with_matching_pod",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_different_rules_4_with_matching_pods",
+		testDirName:      "exposure_test_with_different_rules_4_with_matching_pods",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_different_rules_5_with_matching_pods",
+		testDirName:      "exposure_test_with_different_rules_5_with_matching_pods",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_different_rules_6_with_matching_pods",
+		testDirName:      "exposure_test_with_different_rules_6_with_matching_pods",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_match_expression_does_not_exist_op_with_matching_pods",
+		testDirName:      "exposure_test_with_match_expression_does_not_exist_op_with_matching_pods",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_match_expression_exists_op_with_matching_pods",
+		testDirName:      "exposure_test_with_match_expression_exists_op_with_matching_pods",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_match_expression_in_op_with_matching_pod",
+		testDirName:      "exposure_test_with_match_expression_in_op_with_matching_pod",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_match_expression_not_in_op_with_matching_pods",
+		testDirName:      "exposure_test_with_match_expression_not_in_op_with_matching_pods",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_new_namespace_conn_and_entire_cluster_with_matching_pod",
+		testDirName:      "exposure_to_new_namespace_conn_and_entire_cluster_with_matching_pod",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "test_exposure_with_multiple_policies_1_with_matching_pod",
+		testDirName:      "exposure_test_with_multiple_policies_1_with_matching_pod",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "exposure_test_different_but_equiv_rules",
+		exposureAnalysis: true,
+		outputFormats:    []string{output.DefaultFormat},
 	},
 	{
 		// this test to emphasize why namespaces should be split with policies at the beginning,
 		// if the namespaces are not split the analyzer will not recognize that there is a real pod in a real
 		// namespace which exactly match the netpol's rule and will add an unnecessary exposure line in the results
 		// hello-world/workload-a[Deployment]      <=      [namespace with {name=ns2}]/[pod with {app=b-app}] : All Connections
-		testDirName:      "test_exposure_with_real_pod_and_namespace",
+		testDirName:      "exposure_test_with_real_pod_and_namespace",
 		exposureAnalysis: true,
 		outputFormats:    []string{output.DefaultFormat},
 	},
@@ -1107,15 +1112,15 @@ var goodPathTests = []struct {
 		// since we don't have a real pod in `ns1` with {app: foo};
 		// we'll see two representative peers in the output
 		// one in `ns1` and the second in any ns with {x:xval}
-		testDirName:      "test_exposure_real_namespace_without_real_pod",
+		testDirName:      "exposure_test_real_namespace_without_real_pod",
 		exposureAnalysis: true,
 		outputFormats:    []string{output.DefaultFormat},
 	},
 	{
-		// this test has same namespace, pod and netpols  like the previous one `test_exposure_real_namespace_without_real_pod`
+		// this test has same namespace, pod and netpols  like the previous one `exposure_test_real_namespace_without_real_pod`
 		// with a new pod in `ns1` with the {app:foo} label.
 		// i.e. this real pod has pod and ns labels matching both rules, so we don't see any representative peer in the output
-		testDirName:      "test_exposure_real_namespace_with_matching_pod",
+		testDirName:      "exposure_test_real_namespace_with_matching_pod",
 		exposureAnalysis: true,
 		outputFormats:    []string{output.DefaultFormat},
 	},

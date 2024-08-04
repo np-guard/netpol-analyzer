@@ -13,15 +13,15 @@
 <polygon fill="none" stroke="#ee0000" points="8,-274 8,-349 478,-349 478,-274 8,-274"/>
 <text text-anchor="middle" x="243" y="-333.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {env=env&#45;1,foo=managed}</text>
 </g>
-<g id="clust1" class="cluster">
-<title>cluster_hello_world</title>
-<polygon fill="none" stroke="black" points="472,-79 472,-241 694,-241 694,-79 472,-79"/>
-<text text-anchor="middle" x="583" y="-225.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
-</g>
 <g id="clust3" class="cluster">
 <title>cluster_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}</title>
 <polygon fill="none" stroke="#ee0000" points="486,-274 486,-349 1151,-349 1151,-274 486,-274"/>
 <text text-anchor="middle" x="818.5" y="-333.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_hello_world</title>
+<polygon fill="none" stroke="black" points="472,-79 472,-241 694,-241 694,-79 472,-79"/>
+<text text-anchor="middle" x="583" y="-225.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
 <g id="node1" class="node">

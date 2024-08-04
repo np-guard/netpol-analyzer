@@ -18,11 +18,6 @@
 <polygon fill="none" stroke="#ee0000" points="991.62,-274 991.62,-349 1656.62,-349 1656.62,-274 991.62,-274"/>
 <text text-anchor="middle" x="1324.12" y="-333.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}</text>
 </g>
-<g id="clust2" class="cluster">
-<title>cluster_matching_ns1</title>
-<polygon fill="none" stroke="black" points="1664.62,-274 1664.62,-349 1908.62,-349 1908.62,-274 1664.62,-274"/>
-<text text-anchor="middle" x="1786.62" y="-333.8" font-family="Times New Roman,serif" font-size="14.00">matching&#45;ns1</text>
-</g>
 <g id="clust1" class="cluster">
 <title>cluster_hello_world</title>
 <polygon fill="none" stroke="black" points="1161.62,-79 1161.62,-241 1383.62,-241 1383.62,-79 1161.62,-79"/>
@@ -32,6 +27,11 @@
 <title>cluster_matching_ns2</title>
 <polygon fill="none" stroke="black" points="320.62,-382 320.62,-457 610.62,-457 610.62,-382 320.62,-382"/>
 <text text-anchor="middle" x="465.62" y="-441.8" font-family="Times New Roman,serif" font-size="14.00">matching&#45;ns2</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_matching_ns1</title>
+<polygon fill="none" stroke="black" points="1664.62,-274 1664.62,-349 1908.62,-349 1908.62,-274 1664.62,-274"/>
+<text text-anchor="middle" x="1786.62" y="-333.8" font-family="Times New Roman,serif" font-size="14.00">matching&#45;ns1</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
 <g id="node1" class="node">

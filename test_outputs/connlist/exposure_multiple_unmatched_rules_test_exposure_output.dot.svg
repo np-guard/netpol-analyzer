@@ -8,6 +8,16 @@
  viewBox="0.00 0.00 937.00 278.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 274)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-274 933,-274 933,4 -4,4"/>
+<g id="clust3" class="cluster">
+<title>cluster_namespace with {release=stable}</title>
+<polygon fill="none" stroke="#ee0000" points="246,-187 246,-262 446,-262 446,-187 246,-187"/>
+<text text-anchor="middle" x="346" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {release=stable}</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_namespace with {effect=NoSchedule}</title>
+<polygon fill="none" stroke="#ee0000" points="8,-187 8,-262 238,-262 238,-187 8,-187"/>
+<text text-anchor="middle" x="123" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {effect=NoSchedule}</text>
+</g>
 <g id="clust4" class="cluster">
 <title>cluster_namespace with {{Key:foo.com/managed_state,Operator:In,Values:[managed],}}</title>
 <polygon fill="none" stroke="#ee0000" points="454,-187 454,-262 921,-262 921,-187 454,-187"/>
@@ -17,16 +27,6 @@
 <title>cluster_hello_world</title>
 <polygon fill="none" stroke="black" points="232,-79 232,-154 450,-154 450,-79 232,-79"/>
 <text text-anchor="middle" x="341" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
-</g>
-<g id="clust2" class="cluster">
-<title>cluster_namespace with {effect=NoSchedule}</title>
-<polygon fill="none" stroke="#ee0000" points="8,-187 8,-262 238,-262 238,-187 8,-187"/>
-<text text-anchor="middle" x="123" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {effect=NoSchedule}</text>
-</g>
-<g id="clust3" class="cluster">
-<title>cluster_namespace with {release=stable}</title>
-<polygon fill="none" stroke="#ee0000" points="246,-187 246,-262 446,-262 446,-187 246,-187"/>
-<text text-anchor="middle" x="346" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {release=stable}</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
 <g id="node1" class="node">

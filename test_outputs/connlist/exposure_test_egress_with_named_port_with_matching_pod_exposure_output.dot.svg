@@ -13,15 +13,15 @@
 <polygon fill="none" stroke="#ee0000" points="106.79,-8 106.79,-83 573.79,-83 573.79,-8 106.79,-8"/>
 <text text-anchor="middle" x="340.29" y="-67.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {{Key:foo.com/managed&#45;state,Operator:In,Values:[managed],}}</text>
 </g>
-<g id="clust1" class="cluster">
-<title>cluster_hello_world</title>
-<polygon fill="none" stroke="black" points="257.79,-116 257.79,-191 475.79,-191 475.79,-116 257.79,-116"/>
-<text text-anchor="middle" x="366.79" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
-</g>
 <g id="clust2" class="cluster">
 <title>cluster_matching_ns</title>
 <polygon fill="none" stroke="black" points="176.79,-224 176.79,-299 452.79,-299 452.79,-224 176.79,-224"/>
 <text text-anchor="middle" x="314.79" y="-283.8" font-family="Times New Roman,serif" font-size="14.00">matching&#45;ns</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_hello_world</title>
+<polygon fill="none" stroke="black" points="257.79,-116 257.79,-191 475.79,-191 475.79,-116 257.79,-116"/>
+<text text-anchor="middle" x="366.79" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
 <g id="node1" class="node">

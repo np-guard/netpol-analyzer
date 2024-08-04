@@ -84,7 +84,7 @@ func TestExposureBehavior(t *testing.T) {
 		wl2ExpDataInfo                 expectedPeerResultInfo
 	}{
 		{
-			testName:                       "test_allow_all", // only workload-a in manifests
+			testName:                       "exposure_allow_all_test", // only workload-a in manifests
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 unsecure exposed to all other end-points in the world
@@ -102,7 +102,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_allow_all_in_cluster", // only workload-a in manifests
+			testName:                       "exposure_allow_all_in_cluster_test", // only workload-a in manifests
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 unsecure exposed to all other end-points in the cluster
@@ -120,7 +120,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_matched_and_unmatched_rules",
+			testName:                       "exposure_matched_and_unmatched_rules_test",
 			expectedNumRepresentativePeers: 1,
 			expectedLenOfExposedPeerList:   2,
 			// workload 1 is protected only on ingress direction and exposed unsecure to entire cluster
@@ -142,7 +142,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_new_namespace_conn_and_entire_cluster",
+			testName:                       "exposure_to_new_namespace_conn_and_entire_cluster",
 			expectedNumRepresentativePeers: 1,
 			expectedLenOfExposedPeerList:   2,
 			// workload 1 is protected only on ingress direction and exposed unsecure to entire cluster on TCP 8050
@@ -166,7 +166,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_only_matched_rules",
+			testName:                       "exposure_only_matched_rules_test",
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 is protected and connected with only known namespaces in the cluster on both directions
@@ -179,7 +179,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_multiple_unmatched_rules", // only workload-a in manifests
+			testName:                       "exposure_multiple_unmatched_rules_test", // only workload-a in manifests
 			expectedNumRepresentativePeers: 3,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 is protected by ingress netpol but exposed to unknown namespaces; not protected on egress
@@ -198,7 +198,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_with_no_netpols", // only workload-a in manifests
+			testName:                       "exposure_test_with_no_netpols", // only workload-a in manifests
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 is not protected by any netpol
@@ -210,7 +210,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_allow_ingress_deny_egress", // only workload-a in manifests
+			testName:                       "exposure_allow_ingress_deny_egress_test", // only workload-a in manifests
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 is exposed to entire cluster on ingress
@@ -225,7 +225,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_allow_egress_deny_ingress", // only workload-a in manifests
+			testName:                       "exposure_allow_egress_deny_ingress_test", // only workload-a in manifests
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 is exposed to entire cluster on egress
@@ -240,7 +240,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_conn_entire_cluster_with_empty_selectors", // only workload-a in manifests
+			testName:                       "exposure_test_conn_entire_cluster_with_empty_selectors", // only workload-a in manifests
 			expectedNumRepresentativePeers: 0,
 			expectedLenOfExposedPeerList:   1,
 			// workload 1 is exposed to entire cluster on ingress and egress
@@ -258,7 +258,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_conn_to_all_pods_in_a_new_ns", // only workload-a in manifests
+			testName:                       "exposure_test_conn_to_all_pods_in_a_new_ns", // only workload-a in manifests
 			expectedNumRepresentativePeers: 1,
 			expectedLenOfExposedPeerList:   1,
 			// workload-a is exposed to entire cluster on egress, to a rep. peer on ingress
@@ -277,7 +277,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_conn_with_new_pod_selector_and_ns_selector", // only workload-a in manifests
+			testName:                       "exposure_test_conn_with_new_pod_selector_and_ns_selector", // only workload-a in manifests
 			expectedNumRepresentativePeers: 1,
 			expectedLenOfExposedPeerList:   1,
 			wl1ExpDataInfo: expectedPeerResultInfo{
@@ -292,7 +292,7 @@ func TestExposureBehavior(t *testing.T) {
 			},
 		},
 		{
-			testName:                       "test_conn_with_only_pod_selector", // only workload-a in manifests
+			testName:                       "exposure_test_conn_with_only_pod_selector", // only workload-a in manifests
 			expectedNumRepresentativePeers: 1,
 			expectedLenOfExposedPeerList:   1,
 			wl1ExpDataInfo: expectedPeerResultInfo{

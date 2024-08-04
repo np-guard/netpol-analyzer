@@ -45,10 +45,10 @@ func SelectorsFullMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, erro
 		// be a union of its own exposure and the ones from the entire-cluster).
 		// note that:
 		// 1. if the connection to this representative peer is contained in the connection to entire-cluster; we will not
-		// see this representative peer in the output (see example: tests/test_matched_and_unmatched_rules)
+		// see this representative peer in the output (see example: tests/exposure_matched_and_unmatched_rules_test)
 		// 2. if the representative peer's selectors are contained (not equal) in another's representative peer selectors, the connection of the
 		// other representative-peer will not be captured to this representative peer also
-		// (see example: tests/test_exposure_with_different_rules_4)
+		// (see example: tests/exposure_test_with_different_rules_4)
 		return true, nil
 	}
 	repSelectorConverted, err := v1.LabelSelectorAsSelector(repSelector)
@@ -120,7 +120,7 @@ func UniqueKeyFromLabelsSelector(ls *v1.LabelSelector) (string, error) {
 		currentStr := req.String()
 		// for special case of a requirement with In operator and only one value, convert its string to "key=val" (instead of key in (val))
 		// example: so only one representative peer is generated for both rules : app In [x] and app=x
-		// (see tests/test_exposure_different_but_equiv_rules)
+		// (see tests/exposure_test_different_but_equiv_rules)
 		if newStr := replaceStringOfRequirementWithInOpAndSingleValue(req); newStr != "" {
 			currentStr = newStr
 		}
