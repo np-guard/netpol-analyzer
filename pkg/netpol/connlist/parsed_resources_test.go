@@ -1,3 +1,6 @@
+// Copyright 2023- IBM Inc. All Rights Reserved.
+// 
+// SPDX-License-Identifier: Apache-2.0
 package connlist
 
 import (
@@ -9,13 +12,14 @@ import (
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/util/intstr"
+	"sigs.k8s.io/network-policy-api/apis/v1alpha1"
+
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
-	"github.com/stretchr/testify/require"
-	"k8s.io/apimachinery/pkg/util/intstr"
-	"sigs.k8s.io/network-policy-api/apis/v1alpha1"
 )
 
 var (
@@ -113,7 +117,7 @@ func runParsedResourcesEvalTests(t *testing.T, testList []ParsedResourcesTest) {
 	for i := 0; i < len(testList); i++ {
 		test := &testList[i]
 		t.Run(test.Name, func(t *testing.T) {
-			//t.Parallel()  // Tanya: temp commenting
+			t.Parallel()
 			test.InitParsedResourcesTest()
 			if test.Banp != nil { // Tanya - remove this 'if' whenever BaselineAdminNetworkPolicy is implemented
 				return // Skip tests with BANP, until implemented
@@ -154,7 +158,6 @@ func runParsedResourcesEvalTests(t *testing.T, testList []ParsedResourcesTest) {
 			fmt.Printf("The result of %q:\n%s\n\n", test.TestInfo, out)
 			testutils.CheckActualVsExpectedOutputMatch(t, test.ExpectedOutputFileName, out,
 				test.TestInfo, currentPkg)
-
 		})
 	}
 }
