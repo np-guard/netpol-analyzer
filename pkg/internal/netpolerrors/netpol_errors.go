@@ -64,6 +64,8 @@ const (
 	UnknownCommandErr = "unknown command"
 
 	NilRepresentativePodSelectorsErr = "representative pod might not be generated if it does not have any representative selector"
+	NilNamespaceAndNilNsSelectorErr  = "representative pod might not be generated from nil namespace-selector and nil namespace;" +
+		"at least one should not be nil"
 )
 
 // NotSupportedPodResourcesErrorStr returns error string of not supported pods with same ownerRef but different labels

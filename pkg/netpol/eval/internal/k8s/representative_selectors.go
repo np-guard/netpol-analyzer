@@ -82,10 +82,18 @@ func SelectorsFullMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, erro
 		// i.e. ruleRequirements[i].Equal(repRequirements[i]) and ruleRequirements[i].String() == repRequirements[i].String() return false
 		// requirement.String() : returns <key>=<values> string for "Equals" operator and returns (<key> in (<values));
 		// so, in case on requirement is "in" with one value only, will convert its string to the <key>=<values> format to get correct result
-		if newRuleRequirementsStr := replaceStringOfRequirementWithInOpAndSingleValue(ruleRequirements[i]); newRuleRequirementsStr != "" {
+		newRuleRequirementsStr, err := replaceStringOfRequirementWithInOpAndSingleValue(ruleRequirements[i])
+		if err != nil {
+			return false, err
+		}
+		if newRuleRequirementsStr != "" {
 			ruleRequirementsStr = newRuleRequirementsStr
 		}
-		if newRepRequirementsStr := replaceStringOfRequirementWithInOpAndSingleValue(repRequirements[i]); newRepRequirementsStr != "" {
+		newRepRequirementsStr, err := replaceStringOfRequirementWithInOpAndSingleValue(repRequirements[i])
+		if err != nil {
+			return false, err
+		}
+		if newRepRequirementsStr != "" {
 			repRequirementsStr = newRepRequirementsStr
 		}
 		if ruleRequirementsStr != repRequirementsStr {
@@ -95,13 +103,18 @@ func SelectorsFullMatch(ruleSelector, repSelector *v1.LabelSelector) (bool, erro
 	return true, nil
 }
 
-// replaceStringOfRequirementWithInOpAndSingleValue returns a <key>=<val> string format
-// if the input Requirement is with In operator and single value
-func replaceStringOfRequirementWithInOpAndSingleValue(req labels.Requirement) string {
+// replaceStringOfRequirementWithInOpAndSingleValue returns a string format of the equivalent requirement with equal operator,
+// when the input Requirement is with In operator and single value
+func replaceStringOfRequirementWithInOpAndSingleValue(req labels.Requirement) (string, error) {
 	if req.Operator() == selection.In && len(req.Values()) == 1 {
-		return req.Key() + "=" + req.Values().List()[0]
+		// generating an equivalent requirement with the "=" operator
+		equivReq, err := labels.NewRequirement(req.Key(), selection.Equals, req.Values().List())
+		if err != nil {
+			return "", err
+		}
+		return equivReq.String(), nil
 	}
-	return ""
+	return "", nil
 }
 
 // UniqueKeyFromLabelsSelector returns a unique hash key from given labelSelector, so selectors with same keys, operators and values
@@ -121,7 +134,11 @@ func UniqueKeyFromLabelsSelector(ls *v1.LabelSelector) (string, error) {
 		// for special case of a requirement with In operator and only one value, convert its string to "key=val" (instead of key in (val))
 		// example: so only one representative peer is generated for both rules : app In [x] and app=x
 		// (see tests/exposure_test_different_but_equiv_rules)
-		if newStr := replaceStringOfRequirementWithInOpAndSingleValue(req); newStr != "" {
+		newStr, err := replaceStringOfRequirementWithInOpAndSingleValue(req)
+		if err != nil {
+			return "", err
+		}
+		if newStr != "" {
 			currentStr = newStr
 		}
 		reqStr += currentStr

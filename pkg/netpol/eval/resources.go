@@ -615,7 +615,10 @@ func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.Sin
 		return errors.New(netpolerrors.NilRepresentativePodSelectorsErr)
 	}
 	nsLabelSelector := objSelectors.NsSelector
-	if nsLabelSelector == nil { // equal to podNs != ""
+	if nsLabelSelector == nil && podNs == "" { // should not get here as nsLabelSelector == nil should be equivalent to podNs not empty
+		return errors.New(netpolerrors.NilNamespaceAndNilNsSelectorErr)
+	}
+	if nsLabelSelector == nil && podNs != "" {
 		// if the objSelectors.NsSelector is nil, means inferred from a rule with nil nsSelector, which means the namespace of the
 		// pod is the namespace of the policy, so adding it as its RepresentativeNsLabelSelector requirement.
 		// by this, we ensure a representative peer may only represent the rule it was inferred from
