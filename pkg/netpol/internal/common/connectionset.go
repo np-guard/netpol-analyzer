@@ -24,6 +24,8 @@ type ConnectionSet struct {
 	AllowedProtocols map[v1.Protocol]*PortSet // map from protocol name to set of allowed ports
 }
 
+var allProtocols = []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP, v1.ProtocolSCTP}
+
 // MakeConnectionSet returns a pointer to ConnectionSet object with all connections or no connections
 func MakeConnectionSet(all bool) *ConnectionSet {
 	if all {
@@ -66,7 +68,6 @@ func (conn *ConnectionSet) isAllConnectionsWithoutAllowAll() bool {
 	if conn.AllowAll {
 		return false
 	}
-	allProtocols := []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP, v1.ProtocolSCTP}
 	for _, protocol := range allProtocols {
 		ports, ok := conn.AllowedProtocols[protocol]
 		if !ok {
@@ -108,6 +109,42 @@ func (conn *ConnectionSet) Union(other *ConnectionSet) {
 		}
 	}
 	conn.checkIfAllConnections()
+}
+
+// Subtract : updates current ConnectionSet object with the result of
+// subtracting other ConnectionSet from current ConnectionSet
+func (conn *ConnectionSet) Subtract(other *ConnectionSet) {
+	if other.IsEmpty() { // nothing to subtract
+		return
+	}
+	if other.AllowAll { // subtract everything
+		conn.AllowAll = false
+		conn.AllowedProtocols = map[v1.Protocol]*PortSet{}
+		return
+	}
+	if conn.AllowAll {
+		conn.AllowAll = false // we are about to subtract something
+		conn.addAllConns()
+	}
+	for protocol, ports := range conn.AllowedProtocols {
+		if otherPorts, ok := other.AllowedProtocols[protocol]; ok {
+			if ports.Equal(otherPorts) {
+				delete(conn.AllowedProtocols, protocol)
+			} else {
+				ports.subtract(otherPorts)
+				if conn.AllowedProtocols[protocol].IsEmpty() {
+					delete(conn.AllowedProtocols, protocol)
+				}
+			}
+		}
+	}
+}
+
+// addAllConns : add all possible connections to the current ConnectionSet's allowed protocols
+func (conn *ConnectionSet) addAllConns() {
+	for _, protocol := range allProtocols {
+		conn.AddConnection(protocol, MakePortSet(true))
+	}
 }
 
 // Contains returns true if the input port+protocol is an allowed connection
@@ -237,6 +274,8 @@ const (
 	connsAndPortRangeSeparator = ","
 	allConnsStr                = "All Connections"
 	noConnsStr                 = "No Connections"
+	complemetPrefix            = "All but: "
+	empty                      = "Empty"
 )
 
 func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[v1.Protocol][]PortRange) string {
@@ -247,15 +286,42 @@ func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[
 		return noConnsStr
 	}
 	var connStr string
+	// connStrings will contain the string of given conns protocols and ports as is
 	connStrings := make([]string, len(protocolsAndPorts))
+	// connAsComplementStr will contain the conns representation as "All but: " + conns complement of the given conns
+	connAsComplementStr := make([]string, 0)
 	index := 0
 	for protocol, ports := range protocolsAndPorts {
 		connStrings[index] = protocolAndPortsStr(protocol, portsString(ports))
 		index++
+		// complement conn string
+		complementPortsStr := getComplementPorts(ports)
+		if complementPortsStr == empty || complementPortsStr == "" { // ports is full range
+			continue
+		}
+		connAsComplementStr = append(connAsComplementStr, protocolAndPortsStr(protocol, complementPortsStr))
 	}
 	sort.Strings(connStrings)
+	sort.Strings(connAsComplementStr)
 	connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
+	complementStr := complemetPrefix + strings.Join(connAsComplementStr, connsAndPortRangeSeparator)
+	// return the shorter string as the representation
+	if len(complementStr) < len(connStr) {
+		return complementStr
+	}
 	return connStr
+}
+
+// getComplementPorts computes and returns string representation of the complement intervals of given ports
+func getComplementPorts(ports []PortRange) string {
+	// create canonicalSet with all possible port ranges
+	complementCanonicalSet := interval.New(minPort, maxPort).ToSet()
+	// loop ports and subtract them from the full canonicalSet to get the complement
+	for i := range ports {
+		currCanonicalSet := (ports[i].(*portRange).Interval).ToSet()
+		complementCanonicalSet = complementCanonicalSet.Subtract(currCanonicalSet)
+	}
+	return complementCanonicalSet.String()
 }
 
 // get string representation for a list of port ranges

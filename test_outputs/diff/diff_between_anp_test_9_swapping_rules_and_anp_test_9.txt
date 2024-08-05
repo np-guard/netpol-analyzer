@@ -1,0 +1,5 @@
+Connectivity diff:
+diff-type: changed, source: network-policy-conformance-gryffindor/harry-potter[StatefulSet], destination: network-policy-conformance-slytherin/draco-malfoy[StatefulSet], ref1: All but: SCTP 9003,TCP 80,UDP 53, ref2: All Connections
+diff-type: changed, source: network-policy-conformance-slytherin/draco-malfoy[StatefulSet], destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: All but: SCTP 9003,TCP 80,UDP 53, ref2: All Connections
+diff-type: removed, source: network-policy-conformance-gryffindor/harry-potter[StatefulSet], destination: network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet], ref1: All Connections, ref2: No Connections
+diff-type: removed, source: network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet], destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: All Connections, ref2: No Connections

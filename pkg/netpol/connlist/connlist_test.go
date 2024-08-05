@@ -743,4 +743,109 @@ var goodPathTests = []struct {
 		focusWorkload: "ingress-controller",
 		outputFormats: []string{output.TextFormat},
 	},
+	// tests with adminNetworkPolicy
+	{
+		testDirName:   "anp_test1_deny_traffic_at_cluster_level",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		testDirName:   "anp_test2_allow_traffic_at_cluster_level",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		testDirName:   "anp_test3_pass_traffic",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// Should Deny traffic from slytherin to gryffindor and
+		// Deny traffic to slytherin from gryffindor respecting ANP with priority 50, ignoring ANP with priority 60
+		testDirName:   "anp_test_4",
+		outputFormats: allFormats,
+	},
+	{
+		// Should support a pass-egress to slytherin from gryffindor for ANP and respect the match for network policy
+		// And Dney ingress from slytherin to gryffindor - respecting the ANP ingress rule
+		testDirName:   "anp_test_5",
+		outputFormats: allFormats,
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_6",
+		outputFormats: allFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_6 but with swaps, so we expect some different results
+		testDirName:   "anp_test_6_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_7",
+		outputFormats: allFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_7 but with swaps, so we expect some different results
+		testDirName:   "anp_test_7_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_8",
+		outputFormats: allFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_8 but with swaps, so we expect some different results
+		testDirName:   "anp_test_8_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected, with both ingress and egress
+		testDirName:   "anp_test_9",
+		outputFormats: allFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_9 but with swaps, so we expect some different results
+		testDirName:   "anp_test_9_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_10",
+		outputFormats: allFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_10 but with swaps, so we expect some different results
+		testDirName:   "anp_test_10_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_11",
+		outputFormats: allFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_11 but with swaps, so we expect some different results
+		testDirName:   "anp_test_11_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_12",
+		outputFormats: allFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_12 but with swaps, so we expect some different results
+		testDirName:   "anp_test_12_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// test with two ANPs selecting same subject (one is an ingress ANP the other is egress ANP)
+		testDirName:   "anp_test_combining_test6_and_test10",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// test with multiple ANPs
+		testDirName:   "anp_test_multiple_anps",
+		outputFormats: allFormats,
+	},
 }
