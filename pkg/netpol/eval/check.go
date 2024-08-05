@@ -149,9 +149,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	}
 
 	// get conns from networkPolicies:
-	var npAllowedConns *common.ConnectionSet
-	npCaptured := false
-	npAllowedConns, npCaptured, err = pe.getAllAllowedConnsFromNetpols(srcK8sPeer, dstK8sPeer)
+	npAllowedConns, npCaptured, err := pe.getAllAllowedConnsFromNetpols(srcK8sPeer, dstK8sPeer)
 	if err != nil {
 		return nil, err
 	}
@@ -355,7 +353,7 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 
 // analyzing network-policies for conns between peers (object kind == NetworkPolicy):
 
-// getAllAllowedConnsFromNetpols : returns set of allowed connections between src and dst by analyzing the network-policies rules
+// getAllAllowedConnsFromNetpols: returns set of allowed connections between src and dst by analyzing the network-policies rules
 func (pe *PolicyEngine) getAllAllowedConnsFromNetpols(src, dst k8s.Peer) (allowedConns *common.ConnectionSet, npCaptured bool, err error) {
 	var res, ingressRes *common.ConnectionSet
 	egressCaptured, ingressCaptured := false, false
