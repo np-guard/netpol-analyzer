@@ -116,6 +116,15 @@ func (test *ParsedResourcesTest) InitParsedResourcesTest() {
 	// }
 }
 
+func stringForEval(peer eval.Peer) string {
+	if peer.IsPeerIPType() {
+		ipBlock, _ := eval.PeerIPToIPBlock(peer)
+		return ipBlock.ToCidrListString()
+	} else {
+		return peer.Namespace() + "/" + peer.Name()
+	}
+}
+
 func runParsedResourcesEvalTests(t *testing.T, testList []ParsedResourcesTest) {
 	t.Helper()
 	for i := 0; i < len(testList); i++ {
@@ -127,7 +136,6 @@ func runParsedResourcesEvalTests(t *testing.T, testList []ParsedResourcesTest) {
 				return // Skip tests with BANP, until implemented
 			}
 			pe, err := eval.NewPolicyEngineWithObjects(test.Resources)
-
 			require.Nil(t, err, test.TestInfo)
 			peerList, err := pe.GetPeersList()
 			require.Nil(t, err, test.TestInfo)
@@ -143,9 +151,36 @@ func runParsedResourcesEvalTests(t *testing.T, testList []ParsedResourcesTest) {
 					}
 					allowedConns, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(src, dst)
 					require.Nil(t, err, test.TestInfo)
+
+					srcForEval := stringForEval(src)
+					dstForEval := stringForEval(dst)
+					contProtocol, contPort := allowedConns.PickContainedConn()
+					if contPort != "" {
+						var res bool
+						// Tanya: uncomment whenever CheckIfAllowed supports ANPs
+						// res, err := pe.CheckIfAllowed(srcForEval, dstForEval, contProtocol, contPort)
+						// require.Nil(t, err, test.TestInfo)
+						// require.Equal(t, true, res, test.TestInfo)
+						res, err = pe.CheckIfAllowedNew(srcForEval, dstForEval, contProtocol, contPort)
+						require.Nil(t, err, test.TestInfo)
+						require.Equal(t, true, res, test.TestInfo)
+					}
+					uncontProtocol, uncontPort := allowedConns.PickUncontainedConn()
+					if uncontPort != "" {
+						var res bool
+						// Tanya: uncomment whenever CheckIfAllowed supports ANPs
+						// res, err := pe.CheckIfAllowed(srcForEval, dstForEval, uncontProtocol, uncontPort)
+						// require.Nil(t, err, test.TestInfo)
+						// require.Equal(t, false, res, test.TestInfo)
+						res, err = pe.CheckIfAllowedNew(srcForEval, dstForEval, uncontProtocol, uncontPort)
+						require.Nil(t, err, test.TestInfo)
+						require.Equal(t, false, res, test.TestInfo)
+					}
+
 					if allowedConns.IsEmpty() {
 						continue
 					}
+
 					p2pConnection := &connection{
 						src:               src,
 						dst:               dst,
