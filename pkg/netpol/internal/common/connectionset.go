@@ -184,6 +184,33 @@ func (conn *ConnectionSet) ContainedIn(other *ConnectionSet) bool {
 	return true
 }
 
+const defaultPort = "80"
+
+func (conn *ConnectionSet) PickContainedConn() (resProtocol, resPort string) {
+	if conn.IsEmpty() {
+		return "", ""
+	}
+	if conn.AllowAll {
+		return "TCP", defaultPort
+	}
+	for protocol, portSet := range conn.AllowedProtocols {
+		resProtocol = string(protocol)
+		if portSet.IsAll() {
+			resPort = defaultPort
+		} else {
+			resPort = fmt.Sprintf("%d", portSet.Ports.Min())
+		}
+		break
+	}
+	return resProtocol, resPort
+}
+
+func (conn *ConnectionSet) PickUncontainedConn() (resProtocol, resPort string) {
+	complementSet := MakeConnectionSet(true)
+	complementSet.Subtract(conn)
+	return complementSet.PickContainedConn()
+}
+
 // AddConnection updates current ConnectionSet object with new allowed connection
 func (conn *ConnectionSet) AddConnection(protocol v1.Protocol, ports *PortSet) {
 	if ports.IsEmpty() {
@@ -245,11 +272,13 @@ func (p *portRange) End() int64 {
 	return p.Interval.End()
 }
 
+const intFormat = "%d"
+
 func (p *portRange) String() string {
 	if p.Interval.End() != p.Interval.Start() {
 		return fmt.Sprintf("%d-%d", p.Start(), p.End())
 	}
-	return fmt.Sprintf("%d", p.Start())
+	return fmt.Sprintf(intFormat, p.Start())
 }
 
 // ProtocolsAndPortsMap() returns a map from allowed protocol to list of allowed ports ranges.

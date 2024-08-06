@@ -973,7 +973,7 @@ func checkTestEntry(test *TestEntry, t *testing.T, pe *PolicyEngine) {
 	if test.res != res {
 		t.Fatalf("test %v: mismatch on test result: expected %v, got %v", test.name, test.res, res)
 	}
-	res2, err := pe.checkIfAllowedNew(test.src, test.dst, test.protocol, test.port)
+	res2, err := pe.CheckIfAllowedNew(test.src, test.dst, test.protocol, test.port)
 	if err != nil {
 		t.Fatalf("checkIfAllowedNew, test %v: expected err to be nil, but got %v", test.name, err)
 	}
@@ -1141,7 +1141,7 @@ func TestGeneralPerformance(t *testing.T) {
 										t.Fatalf("error from CheckIfAllowed")
 									}
 								} else {
-									_, err := pe.checkIfAllowedNew(podName1, podName2, conn.protocol, conn.port)
+									_, err := pe.CheckIfAllowedNew(podName1, podName2, conn.protocol, conn.port)
 									loopsCounter++
 									if err != nil {
 										t.Fatalf("error from CheckIfAllowed")
@@ -1233,7 +1233,7 @@ func TestFromFiles2(t *testing.T) {
 							t.Fatalf("error from CheckIfAllowed")
 						}
 					} else {
-						_, err := pe.checkIfAllowedNew(podName1, podName2, conn.protocol, conn.port)
+						_, err := pe.CheckIfAllowedNew(podName1, podName2, conn.protocol, conn.port)
 						if err != nil {
 							t.Fatalf("error from CheckIfAllowed")
 						}
