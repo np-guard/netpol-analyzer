@@ -184,17 +184,19 @@ func (conn *ConnectionSet) ContainedIn(other *ConnectionSet) bool {
 	return true
 }
 
+const defaultPort = "80"
+
 func (conn *ConnectionSet) PickContainedConn() (resProtocol, resPort string) {
 	if conn.IsEmpty() {
 		return "", ""
 	}
 	if conn.AllowAll {
-		return "TCP", "80"
+		return "TCP", defaultPort
 	}
 	for protocol, portSet := range conn.AllowedProtocols {
 		resProtocol = string(protocol)
 		if portSet.IsAll() {
-			resPort = "80"
+			resPort = defaultPort
 		} else {
 			resPort = fmt.Sprintf("%d", portSet.Ports.Min())
 		}
