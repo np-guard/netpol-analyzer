@@ -1,0 +1,29 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: multiple-match-exp
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  ingress:
+  - from:
+    - podSelector:
+           matchExpressions:
+           - key: env
+             operator: DoesNotExist
+           - key: role
+             operator: In
+             values:
+             - frontend
+             - web
+             - api
+           - key: app
+             operator: NotIn
+             values:
+             - b-app
+             - c-app
+             - d-app
+           - key: tier
+             operator: Exists

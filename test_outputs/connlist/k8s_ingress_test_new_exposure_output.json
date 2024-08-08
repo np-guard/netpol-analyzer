@@ -1,0 +1,90 @@
+{
+  "connlist_results": [
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "default/unicorn[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/reviews-v1-545db77b95[ReplicaSet]",
+      "dst": "default/productpage-v1-6b746f74dc[ReplicaSet]",
+      "conn": "TCP 9080"
+    },
+    {
+      "src": "default/reviews-v1-545db77b95[ReplicaSet]",
+      "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "conn": "TCP 9080"
+    },
+    {
+      "src": "default/reviews-v2-7bf8c9648f[ReplicaSet]",
+      "dst": "default/productpage-v1-6b746f74dc[ReplicaSet]",
+      "conn": "TCP 9080"
+    },
+    {
+      "src": "default/reviews-v2-7bf8c9648f[ReplicaSet]",
+      "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "conn": "TCP 9080"
+    },
+    {
+      "src": "default/reviews-v3-84779c7bbc[ReplicaSet]",
+      "dst": "default/productpage-v1-6b746f74dc[ReplicaSet]",
+      "conn": "TCP 9080"
+    },
+    {
+      "src": "default/reviews-v3-84779c7bbc[ReplicaSet]",
+      "dst": "default/ratings-v1-b6994bb9[ReplicaSet]",
+      "conn": "TCP 9080"
+    },
+    {
+      "src": "default/unicorn[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "default/unicorn[Deployment]",
+      "dst": "default/details-v1-79f774bdb9[ReplicaSet]",
+      "conn": "TCP 9080"
+    },
+    {
+      "src": "{ingress-controller}",
+      "dst": "default/details-v1-79f774bdb9[ReplicaSet]",
+      "conn": "TCP 9080"
+    },
+    {
+      "src": "{ingress-controller}",
+      "dst": "default/unicorn[Deployment]",
+      "conn": "TCP 8080"
+    }
+  ],
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "default/unicorn[Deployment]",
+        "dst": "0.0.0.0-255.255.255.255",
+        "conn": "All Connections"
+      },
+      {
+        "src": "default/unicorn[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "entire-cluster",
+        "dst": "default/details-v1-79f774bdb9[ReplicaSet]",
+        "conn": "TCP 9080"
+      },
+      {
+        "src": "0.0.0.0-255.255.255.255",
+        "dst": "default/unicorn[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "default/unicorn[Deployment]",
+        "conn": "All Connections"
+      }
+    ]
+  }
+}

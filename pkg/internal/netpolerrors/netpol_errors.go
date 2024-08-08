@@ -33,14 +33,15 @@ const (
 	NoAllowedConnsWarning  = "Connectivity analysis found no allowed connectivity between pairs from the configured workloads or" +
 		" external IP-blocks"
 
-	ErrGettingResInfoFromDir = "Error getting resourceInfos from dir path"
+	ErrGettingResInfoFromDir     = "Error getting resourceInfos from dir path"
+	ConversionToConnectionSetErr = "failed conversion from AllowedSet to ConnectionSet"
 
 	// eval errors
 	NoSourceDefinedErr     = "no source defined, source pod and namespace or external IP required"
 	NotFoundNamespace      = "could not find peer namespace"
 	OnlyOneSrcFlagErrStr   = "only one of source pod and namespace or external IP can be defined, not both"
 	NoDestDefinedErr       = "no destination defined, destination pod and namespace or external IP required"
-	OnlyOneDstFalgErrStr   = "only one of destination pod and namespace or external IP can be defined, not both"
+	OnlyOneDstFlagErrStr   = "only one of destination pod and namespace or external IP can be defined, not both"
 	OnlyOneIPPeerErrStr    = "only one of source or destination can be defined as external IP, not both"
 	RequiredDstPortFlagErr = "destination port name or value is required"
 
@@ -48,7 +49,7 @@ const (
 	RequiredFlagsErr = "both directory paths dir1 and dir2 are required"
 	FlagMisUseErr    = "dirpath flag is not used with diff command"
 
-	// errors consts from `orig errors` that are raised by external libraries
+	// errors constants from `orig errors` that are raised by external libraries
 	InvalidCIDRAddr         = "invalid CIDR address"
 	InvalidKeyVal           = "key: Invalid value"
 	UnrecognizedValType     = "unrecognized type"
@@ -61,6 +62,10 @@ const (
 	UnableToDecodeErr       = "unable to decode"
 
 	UnknownCommandErr = "unknown command"
+
+	NilRepresentativePodSelectorsErr = "representative pod might not be generated if it does not have any representative selector"
+	NilNamespaceAndNilNsSelectorErr  = "representative pod might not be generated from nil namespace-selector and nil namespace;" +
+		"at least one should not be nil"
 )
 
 // NotSupportedPodResourcesErrorStr returns error string of not supported pods with same ownerRef but different labels
@@ -69,7 +74,7 @@ func NotSupportedPodResourcesErrorStr(ownerRefName string) string {
 		ownerRefName + " but with different set of labels."
 }
 
-// WorkloadDoesNotExistErrStr returns error string of missing workload for connlist with focusworkload
+// WorkloadDoesNotExistErrStr returns error string of missing workload for connlist with focus-workload
 func WorkloadDoesNotExistErrStr(workload string) string {
 	return "Workload " + workload + " does not exist in the input resources." + EmptyConnListErrStr
 }
@@ -97,13 +102,17 @@ func BlockedIngressWarning(objKind, objName, peerStr string) string {
 }
 
 // MissingNamespaceErrStr returns error string of a missing namespace of a peer
-func MissingNamespaceErrStr(peerStr string) string {
-	return "error: namespace of pod " + peerStr + " is missing"
+func MissingNamespaceErrStr(nsName, peerName string) string {
+	return "error: namespace " + nsName + " of pod " + peerName + " is missing"
 }
 
 // NotPeerErrStr returns error string of a peer that is not workload peer
 func NotPeerErrStr(peerStr string) string {
-	return "peer: " + peerStr + ",is not a WorkloadPeer"
+	return "peer: " + peerStr + ", is not a WorkloadPeer"
+}
+
+func NotRepresentativePeerErrStr(peerStr string) string {
+	return peerStr + ", is not a Representative peer"
 }
 
 // BothSrcAndDstIPsErrStr returns error string that conn from ip to ip is not supported

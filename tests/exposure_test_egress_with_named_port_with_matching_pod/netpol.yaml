@@ -1,0 +1,26 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: egress-with-named-port
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  ingress:
+  - from:
+    - namespaceSelector: {}
+    ports:
+    - port: local-dns
+      protocol: TCP
+  egress:
+  - to:
+    - namespaceSelector:
+           matchExpressions:
+           - key: foo.com/managed-state
+             operator: In
+             values:
+             - managed
+    ports:
+    - port: http
+      protocol: TCP

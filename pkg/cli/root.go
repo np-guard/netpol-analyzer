@@ -32,7 +32,7 @@ var (
 )
 
 // returns verbosity level based on the -q and -v switches
-func detrmineLogVerbosity() logger.Verbosity {
+func determineLogVerbosity() logger.Verbosity {
 	verbosity := logger.DefaultVerbosity
 	if quiet {
 		verbosity = logger.LowVerbosity

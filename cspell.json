@@ -1,0 +1,15 @@
+{
+    "version": "0.2",
+    "ignorePaths": [],
+    "dictionaryDefinitions": [],
+    "dictionaries": [],
+    "words": [
+        "connlist",
+        "netpol",
+        "netpols",
+        "SCTP",
+        "xgress"
+    ],
+    "ignoreWords": [],
+    "import": []
+}

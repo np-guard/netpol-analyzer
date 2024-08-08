@@ -1,0 +1,6 @@
+Exposure Analysis Result:
+Egress Exposure:
+hello-world/workload-a[Deployment] 	=> 	hello-world/[pod with {role=monitoring}] : All Connections
+
+Ingress Exposure:
+hello-world/workload-a[Deployment] 	<= 	hello-world/[pod with {role=monitoring}] : TCP 8050
