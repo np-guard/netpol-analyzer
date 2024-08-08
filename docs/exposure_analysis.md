@@ -2,9 +2,17 @@
 
 ## Motivation
 
-`list` without `--exposure` - produces a report of permitted connectivity, where the endpoints are k8s workloads that exist in the input manifests and external IP ranges.\
-If some network policy permits connectivity into an existing workload `foo`, from a **workload** with certain labels, **that does not exist in the analyzed input manifests** (such as `app: bar`), this will not be reflected in the output.\
-The `--exposure` flag will add exposure analysis, and thus the output will reflect such **potential permitted connectivity**, from Pods with `app: bar` to Pod `foo`.
+`list` without `--exposure`, produces a report of permitted connectivity, where the endpoints are k8s workloads that exist in the input manifests and external IP ranges.\
+It does not take into account potential permitted connectivity to workload entities that may be matched by policy rules, but do not exist in the input manifests.
+
+The goal of exposure analysis, is to provide this additional information of potential permitted connectivity.
+The report can give hints to where network policies may be tightened, or help validate that no unexpected exposure is present due to policies misconfiguration. 
+
+The exposure analysis is supported for all output formats of the `list` command. 
+To run exposure analysis, just run the `list` command with the additional `--exposure` flag. 
+
+The section below, details few examples of input manifests for workloads and network policies, and shows the output result of exposure analysis in both text and graphical formats.
+
 
 ## Examples
 
