@@ -70,7 +70,7 @@ Flags:
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
-      --exposure            Runs also exposure analysis
+      --exposure            Enhance the analysis of permitted connectivity with exposure analysis
       --fail                fail on the first encountered error
       --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
   -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
@@ -152,6 +152,8 @@ source: default/redis-cart[Deployment], destination: 0.0.0.0-255.255.255.255, di
 ```
 
 Additional details about the connectivity analysis and its output is specified [here](docs/connlist_output.md).
+
+Additional details about exposure analysis (`--exposure` flag for the `list` command) is specified [here](docs/exposure_analysis.md).
 
 Additional details about the connectivity diff command and its output is specified [here](docs/diff_output.md).
 
