@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strings"
 
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -77,11 +78,16 @@ func formSingleP2PConn(conn Peer2PeerConnection) singleConnFields {
 	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr}
 }
 
+// commonly (to be) used for exposure analysis output formatters
 const (
 	entireCluster          = "entire-cluster"
 	exposureAnalysisHeader = "Exposure Analysis Result:"
 	egressExposureHeader   = "Egress Exposure:"
 	ingressExposureHeader  = "Ingress Exposure:"
+	stringInBrackets       = "[%s]"
+	mapOpen                = "{"
+	mapClose               = "}"
+	comma                  = ","
 )
 
 // formSingleExposureConn returns a representation of single exposure connection fields as singleConnFields object
@@ -108,24 +114,46 @@ func convertLabelsMapToString(labelsMap map[string]string) string {
 	return labels.SelectorFromSet(labels.Set(labelsMap)).String()
 }
 
-const (
-	stringInBrackets = "[%s]"
-	mapOpen          = "{"
-	mapClose         = "}"
-)
+// convertRequirementsToString returns a string representation of the given requirements list
+func convertRequirementsToString(reqs []v1.LabelSelectorRequirement) string {
+	const strPrefix = "&LabelSelectorRequirement"
+	reqStrings := make([]string, len(reqs))
+	for i, req := range reqs {
+		reqStrings[i] = strings.ReplaceAll(req.String(), strPrefix, "")
+	}
+	sort.Strings(reqStrings)
+	return strings.Join(reqStrings, comma)
+}
+
+// writeLabelSelectorAsString returns a string representation of the label selector
+func writeLabelSelectorAsString(labelSel v1.LabelSelector) string {
+	var res string
+	if len(labelSel.MatchLabels) > 0 {
+		res = convertLabelsMapToString(labelSel.MatchLabels)
+	}
+	if len(labelSel.MatchExpressions) > 0 {
+		if res != "" {
+			res += comma
+		}
+		res += convertRequirementsToString(labelSel.MatchExpressions)
+	}
+	return res
+}
 
 // getRepresentativeNamespaceString returns a string representation of a potential peer with namespace labels.
-// if namespace with multiple words adds [] , in case of textual (non-graphical) output
-func getRepresentativeNamespaceString(nsLabels map[string]string, txtOutFlag bool) string {
-	nsName, ok := nsLabels[common.K8sNsNameLabelKey]
-	if len(nsLabels) == 1 && ok {
+// if namespace string is with multiple words, returns it in brackets ([]) in case of textual (non-graphical) output
+func getRepresentativeNamespaceString(nsLabels v1.LabelSelector, txtOutFlag bool) string {
+	// if ns selector contains only namespace name label - return ns name
+	nsName, ok := nsLabels.MatchLabels[common.K8sNsNameLabelKey]
+	if len(nsLabels.MatchLabels) == 1 && len(nsLabels.MatchExpressions) == 0 && ok {
 		return nsName
 	}
-	res := ""
-	if len(nsLabels) > 0 {
-		res += "namespace with " + mapOpen + convertLabelsMapToString(nsLabels) + mapClose
+	// else if ns labels are empty - res = all namespaces
+	var res string
+	if nsLabels.Size() == 0 {
+		res = allNamespacesLbl
 	} else {
-		res += allNamespacesLbl
+		res = "namespace with " + mapOpen + writeLabelSelectorAsString(nsLabels) + mapClose
 	}
 	if txtOutFlag {
 		return fmt.Sprintf(stringInBrackets, res)
@@ -136,12 +164,12 @@ func getRepresentativeNamespaceString(nsLabels map[string]string, txtOutFlag boo
 // getRepresentativePodString returns a string representation of potential peer with pod labels
 // or all pods string for empty pod labels map (which indicates all pods).
 // adds [] in case of textual (non-graphical) output
-func getRepresentativePodString(podLabels map[string]string, txtOutFlag bool) string {
-	res := ""
-	if len(podLabels) == 0 {
-		res += allPeersLbl
+func getRepresentativePodString(podLabels v1.LabelSelector, txtOutFlag bool) string {
+	var res string
+	if podLabels.Size() == 0 {
+		res = allPeersLbl
 	} else {
-		res += "pod with " + mapOpen + convertLabelsMapToString(podLabels) + mapClose
+		res = "pod with " + mapOpen + writeLabelSelectorAsString(podLabels) + mapClose
 	}
 	if txtOutFlag {
 		return fmt.Sprintf(stringInBrackets, res)

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-b
+  namespace: ns2
+  labels:
+    app: b-app
+spec:
+  selector:
+    matchLabels:
+      app: b-app
+  template:
+    metadata:
+      labels:
+        app: b-app
+    spec:
+      containers:
+      - name: ns2
+        image: quay.io/shfa/hello-world2:latest
+        ports:
+        - containerPort: 8050
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-a
+  namespace: hello-world
+  labels:
+    app: a-app
+spec:
+  selector:
+    matchLabels:
+      app: a-app
+  template:
+    metadata:
+      labels:
+        app: a-app
+    spec:
+      containers:
+      - name: hello-world
+        image: quay.io/shfa/hello-world:latest
+        ports:
+        - containerPort: 8000  # containerport1
+        - containerPort: 8050  # containerport2
+        - containerPort: 8090  # containerport3
+---

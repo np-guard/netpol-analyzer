@@ -136,7 +136,7 @@ func (conn *ConnectionSet) Contains(port, protocol string) bool {
 	return false
 }
 
-// ContainedIn returns true if current ConnectionSet is conatained in the input ConnectionSet object
+// ContainedIn returns true if current ConnectionSet is contained in the input ConnectionSet object
 func (conn *ConnectionSet) ContainedIn(other *ConnectionSet) bool {
 	if other.AllowAll {
 		return true

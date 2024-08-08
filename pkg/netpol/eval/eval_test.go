@@ -810,9 +810,9 @@ spec:
           role: web
 */
 func AllowFromMultipleTo(namespace string, fromLabels []map[string]string, targetLabels map[string]string) *netv1.NetworkPolicy {
-	froms := make([]netv1.NetworkPolicyPeer, 0, len(fromLabels))
+	fromList := make([]netv1.NetworkPolicyPeer, 0, len(fromLabels))
 	for _, labels := range fromLabels {
-		froms = append(froms, netv1.NetworkPolicyPeer{
+		fromList = append(fromList, netv1.NetworkPolicyPeer{
 			PodSelector: &metav1.LabelSelector{MatchLabels: labels},
 		})
 	}
@@ -826,7 +826,7 @@ func AllowFromMultipleTo(namespace string, fromLabels []map[string]string, targe
 				MatchLabels: targetLabels,
 			},
 			Ingress: []netv1.NetworkPolicyIngressRule{
-				{From: froms},
+				{From: fromList},
 			},
 			PolicyTypes: []netv1.PolicyType{netv1.PolicyTypeIngress},
 		},
@@ -834,10 +834,10 @@ func AllowFromMultipleTo(namespace string, fromLabels []map[string]string, targe
 }
 
 func AllowFromMultipleIPBlockTo(namespace string, fromIPBlocks, targetLabels map[string]string) *netv1.NetworkPolicy {
-	froms := make([]netv1.NetworkPolicyPeer, 0, len(fromIPBlocks))
+	fromList := make([]netv1.NetworkPolicyPeer, 0, len(fromIPBlocks))
 	for ip, excludedIP := range fromIPBlocks {
 		netpolPeer := netv1.NetworkPolicyPeer{IPBlock: &netv1.IPBlock{CIDR: ip, Except: []string{excludedIP}}}
-		froms = append(froms, netpolPeer)
+		fromList = append(fromList, netpolPeer)
 	}
 	return &netv1.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
@@ -849,7 +849,7 @@ func AllowFromMultipleIPBlockTo(namespace string, fromIPBlocks, targetLabels map
 				MatchLabels: targetLabels,
 			},
 			Ingress: []netv1.NetworkPolicyIngressRule{
-				{From: froms},
+				{From: fromList},
 			},
 			PolicyTypes: []netv1.PolicyType{netv1.PolicyTypeIngress},
 		},
@@ -1068,7 +1068,7 @@ func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) erro
 		case "Namespace":
 			ns = append(ns, obj.Namespace)
 		case "NetworkPolicy":
-			netpols = append(netpols, obj.Networkpolicy)
+			netpols = append(netpols, obj.NetworkPolicy)
 		default:
 			continue
 		}
@@ -1103,13 +1103,13 @@ func TestGeneralPerformance(t *testing.T) {
 
 	// TODO: consider adding caching of non-captured pods when building the network config
 	functionNames := []string{"CheckIfAllowed", "CheckIfAllowedNew", "AllAllowedConnections"}
-	netoplLimitMin := 0
-	netoplLimitMax := 11
+	netpolLimitMin := 0
+	netpolLimitMax := 11
 	experimentsRepetition := 10
 	allResStr := ""
 	allResStrPerFunc := map[string]string{"CheckIfAllowed": "", "CheckIfAllowedNew": "", "AllAllowedConnections": ""}
 	allResPerFuncAndNetpolLimit := map[int]map[string]string{}
-	for i := netoplLimitMin; i <= netoplLimitMax; i++ {
+	for i := netpolLimitMin; i <= netpolLimitMax; i++ {
 		pe := NewPolicyEngine()
 
 		err := setResourcesFromDir(pe, path, i)
@@ -1119,7 +1119,7 @@ func TestGeneralPerformance(t *testing.T) {
 		allResPerFuncAndNetpolLimit[i] = map[string]string{}
 		for _, functionName := range functionNames {
 			loopsCounterPerFunction := map[string]int{}
-			runtimes := []time.Duration{}
+			runTimes := []time.Duration{}
 			for j := 0; j < experimentsRepetition; j++ {
 				start := time.Now()
 				loopsCounter := 0
@@ -1152,13 +1152,13 @@ func TestGeneralPerformance(t *testing.T) {
 				}
 				elapsed := time.Since(start)
 				loopsCounterPerFunction[functionName] = loopsCounter
-				runtimes = append(runtimes, elapsed) // len is experimentsRepetition , each entry is runtime for loopsCounter iterations
+				runTimes = append(runTimes, elapsed) // len is experimentsRepetition , each entry is runtime for loopsCounter iterations
 			}
 			// add a test result line here
 			runtimeValues := ""
 			lenValues := 0
 			sumRuntime := time.Duration(0)
-			for _, runtime := range runtimes {
+			for _, runtime := range runTimes {
 				if float64(runtime) > float64(0.000000000001) {
 					sumRuntime += runtime
 					runtimeValues += fmt.Sprintf("%v,", runtime)
@@ -1173,13 +1173,13 @@ func TestGeneralPerformance(t *testing.T) {
 
 			// evaluate performance: number of calls per 1 second
 			val := int64(avgRuntime) // runtime in nanoseconds
-			numcallsPerSec := (int64(loopsCounterPerFunction[functionName]) * 1000000000) / val
-			fmt.Printf("%v", numcallsPerSec)
+			numCallsPerSec := (int64(loopsCounterPerFunction[functionName]) * 1000000000) / val
+			fmt.Printf("%v", numCallsPerSec)
 			allResStr += fmt.Sprintf("runtime values: %v\n", runtimeValues)
-			allResStr += fmt.Sprintf("function name: %v, netoplLimit: %v, average runtime is %v for %v iterations, numcallsPerSec: %v\n",
-				functionName, i, avgRuntime, loopsCounterPerFunction[functionName], numcallsPerSec)
-			allResStrPerFunc[functionName] += fmt.Sprintf("%v, %v\n", i, numcallsPerSec)
-			allResPerFuncAndNetpolLimit[i][functionName] = fmt.Sprintf("%v", numcallsPerSec)
+			allResStr += fmt.Sprintf("function name: %v, netpolLimit: %v, average runtime is %v for %v iterations, numCallsPerSec: %v\n",
+				functionName, i, avgRuntime, loopsCounterPerFunction[functionName], numCallsPerSec)
+			allResStrPerFunc[functionName] += fmt.Sprintf("%v, %v\n", i, numCallsPerSec)
+			allResPerFuncAndNetpolLimit[i][functionName] = fmt.Sprintf("%v", numCallsPerSec)
 		}
 
 		pe.ClearResources()
@@ -1188,15 +1188,15 @@ func TestGeneralPerformance(t *testing.T) {
 	for funcName, res := range allResStrPerFunc {
 		writeRes(res, "all_res_"+funcName+".txt")
 	}
-	resAllFuncNumcallsPerSec := ""
+	resAllFuncNumCallsPerSec := ""
 	for n, resMap := range allResPerFuncAndNetpolLimit {
-		resAllFuncNumcallsPerSec += fmt.Sprintf("%v  ", n)
+		resAllFuncNumCallsPerSec += fmt.Sprintf("%v  ", n)
 		for funcName, res := range resMap {
-			resAllFuncNumcallsPerSec += fmt.Sprintf("  %v  %v  ", funcName, res)
+			resAllFuncNumCallsPerSec += fmt.Sprintf("  %v  %v  ", funcName, res)
 		}
-		resAllFuncNumcallsPerSec += "\n"
+		resAllFuncNumCallsPerSec += "\n"
 	}
-	writeRes(resAllFuncNumcallsPerSec, "all_res_all.txt")
+	writeRes(resAllFuncNumCallsPerSec, "all_res_all.txt")
 }
 
 func TestFromFiles2(t *testing.T) {
@@ -1217,7 +1217,7 @@ func TestFromFiles2(t *testing.T) {
 		{protocol: "udp", port: "7000"},
 	}
 
-	runtimes := []time.Duration{}
+	runTimes := []time.Duration{}
 	experiments := 10
 
 	allResStr := ""
@@ -1243,9 +1243,9 @@ func TestFromFiles2(t *testing.T) {
 			}
 		}
 		elapsed := time.Since(start)
-		runtimes = append(runtimes, elapsed)
+		runTimes = append(runTimes, elapsed)
 	}
-	for i, runtime := range runtimes {
+	for i, runtime := range runTimes {
 		allResStr += fmt.Sprintf("%v, %s\n", i, runtime)
 	}
 	/*// allResStr += fmt.Sprintf("total runtime: %s\n", elapsed)*/
@@ -1261,10 +1261,10 @@ func TestFromFiles(t *testing.T) {
 	}
 	res, err := pe.allAllowedConnections("default/frontend-99684f7f8-l7mqq", "default/adservice-77d5cd745d-t8mx4")
 	if err != nil {
-		t.Fatalf("error from AllAllowedConnectionst")
+		t.Fatalf("error from AllAllowedConnectionSet")
 	}
 	fmt.Printf("%v", res)
-	runtimes := []time.Duration{}
+	runTimes := []time.Duration{}
 	experiments := 10
 	allResStr := ""
 	for i := 0; i < experiments; i++ {
@@ -1284,9 +1284,9 @@ func TestFromFiles(t *testing.T) {
 			}
 		}
 		elapsed := time.Since(start)
-		runtimes = append(runtimes, elapsed)
+		runTimes = append(runTimes, elapsed)
 	}
-	for i, runtime := range runtimes {
+	for i, runtime := range runTimes {
 		allResStr += fmt.Sprintf("%v, %s\n", i, runtime)
 	}
 	writeRes(allResStr, "test_all_allowed_conns_func.txt")
@@ -1558,9 +1558,9 @@ func computeExpectedCacheHits(pe *PolicyEngine) (int, error) {
 			continue
 		}
 		countSets += 1
-		// currently asuming only one set of pods with common owner workload to simplify computation
+		// currently assuming only one set of pods with common owner workload to simplify computation
 		if countSets > 1 {
-			return 0, errors.New("unsuppoted config for cache hits computation")
+			return 0, errors.New("unsupported config for cache hits computation")
 		}
 		x := allPodsCount
 		y := lenMultiplePodsPerDistinctOwner
@@ -1600,9 +1600,9 @@ func TestCacheWithPodDeletion(t *testing.T) {
 		// check that relevant cache entries are deleted.
 		cacheKeysCountAfterDelete := len(pe.cache.cache.Keys())
 		if countLoadGeneratorDeletion < 3 && cacheKeysCountAfterDelete != cacheKeysCount {
-			t.Fatalf("unexepcted cacheKeysCountAfterDelete : %v before deleting all loadgenerator pods", cacheKeysCountAfterDelete)
+			t.Fatalf("unexpected cacheKeysCountAfterDelete : %v before deleting all loadgenerator pods", cacheKeysCountAfterDelete)
 		} else if countLoadGeneratorDeletion == 3 && cacheKeysCountAfterDelete >= cacheKeysCount {
-			t.Fatalf("unexepcted cacheKeysCountAfterDelete : %v after deleting all loadgenerator pods", cacheKeysCountAfterDelete)
+			t.Fatalf("unexpected cacheKeysCountAfterDelete : %v after deleting all loadgenerator pods", cacheKeysCountAfterDelete)
 		}
 	}
 }

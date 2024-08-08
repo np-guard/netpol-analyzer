@@ -1,0 +1,19 @@
+{
+  "connlist_results": [],
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "hello-world/workload-a[Deployment]",
+        "dst": "[namespace with {{Key:foo.com/managed-state,Operator:In,Values:[managed],}}]/[all pods]",
+        "conn": "TCP http"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "entire-cluster",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "TCP 8000"
+      }
+    ]
+  }
+}

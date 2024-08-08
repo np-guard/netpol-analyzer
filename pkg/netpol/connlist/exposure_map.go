@@ -8,6 +8,8 @@ package connlist
 import (
 	"errors"
 
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -79,8 +81,8 @@ func (ex *exposureMaps) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, pee
 	ex.addNewEntry(peer, true, isIngress)
 	expData := &xgressExposure{
 		exposedToEntireCluster: true,
-		namespaceLabels:        nil,
-		podLabels:              nil,
+		namespaceLabels:        v1.LabelSelector{},
+		podLabels:              v1.LabelSelector{},
 		potentialConn:          conn,
 	}
 	ex.appendPeerXgressExposureData(peer, expData, isIngress)

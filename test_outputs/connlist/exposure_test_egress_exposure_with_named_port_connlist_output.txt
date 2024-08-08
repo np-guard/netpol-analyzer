@@ -1,6 +1,0 @@
-Exposure Analysis Result:
-Egress Exposure:
-hello-world/workload-a[Deployment] 	=> 	[namespace with {foo.com/managed-state=managed}]/[all pods] : TCP http
-
-Ingress Exposure:
-hello-world/workload-a[Deployment] 	<= 	entire-cluster : TCP 8000

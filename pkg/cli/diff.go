@@ -34,8 +34,8 @@ func runDiffCommand() error {
 	var connsDiff diff.ConnectivityDiff
 	var err error
 
-	clogger := logger.NewDefaultLoggerWithVerbosity(detrmineLogVerbosity())
-	diffAnalyzer := diff.NewDiffAnalyzer(getDiffOptions(clogger)...)
+	cLogger := logger.NewDefaultLoggerWithVerbosity(determineLogVerbosity())
+	diffAnalyzer := diff.NewDiffAnalyzer(getDiffOptions(cLogger)...)
 
 	connsDiff, err = diffAnalyzer.ConnDiffFromDirPaths(dir1, dir2)
 	if err != nil {

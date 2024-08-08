@@ -6,6 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 package connlist
 
 import (
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -34,12 +36,12 @@ type peerXgressExposureData struct {
 type xgressExposure struct {
 	// exposedToEntireCluster indicates if the peer is exposed to all namespaces in the cluster for the relevant direction
 	exposedToEntireCluster bool
-	// namespaceLabels are matchLabels of potential namespaces which the peer might be exposed to.
+	// namespaceLabels are label selectors of potential namespaces which the peer might be exposed to.
 	// if exposedToEntireCluster is true, this field will be empty
-	namespaceLabels map[string]string
-	// podLabels are matchLabels of potential pods which the peer might be exposed to.
+	namespaceLabels v1.LabelSelector
+	// podLabels are label selectors of potential pods which the peer might be exposed to.
 	// if exposedToEntireCluster is true, this field will be empty
-	podLabels map[string]string
+	podLabels v1.LabelSelector
 	// potentialConn the potential connectivity of the exposure
 	potentialConn *common.ConnectionSet
 }
@@ -48,11 +50,11 @@ func (e *xgressExposure) IsExposedToEntireCluster() bool {
 	return e.exposedToEntireCluster
 }
 
-func (e *xgressExposure) NamespaceLabels() map[string]string {
+func (e *xgressExposure) NamespaceLabels() v1.LabelSelector {
 	return e.namespaceLabels
 }
 
-func (e *xgressExposure) PodLabels() map[string]string {
+func (e *xgressExposure) PodLabels() v1.LabelSelector {
 	return e.podLabels
 }
 

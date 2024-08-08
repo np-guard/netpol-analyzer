@@ -75,10 +75,10 @@ func getMaxPeerStringLength(exposedPeers []ExposedPeer) (maxPeerStrLen int) {
 }
 
 // writeStrings writes the exposure conns as string lines list matching txt output format
-func writeStrings(xgresseData []singleConnFields, isIngress bool, maxStrLen int) []string {
-	res := make([]string, len(xgresseData))
-	for i := range xgresseData {
-		res[i] = xgresseData[i].exposureString(isIngress, maxStrLen)
+func writeStrings(xgressData []singleConnFields, isIngress bool, maxStrLen int) []string {
+	res := make([]string, len(xgressData))
+	for i := range xgressData {
+		res[i] = xgressData[i].exposureString(isIngress, maxStrLen)
 	}
 	return res
 }

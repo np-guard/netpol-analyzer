@@ -1,0 +1,25 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: combined-match-exp-values-in-op
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  ingress:
+  - from:
+    - namespaceSelector:
+           matchExpressions:
+           - key: env
+             operator: In
+             values:
+             - env-1
+             - env-2
+      podSelector:
+           matchExpressions:
+           - key: app
+             operator: In
+             values:
+             - app-1
+             - app-2
