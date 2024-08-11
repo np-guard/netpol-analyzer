@@ -129,7 +129,7 @@ defined`,
 	// Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
 	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "",
 		"Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)")
-	c.Flags().BoolVarP(&exposureAnalysis, "exposure", "", false, "Turn on exposure analysis and append results to the output")
+	c.Flags().BoolVarP(&exposureAnalysis, "exposure", "", false, "Enhance the analysis of permitted connectivity with exposure analysis")
 	// output format - default txt
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
