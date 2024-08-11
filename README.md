@@ -71,7 +71,7 @@ Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
       --fail                fail on the first encountered error
-  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster (default "C:\\Users\\847978756\\.kube\\config")
+  -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
   -q, --quiet               runs quietly, reports only severe errors and results
   -v, --verbose             runs with more informative messages printed to log
 ```
