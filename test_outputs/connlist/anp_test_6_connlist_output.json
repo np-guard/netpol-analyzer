@@ -92,7 +92,7 @@
   {
     "src": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
     "dst": "network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]",
-    "conn": "All but: UDP 5353"
+    "conn": "SCTP 1-65535,TCP 1-65535,UDP 1-5352,5354-65535"
   },
   {
     "src": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
