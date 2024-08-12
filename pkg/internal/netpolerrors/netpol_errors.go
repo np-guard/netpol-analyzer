@@ -62,13 +62,14 @@ const (
 	UnableToDecodeErr       = "unable to decode"
 
 	// errors constants from adminNetworkPolicy
-	SubjectErrTitle        = "invalid Subject:"
-	SubjectFieldsErr       = "Exactly one field must be set"
-	UnknownRuleActionErr   = "unrecognized action"
-	ANPPortsError          = "exactly one field must be set in an AdminNetworkPolicyPort"
-	ANPIngressRulePeersErr = "From field must be defined and contain at least one item"
-	ANPEgressRulePeersErr  = "To field must be defined and contain at least one item"
-	ANPMissingNameErr      = "missing name for an AdminNetworkPolicy object"
+	SubjectErrTitle                  = "invalid Subject:"
+	SubjectFieldsErr                 = "Exactly one field must be set"
+	UnknownRuleActionErr             = "unrecognized action"
+	ANPPortsError                    = "exactly one field must be set in an AdminNetworkPolicyPort"
+	ANPIngressRulePeersErr           = "From field must be defined and contain at least one item"
+	ANPEgressRulePeersErr            = "To field must be defined and contain at least one item"
+	ANPMissingNameErr                = "missing name for an AdminNetworkPolicy object"
+	ExposureAnalysisDisabledWithANPs = "exposure analysis is disabled when there are admin-network-policies in the input resources"
 
 	UnknownCommandErr = "unknown command"
 

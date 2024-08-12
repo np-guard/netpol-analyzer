@@ -437,6 +437,10 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 }
 
 func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy) error {
+	// @TBD : currently disabling exposure-analysis when there are admin-network-policies in the input resources
+	if pe.exposureAnalysisFlag {
+		return errors.New(netpolerrors.ExposureAnalysisDisabledWithANPs)
+	}
 	if anp.Name == "" {
 		return errors.New(netpolerrors.ANPMissingNameErr)
 	}
