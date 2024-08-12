@@ -1,0 +1,50 @@
+{
+  "connlist_results": [
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "matching-ns/matching-workload[Deployment]",
+      "conn": "All Connections"
+    },
+    {
+      "src": "matching-ns/matching-workload[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    },
+    {
+      "src": "matching-ns/matching-workload[Deployment]",
+      "dst": "hello-world/workload-a[Deployment]",
+      "conn": "All Connections"
+    }
+  ],
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "matching-ns/matching-workload[Deployment]",
+        "dst": "0.0.0.0-255.255.255.255",
+        "conn": "All Connections"
+      },
+      {
+        "src": "matching-ns/matching-workload[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "[namespace with {{Key:env,Operator:In,Values:[env-1 env-2],},{Key:tier,Operator:Exists,Values:[],}}]/[all pods]",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "0.0.0.0-255.255.255.255",
+        "dst": "matching-ns/matching-workload[Deployment]",
+        "conn": "All Connections"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "matching-ns/matching-workload[Deployment]",
+        "conn": "All Connections"
+      }
+    ]
+  }
+}

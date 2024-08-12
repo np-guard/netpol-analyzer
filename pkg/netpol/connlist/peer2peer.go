@@ -55,7 +55,7 @@ func RefineConnListByDisjointPeers(conns []Peer2PeerConnection, m map[string]map
 // refineP2PConnByDisjointPeers is given as input Peer2PeerConnection object, a Peer object of ip-type to be refined,
 // a flag isSrc indicating if the ip-type is src or dst, and a map from peer-str to its disjoint peers
 // it returns Peer2PeerConnection slice with refined ip-type peers
-func refineP2PConnByDisjointPeers(p eval.Peer, isSrc bool, conn Peer2PeerConnection, m map[string]map[string]eval.Peer) (
+func refineP2PConnByDisjointPeers(p eval.Peer, isSrc bool, conns Peer2PeerConnection, m map[string]map[string]eval.Peer) (
 	[]Peer2PeerConnection, error) {
 	replacingPeers, ok := m[p.String()]
 	if !ok {
@@ -65,11 +65,11 @@ func refineP2PConnByDisjointPeers(p eval.Peer, isSrc bool, conn Peer2PeerConnect
 	i := 0
 	for _, newPeer := range replacingPeers {
 		if isSrc {
-			res[i] = &connection{src: newPeer, dst: conn.Dst(), allConnections: conn.AllProtocolsAndPorts(),
-				protocolsAndPorts: conn.ProtocolsAndPorts()}
+			res[i] = &connection{src: newPeer, dst: conns.Dst(), allConnections: conns.AllProtocolsAndPorts(),
+				protocolsAndPorts: conns.ProtocolsAndPorts()}
 		} else {
-			res[i] = &connection{src: conn.Src(), dst: newPeer, allConnections: conn.AllProtocolsAndPorts(),
-				protocolsAndPorts: conn.ProtocolsAndPorts()}
+			res[i] = &connection{src: conns.Src(), dst: newPeer, allConnections: conns.AllProtocolsAndPorts(),
+				protocolsAndPorts: conns.ProtocolsAndPorts()}
 		}
 		i += 1
 	}

@@ -53,6 +53,13 @@ type WorkloadPeer struct {
 
 const podKind = "Pod"
 
+// A WorkloadPeer with kind == RepresentativePeer is a representativePeer
+// a representative peer is a peer inferred from a policy rule (selectors), not a parsed pod/deployment object
+// and is used to represent a potential pod/ns entity in the cluster (that does not exist on the input resources)
+// but may have permitted connectivity to input resources (pods/deployments) based on input network policies.
+const RepresentativePodName = "representative-pod"
+const RepresentativePeerKind = "RepresentativePeer"
+
 // //////////////////////////////////////////////////
 func (p *WorkloadPeer) Name() string {
 	ownerName := p.Pod.Owner.Name
@@ -67,6 +74,9 @@ func (p *WorkloadPeer) Namespace() string {
 }
 
 func (p *WorkloadPeer) Kind() string {
+	if p.Pod.IsPodRepresentative() {
+		return RepresentativePeerKind
+	}
 	ownerKind := p.Pod.Owner.Kind
 	if ownerKind == "" { // no owner -- workload is a Pod
 		return podKind
@@ -74,8 +84,9 @@ func (p *WorkloadPeer) Kind() string {
 	return ownerKind
 }
 
+// this func is not expected to be used for WorkloadPeer with kind == RepresentativePeer
 func (p *WorkloadPeer) String() string {
-	if p.Pod.FakePod {
+	if p.Pod.FakePod { // ingress-controller or representative-pod
 		return "{" + p.Pod.Name + "}"
 	}
 	return types.NamespacedName{Name: p.Name(), Namespace: p.Namespace()}.String() + "[" + p.Kind() + "]"
@@ -89,7 +100,7 @@ func (p *WorkloadPeer) IsPeerIPType() bool {
 	return false
 }
 
-////////////////////////////////////////////////////
+// //////////////////////////////////////////////////
 
 func (p *PodPeer) PeerType() PeerType {
 	return PodType

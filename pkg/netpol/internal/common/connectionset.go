@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 
+	"k8s.io/apimachinery/pkg/util/intstr"
+
 	v1 "k8s.io/api/core/v1"
 
 	"github.com/np-guard/models/pkg/interval"
@@ -32,6 +34,13 @@ func MakeConnectionSet(all bool) *ConnectionSet {
 		return &ConnectionSet{AllowAll: true, AllowedProtocols: map[v1.Protocol]*PortSet{}}
 	}
 	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}}
+}
+
+// GetAllTCPConnections returns a pointer to ConnectionSet object with all TCP protocol connections
+func GetAllTCPConnections() *ConnectionSet {
+	tcpConn := MakeConnectionSet(false)
+	tcpConn.AddConnection(v1.ProtocolTCP, MakePortSet(true))
+	return tcpConn
 }
 
 // Intersection updates ConnectionSet object to be the intersection result with other ConnectionSet
@@ -164,7 +173,7 @@ func (conn *ConnectionSet) Contains(port, protocol string) bool {
 	return false
 }
 
-// ContainedIn returns true if current ConnectionSet is conatained in the input ConnectionSet object
+// ContainedIn returns true if current ConnectionSet is contained in the input ConnectionSet object
 func (conn *ConnectionSet) ContainedIn(other *ConnectionSet) bool {
 	if other.AllowAll {
 		return true
@@ -230,6 +239,38 @@ func (conn *ConnectionSet) Equal(other *ConnectionSet) bool {
 		}
 	}
 	return true
+}
+
+// Copy returns a new copy of ConnectionSet object
+func (conn *ConnectionSet) Copy() *ConnectionSet {
+	res := MakeConnectionSet(false)
+	res.AllowAll = conn.AllowAll
+	for protocol, portSet := range conn.AllowedProtocols {
+		res.AllowedProtocols[protocol] = portSet.Copy()
+	}
+	return res
+}
+
+// GetNamedPorts returns map from protocol to list of its allowed named ports
+func (conn *ConnectionSet) GetNamedPorts() map[v1.Protocol][]string {
+	res := make(map[v1.Protocol][]string, 0)
+	for protocol, portSet := range conn.AllowedProtocols {
+		if namedPorts := portSet.GetNamedPortsKeys(); len(namedPorts) > 0 {
+			res[protocol] = namedPorts
+		}
+	}
+	return res
+}
+
+// ReplaceNamedPortWithMatchingPortNum : replacing given namedPort with the matching given port num in the connection
+// if port num is -1; just deletes the named port from the protocol's list
+func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(protocol v1.Protocol, namedPort string, portNum int32) {
+	protocolPortSet := conn.AllowedProtocols[protocol]
+	if portNum != NoPort {
+		protocolPortSet.AddPort(intstr.FromInt32(portNum))
+	}
+	// after adding the portNum to the protocol's portSet; remove the port name
+	protocolPortSet.RemovePort(intstr.FromString(namedPort))
 }
 
 // portRange implements the PortRange interface

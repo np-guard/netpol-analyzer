@@ -8,25 +8,25 @@
  viewBox="0.00 0.00 1613.30 423.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 419)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-419 1609.3,-419 1609.3,4 -4,4"/>
-<g id="clust2" class="cluster">
-<title>cluster_network_policy_conformance_hufflepuff</title>
-<polygon fill="none" stroke="black" points="623.3,-116 623.3,-191 861.3,-191 861.3,-116 623.3,-116"/>
-<text text-anchor="middle" x="742.3" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;hufflepuff</text>
-</g>
-<g id="clust4" class="cluster">
-<title>cluster_network_policy_conformance_slytherin</title>
-<polygon fill="none" stroke="black" points="626.3,-332 626.3,-407 856.3,-407 856.3,-332 626.3,-332"/>
-<text text-anchor="middle" x="741.3" y="-391.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;slytherin</text>
-</g>
 <g id="clust1" class="cluster">
 <title>cluster_network_policy_conformance_gryffindor</title>
 <polygon fill="none" stroke="black" points="378.3,-8 378.3,-83 617.3,-83 617.3,-8 378.3,-8"/>
 <text text-anchor="middle" x="497.8" y="-67.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;gryffindor</text>
 </g>
+<g id="clust2" class="cluster">
+<title>cluster_network_policy_conformance_hufflepuff</title>
+<polygon fill="none" stroke="black" points="623.3,-116 623.3,-191 861.3,-191 861.3,-116 623.3,-116"/>
+<text text-anchor="middle" x="742.3" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;hufflepuff</text>
+</g>
 <g id="clust3" class="cluster">
 <title>cluster_network_policy_conformance_ravenclaw</title>
 <polygon fill="none" stroke="black" points="297.3,-224 297.3,-299 536.3,-299 536.3,-224 297.3,-224"/>
 <text text-anchor="middle" x="416.8" y="-283.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;ravenclaw</text>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_network_policy_conformance_slytherin</title>
+<polygon fill="none" stroke="black" points="626.3,-332 626.3,-407 856.3,-407 856.3,-332 626.3,-332"/>
+<text text-anchor="middle" x="741.3" y="-391.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;slytherin</text>
 </g>
 <!-- network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet] -->
 <g id="node1" class="node">

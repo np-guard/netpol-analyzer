@@ -1,0 +1,35 @@
+{
+  "connlist_results": [
+    {
+      "src": "hello-world/workload-a[Deployment]",
+      "dst": "0.0.0.0-255.255.255.255",
+      "conn": "All Connections"
+    }
+  ],
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "hello-world/workload-a[Deployment]",
+        "dst": "0.0.0.0-255.255.255.255",
+        "conn": "All Connections"
+      },
+      {
+        "src": "hello-world/workload-a[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "All Connections"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "[namespace with {{Key:env,Operator:In,Values:[env-1 env-2],},{Key:tier,Operator:Exists,Values:[],}}]/[all pods]",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "TCP 8050"
+      },
+      {
+        "src": "[namespace with {{Key:env,Operator:In,Values:[env-1 env-2],},{Key:tier,Operator:Exists,Values:[],}}]/[all pods]",
+        "dst": "hello-world/workload-b[Deployment]",
+        "conn": "All Connections"
+      }
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+digraph {
+	subgraph "cluster_hello_world" {
+		color="black"
+		fontcolor="black"
+		"hello-world/matching-workload[Deployment]" [label="matching-workload[Deployment]" color="blue" fontcolor="blue"]
+		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
+		"hello-world/workload-b[Deployment]" [label="workload-b[Deployment]" color="blue" fontcolor="blue"]
+		"pod with {{Key:app,Operator:DoesNotExist,Values:[],}}_in_hello-world" [label="pod with {{Key:app,Operator:DoesNotExist,Values:[],}}" color="red2" fontcolor="red2"]
+		"pod with {{Key:app,Operator:NotIn,Values:[x],}}_in_hello-world" [label="pod with {{Key:app,Operator:NotIn,Values:[x],}}" color="red2" fontcolor="red2"]
+		label="hello-world"
+	}
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
+	"0.0.0.0-255.255.255.255" -> "hello-world/matching-workload[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"entire-cluster" -> "hello-world/matching-workload[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"entire-cluster" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"hello-world/matching-workload[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"hello-world/matching-workload[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"hello-world/matching-workload[Deployment]" -> "hello-world/workload-a[Deployment]" [label="TCP 8080,9090" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"hello-world/matching-workload[Deployment]" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"hello-world/workload-a[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"hello-world/workload-a[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"hello-world/workload-a[Deployment]" -> "hello-world/matching-workload[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"hello-world/workload-a[Deployment]" -> "hello-world/workload-b[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"hello-world/workload-b[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"hello-world/workload-b[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+	"hello-world/workload-b[Deployment]" -> "hello-world/matching-workload[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"hello-world/workload-b[Deployment]" -> "hello-world/workload-a[Deployment]" [label="TCP 9090" color="gold2" fontcolor="darkgreen" weight=1]
+	"pod with {{Key:app,Operator:DoesNotExist,Values:[],}}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="TCP 8080" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"pod with {{Key:app,Operator:NotIn,Values:[x],}}_in_hello-world" -> "hello-world/workload-a[Deployment]" [label="TCP 9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+}

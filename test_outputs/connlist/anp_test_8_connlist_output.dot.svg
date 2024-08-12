@@ -8,16 +8,6 @@
  viewBox="0.00 0.00 1041.03 494.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 490)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-490 1037.03,-490 1037.03,4 -4,4"/>
-<g id="clust2" class="cluster">
-<title>cluster_network_policy_conformance_hufflepuff</title>
-<polygon fill="none" stroke="black" points="89.03,-187 89.03,-262 327.03,-262 327.03,-187 89.03,-187"/>
-<text text-anchor="middle" x="208.03" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;hufflepuff</text>
-</g>
-<g id="clust4" class="cluster">
-<title>cluster_network_policy_conformance_slytherin</title>
-<polygon fill="none" stroke="black" points="299.03,-403 299.03,-478 529.03,-478 529.03,-403 299.03,-403"/>
-<text text-anchor="middle" x="414.03" y="-462.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;slytherin</text>
-</g>
 <g id="clust3" class="cluster">
 <title>cluster_network_policy_conformance_ravenclaw</title>
 <polygon fill="none" stroke="black" points="222.03,-295 222.03,-370 461.03,-370 461.03,-295 222.03,-295"/>
@@ -27,6 +17,16 @@
 <title>cluster_network_policy_conformance_gryffindor</title>
 <polygon fill="none" stroke="black" points="450.03,-79 450.03,-154 689.03,-154 689.03,-79 450.03,-79"/>
 <text text-anchor="middle" x="569.53" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;gryffindor</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_network_policy_conformance_hufflepuff</title>
+<polygon fill="none" stroke="black" points="89.03,-187 89.03,-262 327.03,-262 327.03,-187 89.03,-187"/>
+<text text-anchor="middle" x="208.03" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;hufflepuff</text>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_network_policy_conformance_slytherin</title>
+<polygon fill="none" stroke="black" points="299.03,-403 299.03,-478 529.03,-478 529.03,-403 299.03,-403"/>
+<text text-anchor="middle" x="414.03" y="-462.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;slytherin</text>
 </g>
 <!-- network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet] -->
 <g id="node1" class="node">

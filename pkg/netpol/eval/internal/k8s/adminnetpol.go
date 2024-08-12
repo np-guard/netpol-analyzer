@@ -256,7 +256,7 @@ func (anp *AdminNetworkPolicy) ruleConnections(ports *[]apisv1a.AdminNetworkPoli
 			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port))
 		case anpPort.NamedPort != nil:
 			podProtocol, podPort := dst.GetPeerPod().ConvertPodNamedPort(*anpPort.NamedPort)
-			if podPort == noPort {
+			if podPort == common.NoPort {
 				continue // or an error should be returned?
 			}
 			if podProtocol != "" {
