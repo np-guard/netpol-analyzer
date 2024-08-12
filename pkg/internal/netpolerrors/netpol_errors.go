@@ -61,8 +61,8 @@ const (
 	UnmarshalErr            = "cannot unmarshal array into Go value of type unstructured.detector"
 	UnableToDecodeErr       = "unable to decode"
 
-	// errors consts from adminNetworkPolicy
-	SubjectErrTitle        = "ivalid Subject:"
+	// errors constants from adminNetworkPolicy
+	SubjectErrTitle        = "invalid Subject:"
 	SubjectFieldsErr       = "Exactly one field must be set"
 	UnknownRuleActionErr   = "unrecognized action"
 	ANPPortsError          = "exactly one field must be set in an AdminNetworkPolicyPort"
@@ -147,6 +147,7 @@ func PriorityValueErr(name string, priority int32) string {
 	return fmt.Sprintf("Invalid Priority Value: %d in Admin Network Policy: %q; Priority value must be between 0-1000", priority, name)
 }
 
+// ANPsWithSameNameErr returns error message when there are two admin-network-policies with same name in the manifests
 func ANPsWithSameNameErr(anpName string) string {
 	return fmt.Sprintf("an AdminNetworkPolicy with name %q is already found; objects names should be unique", anpName)
 }
