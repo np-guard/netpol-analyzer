@@ -217,6 +217,13 @@ var (
 			},
 		},
 	})
+	ports80 = &([]v1alpha1.AdminNetworkPolicyPort{
+		{
+			PortNumber: &v1alpha1.Port{
+				Port: 80,
+			},
+		},
+	})
 
 	ANPConnectivityFromParsedResourcesTest = []ParsedResourcesTest{
 		{
@@ -247,13 +254,7 @@ var (
 										Pods: pods2,
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortNumber: &v1alpha1.Port{
-											Port: 80,
-										},
-									},
-								}),
+								Ports: ports80,
 							},
 						},
 					},
@@ -288,13 +289,7 @@ var (
 										Pods: pods2,
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortNumber: &v1alpha1.Port{
-											Port: 80,
-										},
-									},
-								}),
+								Ports: ports80,
 							},
 						},
 					},
