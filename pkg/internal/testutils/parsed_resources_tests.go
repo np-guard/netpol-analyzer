@@ -149,15 +149,40 @@ var (
 		Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}
 	podInfo2 = PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
 		Ports: []int{80}, Protocols: []v1.Protocol{v1.ProtocolTCP}}
-	anpSubject = v1alpha1.AdminNetworkPolicySubject{
-		Pods: &v1alpha1.NamespacedPod{
-			NamespaceSelector: metav1.LabelSelector{
-				MatchLabels: map[string]string{"ns": "x"},
-			},
-			PodSelector: metav1.LabelSelector{
-				MatchLabels: map[string]string{"pod": "a"},
-			},
+	pods1 = &v1alpha1.NamespacedPod{
+		NamespaceSelector: metav1.LabelSelector{
+			MatchLabels: map[string]string{"ns": "x"},
 		},
+		PodSelector: metav1.LabelSelector{
+			MatchLabels: map[string]string{"pod": "a"},
+		},
+	}
+	pods2 = &v1alpha1.NamespacedPod{
+		NamespaceSelector: metav1.LabelSelector{
+			MatchLabels: map[string]string{"ns": "x"},
+		},
+		PodSelector: metav1.LabelSelector{
+			MatchLabels: map[string]string{"pod": "b"},
+		},
+	}
+	pods3 = &v1alpha1.NamespacedPod{
+		NamespaceSelector: metav1.LabelSelector{
+			MatchLabels: map[string]string{"ns": "y"},
+		},
+		PodSelector: metav1.LabelSelector{
+			MatchLabels: map[string]string{"pod": "a"},
+		},
+	}
+	pods4 = &v1alpha1.NamespacedPod{
+		NamespaceSelector: metav1.LabelSelector{
+			MatchLabels: map[string]string{"ns": "y"},
+		},
+		PodSelector: metav1.LabelSelector{
+			MatchLabels: map[string]string{"pod": "b"},
+		},
+	}
+	anpSubject = v1alpha1.AdminNetworkPolicySubject{
+		Pods: pods1,
 	}
 
 	ANPConnectivityFromParsedResourcesTest = []ParsedResourcesTest{
@@ -186,14 +211,7 @@ var (
 								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
 								To: []v1alpha1.AdminNetworkPolicyEgressPeer{
 									{
-										Pods: &v1alpha1.NamespacedPod{
-											NamespaceSelector: metav1.LabelSelector{
-												MatchLabels: map[string]string{"ns": "x"},
-											},
-											PodSelector: metav1.LabelSelector{
-												MatchLabels: map[string]string{"pod": "b"},
-											},
-										},
+										Pods: pods2,
 									},
 								},
 								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
@@ -234,14 +252,7 @@ var (
 								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
 								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
 									{
-										Pods: &v1alpha1.NamespacedPod{
-											NamespaceSelector: metav1.LabelSelector{
-												MatchLabels: map[string]string{"ns": "x"},
-											},
-											PodSelector: metav1.LabelSelector{
-												MatchLabels: map[string]string{"pod": "b"},
-											},
-										},
+										Pods: pods2,
 									},
 								},
 								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
@@ -282,14 +293,7 @@ var (
 								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
 								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
 									{
-										Pods: &v1alpha1.NamespacedPod{
-											NamespaceSelector: metav1.LabelSelector{
-												MatchLabels: map[string]string{"ns": "x"},
-											},
-											PodSelector: metav1.LabelSelector{
-												MatchLabels: map[string]string{"pod": "b"},
-											},
-										},
+										Pods: pods2,
 									},
 								},
 								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
@@ -424,14 +428,7 @@ var (
 								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
 								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
 									{
-										Pods: &v1alpha1.NamespacedPod{
-											NamespaceSelector: metav1.LabelSelector{
-												MatchLabels: map[string]string{"ns": "y"},
-											},
-											PodSelector: metav1.LabelSelector{
-												MatchLabels: map[string]string{"pod": "a"},
-											},
-										},
+										Pods: pods3,
 									},
 								},
 								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
@@ -515,14 +512,7 @@ var (
 								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
 								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
 									{
-										Pods: &v1alpha1.NamespacedPod{
-											NamespaceSelector: metav1.LabelSelector{
-												MatchLabels: map[string]string{"ns": "y"},
-											},
-											PodSelector: metav1.LabelSelector{
-												MatchLabels: map[string]string{"pod": "a"},
-											},
-										},
+										Pods: pods3,
 									},
 								},
 								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
@@ -866,14 +856,7 @@ var (
 							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionAllow,
 							From: []v1alpha1.AdminNetworkPolicyIngressPeer{
 								{
-									Pods: &v1alpha1.NamespacedPod{
-										NamespaceSelector: metav1.LabelSelector{
-											MatchLabels: map[string]string{"ns": "y"},
-										},
-										PodSelector: metav1.LabelSelector{
-											MatchLabels: map[string]string{"pod": "b"},
-										},
-									},
+									Pods: pods3,
 								},
 							},
 						},
@@ -923,14 +906,7 @@ var (
 							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
 							From: []v1alpha1.AdminNetworkPolicyIngressPeer{
 								{
-									Pods: &v1alpha1.NamespacedPod{
-										NamespaceSelector: metav1.LabelSelector{
-											MatchLabels: map[string]string{"ns": "y"},
-										},
-										PodSelector: metav1.LabelSelector{
-											MatchLabels: map[string]string{"pod": "b"},
-										},
-									},
+									Pods: pods4,
 								},
 							},
 						},
