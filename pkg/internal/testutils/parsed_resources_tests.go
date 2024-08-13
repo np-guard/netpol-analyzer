@@ -24,20 +24,13 @@ import (
 
 // /////////////////////////////////////// ParsedResourcesTests ////////////////////////////////////
 
-func init() {
-	initParsedResourcesTestList(ANPConnectivityFromParsedResourcesTest)
-	initParsedResourcesTestList(BANPConnectivityFromParsedResourcesTest)
-	initParsedResourcesTestList(ANPWithNetPolV1FromParsedResourcesTest)
-	initParsedResourcesTestList(BANPWithNetPolV1FromParsedResourcesTest)
-	initParsedResourcesTestList(ANPWithBANPFromParsedResourcesTest)
-}
-
 var (
 	udp        = v1.ProtocolUDP
 	serve80tcp = "serve-80-tcp"
+	genCnt     = 0
 )
 
-func newDefaultPod(namespace, name string, ports []int, protocols []v1.Protocol) v1.Pod {
+func newDefaultPod(namespace, name string, ports []int, protocols []v1.Protocol) *v1.Pod {
 	podObj := v1.Pod{}
 	podObj.TypeMeta.APIVersion = "v1"
 	podObj.TypeMeta.Kind = "Pod"
@@ -49,7 +42,8 @@ func newDefaultPod(namespace, name string, ports []int, protocols []v1.Protocol)
 			podObj.Spec.Containers = append(podObj.Spec.Containers, newDefaultContainer(port, protocol))
 		}
 	}
-	return podObj
+	addMetaData(&podObj.ObjectMeta)
+	return &podObj
 }
 
 func newDefaultContainer(port int, protocol v1.Protocol) v1.Container {
@@ -72,7 +66,12 @@ type PodInfo struct {
 	Protocols  []v1.Protocol
 }
 
-type EvalAllAllowedTest struct {
+type Resources struct {
+	NsList  []*v1.Namespace
+	PodList []*v1.Pod
+}
+
+type EvalAllowedConnTest struct {
 	Src       string
 	Dst       string
 	ExpResult string
@@ -84,61 +83,74 @@ type ParsedResourcesTest struct {
 	Name                   string
 	OutputFormat           string
 	ExpectedOutputFileName string
-	PodResources           PodInfo
-	EvalTests              []EvalAllAllowedTest
+	EvalTests              []EvalAllowedConnTest
+	Resources              Resources
 	AnpList                []*v1alpha1.AdminNetworkPolicy
 	Banp                   *v1alpha1.BaselineAdminNetworkPolicy
 	NpList                 []*netv1.NetworkPolicy
 	TestInfo               string
-	Resources              []parser.K8sObject
 }
 
-func addMetaData(meta *metav1.ObjectMeta, cnt *int) {
+func addMetaData(meta *metav1.ObjectMeta) {
 	if meta.Name == "" {
-		meta.Name = fmt.Sprintf("generated_name_%q", *cnt)
-		*cnt++
+		meta.Name = fmt.Sprintf("generated_name_%q", genCnt)
+		genCnt++
 	}
 	if meta.Namespace == "" {
-		meta.Namespace = "default"
+		meta.Namespace = metav1.NamespaceDefault
 	}
 }
 
-func initParsedResourcesTestList(testList []ParsedResourcesTest) {
-	for i := 0; i < len(testList); i++ {
-		test := &testList[i]
-		test.initParsedResourcesTest()
-	}
-}
-
-func (test *ParsedResourcesTest) initParsedResourcesTest() {
-	var genCnt = 0
-	test.TestInfo = fmt.Sprintf("test: %q, output format: %q", test.Name, test.OutputFormat)
-	for _, ns := range test.PodResources.Namespaces {
-		parsedNs := &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ns, Labels: map[string]string{"ns": ns}}}
-		k8sObj := parser.CreateNamespaceK8sObject(parsedNs)
-		test.Resources = append(test.Resources, k8sObj)
-		for _, pod := range test.PodResources.PodNames {
-			parsedPod := newDefaultPod(ns, pod, test.PodResources.Ports, test.PodResources.Protocols)
-			k8sObj := parser.CreatePodK8sObject(&parsedPod)
-			test.Resources = append(test.Resources, k8sObj)
+func initResources(podInfo PodInfo) Resources {
+	res := Resources{[]*v1.Namespace{}, []*v1.Pod{}}
+	for _, ns := range podInfo.Namespaces {
+		res.NsList = append(res.NsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ns, Labels: map[string]string{"ns": ns}}})
+		for _, pod := range podInfo.PodNames {
+			res.PodList = append(res.PodList, newDefaultPod(ns, pod, podInfo.Ports, podInfo.Protocols))
 		}
 	}
+	return res
+}
+
+func initNpList(npList []*netv1.NetworkPolicy) []*netv1.NetworkPolicy {
+	for _, np := range npList {
+		addMetaData(&np.ObjectMeta)
+	}
+	return npList
+}
+
+func initAnpList(anpList []*v1alpha1.AdminNetworkPolicy) []*v1alpha1.AdminNetworkPolicy {
+	for _, anp := range anpList {
+		addMetaData(&anp.ObjectMeta)
+	}
+	return anpList
+}
+
+func initBanp(banp *v1alpha1.BaselineAdminNetworkPolicy) *v1alpha1.BaselineAdminNetworkPolicy {
+	addMetaData(&banp.ObjectMeta)
+	return banp
+}
+
+func (test *ParsedResourcesTest) Getk8sObjects() []parser.K8sObject {
+	res := []parser.K8sObject{}
+	test.TestInfo = fmt.Sprintf("test: %q, output format: %q", test.Name, test.OutputFormat)
+	for _, ns := range test.Resources.NsList {
+		res = append(res, parser.CreateNamespaceK8sObject(ns))
+	}
+	for _, pod := range test.Resources.PodList {
+		res = append(res, parser.CreatePodK8sObject(pod))
+	}
 	for _, np := range test.NpList {
-		addMetaData(&np.ObjectMeta, &genCnt)
-		k8sObj := parser.CreateNetwordPolicyK8sObject(np)
-		test.Resources = append(test.Resources, k8sObj)
+		res = append(res, parser.CreateNetwordPolicyK8sObject(np))
 	}
 	for _, anp := range test.AnpList {
-		addMetaData(&anp.ObjectMeta, &genCnt)
-		k8sObj := parser.CreateAdminNetwordPolicyK8sObject(anp)
-		test.Resources = append(test.Resources, k8sObj)
+		res = append(res, parser.CreateAdminNetwordPolicyK8sObject(anp))
 	}
 	// Tanya: uncomment the code below when BaselineAdminNetworkPolicy is implemented
 	// if test.Banp != nil {
-	//  addMetaData(&test.Banp.ObjectMeta, &gen_cnt)
-	// 	k8sObj := parser.CreateBaselineAdminNetwordPolicyK8sObject(test.Banp)
-	// 	test.Resources = append(test.Resources, k8sObj)
+	// 	res = append(res, parser.CreateBaselineAdminNetwordPolicyK8sObject(test.Banp))
 	// }
+	return res
 }
 
 //////////////////////////////////// The following tests are taken from /////////////////////////////////////
@@ -275,8 +287,7 @@ var (
 			Name:                   "egress port number protocol unspecified",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo1,
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "x/b",
 					ExpResult: "SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535",
@@ -286,7 +297,8 @@ var (
 					ExpResult: "All Connections",
 				},
 			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -294,14 +306,13 @@ var (
 						Egress:   egressRuleDenyPorts80,
 					},
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "ingress port number protocol unspecified",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo1,
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/b", Dst: "x/a",
 					ExpResult: "SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535",
@@ -311,7 +322,8 @@ var (
 					ExpResult: "All Connections",
 				},
 			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -329,14 +341,13 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "ingress named port",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test3_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo1,
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/b", Dst: "x/a",
 					ExpResult: "SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535",
@@ -346,7 +357,8 @@ var (
 					ExpResult: "All Connections",
 				},
 			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -368,15 +380,13 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "ingress same labels port range",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test4_anp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y", "z"}, PodNames: []string{"a", "b", "c"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/c", Dst: "x/a",
 					ExpResult: "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-65535",
@@ -386,7 +396,9 @@ var (
 					ExpResult: "All Connections",
 				},
 			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			Resources: initResources(PodInfo{Namespaces: []string{"x", "y", "z"}, PodNames: []string{"a", "b", "c"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -409,14 +421,13 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "not same labels",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test5_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo1,
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "y/a", Dst: "x/a",
 					ExpResult: "SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535",
@@ -426,7 +437,8 @@ var (
 					ExpResult: "All Connections",
 				},
 			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -449,14 +461,13 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "ordering matters for overlapping rules (order #1)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test6_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo1,
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "y/b", Dst: "x/a",
 					ExpResult: "SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535",
@@ -466,7 +477,8 @@ var (
 					ExpResult: "All Connections",
 				},
 			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -498,14 +510,13 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "ordering matters for overlapping rules (order #2)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test7_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo1,
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "y/a", Dst: "x/a",
 					ExpResult: "SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535",
@@ -515,7 +526,8 @@ var (
 					ExpResult: "All Connections",
 				},
 			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -547,14 +559,13 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "deny all egress",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test8_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo1,
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/b", Dst: "y/a",
 					ExpResult: "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-79,82-65535",
@@ -564,18 +575,18 @@ var (
 					ExpResult: "All Connections",
 				},
 			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: anp1,
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "multiple ANPs (priority order #1)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test9_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo1,
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
 					ExpResult: "All Connections",
@@ -585,7 +596,8 @@ var (
 					ExpResult: "All Connections",
 				},
 			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 99,
@@ -598,14 +610,13 @@ var (
 				{
 					Spec: anp1,
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "multiple ANPs (priority order #2)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test10_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo1,
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
 					ExpResult: "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-79,82-65535",
@@ -615,7 +626,8 @@ var (
 					ExpResult: "All Connections",
 				},
 			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 101,
@@ -628,7 +640,7 @@ var (
 				{
 					Spec: anp1,
 				},
-			},
+			}),
 		},
 	}
 
@@ -637,9 +649,8 @@ var (
 			Name:                   "egress",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_banp_conn_from_parsed_res.txt",
-			PodResources:           podInfo1,
 			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
 					ExpResult: "TODO - add result 1",
@@ -649,7 +660,8 @@ var (
 					ExpResult: "TODO - add result 2",
 				},
 			},
-			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
+			Resources: initResources(podInfo1),
+			Banp: initBanp(&v1alpha1.BaselineAdminNetworkPolicy{
 				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
 					Subject: anpSubject,
 					Egress: []v1alpha1.BaselineAdminNetworkPolicyEgressRule{
@@ -663,15 +675,14 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "ingress",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_banp_conn_from_parsed_res.txt",
-			PodResources:           podInfo1,
 			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
 					ExpResult: "TODO - add result 3",
@@ -681,7 +692,8 @@ var (
 					ExpResult: "TODO - add result 4",
 				},
 			},
-			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
+			Resources: initResources(podInfo1),
+			Banp: initBanp(&v1alpha1.BaselineAdminNetworkPolicy{
 				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
 					Subject: anpSubject,
 					Ingress: []v1alpha1.BaselineAdminNetworkPolicyIngressRule{
@@ -695,15 +707,14 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "ordering matters for overlapping rules (order #1)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test3_banp_conn_from_parsed_res.txt",
-			PodResources:           podInfo2,
 			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
 					ExpResult: "TODO - add result 5",
@@ -713,7 +724,8 @@ var (
 					ExpResult: "TODO - add result 6",
 				},
 			},
-			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
+			Resources: initResources(podInfo2),
+			Banp: initBanp(&v1alpha1.BaselineAdminNetworkPolicy{
 				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
 					Subject: v1alpha1.AdminNetworkPolicySubject{
 						Namespaces: &metav1.LabelSelector{},
@@ -737,15 +749,14 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "ordering matters for overlapping rules (order #2)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test4_banp_conn_from_parsed_res.txt",
-			PodResources:           podInfo2,
 			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
 					ExpResult: "TODO - add result 7",
@@ -755,7 +766,8 @@ var (
 					ExpResult: "TODO - add result 8",
 				},
 			},
-			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
+			Resources: initResources(podInfo2),
+			Banp: initBanp(&v1alpha1.BaselineAdminNetworkPolicy{
 				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
 					Subject: v1alpha1.AdminNetworkPolicySubject{
 						Namespaces: &metav1.LabelSelector{},
@@ -779,7 +791,7 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 	}
 
@@ -788,8 +800,7 @@ var (
 			Name:                   "ANP allow all over NetPol",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_anp_npv1_conn_from_parsed_res.txt",
-			PodResources:           podInfo1,
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/b", Dst: "x/a",
 					ExpResult: "TCP 80-81,UDP 80-81",
@@ -799,7 +810,8 @@ var (
 					ExpResult: "All Connections",
 				},
 			},
-			NpList: []*netv1.NetworkPolicy{
+			Resources: initResources(podInfo1),
+			NpList: initNpList([]*netv1.NetworkPolicy{
 				{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: "x",
@@ -822,8 +834,8 @@ var (
 						PolicyTypes: []netv1.PolicyType{netv1.PolicyTypeIngress},
 					},
 				},
-			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			}),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 99,
@@ -843,14 +855,13 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "ANP allow some over NetPol",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_anp_npv1_conn_from_parsed_res.txt",
-			PodResources:           podInfo1,
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/b", Dst: "x/a",
 					ExpResult: "TCP 80-81,UDP 80-81",
@@ -860,7 +871,8 @@ var (
 					ExpResult: "All Connections",
 				},
 			},
-			NpList: []*netv1.NetworkPolicy{
+			Resources: initResources(podInfo1),
+			NpList: initNpList([]*netv1.NetworkPolicy{
 				{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: "x",
@@ -883,8 +895,8 @@ var (
 						PolicyTypes: []netv1.PolicyType{netv1.PolicyTypeIngress},
 					},
 				},
-			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			}),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 99,
@@ -906,7 +918,7 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 	}
 
@@ -915,10 +927,8 @@ var (
 			Name:                   "BANP deny all after NetPol",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_banp_npv1_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
 			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
 					ExpResult: "TODO - add result 9",
@@ -928,7 +938,9 @@ var (
 					ExpResult: "TODO - add result 10",
 				},
 			},
-			NpList: []*netv1.NetworkPolicy{
+			Resources: initResources(PodInfo{Namespaces: []string{"x"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}),
+			NpList: initNpList([]*netv1.NetworkPolicy{
 				{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: "x",
@@ -958,8 +970,8 @@ var (
 						PolicyTypes: []netv1.PolicyType{netv1.PolicyTypeIngress},
 					},
 				},
-			},
-			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
+			}),
+			Banp: initBanp(&v1alpha1.BaselineAdminNetworkPolicy{
 				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
 					Subject: v1alpha1.AdminNetworkPolicySubject{
 						Namespaces: &metav1.LabelSelector{},
@@ -975,7 +987,7 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 	}
 
@@ -984,9 +996,8 @@ var (
 			Name:                   "BANP deny all after ANP",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_anp_banp_from_parsed_res.txt",
-			PodResources:           podInfo1,
 			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
 					ExpResult: "TODO - add result 11",
@@ -996,7 +1007,8 @@ var (
 					ExpResult: "TODO - add result 12",
 				},
 			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -1016,8 +1028,8 @@ var (
 						},
 					},
 				},
-			},
-			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
+			}),
+			Banp: initBanp(&v1alpha1.BaselineAdminNetworkPolicy{
 				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
 					Subject: v1alpha1.AdminNetworkPolicySubject{
 						Namespaces: &metav1.LabelSelector{},
@@ -1033,15 +1045,14 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 		{
 			Name:                   "ANP pass some and allow rest over BANP",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_anp_banp_from_parsed_res.txt",
-			PodResources:           podInfo1,
 			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
-			EvalTests: []EvalAllAllowedTest{
+			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
 					ExpResult: "TODO - add result 13",
@@ -1051,7 +1062,8 @@ var (
 					ExpResult: "TODO - add result 14",
 				},
 			},
-			AnpList: []*v1alpha1.AdminNetworkPolicy{
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -1089,8 +1101,8 @@ var (
 						},
 					},
 				},
-			},
-			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
+			}),
+			Banp: initBanp(&v1alpha1.BaselineAdminNetworkPolicy{
 				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
 					Subject: v1alpha1.AdminNetworkPolicySubject{
 						Namespaces: &metav1.LabelSelector{},
@@ -1106,7 +1118,7 @@ var (
 						},
 					},
 				},
-			},
+			}),
 		},
 	}
 )

@@ -1830,7 +1830,7 @@ func runParsedResourcesEvalTests(t *testing.T, testList []testutils.ParsedResour
 			if test.Banp != nil { // Tanya - remove this 'if' whenever BaselineAdminNetworkPolicy is implemented
 				return // Skip tests with BANP, until implemented
 			}
-			pe, err := NewPolicyEngineWithObjects(test.Resources)
+			pe, err := NewPolicyEngineWithObjects(test.Getk8sObjects())
 			require.Nil(t, err, test.TestInfo)
 			for _, evalTest := range test.EvalTests {
 				src := evalTest.Src
