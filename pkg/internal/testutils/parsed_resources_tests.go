@@ -84,7 +84,7 @@ type ParsedResourcesTest struct {
 	OutputFormat           string
 	ExpectedOutputFileName string
 	EvalTests              []EvalAllowedConnTest
-	Resources              Resources
+	Resources              *Resources
 	AnpList                []*v1alpha1.AdminNetworkPolicy
 	Banp                   *v1alpha1.BaselineAdminNetworkPolicy
 	NpList                 []*netv1.NetworkPolicy
@@ -101,7 +101,7 @@ func addMetaData(meta *metav1.ObjectMeta) {
 	}
 }
 
-func initResources(podInfo PodInfo) Resources {
+func initResources(podInfo PodInfo) *Resources {
 	res := Resources{[]*v1.Namespace{}, []*v1.Pod{}}
 	for _, ns := range podInfo.Namespaces {
 		res.NsList = append(res.NsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ns, Labels: map[string]string{"ns": ns}}})
@@ -109,7 +109,7 @@ func initResources(podInfo PodInfo) Resources {
 			res.PodList = append(res.PodList, newDefaultPod(ns, pod, podInfo.Ports, podInfo.Protocols))
 		}
 	}
-	return res
+	return &res
 }
 
 func initNpList(npList []*netv1.NetworkPolicy) []*netv1.NetworkPolicy {
