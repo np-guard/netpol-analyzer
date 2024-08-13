@@ -313,10 +313,10 @@ func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 	return nil, errors.New(netpolerrors.InvalidPeerErrStr(p))
 }
 
-// CheckIfAllowedNew: (connection-set based computation) returns true if the given input connection is
+// checkIfAllowedNew: (connection-set based computation) returns true if the given input connection is
 // allowed by network policies
 // currently used only for testing
-func (pe *PolicyEngine) CheckIfAllowedNew(src, dst, protocol, port string) (bool, error) {
+func (pe *PolicyEngine) checkIfAllowedNew(src, dst, protocol, port string) (bool, error) {
 	allowedConns, err := pe.allAllowedConnections(src, dst)
 	if err != nil {
 		return false, err

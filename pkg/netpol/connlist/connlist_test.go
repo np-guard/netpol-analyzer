@@ -849,3 +849,30 @@ var goodPathTests = []struct {
 		outputFormats: allFormats,
 	},
 }
+
+func runParsedResourcesConnlistTests(t *testing.T, testList []testutils.ParsedResourcesTest) {
+	t.Helper()
+	for i := 0; i < len(testList); i++ {
+		test := &testList[i]
+		t.Run(test.Name, func(t *testing.T) {
+			t.Parallel()
+			analyzer := NewConnlistAnalyzer(WithOutputFormat(test.OutputFormat))
+			res, _, err := analyzer.connslistFromParsedResources(test.Resources)
+			require.Nil(t, err, test.TestInfo)
+			out, err := analyzer.ConnectionsListToString(res)
+			require.Nil(t, err, test.TestInfo)
+			if test.Banp == nil { // Tanya - remove this 'if' whenever BaselineAdminNetworkPolicy is implemented
+				testutils.CheckActualVsExpectedOutputMatch(t, test.ExpectedOutputFileName, out,
+					test.TestInfo, currentPkg)
+			}
+		})
+	}
+}
+
+func TestAllParsedResourcesConnlistTests(t *testing.T) {
+	runParsedResourcesConnlistTests(t, testutils.ANPConnectivityFromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, testutils.BANPConnectivityFromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, testutils.ANPWithNetPolV1FromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, testutils.BANPWithNetPolV1FromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, testutils.ANPWithBANPFromParsedResourcesTest)
+}

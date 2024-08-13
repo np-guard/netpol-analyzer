@@ -77,7 +77,7 @@ func updatePeerIPMap(m map[string]map[string]Peer, ipb1, ipb *ipblock.IPBlock) {
 func peerIPSetToIPBlockSet(peerSet []Peer) ([]*ipblock.IPBlock, error) {
 	res := make([]*ipblock.IPBlock, len(peerSet))
 	for i, p := range peerSet {
-		ipBlock, err := PeerIPToIPBlock(p)
+		ipBlock, err := peerIPToIPBlock(p)
 		if err != nil {
 			return nil, err
 		}
@@ -87,7 +87,7 @@ func peerIPSetToIPBlockSet(peerSet []Peer) ([]*ipblock.IPBlock, error) {
 }
 
 // peerIPToIPBlock returns an IPBlock object from a Peer object of IP type
-func PeerIPToIPBlock(p Peer) (*ipblock.IPBlock, error) {
+func peerIPToIPBlock(p Peer) (*ipblock.IPBlock, error) {
 	peerIP, ok := p.(*k8s.IPBlockPeer)
 	if !ok {
 		return nil, fmt.Errorf("input peer not IP block: %s", p.String())

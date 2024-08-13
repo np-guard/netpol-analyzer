@@ -5,26 +5,32 @@ SPDX-License-Identifier: Apache-2.0
 
 */
 
-package connlist
+package testutils
 
 import (
 	"fmt"
 	"strings"
-	"testing"
 
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
-	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
+
+// /////////////////////////////////////// ParsedResourcesTests ////////////////////////////////////
+
+func init() {
+	initParsedResourcesTestList(ANPConnectivityFromParsedResourcesTest)
+	initParsedResourcesTestList(BANPConnectivityFromParsedResourcesTest)
+	initParsedResourcesTestList(ANPWithNetPolV1FromParsedResourcesTest)
+	initParsedResourcesTestList(BANPWithNetPolV1FromParsedResourcesTest)
+	initParsedResourcesTestList(ANPWithBANPFromParsedResourcesTest)
+}
 
 var (
 	udp        = v1.ProtocolUDP
@@ -56,19 +62,26 @@ func newDefaultContainer(port int, protocol v1.Protocol) v1.Container {
 	return contObj
 }
 
-type podInfo struct {
-	namespaces []string
-	podNames   []string
-	ports      []int
-	protocols  []v1.Protocol
+type PodInfo struct {
+	Namespaces []string
+	PodNames   []string
+	Ports      []int
+	Protocols  []v1.Protocol
+}
+
+type EvalAllAllowedTest struct {
+	Src       string
+	Dst       string
+	ExpResult string
 }
 
 type ParsedResourcesTest struct {
 	Name                   string
 	OutputFormat           string
 	ExpectedOutputFileName string
-	PodResources           podInfo
-	ANpList                []*v1alpha1.AdminNetworkPolicy
+	PodResources           PodInfo
+	EvalTests              []EvalAllAllowedTest
+	AnpList                []*v1alpha1.AdminNetworkPolicy
 	Banp                   *v1alpha1.BaselineAdminNetworkPolicy
 	NpList                 []*netv1.NetworkPolicy
 	TestInfo               string
@@ -85,15 +98,22 @@ func addMetaData(meta *metav1.ObjectMeta, cnt *int) {
 	}
 }
 
-func (test *ParsedResourcesTest) InitParsedResourcesTest() {
+func initParsedResourcesTestList(testList []ParsedResourcesTest) {
+	for i := 0; i < len(testList); i++ {
+		test := &testList[i]
+		test.initParsedResourcesTest()
+	}
+}
+
+func (test *ParsedResourcesTest) initParsedResourcesTest() {
 	var genCnt = 0
 	test.TestInfo = fmt.Sprintf("test: %q, output format: %q", test.Name, test.OutputFormat)
-	for _, ns := range test.PodResources.namespaces {
+	for _, ns := range test.PodResources.Namespaces {
 		parsedNs := &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ns, Labels: map[string]string{"ns": ns}}}
 		k8sObj := parser.CreateNamespaceK8sObject(parsedNs)
 		test.Resources = append(test.Resources, k8sObj)
-		for _, pod := range test.PodResources.podNames {
-			parsedPod := newDefaultPod(ns, pod, test.PodResources.ports, test.PodResources.protocols)
+		for _, pod := range test.PodResources.PodNames {
+			parsedPod := newDefaultPod(ns, pod, test.PodResources.Ports, test.PodResources.Protocols)
 			k8sObj := parser.CreatePodK8sObject(&parsedPod)
 			test.Resources = append(test.Resources, k8sObj)
 		}
@@ -103,7 +123,7 @@ func (test *ParsedResourcesTest) InitParsedResourcesTest() {
 		k8sObj := parser.CreateNetwordPolicyK8sObject(np)
 		test.Resources = append(test.Resources, k8sObj)
 	}
-	for _, anp := range test.ANpList {
+	for _, anp := range test.AnpList {
 		addMetaData(&anp.ObjectMeta, &genCnt)
 		k8sObj := parser.CreateAdminNetwordPolicyK8sObject(anp)
 		test.Resources = append(test.Resources, k8sObj)
@@ -116,139 +136,28 @@ func (test *ParsedResourcesTest) InitParsedResourcesTest() {
 	// }
 }
 
-func stringForEval(peer eval.Peer) string {
-	if peer.IsPeerIPType() {
-		ipBlock, _ := eval.PeerIPToIPBlock(peer)
-		return ipBlock.ToCidrListString()
-	} else {
-		return peer.Namespace() + "/" + peer.Name()
-	}
-}
-
-func runParsedResourcesEvalTests(t *testing.T, testList []ParsedResourcesTest) {
-	t.Helper()
-	for i := 0; i < len(testList); i++ {
-		test := &testList[i]
-		t.Run(test.Name, func(t *testing.T) {
-			t.Parallel()
-			test.InitParsedResourcesTest()
-			if test.Banp != nil { // Tanya - remove this 'if' whenever BaselineAdminNetworkPolicy is implemented
-				return // Skip tests with BANP, until implemented
-			}
-			pe, err := eval.NewPolicyEngineWithObjects(test.Resources)
-			require.Nil(t, err, test.TestInfo)
-			peerList, err := pe.GetPeersList()
-			require.Nil(t, err, test.TestInfo)
-			peers := make([]Peer, len(peerList))
-			for i, p := range peerList {
-				peers[i] = p
-			}
-			connsRes := make([]Peer2PeerConnection, 0)
-			for _, src := range peerList {
-				for _, dst := range peerList {
-					if (src.String() == dst.String()) || (src.IsPeerIPType() && dst.IsPeerIPType()) {
-						continue
-					}
-					allowedConns, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(src, dst)
-					require.Nil(t, err, test.TestInfo)
-
-					srcForEval := stringForEval(src)
-					dstForEval := stringForEval(dst)
-					contProtocol, contPort := allowedConns.PickContainedConn()
-					if contPort != "" {
-						var res bool
-						// Tanya: uncomment whenever CheckIfAllowed supports ANPs
-						// res, err := pe.CheckIfAllowed(srcForEval, dstForEval, contProtocol, contPort)
-						// require.Nil(t, err, test.TestInfo)
-						// require.Equal(t, true, res, test.TestInfo)
-						res, err = pe.CheckIfAllowedNew(srcForEval, dstForEval, contProtocol, contPort)
-						require.Nil(t, err, test.TestInfo)
-						require.Equal(t, true, res, test.TestInfo)
-					}
-					uncontProtocol, uncontPort := allowedConns.PickUncontainedConn()
-					if uncontPort != "" {
-						var res bool
-						// Tanya: uncomment whenever CheckIfAllowed supports ANPs
-						// res, err := pe.CheckIfAllowed(srcForEval, dstForEval, uncontProtocol, uncontPort)
-						// require.Nil(t, err, test.TestInfo)
-						// require.Equal(t, false, res, test.TestInfo)
-						res, err = pe.CheckIfAllowedNew(srcForEval, dstForEval, uncontProtocol, uncontPort)
-						require.Nil(t, err, test.TestInfo)
-						require.Equal(t, false, res, test.TestInfo)
-					}
-
-					if allowedConns.IsEmpty() {
-						continue
-					}
-
-					p2pConnection := &connection{
-						src:               src,
-						dst:               dst,
-						allConnections:    allowedConns.AllConnections(),
-						protocolsAndPorts: allowedConns.ProtocolsAndPortsMap(),
-					}
-					connsRes = append(connsRes, p2pConnection)
-				}
-			}
-			connsFormatter, err := getFormatter(test.OutputFormat, peers)
-			require.Nil(t, err, test.TestInfo)
-			out, err := connsFormatter.writeOutput(connsRes)
-			require.Nil(t, err, test.TestInfo)
-			fmt.Printf("The result of %q:\n%s\n\n", test.TestInfo, out)
-			testutils.CheckActualVsExpectedOutputMatch(t, test.ExpectedOutputFileName, out,
-				test.TestInfo, currentPkg)
-		})
-	}
-}
-
-func TestAllParsedResourcesEvalTests(t *testing.T) {
-	runParsedResourcesEvalTests(t, GetANPConnectivityFromParsedResourcesTest())
-	runParsedResourcesEvalTests(t, GetBANPConnectivityFromParsedResourcesTest())
-	runParsedResourcesEvalTests(t, GetANPWithNetPolV1FromParsedResourcesTest())
-	runParsedResourcesEvalTests(t, GetBANPWithNetPolV1FromParsedResourcesTest())
-	runParsedResourcesEvalTests(t, GetANPWithBANPFromParsedResourcesTest())
-}
-
-func runParsedResourcesConnlistTests(t *testing.T, testList []ParsedResourcesTest) {
-	t.Helper()
-	for i := 0; i < len(testList); i++ {
-		test := &testList[i]
-		t.Run(test.Name, func(t *testing.T) {
-			t.Parallel()
-			test.InitParsedResourcesTest()
-			analyzer := NewConnlistAnalyzer(WithOutputFormat(test.OutputFormat))
-			res, _, err := analyzer.connslistFromParsedResources(test.Resources)
-			require.Nil(t, err, test.TestInfo)
-			out, err := analyzer.ConnectionsListToString(res)
-			fmt.Printf("The result of %s:\n%s\n\n", test.TestInfo, out)
-			require.Nil(t, err, test.TestInfo)
-			if test.Banp == nil { // Tanya - remove this 'if' whenever BaselineAdminNetworkPolicy is implemented
-				testutils.CheckActualVsExpectedOutputMatch(t, test.ExpectedOutputFileName, out,
-					test.TestInfo, currentPkg)
-			}
-		})
-	}
-}
-
-func TestAllParsedResourcesConnlistTests(t *testing.T) {
-	runParsedResourcesConnlistTests(t, GetANPConnectivityFromParsedResourcesTest())
-	runParsedResourcesConnlistTests(t, GetBANPConnectivityFromParsedResourcesTest())
-	runParsedResourcesConnlistTests(t, GetANPWithNetPolV1FromParsedResourcesTest())
-	runParsedResourcesConnlistTests(t, GetBANPWithNetPolV1FromParsedResourcesTest())
-	runParsedResourcesConnlistTests(t, GetANPWithBANPFromParsedResourcesTest())
-}
-
 //////////////////////////////////// The following tests are taken from /////////////////////////////////////
 // https://github.com/kubernetes-sigs/network-policy-api/blob/main/cmd/policy-assistant/test/integration/integration_test.go
 
-func GetANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
-	return []ParsedResourcesTest{
+var (
+	ANPConnectivityFromParsedResourcesTest = []ParsedResourcesTest{
 		{
 			Name:                   "egress port number protocol unspecified",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/a", Dst: "x/b",
+					ExpResult: "SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535",
+				},
+				{
+					Src: "x/b", Dst: "x/a",
+					ExpResult: "All Connections",
+				},
+			},
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -292,10 +201,21 @@ func GetANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "ingress port number protocol unspecified",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/b", Dst: "x/a",
+					ExpResult: "SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535",
+				},
+				{
+					Src: "x/b", Dst: "y/a",
+					ExpResult: "All Connections",
+				},
+			},
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -339,10 +259,21 @@ func GetANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "ingress named port",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test3_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/b", Dst: "x/a",
+					ExpResult: "SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535",
+				},
+				{
+					Src: "y/b", Dst: "x/a",
+					ExpResult: "All Connections",
+				},
+			},
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -384,11 +315,21 @@ func GetANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "ingress same labels port range",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test4_anp_conn_from_parsed_res.txt",
-			PodResources: podInfo{[]string{"x", "y", "z"}, []string{"a", "b", "c"}, []int{80, 81},
-				[]v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			PodResources: PodInfo{Namespaces: []string{"x", "y", "z"}, PodNames: []string{"a", "b", "c"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/c", Dst: "x/a",
+					ExpResult: "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-65535",
+				},
+				{
+					Src: "y/c", Dst: "z/b",
+					ExpResult: "All Connections",
+				},
+			},
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -432,10 +373,21 @@ func GetANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "not same labels",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test5_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "y/a", Dst: "x/a",
+					ExpResult: "SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535",
+				},
+				{
+					Src: "y/b", Dst: "y/a",
+					ExpResult: "All Connections",
+				},
+			},
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -478,10 +430,21 @@ func GetANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "ordering matters for overlapping rules (order #1)",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test6_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "y/b", Dst: "x/a",
+					ExpResult: "SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535",
+				},
+				{
+					Src: "y/b", Dst: "y/a",
+					ExpResult: "All Connections",
+				},
+			},
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -547,10 +510,21 @@ func GetANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "ordering matters for overlapping rules (order #2)",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test7_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "y/a", Dst: "x/a",
+					ExpResult: "SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535",
+				},
+				{
+					Src: "y/b", Dst: "y/a",
+					ExpResult: "All Connections",
+				},
+			},
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -616,10 +590,21 @@ func GetANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "deny all egress",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test8_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/b", Dst: "y/a",
+					ExpResult: "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-79,82-65535",
+				},
+				{
+					Src: "0.0.0.0/0", Dst: "y/a",
+					ExpResult: "All Connections",
+				},
+			},
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -658,10 +643,21 @@ func GetANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "multiple ANPs (priority order #1)",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test9_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/a", Dst: "y/b",
+					ExpResult: "All Connections",
+				},
+				{
+					Src: "0.0.0.0/0", Dst: "y/a",
+					ExpResult: "All Connections",
+				},
+			},
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 99,
@@ -734,10 +730,21 @@ func GetANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "multiple ANPs (priority order #2)",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test10_anp_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/a", Dst: "y/b",
+					ExpResult: "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-79,82-65535",
+				},
+				{
+					Src: "0.0.0.0/0", Dst: "y/a",
+					ExpResult: "All Connections",
+				},
+			},
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 101,
@@ -809,15 +816,25 @@ func GetANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 			},
 		},
 	}
-}
 
-func GetBANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
-	return []ParsedResourcesTest{
+	BANPConnectivityFromParsedResourcesTest = []ParsedResourcesTest{
 		{
 			Name:                   "egress",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_banp_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/a", Dst: "y/b",
+					ExpResult: "",
+				},
+				{
+					Src: "0.0.0.0/0", Dst: "y/a",
+					ExpResult: "",
+				},
+			},
 			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
 				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
 					Subject: v1alpha1.AdminNetworkPolicySubject{
@@ -850,9 +867,21 @@ func GetBANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "ingress",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_banp_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/a", Dst: "y/b",
+					ExpResult: "",
+				},
+				{
+					Src: "0.0.0.0/0", Dst: "y/a",
+					ExpResult: "",
+				},
+			},
 			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
 				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
 					Subject: v1alpha1.AdminNetworkPolicySubject{
@@ -885,9 +914,21 @@ func GetBANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "ordering matters for overlapping rules (order #1)",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test3_banp_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80}, []v1.Protocol{v1.ProtocolTCP}},
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80}, Protocols: []v1.Protocol{v1.ProtocolTCP}},
+			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/a", Dst: "y/b",
+					ExpResult: "",
+				},
+				{
+					Src: "0.0.0.0/0", Dst: "y/a",
+					ExpResult: "",
+				},
+			},
 			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
 				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
 					Subject: v1alpha1.AdminNetworkPolicySubject{
@@ -923,9 +964,21 @@ func GetBANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "ordering matters for overlapping rules (order #2)",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test4_banp_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80}, []v1.Protocol{v1.ProtocolTCP}},
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80}, Protocols: []v1.Protocol{v1.ProtocolTCP}},
+			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/a", Dst: "y/b",
+					ExpResult: "",
+				},
+				{
+					Src: "0.0.0.0/0", Dst: "y/a",
+					ExpResult: "",
+				},
+			},
 			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
 				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
 					Subject: v1alpha1.AdminNetworkPolicySubject{
@@ -960,15 +1013,24 @@ func GetBANPConnectivityFromParsedResourcesTest() []ParsedResourcesTest {
 			},
 		},
 	}
-}
 
-func GetANPWithNetPolV1FromParsedResourcesTest() []ParsedResourcesTest {
-	return []ParsedResourcesTest{
+	ANPWithNetPolV1FromParsedResourcesTest = []ParsedResourcesTest{
 		{
 			Name:                   "ANP allow all over NetPol",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_anp_npv1_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/b", Dst: "x/a",
+					ExpResult: "TCP 80-81,UDP 80-81",
+				},
+				{
+					Src: "x/b", Dst: "y/a",
+					ExpResult: "All Connections",
+				},
+			},
 			NpList: []*netv1.NetworkPolicy{
 				{
 					ObjectMeta: metav1.ObjectMeta{
@@ -993,7 +1055,7 @@ func GetANPWithNetPolV1FromParsedResourcesTest() []ParsedResourcesTest {
 					},
 				},
 			},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 99,
@@ -1032,9 +1094,20 @@ func GetANPWithNetPolV1FromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "ANP allow some over NetPol",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_anp_npv1_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/b", Dst: "x/a",
+					ExpResult: "TCP 80-81,UDP 80-81",
+				},
+				{
+					Src: "x/b", Dst: "y/a",
+					ExpResult: "All Connections",
+				},
+			},
 			NpList: []*netv1.NetworkPolicy{
 				{
 					ObjectMeta: metav1.ObjectMeta{
@@ -1059,7 +1132,7 @@ func GetANPWithNetPolV1FromParsedResourcesTest() []ParsedResourcesTest {
 					},
 				},
 			},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 99,
@@ -1099,15 +1172,25 @@ func GetANPWithNetPolV1FromParsedResourcesTest() []ParsedResourcesTest {
 			},
 		},
 	}
-}
 
-func GetBANPWithNetPolV1FromParsedResourcesTest() []ParsedResourcesTest {
-	return []ParsedResourcesTest{
+	BANPWithNetPolV1FromParsedResourcesTest = []ParsedResourcesTest{
 		{
 			Name:                   "BANP deny all after NetPol",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_banp_npv1_conn_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources: PodInfo{Namespaces: []string{"x"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/a", Dst: "y/b",
+					ExpResult: "",
+				},
+				{
+					Src: "0.0.0.0/0", Dst: "y/a",
+					ExpResult: "",
+				},
+			},
 			NpList: []*netv1.NetworkPolicy{
 				{
 					ObjectMeta: metav1.ObjectMeta{
@@ -1158,16 +1241,26 @@ func GetBANPWithNetPolV1FromParsedResourcesTest() []ParsedResourcesTest {
 			},
 		},
 	}
-}
 
-func GetANPWithBANPFromParsedResourcesTest() []ParsedResourcesTest {
-	return []ParsedResourcesTest{
+	ANPWithBANPFromParsedResourcesTest = []ParsedResourcesTest{
 		{
 			Name:                   "BANP deny all after ANP",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_anp_banp_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/a", Dst: "y/b",
+					ExpResult: "",
+				},
+				{
+					Src: "0.0.0.0/0", Dst: "y/a",
+					ExpResult: "",
+				},
+			},
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -1224,10 +1317,22 @@ func GetANPWithBANPFromParsedResourcesTest() []ParsedResourcesTest {
 		},
 		{
 			Name:                   "ANP pass some and allow rest over BANP",
-			OutputFormat:           string(output.TextFormat),
+			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_anp_banp_from_parsed_res.txt",
-			PodResources:           podInfo{[]string{"x", "y"}, []string{"a", "b"}, []int{80, 81}, []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
-			ANpList: []*v1alpha1.AdminNetworkPolicy{
+			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
+			EvalTests: []EvalAllAllowedTest{
+				{
+					Src: "x/a", Dst: "y/b",
+					ExpResult: "",
+				},
+				{
+					Src: "0.0.0.0/0", Dst: "y/a",
+					ExpResult: "",
+				},
+			},
+			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
@@ -1301,4 +1406,4 @@ func GetANPWithBANPFromParsedResourcesTest() []ParsedResourcesTest {
 			},
 		},
 	}
-}
+)
