@@ -184,6 +184,39 @@ var (
 	anpSubject = v1alpha1.AdminNetworkPolicySubject{
 		Pods: pods1,
 	}
+	portsTCP8081 = &([]v1alpha1.AdminNetworkPolicyPort{
+		{
+			PortRange: &v1alpha1.PortRange{
+				Protocol: v1.ProtocolTCP,
+				Start:    80,
+				End:      81,
+			},
+		},
+	})
+	portsTCPUDP8081 = &([]v1alpha1.AdminNetworkPolicyPort{
+		{
+			PortRange: &v1alpha1.PortRange{
+				Protocol: v1.ProtocolTCP,
+				Start:    80,
+				End:      81,
+			},
+		},
+		{
+			PortRange: &v1alpha1.PortRange{
+				Protocol: v1.ProtocolUDP,
+				Start:    80,
+				End:      81,
+			},
+		},
+	})
+	portsUDP80 = &([]v1alpha1.AdminNetworkPolicyPort{
+		{
+			PortNumber: &v1alpha1.Port{
+				Port:     80,
+				Protocol: v1.ProtocolUDP,
+			},
+		},
+	})
 
 	ANPConnectivityFromParsedResourcesTest = []ParsedResourcesTest{
 		{
@@ -331,15 +364,7 @@ var (
 						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
 							{
 								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolTCP,
-											Start:    80,
-											End:      81,
-										},
-									},
-								}),
+								Ports:  portsTCP8081,
 								From: []v1alpha1.AdminNetworkPolicyIngressPeer{
 									{
 										Pods: &v1alpha1.NamespacedPod{
@@ -389,14 +414,7 @@ var (
 										},
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortNumber: &v1alpha1.Port{
-											Port:     80,
-											Protocol: v1.ProtocolUDP,
-										},
-									},
-								}),
+								Ports: portsUDP80,
 							},
 						},
 					},
@@ -431,14 +449,7 @@ var (
 										Pods: pods3,
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortNumber: &v1alpha1.Port{
-											Port:     80,
-											Protocol: v1.ProtocolUDP,
-										},
-									},
-								}),
+								Ports: portsUDP80,
 							},
 							{
 								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
@@ -452,14 +463,7 @@ var (
 										},
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortNumber: &v1alpha1.Port{
-											Port:     80,
-											Protocol: v1.ProtocolUDP,
-										},
-									},
-								}),
+								Ports: portsUDP80,
 							},
 						},
 					},
@@ -499,14 +503,7 @@ var (
 										},
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortNumber: &v1alpha1.Port{
-											Port:     80,
-											Protocol: v1.ProtocolUDP,
-										},
-									},
-								}),
+								Ports: portsUDP80,
 							},
 							{
 								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
@@ -515,14 +512,7 @@ var (
 										Pods: pods3,
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortNumber: &v1alpha1.Port{
-											Port:     80,
-											Protocol: v1.ProtocolUDP,
-										},
-									},
-								}),
+								Ports: portsUDP80,
 							},
 						},
 					},
@@ -559,22 +549,7 @@ var (
 										Namespaces: &metav1.LabelSelector{},
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolTCP,
-											Start:    80,
-											End:      81,
-										},
-									},
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolUDP,
-											Start:    80,
-											End:      81,
-										},
-									},
-								}),
+								Ports: portsTCPUDP8081,
 							},
 						},
 					},
@@ -611,22 +586,7 @@ var (
 										Namespaces: &metav1.LabelSelector{},
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolTCP,
-											Start:    80,
-											End:      81,
-										},
-									},
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolUDP,
-											Start:    80,
-											End:      81,
-										},
-									},
-								}),
+								Ports: portsTCPUDP8081,
 							},
 						},
 					},
@@ -645,22 +605,7 @@ var (
 										Namespaces: &metav1.LabelSelector{},
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolTCP,
-											Start:    80,
-											End:      81,
-										},
-									},
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolUDP,
-											Start:    80,
-											End:      81,
-										},
-									},
-								}),
+								Ports: portsTCPUDP8081,
 							},
 						},
 					},
@@ -697,22 +642,7 @@ var (
 										Namespaces: &metav1.LabelSelector{},
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolTCP,
-											Start:    80,
-											End:      81,
-										},
-									},
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolUDP,
-											Start:    80,
-											End:      81,
-										},
-									},
-								}),
+								Ports: portsTCPUDP8081,
 							},
 						},
 					},
@@ -731,22 +661,7 @@ var (
 										Namespaces: &metav1.LabelSelector{},
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolTCP,
-											Start:    80,
-											End:      81,
-										},
-									},
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolUDP,
-											Start:    80,
-											End:      81,
-										},
-									},
-								}),
+								Ports: portsTCPUDP8081,
 							},
 						},
 					},
@@ -971,22 +886,7 @@ var (
 										Namespaces: &metav1.LabelSelector{},
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolTCP,
-											Start:    80,
-											End:      81,
-										},
-									},
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolUDP,
-											Start:    80,
-											End:      81,
-										},
-									},
-								}),
+								Ports: portsTCPUDP8081,
 							},
 						},
 					},
@@ -1049,22 +949,7 @@ var (
 										},
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolTCP,
-											Start:    80,
-											End:      81,
-										},
-									},
-									{
-										PortRange: &v1alpha1.PortRange{
-											Protocol: v1.ProtocolUDP,
-											Start:    80,
-											End:      81,
-										},
-									},
-								}),
+								Ports: portsTCPUDP8081,
 							},
 						},
 					},
@@ -1174,14 +1059,7 @@ var (
 										},
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortNumber: &v1alpha1.Port{
-											Protocol: v1.ProtocolUDP,
-											Port:     80,
-										},
-									},
-								}),
+								Ports: portsUDP80,
 							},
 						},
 					},
@@ -1236,14 +1114,7 @@ var (
 										},
 									},
 								},
-								Ports: &([]v1alpha1.AdminNetworkPolicyPort{
-									{
-										PortNumber: &v1alpha1.Port{
-											Protocol: v1.ProtocolUDP,
-											Port:     80,
-										},
-									},
-								}),
+								Ports: portsUDP80,
 							},
 						},
 					},
