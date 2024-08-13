@@ -181,6 +181,12 @@ var (
 			MatchLabels: map[string]string{"pod": "b"},
 		},
 	}
+	pods5 = &v1alpha1.NamespacedPod{
+		NamespaceSelector: metav1.LabelSelector{},
+		PodSelector: metav1.LabelSelector{
+			MatchLabels: map[string]string{"pod": "b"},
+		},
+	}
 	anpSubject = v1alpha1.AdminNetworkPolicySubject{
 		Pods: pods1,
 	}
@@ -224,6 +230,45 @@ var (
 			},
 		},
 	})
+	egressRuleDenyPorts80 = []v1alpha1.AdminNetworkPolicyEgressRule{
+		{
+			Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
+			To: []v1alpha1.AdminNetworkPolicyEgressPeer{
+				{
+					Pods: pods2,
+				},
+			},
+			Ports: ports80,
+		},
+	}
+	egressRuleAllowPortsTCPUDP8081 = []v1alpha1.AdminNetworkPolicyEgressRule{
+		{
+			Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
+			To: []v1alpha1.AdminNetworkPolicyEgressPeer{
+				{
+					Namespaces: &metav1.LabelSelector{},
+				},
+			},
+			Ports: portsTCPUDP8081,
+		},
+	}
+	anp1 = v1alpha1.AdminNetworkPolicySpec{
+		Priority: 100,
+		Subject: v1alpha1.AdminNetworkPolicySubject{
+			Namespaces: &metav1.LabelSelector{},
+		},
+		Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
+			{
+				Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
+				To: []v1alpha1.AdminNetworkPolicyEgressPeer{
+					{
+						Namespaces: &metav1.LabelSelector{},
+					},
+				},
+				Ports: portsTCPUDP8081,
+			},
+		},
+	}
 
 	ANPConnectivityFromParsedResourcesTest = []ParsedResourcesTest{
 		{
@@ -246,17 +291,7 @@ var (
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
 						Subject:  anpSubject,
-						Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
-							{
-								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
-								To: []v1alpha1.AdminNetworkPolicyEgressPeer{
-									{
-										Pods: pods2,
-									},
-								},
-								Ports: ports80,
-							},
-						},
+						Egress:   egressRuleDenyPorts80,
 					},
 				},
 			},
@@ -531,23 +566,7 @@ var (
 			},
 			AnpList: []*v1alpha1.AdminNetworkPolicy{
 				{
-					Spec: v1alpha1.AdminNetworkPolicySpec{
-						Priority: 100,
-						Subject: v1alpha1.AdminNetworkPolicySubject{
-							Namespaces: &metav1.LabelSelector{},
-						},
-						Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
-							{
-								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
-								To: []v1alpha1.AdminNetworkPolicyEgressPeer{
-									{
-										Namespaces: &metav1.LabelSelector{},
-									},
-								},
-								Ports: portsTCPUDP8081,
-							},
-						},
-					},
+					Spec: anp1,
 				},
 			},
 		},
@@ -573,37 +592,11 @@ var (
 						Subject: v1alpha1.AdminNetworkPolicySubject{
 							Namespaces: &metav1.LabelSelector{},
 						},
-						Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
-							{
-								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
-								To: []v1alpha1.AdminNetworkPolicyEgressPeer{
-									{
-										Namespaces: &metav1.LabelSelector{},
-									},
-								},
-								Ports: portsTCPUDP8081,
-							},
-						},
+						Egress: egressRuleAllowPortsTCPUDP8081,
 					},
 				},
 				{
-					Spec: v1alpha1.AdminNetworkPolicySpec{
-						Priority: 100,
-						Subject: v1alpha1.AdminNetworkPolicySubject{
-							Namespaces: &metav1.LabelSelector{},
-						},
-						Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
-							{
-								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
-								To: []v1alpha1.AdminNetworkPolicyEgressPeer{
-									{
-										Namespaces: &metav1.LabelSelector{},
-									},
-								},
-								Ports: portsTCPUDP8081,
-							},
-						},
-					},
+					Spec: anp1,
 				},
 			},
 		},
@@ -618,7 +611,7 @@ var (
 					ExpResult: "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-79,82-65535",
 				},
 				{
-					Src: "0.0.0.0/0", Dst: "y/a",
+					Src: "0.0.0.0/0", Dst: "x/a",
 					ExpResult: "All Connections",
 				},
 			},
@@ -629,37 +622,11 @@ var (
 						Subject: v1alpha1.AdminNetworkPolicySubject{
 							Namespaces: &metav1.LabelSelector{},
 						},
-						Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
-							{
-								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
-								To: []v1alpha1.AdminNetworkPolicyEgressPeer{
-									{
-										Namespaces: &metav1.LabelSelector{},
-									},
-								},
-								Ports: portsTCPUDP8081,
-							},
-						},
+						Egress: egressRuleAllowPortsTCPUDP8081,
 					},
 				},
 				{
-					Spec: v1alpha1.AdminNetworkPolicySpec{
-						Priority: 100,
-						Subject: v1alpha1.AdminNetworkPolicySubject{
-							Namespaces: &metav1.LabelSelector{},
-						},
-						Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
-							{
-								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
-								To: []v1alpha1.AdminNetworkPolicyEgressPeer{
-									{
-										Namespaces: &metav1.LabelSelector{},
-									},
-								},
-								Ports: portsTCPUDP8081,
-							},
-						},
-					},
+					Spec: anp1,
 				},
 			},
 		},
@@ -675,11 +642,11 @@ var (
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "",
+					ExpResult: "TODO - add result 1",
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "",
+					ExpResult: "TODO - add result 2",
 				},
 			},
 			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
@@ -690,12 +657,7 @@ var (
 							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
 							To: []v1alpha1.AdminNetworkPolicyEgressPeer{
 								{
-									Pods: &v1alpha1.NamespacedPod{
-										NamespaceSelector: metav1.LabelSelector{},
-										PodSelector: metav1.LabelSelector{
-											MatchLabels: map[string]string{"pod": "b"},
-										},
-									},
+									Pods: pods5,
 								},
 							},
 						},
@@ -712,11 +674,11 @@ var (
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "",
+					ExpResult: "TODO - add result 3",
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "",
+					ExpResult: "TODO - add result 4",
 				},
 			},
 			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
@@ -727,12 +689,7 @@ var (
 							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
 							From: []v1alpha1.AdminNetworkPolicyIngressPeer{
 								{
-									Pods: &v1alpha1.NamespacedPod{
-										NamespaceSelector: metav1.LabelSelector{},
-										PodSelector: metav1.LabelSelector{
-											MatchLabels: map[string]string{"pod": "b"},
-										},
-									},
+									Pods: pods5,
 								},
 							},
 						},
@@ -749,11 +706,11 @@ var (
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "",
+					ExpResult: "TODO - add result 5",
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "",
+					ExpResult: "TODO - add result 6",
 				},
 			},
 			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
@@ -791,11 +748,11 @@ var (
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "",
+					ExpResult: "TODO - add result 7",
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "",
+					ExpResult: "TODO - add result 8",
 				},
 			},
 			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
@@ -964,11 +921,11 @@ var (
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "",
+					ExpResult: "TODO - add result 9",
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "",
+					ExpResult: "TODO - add result 10",
 				},
 			},
 			NpList: []*netv1.NetworkPolicy{
@@ -1032,11 +989,11 @@ var (
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "",
+					ExpResult: "TODO - add result 11",
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "",
+					ExpResult: "TODO - add result 12",
 				},
 			},
 			AnpList: []*v1alpha1.AdminNetworkPolicy{
@@ -1087,11 +1044,11 @@ var (
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "",
+					ExpResult: "TODO - add result 13",
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "",
+					ExpResult: "TODO - add result 14",
 				},
 			},
 			AnpList: []*v1alpha1.AdminNetworkPolicy{
