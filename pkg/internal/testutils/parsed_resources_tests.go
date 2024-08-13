@@ -62,6 +62,9 @@ func newDefaultContainer(port int, protocol v1.Protocol) v1.Container {
 	return contObj
 }
 
+// The following struct holds information for pod creation for tests;
+// the pods will be created for every namespace and every pod name below (the Cartesian product),
+// having all ports/protocols below in their containers specs
 type PodInfo struct {
 	Namespaces []string
 	PodNames   []string
@@ -75,6 +78,8 @@ type EvalAllAllowedTest struct {
 	ExpResult string
 }
 
+// The following struct holds all test data needed for running a test
+// and for verifying its results
 type ParsedResourcesTest struct {
 	Name                   string
 	OutputFormat           string
@@ -140,13 +145,17 @@ func (test *ParsedResourcesTest) initParsedResourcesTest() {
 // https://github.com/kubernetes-sigs/network-policy-api/blob/main/cmd/policy-assistant/test/integration/integration_test.go
 
 var (
+	podInfo1 = PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+		Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}
+	podInfo2 = PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+		Ports: []int{80}, Protocols: []v1.Protocol{v1.ProtocolTCP}}
+
 	ANPConnectivityFromParsedResourcesTest = []ParsedResourcesTest{
 		{
 			Name:                   "egress port number protocol unspecified",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_anp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/a", Dst: "x/b",
@@ -203,8 +212,7 @@ var (
 			Name:                   "ingress port number protocol unspecified",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_anp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/b", Dst: "x/a",
@@ -261,8 +269,7 @@ var (
 			Name:                   "ingress named port",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test3_anp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/b", Dst: "x/a",
@@ -375,8 +382,7 @@ var (
 			Name:                   "not same labels",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test5_anp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "y/a", Dst: "x/a",
@@ -432,8 +438,7 @@ var (
 			Name:                   "ordering matters for overlapping rules (order #1)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test6_anp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "y/b", Dst: "x/a",
@@ -512,8 +517,7 @@ var (
 			Name:                   "ordering matters for overlapping rules (order #2)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test7_anp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "y/a", Dst: "x/a",
@@ -592,8 +596,7 @@ var (
 			Name:                   "deny all egress",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test8_anp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/b", Dst: "y/a",
@@ -645,8 +648,7 @@ var (
 			Name:                   "multiple ANPs (priority order #1)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test9_anp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/a", Dst: "y/b",
@@ -732,8 +734,7 @@ var (
 			Name:                   "multiple ANPs (priority order #2)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test10_anp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/a", Dst: "y/b",
@@ -822,8 +823,7 @@ var (
 			Name:                   "egress",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_banp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
 			EvalTests: []EvalAllAllowedTest{
 				{
@@ -869,8 +869,7 @@ var (
 			Name:                   "ingress",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_banp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
 			EvalTests: []EvalAllAllowedTest{
 				{
@@ -916,8 +915,7 @@ var (
 			Name:                   "ordering matters for overlapping rules (order #1)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test3_banp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80}, Protocols: []v1.Protocol{v1.ProtocolTCP}},
+			PodResources:           podInfo2,
 			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
 			EvalTests: []EvalAllAllowedTest{
 				{
@@ -966,8 +964,7 @@ var (
 			Name:                   "ordering matters for overlapping rules (order #2)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test4_banp_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80}, Protocols: []v1.Protocol{v1.ProtocolTCP}},
+			PodResources:           podInfo2,
 			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
 			EvalTests: []EvalAllAllowedTest{
 				{
@@ -1019,8 +1016,7 @@ var (
 			Name:                   "ANP allow all over NetPol",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_anp_npv1_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/b", Dst: "x/a",
@@ -1096,8 +1092,7 @@ var (
 			Name:                   "ANP allow some over NetPol",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_anp_npv1_conn_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			EvalTests: []EvalAllAllowedTest{
 				{
 					Src: "x/b", Dst: "x/a",
@@ -1247,8 +1242,7 @@ var (
 			Name:                   "BANP deny all after ANP",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_anp_banp_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
 			EvalTests: []EvalAllAllowedTest{
 				{
@@ -1319,8 +1313,7 @@ var (
 			Name:                   "ANP pass some and allow rest over BANP",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_anp_banp_from_parsed_res.txt",
-			PodResources: PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}},
+			PodResources:           podInfo1,
 			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
 			EvalTests: []EvalAllAllowedTest{
 				{
