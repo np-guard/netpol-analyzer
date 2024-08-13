@@ -101,7 +101,7 @@ func addMetaData(meta *metav1.ObjectMeta) {
 	}
 }
 
-func initResources(podInfo PodInfo) *Resources {
+func initResources(podInfo *PodInfo) *Resources {
 	res := &Resources{[]*v1.Namespace{}, []*v1.Pod{}}
 	for _, ns := range podInfo.Namespaces {
 		res.NsList = append(res.NsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ns, Labels: map[string]string{"ns": ns}}})
@@ -157,9 +157,9 @@ func (test *ParsedResourcesTest) Getk8sObjects() []parser.K8sObject {
 // https://github.com/kubernetes-sigs/network-policy-api/blob/main/cmd/policy-assistant/test/integration/integration_test.go
 
 var (
-	podInfo1 = PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+	podInfo1 = &PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
 		Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}
-	podInfo2 = PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
+	podInfo2 = &PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
 		Ports: []int{80}, Protocols: []v1.Protocol{v1.ProtocolTCP}}
 	pods1 = &v1alpha1.NamespacedPod{
 		NamespaceSelector: metav1.LabelSelector{
@@ -396,7 +396,7 @@ var (
 					ExpResult: "All Connections",
 				},
 			},
-			Resources: initResources(PodInfo{Namespaces: []string{"x", "y", "z"}, PodNames: []string{"a", "b", "c"},
+			Resources: initResources(&PodInfo{Namespaces: []string{"x", "y", "z"}, PodNames: []string{"a", "b", "c"},
 				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}),
 			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
@@ -938,7 +938,7 @@ var (
 					ExpResult: "TODO - add result 10",
 				},
 			},
-			Resources: initResources(PodInfo{Namespaces: []string{"x"}, PodNames: []string{"a", "b"},
+			Resources: initResources(&PodInfo{Namespaces: []string{"x"}, PodNames: []string{"a", "b"},
 				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}),
 			NpList: initNpList([]*netv1.NetworkPolicy{
 				{
