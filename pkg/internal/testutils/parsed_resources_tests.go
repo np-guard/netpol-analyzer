@@ -149,6 +149,16 @@ var (
 		Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}
 	podInfo2 = PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
 		Ports: []int{80}, Protocols: []v1.Protocol{v1.ProtocolTCP}}
+	anpSubject = v1alpha1.AdminNetworkPolicySubject{
+		Pods: &v1alpha1.NamespacedPod{
+			NamespaceSelector: metav1.LabelSelector{
+				MatchLabels: map[string]string{"ns": "x"},
+			},
+			PodSelector: metav1.LabelSelector{
+				MatchLabels: map[string]string{"pod": "a"},
+			},
+		},
+	}
 
 	ANPConnectivityFromParsedResourcesTest = []ParsedResourcesTest{
 		{
@@ -170,16 +180,7 @@ var (
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
-						Subject: v1alpha1.AdminNetworkPolicySubject{
-							Pods: &v1alpha1.NamespacedPod{
-								NamespaceSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"ns": "x"},
-								},
-								PodSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"pod": "a"},
-								},
-							},
-						},
+						Subject:  anpSubject,
 						Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
 							{
 								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
@@ -227,16 +228,7 @@ var (
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
-						Subject: v1alpha1.AdminNetworkPolicySubject{
-							Pods: &v1alpha1.NamespacedPod{
-								NamespaceSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"ns": "x"},
-								},
-								PodSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"pod": "a"},
-								},
-							},
-						},
+						Subject:  anpSubject,
 						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
 							{
 								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
@@ -284,16 +276,7 @@ var (
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
-						Subject: v1alpha1.AdminNetworkPolicySubject{
-							Pods: &v1alpha1.NamespacedPod{
-								NamespaceSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"ns": "x"},
-								},
-								PodSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"pod": "a"},
-								},
-							},
-						},
+						Subject:  anpSubject,
 						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
 							{
 								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
@@ -340,16 +323,7 @@ var (
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
-						Subject: v1alpha1.AdminNetworkPolicySubject{
-							Pods: &v1alpha1.NamespacedPod{
-								NamespaceSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"ns": "x"},
-								},
-								PodSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"pod": "a"},
-								},
-							},
-						},
+						Subject:  anpSubject,
 						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
 							{
 								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
@@ -397,16 +371,7 @@ var (
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
-						Subject: v1alpha1.AdminNetworkPolicySubject{
-							Pods: &v1alpha1.NamespacedPod{
-								NamespaceSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"ns": "x"},
-								},
-								PodSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"pod": "a"},
-								},
-							},
-						},
+						Subject:  anpSubject,
 						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
 							{
 								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
@@ -453,16 +418,7 @@ var (
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
-						Subject: v1alpha1.AdminNetworkPolicySubject{
-							Pods: &v1alpha1.NamespacedPod{
-								NamespaceSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"ns": "x"},
-								},
-								PodSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"pod": "a"},
-								},
-							},
-						},
+						Subject:  anpSubject,
 						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
 							{
 								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
@@ -532,16 +488,7 @@ var (
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
-						Subject: v1alpha1.AdminNetworkPolicySubject{
-							Pods: &v1alpha1.NamespacedPod{
-								NamespaceSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"ns": "x"},
-								},
-								PodSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"pod": "a"},
-								},
-							},
-						},
+						Subject:  anpSubject,
 						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
 							{
 								Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
@@ -837,16 +784,7 @@ var (
 			},
 			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
 				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
-					Subject: v1alpha1.AdminNetworkPolicySubject{
-						Pods: &v1alpha1.NamespacedPod{
-							NamespaceSelector: metav1.LabelSelector{
-								MatchLabels: map[string]string{"ns": "x"},
-							},
-							PodSelector: metav1.LabelSelector{
-								MatchLabels: map[string]string{"pod": "a"},
-							},
-						},
-					},
+					Subject: anpSubject,
 					Egress: []v1alpha1.BaselineAdminNetworkPolicyEgressRule{
 						{
 							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
@@ -883,16 +821,7 @@ var (
 			},
 			Banp: &v1alpha1.BaselineAdminNetworkPolicy{
 				Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
-					Subject: v1alpha1.AdminNetworkPolicySubject{
-						Pods: &v1alpha1.NamespacedPod{
-							NamespaceSelector: metav1.LabelSelector{
-								MatchLabels: map[string]string{"ns": "x"},
-							},
-							PodSelector: metav1.LabelSelector{
-								MatchLabels: map[string]string{"pod": "a"},
-							},
-						},
-					},
+					Subject: anpSubject,
 					Ingress: []v1alpha1.BaselineAdminNetworkPolicyIngressRule{
 						{
 							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
@@ -1258,16 +1187,7 @@ var (
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
-						Subject: v1alpha1.AdminNetworkPolicySubject{
-							Pods: &v1alpha1.NamespacedPod{
-								NamespaceSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"ns": "x"},
-								},
-								PodSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"pod": "a"},
-								},
-							},
-						},
+						Subject:  anpSubject,
 						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
 							{
 								Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
@@ -1329,16 +1249,7 @@ var (
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
 						Priority: 100,
-						Subject: v1alpha1.AdminNetworkPolicySubject{
-							Pods: &v1alpha1.NamespacedPod{
-								NamespaceSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"ns": "x"},
-								},
-								PodSelector: metav1.LabelSelector{
-									MatchLabels: map[string]string{"pod": "a"},
-								},
-							},
-						},
+						Subject:  anpSubject,
 						Ingress: []v1alpha1.AdminNetworkPolicyIngressRule{
 							{
 								Action: v1alpha1.AdminNetworkPolicyRuleActionPass,
