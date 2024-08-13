@@ -102,14 +102,14 @@ func addMetaData(meta *metav1.ObjectMeta) {
 }
 
 func initResources(podInfo PodInfo) *Resources {
-	res := Resources{[]*v1.Namespace{}, []*v1.Pod{}}
+	res := &Resources{[]*v1.Namespace{}, []*v1.Pod{}}
 	for _, ns := range podInfo.Namespaces {
 		res.NsList = append(res.NsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ns, Labels: map[string]string{"ns": ns}}})
 		for _, pod := range podInfo.PodNames {
 			res.PodList = append(res.PodList, newDefaultPod(ns, pod, podInfo.Ports, podInfo.Protocols))
 		}
 	}
-	return &res
+	return res
 }
 
 func initNpList(npList []*netv1.NetworkPolicy) []*netv1.NetworkPolicy {
