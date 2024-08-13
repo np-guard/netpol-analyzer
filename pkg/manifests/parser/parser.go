@@ -114,7 +114,7 @@ func CreateNamespaceK8sObject(ns *v1.Namespace) K8sObject {
 func CreateNetwordPolicyK8sObject(np *netv1.NetworkPolicy) K8sObject {
 	k8sObj := K8sObject{}
 	k8sObj.Kind = "NetworkPolicy"
-	k8sObj.Networkpolicy = np
+	k8sObj.NetworkPolicy = np
 	k8sObj.initDefaultNamespace()
 	return k8sObj
 }

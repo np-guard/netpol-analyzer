@@ -1238,7 +1238,7 @@ func runParsedResourcesConnlistTests(t *testing.T, testList []testutils.ParsedRe
 		t.Run(test.Name, func(t *testing.T) {
 			t.Parallel()
 			analyzer := NewConnlistAnalyzer(WithOutputFormat(test.OutputFormat))
-			res, _, err := analyzer.connslistFromParsedResources(test.Resources)
+			res, _, err := analyzer.connsListFromParsedResources(test.Resources)
 			require.Nil(t, err, test.TestInfo)
 			out, err := analyzer.ConnectionsListToString(res)
 			require.Nil(t, err, test.TestInfo)
