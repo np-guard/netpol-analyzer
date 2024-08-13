@@ -24,16 +24,65 @@ import (
 
 const defaultPortsListSize = 8
 
+type PodExposureInfo struct {
+	// 	IsProtected indicates if the pod is selected by any network-policy or not
+	IsProtected bool
+	// ClusterWideConnection contains the maximal connection-set for which the pod is exposed to all namespaces by network policies
+	ClusterWideConnection *common.ConnectionSet
+}
+
+func initiatePodExposure() PodExposureInfo {
+	return PodExposureInfo{
+		IsProtected:           false,
+		ClusterWideConnection: common.MakeConnectionSet(false),
+	}
+}
+
 // Pod encapsulates k8s Pod fields that are relevant for evaluating network policies
 type Pod struct {
 	Name      string
 	Namespace string
-	FakePod   bool // this flag is used to indicate if the pod is created from scanner objects or fake (ingress-controller)
+	FakePod   bool // this flag is used to indicate if the pod is created from scanner objects or fake (ingress-controller/ representative pod)
 	Labels    map[string]string
 	IPs       []corev1.PodIP
 	Ports     []corev1.ContainerPort
 	HostIP    string
 	Owner     Owner
+
+	// The fields below are relevant to real pods when exposure analysis is active:
+
+	// IngressExposureData contains:
+	// - whether the pod is protected by any network-policy on ingress direction or not;
+	// - the maximal connection-set for which the pod is exposed to all namespaces  in the cluster by
+	// network policies on ingress direction
+	IngressExposureData PodExposureInfo
+	// EgressExposureData contains:
+	// - whether the pod is protected by any network-policy on egress direction or not;
+	// - the maximal connection-set for which the pod is exposed to all namespaces in the cluster by
+	// network policies on egress direction
+	EgressExposureData PodExposureInfo
+	// RepresentativePodLabelSelector contains reference to the podSelector of the policy-rule which the representative peer was inferred from
+	// used only with representative Pods
+	// RepresentativePodLabelSelector might be nil/ empty selector / a specific non-empty selector
+
+	// The fields below are relevant only to representative pod:
+	RepresentativePodLabelSelector *v1.LabelSelector
+	// RepresentativeNsLabelSelector points to the namespaceSelector of the policy rule which this representative pod was inferred from
+	// used only with representative peers (exposure-analysis)
+	// RepresentativeNsLabelSelector might represent an empty selector / a specific non-empty selector (will not be nil)
+	// nil namespaceSelector in a policy-rule will be converted to the namespace name label when creating the representative pod.
+	RepresentativeNsLabelSelector *v1.LabelSelector
+
+	// possible combinations of RepresentativePodLabelSelector and RepresentativeNsLabelSelector:
+	// - both are specific non-empty selectors : implies for any pod with labels matching RepresentativePodLabelSelector;
+	// in a any namespace with labels matching RepresentativeNsLabelSelector.
+	// - RepresentativePodLabelSelector is nil + RepresentativeNsLabelSelector is a specific non-empty selector : implies
+	// for all pods in a namespace with labels matching RepresentativeNsLabelSelector.
+	// - RepresentativePodLabelSelector is empty + RepresentativeNsLabelSelector is a specific non-empty selector : also
+	// implies for all pods in a namespace with labels matching RepresentativeNsLabelSelector.
+	// - RepresentativePodLabelSelector a specific non-empty selector + RepresentativeNsLabelSelector is an empty selector :
+	// implies for any pod with labels matching RepresentativePodLabelSelector in any namespace in the cluster.
+	// both might not be nil / empty at same time
 }
 
 // Owner encapsulates pod owner workload info
@@ -54,14 +103,16 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 	}
 
 	pr := &Pod{
-		Name:      p.Name,
-		Namespace: p.Namespace,
-		Labels:    make(map[string]string, len(p.Labels)),
-		IPs:       make([]corev1.PodIP, len(p.Status.PodIPs)),
-		Ports:     make([]corev1.ContainerPort, 0, defaultPortsListSize),
-		HostIP:    p.Status.HostIP,
-		Owner:     Owner{},
-		FakePod:   false,
+		Name:                p.Name,
+		Namespace:           p.Namespace,
+		Labels:              make(map[string]string, len(p.Labels)),
+		IPs:                 make([]corev1.PodIP, len(p.Status.PodIPs)),
+		Ports:               make([]corev1.ContainerPort, 0, defaultPortsListSize),
+		HostIP:              p.Status.HostIP,
+		Owner:               Owner{},
+		FakePod:             false,
+		IngressExposureData: initiatePodExposure(),
+		EgressExposureData:  initiatePodExposure(),
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -128,14 +179,14 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		workloadNamespace = obj.Namespace
 		podTemplate = obj.Spec.Template
 		APIVersion = obj.APIVersion
-	case parser.Statefulset:
+	case parser.StatefulSet:
 		obj := workload.(*appsv1.StatefulSet)
 		replicas = getReplicas(obj.Spec.Replicas)
 		workloadName = obj.Name
 		workloadNamespace = obj.Namespace
 		podTemplate = obj.Spec.Template
 		APIVersion = obj.APIVersion
-	case parser.Daemonset:
+	case parser.DaemonSet:
 		obj := workload.(*appsv1.DaemonSet)
 		replicas = 1
 		workloadName = obj.Name
@@ -184,6 +235,8 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.HostIP = getFakePodIP()
 		pod.Owner = Owner{Name: workloadName, Kind: kind, APIVersion: APIVersion}
 		pod.FakePod = false
+		pod.IngressExposureData = initiatePodExposure()
+		pod.EgressExposureData = initiatePodExposure()
 		for k, v := range podTemplate.Labels {
 			pod.Labels[k] = v
 		}
@@ -201,6 +254,7 @@ func namespacedName(pod *corev1.Pod) string {
 	return types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}.String()
 }
 
+// variantFromLabelsMap returns a unique hash key from given labels map
 func variantFromLabelsMap(labels map[string]string) string {
 	return hex.EncodeToString(sha1.New().Sum([]byte(fmt.Sprintf("%v", labels)))) //nolint:gosec // Non-crypto use
 }
@@ -223,8 +277,6 @@ func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 	return res
 }
 
-const noPort = -1
-
 // ConvertPodNamedPort returns the ContainerPort's protocol and number that matches the named port
 // if there is no match, returns empty string for protocol and -1 for number
 func (pod *Pod) ConvertPodNamedPort(namedPort string) (protocol corev1.Protocol, portNum int32) {
@@ -233,5 +285,56 @@ func (pod *Pod) ConvertPodNamedPort(namedPort string) (protocol corev1.Protocol,
 			return containerPort.Protocol, containerPort.ContainerPort
 		}
 	}
-	return "", noPort
+	return "", common.NoPort
+}
+
+// updatePodXgressExposureToEntireClusterData updates the pods' fields which are related to entire class exposure on ingress/egress
+func (pod *Pod) UpdatePodXgressExposureToEntireClusterData(ruleConns *common.ConnectionSet, isIngress bool) {
+	if isIngress {
+		// for a dst pod check if the given ruleConns contains namedPorts; if yes replace them with pod's
+		// matching port number
+		convertedConns := pod.checkAndConvertNamedPortsInConnection(ruleConns)
+		if convertedConns != nil {
+			pod.IngressExposureData.ClusterWideConnection.Union(convertedConns)
+		} else {
+			pod.IngressExposureData.ClusterWideConnection.Union(ruleConns)
+		}
+	} else {
+		pod.EgressExposureData.ClusterWideConnection.Union(ruleConns)
+	}
+}
+
+// checkAndConvertNamedPortsInConnection returns the copy of the given connectionSet where named ports are converted;
+// returns nil if the given connectionSet has no named ports
+func (pod *Pod) checkAndConvertNamedPortsInConnection(conns *common.ConnectionSet) *common.ConnectionSet {
+	connNamedPorts := conns.GetNamedPorts()
+	if len(connNamedPorts) == 0 {
+		return nil
+	} // else - found named ports
+	connsCopy := conns.Copy() // copying the connectionSet; in order to replace
+	// the named ports with pod's port numbers
+	for protocol, namedPorts := range connNamedPorts {
+		for _, namedPort := range namedPorts {
+			_, portNum := pod.ConvertPodNamedPort(namedPort)
+			connsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum)
+		}
+	}
+	return connsCopy
+}
+
+// UpdatePodXgressProtectedFlag updates to true the relevant ingress/egress protected flag of the pod
+func (pod *Pod) UpdatePodXgressProtectedFlag(isIngress bool) {
+	if isIngress {
+		pod.IngressExposureData.IsProtected = true
+	} else {
+		pod.EgressExposureData.IsProtected = true
+	}
+}
+
+// IsPodRepresentative returns if the pod is a representative pod
+func (pod *Pod) IsPodRepresentative() bool {
+	return pod.FakePod && pod.Name == RepresentativePodName
+	// representative Pod is always generated with the RepresentativePodName (in pe.addRepresentativePod)
+	// all representative pods have same name, since the name is used only here (to indicate if it is a representative)
+	// not used for storing/ comparing with other pods
 }

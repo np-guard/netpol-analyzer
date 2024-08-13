@@ -1,0 +1,77 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: matching-ns1
+  labels:
+    env: qa
+    foo: managed
+spec: {}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: matching-ns2
+  labels:
+    foo: managed
+    env: env-1
+spec: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matching-rule1
+  namespace: matching-ns1
+  labels:
+    role: w
+    app: app-x
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: w
+      app: app-x
+  template:
+    metadata:
+      labels:
+        role: w
+        app: app-x
+    spec:
+      containers:
+      - name: matching-ns1
+        image: quay.io/shfa/matching-ns1:latest
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: http-2
+          containerPort: 9090
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matching-rule2-and-1
+  namespace: matching-ns2
+  labels:
+    role: api
+    app: app-x
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: api
+      app: app-x
+  template:
+    metadata:
+      labels:
+        role: api
+        app: app-x
+    spec:
+      containers:
+      - name: matching-ns2
+        image: quay.io/shfa/matching-ns2:latest
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: http-2
+          containerPort: 9090
+---

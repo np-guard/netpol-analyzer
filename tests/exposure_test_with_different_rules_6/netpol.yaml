@@ -1,0 +1,44 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: match-exp-6
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  ingress:
+  - from: 
+    - namespaceSelector:
+          matchExpressions:
+          - key: env
+            operator: Exists
+          - key: app
+            operator: DoesNotExist
+          matchLabels:
+            foo: managed
+      podSelector:
+          matchExpressions:
+          - key: role
+            operator: NotIn
+            values: ["monitoring", "search", "web"]
+          matchLabels:
+            app: app-x
+    ports:
+    - port: 9090
+      protocol: TCP
+  - from:
+    - podSelector:
+          matchLabels:
+            app: app-x
+          matchExpressions:
+          - key: role
+            operator: In
+            values: ["api"]
+      namespaceSelector:
+          matchLabels:
+            foo: managed
+            env: env-1
+    ports:
+    - port: 8080
+      protocol: TCP

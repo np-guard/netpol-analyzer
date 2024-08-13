@@ -1,17 +1,25 @@
 digraph {
-	subgraph cluster_network_policy_conformance_gryffindor {
+	subgraph "cluster_network_policy_conformance_gryffindor" {
+		color="black"
+		fontcolor="black"
 		"network-policy-conformance-gryffindor/harry-potter[StatefulSet]" [label="harry-potter[StatefulSet]" color="blue" fontcolor="blue"]
 		label="network-policy-conformance-gryffindor"
 	}
-	subgraph cluster_network_policy_conformance_hufflepuff {
+	subgraph "cluster_network_policy_conformance_hufflepuff" {
+		color="black"
+		fontcolor="black"
 		"network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]" [label="cedric-diggory[StatefulSet]" color="blue" fontcolor="blue"]
 		label="network-policy-conformance-hufflepuff"
 	}
-	subgraph cluster_network_policy_conformance_ravenclaw {
+	subgraph "cluster_network_policy_conformance_ravenclaw" {
+		color="black"
+		fontcolor="black"
 		"network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]" [label="luna-lovegood[StatefulSet]" color="blue" fontcolor="blue"]
 		label="network-policy-conformance-ravenclaw"
 	}
-	subgraph cluster_network_policy_conformance_slytherin {
+	subgraph "cluster_network_policy_conformance_slytherin" {
+		color="black"
+		fontcolor="black"
 		"network-policy-conformance-slytherin/draco-malfoy[StatefulSet]" [label="draco-malfoy[StatefulSet]" color="blue" fontcolor="blue"]
 		label="network-policy-conformance-slytherin"
 	}
@@ -31,7 +39,7 @@ digraph {
 	"network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="grey" fontcolor="grey" weight=1]
 	"network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]" -> "network-policy-conformance-gryffindor/harry-potter[StatefulSet]" [label="All Connections" color="red2" fontcolor="red2" weight=1]
 	"network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]" -> "network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]" [label="SCTP 9003" color="grey" fontcolor="grey" weight=1]
-	"network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]" -> "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]" [label="All Connections (ref1: All but: SCTP 9003)" color="magenta" fontcolor="magenta" weight=0.5]
+	"network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]" -> "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]" [label="All Connections (ref1: SCTP 1-9002,9004-65535,TCP 1-65535,UDP 1-65535)" color="magenta" fontcolor="magenta" weight=0.5]
 	"network-policy-conformance-slytherin/draco-malfoy[StatefulSet]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="grey" fontcolor="grey" weight=1]
 	"network-policy-conformance-slytherin/draco-malfoy[StatefulSet]" -> "network-policy-conformance-gryffindor/harry-potter[StatefulSet]" [label="All Connections" color="grey" fontcolor="grey" weight=1]
 	"network-policy-conformance-slytherin/draco-malfoy[StatefulSet]" -> "network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]" [label="All Connections" color="grey" fontcolor="grey" weight=1]

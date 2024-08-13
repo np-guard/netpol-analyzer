@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 
+	"k8s.io/apimachinery/pkg/util/intstr"
+
 	v1 "k8s.io/api/core/v1"
 
 	"github.com/np-guard/models/pkg/interval"
@@ -32,6 +34,13 @@ func MakeConnectionSet(all bool) *ConnectionSet {
 		return &ConnectionSet{AllowAll: true, AllowedProtocols: map[v1.Protocol]*PortSet{}}
 	}
 	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}}
+}
+
+// GetAllTCPConnections returns a pointer to ConnectionSet object with all TCP protocol connections
+func GetAllTCPConnections() *ConnectionSet {
+	tcpConn := MakeConnectionSet(false)
+	tcpConn.AddConnection(v1.ProtocolTCP, MakePortSet(true))
+	return tcpConn
 }
 
 // Intersection updates ConnectionSet object to be the intersection result with other ConnectionSet
@@ -111,7 +120,7 @@ func (conn *ConnectionSet) Union(other *ConnectionSet) {
 	conn.checkIfAllConnections()
 }
 
-// Subtract : updates ConnectionSet object with the result of
+// Subtract : updates current ConnectionSet object with the result of
 // subtracting other ConnectionSet from current ConnectionSet
 func (conn *ConnectionSet) Subtract(other *ConnectionSet) {
 	if other.IsEmpty() { // nothing to subtract
@@ -164,7 +173,7 @@ func (conn *ConnectionSet) Contains(port, protocol string) bool {
 	return false
 }
 
-// ContainedIn returns true if current ConnectionSet is conatained in the input ConnectionSet object
+// ContainedIn returns true if current ConnectionSet is contained in the input ConnectionSet object
 func (conn *ConnectionSet) ContainedIn(other *ConnectionSet) bool {
 	if other.AllowAll {
 		return true
@@ -232,6 +241,38 @@ func (conn *ConnectionSet) Equal(other *ConnectionSet) bool {
 	return true
 }
 
+// Copy returns a new copy of ConnectionSet object
+func (conn *ConnectionSet) Copy() *ConnectionSet {
+	res := MakeConnectionSet(false)
+	res.AllowAll = conn.AllowAll
+	for protocol, portSet := range conn.AllowedProtocols {
+		res.AllowedProtocols[protocol] = portSet.Copy()
+	}
+	return res
+}
+
+// GetNamedPorts returns map from protocol to list of its allowed named ports
+func (conn *ConnectionSet) GetNamedPorts() map[v1.Protocol][]string {
+	res := make(map[v1.Protocol][]string, 0)
+	for protocol, portSet := range conn.AllowedProtocols {
+		if namedPorts := portSet.GetNamedPortsKeys(); len(namedPorts) > 0 {
+			res[protocol] = namedPorts
+		}
+	}
+	return res
+}
+
+// ReplaceNamedPortWithMatchingPortNum : replacing given namedPort with the matching given port num in the connection
+// if port num is -1; just deletes the named port from the protocol's list
+func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(protocol v1.Protocol, namedPort string, portNum int32) {
+	protocolPortSet := conn.AllowedProtocols[protocol]
+	if portNum != NoPort {
+		protocolPortSet.AddPort(intstr.FromInt32(portNum))
+	}
+	// after adding the portNum to the protocol's portSet; remove the port name
+	protocolPortSet.RemovePort(intstr.FromString(namedPort))
+}
+
 // portRange implements the PortRange interface
 type portRange struct {
 	Interval interval.Interval
@@ -276,8 +317,6 @@ const (
 	connsAndPortRangeSeparator = ","
 	allConnsStr                = "All Connections"
 	noConnsStr                 = "No Connections"
-	complemetPrefix            = "All but: "
-	empty                      = "Empty"
 )
 
 func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[v1.Protocol][]PortRange) string {
@@ -288,42 +327,16 @@ func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[
 		return noConnsStr
 	}
 	var connStr string
-	// connStrings will contain the conns' protocols and ports as is
+	// connStrings will contain the string of given conns protocols and ports as is
 	connStrings := make([]string, len(protocolsAndPorts))
-	// connAsComplementStr will contain the conns' as "All but" + conns complement to the All conns
-	connAsComplementStr := make([]string, 0)
 	index := 0
 	for protocol, ports := range protocolsAndPorts {
 		connStrings[index] = protocolAndPortsStr(protocol, portsString(ports))
 		index++
-		// complement conn string
-		complementPortsStr := getComplementPorts(ports)
-		if complementPortsStr == empty || complementPortsStr == "" { // ports is full range
-			continue
-		}
-		connAsComplementStr = append(connAsComplementStr, protocolAndPortsStr(protocol, complementPortsStr))
 	}
 	sort.Strings(connStrings)
-	sort.Strings(connAsComplementStr)
 	connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
-	complementStr := complemetPrefix + strings.Join(connAsComplementStr, connsAndPortRangeSeparator)
-	// return the shorter string as the representation
-	if len(complementStr) < len(connStr) {
-		return complementStr
-	}
 	return connStr
-}
-
-// getComplementPorts computes and returns string representation of the complement intervals of given ports
-func getComplementPorts(ports []PortRange) string {
-	// create canonicalSet with all possible port ranges
-	complementCanonicalSet := interval.New(minPort, maxPort).ToSet()
-	// loop ports and subtract them from the full canonicalSet to get the complement
-	for i := range ports {
-		currCanonicalSet := (ports[i].(*portRange).Interval).ToSet()
-		complementCanonicalSet = complementCanonicalSet.Subtract(currCanonicalSet)
-	}
-	return complementCanonicalSet.String()
 }
 
 // get string representation for a list of port ranges

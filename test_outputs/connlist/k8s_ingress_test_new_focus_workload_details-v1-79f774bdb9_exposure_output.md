@@ -1,0 +1,10 @@
+| src | dst | conn |
+|-----|-----|------|
+| default/unicorn[Deployment] | default/details-v1-79f774bdb9[ReplicaSet] | TCP 9080 |
+| {ingress-controller} | default/details-v1-79f774bdb9[ReplicaSet] | TCP 9080 |
+## Exposure Analysis Result:
+
+### Ingress Exposure:
+| dst | src | conn |
+|-----|-----|------|
+| default/details-v1-79f774bdb9[ReplicaSet] | entire-cluster | TCP 9080 |

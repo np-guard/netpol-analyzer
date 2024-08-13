@@ -1,3 +1,3 @@
 Connectivity diff:
-diff-type: changed, source: network-policy-conformance-slytherin/draco-malfoy[StatefulSet], destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: All but: TCP 80, ref2: All Connections
+diff-type: changed, source: network-policy-conformance-slytherin/draco-malfoy[StatefulSet], destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535, ref2: All Connections
 diff-type: removed, source: network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet], destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: TCP 80, ref2: No Connections

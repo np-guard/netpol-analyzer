@@ -20,19 +20,19 @@ import (
 
 // relevant K8s resource kinds as string values
 const (
-	Networkpolicy          string = "NetworkPolicy"
+	NetworkPolicy          string = "NetworkPolicy"
 	Namespace              string = "Namespace"
 	Pod                    string = "Pod"
 	ReplicaSet             string = "ReplicaSet"
 	ReplicationController  string = "ReplicationController"
 	Deployment             string = "Deployment"
-	Statefulset            string = "StatefulSet"
-	Daemonset              string = "DaemonSet"
+	StatefulSet            string = "StatefulSet"
+	DaemonSet              string = "DaemonSet"
 	Job                    string = "Job"
 	CronJob                string = "CronJob"
 	List                   string = "List"
 	NamespaceList          string = "NamespaceList"
-	NetworkpolicyList      string = "NetworkPolicyList"
+	NetworkPolicyList      string = "NetworkPolicyList"
 	PodList                string = "PodList"
 	Service                string = "Service"
 	Route                  string = "Route"
@@ -48,7 +48,7 @@ type K8sObject struct {
 	Namespace *v1.Namespace
 
 	// netpol objects
-	Networkpolicy      *netv1.NetworkPolicy
+	NetworkPolicy      *netv1.NetworkPolicy
 	AdminNetworkPolicy *apisv1a.AdminNetworkPolicy
 
 	// pod object
@@ -62,13 +62,13 @@ type K8sObject struct {
 	Ingress *netv1.Ingress
 
 	// workload object
-	Replicaset            *appsv1.ReplicaSet
+	ReplicaSet            *appsv1.ReplicaSet
 	Deployment            *appsv1.Deployment
-	Statefulset           *appsv1.StatefulSet
+	StatefulSet           *appsv1.StatefulSet
 	ReplicationController *v1.ReplicationController
 	Job                   *batchv1.Job
 	CronJob               *batchv1.CronJob
-	Daemonset             *appsv1.DaemonSet
+	DaemonSet             *appsv1.DaemonSet
 }
 
 func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
@@ -76,15 +76,15 @@ func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
 	case Deployment:
 		k.Deployment = &appsv1.Deployment{}
 		return k.Deployment
-	case Daemonset:
-		k.Daemonset = &appsv1.DaemonSet{}
-		return k.Daemonset
+	case DaemonSet:
+		k.DaemonSet = &appsv1.DaemonSet{}
+		return k.DaemonSet
 	case ReplicaSet:
-		k.Replicaset = &appsv1.ReplicaSet{}
-		return k.Replicaset
-	case Statefulset:
-		k.Statefulset = &appsv1.StatefulSet{}
-		return k.Statefulset
+		k.ReplicaSet = &appsv1.ReplicaSet{}
+		return k.ReplicaSet
+	case StatefulSet:
+		k.StatefulSet = &appsv1.StatefulSet{}
+		return k.StatefulSet
 	case ReplicationController:
 		k.ReplicationController = &v1.ReplicationController{}
 		return k.ReplicationController
@@ -106,9 +106,9 @@ func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
 	case Pod:
 		k.Pod = &v1.Pod{}
 		return k.Pod
-	case Networkpolicy:
-		k.Networkpolicy = &netv1.NetworkPolicy{}
-		return k.Networkpolicy
+	case NetworkPolicy:
+		k.NetworkPolicy = &netv1.NetworkPolicy{}
+		return k.NetworkPolicy
 	case Namespace:
 		k.Namespace = &v1.Namespace{}
 		return k.Namespace
@@ -126,17 +126,17 @@ func (k *K8sObject) initDefaultNamespace() {
 		if k.Deployment.Namespace == "" {
 			k.Deployment.Namespace = metav1.NamespaceDefault
 		}
-	case Daemonset:
-		if k.Daemonset.Namespace == "" {
-			k.Daemonset.Namespace = metav1.NamespaceDefault
+	case DaemonSet:
+		if k.DaemonSet.Namespace == "" {
+			k.DaemonSet.Namespace = metav1.NamespaceDefault
 		}
 	case ReplicaSet:
-		if k.Replicaset.Namespace == "" {
-			k.Replicaset.Namespace = metav1.NamespaceDefault
+		if k.ReplicaSet.Namespace == "" {
+			k.ReplicaSet.Namespace = metav1.NamespaceDefault
 		}
-	case Statefulset:
-		if k.Statefulset.Namespace == "" {
-			k.Statefulset.Namespace = metav1.NamespaceDefault
+	case StatefulSet:
+		if k.StatefulSet.Namespace == "" {
+			k.StatefulSet.Namespace = metav1.NamespaceDefault
 		}
 	case ReplicationController:
 		if k.ReplicationController.Namespace == "" {
@@ -167,9 +167,9 @@ func (k *K8sObject) initDefaultNamespace() {
 			k.Pod.Namespace = metav1.NamespaceDefault
 		}
 		checkAndUpdatePodStatusIPsFields(k.Pod)
-	case Networkpolicy:
-		if k.Networkpolicy.Namespace == "" {
-			k.Networkpolicy.Namespace = metav1.NamespaceDefault
+	case NetworkPolicy:
+		if k.NetworkPolicy.Namespace == "" {
+			k.NetworkPolicy.Namespace = metav1.NamespaceDefault
 		}
 	}
 }
@@ -191,8 +191,8 @@ var workloadKinds = map[string]bool{
 	Pod:                   true,
 	ReplicaSet:            true,
 	Deployment:            true,
-	Statefulset:           true,
-	Daemonset:             true,
+	StatefulSet:           true,
+	DaemonSet:             true,
 	Job:                   true,
 	CronJob:               true,
 	ReplicationController: true,
@@ -213,8 +213,8 @@ func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) 
 			if _, ok := nsMap[obj.Namespace.Name]; ok {
 				res = append(res, obj)
 			}
-		case Networkpolicy:
-			if _, ok := nsMap[obj.Networkpolicy.Namespace]; ok {
+		case NetworkPolicy:
+			if _, ok := nsMap[obj.NetworkPolicy.Namespace]; ok {
 				res = append(res, obj)
 			}
 		case Pod:

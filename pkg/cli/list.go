@@ -20,12 +20,14 @@ import (
 )
 
 var (
-	focusWorkload string
-	output        string // output format
-	outFile       string // output file
+	focusWorkload    string
+	exposureAnalysis bool
+	output           string // output format
+	outFile          string // output file
 )
 
-func getOutputFormatDescription(validFormats string) string {
+// getRequiredOutputFormatString returns the description of required format(s) of the command
+func getRequiredOutputFormatString(validFormats string) string {
 	return fmt.Sprintf("Required output format (%s)", validFormats)
 }
 
@@ -33,8 +35,8 @@ func runListCommand() error {
 	var conns []connlist.Peer2PeerConnection
 	var err error
 
-	clogger := logger.NewDefaultLoggerWithVerbosity(detrmineLogVerbosity())
-	analyzer := connlist.NewConnlistAnalyzer(getConnlistOptions(clogger)...)
+	cLogger := logger.NewDefaultLoggerWithVerbosity(determineLogVerbosity())
+	analyzer := connlist.NewConnlistAnalyzer(getConnlistOptions(cLogger)...)
 
 	if dirPath != "" {
 		conns, _, err = analyzer.ConnlistFromDirPath(dirPath)
@@ -80,6 +82,9 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 	if stopOnFirstError {
 		res = append(res, connlist.WithStopOnError())
 	}
+	if exposureAnalysis {
+		res = append(res, connlist.WithExposureAnalysis())
+	}
 	return res
 }
 
@@ -124,9 +129,11 @@ defined`,
 	// Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
 	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "",
 		"Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)")
+	c.Flags().BoolVarP(&exposureAnalysis, "exposure", "", false, "Enhance the analysis of permitted connectivity with exposure analysis")
+	// output format - default txt
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
-	c.Flags().StringVarP(&output, "output", "o", outconsts.DefaultFormat, getOutputFormatDescription(supportedFormats))
+	c.Flags().StringVarP(&output, "output", "o", outconsts.DefaultFormat, getRequiredOutputFormatString(supportedFormats))
 	// out file
 	c.Flags().StringVarP(&outFile, "file", "f", "", "Write output to specified file")
 

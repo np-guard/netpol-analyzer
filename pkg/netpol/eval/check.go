@@ -59,16 +59,36 @@ func (pe *PolicyEngine) CheckIfAllowed(src, dst, protocol, port string) (bool, e
 	return ingressRes, nil
 }
 
-func (pe *PolicyEngine) convertWorkloadPeerToPodPeer(peer Peer) (*k8s.PodPeer, error) {
-	if workloadPeer, ok := peer.(*k8s.WorkloadPeer); ok {
-		podNamespace, ok := pe.namspacesMap[workloadPeer.Pod.Namespace]
-		if !ok {
-			return nil, errors.New(netpolerrors.MissingNamespaceErrStr(workloadPeer.String()))
-		}
-		podPeer := &k8s.PodPeer{Pod: workloadPeer.Pod, NamespaceObject: podNamespace}
-		return podPeer, nil
+func (pe *PolicyEngine) convertPeerToPodPeer(peer Peer) (*k8s.PodPeer, error) {
+	var podObj *k8s.Pod
+	var podNamespace *k8s.Namespace
+	var err error
+	switch currentPeer := peer.(type) {
+	case *k8s.WorkloadPeer:
+		podObj = currentPeer.Pod
+		podNamespace, err = pe.getPeerNamespaceObject(podObj)
+	default: // should not get here
+		return nil, errors.New(netpolerrors.InvalidPeerErrStr(peer.String()))
 	}
-	return nil, errors.New(netpolerrors.NotPeerErrStr(peer.String()))
+	if err != nil {
+		return nil, err
+	}
+	podPeer := &k8s.PodPeer{Pod: podObj, NamespaceObject: podNamespace}
+	return podPeer, nil
+}
+
+func (pe *PolicyEngine) getPeerNamespaceObject(podObj *k8s.Pod) (*k8s.Namespace, error) {
+	// if this is a representative peer which is not in a real namespace return nil;
+	// PolicyEngine does not contain representative namespaces.
+	if podObj.Namespace == "" && podObj.IsPodRepresentative() {
+		return nil, nil
+	}
+	// else , should have the namespace of the pod in policy-engine
+	namespaceObj, ok := pe.namespacesMap[podObj.Namespace]
+	if !ok {
+		return nil, errors.New(netpolerrors.MissingNamespaceErrStr(podObj.Namespace, podObj.Name))
+	}
+	return namespaceObj, nil
 }
 
 // for connectivity considerations, when requesting allowed connections between 2 workload peers which are the same,
@@ -87,28 +107,28 @@ func (pe *PolicyEngine) changePodPeerToAnotherPodObject(peer *k8s.PodPeer) {
 // expecting that srcPeer and dstPeer are in level of workloads (WorkloadPeer)
 func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer Peer) (*common.ConnectionSet, error) {
 	if srcPeer.IsPeerIPType() && !dstPeer.IsPeerIPType() {
-		// assuming dstPeer is WorkloadPeer, should be converted to k8s.Peer
-		dstPodPeer, err := pe.convertWorkloadPeerToPodPeer(dstPeer)
+		// assuming dstPeer is WorkloadPeer/RepresentativePeer, should be converted to k8s.Peer
+		dstPodPeer, err := pe.convertPeerToPodPeer(dstPeer)
 		if err != nil {
 			return nil, err
 		}
 		return pe.allAllowedConnectionsBetweenPeers(srcPeer, dstPodPeer)
 	}
 	if dstPeer.IsPeerIPType() && !srcPeer.IsPeerIPType() {
-		// assuming srcPeer is WorkloadPeer, should be converted to k8s.Peer
-		srcPodPeer, err := pe.convertWorkloadPeerToPodPeer(srcPeer)
+		// assuming srcPeer is WorkloadPeer/RepresentativePeer, should be converted to k8s.Peer
+		srcPodPeer, err := pe.convertPeerToPodPeer(srcPeer)
 		if err != nil {
 			return nil, err
 		}
 		return pe.allAllowedConnectionsBetweenPeers(srcPodPeer, dstPeer)
 	}
 	if !dstPeer.IsPeerIPType() && !srcPeer.IsPeerIPType() {
-		// assuming srcPeer and dstPeer are WorkloadPeer, should be converted to k8s.Peer
-		srcPodPeer, err := pe.convertWorkloadPeerToPodPeer(srcPeer)
+		// assuming srcPeer and dstPeer are WorkloadPeer/RepresentativePeer, should be converted to k8s.Peer
+		srcPodPeer, err := pe.convertPeerToPodPeer(srcPeer)
 		if err != nil {
 			return nil, err
 		}
-		dstPodPeer, err := pe.convertWorkloadPeerToPodPeer(dstPeer)
+		dstPodPeer, err := pe.convertPeerToPodPeer(dstPeer)
 		if err != nil {
 			return nil, err
 		}
@@ -149,9 +169,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	}
 
 	// get conns from networkPolicies:
-	var npAllowedConns *common.ConnectionSet
-	npCaptured := false
-	npAllowedConns, npCaptured, err = pe.getAllAllowedConnsFromNetpols(srcK8sPeer, dstK8sPeer)
+	npAllowedConns, npCaptured, err := pe.getAllAllowedConnsFromNetpols(srcK8sPeer, dstK8sPeer)
 	if err != nil {
 		return nil, err
 	}
@@ -199,6 +217,9 @@ func (pe *PolicyEngine) getPoliciesSelectingPod(p *k8s.Pod, direction netv1.Poli
 			res = append(res, policy)
 		}
 	}
+	if pe.exposureAnalysisFlag && len(res) > 0 {
+		p.UpdatePodXgressProtectedFlag(direction == netv1.PolicyTypeIngress)
+	}
 	return res, nil
 }
 
@@ -223,14 +244,14 @@ func (pe *PolicyEngine) allowedXgressConnection(src, dst k8s.Peer, isIngress boo
 		return false, err
 	}
 
-	if len(netpols) == 0 { // no networkpolicy captures the relevant pod on the required direction
+	if len(netpols) == 0 { // no networkPolicy captures the relevant pod on the required direction
 		return true, nil // all connections allowed
 	}
 
 	// iterate relevant network policies (that capture the required pod)
 	for _, policy := range netpols {
 		// if isIngress: check for ingress rules that capture src within 'from'
-		// if not isIngress: check for egress rulres that capture dst within 'to'
+		// if not isIngress: check for egress rules that capture dst within 'to'
 		if isIngress {
 			res, err := policy.IngressAllowedConn(src, protocol, port, dst)
 			if err != nil {
@@ -301,7 +322,7 @@ func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 			if namespaceStr == metav1.NamespaceNone {
 				namespaceStr = metav1.NamespaceDefault
 			}
-			nsObj, ok := pe.namspacesMap[namespaceStr]
+			nsObj, ok := pe.namespacesMap[namespaceStr]
 			if !ok {
 				return nil, errors.New(netpolerrors.NotFoundNamespace)
 			}
@@ -341,13 +362,13 @@ func (pe *PolicyEngine) allAllowedConnections(src, dst string) (*common.Connecti
 
 // GetPeerExposedTCPConnections returns the tcp connection (ports) exposed by a workload/pod peer
 func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
-	switch currPeer := peer.(type) {
+	switch currentPeer := peer.(type) {
 	case *k8s.IPBlockPeer:
 		return nil
 	case *k8s.WorkloadPeer:
-		return currPeer.Pod.PodExposedTCPConnections()
+		return currentPeer.Pod.PodExposedTCPConnections()
 	case *k8s.PodPeer:
-		return currPeer.Pod.PodExposedTCPConnections()
+		return currentPeer.Pod.PodExposedTCPConnections()
 	default:
 		return nil
 	}
@@ -355,7 +376,7 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 
 // analyzing network-policies for conns between peers (object kind == NetworkPolicy):
 
-// getAllAllowedConnsFromNetpols : returns set of allowed connections between src and dst by analyzing the network-policies rules
+// getAllAllowedConnsFromNetpols: returns set of allowed connections between src and dst by analyzing the network-policies rules
 func (pe *PolicyEngine) getAllAllowedConnsFromNetpols(src, dst k8s.Peer) (allowedConns *common.ConnectionSet, npCaptured bool, err error) {
 	var res, ingressRes *common.ConnectionSet
 	egressCaptured, ingressCaptured := false, false
@@ -378,6 +399,8 @@ func (pe *PolicyEngine) getAllAllowedConnsFromNetpols(src, dst k8s.Peer) (allowe
 
 // getAllAllowedXgressConnsFromNetpols returns the set of allowed connections from src to dst on given
 // direction(ingress/egress), by network policies rules
+// also checks and updates if a src is exposed to all namespaces on egress or
+// dst is exposed to all namespaces cluster on ingress
 func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, isIngress bool) (allowedConns *common.ConnectionSet,
 	captured bool, err error) {
 	// relevant policies: policies that capture dst if isIngress, else policies that capture src
@@ -408,15 +431,14 @@ func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, i
 
 	// iterate relevant network policies (that capture the required pod)
 	for _, policy := range netpols {
+		// determine policy's allowed connections between the peers for the direction
 		// if isIngress: check for ingress rules that capture src within 'from'
 		// if not isIngress: check for egress rules that capture dst within 'to'
 		// collect the allowed connectivity from the relevant rules into allowedConns
-		var policyAllowedConnectionsPerDirection *common.ConnectionSet
-		var err error
-		if isIngress {
-			policyAllowedConnectionsPerDirection, err = policy.GetIngressAllowedConns(src, dst)
-		} else {
-			policyAllowedConnectionsPerDirection, err = policy.GetEgressAllowedConns(dst)
+		policyAllowedConnectionsPerDirection, err := pe.determineAllowedConnsPerDirection(policy, src, dst, isIngress)
+		// in case of exposure-analysis: update cluster wide exposure data for relevant pod
+		if pe.exposureAnalysisFlag {
+			updatePeerXgressClusterWideExposure(policy, src, dst, isIngress)
 		}
 		if err != nil {
 			return nil, false, err
@@ -424,6 +446,46 @@ func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, i
 		allowedConns.Union(policyAllowedConnectionsPerDirection)
 	}
 	return allowedConns, true, nil
+}
+
+// determineAllowedConnsPerDirection returns the policy's allowed connections between the
+// peers in the given direction
+func (pe *PolicyEngine) determineAllowedConnsPerDirection(policy *k8s.NetworkPolicy, src, dst k8s.Peer,
+	isIngress bool) (*common.ConnectionSet, error) {
+	if isIngress {
+		// get ingress allowed conns between src and dst
+		switch {
+		case policy.IngressPolicyExposure.ExternalExposure.AllowAll:
+			return policy.IngressPolicyExposure.ExternalExposure, nil
+		case policy.IngressPolicyExposure.ClusterWideExposure.AllowAll && src.PeerType() == k8s.PodType:
+			return policy.IngressPolicyExposure.ClusterWideExposure, nil
+		default:
+			return policy.GetIngressAllowedConns(src, dst)
+		}
+	}
+	// else get egress allowed conns between src and dst
+	switch {
+	case policy.EgressPolicyExposure.ExternalExposure.AllowAll:
+		return policy.EgressPolicyExposure.ExternalExposure, nil
+	case policy.EgressPolicyExposure.ClusterWideExposure.AllowAll && dst.PeerType() == k8s.PodType:
+		return policy.EgressPolicyExposure.ClusterWideExposure, nil
+	default:
+		return policy.GetEgressAllowedConns(dst)
+	}
+}
+
+// updatePeerXgressClusterWideExposure updates the cluster-wide exposure of the pod which is selected by input policy.
+// used only when exposure-analysis is active
+func updatePeerXgressClusterWideExposure(policy *k8s.NetworkPolicy, src, dst k8s.Peer, isIngress bool) {
+	if isIngress {
+		// policy selecting dst (dst pod is real)
+		// update its ingress entire cluster connection relying on policy data
+		dst.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.IngressPolicyExposure.ClusterWideExposure, isIngress)
+	} else {
+		// policy selecting src
+		// update its egress entire cluster connection relying on policy data
+		src.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.EgressPolicyExposure.ClusterWideExposure, isIngress)
+	}
 }
 
 // analyzing admin-network-policies for conns between peers (object kind == AdminNetworkPolicy):
@@ -471,7 +533,7 @@ func (pe *PolicyEngine) getAllConnsFromAdminNetpols(src, dst k8s.Peer) (anpsConn
 			policiesConns.CollectANPConns(policyConnsPerDirection)
 		}
 		// if the anp captures the dst, get the relevant ingress conns (from src to dst)
-		if dstAdminNetpols[anp] {
+		if dstAdminNetpols[anp] { // @todo should replace with else if (rules in a single policy should be matching for same src, dst?)
 			policyConnsPerDirection, err := anp.GetIngressPolicyConns(src, dst)
 			if err != nil {
 				return nil, false, err
