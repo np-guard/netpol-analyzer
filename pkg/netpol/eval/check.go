@@ -158,6 +158,8 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	anpCaptured := false
 	var anpConns *k8s.PolicyConnections
 	if dstK8sPeer.PeerType() != k8s.IPBlockType && srcK8sPeer.PeerType() != k8s.IPBlockType {
+		// @todo: when supporting the `Networks` field of an egress rule - dst might be IP-block, so this if statement may be changed/removed.
+		// ANP "Selects" func returns false for IP subjects anyway (also now this if does not affect the results, @todo should remove now?)
 		anpConns, anpCaptured, err = pe.getAllConnsFromAdminNetpols(srcK8sPeer, dstK8sPeer)
 		if err != nil {
 			return nil, err
@@ -170,8 +172,8 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 		return nil, err
 	}
 
-	// get default connection between src and dst: (@todo:when supporting BANP, default will be extracted from it)
-	defaultAllowedConns := common.MakeConnectionSet(true) // default is allowAll conns ,  @todo: type will be changed to *PolicyConnections
+	// get default connection between src and dst: (@todo:when supporting BANP, default will be extracted from it/ def : allow all)
+	defaultAllowedConns := common.MakeConnectionSet(true) // @todo: type will be changed to *PolicyConnections (in BANP branch)
 
 	// compute the result considering all captured conns
 	if !anpCaptured && !npCaptured {
