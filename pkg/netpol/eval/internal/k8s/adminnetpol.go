@@ -26,8 +26,9 @@ var ruleErrTitle = fmt.Sprintf("Error in rule:  %%v")
 
 // Selects returns true if the admin network policy's Spec.Subject selects the peer and if the required direction is in the policy spec
 func (anp *AdminNetworkPolicy) Selects(p Peer, isIngress bool) (bool, error) {
-	if p.PeerType() == IPBlockType {
-		// adminNetworkPolicy selects peers with their namespaceSelectors and podSelectors only, so it might not select IPs
+	if p.PeerType() == IPBlockType { // should not get here
+		// adminNetworkPolicy is a cluster level resource which selects peers with their namespaceSelectors and podSelectors only,
+		// so it might not select IPs
 		return false, nil
 	}
 	if !anp.adminPolicyAffectsDirection(isIngress) {
@@ -68,7 +69,7 @@ func onlyOnePeersFieldIsSet(namespacesField *metav1.LabelSelector, podsField *ap
 
 // doesNamespacesFieldMatchPeer returns if the given namespaces LabelSelector matches the given peer
 func (anp *AdminNetworkPolicy) doesNamespacesFieldMatchPeer(namespaces *metav1.LabelSelector, peer Peer) (bool, error) {
-	if peer.PeerType() == IPBlockType {
+	if peer.PeerType() == IPBlockType { // should not get here
 		return false, nil // namespaces does not select IPs
 	}
 	namespacesSelector, err := anp.parseAdminNetpolLabelSelector(namespaces)
@@ -95,7 +96,7 @@ func (anp *AdminNetworkPolicy) doesPodsFieldMatchPeer(pods *apisv1a.NamespacedPo
 	return nsSelector.Matches(labels.Set(peer.GetPeerNamespace().Labels)) && podSelector.Matches(labels.Set(peer.GetPeerPod().Labels)), nil
 }
 
-// parseAdminNetpolLabelSelector returns a selector of type labels.selector from a LabelSelector from the policy.
+// parseAdminNetpolLabelSelector returns a selector of type labels.selector from a LabelSelector in the policy.
 // an error with the admin network policy details returned if fails to convert the selector.
 func (anp *AdminNetworkPolicy) parseAdminNetpolLabelSelector(selector *metav1.LabelSelector) (labels.Selector, error) {
 	selectorRes, err := metav1.LabelSelectorAsSelector(selector)
@@ -256,7 +257,7 @@ func (anp *AdminNetworkPolicy) ruleConnections(ports *[]apisv1a.AdminNetworkPoli
 			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port))
 		case anpPort.NamedPort != nil:
 			podProtocol, podPort := dst.GetPeerPod().ConvertPodNamedPort(*anpPort.NamedPort)
-			if podPort == common.NoPort {
+			if podPort == common.NoPort { // pod does not have this named port in its container
 				continue // or an error should be returned?
 			}
 			if podProtocol != "" {

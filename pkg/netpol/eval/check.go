@@ -154,11 +154,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 		return common.MakeConnectionSet(true), nil
 	}
 
-	// default connection: (@todo:when supporting BANP, default will be extracted from it)
-	defaultAllowedConns := common.MakeConnectionSet(true) // default is allowAll conns ,  @todo: type will be changed to *PolicyConnections
-
-	// first get conns from AdminNetworkPolicies:
-	// unless one peer is IP, skip, since ANPs are a cluster level resources
+	// first get conns between src and dst from AdminNetworkPolicies, unless one peer is IP, skip, since ANPs are a cluster level resources
 	anpCaptured := false
 	var anpConns *k8s.PolicyConnections
 	if dstK8sPeer.PeerType() != k8s.IPBlockType && srcK8sPeer.PeerType() != k8s.IPBlockType {
@@ -168,11 +164,14 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 		}
 	}
 
-	// get conns from networkPolicies:
+	// get conns between src and dst from networkPolicies:
 	npAllowedConns, npCaptured, err := pe.getAllAllowedConnsFromNetpols(srcK8sPeer, dstK8sPeer)
 	if err != nil {
 		return nil, err
 	}
+
+	// get default connection between src and dst: (@todo:when supporting BANP, default will be extracted from it)
+	defaultAllowedConns := common.MakeConnectionSet(true) // default is allowAll conns ,  @todo: type will be changed to *PolicyConnections
 
 	// compute the result considering all captured conns
 	if !anpCaptured && !npCaptured {
@@ -533,7 +532,8 @@ func (pe *PolicyEngine) getAllConnsFromAdminNetpols(src, dst k8s.Peer) (anpsConn
 			policiesConns.CollectANPConns(policyConnsPerDirection)
 		}
 		// if the anp captures the dst, get the relevant ingress conns (from src to dst)
-		if dstAdminNetpols[anp] { // @todo should replace with else if (rules in a single policy should be matching for same src, dst?)
+		if dstAdminNetpols[anp] { // @todo should replace with else if (ingress and egress rules in a single
+			// policy should be matching for same src, dst?)
 			policyConnsPerDirection, err := anp.GetIngressPolicyConns(src, dst)
 			if err != nil {
 				return nil, false, err
@@ -582,10 +582,12 @@ func getUniqueAndSortedANPsList(ingressAnps, egressAnps map[*k8s.AdminNetworkPol
 func sortAdminNetpolsByPriority(anpList []*k8s.AdminNetworkPolicy) ([]*k8s.AdminNetworkPolicy, error) {
 	var err error
 	sort.Slice(anpList, func(i, j int) bool {
+		// outcome is non-deterministic if there are two AdminNetworkPolicies at the same priority
 		if anpList[i].Spec.Priority == anpList[j].Spec.Priority {
 			err = errors.New(netpolerrors.SamePriorityErr(anpList[i].Name, anpList[j].Name))
 			return false
 		}
+		// priority values range is defined
 		if !anpList[i].HasValidPriority() {
 			err = errors.New(netpolerrors.PriorityValueErr(anpList[i].Name, anpList[i].Spec.Priority))
 			return false
