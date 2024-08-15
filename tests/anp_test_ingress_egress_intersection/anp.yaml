@@ -1,0 +1,26 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: cluster-allow-example
+spec:
+  priority: 30
+  subject:
+    namespaces: {}
+  ingress:
+    - action: Allow
+      from:
+      - namespaces: {}
+      ports:
+        - portNumber:
+            protocol: UDP
+            port: 5353
+    - action: Deny # deny others
+      from:
+      - namespaces: {}
+  egress:
+    - action: Allow
+      to:
+      - namespaces:
+          namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: foo-ns-2

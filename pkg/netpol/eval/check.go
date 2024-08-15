@@ -522,25 +522,33 @@ func (pe *PolicyEngine) getAllConnsFromAdminNetpols(src, dst k8s.Peer) (anpsConn
 	policiesConns := k8s.InitEmptyPolicyConnections()
 	// iterate the related sorted admin network policies in order to compute the allowed, pass, and denied connections between the peers
 	for _, anp := range adminNetpols {
+		singleANPConns := k8s.InitEmptyPolicyConnections()
 		// collect the allowed, pass, and denied connectivity from the relevant rules into policiesConns
 		// note that anp may capture both the src and dst (by namespaces field), so both ingress and egress sections might be helpful
 
 		// if the anp captures the src, get the relevant egress conns between src and dst
 		if srcAdminNetpols[anp] {
-			policyConnsPerDirection, err := anp.GetEgressPolicyConns(dst)
+			singleANPConns, err = anp.GetEgressPolicyConns(dst)
 			if err != nil {
 				return nil, false, err
 			}
-			policiesConns.CollectANPConns(policyConnsPerDirection)
 		}
 		// if the anp captures the dst, get the relevant ingress conns (from src to dst)
 		if dstAdminNetpols[anp] {
-			policyConnsPerDirection, err := anp.GetIngressPolicyConns(src, dst)
+			ingressConns, err := anp.GetIngressPolicyConns(src, dst)
 			if err != nil {
 				return nil, false, err
 			}
-			policiesConns.CollectANPConns(policyConnsPerDirection)
+			// get the intersection of ingress and egress sections if also the src was captured
+			if srcAdminNetpols[anp] {
+				singleANPConns.AllowedConns.Intersection(ingressConns.AllowedConns)
+				singleANPConns.DeniedConns.Union(ingressConns.DeniedConns)
+				singleANPConns.PassConns.Union(ingressConns.PassConns)
+			} else { // only dst is captured by anp
+				singleANPConns = ingressConns
+			}
 		}
+		policiesConns.CollectANPConns(singleANPConns)
 	}
 
 	if policiesConns.IsEmpty() { // conns between src and dst were not captured by the adminNetpols, to be determined by netpols/default conns
