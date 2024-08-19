@@ -64,7 +64,7 @@ func (anp *AdminNetworkPolicy) subjectSelectsPeer(p Peer) (bool, error) {
 
 // onlyOnePeersFieldIsSet returns if exactly one of the given objects is set (not nil)
 func onlyOnePeersFieldIsSet(namespacesField *metav1.LabelSelector, podsField *apisv1a.NamespacedPod) bool {
-	return !((namespacesField == nil && podsField == nil) || (namespacesField != nil && podsField != nil))
+	return (namespacesField == nil) != (podsField == nil)
 }
 
 // doesNamespacesFieldMatchPeer returns if the given namespaces LabelSelector matches the given peer
