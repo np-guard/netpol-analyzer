@@ -21,6 +21,5 @@ spec:
     - action: Allow
       to:
       - namespaces:
-          namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: foo-ns-2
