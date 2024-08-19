@@ -261,7 +261,7 @@ func (anp *AdminNetworkPolicy) ruleConnections(ports *[]apisv1a.AdminNetworkPoli
 		case anpPort.NamedPort != nil:
 			podProtocol, podPort := dst.GetPeerPod().ConvertPodNamedPort(*anpPort.NamedPort)
 			if podPort == common.NoPort { // pod does not have this named port in its container
-				continue // @todo should return a warning/err ?
+				continue // @todo should raise a warning
 			}
 			if podProtocol != "" {
 				protocol = podProtocol
@@ -272,7 +272,7 @@ func (anp *AdminNetworkPolicy) ruleConnections(ports *[]apisv1a.AdminNetworkPoli
 				protocol = anpPort.PortRange.Protocol
 			}
 			if isEmptyPortRange(anpPort.PortRange.Start, anpPort.PortRange.End) {
-				continue // @todo should return a warning/err ?
+				continue // @todo should raise a warning
 			}
 			portSet.AddPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End))
 		}
