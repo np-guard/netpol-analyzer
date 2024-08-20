@@ -24,6 +24,10 @@ import (
 
 // /////////////////////////////////////// ParsedResourcesTests ////////////////////////////////////
 
+const (
+	podKind = "Pod"
+)
+
 var (
 	udp        = v1.ProtocolUDP
 	serve80tcp = "serve-80-tcp"
@@ -33,7 +37,7 @@ var (
 func newDefaultPod(namespace, name string, ports []int, protocols []v1.Protocol) *v1.Pod {
 	podObj := v1.Pod{}
 	podObj.TypeMeta.APIVersion = "v1"
-	podObj.TypeMeta.Kind = "Pod"
+	podObj.TypeMeta.Kind = podKind
 	podObj.ObjectMeta.Name = name
 	podObj.ObjectMeta.Namespace = namespace
 	podObj.Status.HostIP = parser.IPv4LoopbackAddr
@@ -137,16 +141,16 @@ func (test *ParsedResourcesTest) Getk8sObjects() []parser.K8sObject {
 	res := []parser.K8sObject{}
 	test.TestInfo = fmt.Sprintf("test: %q, output format: %q", test.Name, test.OutputFormat)
 	for _, ns := range test.Resources.NsList {
-		res = append(res, CreateNamespaceK8sObject(ns))
+		res = append(res, createNamespaceK8sObject(ns))
 	}
 	for _, pod := range test.Resources.PodList {
-		res = append(res, CreatePodK8sObject(pod))
+		res = append(res, createPodK8sObject(pod))
 	}
 	for _, np := range test.NpList {
-		res = append(res, CreateNetwordPolicyK8sObject(np))
+		res = append(res, createNetwordPolicyK8sObject(np))
 	}
 	for _, anp := range test.AnpList {
-		res = append(res, CreateAdminNetwordPolicyK8sObject(anp))
+		res = append(res, createAdminNetwordPolicyK8sObject(anp))
 	}
 	// Tanya: uncomment the code below when BaselineAdminNetworkPolicy is implemented
 	// if test.Banp != nil {
@@ -155,28 +159,28 @@ func (test *ParsedResourcesTest) Getk8sObjects() []parser.K8sObject {
 	return res
 }
 
-func CreatePodK8sObject(pod *v1.Pod) parser.K8sObject {
+func createPodK8sObject(pod *v1.Pod) parser.K8sObject {
 	k8sObj := parser.K8sObject{}
-	k8sObj.Kind = "Pod"
+	k8sObj.Kind = podKind
 	k8sObj.Pod = pod
 	return k8sObj
 }
 
-func CreateNamespaceK8sObject(ns *v1.Namespace) parser.K8sObject {
+func createNamespaceK8sObject(ns *v1.Namespace) parser.K8sObject {
 	k8sObj := parser.K8sObject{}
 	k8sObj.Kind = "Namespace"
 	k8sObj.Namespace = ns
 	return k8sObj
 }
 
-func CreateNetwordPolicyK8sObject(np *netv1.NetworkPolicy) parser.K8sObject {
+func createNetwordPolicyK8sObject(np *netv1.NetworkPolicy) parser.K8sObject {
 	k8sObj := parser.K8sObject{}
 	k8sObj.Kind = "NetworkPolicy"
 	k8sObj.NetworkPolicy = np
 	return k8sObj
 }
 
-func CreateAdminNetwordPolicyK8sObject(anp *v1alpha1.AdminNetworkPolicy) parser.K8sObject {
+func createAdminNetwordPolicyK8sObject(anp *v1alpha1.AdminNetworkPolicy) parser.K8sObject {
 	k8sObj := parser.K8sObject{}
 	k8sObj.Kind = "AdminNetworkPolicy"
 	k8sObj.AdminNetworkPolicy = anp
