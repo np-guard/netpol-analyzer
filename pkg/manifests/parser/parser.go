@@ -10,12 +10,9 @@ import (
 	"errors"
 	"fmt"
 
-	v1 "k8s.io/api/core/v1"
-	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/cli-runtime/pkg/resource"
-	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
@@ -93,38 +90,6 @@ func resourceInfoToK8sObject(info *resource.Info, l logger.Logger, muteErrsAndWa
 	}
 
 	return &resObject, nil
-}
-
-func CreatePodK8sObject(pod *v1.Pod) K8sObject {
-	k8sObj := K8sObject{}
-	k8sObj.Kind = "Pod"
-	k8sObj.Pod = pod
-	k8sObj.initDefaultNamespace()
-	return k8sObj
-}
-
-func CreateNamespaceK8sObject(ns *v1.Namespace) K8sObject {
-	k8sObj := K8sObject{}
-	k8sObj.Kind = "Namespace"
-	k8sObj.Namespace = ns
-	k8sObj.initDefaultNamespace()
-	return k8sObj
-}
-
-func CreateNetwordPolicyK8sObject(np *netv1.NetworkPolicy) K8sObject {
-	k8sObj := K8sObject{}
-	k8sObj.Kind = "NetworkPolicy"
-	k8sObj.NetworkPolicy = np
-	k8sObj.initDefaultNamespace()
-	return k8sObj
-}
-
-func CreateAdminNetwordPolicyK8sObject(anp *apisv1a.AdminNetworkPolicy) K8sObject {
-	k8sObj := K8sObject{}
-	k8sObj.Kind = "AdminNetworkPolicy"
-	k8sObj.AdminNetworkPolicy = anp
-	k8sObj.initDefaultNamespace()
-	return k8sObj
 }
 
 // error for resource with kind: , name: ,namespace: ,
