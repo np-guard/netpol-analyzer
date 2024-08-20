@@ -36,6 +36,8 @@ func newDefaultPod(namespace, name string, ports []int, protocols []v1.Protocol)
 	podObj.TypeMeta.Kind = "Pod"
 	podObj.ObjectMeta.Name = name
 	podObj.ObjectMeta.Namespace = namespace
+	podObj.Status.HostIP = parser.IPv4LoopbackAddr
+	podObj.Status.PodIPs = []v1.PodIP{{IP: parser.IPv4LoopbackAddr}}
 	podObj.Labels = map[string]string{"pod": name}
 	for _, port := range ports {
 		for _, protocol := range protocols {
