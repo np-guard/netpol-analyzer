@@ -444,7 +444,7 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 	if anp.Name == "" {
 		return errors.New(netpolerrors.ANPMissingNameErr)
 	}
-	if _, ok := pe.adminNetpolsMap[anp.Name]; ok {
+	if _, ok := pe.adminNetpolsMap[anp.Name]; ok { // @todo : should this be a warning? the last anp with the name is the one taken
 		return errors.New(netpolerrors.ANPsWithSameNameErr(anp.Name))
 	}
 	pe.adminNetpolsMap[anp.Name] = (*k8s.AdminNetworkPolicy)(anp)

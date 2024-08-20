@@ -1229,6 +1229,12 @@ var goodPathTests = []struct {
 		testDirName:   "anp_test_multiple_anps",
 		outputFormats: ValidFormats,
 	},
+	{
+		// test with an anp where ingress and egress sections are not fully matched,
+		// need to consider intersection before collecting other policies conns
+		testDirName:   "anp_test_ingress_egress_intersection",
+		outputFormats: []string{output.TextFormat},
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []testutils.ParsedResourcesTest) {

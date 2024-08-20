@@ -154,25 +154,26 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 		return common.MakeConnectionSet(true), nil
 	}
 
-	// default connection: (@todo:when supporting BANP, default will be extracted from it)
-	defaultAllowedConns := common.MakeConnectionSet(true) // default is allowAll conns ,  @todo: type will be changed to *PolicyConnections
-
-	// first get conns from AdminNetworkPolicies:
-	// unless one peer is IP, skip, since ANPs are a cluster level resources
+	// first get conns between src and dst from AdminNetworkPolicies, unless one peer is IP, skip, since ANPs are a cluster level resources
 	anpCaptured := false
 	var anpConns *k8s.PolicyConnections
 	if dstK8sPeer.PeerType() != k8s.IPBlockType && srcK8sPeer.PeerType() != k8s.IPBlockType {
+		// @todo: when supporting the `Networks` field of an egress rule - dst might be IP-block, so this if statement may be changed/removed.
+		// ANP "Selects" func returns false for IP subjects anyway (also now this if does not affect the results, @todo should remove now?)
 		anpConns, anpCaptured, err = pe.getAllConnsFromAdminNetpols(srcK8sPeer, dstK8sPeer)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	// get conns from networkPolicies:
+	// get conns between src and dst from networkPolicies:
 	npAllowedConns, npCaptured, err := pe.getAllAllowedConnsFromNetpols(srcK8sPeer, dstK8sPeer)
 	if err != nil {
 		return nil, err
 	}
+
+	// get default connection between src and dst: (@todo:when supporting BANP, default will be extracted from it/ def : allow all)
+	defaultAllowedConns := common.MakeConnectionSet(true) // @todo: type will be changed to *PolicyConnections (in BANP branch)
 
 	// compute the result considering all captured conns
 	if !anpCaptured && !npCaptured {
@@ -521,25 +522,33 @@ func (pe *PolicyEngine) getAllConnsFromAdminNetpols(src, dst k8s.Peer) (anpsConn
 	policiesConns := k8s.InitEmptyPolicyConnections()
 	// iterate the related sorted admin network policies in order to compute the allowed, pass, and denied connections between the peers
 	for _, anp := range adminNetpols {
+		singleANPConns := k8s.InitEmptyPolicyConnections()
 		// collect the allowed, pass, and denied connectivity from the relevant rules into policiesConns
 		// note that anp may capture both the src and dst (by namespaces field), so both ingress and egress sections might be helpful
 
 		// if the anp captures the src, get the relevant egress conns between src and dst
 		if srcAdminNetpols[anp] {
-			policyConnsPerDirection, err := anp.GetEgressPolicyConns(dst)
+			singleANPConns, err = anp.GetEgressPolicyConns(dst)
 			if err != nil {
 				return nil, false, err
 			}
-			policiesConns.CollectANPConns(policyConnsPerDirection)
 		}
 		// if the anp captures the dst, get the relevant ingress conns (from src to dst)
-		if dstAdminNetpols[anp] { // @todo should replace with else if (rules in a single policy should be matching for same src, dst?)
-			policyConnsPerDirection, err := anp.GetIngressPolicyConns(src, dst)
+		if dstAdminNetpols[anp] {
+			ingressConns, err := anp.GetIngressPolicyConns(src, dst)
 			if err != nil {
 				return nil, false, err
 			}
-			policiesConns.CollectANPConns(policyConnsPerDirection)
+			// get the intersection of ingress and egress sections if also the src was captured
+			if srcAdminNetpols[anp] {
+				singleANPConns.AllowedConns.Intersection(ingressConns.AllowedConns)
+				singleANPConns.DeniedConns.Union(ingressConns.DeniedConns)
+				singleANPConns.PassConns.Union(ingressConns.PassConns)
+			} else { // only dst is captured by anp
+				singleANPConns = ingressConns
+			}
 		}
+		policiesConns.CollectANPConns(singleANPConns)
 	}
 
 	if policiesConns.IsEmpty() { // conns between src and dst were not captured by the adminNetpols, to be determined by netpols/default conns
@@ -582,10 +591,12 @@ func getUniqueAndSortedANPsList(ingressAnps, egressAnps map[*k8s.AdminNetworkPol
 func sortAdminNetpolsByPriority(anpList []*k8s.AdminNetworkPolicy) ([]*k8s.AdminNetworkPolicy, error) {
 	var err error
 	sort.Slice(anpList, func(i, j int) bool {
+		// outcome is non-deterministic if there are two AdminNetworkPolicies at the same priority
 		if anpList[i].Spec.Priority == anpList[j].Spec.Priority {
 			err = errors.New(netpolerrors.SamePriorityErr(anpList[i].Name, anpList[j].Name))
 			return false
 		}
+		// priority values range is defined
 		if !anpList[i].HasValidPriority() {
 			err = errors.New(netpolerrors.PriorityValueErr(anpList[i].Name, anpList[i].Spec.Priority))
 			return false

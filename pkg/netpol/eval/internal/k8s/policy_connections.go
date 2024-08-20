@@ -69,7 +69,7 @@ func (pc *PolicyConnections) UpdateWithRuleConns(ruleConns *common.ConnectionSet
 	return nil
 }
 
-// UpdateWithNetpolsConns updates current policy connections object with connections from a
+// UpdateWithOtherLayerConns updates current policy connections object with connections from a
 // layer with lower precedence (e.g. netpols conns/default conns)
 // ANP allowed and denied conns takes precedence on network-policy conns
 // Pass conns from ANP are determined by the NPs conns

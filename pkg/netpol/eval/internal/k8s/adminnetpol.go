@@ -26,8 +26,9 @@ var ruleErrTitle = fmt.Sprintf("Error in rule:  %%v")
 
 // Selects returns true if the admin network policy's Spec.Subject selects the peer and if the required direction is in the policy spec
 func (anp *AdminNetworkPolicy) Selects(p Peer, isIngress bool) (bool, error) {
-	if p.PeerType() == IPBlockType {
-		// adminNetworkPolicy selects peers with their namespaceSelectors and podSelectors only, so it might not select IPs
+	if p.PeerType() == IPBlockType { // should not get here
+		// adminNetworkPolicy is a cluster level resource which selects peers with their namespaceSelectors and podSelectors only,
+		// so it might not select IPs
 		return false, nil
 	}
 	if !anp.adminPolicyAffectsDirection(isIngress) {
@@ -63,7 +64,7 @@ func (anp *AdminNetworkPolicy) subjectSelectsPeer(p Peer) (bool, error) {
 
 // onlyOnePeersFieldIsSet returns if exactly one of the given objects is set (not nil)
 func onlyOnePeersFieldIsSet(namespacesField *metav1.LabelSelector, podsField *apisv1a.NamespacedPod) bool {
-	return !((namespacesField == nil && podsField == nil) || (namespacesField != nil && podsField != nil))
+	return (namespacesField == nil) != (podsField == nil)
 }
 
 // doesNamespacesFieldMatchPeer returns if the given namespaces LabelSelector matches the given peer
@@ -95,7 +96,7 @@ func (anp *AdminNetworkPolicy) doesPodsFieldMatchPeer(pods *apisv1a.NamespacedPo
 	return nsSelector.Matches(labels.Set(peer.GetPeerNamespace().Labels)) && podSelector.Matches(labels.Set(peer.GetPeerPod().Labels)), nil
 }
 
-// parseAdminNetpolLabelSelector returns a selector of type labels.selector from a LabelSelector from the policy.
+// parseAdminNetpolLabelSelector returns a selector of type labels.selector from a LabelSelector in the policy.
 // an error with the admin network policy details returned if fails to convert the selector.
 func (anp *AdminNetworkPolicy) parseAdminNetpolLabelSelector(selector *metav1.LabelSelector) (labels.Selector, error) {
 	selectorRes, err := metav1.LabelSelectorAsSelector(selector)
@@ -112,7 +113,7 @@ func (anp *AdminNetworkPolicy) anpErr(title, description string) error {
 
 // GetIngressPolicyConns returns the connections from the ingress rules selecting the src in spec of the adminNetworkPolicy
 //
-//nolint:dupl // this loops Ingress spec
+//nolint:dupl // this loops Ingress spec - different types
 func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConnections, error) {
 	res := InitEmptyPolicyConnections()
 	for _, rule := range anp.Spec.Ingress {
@@ -143,7 +144,7 @@ func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConn
 
 // GetEgressPolicyConns returns the connections from the egress rules selecting the dst in spec of the adminNetworkPolicy
 //
-//nolint:dupl // this loops Egress spec
+//nolint:dupl // this loops Egress spec - different types
 func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnections, error) {
 	res := InitEmptyPolicyConnections()
 	for _, rule := range anp.Spec.Egress {
@@ -189,10 +190,12 @@ func (anp *AdminNetworkPolicy) HasValidPriority() bool {
 }
 
 // egressRuleSelectsPeer checks if the given AdminNetworkPolicyEgressPeer rule selects the given peer
-// currently suppose it may contain only Namespaces/ Pods Fields,
-// @todo support also containing Nodes and Networks fields
+// currently supposing an egressPeer rule may contain only Namespaces/ Pods Fields,
+// @todo support also egress rule peer with Networks field
+// @todo if egress rule peer contains Nodes field, raise a warning that we don't support it
 func (anp *AdminNetworkPolicy) egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst Peer) (bool, error) {
 	for i := range rulePeers {
+		// only one field in a `apisv1a.AdminNetworkPolicyEgressPeer` may be not nil (set)
 		if !onlyOnePeersFieldIsSet(rulePeers[i].Namespaces, rulePeers[i].Pods) {
 			return false, anp.anpErr(fmt.Sprintf(ruleErrTitle, rulePeers[i]), netpolerrors.SubjectFieldsErr)
 		}
@@ -216,6 +219,7 @@ func (anp *AdminNetworkPolicy) egressRuleSelectsPeer(rulePeers []apisv1a.AdminNe
 // ingressRuleSelectsPeer checks if the given AdminNetworkPolicyIngressPeer rule selects the given peer
 func (anp *AdminNetworkPolicy) ingressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, src Peer) (bool, error) {
 	for i := range rulePeers {
+		// only one field in a `apisv1a.AdminNetworkPolicyIngressPeer` may be not nil (set)
 		if !onlyOnePeersFieldIsSet(rulePeers[i].Namespaces, rulePeers[i].Pods) {
 			return false, fmt.Errorf("error")
 		}
@@ -256,8 +260,8 @@ func (anp *AdminNetworkPolicy) ruleConnections(ports *[]apisv1a.AdminNetworkPoli
 			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port))
 		case anpPort.NamedPort != nil:
 			podProtocol, podPort := dst.GetPeerPod().ConvertPodNamedPort(*anpPort.NamedPort)
-			if podPort == common.NoPort {
-				continue // or an error should be returned?
+			if podPort == common.NoPort { // pod does not have this named port in its container
+				continue // @todo should raise a warning
 			}
 			if podProtocol != "" {
 				protocol = podProtocol
@@ -268,7 +272,7 @@ func (anp *AdminNetworkPolicy) ruleConnections(ports *[]apisv1a.AdminNetworkPoli
 				protocol = anpPort.PortRange.Protocol
 			}
 			if isEmptyPortRange(anpPort.PortRange.Start, anpPort.PortRange.End) {
-				continue // or an error should be returned?
+				continue // @todo should raise a warning
 			}
 			portSet.AddPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End))
 		}

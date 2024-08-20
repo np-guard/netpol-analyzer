@@ -139,7 +139,7 @@ func ConcatErrors(err1, err2 string) string {
 
 // SamePriorityErr returns the error message of a priority appears more than once in different admin-network-policies
 func SamePriorityErr(name1, name2 string) string {
-	return "Admin Network Policies: " + name1 + " and " + name2 + " has same priority;" +
+	return "Admin Network Policies: " + name1 + " and " + name2 + " have same priority;" +
 		"Two policies are considered to be conflicting if they are assigned the same priority."
 }
 
