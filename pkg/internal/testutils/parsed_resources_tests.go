@@ -34,7 +34,7 @@ var (
 	genCnt     = 0
 )
 
-func newDefaultPod(namespace, name string, ports []int, protocols []v1.Protocol) *v1.Pod {
+func newDefaultPod(namespace, name string, ports []int32, protocols []v1.Protocol) *v1.Pod {
 	podObj := v1.Pod{}
 	podObj.TypeMeta.APIVersion = "v1"
 	podObj.TypeMeta.Kind = podKind
@@ -52,12 +52,12 @@ func newDefaultPod(namespace, name string, ports []int, protocols []v1.Protocol)
 	return &podObj
 }
 
-func newDefaultContainer(port int, protocol v1.Protocol) v1.Container {
+func newDefaultContainer(port int32, protocol v1.Protocol) v1.Container {
 	contObj := v1.Container{}
 	contObj.Name = fmt.Sprintf("cont-%d-%s", port, strings.ToLower(string(protocol)))
 	contObj.Ports = make([]v1.ContainerPort, 1)
 	contObj.Ports[0].Name = fmt.Sprintf("serve-%d-%s", port, strings.ToLower(string(protocol)))
-	contObj.Ports[0].ContainerPort = int32(port)
+	contObj.Ports[0].ContainerPort = port
 	contObj.Ports[0].Protocol = protocol
 	return contObj
 }
@@ -68,7 +68,7 @@ func newDefaultContainer(port int, protocol v1.Protocol) v1.Container {
 type PodInfo struct {
 	Namespaces []string
 	PodNames   []string
-	Ports      []int
+	Ports      []int32
 	Protocols  []v1.Protocol
 }
 
@@ -192,9 +192,9 @@ func createAdminNetwordPolicyK8sObject(anp *v1alpha1.AdminNetworkPolicy) parser.
 
 var (
 	podInfo1 = &PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-		Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}
+		Ports: []int32{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}
 	podInfo2 = &PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-		Ports: []int{80}, Protocols: []v1.Protocol{v1.ProtocolTCP}}
+		Ports: []int32{80}, Protocols: []v1.Protocol{v1.ProtocolTCP}}
 	pods1 = &v1alpha1.NamespacedPod{
 		NamespaceSelector: metav1.LabelSelector{
 			MatchLabels: map[string]string{"ns": "x"},
@@ -431,7 +431,7 @@ var (
 				},
 			},
 			Resources: initResources(&PodInfo{Namespaces: []string{"x", "y", "z"}, PodNames: []string{"a", "b", "c"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}),
+				Ports: []int32{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}),
 			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
@@ -973,7 +973,7 @@ var (
 				},
 			},
 			Resources: initResources(&PodInfo{Namespaces: []string{"x"}, PodNames: []string{"a", "b"},
-				Ports: []int{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}),
+				Ports: []int32{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}),
 			NpList: initNpList([]*netv1.NetworkPolicy{
 				{
 					ObjectMeta: metav1.ObjectMeta{
