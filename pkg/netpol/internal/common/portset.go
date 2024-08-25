@@ -95,11 +95,16 @@ func (p *PortSet) AddPortRange(minPort, maxPort int64) {
 // Union: update current PortSet object with union of input PortSet object
 func (p *PortSet) Union(other *PortSet) {
 	p.Ports = p.Ports.Union(other.Ports)
+	// union current namedPorts with other namedPorts, and delete other namedPorts from current excludedNamedPorts
 	for k, v := range other.NamedPorts {
 		p.NamedPorts[k] = v
+		delete(p.ExcludedNamedPorts, k)
 	}
+	// add excludedNamedPorts from other to current excludedNamedPorts if they are not in united p.NamedPorts
 	for k, v := range other.ExcludedNamedPorts {
-		p.ExcludedNamedPorts[k] = v
+		if !p.NamedPorts[k] {
+			p.ExcludedNamedPorts[k] = v
+		}
 	}
 }
 
