@@ -38,6 +38,7 @@ type (
 		podOwnersToRepresentativePodMap map[string]map[string]*k8s.Pod           // map from namespace to map from pods' ownerReference name
 		// to its representative pod object
 		adminNetpolsMap        map[string]*k8s.AdminNetworkPolicy // map from adminNetworkPolicy name to its object
+		baselineAdminNetpol    *k8s.BaselineAdminNetworkPolicy    // pointer to BaselineAdminNetworkPolicy which is a cluster singleton object
 		cache                  *evalCache
 		exposureAnalysisFlag   bool
 		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
@@ -154,6 +155,8 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 			err = pe.InsertObject(obj.CronJob)
 		case parser.AdminNetworkPolicy:
 			err = pe.InsertObject(obj.AdminNetworkPolicy)
+		case parser.BaselineAdminNetworkPolicy:
+			err = pe.InsertObject(obj.BaselineAdminNetworkPolicy)
 		case parser.Service, parser.Route, parser.Ingress:
 			continue
 		default:
@@ -258,6 +261,8 @@ func (pe *PolicyEngine) InsertObject(rtObj runtime.Object) error {
 		return pe.insertWorkload(obj, parser.Job)
 	case *apisv1a.AdminNetworkPolicy:
 		return pe.insertAdminNetworkPolicy(obj)
+	case *apisv1a.BaselineAdminNetworkPolicy:
+		return pe.insertBaselineAdminNetworkPolicy(obj)
 	}
 	return nil
 }
@@ -273,6 +278,8 @@ func (pe *PolicyEngine) DeleteObject(rtObj runtime.Object) error {
 		return pe.deleteNetworkPolicy(obj)
 	case *apisv1a.AdminNetworkPolicy:
 		return pe.deleteAdminNetworkPolicy(obj)
+	case *apisv1a.BaselineAdminNetworkPolicy:
+		return pe.deleteBaselineAdminNetworkPolicy(obj)
 	}
 	return nil
 }
@@ -288,6 +295,7 @@ func (pe *PolicyEngine) ClearResources() {
 	}
 	pe.cache = newEvalCache()
 	pe.adminNetpolsMap = make(map[string]*k8s.AdminNetworkPolicy)
+	pe.baselineAdminNetpol = nil
 }
 
 func (pe *PolicyEngine) insertNamespace(ns *corev1.Namespace) error {
@@ -451,6 +459,21 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 	return nil
 }
 
+func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineAdminNetworkPolicy) error {
+	// @TBD : currently disabling exposure-analysis when there are (baseline)-admin-network-policies in the input resources
+	if pe.exposureAnalysisFlag {
+		return errors.New(netpolerrors.ExposureAnalysisDisabledWithANPs)
+	}
+	if pe.baselineAdminNetpol != nil { // @todo : should this be a warning? the last banp the one considered
+		return errors.New(netpolerrors.BANPAlreadyExists)
+	}
+	if banp.Name != "default" {
+		return errors.New(netpolerrors.BANPNameAssertion)
+	}
+	pe.baselineAdminNetpol = (*k8s.BaselineAdminNetworkPolicy)(banp)
+	return nil
+}
+
 func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
 	delete(pe.namespacesMap, ns.Name)
 	return nil
@@ -511,6 +534,14 @@ func (pe *PolicyEngine) deleteNetworkPolicy(np *netv1.NetworkPolicy) error {
 
 func (pe *PolicyEngine) deleteAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy) error {
 	delete(pe.adminNetpolsMap, anp.Name)
+	return nil
+}
+
+func (pe *PolicyEngine) deleteBaselineAdminNetworkPolicy(banp *apisv1a.BaselineAdminNetworkPolicy) error {
+	if pe.baselineAdminNetpol.Name == banp.Name { // if this is the banp used in pe delete it
+		// @TBD : should keep this if? no other banps are in the resources (illegal)
+		pe.baselineAdminNetpol = nil
+	}
 	return nil
 }
 

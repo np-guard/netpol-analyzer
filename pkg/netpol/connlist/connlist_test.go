@@ -1235,4 +1235,57 @@ var goodPathTests = []struct {
 		testDirName:   "anp_test_ingress_egress_intersection",
 		outputFormats: []string{output.TextFormat},
 	},
+	// tests involving BANPs
+	{
+		testDirName:   "anp_np_banp_core_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_banp_core_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_test_4_with_priority_chang_pass_to_banp",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_with_banp_pass_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_with_np_and_banp_pass_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_with_np_pass_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_sctp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_tcp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_udp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_gress_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_sctp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_tcp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_udp_rules",
+		outputFormats: ValidFormats,
+	},
 }

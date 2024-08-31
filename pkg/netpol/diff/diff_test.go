@@ -678,6 +678,24 @@ var goodPathTests = []struct {
 		secondDirName: "anp_test_12_swapping_rules",
 		formats:       allFormats,
 	},
+	{
+		// description:
+		// **changed netpols: anp : priority of ANP : `old-priority-60` changed to 40
+		// so it is now taking precedence on ANP: `priority-50-example`; and conns will be passed
+		// BANP : a banp was added
+		firstDirName:  "anp_test_4",
+		secondDirName: "anp_test_4_with_priority_chang_pass_to_banp",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// **removed netpols: netpol : "allow-gress-from-to-slytherin-to-gryffindor"
+		// so now ANP conns are passed to BANP;
+		// denies conns between slytherin and gryffindor; no further restrictions on other conns from/to gryffindor.
+		firstDirName:  "anp_np_banp_core_test",
+		secondDirName: "anp_banp_core_test",
+		formats:       allFormats,
+	},
 }
 
 var commonBadPathTestsFatalErr = []struct {
