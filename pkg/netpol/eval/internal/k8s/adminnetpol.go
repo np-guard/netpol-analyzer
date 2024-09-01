@@ -67,7 +67,7 @@ func onlyOnePeersFieldIsSet(namespacesField *metav1.LabelSelector, podsField *ap
 	return (namespacesField == nil) != (podsField == nil)
 }
 
-// doesNamespacesFieldMatchPeer returns if the given namespaces LabelSelector matches the given peer
+// doesNamespacesFieldMatchPeer returns true if the given namespaces LabelSelector matches the given peer
 func (anp *AdminNetworkPolicy) doesNamespacesFieldMatchPeer(namespaces *metav1.LabelSelector, peer Peer) (bool, error) {
 	if peer.PeerType() == IPBlockType {
 		return false, nil // namespaces does not select IPs
