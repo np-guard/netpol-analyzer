@@ -44,6 +44,7 @@ func (anp *AdminNetworkPolicy) adminPolicyAffectsDirection(isIngress bool) bool 
 	if isIngress {
 		return len(anp.Spec.Ingress) > 0
 	}
+    // ANPs with no egress rules do not affect egress traffic.
 	return len(anp.Spec.Egress) > 0
 }
 
