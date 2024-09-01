@@ -42,6 +42,7 @@ func (anp *AdminNetworkPolicy) Selects(p Peer, isIngress bool) (bool, error) {
 // anp affects a direction, if its spec has rules on that direction
 func (anp *AdminNetworkPolicy) adminPolicyAffectsDirection(isIngress bool) bool {
 	if isIngress {
+        // ANPs with no ingress rules do not affect ingress traffic.
 		return len(anp.Spec.Ingress) > 0
 	}
     // ANPs with no egress rules do not affect egress traffic.
