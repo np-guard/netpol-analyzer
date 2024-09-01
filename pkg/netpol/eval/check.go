@@ -146,7 +146,7 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 // expecting that srcPeer and dstPeer are in level of pods (PodPeer)
 // allowed conns are computed considering all policy resources available, admin-network-policies and network-policies
 //
-//gocyclo:ignore // it is 16 instead of 15
+//gocyclo:ignore
 func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer) (*common.ConnectionSet, error) {
 	srcK8sPeer := srcPeer.(k8s.Peer)
 	dstK8sPeer := dstPeer.(k8s.Peer)
