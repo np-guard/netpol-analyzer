@@ -150,6 +150,7 @@ func (conn *ConnectionSet) Subtract(other *ConnectionSet) {
 }
 
 // addAllConns : add all possible connections to the current ConnectionSet's allowed protocols
+// added explicitly, without using the `AllowAll` field
 func (conn *ConnectionSet) addAllConns() {
 	for _, protocol := range allProtocols {
 		conn.AddConnection(protocol, MakePortSet(true))
