@@ -137,13 +137,10 @@ func (conn *ConnectionSet) Subtract(other *ConnectionSet) {
 	}
 	for protocol, ports := range conn.AllowedProtocols {
 		if otherPorts, ok := other.AllowedProtocols[protocol]; ok {
-			if ports.Equal(otherPorts) {
+			if ports.ContainedIn(otherPorts) {
 				delete(conn.AllowedProtocols, protocol)
 			} else {
 				ports.subtract(otherPorts)
-				if conn.AllowedProtocols[protocol].IsEmpty() {
-					delete(conn.AllowedProtocols, protocol)
-				}
 			}
 		}
 	}
