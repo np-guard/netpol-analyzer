@@ -113,6 +113,8 @@ func splitPoliciesAndNamespacesAndOtherObjects(objects []parser.K8sObject) (poli
 	for i := range objects {
 		obj := objects[i]
 		switch obj.Kind {
+		// @todo : when enabling exposure-analysis with projects containing admin netpols:
+		// consider also parser.AdminNetorkPolicy and parser.BaselineAdminNetworkPolicy
 		case parser.NetworkPolicy:
 			policiesAndNs = append(policiesAndNs, obj)
 		case parser.Namespace:
