@@ -52,7 +52,7 @@ func (anp *AdminNetworkPolicy) adminPolicyAffectsDirection(isIngress bool) bool 
 // subjectSelectsPeer returns if the subject of the adminNetworkPolicy selects the given peer
 func (anp *AdminNetworkPolicy) subjectSelectsPeer(p Peer) (bool, error) {
 	anpSubject := anp.Spec.Subject
-	if !onlyOnePeersFieldIsSet(anpSubject.Namespaces, anpSubject.Pods) {
+	if (anpSubject.Namespaces == nil) == (anpSubject.Pods == nil) {
 		// AdminNetworkPolicySubject should contain exactly one field
 		// (https://github.com/kubernetes-sigs/network-policy-api/blob/v0.1.5/apis/v1alpha1/shared_types.go#L27))
 		return false, anp.anpErr(netpolerrors.SubjectErrTitle, netpolerrors.SubjectFieldsErr)
@@ -62,11 +62,6 @@ func (anp *AdminNetworkPolicy) subjectSelectsPeer(p Peer) (bool, error) {
 	}
 	// else: Subject.Pods is not empty (Subject.Pods contains both NamespaceSelector and PodSelector)
 	return anp.doesPodsFieldMatchPeer(anpSubject.Pods, p)
-}
-
-// onlyOnePeersFieldIsSet returns if exactly one of the given objects is set (not nil)
-func onlyOnePeersFieldIsSet(namespacesField *metav1.LabelSelector, podsField *apisv1a.NamespacedPod) bool {
-	return (namespacesField == nil) != (podsField == nil)
 }
 
 // doesNamespacesFieldMatchPeer returns true if the given namespaces LabelSelector matches the given peer
@@ -195,10 +190,12 @@ func (anp *AdminNetworkPolicy) HasValidPriority() bool {
 // currently supposing an egressPeer rule may contain only Namespaces/ Pods Fields,
 // @todo support also egress rule peer with Networks field
 // @todo if egress rule peer contains Nodes field, raise a warning that we don't support it
+//
+//nolint:dupl // this get AdminNetworkPolicyEgressPeer as input // todo: handling dups in PR #403
 func (anp *AdminNetworkPolicy) egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst Peer) (bool, error) {
 	for i := range rulePeers {
 		// only one field in a `apisv1a.AdminNetworkPolicyEgressPeer` may be not nil (set)
-		if !onlyOnePeersFieldIsSet(rulePeers[i].Namespaces, rulePeers[i].Pods) {
+		if (rulePeers[i].Namespaces == nil) == (rulePeers[i].Pods == nil) {
 			return false, anp.anpErr(fmt.Sprintf(ruleErrTitle, rulePeers[i]), netpolerrors.SubjectFieldsErr)
 		}
 		fieldMatch := false
@@ -219,11 +216,13 @@ func (anp *AdminNetworkPolicy) egressRuleSelectsPeer(rulePeers []apisv1a.AdminNe
 }
 
 // ingressRuleSelectsPeer checks if the given AdminNetworkPolicyIngressPeer rule selects the given peer
+//
+//nolint:dupl // this get AdminNetworkPolicyIngressPeer as input // todo: handling dups in PR #403
 func (anp *AdminNetworkPolicy) ingressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, src Peer) (bool, error) {
 	for i := range rulePeers {
 		// only one field in a `apisv1a.AdminNetworkPolicyIngressPeer` may be not nil (set)
-		if !onlyOnePeersFieldIsSet(rulePeers[i].Namespaces, rulePeers[i].Pods) {
-			return false, fmt.Errorf("error")
+		if (rulePeers[i].Namespaces == nil) == (rulePeers[i].Pods == nil) {
+			return false, anp.anpErr(fmt.Sprintf(ruleErrTitle, rulePeers[i]), netpolerrors.SubjectFieldsErr)
 		}
 		fieldMatch := false
 		var err error
