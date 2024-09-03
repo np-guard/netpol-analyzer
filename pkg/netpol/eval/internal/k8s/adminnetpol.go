@@ -99,7 +99,7 @@ func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst
 func ingressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, src Peer) (bool, error) {
 	for i := range rulePeers {
 		// only one field in a `apisv1a.AdminNetworkPolicyIngressPeer` may be not nil (set)
-		if !onlyOnePeersFieldIsSet(rulePeers[i].Namespaces, rulePeers[i].Pods) {
+		if (rulePeers[i].Namespaces == nil) == (rulePeers[i].Pods == nil) {
 			return false, errors.New(netpolerrors.OneFieldSetRulePeerErr)
 		}
 		fieldMatch := false
@@ -177,7 +177,7 @@ func onlyOnePortFieldsSet(anpPort apisv1a.AdminNetworkPolicyPort) bool {
 
 // subjectSelectsPeer returns if the given subject of the (baseline)adminNetworkPolicy selects the given peer
 func subjectSelectsPeer(anpSubject apisv1a.AdminNetworkPolicySubject, p Peer) (bool, error) {
-	if !onlyOnePeersFieldIsSet(anpSubject.Namespaces, anpSubject.Pods) {
+	if (anpSubject.Namespaces == nil) == (anpSubject.Pods == nil) {
 		// (Baseline)AdminNetworkPolicySubject should contain exactly one field
 		// (https://github.com/kubernetes-sigs/network-policy-api/blob/v0.1.5/apis/v1alpha1/shared_types.go#L27))
 		return false, errors.New(netpolerrors.OneFieldSetSubjectErr)
