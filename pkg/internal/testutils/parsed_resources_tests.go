@@ -147,14 +147,14 @@ func (test *ParsedResourcesTest) Getk8sObjects() []parser.K8sObject {
 		res = append(res, createPodK8sObject(pod))
 	}
 	for _, np := range test.NpList {
-		res = append(res, createNetwordPolicyK8sObject(np))
+		res = append(res, createNetworkPolicyK8sObject(np))
 	}
 	for _, anp := range test.AnpList {
-		res = append(res, createAdminNetwordPolicyK8sObject(anp))
+		res = append(res, createAdminNetworkPolicyK8sObject(anp))
 	}
 	// Tanya: uncomment the code below when BaselineAdminNetworkPolicy is implemented
 	// if test.Banp != nil {
-	// 	res = append(res, CreateBaselineAdminNetwordPolicyK8sObject(test.Banp))
+	// 	res = append(res, CreateBaselineAdminNetworkPolicyK8sObject(test.Banp))
 	// }
 	return res
 }

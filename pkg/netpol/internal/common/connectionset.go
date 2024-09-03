@@ -286,13 +286,11 @@ func (p *portRange) End() int64 {
 	return p.Interval.End()
 }
 
-const intFormat = "%d"
-
 func (p *portRange) String() string {
 	if p.Interval.End() != p.Interval.Start() {
 		return fmt.Sprintf("%d-%d", p.Start(), p.End())
 	}
-	return fmt.Sprintf(intFormat, p.Start())
+	return fmt.Sprintf("%d", p.Start())
 }
 
 // ProtocolsAndPortsMap() returns a map from allowed protocol to list of allowed ports ranges.
