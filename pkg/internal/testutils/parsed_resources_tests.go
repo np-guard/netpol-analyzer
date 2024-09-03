@@ -180,7 +180,7 @@ func createNetworkPolicyK8sObject(np *netv1.NetworkPolicy) parser.K8sObject {
 	return k8sObj
 }
 
-func createAdminNetwordPolicyK8sObject(anp *v1alpha1.AdminNetworkPolicy) parser.K8sObject {
+func createAdminNetworkPolicyK8sObject(anp *v1alpha1.AdminNetworkPolicy) parser.K8sObject {
 	k8sObj := parser.K8sObject{}
 	k8sObj.Kind = "AdminNetworkPolicy"
 	k8sObj.AdminNetworkPolicy = anp
