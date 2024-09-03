@@ -116,6 +116,8 @@ func splitPoliciesAndNamespacesAndOtherObjects(objects []parser.K8sObject) (poli
 	for i := range objects {
 		obj := objects[i]
 		switch obj.Kind {
+		// @todo : when enabling exposure-analysis with projects containing admin netpols:
+		// consider also parser.AdminNetorkPolicy and parser.BaselineAdminNetworkPolicy
 		case parser.NetworkPolicy:
 			policiesAndNs = append(policiesAndNs, obj)
 		case parser.Namespace:
@@ -448,6 +450,9 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		IngressPolicyExposure: initPolicyExposureWithoutSelectors(),
 		EgressPolicyExposure:  initPolicyExposureWithoutSelectors(),
 	}
+	if _, ok := pe.netpolsMap[netpolNamespace][np.Name]; ok {
+		return errors.New(netpolerrors.NPWithSameNameError(types.NamespacedName{Namespace: netpolNamespace, Name: np.Name}.String()))
+	}
 	pe.netpolsMap[netpolNamespace][np.Name] = newNetpol
 
 	var err error
@@ -471,11 +476,7 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 	if pe.exposureAnalysisFlag {
 		return errors.New(netpolerrors.ExposureAnalysisDisabledWithANPs)
 	}
-	if anp.Name == "" {
-		return errors.New(netpolerrors.ANPMissingNameErr)
-	}
 	if pe.adminNetpolsMap[anp.Name] {
-		// @todo : should this be a warning? the last anp with the name is the one taken
 		return errors.New(netpolerrors.ANPsWithSameNameErr(anp.Name))
 	}
 	pe.adminNetpolsMap[anp.Name] = true
