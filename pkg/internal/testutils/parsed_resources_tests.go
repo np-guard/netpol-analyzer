@@ -173,7 +173,7 @@ func createNamespaceK8sObject(ns *v1.Namespace) parser.K8sObject {
 	return k8sObj
 }
 
-func createNetwordPolicyK8sObject(np *netv1.NetworkPolicy) parser.K8sObject {
+func createNetworkPolicyK8sObject(np *netv1.NetworkPolicy) parser.K8sObject {
 	k8sObj := parser.K8sObject{}
 	k8sObj.Kind = "NetworkPolicy"
 	k8sObj.NetworkPolicy = np
