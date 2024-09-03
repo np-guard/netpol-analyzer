@@ -420,6 +420,9 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		IngressPolicyExposure: initPolicyExposureWithoutSelectors(),
 		EgressPolicyExposure:  initPolicyExposureWithoutSelectors(),
 	}
+	if _, ok := pe.netpolsMap[netpolNamespace][np.Name]; ok {
+		return errors.New(netpolerrors.NPWithSameNameError(types.NamespacedName{Namespace: netpolNamespace, Name: np.Name}.String()))
+	}
 	pe.netpolsMap[netpolNamespace][np.Name] = newNetpol
 
 	var err error
@@ -443,10 +446,7 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 	if pe.exposureAnalysisFlag {
 		return errors.New(netpolerrors.ExposureAnalysisDisabledWithANPs)
 	}
-	if anp.Name == "" {
-		return errors.New(netpolerrors.ANPMissingNameErr)
-	}
-	if _, ok := pe.adminNetpolsMap[anp.Name]; ok { // @todo : should this be a warning? the last anp with the name is the one taken
+	if _, ok := pe.adminNetpolsMap[anp.Name]; ok {
 		return errors.New(netpolerrors.ANPsWithSameNameErr(anp.Name))
 	}
 	pe.adminNetpolsMap[anp.Name] = (*k8s.AdminNetworkPolicy)(anp)
