@@ -137,19 +137,17 @@ func (conn *ConnectionSet) Subtract(other *ConnectionSet) {
 	}
 	for protocol, ports := range conn.AllowedProtocols {
 		if otherPorts, ok := other.AllowedProtocols[protocol]; ok {
-			if ports.Equal(otherPorts) {
+			if ports.ContainedIn(otherPorts) {
 				delete(conn.AllowedProtocols, protocol)
 			} else {
 				ports.subtract(otherPorts)
-				if conn.AllowedProtocols[protocol].IsEmpty() {
-					delete(conn.AllowedProtocols, protocol)
-				}
 			}
 		}
 	}
 }
 
 // addAllConns : add all possible connections to the current ConnectionSet's allowed protocols
+// added explicitly, without using the `AllowAll` field
 func (conn *ConnectionSet) addAllConns() {
 	for _, protocol := range allProtocols {
 		conn.AddConnection(protocol, MakePortSet(true))

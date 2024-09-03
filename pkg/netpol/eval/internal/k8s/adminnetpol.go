@@ -35,12 +35,7 @@ import (
 
 const ruleErrTitle = "Error in rule"
 
-// onlyOnePeersFieldIsSet returns if exactly one of the given objects is set (not nil)
-func onlyOnePeersFieldIsSet(namespacesField *metav1.LabelSelector, podsField *apisv1a.NamespacedPod) bool {
-	return (namespacesField == nil) != (podsField == nil)
-}
-
-// doesNamespacesFieldMatchPeer returns if the given namespaces LabelSelector matches the given peer
+// doesNamespacesFieldMatchPeer returns true if the given namespaces LabelSelector matches the given peer
 func doesNamespacesFieldMatchPeer(namespaces *metav1.LabelSelector, peer Peer) (bool, error) {
 	if peer.PeerType() == IPBlockType {
 		return false, nil // namespaces does not select IPs
@@ -74,11 +69,11 @@ func doesPodsFieldMatchPeer(pods *apisv1a.NamespacedPod, peer Peer) (bool, error
 // @todo support also egress rule peer with Networks field
 // @todo if egress rule peer contains Nodes field, raise a warning that we don't support it
 //
-//nolint:dupl // this loops egress spec - input is []apisv1a.AdminNetworkPolicyEgressPeer
+//nolint:dupl // this loops egress spec - input is []apisv1a.AdminNetworkPolicyEgressPeer // todo : use generics
 func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst Peer) (bool, error) {
 	for i := range rulePeers {
 		// only one field in a `apisv1a.AdminNetworkPolicyEgressPeer` may be not nil (set)
-		if !onlyOnePeersFieldIsSet(rulePeers[i].Namespaces, rulePeers[i].Pods) {
+		if (rulePeers[i].Namespaces == nil) == (rulePeers[i].Pods == nil) {
 			return false, errors.New(netpolerrors.OneFieldSetRulePeerErr)
 		}
 		fieldMatch := false
@@ -100,7 +95,7 @@ func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst
 
 // ingressRuleSelectsPeer checks if the given AdminNetworkPolicyIngressPeer rule selects the given peer
 //
-//nolint:dupl // this loops ingress spec - input is []apisv1a.AdminNetworkPolicyIngressPeer
+//nolint:dupl // this loops ingress spec - input is []apisv1a.AdminNetworkPolicyIngressPeer // todo: use generics
 func ingressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, src Peer) (bool, error) {
 	for i := range rulePeers {
 		// only one field in a `apisv1a.AdminNetworkPolicyIngressPeer` may be not nil (set)
@@ -219,8 +214,10 @@ func (anp *AdminNetworkPolicy) Selects(p Peer, isIngress bool) (bool, error) {
 // anp affects a direction, if its spec has rules on that direction
 func (anp *AdminNetworkPolicy) adminPolicyAffectsDirection(isIngress bool) bool {
 	if isIngress {
+		// ANPs with no ingress rules do not affect ingress traffic.
 		return len(anp.Spec.Ingress) > 0
 	}
+	// ANPs with no egress rules do not affect egress traffic.
 	return len(anp.Spec.Egress) > 0
 }
 

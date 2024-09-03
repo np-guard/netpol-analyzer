@@ -153,7 +153,13 @@ func PriorityValueErr(name string, priority int32) string {
 	return fmt.Sprintf("Invalid Priority Value: %d in Admin Network Policy: %q; Priority value must be between 0-1000", priority, name)
 }
 
+const uniquenessRequest = "Only one object of a given kind can have a given name at a time."
+
 // ANPsWithSameNameErr returns error message when there are two admin-network-policies with same name in the manifests
 func ANPsWithSameNameErr(anpName string) string {
-	return fmt.Sprintf("an AdminNetworkPolicy with name %q is already found; objects names should be unique", anpName)
+	return fmt.Sprintf("an AdminNetworkPolicy with name %q is already found. %s", anpName, uniquenessRequest)
+}
+
+func NPWithSameNameError(npName string) string {
+	return fmt.Sprintf("NetworkPolicy %q already exists. %s", npName, uniquenessRequest)
 }
