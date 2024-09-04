@@ -64,12 +64,38 @@ func doesPodsFieldMatchPeer(pods *apisv1a.NamespacedPod, peer Peer) (bool, error
 	return nsSelector.Matches(labels.Set(peer.GetPeerNamespace().Labels)) && podSelector.Matches(labels.Set(peer.GetPeerPod().Labels)), nil
 }
 
+// why could not success yet with
+// using generics to avoid duplicates in following two funcs `egressRuleSelectsPeer` and `ingressRuleSelectsPeer`:
+//
+// according to https://tip.golang.org/doc/go1.18#generics :
+// "The Go compiler does not support accessing a struct field x.f where x is of type parameter type even if all types in the type
+// parameter’s type set have a field f. We may remove this restriction in a future release."
+// till GO 1.21 this restriction is not removed yet.
+// for example:
+// replacing "func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst Peer) (bool, error)" and
+//           "func ingressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, src Peer) (bool, error)"
+//
+// with a func using generics like this :
+//   "func xgressRuleSelectsPeer[T apisv1a.AdminNetworkPolicyEgressPeer | apisv1a.AdminNetworkPolicyIngressPeer](rulePeers []T,
+//                             dst Peer) (bool, error)"
+// will fail with errors such as :
+//                  "rulePeers[i].Namespaces undefined (type T has no field or method Namespaces)"
+//
+// a useful way to skip the errors is to define an interface with some Getter funcs to be implemented on the "inheriting types"
+// of the parameters.
+// but in this case : since our parameters are not of local types, we can not define new methods (like getters) on them;
+// not even with using aliases since then we'll need to copy values in calling funcs into the aliases and
+// this is not more efficient than current solutions.
+//
+// @todo: if GO is upgraded to a release that does not has this restriction on types with same fields, replace following two "duplicated"
+// funcs with one func that uses generics type
+
 // egressRuleSelectsPeer checks if the given AdminNetworkPolicyEgressPeer rule selects the given peer
 // currently supposing an egressPeer rule may contain only Namespaces/ Pods Fields,
 // @todo support also egress rule peer with Networks field
 // @todo if egress rule peer contains Nodes field, raise a warning that we don't support it
 //
-//nolint:dupl // this loops egress spec - input is []apisv1a.AdminNetworkPolicyEgressPeer // todo : use generics
+//nolint:dupl // this loops egress spec - input is []apisv1a.AdminNetworkPolicyEgressPeer
 func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst Peer) (bool, error) {
 	for i := range rulePeers {
 		// only one field in a `apisv1a.AdminNetworkPolicyEgressPeer` may be not nil (set)
@@ -95,7 +121,7 @@ func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst
 
 // ingressRuleSelectsPeer checks if the given AdminNetworkPolicyIngressPeer rule selects the given peer
 //
-//nolint:dupl // this loops ingress spec - input is []apisv1a.AdminNetworkPolicyIngressPeer // todo: use generics
+//nolint:dupl // this loops ingress spec - input is []apisv1a.AdminNetworkPolicyIngressPeer
 func ingressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, src Peer) (bool, error) {
 	for i := range rulePeers {
 		// only one field in a `apisv1a.AdminNetworkPolicyIngressPeer` may be not nil (set)
