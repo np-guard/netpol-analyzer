@@ -696,6 +696,62 @@ var goodPathTests = []struct {
 		secondDirName: "anp_banp_core_test",
 		formats:       allFormats,
 	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_egress_sctp_rules",
+		secondDirName: "banp_test_core_egress_sctp_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_egress_tcp_rules",
+		secondDirName: "banp_test_core_egress_tcp_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_egress_udp_rules",
+		secondDirName: "banp_test_core_egress_udp_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_gress_rules",
+		secondDirName: "banp_test_core_gress_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_ingress_sctp_rules",
+		secondDirName: "banp_test_core_ingress_sctp_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_ingress_tcp_rules",
+		secondDirName: "banp_test_core_ingress_tcp_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_ingress_udp_rules",
+		secondDirName: "banp_test_core_ingress_udp_swapping_rules",
+		formats:       allFormats,
+	},
 }
 
 var commonBadPathTestsFatalErr = []struct {

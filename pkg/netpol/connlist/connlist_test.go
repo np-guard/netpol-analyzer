@@ -1265,7 +1265,15 @@ var goodPathTests = []struct {
 		outputFormats: ValidFormats,
 	},
 	{
+		testDirName:   "banp_test_core_egress_sctp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
 		testDirName:   "banp_test_core_egress_tcp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_tcp_swapping_rules",
 		outputFormats: ValidFormats,
 	},
 	{
@@ -1273,7 +1281,15 @@ var goodPathTests = []struct {
 		outputFormats: ValidFormats,
 	},
 	{
+		testDirName:   "banp_test_core_egress_udp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
 		testDirName:   "banp_test_core_gress_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_gress_swapping_rules",
 		outputFormats: ValidFormats,
 	},
 	{
@@ -1281,11 +1297,23 @@ var goodPathTests = []struct {
 		outputFormats: ValidFormats,
 	},
 	{
+		testDirName:   "banp_test_core_ingress_sctp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
 		testDirName:   "banp_test_core_ingress_tcp_rules",
 		outputFormats: ValidFormats,
 	},
 	{
+		testDirName:   "banp_test_core_ingress_tcp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
 		testDirName:   "banp_test_core_ingress_udp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_udp_swapping_rules",
 		outputFormats: ValidFormats,
 	},
 }
