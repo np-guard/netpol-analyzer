@@ -1,0 +1,17 @@
+digraph {
+	subgraph "cluster_hello_world" {
+		color="black"
+		fontcolor="black"
+		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
+		label="hello-world"
+	}
+	subgraph "cluster_backend" {
+		color="red2"
+		fontcolor="red2"
+		"all pods_in_backend" [label="all pods" color="red2" fontcolor="red2"]
+		label="backend"
+	}
+	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
+	"all pods_in_backend" -> "hello-world/workload-a[Deployment]" [label="TCP 8050" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"hello-world/workload-a[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
+}

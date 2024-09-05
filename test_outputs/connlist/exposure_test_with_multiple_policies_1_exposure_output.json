@@ -1,0 +1,13 @@
+{
+  "connlist_results": [],
+  "exposure_results": {
+    "egress_exposure": null,
+    "ingress_exposure": [
+      {
+        "src": "[namespace with {{Key:env,Operator:In,Values:[env-1 env-2],},{Key:tier,Operator:Exists,Values:[],}}]/[all pods]",
+        "dst": "hello-world/workload-a[Deployment]",
+        "conn": "All Connections"
+      }
+    ]
+  }
+}

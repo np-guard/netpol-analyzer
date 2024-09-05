@@ -8,15 +8,15 @@
  viewBox="0.00 0.00 1490.81 511.53" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 507.53)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-507.53 1486.81,-507.53 1486.81,4 -4,4"/>
-<g id="clust3" class="cluster">
-<title>cluster_network_policy_conformance_ravenclaw</title>
-<polygon fill="none" stroke="black" points="225.81,-295 225.81,-370 464.81,-370 464.81,-295 225.81,-295"/>
-<text text-anchor="middle" x="345.31" y="-354.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;ravenclaw</text>
-</g>
 <g id="clust2" class="cluster">
 <title>cluster_network_policy_conformance_hufflepuff</title>
 <polygon fill="none" stroke="black" points="52.81,-187 52.81,-262 290.81,-262 290.81,-187 52.81,-187"/>
 <text text-anchor="middle" x="171.81" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;hufflepuff</text>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_network_policy_conformance_ravenclaw</title>
+<polygon fill="none" stroke="black" points="225.81,-295 225.81,-370 464.81,-370 464.81,-295 225.81,-295"/>
+<text text-anchor="middle" x="345.31" y="-354.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;ravenclaw</text>
 </g>
 <g id="clust4" class="cluster">
 <title>cluster_network_policy_conformance_slytherin</title>

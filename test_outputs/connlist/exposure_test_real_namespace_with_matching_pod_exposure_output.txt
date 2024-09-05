@@ -1,0 +1,16 @@
+0.0.0.0-255.255.255.255 => ns1/matching-pod-in-ns1[Deployment] : All Connections
+ns1/matching-pod-in-ns1[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+ns1/matching-pod-in-ns1[Deployment] => ns1/pod-in-ns1[Deployment] : TCP 8080,9090
+
+Exposure Analysis Result:
+Egress Exposure:
+ns1/matching-pod-in-ns1[Deployment] 	=> 	0.0.0.0-255.255.255.255 : All Connections
+ns1/matching-pod-in-ns1[Deployment] 	=> 	entire-cluster : All Connections
+
+Ingress Exposure:
+ns1/matching-pod-in-ns1[Deployment] 	<= 	0.0.0.0-255.255.255.255 : All Connections
+ns1/matching-pod-in-ns1[Deployment] 	<= 	entire-cluster : All Connections
+
+Workloads not protected by network policies:
+ns1/matching-pod-in-ns1[Deployment] is not protected on Egress
+ns1/matching-pod-in-ns1[Deployment] is not protected on Ingress

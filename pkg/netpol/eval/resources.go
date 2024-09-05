@@ -25,26 +25,30 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 type (
 	// PolicyEngine encapsulates the current "world view" (e.g., workloads, policies)
 	// and allows querying it for allowed or denied connections.
 	PolicyEngine struct {
-		namspacesMap                    map[string]*k8s.Namespace                // map from ns name to ns object
+		namespacesMap                   map[string]*k8s.Namespace                // map from ns name to ns object
 		podsMap                         map[string]*k8s.Pod                      // map from pod name to pod object
 		netpolsMap                      map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
 		podOwnersToRepresentativePodMap map[string]map[string]*k8s.Pod           // map from namespace to map from pods' ownerReference name
 		// to its representative pod object
-		adminNetpolsMap map[string]*k8s.AdminNetworkPolicy // map from adminNetworkPolicy name to its object
-		cache           *evalCache
+		adminNetpolsMap        map[string]*k8s.AdminNetworkPolicy // map from adminNetworkPolicy name to its object
+		cache                  *evalCache
+		exposureAnalysisFlag   bool
+		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
+		// used only with exposure analysis (representative peer object is a workloadPeer with kind == "RepresentativePeer")
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
 	// decisions
 	NotificationTarget interface {
-		// UpsertObject inserts (or updates) an object to the policy engine's view of the world
-		UpsertObject(obj runtime.Object) error
+		// InsertObject inserts (or updates) an object to the policy engine's view of the world
+		InsertObject(obj runtime.Object) error
 		// DeleteObject removes an object from the policy engine's view of the world
 		DeleteObject(obj runtime.Object) error
 	}
@@ -53,79 +57,147 @@ type (
 // NewPolicyEngine returns a new PolicyEngine with an empty initial state
 func NewPolicyEngine() *PolicyEngine {
 	return &PolicyEngine{
-		namspacesMap:                    make(map[string]*k8s.Namespace),
+		namespacesMap:                   make(map[string]*k8s.Namespace),
 		podsMap:                         make(map[string]*k8s.Pod),
 		netpolsMap:                      make(map[string]map[string]*k8s.NetworkPolicy),
 		podOwnersToRepresentativePodMap: make(map[string]map[string]*k8s.Pod),
 		adminNetpolsMap:                 make(map[string]*k8s.AdminNetworkPolicy),
 		cache:                           newEvalCache(),
+		exposureAnalysisFlag:            false,
 	}
 }
 
 func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, error) {
 	pe := NewPolicyEngine()
+	err := pe.addObjectsByKind(objects)
+	return pe, err
+}
+
+// NewPolicyEngineWithOptions returns a new policy engine with an empty state but updating the exposure analysis flag
+// TBD: currently exposure-analysis is the only option supported by policy-engine, so no need for options list param
+func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
+	pe := NewPolicyEngine()
+	pe.exposureAnalysisFlag = exposureFlag
+	if exposureFlag {
+		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)
+	}
+	return pe
+}
+
+// AddObjectsForExposureAnalysis adds k8s objects to the policy engine: first adds network-policies and namespaces and then other objects.
+// for exposure analysis we need to insert first policies and namespaces so:
+// 1. policies: so a representative peer for each policy rule is added
+// 2. namespaces: so when inserting workloads, we'll be able to check correctly if a generated representative peer
+// should be removed, i.e. its labels and namespace correspond to a real pod.
+// i.e. when inserting a new real workload/pod, all real namespaces will be already inserted for sure and the
+// real labels will be considered correctly when looping the representative peers.
+// this func is called only for exposure analysis; otherwise does nothing
+func (pe *PolicyEngine) AddObjectsForExposureAnalysis(objects []parser.K8sObject) error {
+	if !pe.exposureAnalysisFlag { // should not be true ever
+		return nil
+	}
+	policiesAndNamespaces, otherObjects := splitPoliciesAndNamespacesAndOtherObjects(objects)
+	// note: in the first call addObjectsByKind with policy objects, will add
+	// the representative peers
+	err := pe.addObjectsByKind(policiesAndNamespaces)
+	if err != nil {
+		return err
+	}
+	// note: in the second call addObjectsByKind with workload objects, will possibly remove some
+	// representative peers (for which there is already an identical actual workload with simple selectors)
+	err = pe.addObjectsByKind(otherObjects)
+	return err
+}
+
+func splitPoliciesAndNamespacesAndOtherObjects(objects []parser.K8sObject) (policiesAndNs, others []parser.K8sObject) {
+	for i := range objects {
+		obj := objects[i]
+		switch obj.Kind {
+		// @todo : when enabling exposure-analysis with projects containing admin netpols:
+		// consider also parser.AdminNetorkPolicy and parser.BaselineAdminNetworkPolicy
+		case parser.NetworkPolicy:
+			policiesAndNs = append(policiesAndNs, obj)
+		case parser.Namespace:
+			policiesAndNs = append(policiesAndNs, obj)
+		default:
+			others = append(others, obj)
+		}
+	}
+	return policiesAndNs, others
+}
+
+// addObjectsByKind adds different k8s objects from parsed resources to the policy engine
+//
+//gocyclo:ignore
+func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 	var err error
 	for i := range objects {
 		obj := objects[i]
 		switch obj.Kind {
 		case parser.Namespace:
-			err = pe.UpsertObject(obj.Namespace)
-		case parser.Networkpolicy:
-			err = pe.UpsertObject(obj.Networkpolicy)
+			err = pe.InsertObject(obj.Namespace)
+		case parser.NetworkPolicy:
+			err = pe.InsertObject(obj.NetworkPolicy)
 		case parser.Pod:
-			err = pe.UpsertObject(obj.Pod)
+			err = pe.InsertObject(obj.Pod)
 		case parser.ReplicaSet:
-			err = pe.UpsertObject(obj.Replicaset)
+			err = pe.InsertObject(obj.ReplicaSet)
 		case parser.Deployment:
-			err = pe.UpsertObject(obj.Deployment)
-		case parser.Daemonset:
-			err = pe.UpsertObject(obj.Daemonset)
-		case parser.Statefulset:
-			err = pe.UpsertObject(obj.Statefulset)
+			err = pe.InsertObject(obj.Deployment)
+		case parser.DaemonSet:
+			err = pe.InsertObject(obj.DaemonSet)
+		case parser.StatefulSet:
+			err = pe.InsertObject(obj.StatefulSet)
 		case parser.ReplicationController:
-			err = pe.UpsertObject(obj.ReplicationController)
+			err = pe.InsertObject(obj.ReplicationController)
 		case parser.Job:
-			err = pe.UpsertObject(obj.Job)
+			err = pe.InsertObject(obj.Job)
 		case parser.CronJob:
-			err = pe.UpsertObject(obj.CronJob)
+			err = pe.InsertObject(obj.CronJob)
 		case parser.AdminNetworkPolicy:
-			err = pe.UpsertObject(obj.AdminNetworkPolicy)
+			err = pe.InsertObject(obj.AdminNetworkPolicy)
 		case parser.Service, parser.Route, parser.Ingress:
 			continue
 		default:
 			fmt.Printf("ignoring resource kind %s", obj.Kind)
 		}
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
-	err = pe.resolveMissingNamespaces()
-	return pe, err
+	if !pe.exposureAnalysisFlag { // for exposure analysis; this already done
+		return pe.resolveMissingNamespaces()
+	}
+	return nil
 }
 
 func (pe *PolicyEngine) resolveMissingNamespaces() error {
 	for _, pod := range pe.podsMap {
 		ns := pod.Namespace
-		if _, ok := pe.namspacesMap[ns]; !ok {
-			if err := pe.resolveSingleMissingNamespace(ns); err != nil {
-				return err
-			}
+		if err := pe.resolveSingleMissingNamespace(ns); err != nil {
+			return err
 		}
 	}
 	return nil
 }
 
-// resolveSingleMissingNamespace create a ns object and upsert to PolicyEngine
+// defaultNamespaceLabelsMap returns a map with a single key: val for the default K8s namespace name key.
+func defaultNamespaceLabelsMap(namespaceName string) map[string]string {
+	return map[string]string{common.K8sNsNameLabelKey: namespaceName}
+}
+
+// resolveSingleMissingNamespace for missing ns: create a ns object and insert to PolicyEngine
 func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string) error {
+	if _, ok := pe.namespacesMap[ns]; ok {
+		return nil // namespace is not missing - do nothing
+	}
 	nsObj := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: ns,
-			Labels: map[string]string{
-				k8s.K8sNsNameLabelKey: ns,
-			},
+			Name:   ns,
+			Labels: defaultNamespaceLabelsMap(ns),
 		},
 	}
-	if err := pe.upsertNamespace(nsObj); err != nil {
+	if err := pe.insertNamespace(nsObj); err != nil {
 		return err
 	}
 	return nil
@@ -135,22 +207,22 @@ func (pe *PolicyEngine) resolveSingleMissingNamespace(ns string) error {
 // This function *may* be used as convenience to set the initial policy engine state from a
 // set of resources (e.g., retrieved via List from a cluster).
 //
-// Deprecated: this function simply calls UpsertObject on the PolicyEngine.
-// Calling the UpsertObject should be preferred in new code.
+// Deprecated: this function simply calls InsertObject on the PolicyEngine.
+// Calling the InsertObject should be preferred in new code.
 func (pe *PolicyEngine) SetResources(policies []*netv1.NetworkPolicy, pods []*corev1.Pod,
 	namespaces []*corev1.Namespace) error {
 	for i := range namespaces {
-		if err := pe.upsertNamespace(namespaces[i]); err != nil {
+		if err := pe.insertNamespace(namespaces[i]); err != nil {
 			return err
 		}
 	}
 	for i := range policies {
-		if err := pe.upsertNetworkPolicy(policies[i]); err != nil {
+		if err := pe.insertNetworkPolicy(policies[i]); err != nil {
 			return err
 		}
 	}
 	for i := range pods {
-		if err := pe.upsertPod(pods[i]); err != nil {
+		if err := pe.insertPod(pods[i]); err != nil {
 			return err
 		}
 	}
@@ -158,43 +230,43 @@ func (pe *PolicyEngine) SetResources(policies []*netv1.NetworkPolicy, pods []*co
 	return nil
 }
 
-// UpsertObject updates (an existing) or inserts (a new) object in the PolicyEngine's
+// InsertObject updates (an existing) or inserts (a new) object in the PolicyEngine's
 // view of the world
-func (pe *PolicyEngine) UpsertObject(rtobj runtime.Object) error {
-	switch obj := rtobj.(type) {
+func (pe *PolicyEngine) InsertObject(rtObj runtime.Object) error {
+	switch obj := rtObj.(type) {
 	// namespace object
 	case *corev1.Namespace:
-		return pe.upsertNamespace(obj)
+		return pe.insertNamespace(obj)
 	// pod object
 	case *corev1.Pod:
-		return pe.upsertPod(obj)
+		return pe.insertPod(obj)
 	// netpol object
 	case *netv1.NetworkPolicy:
-		return pe.upsertNetworkPolicy(obj)
+		return pe.insertNetworkPolicy(obj)
 	// workload object
 	case *appsv1.ReplicaSet:
-		return pe.upsertWorkload(obj, parser.ReplicaSet)
+		return pe.insertWorkload(obj, parser.ReplicaSet)
 	case *appsv1.Deployment:
-		return pe.upsertWorkload(obj, parser.Deployment)
+		return pe.insertWorkload(obj, parser.Deployment)
 	case *appsv1.StatefulSet:
-		return pe.upsertWorkload(obj, parser.Statefulset)
+		return pe.insertWorkload(obj, parser.StatefulSet)
 	case *appsv1.DaemonSet:
-		return pe.upsertWorkload(obj, parser.Daemonset)
+		return pe.insertWorkload(obj, parser.DaemonSet)
 	case *corev1.ReplicationController:
-		return pe.upsertWorkload(obj, parser.ReplicationController)
+		return pe.insertWorkload(obj, parser.ReplicationController)
 	case *batchv1.CronJob:
-		return pe.upsertWorkload(obj, parser.CronJob)
+		return pe.insertWorkload(obj, parser.CronJob)
 	case *batchv1.Job:
-		return pe.upsertWorkload(obj, parser.Job)
+		return pe.insertWorkload(obj, parser.Job)
 	case *apisv1a.AdminNetworkPolicy:
-		return pe.upsertAdminNetworkPolicy(obj)
+		return pe.insertAdminNetworkPolicy(obj)
 	}
 	return nil
 }
 
 // DeleteObject removes an object from the PolicyEngine's view of the world
-func (pe *PolicyEngine) DeleteObject(rtobj runtime.Object) error {
-	switch obj := rtobj.(type) {
+func (pe *PolicyEngine) DeleteObject(rtObj runtime.Object) error {
+	switch obj := rtObj.(type) {
 	case *corev1.Namespace:
 		return pe.deleteNamespace(obj)
 	case *corev1.Pod:
@@ -209,20 +281,23 @@ func (pe *PolicyEngine) DeleteObject(rtobj runtime.Object) error {
 
 // ClearResources: deletes all current k8s resources
 func (pe *PolicyEngine) ClearResources() {
-	pe.namspacesMap = make(map[string]*k8s.Namespace)
+	pe.namespacesMap = make(map[string]*k8s.Namespace)
 	pe.podsMap = make(map[string]*k8s.Pod)
 	pe.netpolsMap = make(map[string]map[string]*k8s.NetworkPolicy)
 	pe.podOwnersToRepresentativePodMap = make(map[string]map[string]*k8s.Pod)
+	if pe.exposureAnalysisFlag {
+		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)
+	}
 	pe.cache = newEvalCache()
 	pe.adminNetpolsMap = make(map[string]*k8s.AdminNetworkPolicy)
 }
 
-func (pe *PolicyEngine) upsertNamespace(ns *corev1.Namespace) error {
+func (pe *PolicyEngine) insertNamespace(ns *corev1.Namespace) error {
 	nsObj, err := k8s.NamespaceFromCoreObject(ns)
 	if err != nil {
 		return err
 	}
-	pe.namspacesMap[nsObj.Name] = nsObj
+	pe.namespacesMap[nsObj.Name] = nsObj
 	return nil
 }
 
@@ -289,21 +364,26 @@ func diffBetweenPodsLabels(firstPod, newPod *k8s.Pod) (key, firstVal, newVal str
 	return "", "", ""
 }
 
-func (pe *PolicyEngine) upsertWorkload(rs interface{}, kind string) error {
+func (pe *PolicyEngine) insertWorkload(rs interface{}, kind string) error {
 	pods, err := k8s.PodsFromWorkloadObject(rs, kind)
 	if err != nil {
 		return err
 	}
-	for _, podObj := range pods {
+	var podObj *k8s.Pod
+	for _, podObj = range pods {
 		podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
 		pe.podsMap[podStr.String()] = podObj
 		// update cache with new pod associated to to its owner
 		pe.cache.addPod(podObj, podStr.String())
 	}
-	return nil
+	// running this on last podObj: as all pods from same workload object are in same namespace and having same pod labels
+	if pe.exposureAnalysisFlag {
+		err = pe.removeRedundantRepresentativePeers(podObj)
+	}
+	return err
 }
 
-func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
+func (pe *PolicyEngine) insertPod(pod *corev1.Pod) error {
 	podObj, err := k8s.PodFromCoreObject(pod)
 	if err != nil {
 		return err
@@ -312,10 +392,20 @@ func (pe *PolicyEngine) upsertPod(pod *corev1.Pod) error {
 	pe.podsMap[podStr.String()] = podObj
 	// update cache with new pod associated to to its owner
 	pe.cache.addPod(podObj, podStr.String())
-	return nil
+	if pe.exposureAnalysisFlag {
+		err = pe.removeRedundantRepresentativePeers(podObj)
+	}
+	return err
 }
 
-func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
+func initPolicyExposureWithoutSelectors() k8s.PolicyExposureWithoutSelectors {
+	return k8s.PolicyExposureWithoutSelectors{
+		ExternalExposure:    common.MakeConnectionSet(false),
+		ClusterWideExposure: common.MakeConnectionSet(false),
+	}
+}
+
+func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 	netpolNamespace := np.ObjectMeta.Namespace
 	if netpolNamespace == "" {
 		netpolNamespace = metav1.NamespaceDefault
@@ -324,16 +414,37 @@ func (pe *PolicyEngine) upsertNetworkPolicy(np *netv1.NetworkPolicy) error {
 	if _, ok := pe.netpolsMap[netpolNamespace]; !ok {
 		pe.netpolsMap[netpolNamespace] = make(map[string]*k8s.NetworkPolicy)
 	}
-	pe.netpolsMap[netpolNamespace][np.Name] = (*k8s.NetworkPolicy)(np)
 
+	newNetpol := &k8s.NetworkPolicy{
+		NetworkPolicy:         np,
+		IngressPolicyExposure: initPolicyExposureWithoutSelectors(),
+		EgressPolicyExposure:  initPolicyExposureWithoutSelectors(),
+	}
+	if _, ok := pe.netpolsMap[netpolNamespace][np.Name]; ok {
+		return errors.New(netpolerrors.NPWithSameNameError(types.NamespacedName{Namespace: netpolNamespace, Name: np.Name}.String()))
+	}
+	pe.netpolsMap[netpolNamespace][np.Name] = newNetpol
+
+	var err error
+	// for exposure analysis only: scan policy ingress and egress rules:
+	// 1. to store allowed connections to entire cluster and to external destinations (if such connections are allowed by the policy)
+	// 2. to get selectors and generate representativePeers
+	if pe.exposureAnalysisFlag {
+		rulesSelectors, scanErr := newNetpol.GetPolicyRulesSelectorsAndUpdateExposureClusterWideConns()
+		if scanErr != nil {
+			return scanErr
+		}
+		err = pe.generateRepresentativePeers(rulesSelectors, np.Namespace)
+	}
 	// clear the cache on netpols changes
 	pe.cache.clear()
-	return nil
+	return err
 }
 
-func (pe *PolicyEngine) upsertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy) error {
-	if anp.Name == "" {
-		return errors.New(netpolerrors.ANPMissingNameErr)
+func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy) error {
+	// @TBD : currently disabling exposure-analysis when there are admin-network-policies in the input resources
+	if pe.exposureAnalysisFlag {
+		return errors.New(netpolerrors.ExposureAnalysisDisabledWithANPs)
 	}
 	if _, ok := pe.adminNetpolsMap[anp.Name]; ok {
 		return errors.New(netpolerrors.ANPsWithSameNameErr(anp.Name))
@@ -343,7 +454,7 @@ func (pe *PolicyEngine) upsertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 }
 
 func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
-	delete(pe.namspacesMap, ns.Name)
+	delete(pe.namespacesMap, ns.Name)
 	return nil
 }
 
@@ -410,6 +521,7 @@ func (pe *PolicyEngine) GetPodsMap() map[string]*k8s.Pod {
 	return pe.podsMap
 }
 
+// HasPodPeers returns if there are pods from parsed pod objects in the policy-engine
 func (pe *PolicyEngine) HasPodPeers() bool {
 	return len(pe.podsMap) > 0
 }
@@ -454,6 +566,17 @@ func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 	return res, nil
 }
 
+// GetRepresentativePeersList returns a slice of representative peers
+func (pe *PolicyEngine) GetRepresentativePeersList() []Peer {
+	res := make([]Peer, len(pe.representativePeersMap))
+	index := 0
+	for _, p := range pe.representativePeersMap {
+		res[index] = p
+		index++
+	}
+	return res
+}
+
 // getDisjointIPBlocks returns a slice of disjoint ip-blocks from all netpols resources
 func (pe *PolicyEngine) getDisjointIPBlocks() ([]*ipblock.IPBlock, error) {
 	var ipbList []*ipblock.IPBlock
@@ -472,6 +595,7 @@ func (pe *PolicyEngine) getDisjointIPBlocks() ([]*ipblock.IPBlock, error) {
 }
 
 // GetSelectedPeers returns list of workload peers in the given namespace which match the given labels selector
+// used only for ingress-analyzer : currently not supported with exposure-analysis
 func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace string) ([]Peer, error) {
 	res := make([]Peer, 0)
 	peers, err := pe.createPodOwnersMap()
@@ -492,12 +616,12 @@ func (pe *PolicyEngine) GetSelectedPeers(selectors labels.Selector, namespace st
 // ConvertPeerNamedPort returns the peer.pod.containerPort matching the named port of the peer
 // if there is no match for the input named port, return -1
 func (pe *PolicyEngine) ConvertPeerNamedPort(namedPort string, peer Peer) (int32, error) {
-	switch currPeer := peer.(type) {
+	switch currentPeer := peer.(type) {
 	case *k8s.WorkloadPeer:
-		_, portNum := currPeer.Pod.ConvertPodNamedPort(namedPort)
+		_, portNum := currentPeer.Pod.ConvertPodNamedPort(namedPort)
 		return portNum, nil
 	case *k8s.PodPeer:
-		_, portNum := currPeer.Pod.ConvertPodNamedPort(namedPort)
+		_, portNum := currentPeer.Pod.ConvertPodNamedPort(namedPort)
 		return portNum, nil
 	default:
 		return 0, errors.New("peer type does not have ports") // should not get here
@@ -517,4 +641,56 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string) (Peer, error) 
 	}
 	pe.podsMap[podStr] = newPod
 	return &k8s.WorkloadPeer{Pod: newPod}, nil
+}
+
+// addRepresentativePod adds a new representative pod to the policy-engine (to pe.representativePeersMap).
+// if the given namespace string (podNs) is not empty (i.e. a real (policy's) namespace name), it will be assigned to the pod's Namespace;
+// and the "namespace name" requirement of the representative pod will be stored in its RepresentativeNsLabelSelector field.
+// Otherwise, the representative pod will have no namespace (will not add a representative namespace to the policy-engine).
+// this func is used only with exposure-analysis
+func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.SingleRuleSelectors) error {
+	if objSelectors == nil { // should not get here
+		return errors.New(netpolerrors.NilRepresentativePodSelectorsErr)
+	}
+	nsLabelSelector := objSelectors.NsSelector
+	if nsLabelSelector == nil && podNs == "" { // should not get here as nsLabelSelector == nil should be equivalent to podNs not empty
+		return errors.New(netpolerrors.NilNamespaceAndNilNsSelectorErr)
+	}
+	if nsLabelSelector == nil && podNs != "" {
+		// if the objSelectors.NsSelector is nil, means inferred from a rule with nil nsSelector, which means the namespace of the
+		// pod is the namespace of the policy, so adding it as its RepresentativeNsLabelSelector requirement.
+		// by this, we ensure a representative peer may only represent the rule it was inferred from
+		// and uniqueness of representative peers.
+		// (another policy in another namespace, may have a rule with same podSelector, but the namespace will be different-
+		// so a different representative peer will be generated)
+		nsLabelSelector = &metav1.LabelSelector{MatchLabels: defaultNamespaceLabelsMap(podNs)}
+	}
+	newPod := &k8s.Pod{
+		// all representative pods are having same name since this name is used only to indicate that this Fake Pod is representative;
+		// this name is not used for storing it in the policy-engine/ comparing with other peers/ or representing it.
+		Name:                           k8s.RepresentativePodName,
+		Namespace:                      podNs,
+		FakePod:                        true,
+		RepresentativePodLabelSelector: objSelectors.PodSelector,
+		RepresentativeNsLabelSelector:  nsLabelSelector,
+	}
+	//  compute a unique string from the label selectors to be used as the map key
+	// note that nsLabelSelector will not be nil
+	nsKey, err := k8s.UniqueKeyFromLabelsSelector(nsLabelSelector)
+	if err != nil {
+		return err
+	}
+	podKey, err := k8s.UniqueKeyFromLabelsSelector(objSelectors.PodSelector)
+	if err != nil {
+		return err
+	}
+	keyStrFromLabels := nsKey + "/" + podKey
+	if _, ok := pe.representativePeersMap[keyStrFromLabels]; ok { // we already have a representative peer with same labels
+		return nil
+	}
+	// create a new representative peer
+	newRepresentativePeer := &k8s.WorkloadPeer{Pod: newPod}
+	// add the new representative peer to the policy-engine
+	pe.representativePeersMap[keyStrFromLabels] = newRepresentativePeer
+	return nil
 }

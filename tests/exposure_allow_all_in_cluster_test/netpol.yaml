@@ -1,0 +1,21 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-ingress-and-egress-in-entire-cluster
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector: {}
+    ports:
+    - port: 8050
+      protocol: TCP
+  egress:
+  - to:
+    - namespaceSelector: {}

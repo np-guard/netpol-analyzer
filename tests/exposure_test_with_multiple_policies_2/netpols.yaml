@@ -1,0 +1,47 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: np1
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  ingress:
+  - from:
+    - namespaceSelector:
+           matchExpressions:
+           - key: env
+             operator: In
+             values:
+             - env-1
+             - env-2
+           - key: tier
+             operator: Exists
+    ports:
+    - port: 8050
+      protocol: TCP
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: np2
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: b-app
+  ingress:
+  - from:
+    - namespaceSelector:
+           matchExpressions:
+           - key: tier
+             operator: Exists
+           - key: env
+             operator: In
+             values:
+             - env-2
+             - env-1
+  policyTypes:
+  - Ingress
+  - Egress # deny egress

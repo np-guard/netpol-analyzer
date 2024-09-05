@@ -33,14 +33,15 @@ const (
 	NoAllowedConnsWarning  = "Connectivity analysis found no allowed connectivity between pairs from the configured workloads or" +
 		" external IP-blocks"
 
-	ErrGettingResInfoFromDir = "Error getting resourceInfos from dir path"
+	ErrGettingResInfoFromDir     = "Error getting resourceInfos from dir path"
+	ConversionToConnectionSetErr = "failed conversion from AllowedSet to ConnectionSet"
 
 	// eval errors
 	NoSourceDefinedErr     = "no source defined, source pod and namespace or external IP required"
 	NotFoundNamespace      = "could not find peer namespace"
 	OnlyOneSrcFlagErrStr   = "only one of source pod and namespace or external IP can be defined, not both"
 	NoDestDefinedErr       = "no destination defined, destination pod and namespace or external IP required"
-	OnlyOneDstFalgErrStr   = "only one of destination pod and namespace or external IP can be defined, not both"
+	OnlyOneDstFlagErrStr   = "only one of destination pod and namespace or external IP can be defined, not both"
 	OnlyOneIPPeerErrStr    = "only one of source or destination can be defined as external IP, not both"
 	RequiredDstPortFlagErr = "destination port name or value is required"
 
@@ -48,7 +49,7 @@ const (
 	RequiredFlagsErr = "both directory paths dir1 and dir2 are required"
 	FlagMisUseErr    = "dirpath flag is not used with diff command"
 
-	// errors consts from `orig errors` that are raised by external libraries
+	// errors constants from `orig errors` that are raised by external libraries
 	InvalidCIDRAddr         = "invalid CIDR address"
 	InvalidKeyVal           = "key: Invalid value"
 	UnrecognizedValType     = "unrecognized type"
@@ -60,15 +61,21 @@ const (
 	UnmarshalErr            = "cannot unmarshal array into Go value of type unstructured.detector"
 	UnableToDecodeErr       = "unable to decode"
 
-	// errors consts from adminNetworkPolicy
-	SubjectErrTitle        = "ivalid Subject:"
-	SubjectFieldsErr       = "Exactly one field must be set"
-	UnknownRuleActionErr   = "unrecognized action"
-	ANPPortsError          = "exactly one field must be set in an AdminNetworkPolicyPort"
-	ANPIngressRulePeersErr = "From field must be defined and contain at least one item"
-	ANPEgressRulePeersErr  = "To field must be defined and contain at least one item"
-	ANPMissingNameErr      = "missing name for an AdminNetworkPolicy object"
-	UnknownCommandErr      = "unknown command"
+	// errors constants from adminNetworkPolicy
+	SubjectErrTitle                  = "invalid Subject:"
+	SubjectFieldsErr                 = "Exactly one field must be set"
+	UnknownRuleActionErr             = "unrecognized action"
+	ANPPortsError                    = "exactly one field must be set in an AdminNetworkPolicyPort"
+	ANPIngressRulePeersErr           = "From field must be defined and contain at least one item"
+	ANPEgressRulePeersErr            = "To field must be defined and contain at least one item"
+	ANPMissingNameErr                = "missing name for an AdminNetworkPolicy object"
+	ExposureAnalysisDisabledWithANPs = "exposure analysis is disabled when there are admin-network-policies in the input resources"
+
+	UnknownCommandErr = "unknown command"
+
+	NilRepresentativePodSelectorsErr = "representative pod might not be generated if it does not have any representative selector"
+	NilNamespaceAndNilNsSelectorErr  = "representative pod might not be generated from nil namespace-selector and nil namespace;" +
+		"at least one should not be nil"
 )
 
 // NotSupportedPodResourcesErrorStr returns error string of not supported pods with same ownerRef but different labels
@@ -77,7 +84,7 @@ func NotSupportedPodResourcesErrorStr(ownerRefName string) string {
 		ownerRefName + " but with different set of labels."
 }
 
-// WorkloadDoesNotExistErrStr returns error string of missing workload for connlist with focusworkload
+// WorkloadDoesNotExistErrStr returns error string of missing workload for connlist with focus-workload
 func WorkloadDoesNotExistErrStr(workload string) string {
 	return "Workload " + workload + " does not exist in the input resources." + EmptyConnListErrStr
 }
@@ -105,13 +112,17 @@ func BlockedIngressWarning(objKind, objName, peerStr string) string {
 }
 
 // MissingNamespaceErrStr returns error string of a missing namespace of a peer
-func MissingNamespaceErrStr(peerStr string) string {
-	return "error: namespace of pod " + peerStr + " is missing"
+func MissingNamespaceErrStr(nsName, peerName string) string {
+	return "error: namespace " + nsName + " of pod " + peerName + " is missing"
 }
 
 // NotPeerErrStr returns error string of a peer that is not workload peer
 func NotPeerErrStr(peerStr string) string {
-	return "peer: " + peerStr + ",is not a WorkloadPeer"
+	return "peer: " + peerStr + ", is not a WorkloadPeer"
+}
+
+func NotRepresentativePeerErrStr(peerStr string) string {
+	return peerStr + ", is not a Representative peer"
 }
 
 // BothSrcAndDstIPsErrStr returns error string that conn from ip to ip is not supported
@@ -128,7 +139,7 @@ func ConcatErrors(err1, err2 string) string {
 
 // SamePriorityErr returns the error message of a priority appears more than once in different admin-network-policies
 func SamePriorityErr(name1, name2 string) string {
-	return "Admin Network Policies: " + name1 + " and " + name2 + " has same priority;" +
+	return "Admin Network Policies: " + name1 + " and " + name2 + " have same priority;" +
 		"Two policies are considered to be conflicting if they are assigned the same priority."
 }
 
@@ -137,6 +148,13 @@ func PriorityValueErr(name string, priority int32) string {
 	return fmt.Sprintf("Invalid Priority Value: %d in Admin Network Policy: %q; Priority value must be between 0-1000", priority, name)
 }
 
+const uniquenessRequest = "Only one object of a given kind can have a given name at a time."
+
+// ANPsWithSameNameErr returns error message when there are two admin-network-policies with same name in the manifests
 func ANPsWithSameNameErr(anpName string) string {
-	return fmt.Sprintf("an AdminNetworkPolicy with name %q is already found; objects names should be unique", anpName)
+	return fmt.Sprintf("an AdminNetworkPolicy with name %q is already found. %s", anpName, uniquenessRequest)
+}
+
+func NPWithSameNameError(npName string) string {
+	return fmt.Sprintf("NetworkPolicy %q already exists. %s", npName, uniquenessRequest)
 }

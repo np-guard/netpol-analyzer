@@ -13,11 +13,6 @@
 <polygon fill="none" stroke="black" points="517,-79 517,-154 756,-154 756,-79 517,-79"/>
 <text text-anchor="middle" x="636.5" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;gryffindor</text>
 </g>
-<g id="clust3" class="cluster">
-<title>cluster_network_policy_conformance_ravenclaw</title>
-<polygon fill="none" stroke="black" points="321,-295 321,-370 560,-370 560,-295 321,-295"/>
-<text text-anchor="middle" x="440.5" y="-354.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;ravenclaw</text>
-</g>
 <g id="clust4" class="cluster">
 <title>cluster_network_policy_conformance_slytherin</title>
 <polygon fill="none" stroke="black" points="451,-420.53 451,-495.53 681,-495.53 681,-420.53 451,-420.53"/>
@@ -27,6 +22,11 @@
 <title>cluster_network_policy_conformance_hufflepuff</title>
 <polygon fill="none" stroke="black" points="86,-187 86,-262 324,-262 324,-187 86,-187"/>
 <text text-anchor="middle" x="205" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;hufflepuff</text>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_network_policy_conformance_ravenclaw</title>
+<polygon fill="none" stroke="black" points="321,-295 321,-370 560,-370 560,-295 321,-295"/>
+<text text-anchor="middle" x="440.5" y="-354.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;ravenclaw</text>
 </g>
 <g id="clust5" class="cluster">
 <title>cluster_legend</title>

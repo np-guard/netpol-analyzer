@@ -8,6 +8,8 @@ package common
 
 import (
 	"reflect"
+	"sort"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/util/intstr"
 
@@ -15,6 +17,7 @@ import (
 )
 
 const (
+	NoPort        = -1
 	minPort int64 = 1
 	maxPort int64 = 65535
 )
@@ -29,9 +32,15 @@ type PortSet struct {
 // MakePortSet: return a new PortSet object, with all ports or no ports allowed
 func MakePortSet(all bool) *PortSet {
 	if all {
-		return &PortSet{Ports: interval.New(minPort, maxPort).ToSet()}
+		return &PortSet{Ports: interval.New(minPort, maxPort).ToSet(),
+			NamedPorts:         map[string]bool{},
+			ExcludedNamedPorts: map[string]bool{},
+		}
 	}
-	return &PortSet{Ports: interval.NewCanonicalSet()}
+	return &PortSet{Ports: interval.NewCanonicalSet(),
+		NamedPorts:         map[string]bool{},
+		ExcludedNamedPorts: map[string]bool{},
+	}
 }
 
 // Equal: return true if current object equals another PortSet object
@@ -47,7 +56,7 @@ func (p *PortSet) IsEmpty() bool {
 
 // Copy: return a new copy of a PortSet object
 func (p *PortSet) Copy() *PortSet {
-	res := PortSet{}
+	res := MakePortSet(false)
 	res.Ports = p.Ports.Copy()
 	for k, v := range p.NamedPorts {
 		res.NamedPorts[k] = v
@@ -55,7 +64,7 @@ func (p *PortSet) Copy() *PortSet {
 	for k, v := range p.ExcludedNamedPorts {
 		res.ExcludedNamedPorts[k] = v
 	}
-	return &res
+	return res
 }
 
 // AddPort: update current PortSet object with new added port as allowed
@@ -86,11 +95,16 @@ func (p *PortSet) AddPortRange(minPort, maxPort int64) {
 // Union: update current PortSet object with union of input PortSet object
 func (p *PortSet) Union(other *PortSet) {
 	p.Ports = p.Ports.Union(other.Ports)
+	// union current namedPorts with other namedPorts, and delete other namedPorts from current excludedNamedPorts
 	for k, v := range other.NamedPorts {
 		p.NamedPorts[k] = v
+		delete(p.ExcludedNamedPorts, k)
 	}
+	// add excludedNamedPorts from other to current excludedNamedPorts if they are not in united p.NamedPorts
 	for k, v := range other.ExcludedNamedPorts {
-		p.ExcludedNamedPorts[k] = v
+		if !p.NamedPorts[k] {
+			p.ExcludedNamedPorts[k] = v
+		}
 	}
 }
 
@@ -109,14 +123,40 @@ func (p *PortSet) IsAll() bool {
 	return p.Equal(MakePortSet(true))
 }
 
+const comma = ","
+const emptyStr = "Empty"
+
 // String: return string representation of current PortSet
 func (p *PortSet) String() string {
-	return p.Ports.String()
+	res := p.Ports.String()
+	if len(p.NamedPorts) > 0 {
+		sortedNamedPorts := p.GetNamedPortsKeys()
+		sort.Strings(sortedNamedPorts)
+		// if p.Ports is empty but p.NamedPorts is not: start a new string
+		if res == emptyStr {
+			res = ""
+		} else {
+			res += comma
+		}
+		res += strings.Join(sortedNamedPorts, comma)
+	}
+	return res
 }
 
 // Contains: return true if current PortSet contains a specific input port
 func (p *PortSet) Contains(port int64) bool {
 	return p.Ports.Contains(port)
+}
+
+// GetNamedPortsKeys returns the named ports of current portSet
+func (p *PortSet) GetNamedPortsKeys() []string {
+	res := make([]string, len(p.NamedPorts))
+	index := 0
+	for k := range p.NamedPorts {
+		res[index] = k
+		index++
+	}
+	return res
 }
 
 // subtract: updates current portSet with the result of subtracting the given portSet from it

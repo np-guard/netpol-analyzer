@@ -36,7 +36,7 @@ func ResourceInfoListToK8sObjectsList(infosList []*resource.Info, l logger.Logge
 		}
 		if k8sObj != nil && k8sObj.Kind != "" {
 			res = append(res, *k8sObj)
-			if k8sObj.Kind == Networkpolicy {
+			if policyKinds[k8sObj.Kind] {
 				hasNetpols = true
 			}
 			if workloadKinds[k8sObj.Kind] {

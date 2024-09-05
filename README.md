@@ -61,20 +61,19 @@ Examples:
   k8snetpolicy list -k ./kube/config
 
 Flags:
+      --exposure               Enhance the analysis of permitted connectivity with exposure analysis
   -f, --file string            Write output to specified file
-      --focusworkload       Focus connections of specified workload in the output (supported formats: <workload-name>, <workload-namespace>/<workload-name>)
-                            (to focus connections from Ingress/Route only, use `ingress-controller` as <workload-name>)
-  -o, --output string       Required output format (txt, json, dot, csv, md) (default "txt")
-  -h, --help   help for list
+      --focusworkload string   Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)
+  -h, --help                   help for list
+  -o, --output string          Required output format (txt,json,dot,csv,md) (default "txt")
 
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
       --dirpath string      Resources dir path when evaluating connections from a dir
       --fail                fail on the first encountered error
-      --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
   -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
-  -q, --quiet               Runs quietly, reports only severe errors and results
-  -v, --verbose             Runs with more informative messages printed to log
+  -q, --quiet               runs quietly, reports only severe errors and results
+  -v, --verbose             runs with more informative messages printed to log
 ```
 
 ### Diff command
@@ -151,6 +150,8 @@ source: default/redis-cart[Deployment], destination: 0.0.0.0-255.255.255.255, di
 ```
 
 Additional details about the connectivity analysis and its output is specified [here](docs/connlist_output.md).
+
+Additional details about exposure analysis (`--exposure` flag for the `list` command) is specified [here](docs/exposure_analysis.md).
 
 Additional details about the connectivity diff command and its output is specified [here](docs/diff_output.md).
 
