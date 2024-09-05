@@ -275,7 +275,7 @@ func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConn
 		if err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}
-		err = res.UpdateWithRuleConns(ruleConns, string(rule.Action))
+		err = res.UpdateWithRuleConns(ruleConns, string(rule.Action), false)
 		if err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}
@@ -306,7 +306,7 @@ func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnection
 		if err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}
-		err = res.UpdateWithRuleConns(ruleConns, string(rule.Action))
+		err = res.UpdateWithRuleConns(ruleConns, string(rule.Action), false)
 		if err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}

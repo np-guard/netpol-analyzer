@@ -41,7 +41,10 @@ func InitEmptyPolicyConnections() *PolicyConnections {
 
 // UpdateWithRuleConns updates current policy conns with connections from a new rule in same (base)admin-network-policy;
 // connections from previous rules are with higher precedence.
-func (pc *PolicyConnections) UpdateWithRuleConns(ruleConns *common.ConnectionSet, ruleAction string) error {
+func (pc *PolicyConnections) UpdateWithRuleConns(ruleConns *common.ConnectionSet, ruleAction string, banpRules bool) error {
+	// banpRules indicates if the rules are coming from BANP; flag used to check the rule Actions are valid since:
+	// Unlike AdminNetworkPolicies that enable: "Pass, Deny or Allow" as the action of each rule.
+	// BaselineAdminNetworkPolicies allows only "Allow and Deny" as the action of each rule.
 	switch ruleAction {
 	case string(apisv1a.AdminNetworkPolicyRuleActionAllow):
 		ruleConns.Subtract(pc.DeniedConns)
@@ -52,6 +55,9 @@ func (pc *PolicyConnections) UpdateWithRuleConns(ruleConns *common.ConnectionSet
 		ruleConns.Subtract(pc.PassConns)
 		pc.DeniedConns.Union(ruleConns)
 	case string(apisv1a.AdminNetworkPolicyRuleActionPass):
+		if banpRules {
+			return fmt.Errorf(netpolerrors.UnknownRuleActionErr)
+		}
 		ruleConns.Subtract(pc.AllowedConns)
 		ruleConns.Subtract(pc.DeniedConns)
 		pc.PassConns.Union(ruleConns)

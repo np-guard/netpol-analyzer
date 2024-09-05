@@ -69,7 +69,7 @@ func (banp *BaselineAdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyC
 		if err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
-		err = res.UpdateWithRuleConns(ruleConns, string(rule.Action))
+		err = res.UpdateWithRuleConns(ruleConns, string(rule.Action), true)
 		if err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
@@ -100,7 +100,7 @@ func (banp *BaselineAdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*P
 		if err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
-		err = res.UpdateWithRuleConns(ruleConns, string(rule.Action))
+		err = res.UpdateWithRuleConns(ruleConns, string(rule.Action), true)
 		if err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
