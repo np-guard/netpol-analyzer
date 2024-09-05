@@ -1329,10 +1329,8 @@ func runParsedResourcesConnlistTests(t *testing.T, testList []testutils.ParsedRe
 			require.Nil(t, err, test.TestInfo)
 			out, err := analyzer.ConnectionsListToString(res)
 			require.Nil(t, err, test.TestInfo)
-			if test.Banp == nil { // Tanya - remove this 'if' whenever BaselineAdminNetworkPolicy is implemented
-				testutils.CheckActualVsExpectedOutputMatch(t, test.ExpectedOutputFileName, out,
-					test.TestInfo, currentPkg)
-			}
+			testutils.CheckActualVsExpectedOutputMatch(t, test.ExpectedOutputFileName, out,
+				test.TestInfo, currentPkg)
 		})
 	}
 }

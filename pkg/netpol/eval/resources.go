@@ -469,7 +469,9 @@ func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineA
 	if pe.baselineAdminNetpol != nil { // @todo : should this be a warning? the last banp the one considered
 		return errors.New(netpolerrors.BANPAlreadyExists)
 	}
-	if banp.Name != "default" {
+	if banp.Name != "default" { // "You must use default as the name when creating a BaselineAdminNetworkPolicy object."
+		// see https://www.redhat.com/en/blog/using-adminnetworkpolicy-api-to-secure-openshift-cluster-networking
+		// or this: https://pkg.go.dev/sigs.k8s.io/network-policy-api@v0.1.5/apis/v1alpha1#BaselineAdminNetworkPolicy
 		return errors.New(netpolerrors.BANPNameAssertion)
 	}
 	pe.baselineAdminNetpol = (*k8s.BaselineAdminNetworkPolicy)(banp)

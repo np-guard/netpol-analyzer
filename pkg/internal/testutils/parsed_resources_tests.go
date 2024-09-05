@@ -25,7 +25,15 @@ import (
 // /////////////////////////////////////// ParsedResourcesTests ////////////////////////////////////
 
 const (
-	podKind = "Pod"
+	podKind                = "Pod"
+	allConnsStr            = "All Connections"
+	allButTCP80            = "SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535"
+	allButTCP80A81         = "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-65535"
+	connUDP80              = "UDP 80"
+	allButUDP80            = "SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535"
+	allButTCP80A81UDP80A81 = "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-79,82-65535"
+	noConns                = "No Connections"
+	connTCP80A81UDP80A81   = "TCP 80-81,UDP 80-81"
 )
 
 var (
@@ -48,7 +56,7 @@ func newDefaultPod(namespace, name string, ports []int32, protocols []v1.Protoco
 			podObj.Spec.Containers = append(podObj.Spec.Containers, newDefaultContainer(port, protocol))
 		}
 	}
-	addMetaData(&podObj.ObjectMeta)
+	addMetaData(&podObj.ObjectMeta, true)
 	return &podObj
 }
 
@@ -97,12 +105,12 @@ type ParsedResourcesTest struct {
 	TestInfo               string
 }
 
-func addMetaData(meta *metav1.ObjectMeta) {
+func addMetaData(meta *metav1.ObjectMeta, addNsName bool) {
 	if meta.Name == "" {
 		meta.Name = fmt.Sprintf("generated_name_%q", genCnt)
 		genCnt++
 	}
-	if meta.Namespace == "" {
+	if addNsName && meta.Namespace == "" {
 		meta.Namespace = metav1.NamespaceDefault
 	}
 }
@@ -120,20 +128,21 @@ func initResources(podInfo *PodInfo) *Resources {
 
 func initNpList(npList []*netv1.NetworkPolicy) []*netv1.NetworkPolicy {
 	for _, np := range npList {
-		addMetaData(&np.ObjectMeta)
+		addMetaData(&np.ObjectMeta, true)
 	}
 	return npList
 }
 
 func initAnpList(anpList []*v1alpha1.AdminNetworkPolicy) []*v1alpha1.AdminNetworkPolicy {
 	for _, anp := range anpList {
-		addMetaData(&anp.ObjectMeta)
+		// ANPs are cluster scoped (has no namespace name)
+		addMetaData(&anp.ObjectMeta, false)
 	}
 	return anpList
 }
 
 func initBanp(banp *v1alpha1.BaselineAdminNetworkPolicy) *v1alpha1.BaselineAdminNetworkPolicy {
-	addMetaData(&banp.ObjectMeta)
+	banp.Name = "default" // "must use default as the name when creating a BaselineAdminNetworkPolicy object."
 	return banp
 }
 
@@ -152,10 +161,9 @@ func (test *ParsedResourcesTest) Getk8sObjects() []parser.K8sObject {
 	for _, anp := range test.AnpList {
 		res = append(res, createAdminNetworkPolicyK8sObject(anp))
 	}
-	// Tanya: uncomment the code below when BaselineAdminNetworkPolicy is implemented
-	// if test.Banp != nil {
-	// 	res = append(res, CreateBaselineAdminNetworkPolicyK8sObject(test.Banp))
-	// }
+	if test.Banp != nil {
+		res = append(res, createBaselineAdminNetworkPolicyK8sObject(test.Banp))
+	}
 	return res
 }
 
@@ -184,6 +192,13 @@ func createAdminNetworkPolicyK8sObject(anp *v1alpha1.AdminNetworkPolicy) parser.
 	k8sObj := parser.K8sObject{}
 	k8sObj.Kind = "AdminNetworkPolicy"
 	k8sObj.AdminNetworkPolicy = anp
+	return k8sObj
+}
+
+func createBaselineAdminNetworkPolicyK8sObject(banp *v1alpha1.BaselineAdminNetworkPolicy) parser.K8sObject {
+	k8sObj := parser.K8sObject{}
+	k8sObj.Kind = "BaselineAdminNetworkPolicy"
+	k8sObj.BaselineAdminNetworkPolicy = banp
 	return k8sObj
 }
 
@@ -324,11 +339,11 @@ var (
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "x/b",
-					ExpResult: "SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535",
+					ExpResult: allButTCP80,
 				},
 				{
 					Src: "x/b", Dst: "x/a",
-					ExpResult: "All Connections",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -349,11 +364,11 @@ var (
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/b", Dst: "x/a",
-					ExpResult: "SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535",
+					ExpResult: allButTCP80,
 				},
 				{
 					Src: "x/b", Dst: "y/a",
-					ExpResult: "All Connections",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -384,11 +399,11 @@ var (
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/b", Dst: "x/a",
-					ExpResult: "SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535",
+					ExpResult: allButTCP80,
 				},
 				{
 					Src: "y/b", Dst: "x/a",
-					ExpResult: "All Connections",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -423,11 +438,11 @@ var (
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/c", Dst: "x/a",
-					ExpResult: "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-65535",
+					ExpResult: allButTCP80A81,
 				},
 				{
 					Src: "y/c", Dst: "z/b",
-					ExpResult: "All Connections",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(&PodInfo{Namespaces: []string{"x", "y", "z"}, PodNames: []string{"a", "b", "c"},
@@ -464,11 +479,11 @@ var (
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "y/a", Dst: "x/a",
-					ExpResult: "SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535",
+					ExpResult: allButUDP80,
 				},
 				{
 					Src: "y/b", Dst: "y/a",
-					ExpResult: "All Connections",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -504,11 +519,11 @@ var (
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "y/b", Dst: "x/a",
-					ExpResult: "SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535",
+					ExpResult: allButUDP80,
 				},
 				{
 					Src: "y/b", Dst: "y/a",
-					ExpResult: "All Connections",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -553,11 +568,11 @@ var (
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "y/a", Dst: "x/a",
-					ExpResult: "SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535",
+					ExpResult: allButUDP80,
 				},
 				{
 					Src: "y/b", Dst: "y/a",
-					ExpResult: "All Connections",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -602,11 +617,11 @@ var (
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/b", Dst: "y/a",
-					ExpResult: "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-79,82-65535",
+					ExpResult: allButTCP80A81UDP80A81,
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "All Connections",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -623,11 +638,11 @@ var (
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "All Connections",
+					ExpResult: allConnsStr,
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "All Connections",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -653,11 +668,11 @@ var (
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-79,82-65535",
+					ExpResult: allButTCP80A81UDP80A81,
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "x/a",
-					ExpResult: "All Connections",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -683,15 +698,14 @@ var (
 			Name:                   "egress",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_banp_conn_from_parsed_res.txt",
-			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "TODO - add result 1",
+					ExpResult: noConns,
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "TODO - add result 2",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -715,15 +729,14 @@ var (
 			Name:                   "ingress",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_banp_conn_from_parsed_res.txt",
-			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "TODO - add result 3",
+					ExpResult: allConnsStr,
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "TODO - add result 4",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -747,15 +760,14 @@ var (
 			Name:                   "ordering matters for overlapping rules (order #1)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test3_banp_conn_from_parsed_res.txt",
-			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "TODO - add result 5",
+					ExpResult: noConns,
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "TODO - add result 6",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo2),
@@ -769,7 +781,7 @@ var (
 							Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionAllow,
 							From: []v1alpha1.AdminNetworkPolicyIngressPeer{
 								{
-									Pods: pods3,
+									Pods: pods4, // y/b
 								},
 							},
 						},
@@ -789,15 +801,14 @@ var (
 			Name:                   "ordering matters for overlapping rules (order #2)",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test4_banp_conn_from_parsed_res.txt",
-			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "TODO - add result 7",
+					ExpResult: noConns,
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "TODO - add result 8",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo2),
@@ -837,11 +848,11 @@ var (
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/b", Dst: "x/a",
-					ExpResult: "TCP 80-81,UDP 80-81",
+					ExpResult: connTCP80A81UDP80A81,
 				},
 				{
 					Src: "x/b", Dst: "y/a",
-					ExpResult: "All Connections",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -898,11 +909,11 @@ var (
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/b", Dst: "x/a",
-					ExpResult: "TCP 80-81,UDP 80-81",
+					ExpResult: connTCP80A81UDP80A81,
 				},
 				{
 					Src: "x/b", Dst: "y/a",
-					ExpResult: "All Connections",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -961,17 +972,17 @@ var (
 			Name:                   "BANP deny all after NetPol",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_banp_npv1_conn_from_parsed_res.txt",
-			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
 			EvalTests: []EvalAllowedConnTest{
 				{
-					Src: "x/a", Dst: "y/b",
-					ExpResult: "TODO - add result 9",
+					Src: "x/b", Dst: "x/a",
+					ExpResult: connUDP80,
 				},
 				{
-					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "TODO - add result 10",
+					Src: "0.0.0.0/0", Dst: "x/a",
+					ExpResult: noConns,
 				},
 			},
+			// note that resources contain only one namespace x
 			Resources: initResources(&PodInfo{Namespaces: []string{"x"}, PodNames: []string{"a", "b"},
 				Ports: []int32{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}),
 			NpList: initNpList([]*netv1.NetworkPolicy{
@@ -1030,15 +1041,14 @@ var (
 			Name:                   "BANP deny all after ANP",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test1_anp_banp_from_parsed_res.txt",
-			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "TODO - add result 11",
+					ExpResult: noConns,
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "TODO - add result 12",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -1085,15 +1095,14 @@ var (
 			Name:                   "ANP pass some and allow rest over BANP",
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test2_anp_banp_from_parsed_res.txt",
-			// Tanya: build eval tests whenever BaselineAdminNetworkPolicy is implemented
 			EvalTests: []EvalAllowedConnTest{
 				{
 					Src: "x/a", Dst: "y/b",
-					ExpResult: "TODO - add result 13",
+					ExpResult: allConnsStr,
 				},
 				{
 					Src: "0.0.0.0/0", Dst: "y/a",
-					ExpResult: "TODO - add result 14",
+					ExpResult: allConnsStr,
 				},
 			},
 			Resources: initResources(podInfo1),
