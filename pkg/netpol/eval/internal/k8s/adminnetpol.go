@@ -66,6 +66,7 @@ func doesPodsFieldMatchPeer(pods *apisv1a.NamespacedPod, peer Peer) (bool, error
 
 // why could not success yet with
 // using generics to avoid duplicates in following two funcs `egressRuleSelectsPeer` and `ingressRuleSelectsPeer`:
+// (same for checkSelectedPeersAndConnsFromEgressRule and checkSelectedPeersAndConnsFromIngressRule)
 //
 // according to https://tip.golang.org/doc/go1.18#generics :
 // "The Go compiler does not support accessing a struct field x.f where x is of type parameter type even if all types in the type
@@ -145,6 +146,56 @@ func ingressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, s
 	return false, nil
 }
 
+// checkSelectedPeersAndConnsFromEgressRule checks if the given dst is selected by given egress rule,
+// if yes, updates given policyConns with the rule's connections
+func checkSelectedPeersAndConnsFromEgressRule(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer,
+	rulePorts *[]apisv1a.AdminNetworkPolicyPort, dst Peer, policyConns *PolicyConnections, action string, isBANPrule bool) error {
+	if len(rulePeers) == 0 {
+		return errors.New(netpolerrors.ANPEgressRulePeersErr)
+	}
+	peerSelected, err := egressRuleSelectsPeer(rulePeers, dst)
+	if err != nil {
+		return err
+	}
+	if !peerSelected {
+		return nil
+	}
+	err = updatePolicyConns(rulePorts, policyConns, dst, action, isBANPrule)
+	return err
+}
+
+// checkSelectedPeersAndConnsFromIngressRule checks if the given src is selected by given ingress rule,
+// if yes, updates given policyConns with the rule's connections
+func checkSelectedPeersAndConnsFromIngressRule(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer,
+	rulePorts *[]apisv1a.AdminNetworkPolicyPort, src, dst Peer, policyConns *PolicyConnections, action string, isBANPrule bool) error {
+	if len(rulePeers) == 0 {
+		return errors.New(netpolerrors.ANPIngressRulePeersErr)
+	}
+	peerSelected, err := ingressRuleSelectsPeer(rulePeers, src)
+	if err != nil {
+		return err
+	}
+	if !peerSelected {
+		return nil
+	}
+	err = updatePolicyConns(rulePorts, policyConns, dst, action, isBANPrule)
+	return err
+}
+
+// updatePolicyConns gets the rule connections from the rule.ports and updates the input policy connections
+// with the rule's conns considering the action
+func updatePolicyConns(rulePorts *[]apisv1a.AdminNetworkPolicyPort, policyConns *PolicyConnections, dst Peer,
+	action string, isBANPrule bool) error {
+	// get rule connections from rulePorts
+	ruleConns, err := ruleConnections(rulePorts, dst)
+	if err != nil {
+		return err
+	}
+	// update the policy conns with this rule conns
+	err = policyConns.UpdateWithRuleConns(ruleConns, action, isBANPrule)
+	return err
+}
+
 // ruleConnections returns the connectionSet from the current rule.Ports
 func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common.ConnectionSet, error) {
 	if ports == nil {
@@ -220,7 +271,15 @@ func subjectSelectsPeer(anpSubject apisv1a.AdminNetworkPolicySubject, p Peer) (b
 // AdminNetworkPolicy is an alias for k8s adminNetworkPolicy object
 type AdminNetworkPolicy apisv1a.AdminNetworkPolicy
 
-// @todo: TBD if using generics may help avoid duplicates in the files adminnetpol.go and baseline_admin_netpol.go
+// note that could not use Generics with GO 1.21 or older versions; since:
+// according to https://tip.golang.org/doc/go1.18#generics :
+// "The Go compiler does not support accessing a struct field x.f where x is of type parameter type even if all types in the type
+// parameter’s type set have a field f. We may remove this restriction in a future release."
+// (till GO 1.21 this restriction is not removed yet.)
+// and to resolve remaining duplicated code for AdminNetworkPolicy and BaselineAdminNetworkPolicy we need the option of using
+// the inner fields of  generic type in the funcs, either implicitly or explicitly.
+// @todo: with upgraded GO version, check if using generics may help avoid remaining duplicates in
+// the files adminnetpol.go and baseline_admin_netpol.go
 
 // Selects returns true if the admin network policy's Spec.Subject selects the peer and if the required direction is in the policy spec
 func (anp *AdminNetworkPolicy) Selects(p Peer, isIngress bool) (bool, error) {
@@ -253,30 +312,12 @@ func (anp *AdminNetworkPolicy) anpRuleErr(ruleName, description string) error {
 }
 
 // GetIngressPolicyConns returns the connections from the ingress rules selecting the src in spec of the adminNetworkPolicy
-//
-//nolint:dupl // this loops Ingress spec - different types
 func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConnections, error) {
 	res := InitEmptyPolicyConnections()
-	for _, rule := range anp.Spec.Ingress {
+	for _, rule := range anp.Spec.Ingress { // rule is apisv1a.AdminNetworkPolicyIngressRule
 		rulePeers := rule.From
-		if len(rulePeers) == 0 {
-			return nil, anp.anpRuleErr(rule.Name, netpolerrors.ANPIngressRulePeersErr)
-		}
 		rulePorts := rule.Ports
-		peerSelected, err := ingressRuleSelectsPeer(rulePeers, src)
-		if err != nil {
-			return nil, anp.anpRuleErr(rule.Name, err.Error())
-		}
-		if !peerSelected {
-			continue
-		}
-
-		ruleConns, err := ruleConnections(rulePorts, dst)
-		if err != nil {
-			return nil, anp.anpRuleErr(rule.Name, err.Error())
-		}
-		err = res.UpdateWithRuleConns(ruleConns, string(rule.Action), false)
-		if err != nil {
+		if err := checkSelectedPeersAndConnsFromIngressRule(rulePeers, rulePorts, src, dst, res, string(rule.Action), false); err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}
 	}
@@ -284,30 +325,12 @@ func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConn
 }
 
 // GetEgressPolicyConns returns the connections from the egress rules selecting the dst in spec of the adminNetworkPolicy
-//
-//nolint:dupl // this loops Egress spec - different types
 func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnections, error) {
 	res := InitEmptyPolicyConnections()
-	for _, rule := range anp.Spec.Egress {
+	for _, rule := range anp.Spec.Egress { // rule is apisv1a.AdminNetworkPolicyEgressRule
 		rulePeers := rule.To
-		if len(rulePeers) == 0 {
-			return nil, anp.anpRuleErr(rule.Name, netpolerrors.ANPEgressRulePeersErr)
-		}
 		rulePorts := rule.Ports
-		peerSelected, err := egressRuleSelectsPeer(rulePeers, dst)
-		if err != nil {
-			return nil, anp.anpRuleErr(rule.Name, err.Error())
-		}
-		if !peerSelected {
-			continue
-		}
-
-		ruleConns, err := ruleConnections(rulePorts, dst)
-		if err != nil {
-			return nil, anp.anpRuleErr(rule.Name, err.Error())
-		}
-		err = res.UpdateWithRuleConns(ruleConns, string(rule.Action), false)
-		if err != nil {
+		if err := checkSelectedPeersAndConnsFromEgressRule(rulePeers, rulePorts, dst, res, string(rule.Action), false); err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}
 	}

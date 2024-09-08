@@ -10,8 +10,6 @@ import (
 	"fmt"
 
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
-
-	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 )
 
 // BaselineAdminNetworkPolicy  is an alias for k8s BaselineAdminNetworkPolicy object
@@ -36,8 +34,10 @@ func (banp *BaselineAdminNetworkPolicy) Selects(p Peer, isIngress bool) (bool, e
 // banp affects a direction, if its spec has rules on that direction
 func (banp *BaselineAdminNetworkPolicy) baselineAdminPolicyAffectsDirection(isIngress bool) bool {
 	if isIngress {
+		// BANPs with no ingress rules do not affect ingress traffic.
 		return len(banp.Spec.Ingress) > 0
 	}
+	// BANPs with no egress rules do not affect egress traffic.
 	return len(banp.Spec.Egress) > 0
 }
 
@@ -47,30 +47,12 @@ func banpRuleErr(ruleName, description string) error {
 }
 
 // GetEgressPolicyConns returns the connections from the egress rules selecting the dst in spec of the baselineAdminNetworkPolicy
-//
-//nolint:dupl // this loops Egress spec - different types
 func (banp *BaselineAdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnections, error) {
 	res := InitEmptyPolicyConnections()
-	for _, rule := range banp.Spec.Egress {
+	for _, rule := range banp.Spec.Egress { // rule is apisv1a.BaselineAdminNetworkPolicyEgressRule
 		rulePeers := rule.To
-		if len(rulePeers) == 0 {
-			return nil, banpRuleErr(rule.Name, netpolerrors.ANPEgressRulePeersErr)
-		}
 		rulePorts := rule.Ports
-		peerSelected, err := egressRuleSelectsPeer(rulePeers, dst)
-		if err != nil {
-			return nil, banpRuleErr(rule.Name, err.Error())
-		}
-		if !peerSelected {
-			continue
-		}
-
-		ruleConns, err := ruleConnections(rulePorts, dst)
-		if err != nil {
-			return nil, banpRuleErr(rule.Name, err.Error())
-		}
-		err = res.UpdateWithRuleConns(ruleConns, string(rule.Action), true)
-		if err != nil {
+		if err := checkSelectedPeersAndConnsFromEgressRule(rulePeers, rulePorts, dst, res, string(rule.Action), true); err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
 	}
@@ -78,30 +60,12 @@ func (banp *BaselineAdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyC
 }
 
 // GetIngressPolicyConns returns the connections from the ingress rules selecting the src in spec of the baselineAdminNetworkPolicy
-//
-//nolint:dupl // this loops Ingress spec - different types
 func (banp *BaselineAdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConnections, error) {
 	res := InitEmptyPolicyConnections()
-	for _, rule := range banp.Spec.Ingress {
+	for _, rule := range banp.Spec.Ingress { // rule is apisv1a.BaselineAdminNetworkPolicyIngressRule
 		rulePeers := rule.From
-		if len(rulePeers) == 0 {
-			return nil, banpRuleErr(rule.Name, netpolerrors.ANPIngressRulePeersErr)
-		}
 		rulePorts := rule.Ports
-		peerSelected, err := ingressRuleSelectsPeer(rulePeers, src)
-		if err != nil {
-			return nil, banpRuleErr(rule.Name, err.Error())
-		}
-		if !peerSelected {
-			continue
-		}
-
-		ruleConns, err := ruleConnections(rulePorts, dst)
-		if err != nil {
-			return nil, banpRuleErr(rule.Name, err.Error())
-		}
-		err = res.UpdateWithRuleConns(ruleConns, string(rule.Action), true)
-		if err != nil {
+		if err := checkSelectedPeersAndConnsFromIngressRule(rulePeers, rulePorts, src, dst, res, string(rule.Action), true); err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
 	}
