@@ -41,6 +41,7 @@ type (
 		adminNetpolsMap    map[string]bool           // set of input admin-network-policies names to ensure uniqueness by name
 		sortedAdminNetpols []*k8s.AdminNetworkPolicy // sorted by priority list of admin-network-policies;
 		// sorting ANPs occurs after all input k8s objects are inserted to the policy-engine
+		baselineAdminNetpol    *k8s.BaselineAdminNetworkPolicy // pointer to BaselineAdminNetworkPolicy which is a cluster singleton object
 		cache                  *evalCache
 		exposureAnalysisFlag   bool
 		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
@@ -159,6 +160,8 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 			err = pe.InsertObject(obj.CronJob)
 		case parser.AdminNetworkPolicy:
 			err = pe.InsertObject(obj.AdminNetworkPolicy)
+		case parser.BaselineAdminNetworkPolicy:
+			err = pe.InsertObject(obj.BaselineAdminNetworkPolicy)
 		case parser.Service, parser.Route, parser.Ingress:
 			continue
 		default:
@@ -291,6 +294,8 @@ func (pe *PolicyEngine) InsertObject(rtObj runtime.Object) error {
 		return pe.insertWorkload(obj, parser.Job)
 	case *apisv1a.AdminNetworkPolicy:
 		return pe.insertAdminNetworkPolicy(obj)
+	case *apisv1a.BaselineAdminNetworkPolicy:
+		return pe.insertBaselineAdminNetworkPolicy(obj)
 	}
 	return nil
 }
@@ -306,6 +311,8 @@ func (pe *PolicyEngine) DeleteObject(rtObj runtime.Object) error {
 		return pe.deleteNetworkPolicy(obj)
 	case *apisv1a.AdminNetworkPolicy:
 		return pe.deleteAdminNetworkPolicy(obj)
+	case *apisv1a.BaselineAdminNetworkPolicy:
+		return pe.deleteBaselineAdminNetworkPolicy(obj)
 	}
 	return nil
 }
@@ -321,6 +328,8 @@ func (pe *PolicyEngine) ClearResources() {
 	}
 	pe.cache = newEvalCache()
 	pe.adminNetpolsMap = make(map[string]bool)
+	pe.sortedAdminNetpols = make([]*k8s.AdminNetworkPolicy, 0)
+	pe.baselineAdminNetpol = nil
 }
 
 func (pe *PolicyEngine) insertNamespace(ns *corev1.Namespace) error {
@@ -485,6 +494,23 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 	return nil
 }
 
+func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineAdminNetworkPolicy) error {
+	// @TBD : currently disabling exposure-analysis when there are (baseline)-admin-network-policies in the input resources
+	if pe.exposureAnalysisFlag {
+		return errors.New(netpolerrors.ExposureAnalysisDisabledWithANPs)
+	}
+	if pe.baselineAdminNetpol != nil { // @todo : should this be a warning? the last banp the one considered
+		return errors.New(netpolerrors.BANPAlreadyExists)
+	}
+	if banp.Name != "default" { // "You must use default as the name when creating a BaselineAdminNetworkPolicy object."
+		// see https://www.redhat.com/en/blog/using-adminnetworkpolicy-api-to-secure-openshift-cluster-networking
+		// or this: https://pkg.go.dev/sigs.k8s.io/network-policy-api@v0.1.5/apis/v1alpha1#BaselineAdminNetworkPolicy
+		return errors.New(netpolerrors.BANPNameAssertion)
+	}
+	pe.baselineAdminNetpol = (*k8s.BaselineAdminNetworkPolicy)(banp)
+	return nil
+}
+
 func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
 	delete(pe.namespacesMap, ns.Name)
 	return nil
@@ -551,6 +577,14 @@ func (pe *PolicyEngine) deleteAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 			// assign to pe.sortedAdminNetpols all ANPs except for current item
 			pe.sortedAdminNetpols = append(pe.sortedAdminNetpols[:i], pe.sortedAdminNetpols[i+1:]...)
 		}
+	}
+	return nil
+}
+
+func (pe *PolicyEngine) deleteBaselineAdminNetworkPolicy(banp *apisv1a.BaselineAdminNetworkPolicy) error {
+	if pe.baselineAdminNetpol.Name == banp.Name { // if this is the banp used in pe delete it
+		// @TBD : should keep this if? no other banps are in the resources (illegal)
+		pe.baselineAdminNetpol = nil
 	}
 	return nil
 }

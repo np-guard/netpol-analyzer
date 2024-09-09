@@ -20,25 +20,27 @@ import (
 
 // relevant K8s resource kinds as string values
 const (
-	NetworkPolicy          string = "NetworkPolicy"
-	Namespace              string = "Namespace"
-	Pod                    string = "Pod"
-	ReplicaSet             string = "ReplicaSet"
-	ReplicationController  string = "ReplicationController"
-	Deployment             string = "Deployment"
-	StatefulSet            string = "StatefulSet"
-	DaemonSet              string = "DaemonSet"
-	Job                    string = "Job"
-	CronJob                string = "CronJob"
-	List                   string = "List"
-	NamespaceList          string = "NamespaceList"
-	NetworkPolicyList      string = "NetworkPolicyList"
-	PodList                string = "PodList"
-	Service                string = "Service"
-	Route                  string = "Route"
-	Ingress                string = "Ingress"
-	AdminNetworkPolicy     string = "AdminNetworkPolicy"
-	AdminNetworkPolicyList string = "AdminNetworkPolicyList"
+	NetworkPolicy                  string = "NetworkPolicy"
+	Namespace                      string = "Namespace"
+	Pod                            string = "Pod"
+	ReplicaSet                     string = "ReplicaSet"
+	ReplicationController          string = "ReplicationController"
+	Deployment                     string = "Deployment"
+	StatefulSet                    string = "StatefulSet"
+	DaemonSet                      string = "DaemonSet"
+	Job                            string = "Job"
+	CronJob                        string = "CronJob"
+	List                           string = "List"
+	NamespaceList                  string = "NamespaceList"
+	NetworkPolicyList              string = "NetworkPolicyList"
+	PodList                        string = "PodList"
+	Service                        string = "Service"
+	Route                          string = "Route"
+	Ingress                        string = "Ingress"
+	AdminNetworkPolicy             string = "AdminNetworkPolicy"
+	AdminNetworkPolicyList         string = "AdminNetworkPolicyList"
+	BaselineAdminNetworkPolicy     string = "BaselineAdminNetworkPolicy"
+	BaselineAdminNetworkPolicyList string = "BaselineAdminNetworkPolicyList" // a list with max 1 object according to apis/v1alpha
 )
 
 // K8sObject holds a an object kind and a pointer of the relevant object
@@ -48,8 +50,9 @@ type K8sObject struct {
 	Namespace *v1.Namespace
 
 	// netpol objects
-	NetworkPolicy      *netv1.NetworkPolicy
-	AdminNetworkPolicy *apisv1a.AdminNetworkPolicy
+	NetworkPolicy              *netv1.NetworkPolicy
+	AdminNetworkPolicy         *apisv1a.AdminNetworkPolicy
+	BaselineAdminNetworkPolicy *apisv1a.BaselineAdminNetworkPolicy
 
 	// pod object
 	Pod *v1.Pod
@@ -71,6 +74,7 @@ type K8sObject struct {
 	DaemonSet             *appsv1.DaemonSet
 }
 
+//gocyclo:ignore
 func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
 	switch kind {
 	case Deployment:
@@ -115,6 +119,9 @@ func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
 	case AdminNetworkPolicy:
 		k.AdminNetworkPolicy = &apisv1a.AdminNetworkPolicy{}
 		return k.AdminNetworkPolicy
+	case BaselineAdminNetworkPolicy:
+		k.BaselineAdminNetworkPolicy = &apisv1a.BaselineAdminNetworkPolicy{}
+		return k.BaselineAdminNetworkPolicy
 	}
 	return nil
 }

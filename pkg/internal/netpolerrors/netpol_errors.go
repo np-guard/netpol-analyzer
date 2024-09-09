@@ -61,15 +61,20 @@ const (
 	UnmarshalErr            = "cannot unmarshal array into Go value of type unstructured.detector"
 	UnableToDecodeErr       = "unable to decode"
 
-	// errors constants from adminNetworkPolicy
+	// errors constants from adminNetworkPolicy and baselineAdminNetworkPolicy
 	SubjectErrTitle                  = "invalid Subject:"
-	SubjectFieldsErr                 = "Exactly one field must be set"
+	oneFieldSetErr                   = "exactly one field must be set"
+	OneFieldSetRulePeerErr           = oneFieldSetErr + " in a rule peer"
+	OneFieldSetSubjectErr            = oneFieldSetErr + " in a subject"
 	UnknownRuleActionErr             = "unrecognized action"
 	ANPPortsError                    = "exactly one field must be set in an AdminNetworkPolicyPort"
-	ANPIngressRulePeersErr           = "From field must be defined and contain at least one item"
-	ANPEgressRulePeersErr            = "To field must be defined and contain at least one item"
+	ANPIngressRulePeersErr           = "from field must be defined and contain at least one item"
+	ANPEgressRulePeersErr            = "to field must be defined and contain at least one item"
 	ANPMissingNameErr                = "missing name for an AdminNetworkPolicy object"
 	ExposureAnalysisDisabledWithANPs = "exposure analysis is disabled when there are admin-network-policies in the input resources"
+
+	BANPAlreadyExists = "only one baseline admin network policy may be provided in input resources; one already exists"
+	BANPNameAssertion = "only one baseline admin network policy with metadata.name=default can be created in the cluster"
 
 	UnknownCommandErr = "unknown command"
 

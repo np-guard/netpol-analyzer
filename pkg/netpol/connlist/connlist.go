@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 // The connlist package of netpol-analyzer allows producing a k8s connectivity report based on several resources:
-// k8s NetworkPolicy & AdminNetworkPolicy, k8s Ingress, openshift Route
+// k8s NetworkPolicy & AdminNetworkPolicy & BaselineAdminNetworkPolicy, k8s Ingress, openshift Route
 // It lists the set of allowed connections between each pair of different peers (k8s workloads or ip-blocks).
 // Connections between workload to itself are excluded from the output.
 // Connectivity inferred from Ingress/Route resources is between {ingress-controller} to k8s workloads.
