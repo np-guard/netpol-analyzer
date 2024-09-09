@@ -206,9 +206,9 @@ var workloadKinds = map[string]bool{
 }
 
 var policyKinds = map[string]bool{
-	NetworkPolicy:      true,
-	AdminNetworkPolicy: true,
-	// @todo add also BaselineAdminNetworkPolicy in #403
+	NetworkPolicy:              true,
+	AdminNetworkPolicy:         true,
+	BaselineAdminNetworkPolicy: true,
 }
 
 func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) []K8sObject {
