@@ -168,11 +168,12 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 			return err
 		}
 	}
-	if !pe.exposureAnalysisFlag { // for exposure analysis; this already done
+	if !pe.exposureAnalysisFlag {
+		// @todo: put following line outside the if statement when exposure analysis is supported with (B)ANPs
 		if err := pe.sortAdminNetpolsByPriority(); err != nil {
 			return err
 		}
-		return pe.resolveMissingNamespaces()
+		return pe.resolveMissingNamespaces() // for exposure analysis; this already done
 	}
 	return nil
 }
