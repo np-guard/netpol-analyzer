@@ -6,7 +6,7 @@ src,dst,conn
 network-policy-conformance-gryffindor/harry-potter[StatefulSet],0.0.0.0-255.255.255.255,All Connections
 network-policy-conformance-gryffindor/harry-potter[StatefulSet],network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet],TCP 8080
 network-policy-conformance-gryffindor/harry-potter[StatefulSet],network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet],All Connections
-network-policy-conformance-gryffindor/harry-potter[StatefulSet],network-policy-conformance-slytherin/draco-malfoy[StatefulSet],"SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535"
+network-policy-conformance-gryffindor/harry-potter[StatefulSet],network-policy-conformance-slytherin/draco-malfoy[StatefulSet],All but: TCP 80
 network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet],0.0.0.0-255.255.255.255,All Connections
 network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet],network-policy-conformance-gryffindor/harry-potter[StatefulSet],All Connections
 network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet],network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet],All Connections
