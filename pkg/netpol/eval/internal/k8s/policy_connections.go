@@ -73,7 +73,7 @@ func (pc *PolicyConnections) UpdateWithRuleConns(ruleConns *common.ConnectionSet
 // layer with lower precedence (e.g. netpols conns/default conns)
 // ANP allowed and denied conns takes precedence on network-policy conns
 // Pass conns from ANP are determined by the NPs conns
-// @todo change the input to *PolicyConnections and update the func's code
+// @todo (updated in BANP branch) change the input to *PolicyConnections and update the func's code
 func (pc *PolicyConnections) UpdateWithOtherLayerConns(otherLayerConns *common.ConnectionSet) {
 	otherLayerConns.Subtract(pc.DeniedConns)
 	pc.PassConns.Intersection(otherLayerConns)
