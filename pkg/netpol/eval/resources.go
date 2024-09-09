@@ -9,6 +9,7 @@ package eval
 import (
 	"errors"
 	"fmt"
+	"sort"
 
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -37,8 +38,10 @@ type (
 		netpolsMap                      map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
 		podOwnersToRepresentativePodMap map[string]map[string]*k8s.Pod           // map from namespace to map from pods' ownerReference name
 		// to its representative pod object
-		adminNetpolsMap        map[string]*k8s.AdminNetworkPolicy // map from adminNetworkPolicy name to its object
-		baselineAdminNetpol    *k8s.BaselineAdminNetworkPolicy    // pointer to BaselineAdminNetworkPolicy which is a cluster singleton object
+		adminNetpolsMap    map[string]bool           // set of input admin-network-policies names to ensure uniqueness by name
+		sortedAdminNetpols []*k8s.AdminNetworkPolicy // sorted by priority list of admin-network-policies;
+		// sorting ANPs occurs after all input k8s objects are inserted to the policy-engine
+		baselineAdminNetpol    *k8s.BaselineAdminNetworkPolicy // pointer to BaselineAdminNetworkPolicy which is a cluster singleton object
 		cache                  *evalCache
 		exposureAnalysisFlag   bool
 		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
@@ -62,7 +65,7 @@ func NewPolicyEngine() *PolicyEngine {
 		podsMap:                         make(map[string]*k8s.Pod),
 		netpolsMap:                      make(map[string]map[string]*k8s.NetworkPolicy),
 		podOwnersToRepresentativePodMap: make(map[string]map[string]*k8s.Pod),
-		adminNetpolsMap:                 make(map[string]*k8s.AdminNetworkPolicy),
+		adminNetpolsMap:                 make(map[string]bool),
 		cache:                           newEvalCache(),
 		exposureAnalysisFlag:            false,
 	}
@@ -168,10 +171,38 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 			return err
 		}
 	}
-	if !pe.exposureAnalysisFlag { // for exposure analysis; this already done
-		return pe.resolveMissingNamespaces()
+	if !pe.exposureAnalysisFlag {
+		// @todo: put following line outside the if statement when exposure analysis is supported with (B)ANPs
+		if err := pe.sortAdminNetpolsByPriority(); err != nil {
+			return err
+		}
+		return pe.resolveMissingNamespaces() // for exposure analysis; this already done
 	}
 	return nil
+}
+
+// sortAdminNetpolsByPriority sorts all input admin-netpols by their priority;
+// since the priority of policies is critical for computing the conns between peers
+func (pe *PolicyEngine) sortAdminNetpolsByPriority() error {
+	var err error
+	sort.Slice(pe.sortedAdminNetpols, func(i, j int) bool {
+		// outcome is non-deterministic if there are two AdminNetworkPolicies at the same priority
+		if pe.sortedAdminNetpols[i].Spec.Priority == pe.sortedAdminNetpols[j].Spec.Priority {
+			err = errors.New(netpolerrors.SamePriorityErr(pe.sortedAdminNetpols[i].Name, pe.sortedAdminNetpols[j].Name))
+			return false
+		}
+		// priority values range is defined
+		if !pe.sortedAdminNetpols[i].HasValidPriority() {
+			err = errors.New(netpolerrors.PriorityValueErr(pe.sortedAdminNetpols[i].Name, pe.sortedAdminNetpols[i].Spec.Priority))
+			return false
+		}
+		if !pe.sortedAdminNetpols[j].HasValidPriority() {
+			err = errors.New(netpolerrors.PriorityValueErr(pe.sortedAdminNetpols[j].Name, pe.sortedAdminNetpols[j].Spec.Priority))
+			return false
+		}
+		return pe.sortedAdminNetpols[i].Spec.Priority < pe.sortedAdminNetpols[j].Spec.Priority
+	})
+	return err
 }
 
 func (pe *PolicyEngine) resolveMissingNamespaces() error {
@@ -296,7 +327,8 @@ func (pe *PolicyEngine) ClearResources() {
 		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)
 	}
 	pe.cache = newEvalCache()
-	pe.adminNetpolsMap = make(map[string]*k8s.AdminNetworkPolicy)
+	pe.adminNetpolsMap = make(map[string]bool)
+	pe.sortedAdminNetpols = make([]*k8s.AdminNetworkPolicy, 0)
 	pe.baselineAdminNetpol = nil
 }
 
@@ -454,10 +486,11 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 	if pe.exposureAnalysisFlag {
 		return errors.New(netpolerrors.ExposureAnalysisDisabledWithANPs)
 	}
-	if _, ok := pe.adminNetpolsMap[anp.Name]; ok {
+	if pe.adminNetpolsMap[anp.Name] {
 		return errors.New(netpolerrors.ANPsWithSameNameErr(anp.Name))
 	}
-	pe.adminNetpolsMap[anp.Name] = (*k8s.AdminNetworkPolicy)(anp)
+	pe.adminNetpolsMap[anp.Name] = true
+	pe.sortedAdminNetpols = append(pe.sortedAdminNetpols, (*k8s.AdminNetworkPolicy)(anp))
 	return nil
 }
 
@@ -538,6 +571,13 @@ func (pe *PolicyEngine) deleteNetworkPolicy(np *netv1.NetworkPolicy) error {
 
 func (pe *PolicyEngine) deleteAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy) error {
 	delete(pe.adminNetpolsMap, anp.Name)
+	// delete anp from the pe.sortedAdminNetpols list
+	for i, item := range pe.sortedAdminNetpols {
+		if item == (*k8s.AdminNetworkPolicy)(anp) {
+			// assign to pe.sortedAdminNetpols all ANPs except for current item
+			pe.sortedAdminNetpols = append(pe.sortedAdminNetpols[:i], pe.sortedAdminNetpols[i+1:]...)
+		}
+	}
 	return nil
 }
 

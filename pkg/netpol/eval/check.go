@@ -9,7 +9,6 @@ package eval
 import (
 	"errors"
 	"net"
-	"sort"
 	"strings"
 
 	netv1 "k8s.io/api/networking/v1"
@@ -538,61 +537,49 @@ func updatePeerXgressClusterWideExposure(policy *k8s.NetworkPolicy, src, dst k8s
 // - a connection between src and dst is captured by an ANP iff there is a rule capturing both peers, since
 // AdminNetworkPolicy rules should be read as-is, i.e. there will not be any implicit isolation effects for
 // the Pods selected by the AdminNetworkPolicy, as opposed to implicit deny NetworkPolicy rules imply.
-func (pe *PolicyEngine) getAllConnsFromAdminNetpols(src, dst k8s.Peer) (anpsConns *k8s.PolicyConnections,
+func (pe *PolicyEngine) getAllConnsFromAdminNetpols(src, dst k8s.Peer) (policiesConns *k8s.PolicyConnections,
 	captured bool, err error) {
-	// since the priority of policies is critical for computing the conns between peers, we need all admin policies capturing both peers.
-	// get all admin policies selecting the dst in Ingress direction
-	dstAdminNetpols, err := pe.getAdminNetpolsSelectingPeer(dst, true)
-	if err != nil {
-		return nil, false, err
-	}
-	// get all admin policies selecting the src in egress direction
-	srcAdminNetpols, err := pe.getAdminNetpolsSelectingPeer(src, false)
-	if err != nil {
-		return nil, false, err
-	}
-
-	if len(dstAdminNetpols) == 0 && len(srcAdminNetpols) == 0 {
-		// if there are no admin netpols selecting the peers, returning nil conns,
-		// conns will be determined by other policy objects/ default value
-		return nil, false, nil
-	}
-
-	// admin netpols may select subjects by namespaces, so an ANP may appear in both dstAminNetpols, and srcAdminNetpols.
-	// then merging both sets into one unique and sorted by priority list of admin-network-policies.
-	adminNetpols, err := getUniqueAndSortedANPsList(dstAdminNetpols, srcAdminNetpols)
-	if err != nil {
-		return nil, false, err
-	}
-
-	policiesConns := k8s.InitEmptyPolicyConnections()
-	// iterate the related sorted admin network policies in order to compute the allowed, pass, and denied connections between the peers
-	for _, anp := range adminNetpols {
+	policiesConns = k8s.InitEmptyPolicyConnections()
+	// iterate the sorted admin network policies in order to compute the allowed, pass, and denied connections between the peers
+	// from the admin netpols capturing the src / dst / both.
+	// connections are computed considering ANPs priorities (rules of an ANP with lower priority take precedence on other ANPs rules)
+	// and rules ordering in single ANP (coming first takes precedence).
+	for _, anp := range pe.sortedAdminNetpols {
 		singleANPConns := k8s.InitEmptyPolicyConnections()
 		// collect the allowed, pass, and denied connectivity from the relevant rules into policiesConns
 		// note that anp may capture both the src and dst (by namespaces field), so both ingress and egress sections might be helpful
 
 		// if the anp captures the src, get the relevant egress conns between src and dst
-		if srcAdminNetpols[anp] {
+		selectsSrc, err := anp.Selects(src, false)
+		if err != nil {
+			return nil, false, err
+		}
+		if selectsSrc {
 			singleANPConns, err = anp.GetEgressPolicyConns(dst)
 			if err != nil {
 				return nil, false, err
 			}
 		}
 		// if the anp captures the dst, get the relevant ingress conns (from src to dst)
-		if dstAdminNetpols[anp] {
+		selectsDst, err := anp.Selects(dst, true)
+		if err != nil {
+			return nil, false, err
+		}
+		if selectsDst {
 			ingressConns, err := anp.GetIngressPolicyConns(src, dst)
 			if err != nil {
 				return nil, false, err
 			}
 			// get the intersection of ingress and egress sections if also the src was captured
-			if srcAdminNetpols[anp] {
+			if selectsSrc {
 				singleANPConns = getAdminPolicyConnFromEgressIngressConns(singleANPConns, ingressConns)
 			} else { // only dst is captured by anp
 				singleANPConns = ingressConns
 			}
 		}
-		policiesConns.CollectANPConns(singleANPConns)
+		if !singleANPConns.IsEmpty() { // the anp is relevant (captured at least one of the peers)
+			policiesConns.CollectANPConns(singleANPConns)
+		}
 	}
 
 	if policiesConns.IsEmpty() { // conns between src and dst were not captured by the adminNetpols, to be determined by netpols/default conns
@@ -600,58 +587,6 @@ func (pe *PolicyEngine) getAllConnsFromAdminNetpols(src, dst k8s.Peer) (anpsConn
 	}
 
 	return policiesConns, true, nil
-}
-
-// getAdminNetpolsSelectingPeer returns set of adminNetworkPolicies which select the input peer and have rules on the required direction
-func (pe *PolicyEngine) getAdminNetpolsSelectingPeer(peer k8s.Peer, isIngress bool) (map[*k8s.AdminNetworkPolicy]bool, error) {
-	res := make(map[*k8s.AdminNetworkPolicy]bool, 0) // set
-	for _, anp := range pe.adminNetpolsMap {
-		selects, err := anp.Selects(peer, isIngress)
-		if err != nil {
-			return nil, err
-		}
-		if selects {
-			res[anp] = true
-		}
-	}
-	return res, nil
-}
-
-// getUniqueANPsList gets two sets of adminNetpols and merges them into one list with unique ANP objects
-func getUniqueAndSortedANPsList(ingressAnps, egressAnps map[*k8s.AdminNetworkPolicy]bool) ([]*k8s.AdminNetworkPolicy, error) {
-	res := []*k8s.AdminNetworkPolicy{}
-	for key := range ingressAnps {
-		res = append(res, key)
-	}
-	for key := range egressAnps {
-		if !ingressAnps[key] {
-			res = append(res, key)
-		}
-	}
-	return sortAdminNetpolsByPriority(res)
-}
-
-// sortAdminNetpolsByPriority sorts the given list of admin-network-policies by priority
-func sortAdminNetpolsByPriority(anpList []*k8s.AdminNetworkPolicy) ([]*k8s.AdminNetworkPolicy, error) {
-	var err error
-	sort.Slice(anpList, func(i, j int) bool {
-		// outcome is non-deterministic if there are two AdminNetworkPolicies at the same priority
-		if anpList[i].Spec.Priority == anpList[j].Spec.Priority {
-			err = errors.New(netpolerrors.SamePriorityErr(anpList[i].Name, anpList[j].Name))
-			return false
-		}
-		// priority values range is defined
-		if !anpList[i].HasValidPriority() {
-			err = errors.New(netpolerrors.PriorityValueErr(anpList[i].Name, anpList[i].Spec.Priority))
-			return false
-		}
-		if !anpList[j].HasValidPriority() {
-			err = errors.New(netpolerrors.PriorityValueErr(anpList[j].Name, anpList[j].Spec.Priority))
-			return false
-		}
-		return anpList[i].Spec.Priority < anpList[j].Spec.Priority
-	})
-	return anpList, err
 }
 
 // getDefaultConns returns the default connections between src and dst; considering the existence of a baseline-admin-network-policy
