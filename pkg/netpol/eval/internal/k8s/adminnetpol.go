@@ -338,6 +338,8 @@ func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnection
 }
 
 const (
+	// according to this: https://network-policy-api.sigs.k8s.io/api-overview/#adminnetworkpolicy-priorities
+	// The Priority field in the ANP spec is defined as an integer value within the range 0 to 1000
 	minPriority = 0
 	maxPriority = 1000
 )
