@@ -576,6 +576,7 @@ func (pe *PolicyEngine) deleteAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 		if item == (*k8s.AdminNetworkPolicy)(anp) {
 			// assign to pe.sortedAdminNetpols all ANPs except for current item
 			pe.sortedAdminNetpols = append(pe.sortedAdminNetpols[:i], pe.sortedAdminNetpols[i+1:]...)
+			break
 		}
 	}
 	return nil
