@@ -349,8 +349,5 @@ func (anp *AdminNetworkPolicy) HasValidPriority() bool {
 	// note: k8s defines "1000" as the maximum numeric value for priority
 	// but openshift currently only support priority values between 0 and 99
 	// current implementation satisfies k8s requirement
-	if anp.Spec.Priority >= minPriority && anp.Spec.Priority <= maxPriority {
-		return true
-	}
-	return false
+	return anp.Spec.Priority >= minPriority && anp.Spec.Priority <= maxPriority
 }
