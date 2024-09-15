@@ -115,7 +115,7 @@ func (pc *PolicyConnections) CollectConnsFromLowerPolicyType(otherConns *PolicyC
 	pc.PassConns.Subtract(passDenyCopy)
 }
 
-// IsEmpty : returns if all connection sets in current policy-connections are empty
+// IsEmpty : returns true iff all connection sets in current policy-connections are empty
 func (pc *PolicyConnections) IsEmpty() bool {
 	return pc.AllowedConns.IsEmpty() && pc.DeniedConns.IsEmpty() && pc.PassConns.IsEmpty()
 }
