@@ -252,7 +252,7 @@ func onlyOnePortFieldsSet(anpPort apisv1a.AdminNetworkPolicyPort) bool {
 	return count == 1
 }
 
-// subjectSelectsPeer returns if the given subject of the (baseline)adminNetworkPolicy selects the given peer
+// subjectSelectsPeer returns true iff the given subject of the (baseline)adminNetworkPolicy selects the given peer
 func subjectSelectsPeer(anpSubject apisv1a.AdminNetworkPolicySubject, p Peer) (bool, error) {
 	if (anpSubject.Namespaces == nil) == (anpSubject.Pods == nil) {
 		// (Baseline)AdminNetworkPolicySubject should contain exactly one field
