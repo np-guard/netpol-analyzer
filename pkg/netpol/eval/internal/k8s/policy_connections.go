@@ -94,19 +94,27 @@ func (pc *PolicyConnections) CollectConnsFromLowerPolicyType(otherConns *PolicyC
 	otherConns.AllowedConns.Subtract(pc.DeniedConns)
 	otherConns.DeniedConns.Subtract(pc.AllowedConns)
 	// PASS conns are determined by otherConns
-	// find intersection of current pass connections with otherConns's allowedConns and deniedConns
+	// currently, otherConns.AllowedConns contains:
+	// 1. traffic that was passed by ANP (if there are such conns)
+	// 2. traffic that had no match in ANP (or higher priority policies)
+	// so we can update current allowed conns with them
+	pc.AllowedConns.Union(otherConns.AllowedConns)
+	// also, otherConns.DeniedConns currently contains:
+	// 1. traffic that was passed by ANP (if there are such conns)
+	// 2. traffic that had no match in ANP (or higher priority policies)
+	// so we can update current denied conns with otherConns.DeniedConns
+	pc.DeniedConns.Union(otherConns.DeniedConns)
+
+	// in order to update pc.PassConns we need:
+	// to find intersection of current pass connections with otherConns's allowedConns and deniedConns
 	passAllowCopy := pc.PassConns.Copy() // using a copy since Intersection changes the object, but we want to keep also
 	// non-intersected conns
 	passAllowCopy.Intersection(otherConns.AllowedConns) // pass conns to be allowed
+	// pc.AllowedConns.Union(passAllowCopy) - redundant since passAllowCopy is contained in otherConns.AllowedConns, already updated
 	passDenyCopy := pc.PassConns.Copy()
 	passDenyCopy.Intersection(otherConns.DeniedConns) // pass conns to be denied
-	// update current's allowed and denied conns with:
-	// 1. determined pass conns
-	// 2. with traffic that had no match in ANP (or higher priority policies)
-	pc.AllowedConns.Union(passAllowCopy)
-	pc.AllowedConns.Union(otherConns.AllowedConns)
-	pc.DeniedConns.Union(passDenyCopy)
-	pc.DeniedConns.Union(otherConns.DeniedConns)
+	// pc.DeniedConns.Union(passDenyCopy) - redundant since passDenyCopy is contained in otherConns.DeniedConns
+
 	// subtract pass-deny and pass-allow from the current Pass conns;
 	// note that the updated pc conns may still have non-empty Pass connections (intersection with allow and deny are not full)
 	// - this will not affect evaluated netpols conns, as the allowed conns of netpols implicitly deny other conns.

@@ -66,7 +66,7 @@ func doesPodsFieldMatchPeer(pods *apisv1a.NamespacedPod, peer Peer) (bool, error
 
 // why could not success yet with
 // using generics to avoid duplicates in following two funcs `egressRuleSelectsPeer` and `ingressRuleSelectsPeer`:
-// (same for checkSelectedPeersAndConnsFromEgressRule and checkSelectedPeersAndConnsFromIngressRule)
+// (same for updateConnsIfEgressRuleSelectsPeer and updateConnsIfIngressRuleSelectsPeer)
 //
 // according to https://tip.golang.org/doc/go1.18#generics :
 // "The Go compiler does not support accessing a struct field x.f where x is of type parameter type even if all types in the type
@@ -91,25 +91,13 @@ func doesPodsFieldMatchPeer(pods *apisv1a.NamespacedPod, peer Peer) (bool, error
 // @todo: if GO is upgraded to a release that does not has this restriction on types with same fields, replace following two "duplicated"
 // funcs with one func that uses generics type
 
-// egressRuleSelectsPeer checks if the given AdminNetworkPolicyEgressPeer rule selects the given peer
-// currently supposing an egressPeer rule may contain only Namespaces/ Pods Fields,
+// egressRuleSelectsPeer checks if the given []AdminNetworkPolicyEgressPeer rule selects the given peer
+// currently supposing a single egressPeer rule may contain only Namespaces/ Pods Fields,
 // @todo support also egress rule peer with Networks field
 // @todo if egress rule peer contains Nodes field, raise a warning that we don't support it
-//
-//nolint:dupl // this loops egress spec - input is []apisv1a.AdminNetworkPolicyEgressPeer
 func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst Peer) (bool, error) {
 	for i := range rulePeers {
-		// only one field in a `apisv1a.AdminNetworkPolicyEgressPeer` may be not nil (set)
-		if (rulePeers[i].Namespaces == nil) == (rulePeers[i].Pods == nil) {
-			return false, errors.New(netpolerrors.OneFieldSetRulePeerErr)
-		}
-		fieldMatch := false
-		var err error
-		if rulePeers[i].Namespaces != nil {
-			fieldMatch, err = doesNamespacesFieldMatchPeer(rulePeers[i].Namespaces, dst)
-		} else { // else Pods is not nil
-			fieldMatch, err = doesPodsFieldMatchPeer(rulePeers[i].Pods, dst)
-		}
+		fieldMatch, err := ruleFieldsSelectsPeer(rulePeers[i].Namespaces, rulePeers[i].Pods, dst)
 		if err != nil {
 			return false, err
 		}
@@ -118,24 +106,31 @@ func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst
 		}
 	}
 	return false, nil
+}
+
+// ruleFieldsSelectsPeer returns wether the input rule fields selects the peer
+func ruleFieldsSelectsPeer(namespaces *metav1.LabelSelector, pods *apisv1a.NamespacedPod, peer Peer) (bool, error) {
+	// only one field in a rule `apisv1a.AdminNetworkPolicyEgressPeer` or `apisv1a.AdminNetworkPolicyIngressPeer` may be not nil (set)
+	if (namespaces == nil) == (pods == nil) {
+		return false, errors.New(netpolerrors.OneFieldSetRulePeerErr)
+	}
+	fieldMatch := false
+	var err error
+	if namespaces != nil {
+		fieldMatch, err = doesNamespacesFieldMatchPeer(namespaces, peer)
+	} else { // else Pods is not nil
+		fieldMatch, err = doesPodsFieldMatchPeer(pods, peer)
+	}
+	if err != nil {
+		return false, err
+	}
+	return fieldMatch, nil
 }
 
 // ingressRuleSelectsPeer checks if the given AdminNetworkPolicyIngressPeer rule selects the given peer
-//
-//nolint:dupl // this loops ingress spec - input is []apisv1a.AdminNetworkPolicyIngressPeer
 func ingressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, src Peer) (bool, error) {
 	for i := range rulePeers {
-		// only one field in a `apisv1a.AdminNetworkPolicyIngressPeer` may be not nil (set)
-		if (rulePeers[i].Namespaces == nil) == (rulePeers[i].Pods == nil) {
-			return false, errors.New(netpolerrors.OneFieldSetRulePeerErr)
-		}
-		fieldMatch := false
-		var err error
-		if rulePeers[i].Namespaces != nil {
-			fieldMatch, err = doesNamespacesFieldMatchPeer(rulePeers[i].Namespaces, src)
-		} else { // else Pods is not nil
-			fieldMatch, err = doesPodsFieldMatchPeer(rulePeers[i].Pods, src)
-		}
+		fieldMatch, err := ruleFieldsSelectsPeer(rulePeers[i].Namespaces, rulePeers[i].Pods, src)
 		if err != nil {
 			return false, err
 		}
@@ -146,9 +141,9 @@ func ingressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, s
 	return false, nil
 }
 
-// checkSelectedPeersAndConnsFromEgressRule checks if the given dst is selected by given egress rule,
+// updateConnsIfEgressRuleSelectsPeer checks if the given dst is selected by given egress rule,
 // if yes, updates given policyConns with the rule's connections
-func checkSelectedPeersAndConnsFromEgressRule(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer,
+func updateConnsIfEgressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer,
 	rulePorts *[]apisv1a.AdminNetworkPolicyPort, dst Peer, policyConns *PolicyConnections, action string, isBANPrule bool) error {
 	if len(rulePeers) == 0 {
 		return errors.New(netpolerrors.ANPEgressRulePeersErr)
@@ -164,9 +159,9 @@ func checkSelectedPeersAndConnsFromEgressRule(rulePeers []apisv1a.AdminNetworkPo
 	return err
 }
 
-// checkSelectedPeersAndConnsFromIngressRule checks if the given src is selected by given ingress rule,
+// updateConnsIfIngressRuleSelectsPeer checks if the given src is selected by given ingress rule,
 // if yes, updates given policyConns with the rule's connections
-func checkSelectedPeersAndConnsFromIngressRule(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer,
+func updateConnsIfIngressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer,
 	rulePorts *[]apisv1a.AdminNetworkPolicyPort, src, dst Peer, policyConns *PolicyConnections, action string, isBANPrule bool) error {
 	if len(rulePeers) == 0 {
 		return errors.New(netpolerrors.ANPIngressRulePeersErr)
@@ -317,7 +312,7 @@ func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConn
 	for _, rule := range anp.Spec.Ingress { // rule is apisv1a.AdminNetworkPolicyIngressRule
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		if err := checkSelectedPeersAndConnsFromIngressRule(rulePeers, rulePorts, src, dst, res, string(rule.Action), false); err != nil {
+		if err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, src, dst, res, string(rule.Action), false); err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}
 	}
@@ -330,7 +325,7 @@ func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnection
 	for _, rule := range anp.Spec.Egress { // rule is apisv1a.AdminNetworkPolicyEgressRule
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		if err := checkSelectedPeersAndConnsFromEgressRule(rulePeers, rulePorts, dst, res, string(rule.Action), false); err != nil {
+		if err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, dst, res, string(rule.Action), false); err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}
 	}

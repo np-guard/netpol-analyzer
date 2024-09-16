@@ -1316,6 +1316,10 @@ var goodPathTests = []struct {
 		testDirName:   "banp_test_core_ingress_udp_swapping_rules",
 		outputFormats: ValidFormats,
 	},
+	{
+		testDirName:   "anp_with_banp_new_test",
+		outputFormats: []string{output.DefaultFormat},
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []testutils.ParsedResourcesTest) {

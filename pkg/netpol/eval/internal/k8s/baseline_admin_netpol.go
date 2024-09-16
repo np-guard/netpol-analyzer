@@ -52,7 +52,7 @@ func (banp *BaselineAdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyC
 	for _, rule := range banp.Spec.Egress { // rule is apisv1a.BaselineAdminNetworkPolicyEgressRule
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		if err := checkSelectedPeersAndConnsFromEgressRule(rulePeers, rulePorts, dst, res, string(rule.Action), true); err != nil {
+		if err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, dst, res, string(rule.Action), true); err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
 	}
@@ -65,7 +65,7 @@ func (banp *BaselineAdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*P
 	for _, rule := range banp.Spec.Ingress { // rule is apisv1a.BaselineAdminNetworkPolicyIngressRule
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		if err := checkSelectedPeersAndConnsFromIngressRule(rulePeers, rulePorts, src, dst, res, string(rule.Action), true); err != nil {
+		if err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, src, dst, res, string(rule.Action), true); err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
 	}
