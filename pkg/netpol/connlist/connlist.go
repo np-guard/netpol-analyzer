@@ -36,6 +36,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 // A ConnlistAnalyzer provides API to recursively scan a directory for Kubernetes resources including network policies,
@@ -349,8 +350,12 @@ func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.Connection
 	protocolsToPortSetMap := make(map[v1.Protocol]*common.PortSet, len(c.ProtocolsAndPorts()))
 	for protocol, portRageArr := range c.ProtocolsAndPorts() {
 		protocolsToPortSetMap[protocol] = common.MakePortSet(false)
-		for _, p := range portRageArr {
-			protocolsToPortSetMap[protocol].AddPortRange(p.Start(), p.End())
+		for _, p := range portRageArr { // each single port range may contain either named port or an interval of start and end numbers
+			if p.NamedPort() != "" {
+				protocolsToPortSetMap[protocol].AddPort(intstr.FromString(p.NamedPort()))
+			} else {
+				protocolsToPortSetMap[protocol].AddPortRange(p.Start(), p.End())
+			}
 		}
 	}
 	connectionSet := &common.ConnectionSet{AllowAll: c.AllProtocolsAndPorts(), AllowedProtocols: protocolsToPortSetMap}

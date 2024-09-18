@@ -360,11 +360,12 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 	for _, peerPortToFind := range peerPortsToFind {
 		portNum := peerPortToFind.IntValue()
 		if peerPortToFind.StrVal != "" { // if the port we are searching for is namedPort
-			portInt, err := ia.pe.ConvertPeerNamedPort(peerPortToFind.StrVal, peer)
+			protocol, portInt, err := ia.pe.ConvertPeerNamedPort(peerPortToFind.StrVal, peer)
 			if err != nil {
 				return nil, err
 			}
-			if portInt < 0 { // no matching port for the given named port
+			// only TCP ports are acceptable
+			if protocol != string(corev1.ProtocolTCP) || portInt < 0 { // no matching port for the given named port
 				continue
 			}
 			portNum = int(portInt)

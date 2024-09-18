@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-ingress-from-named-port
+  namespace: helloworld
+spec:
+  podSelector:
+    matchLabels:
+      app: app-b
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+  - from:
+    - namespaceSelector: {}
+    ports:
+    - port: newport
+      protocol: UDP
+    - port: sctp-port
+      protocol: SCTP
+    - port: newport
+      protocol: SCTP
+    - port: not-found
+      protocol: SCTP

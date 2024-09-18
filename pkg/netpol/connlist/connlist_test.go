@@ -841,6 +841,16 @@ var goodPathTests = []struct {
 		outputFormats:    ValidFormats,
 	},
 	{
+		testDirName:      "exposure_test_ingress_from_entire_cluster_with_matched_and_unmatched_named_ports",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "exposure_test_ingress_from_entire_cluster_with_matched_and_unmatched_named_ports_2",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
 		testDirName:      "exposure_test_egress_with_named_port",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
@@ -1123,5 +1133,13 @@ var goodPathTests = []struct {
 		testDirName:      "exposure_test_real_namespace_with_matching_pod",
 		exposureAnalysis: true,
 		outputFormats:    []string{output.DefaultFormat},
+	},
+	{
+		testDirName:   "netpol_named_port_test",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		testDirName:   "netpol_named_port_test_2",
+		outputFormats: []string{output.DefaultFormat},
 	},
 }
