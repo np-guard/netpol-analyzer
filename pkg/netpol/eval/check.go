@@ -211,6 +211,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	}
 	// else
 	// ANPs capture the peers, netpols don't , return the allowed conns from ANPs considering default conns
+	// this determines what happens on traffic (ports) which are not mentioned in the ANPs; since ANP rules are read as is only
 	anpConns.CollectConnsFromLowerPolicyType(defaultConns)
 	// note that : BANP rules may not match all ANPs.Pass conns, remaining pass conns will be allowed as system-default
 	if !anpConns.PassConns.IsEmpty() {
