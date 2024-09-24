@@ -230,9 +230,13 @@ func (pe *PolicyEngine) getPod(p string) *k8s.Pod {
 
 // TODO: consider caching: for each pod and direction, test set of policies that are selecting it
 // getPoliciesSelectingPod returns a list of policies that select the input pod on the required direction (ingress/egress)
-func (pe *PolicyEngine) getPoliciesSelectingPod(p *k8s.Pod, direction netv1.PolicyType) ([]*k8s.NetworkPolicy, error) {
-	netpols := pe.netpolsMap[p.Namespace]
+func (pe *PolicyEngine) getPoliciesSelectingPod(peer k8s.Peer, direction netv1.PolicyType) ([]*k8s.NetworkPolicy, error) {
 	res := []*k8s.NetworkPolicy{}
+	if peer.PeerType() == k8s.IPBlockType {
+		return res, nil // empty list since netpols may select only pods
+	}
+	p := peer.(*k8s.PodPeer).Pod
+	netpols := pe.netpolsMap[p.Namespace]
 	for _, policy := range netpols {
 		selects, err := policy.Selects(p, direction)
 		if err != nil {
@@ -258,12 +262,12 @@ func (pe *PolicyEngine) allowedXgressConnection(src, dst k8s.Peer, isIngress boo
 		if dst.PeerType() == k8s.IPBlockType {
 			return true, nil // all connections allowed - no restrictions on ingress to externalIP
 		}
-		netpols, err = pe.getPoliciesSelectingPod(dst.(*k8s.PodPeer).Pod, netv1.PolicyTypeIngress)
+		netpols, err = pe.getPoliciesSelectingPod(dst, netv1.PolicyTypeIngress)
 	} else {
 		if src.PeerType() == k8s.IPBlockType {
 			return true, nil // all connections allowed - no restrictions on egress from externalIP
 		}
-		netpols, err = pe.getPoliciesSelectingPod(src.(*k8s.PodPeer).Pod, netv1.PolicyTypeEgress)
+		netpols, err = pe.getPoliciesSelectingPod(src, netv1.PolicyTypeEgress)
 	}
 	if err != nil {
 		return false, err
@@ -442,21 +446,16 @@ func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, i
 	// relevant policies: policies that capture dst if isIngress, else policies that capture src
 	var netpols []*k8s.NetworkPolicy
 	if isIngress {
-		if dst.PeerType() == k8s.IPBlockType { // policies don't restrict ingress to externalIP
-			// skip, so this connection is determined by system-default (which is allow all)
-			// @todo: this if statement is deprecated since netpols don't select IP-peers, so:
-			//  "getPoliciesSelectingPod" will return 0 netpols selecting an IP
-			// so it will finally return on line 424 (if len(netpols) == 0 {return nil, false, nil})
-			return nil, false, nil
-		}
-		netpols, err = pe.getPoliciesSelectingPod(dst.GetPeerPod(), netv1.PolicyTypeIngress)
+		// note that: if dst is an IPBlock peer, then "getPoliciesSelectingPod" will return 0 netpols;
+		// since netpols may not select IPs; and then the connection will be determined as system-default
+		// allow-all in a later check
+		// i.e. the if dst.PeerType() == k8s.IPBlockType is deprecated
+		// so this connection is determined by system-default (which is allow all)
+		netpols, err = pe.getPoliciesSelectingPod(dst, netv1.PolicyTypeIngress)
 	} else {
-		if src.PeerType() == k8s.IPBlockType { // policies don't restrict egress from externalIP
-			// skip, so this connection is determined system-default (which is allow all)
-			// @todo : this if statement is deprecated since netpols don't select IP-peers (same as above)
-			return nil, false, nil
-		}
-		netpols, err = pe.getPoliciesSelectingPod(src.GetPeerPod(), netv1.PolicyTypeEgress)
+		// note that if src is an IPBlock Peer, then "getPoliciesSelectingPod" will return 0 netpols;
+		// so this connection is determined later by system-default (which is allow all)
+		netpols, err = pe.getPoliciesSelectingPod(src, netv1.PolicyTypeEgress)
 	}
 	if err != nil {
 		return nil, false, err
