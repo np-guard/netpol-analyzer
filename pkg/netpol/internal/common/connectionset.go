@@ -15,15 +15,14 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 
 	v1 "k8s.io/api/core/v1"
-
-	"github.com/np-guard/models/pkg/interval"
 )
 
 // ConnectionSet represents a set of allowed connections between two peers on a k8s env
 // and implements Connection interface
 type ConnectionSet struct {
-	AllowAll         bool
-	AllowedProtocols map[v1.Protocol]*PortSet // map from protocol name to set of allowed ports
+	AllowAll            bool
+	AllowedProtocols    map[v1.Protocol]*PortSet // map from protocol name to set of allowed ports
+	CommonImplyingRules *ImplyingRulesType       // used for explainability, when no AllowedProtocols set (i.e., all allowed or all denied)
 }
 
 var allProtocols = []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP, v1.ProtocolSCTP}
@@ -36,6 +35,11 @@ func MakeConnectionSet(all bool) *ConnectionSet {
 	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}}
 }
 
+// Add common implying rule, i.e., a rule that is relevant for the whole ConnectionSet
+func (conn *ConnectionSet) AddCommonImplyingRule(implyingRule string) {
+	conn.CommonImplyingRules.AddRule(implyingRule)
+}
+
 // GetAllTCPConnections returns a pointer to ConnectionSet object with all TCP protocol connections
 func GetAllTCPConnections() *ConnectionSet {
 	tcpConn := MakeConnectionSet(false)
@@ -45,27 +49,24 @@ func GetAllTCPConnections() *ConnectionSet {
 
 // Intersection updates ConnectionSet object to be the intersection result with other ConnectionSet
 func (conn *ConnectionSet) Intersection(other *ConnectionSet) {
-	if other.AllowAll {
-		return
-	}
 	if conn.AllowAll {
-		conn.AllowAll = false
-		for protocol, ports := range other.AllowedProtocols {
-			conn.AllowedProtocols[protocol] = ports.Copy()
-		}
-		return
+		// prepare for the intersection - we need to seep implying rules info into all protocols/ports
+		conn.rebuildAllowAllExplicitly()
 	}
+	if other.AllowAll {
+		other.rebuildAllowAllExplicitly()
+	}
+	conn.AllowAll = false
 	for protocol := range conn.AllowedProtocols {
 		otherPorts, ok := other.AllowedProtocols[protocol]
 		if !ok {
-			delete(conn.AllowedProtocols, protocol)
+			// we do not remove empty PortSets, we keep the ImplyingRules info for explainability
+			conn.AllowedProtocols[protocol].ClearPorts()
 		} else {
 			conn.AllowedProtocols[protocol].Intersection(otherPorts)
-			if conn.AllowedProtocols[protocol].IsEmpty() {
-				delete(conn.AllowedProtocols, protocol)
-			}
 		}
 	}
+	conn.updateIfAllConnections() // the result may be AllowAll if both conn and other were AllowAll
 }
 
 // IsEmpty returns true if the ConnectionSet has no allowed connections
@@ -73,38 +74,42 @@ func (conn *ConnectionSet) IsEmpty() bool {
 	return !conn.AllowAll && len(conn.AllowedProtocols) == 0
 }
 
-func (conn *ConnectionSet) isAllConnectionsWithoutAllowAll() bool {
+func (conn *ConnectionSet) updateIfAllConnections() {
 	if conn.AllowAll {
-		return false
+		return
 	}
 	for _, protocol := range allProtocols {
 		ports, ok := conn.AllowedProtocols[protocol]
 		if !ok {
-			return false
+			return
 		} else if !ports.IsAll() {
-			return false
+			return
 		}
 	}
-
-	return true
+	conn.AllowAll = true
+	// we keep conn.AllowedProtocols data, we might need the ImplyingRules info for explainability
 }
 
-func (conn *ConnectionSet) checkIfAllConnections() {
-	if conn.isAllConnectionsWithoutAllowAll() {
-		conn.AllowAll = true
-		conn.AllowedProtocols = map[v1.Protocol]*PortSet{}
+// rebuildAllowAllExplicitly : add all possible connections to the current ConnectionSet's allowed protocols
+// added explicitly, without using the `AllowAll` field
+func (conn *ConnectionSet) rebuildAllowAllExplicitly() {
+	if !conn.AllowAll {
+		return
 	}
+	for _, protocol := range allProtocols {
+		portSet := MakeAllPortSetWithImplyingRules(conn.CommonImplyingRules)
+		conn.AddConnection(protocol, portSet)
+	}
+	conn.CommonImplyingRules = &ImplyingRulesType{}
 }
 
 // Union updates ConnectionSet object to be the union result with other ConnectionSet
 func (conn *ConnectionSet) Union(other *ConnectionSet) {
 	if conn.AllowAll || other.IsEmpty() {
-		return
+		return // nothing changed, should't update implying rules
 	}
 	if other.AllowAll {
-		conn.AllowAll = true
-		conn.AllowedProtocols = map[v1.Protocol]*PortSet{}
-		return
+		other.rebuildAllowAllExplicitly()
 	}
 	for protocol := range conn.AllowedProtocols {
 		if otherPorts, ok := other.AllowedProtocols[protocol]; ok {
@@ -113,11 +118,10 @@ func (conn *ConnectionSet) Union(other *ConnectionSet) {
 	}
 	for protocol := range other.AllowedProtocols {
 		if _, ok := conn.AllowedProtocols[protocol]; !ok {
-			portsCopy := other.AllowedProtocols[protocol].Copy()
-			conn.AllowedProtocols[protocol] = portsCopy
+			conn.AllowedProtocols[protocol] = other.AllowedProtocols[protocol].Copy()
 		}
 	}
-	conn.checkIfAllConnections()
+	conn.updateIfAllConnections()
 }
 
 // Subtract : updates current ConnectionSet object with the result of
@@ -126,31 +130,17 @@ func (conn *ConnectionSet) Subtract(other *ConnectionSet) {
 	if other.IsEmpty() { // nothing to subtract
 		return
 	}
-	if other.AllowAll { // subtract everything
-		conn.AllowAll = false
-		conn.AllowedProtocols = map[v1.Protocol]*PortSet{}
-		return
-	}
 	if conn.AllowAll {
-		conn.AllowAll = false // we are about to subtract something
-		conn.addAllConns()
+		conn.rebuildAllowAllExplicitly()
+		conn.AllowAll = false
+	}
+	if other.AllowAll {
+		other.rebuildAllowAllExplicitly()
 	}
 	for protocol, ports := range conn.AllowedProtocols {
 		if otherPorts, ok := other.AllowedProtocols[protocol]; ok {
-			if ports.ContainedIn(otherPorts) {
-				delete(conn.AllowedProtocols, protocol)
-			} else {
-				ports.subtract(otherPorts)
-			}
+			ports.subtract(otherPorts)
 		}
-	}
-}
-
-// addAllConns : add all possible connections to the current ConnectionSet's allowed protocols
-// added explicitly, without using the `AllowAll` field
-func (conn *ConnectionSet) addAllConns() {
-	for _, protocol := range allProtocols {
-		conn.AddConnection(protocol, MakePortSet(true))
 	}
 }
 
@@ -246,14 +236,15 @@ func (conn *ConnectionSet) Copy() *ConnectionSet {
 	for protocol, portSet := range conn.AllowedProtocols {
 		res.AllowedProtocols[protocol] = portSet.Copy()
 	}
+	res.CommonImplyingRules = conn.CommonImplyingRules.Copy()
 	return res
 }
 
-// GetNamedPorts returns map from protocol to list of its allowed named ports
-func (conn *ConnectionSet) GetNamedPorts() map[v1.Protocol][]string {
-	res := make(map[v1.Protocol][]string, 0)
+// GetNamedPorts returns map from protocol to its allowed named ports (including ImplyingRules info)
+func (conn *ConnectionSet) GetNamedPorts() map[v1.Protocol]NamedPortsType {
+	res := make(map[v1.Protocol]NamedPortsType, 0)
 	for protocol, portSet := range conn.AllowedProtocols {
-		if namedPorts := portSet.GetNamedPortsKeys(); len(namedPorts) > 0 {
+		if namedPorts := portSet.GetNamedPorts(); len(namedPorts) > 0 {
 			res[protocol] = namedPorts
 		}
 	}
@@ -262,10 +253,10 @@ func (conn *ConnectionSet) GetNamedPorts() map[v1.Protocol][]string {
 
 // ReplaceNamedPortWithMatchingPortNum : replacing given namedPort with the matching given port num in the connection
 // if port num is -1; just deletes the named port from the protocol's list
-func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(protocol v1.Protocol, namedPort string, portNum int32) {
+func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(protocol v1.Protocol, namedPort string, portNum int32, implyingRules *ImplyingRulesType) {
 	protocolPortSet := conn.AllowedProtocols[protocol]
 	if portNum != NoPort {
-		protocolPortSet.AddPort(intstr.FromInt32(portNum))
+		protocolPortSet.AddPort(intstr.FromInt32(portNum), implyingRules)
 	}
 	// after adding the portNum to the protocol's portSet; remove the port name
 	protocolPortSet.RemovePort(intstr.FromString(namedPort))
@@ -273,19 +264,19 @@ func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(protocol v1.Proto
 
 // portRange implements the PortRange interface
 type portRange struct {
-	Interval interval.Interval
+	Interval AugmentedInterval
 }
 
 func (p *portRange) Start() int64 {
-	return p.Interval.Start()
+	return p.Interval.interval.Start()
 }
 
 func (p *portRange) End() int64 {
-	return p.Interval.End()
+	return p.Interval.interval.End()
 }
 
 func (p *portRange) String() string {
-	if p.Interval.End() != p.Interval.Start() {
+	if p.End() != p.Start() {
 		return fmt.Sprintf("%d-%d", p.Start(), p.End())
 	}
 	return fmt.Sprintf("%d", p.Start())
