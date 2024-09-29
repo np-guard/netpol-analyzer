@@ -259,14 +259,8 @@ func (pe *PolicyEngine) allowedXgressConnection(src, dst k8s.Peer, isIngress boo
 	var err error
 	var netpols []*k8s.NetworkPolicy
 	if isIngress {
-		if dst.PeerType() == k8s.IPBlockType {
-			return true, nil // all connections allowed - no restrictions on ingress to externalIP
-		}
 		netpols, err = pe.getPoliciesSelectingPod(dst, netv1.PolicyTypeIngress)
 	} else {
-		if src.PeerType() == k8s.IPBlockType {
-			return true, nil // all connections allowed - no restrictions on egress from externalIP
-		}
 		netpols, err = pe.getPoliciesSelectingPod(src, netv1.PolicyTypeEgress)
 	}
 	if err != nil {
