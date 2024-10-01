@@ -11,7 +11,6 @@ import (
 	"sort"
 	"strings"
 
-	"golang.org/x/exp/maps"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
@@ -22,6 +21,14 @@ const (
 )
 
 type NamedPortsType map[string]*ImplyingRulesType
+
+func portNames(ports NamedPortsType) []string {
+	res := []string{}
+	for p := range ports {
+		res = append(res, p)
+	}
+	return res
+}
 
 // PortSet: represents set of allowed ports in a connection
 type PortSet struct {
@@ -56,8 +63,8 @@ func MakeAllPortSetWithImplyingRules(rules *ImplyingRulesType) *PortSet {
 
 // Equal: return true if current object equals another PortSet object
 func (p *PortSet) Equal(other *PortSet) bool {
-	return p.Ports.Equal(other.Ports) && reflect.DeepEqual(maps.Keys(p.NamedPorts), maps.Keys(other.NamedPorts)) &&
-		reflect.DeepEqual(maps.Keys(p.ExcludedNamedPorts), maps.Keys(other.ExcludedNamedPorts))
+	return p.Ports.Equal(other.Ports) && reflect.DeepEqual(portNames(p.NamedPorts), portNames(other.NamedPorts)) &&
+		reflect.DeepEqual(portNames(p.ExcludedNamedPorts), portNames(other.ExcludedNamedPorts))
 }
 
 // IsEmpty: return true if current object is empty (no ports allowed)

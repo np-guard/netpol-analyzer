@@ -118,13 +118,13 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 		// (traffic not restricted by port)
 	}
 	res := common.MakeConnectionSet(false)
+	ruleName := np.ruleName(ruleIdx, isIngress)
 	for i := range rulePorts {
 		protocol := v1.ProtocolTCP
 		if rulePorts[i].Protocol != nil {
 			protocol = *rulePorts[i].Protocol
 		}
 		ports := common.MakePortSet(false)
-		ports.ImplyingRules.AddRule(np.ruleName(ruleIdx, isIngress))
 		if rulePorts[i].Port == nil {
 			ports = common.MakePortSet(true)
 		} else {
@@ -140,10 +140,10 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 				// in both first cases, we can't convert the named port to its number, like when dst peer is a real
 				// pod from manifests, so we use the named-port as is.
 				// adding portName string to the portSet
-				ports.AddPort(intstr.FromString(portName))
+				ports.AddPort(intstr.FromString(portName), common.MakeImplyingRulesWithRule(ruleName))
 			}
 			if !isEmptyPortRange(startPort, endPort) {
-				ports.AddPortRange(int64(startPort), int64(endPort))
+				ports.AddPortRange(int64(startPort), int64(endPort), ruleName)
 			}
 		}
 		res.AddConnection(protocol, ports)

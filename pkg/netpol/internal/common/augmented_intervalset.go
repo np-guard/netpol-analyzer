@@ -16,6 +16,12 @@ import (
 
 type ImplyingRulesType map[string]bool // an ordered set of rules; used for explainability
 
+func MakeImplyingRulesWithRule(rule string) *ImplyingRulesType {
+	res := ImplyingRulesType{}
+	res.AddRule(rule)
+	return &res
+}
+
 func (rules *ImplyingRulesType) Copy() *ImplyingRulesType {
 	if rules == nil {
 		return nil
