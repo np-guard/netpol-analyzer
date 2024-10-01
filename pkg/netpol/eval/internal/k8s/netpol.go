@@ -61,8 +61,10 @@ type PolicyExposureWithoutSelectors struct {
 // 	if so, also consider concurrent access (or declare not goroutine safe?)
 
 const (
-	portBase = 10
-	portBits = 32
+	portBase    = 10
+	portBits    = 32
+	egressName  = "Egress"
+	ingressName = "Ingress"
 )
 
 func getProtocolStr(p *v1.Protocol) string {
@@ -110,7 +112,8 @@ func isEmptyPortRange(start, end int32) bool {
 	return start == common.NoPort && end == common.NoPort
 }
 
-func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer, ruleIdx int, isIngress bool) (*common.ConnectionSet, error) {
+func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer,
+	ruleIdx int, isIngress bool) (*common.ConnectionSet, error) {
 	if len(rulePorts) == 0 {
 		res := common.MakeConnectionSet(true) // If this field is empty or missing, this rule matches all ports
 		res.AddCommonImplyingRule(np.ruleName(ruleIdx, isIngress))
@@ -490,9 +493,9 @@ func (np *NetworkPolicy) fullName() string {
 }
 
 func (np *NetworkPolicy) ruleName(ruleIdx int, isIngress bool) string {
-	xgress := "Egress"
+	xgress := egressName
 	if isIngress {
-		xgress = "Ingress"
+		xgress = ingressName
 	}
 	return np.fullName() + fmt.Sprintf(" %s rule #%d", xgress, ruleIdx)
 }

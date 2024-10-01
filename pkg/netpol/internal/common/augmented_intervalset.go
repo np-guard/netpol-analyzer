@@ -70,9 +70,10 @@ func NewAugmentedIntervalWithRules(start, end int64, inSet bool, rules *Implying
 	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: rules.Copy()}
 }
 
-// CanonicalSet is a set of int64 integers, implemented using an ordered slice of non-overlapping, non-touching interval
-// the intervals should include both included intervals and holes; i.e., start of every interval is the end of a previous interval incremented by 1
-// the last interval should always end with '-1' and should have inSet being false (thus representing a hole till the end of the range)
+// AugmentedCanonicalSet is a set of int64 integers, implemented using an ordered slice of non-overlapping, non-touching interval.
+// The intervals should include both included intervals and holes;
+// i.e., start of every interval is the end of a previous interval incremented by 1.
+// The last interval should always end with '-1' and should have inSet being false (thus representing a hole till the end of the range)
 type AugmentedCanonicalSet struct {
 	intervalSet []AugmentedInterval
 }
@@ -121,7 +122,7 @@ func (c *AugmentedCanonicalSet) CalculateSize() int64 {
 // nextIncludedInterval finds an interval included in set (not hole), starting from fromInd.
 // if there are a few continuous in set intervals, it will return the union of all of them.
 // it returns the found (potentially extended) interval, and the biggest index contributing to the result
-func (c *AugmentedCanonicalSet) nextIncludedInterval(fromInd int) (interval.Interval, int) {
+func (c *AugmentedCanonicalSet) nextIncludedInterval(fromInd int) (res interval.Interval, index int) {
 	start := fromInd
 	for start < len(c.intervalSet) && !c.intervalSet[start].inSet {
 		start++
@@ -178,8 +179,10 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval) {
 	copy(result, set[0:left])
 	if v.interval.Start() > set[left].interval.Start() && set[left].inSet != v.inSet {
 		// split set[left] into two intervals, while the implying rules of the second interval should get the new value (from v)
-		new1 := AugmentedInterval{interval: interval.New(set[left].interval.Start(), v.interval.Start()-1), inSet: set[left].inSet, implyingRules: set[left].implyingRules.Copy()}
-		new2 := AugmentedInterval{interval: interval.New(v.interval.Start(), set[left].interval.End()), inSet: v.inSet, implyingRules: v.implyingRules.Copy()}
+		new1 := AugmentedInterval{interval: interval.New(set[left].interval.Start(), v.interval.Start()-1),
+			inSet: set[left].inSet, implyingRules: set[left].implyingRules.Copy()}
+		new2 := AugmentedInterval{interval: interval.New(v.interval.Start(), set[left].interval.End()),
+			inSet: v.inSet, implyingRules: v.implyingRules.Copy()}
 		result = append(result, new1, new2)
 		left++
 	}
@@ -246,23 +249,27 @@ func (c *AugmentedCanonicalSet) ContainedIn(other *AugmentedCanonicalSet) bool {
 		otherInterval, otherInd := other.nextIncludedInterval(currOtherInd)
 		if thisInd == -1 {
 			return true // end of this interval set
-		} else if otherInd == -1 {
+		}
+		if otherInd == -1 {
 			return false // end of other interval set, but still have uncovered interval in this set
-		} else if thisInterval.IsSubset(otherInterval) {
+		}
+		if thisInterval.IsSubset(otherInterval) {
 			// this interval is included in other; move to next intervals
 			currThisInd = thisInd + 1
 			currOtherInd = otherInd + 1
 			continue
-		} else if thisInterval.Overlap(otherInterval) {
+		}
+		if thisInterval.Overlap(otherInterval) {
 			// only part of this interval is contained
 			return false
-		} else if thisInterval.End() < otherInterval.Start() {
+		}
+		if thisInterval.End() < otherInterval.Start() {
 			// this interval is not contained here
 			return false
-		} else { // otherInterval.End() < thisInterval.Start()
-			// increment currOtherInd
-			currOtherInd = otherInd + 1
 		}
+		// otherInterval.End() < thisInterval.Start()
+		// increment currOtherInd
+		currOtherInd = otherInd + 1
 	}
 	return true
 }
@@ -281,11 +288,11 @@ func (c *AugmentedCanonicalSet) Intersect(other *AugmentedCanonicalSet) *Augment
 			if !right.inSet {
 				continue
 			}
-			interval := left.interval.Intersect(right.interval)
-			if interval.IsEmpty() {
+			intersection := left.interval.Intersect(right.interval)
+			if intersection.IsEmpty() {
 				continue
 			}
-			toAdd := NewAugmentedInterval(interval.Start(), interval.End(), true)
+			toAdd := NewAugmentedInterval(intersection.Start(), intersection.End(), true)
 			toAdd.implyingRules = left.implyingRules.Copy()
 			toAdd.implyingRules.Union(right.implyingRules)
 			res.AddAugmentedInterval(toAdd)
@@ -306,9 +313,11 @@ func (c *AugmentedCanonicalSet) Overlap(other *AugmentedCanonicalSet) bool {
 		otherInterval, otherInd := other.nextIncludedInterval(currOtherInd)
 		if thisInd == -1 || otherInd == -1 {
 			return false // did not find overlapping interval
-		} else if thisInterval.Overlap(otherInterval) {
+		}
+		if thisInterval.Overlap(otherInterval) {
 			return true
-		} else if thisInterval.End() < otherInterval.Start() {
+		}
+		if thisInterval.End() < otherInterval.Start() {
 			// increment currThisInd
 			currThisInd = thisInd + 1
 		} else { // otherInterval.End() < thisInterval.Start()
@@ -356,8 +365,8 @@ func (c *AugmentedCanonicalSet) Elements() []int64 {
 	return res
 }
 
-func NewAugmentedSetFromInterval(interval AugmentedInterval) *AugmentedCanonicalSet {
+func NewAugmentedSetFromInterval(augInt AugmentedInterval) *AugmentedCanonicalSet {
 	result := NewAugmentedCanonicalSet()
-	result.AddAugmentedInterval(interval)
+	result.AddAugmentedInterval(augInt)
 	return result
 }

@@ -253,7 +253,8 @@ func (conn *ConnectionSet) GetNamedPorts() map[v1.Protocol]NamedPortsType {
 
 // ReplaceNamedPortWithMatchingPortNum : replacing given namedPort with the matching given port num in the connection
 // if port num is -1; just deletes the named port from the protocol's list
-func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(protocol v1.Protocol, namedPort string, portNum int32, implyingRules *ImplyingRulesType) {
+func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(protocol v1.Protocol, namedPort string, portNum int32,
+	implyingRules *ImplyingRulesType) {
 	protocolPortSet := conn.AllowedProtocols[protocol]
 	if portNum != NoPort {
 		protocolPortSet.AddPort(intstr.FromInt32(portNum), implyingRules)

@@ -34,7 +34,8 @@ func portNames(ports NamedPortsType) []string {
 type PortSet struct {
 	Ports *AugmentedCanonicalSet // ports, augmented with implying rules data (used for explainability)
 	// NamedPorts/ExcludedNamedPorts is a map from a port name to implying rule names (used for explainnability)
-	// When not running with explainability, existing (excluded)named ports will be represented by a mapping from a port name to an empty implying rules holder
+	// When not running with explainability, existing (excluded)named ports will be represented by a mapping
+	// from a port name to an empty implying rules holder
 	NamedPorts         NamedPortsType
 	ExcludedNamedPorts NamedPortsType
 }
@@ -58,7 +59,6 @@ func MakeAllPortSetWithImplyingRules(rules *ImplyingRulesType) *PortSet {
 		NamedPorts:         NamedPortsType{},
 		ExcludedNamedPorts: NamedPortsType{},
 	}
-
 }
 
 // Equal: return true if current object equals another PortSet object
