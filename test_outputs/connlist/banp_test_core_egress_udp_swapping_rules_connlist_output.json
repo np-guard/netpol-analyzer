@@ -1,0 +1,97 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255",
+    "dst": "network-policy-conformance-gryffindor/harry-potter[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255",
+    "dst": "network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255",
+    "dst": "network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255",
+    "dst": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "network-policy-conformance-gryffindor/harry-potter[StatefulSet]",
+    "dst": "0.0.0.0-255.255.255.255",
+    "conn": "All Connections"
+  },
+  {
+    "src": "network-policy-conformance-gryffindor/harry-potter[StatefulSet]",
+    "dst": "network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "network-policy-conformance-gryffindor/harry-potter[StatefulSet]",
+    "dst": "network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "network-policy-conformance-gryffindor/harry-potter[StatefulSet]",
+    "dst": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]",
+    "dst": "0.0.0.0-255.255.255.255",
+    "conn": "All Connections"
+  },
+  {
+    "src": "network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]",
+    "dst": "network-policy-conformance-gryffindor/harry-potter[StatefulSet]",
+    "conn": "UDP 53"
+  },
+  {
+    "src": "network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]",
+    "dst": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
+    "conn": "SCTP 1-65535,TCP 1-65535,UDP 1-5352,5354-65535"
+  },
+  {
+    "src": "network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]",
+    "dst": "0.0.0.0-255.255.255.255",
+    "conn": "All Connections"
+  },
+  {
+    "src": "network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]",
+    "dst": "network-policy-conformance-gryffindor/harry-potter[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]",
+    "dst": "network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]",
+    "dst": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
+    "dst": "0.0.0.0-255.255.255.255",
+    "conn": "All Connections"
+  },
+  {
+    "src": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
+    "dst": "network-policy-conformance-gryffindor/harry-potter[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
+    "dst": "network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
+    "dst": "network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]",
+    "conn": "All Connections"
+  }
+]

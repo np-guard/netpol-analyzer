@@ -61,15 +61,20 @@ const (
 	UnmarshalErr            = "cannot unmarshal array into Go value of type unstructured.detector"
 	UnableToDecodeErr       = "unable to decode"
 
-	// errors constants from adminNetworkPolicy
+	// errors constants from adminNetworkPolicy and baselineAdminNetworkPolicy
 	SubjectErrTitle                  = "invalid Subject:"
-	SubjectFieldsErr                 = "Exactly one field must be set"
+	oneFieldSetErr                   = "exactly one field must be set"
+	OneFieldSetRulePeerErr           = oneFieldSetErr + " in a rule peer"
+	OneFieldSetSubjectErr            = oneFieldSetErr + " in a subject"
 	UnknownRuleActionErr             = "unrecognized action"
 	ANPPortsError                    = "exactly one field must be set in an AdminNetworkPolicyPort"
-	ANPIngressRulePeersErr           = "From field must be defined and contain at least one item"
-	ANPEgressRulePeersErr            = "To field must be defined and contain at least one item"
+	ANPIngressRulePeersErr           = "from field must be defined and contain at least one item"
+	ANPEgressRulePeersErr            = "to field must be defined and contain at least one item"
 	ANPMissingNameErr                = "missing name for an AdminNetworkPolicy object"
 	ExposureAnalysisDisabledWithANPs = "exposure analysis is disabled when there are admin-network-policies in the input resources"
+
+	BANPAlreadyExists = "only one baseline admin network policy may be provided in input resources; one already exists"
+	BANPNameAssertion = "only one baseline admin network policy with metadata.name=default can be created in the cluster"
 
 	UnknownCommandErr = "unknown command"
 
@@ -137,7 +142,7 @@ func ConcatErrors(err1, err2 string) string {
 	return err1 + colonSep + err2
 }
 
-// SamePriorityErr returns the error message of a priority appears more than once in different admin-network-policies
+// SamePriorityErr returns the error message if a priority appears more than once in different admin-network-policies
 func SamePriorityErr(name1, name2 string) string {
 	return "Admin Network Policies: " + name1 + " and " + name2 + " have same priority;" +
 		"Two policies are considered to be conflicting if they are assigned the same priority."

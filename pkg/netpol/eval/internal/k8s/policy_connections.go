@@ -14,14 +14,23 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
-// PolicyConnections : stores connections collected mainly from admin-network-policies and adjusted with allowed netpols conns
-// or default conns
+// PolicyConnections : stores connections between two peers which is collected mainly from admin-network-policies and adjusted with
+// connections from network-policies/ baseline-admin-network-policies or system-default allowed connections as following:
+// - PASS connections will be enforced by allowed connections from network-policies, or if not captured by network-policies,
+// by connections from baseline-admin-network-policies or system-default connections.
+// - traffic that has no match in admin-network-policies will be determined also by network-policies or if not captured by network-policies,
+// by baseline-admin-network-policies or system default.
 type PolicyConnections struct {
+	// AllowedConns allowed connections-set between two peers
 	AllowedConns *common.ConnectionSet
-	PassConns    *common.ConnectionSet
-	DeniedConns  *common.ConnectionSet
+	// PassConns connections between two peers that was passed by admin-network-policy to policies with lower priority
+	// (network-policies/ baseline-admin-network-policies)
+	PassConns *common.ConnectionSet
+	// DeniedConns denied connections between two peers
+	DeniedConns *common.ConnectionSet
 }
 
+// InitEmptyPolicyConnections - returns a new PolicyConnections object with empty connection-sets
 func InitEmptyPolicyConnections() *PolicyConnections {
 	return &PolicyConnections{
 		AllowedConns: common.MakeConnectionSet(false),
@@ -30,8 +39,36 @@ func InitEmptyPolicyConnections() *PolicyConnections {
 	}
 }
 
-// CollectANPConns updates the current policyConnections with given conns from another admin-network-policy
-// policies are looped by priority order (from lower to higher) , so previous conns take precedence on the conns
+// UpdateWithRuleConns updates current policy conns with connections from a new rule in same (base)admin-network-policy;
+// connections from previous rules are with higher precedence.
+func (pc *PolicyConnections) UpdateWithRuleConns(ruleConns *common.ConnectionSet, ruleAction string, banpRules bool) error {
+	// banpRules indicates if the rules are coming from BANP; flag used to check the rule Actions are valid since:
+	// Unlike AdminNetworkPolicies that enable: "Pass, Deny or Allow" as the action of each rule.
+	// BaselineAdminNetworkPolicies allows only "Allow and Deny" as the action of each rule.
+	switch ruleAction {
+	case string(apisv1a.AdminNetworkPolicyRuleActionAllow):
+		ruleConns.Subtract(pc.DeniedConns)
+		ruleConns.Subtract(pc.PassConns)
+		pc.AllowedConns.Union(ruleConns)
+	case string(apisv1a.AdminNetworkPolicyRuleActionDeny):
+		ruleConns.Subtract(pc.AllowedConns)
+		ruleConns.Subtract(pc.PassConns)
+		pc.DeniedConns.Union(ruleConns)
+	case string(apisv1a.AdminNetworkPolicyRuleActionPass):
+		if banpRules {
+			return fmt.Errorf(netpolerrors.UnknownRuleActionErr)
+		}
+		ruleConns.Subtract(pc.AllowedConns)
+		ruleConns.Subtract(pc.DeniedConns)
+		pc.PassConns.Union(ruleConns)
+	default:
+		return fmt.Errorf(netpolerrors.UnknownRuleActionErr)
+	}
+	return nil
+}
+
+// CollectANPConns updates the current policyConnections with given conns object from a new admin-network-policy.
+// admin-network-policies are looped by priority order (from lower to higher) , so previous conns take precedence on the conns
 // from the new admin-network-policy
 func (pc *PolicyConnections) CollectANPConns(newAdminPolicyConns *PolicyConnections) {
 	// keep all connections collected from policies with a higher precedence
@@ -47,41 +84,46 @@ func (pc *PolicyConnections) CollectANPConns(newAdminPolicyConns *PolicyConnecti
 	pc.PassConns.Union(newAdminPolicyConns.PassConns)
 }
 
-// UpdateWithRuleConns updates current policy conns object with connection of a rule in an admin-network-policy
-// connections from previous rules are with higher precedence
-func (pc *PolicyConnections) UpdateWithRuleConns(ruleConns *common.ConnectionSet, ruleAction apisv1a.AdminNetworkPolicyRuleAction) error {
-	switch ruleAction {
-	case apisv1a.AdminNetworkPolicyRuleActionAllow:
-		ruleConns.Subtract(pc.DeniedConns)
-		ruleConns.Subtract(pc.PassConns)
-		pc.AllowedConns.Union(ruleConns)
-	case apisv1a.AdminNetworkPolicyRuleActionDeny:
-		ruleConns.Subtract(pc.AllowedConns)
-		ruleConns.Subtract(pc.PassConns)
-		pc.DeniedConns.Union(ruleConns)
-	case apisv1a.AdminNetworkPolicyRuleActionPass:
-		ruleConns.Subtract(pc.AllowedConns)
-		ruleConns.Subtract(pc.DeniedConns)
-		pc.PassConns.Union(ruleConns)
-	default:
-		return fmt.Errorf(netpolerrors.UnknownRuleActionErr)
-	}
-	return nil
+// CollectConnsFromLowerPolicyType updates current PolicyConnections object with connections from a
+// policy with lower priority than ANP. (e.g. network-policy or baseline-admin-network-policy or instead system-default connection)
+// allowed and denied connections of current PolicyConnections object (admin-network-policy) are non-overridden.
+// but pass connections in current PolicyConnections object will be determined by the input PolicyConnections parameter.
+// note that: passConns in otherConns will always be empty. (np and banp don't contain pass connections)
+func (pc *PolicyConnections) CollectConnsFromLowerPolicyType(otherConns *PolicyConnections) {
+	// allowed and denied conns of current pc are non-overridden
+	otherConns.AllowedConns.Subtract(pc.DeniedConns)
+	otherConns.DeniedConns.Subtract(pc.AllowedConns)
+	// PASS conns are determined by otherConns
+	// currently, otherConns.AllowedConns contains:
+	// 1. traffic that was passed by ANP (if there are such conns)
+	// 2. traffic that had no match in ANP (or higher priority policies)
+	// so we can update current allowed conns with them
+	pc.AllowedConns.Union(otherConns.AllowedConns)
+	// also, otherConns.DeniedConns currently contains:
+	// 1. traffic that was passed by ANP (if there are such conns)
+	// 2. traffic that had no match in ANP (or higher priority policies)
+	// so we can update current denied conns with otherConns.DeniedConns
+	pc.DeniedConns.Union(otherConns.DeniedConns)
+
+	// in order to update pc.PassConns we need:
+	// to find intersection of current pass connections with otherConns's allowedConns and deniedConns
+	passAllowCopy := pc.PassConns.Copy() // using a copy since Intersection changes the object, but we want to keep also
+	// non-intersected conns
+	passAllowCopy.Intersection(otherConns.AllowedConns) // pass conns to be allowed
+	// pc.AllowedConns.Union(passAllowCopy) - redundant since passAllowCopy is contained in otherConns.AllowedConns, already updated
+	passDenyCopy := pc.PassConns.Copy()
+	passDenyCopy.Intersection(otherConns.DeniedConns) // pass conns to be denied
+	// pc.DeniedConns.Union(passDenyCopy) - redundant since passDenyCopy is contained in otherConns.DeniedConns
+
+	// subtract pass-deny and pass-allow from the current Pass conns;
+	// note that the updated pc conns may still have non-empty Pass connections (intersection with allow and deny are not full)
+	// - this will not affect evaluated netpols conns, as the allowed conns of netpols implicitly deny other conns.
+	// - this should be considered with banp - so remaining pass conns will get system default.
+	pc.PassConns.Subtract(passAllowCopy)
+	pc.PassConns.Subtract(passDenyCopy)
 }
 
-// UpdateWithOtherLayerConns updates current policy connections object with connections from a
-// layer with lower precedence (e.g. netpols conns/default conns)
-// ANP allowed and denied conns takes precedence on network-policy conns
-// Pass conns from ANP are determined by the NPs conns
-// @todo change the input to *PolicyConnections and update the func's code
-func (pc *PolicyConnections) UpdateWithOtherLayerConns(otherLayerConns *common.ConnectionSet) {
-	otherLayerConns.Subtract(pc.DeniedConns)
-	pc.PassConns.Intersection(otherLayerConns)
-	pc.AllowedConns.Union(pc.PassConns)
-	pc.AllowedConns.Union(otherLayerConns)
-}
-
-// IsEmpty : returns if all connection sets in current policy-connections are empty
+// IsEmpty : returns true iff all connection sets in current policy-connections are empty
 func (pc *PolicyConnections) IsEmpty() bool {
 	return pc.AllowedConns.IsEmpty() && pc.DeniedConns.IsEmpty() && pc.PassConns.IsEmpty()
 }
