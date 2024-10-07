@@ -364,7 +364,7 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 			if err != nil {
 				return nil, err
 			}
-			// only TCP ports are acceptable
+			// only TCP ports are acceptable for Ingress resource
 			if protocol != string(corev1.ProtocolTCP) || portInt < 0 { // no matching port for the given named port
 				continue
 			}
