@@ -87,14 +87,15 @@ var (
 func TestNetworkPolicyPortAnalysis(t *testing.T) {
 	// tested function: func ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) ConnectionSet
 	dst := PodPeer{Pod: &Pod{Name: "A", Namespace: "default"}}
-	dst.Pod.Ports = []v1.ContainerPort{{Name: PortHello.StrVal, ContainerPort: 22}} // default protocol is TCP
+	dst.Pod.Ports = []v1.ContainerPort{{Name: PortHello.StrVal, ContainerPort: 22, Protocol: "UDP"}}
+	// default protocol for containerPort is TCP, if the Protocol is not defined will get a mismatch
 	var AllowNamedPortOnProtocol = netv1.NetworkPolicyPort{
 		Protocol: &UDP,
 		Port:     &PortHello,
 	}
 	n := &NetworkPolicy{}
 	res, err := n.ruleConnections([]netv1.NetworkPolicyPort{AllowNamedPortOnProtocol}, &dst)
-	expectedConnStr := "UDP hello" // UDP protocol with hello namedPort is a mismatch for the pod port which is TCP hello (which is TCP 22)
+	expectedConnStr := "UDP 22"
 	if res.String() != expectedConnStr {
 		t.Fatalf("mismatch on ruleConnections result: expected %v, got %v", expectedConnStr, res.String())
 	}

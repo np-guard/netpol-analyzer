@@ -137,9 +137,9 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 			}
 			// valid returned values from `getsPortsRange` :
 			// 1. empty-numbered-range with the string namedPort, if the rule has a named-port which is not (or cannot be) converted to a
-			// numbered-range by the dst's ports,
+			// numbered-range by the dst's ports.
 			//  2. non empty-range when the rule ports are numbered or the named-port was converted
-			if isEmptyPortRange(startPort, endPort) && portName != "" { // (1) && portName != "" may be eliminated
+			if (dst == nil || isPeerRepresentative(dst)) && isEmptyPortRange(startPort, endPort) && portName != "" {
 				// this func may be called:
 				// 1- for computing cluster-wide exposure of the policy (dst is nil);
 				// 2- in-order to get a connection from a real workload to a representative dst.
@@ -147,12 +147,13 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 				// pod from manifests, so we use the named-port as is.
 				// 3- in order to get a connection from any pod to a real dst.
 				// in the third case the namedPort of the policy rule may not have a match in the Pod's configuration,
-				// so it will be used as the ports-range of the connection
+				// so it will be ignored (the pod has no matching named-port in its configuration - unknown connection is not allowed)
 				// 4- in order to get a connection from any pod to an ip dst (will not get here, as named ports are not defined for ip-blocks)
 
 				// adding portName string to the portSet
 				ports.AddPort(intstr.FromString(portName))
-			} else if !isEmptyPortRange(startPort, endPort) { // the else case (2);
+			}
+			if !isEmptyPortRange(startPort, endPort) {
 				ports.AddPortRange(int64(startPort), int64(endPort))
 			}
 		}
