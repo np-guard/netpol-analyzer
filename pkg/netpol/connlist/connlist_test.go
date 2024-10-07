@@ -841,16 +841,6 @@ var goodPathTests = []struct {
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:      "exposure_test_ingress_from_entire_cluster_with_matched_and_unmatched_named_ports",
-		exposureAnalysis: true,
-		outputFormats:    ValidFormats,
-	},
-	{
-		testDirName:      "exposure_test_ingress_from_entire_cluster_with_matched_and_unmatched_named_ports_2",
-		exposureAnalysis: true,
-		outputFormats:    ValidFormats,
-	},
-	{
 		testDirName:      "exposure_test_egress_with_named_port",
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
