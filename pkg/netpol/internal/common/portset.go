@@ -99,6 +99,9 @@ func (p *PortSet) ClearPorts() {
 // AddPort: update current PortSet object with new added port as allowed
 func (p *PortSet) AddPort(port intstr.IntOrString, implyingRules *ImplyingRulesType) {
 	if port.Type == intstr.String {
+		if _, ok := p.NamedPorts[port.StrVal]; !ok {
+			p.NamedPorts[port.StrVal] = &ImplyingRulesType{}
+		}
 		p.NamedPorts[port.StrVal].Union(implyingRules)
 		delete(p.ExcludedNamedPorts, port.StrVal)
 	} else {

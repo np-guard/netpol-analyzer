@@ -11,6 +11,7 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
@@ -92,7 +93,16 @@ func TestNetworkPolicyPortAnalysis(t *testing.T) {
 		Protocol: &UDP,
 		Port:     &PortHello,
 	}
-	n := &NetworkPolicy{}
+	n := &NetworkPolicy{
+		&netv1.NetworkPolicy{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-name",
+				Namespace: "test-namespace",
+			},
+		},
+		PolicyExposureWithoutSelectors{},
+		PolicyExposureWithoutSelectors{},
+	}
 	res, err := n.ruleConnections([]netv1.NetworkPolicyPort{AllowNamedPortOnProtocol}, &dst, 0, false)
 	expectedConnStr := "UDP 22"
 	if res.String() != expectedConnStr {
