@@ -270,23 +270,22 @@ func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 		protocol := corev1.ProtocolTCP
 		if cPort.Protocol == "" || protocol == corev1.ProtocolTCP {
 			ports := common.MakePortSet(false)
-			ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort))
+			ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort), "")
 			res.AddConnection(protocol, ports)
 		}
 	}
 	return res
 }
 
-// ConvertPodNamedPort returns the ContainerPort number that matches the named port
-// if there is no match, returns -1
-// namedPort is unique within the pod
-func (pod *Pod) ConvertPodNamedPort(namedPort string) int32 {
+// ConvertPodNamedPort returns the ContainerPort's protocol and number that matches the named port
+// if there is no match, returns empty string for protocol and -1 for number
+func (pod *Pod) ConvertPodNamedPort(namedPort string) (protocol corev1.Protocol, portNum int32) {
 	for _, containerPort := range pod.Ports {
 		if namedPort == containerPort.Name {
-			return containerPort.ContainerPort
+			return containerPort.Protocol, containerPort.ContainerPort
 		}
 	}
-	return common.NoPort
+	return "", common.NoPort
 }
 
 // updatePodXgressExposureToEntireClusterData updates the pods' fields which are related to entire class exposure on ingress/egress
@@ -315,9 +314,9 @@ func (pod *Pod) checkAndConvertNamedPortsInConnection(conns *common.ConnectionSe
 	connsCopy := conns.Copy() // copying the connectionSet; in order to replace
 	// the named ports with pod's port numbers
 	for protocol, namedPorts := range connNamedPorts {
-		for _, namedPort := range namedPorts {
-			portNum := pod.ConvertPodNamedPort(namedPort)
-			connsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum)
+		for namedPort, implyingRules := range namedPorts {
+			_, portNum := pod.ConvertPodNamedPort(namedPort)
+			connsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum, implyingRules)
 		}
 	}
 	return connsCopy
