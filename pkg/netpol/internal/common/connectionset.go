@@ -30,9 +30,9 @@ var allProtocols = []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP, v1.ProtocolSCTP
 // MakeConnectionSet returns a pointer to ConnectionSet object with all connections or no connections
 func MakeConnectionSet(all bool) *ConnectionSet {
 	if all {
-		return &ConnectionSet{AllowAll: true, AllowedProtocols: map[v1.Protocol]*PortSet{}}
+		return &ConnectionSet{AllowAll: true, AllowedProtocols: map[v1.Protocol]*PortSet{}, CommonImplyingRules: &ImplyingRulesType{}}
 	}
-	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}}
+	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}, CommonImplyingRules: &ImplyingRulesType{}}
 }
 
 // Add common implying rule, i.e., a rule that is relevant for the whole ConnectionSet
