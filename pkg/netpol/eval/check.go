@@ -630,9 +630,29 @@ func (pe *PolicyEngine) getDefaultConns(src, dst k8s.Peer) (*k8s.PolicyConnectio
 
 // getAdminPolicyConnFromEgressIngressConns gets egress and ingress connections between pair of peers from a single (b)anp,
 // and returns the final connections between the peers from this policy's egress and ingress sections
+// the main principle of this func is that: a connection is allowed iff both ingress and egress allow it (either implicitly or explicitly)
 func getAdminPolicyConnFromEgressIngressConns(egressConns, ingressConns *k8s.PolicyConnections) *k8s.PolicyConnections {
-	egressConns.AllowedConns.Intersection(ingressConns.AllowedConns)
+	// by default any connection that is not captured by rules is allowed by the section
+	// so allowed conns are "all conns" minus (denied + passed conns)
+	egressNonCapturedAllowedConns := common.MakeConnectionSet(true)
+	egressNonCapturedAllowedConns.Subtract(egressConns.DeniedConns)
+	egressNonCapturedAllowedConns.Subtract(egressConns.PassConns) // egressNonCapturedAllowedConns contains all
+	// allowed conns by egress (captured + non-captured)
+	ingressNonCapturedAllowedConns := common.MakeConnectionSet(true)
+	ingressNonCapturedAllowedConns.Subtract(ingressConns.PassConns)
+	ingressNonCapturedAllowedConns.Subtract(ingressConns.DeniedConns) // ingressNonCapturedAllowedConns contains all the
+	// allowed connections by ingress (captured + non-captured)
+
+	// captured allowed conns by policy is intersection of captured allowed and non-captured allowed between the two directions
+	// egress captured allowed is:
+	(egressConns.AllowedConns).Intersection(ingressNonCapturedAllowedConns)
+	// ingress captured is :
+	(ingressConns.AllowedConns).Intersection(egressNonCapturedAllowedConns)
+	// final result  - storing it in egressConns :
+	egressConns.AllowedConns.Union(ingressConns.AllowedConns)
 	egressConns.DeniedConns.Union(ingressConns.DeniedConns)
 	egressConns.PassConns.Union(ingressConns.PassConns)
+	// remove denied conns from pass (if a connection is denied it can not be passed forward)
+	egressConns.PassConns.Subtract(egressConns.DeniedConns)
 	return egressConns // stored final result in egressConns
 }
