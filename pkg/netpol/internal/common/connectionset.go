@@ -71,7 +71,19 @@ func (conn *ConnectionSet) Intersection(other *ConnectionSet) {
 
 // IsEmpty returns true if the ConnectionSet has no allowed connections
 func (conn *ConnectionSet) IsEmpty() bool {
-	return !conn.AllowAll && len(conn.AllowedProtocols) == 0
+	if conn.AllowAll {
+		return false
+	}
+	if len(conn.AllowedProtocols) == 0 {
+		return true
+	}
+	// now check semantically
+	for _, ports := range conn.AllowedProtocols {
+		if !ports.IsEmpty() { // this is a semantic emptiness check (no included ports, may be holes)
+			return false
+		}
+	}
+	return true
 }
 
 func (conn *ConnectionSet) updateIfAllConnections() {
@@ -183,7 +195,10 @@ func (conn *ConnectionSet) ContainedIn(other *ConnectionSet) bool {
 
 // AddConnection updates current ConnectionSet object with new allowed connection
 func (conn *ConnectionSet) AddConnection(protocol v1.Protocol, ports *PortSet) {
-	if ports.IsEmpty() {
+	if ports.IsUnfilled() {
+		// The return below is only when 'ports' is syntactically empty;
+		// In the case of a hole (semantically empty set), we do want to add it
+		// in order to keep the explanation data
 		return
 	}
 	connPorts, ok := conn.AllowedProtocols[protocol]
@@ -277,6 +292,9 @@ func (p *portRange) End() int64 {
 }
 
 func (p *portRange) String() string {
+	if !p.Interval.inSet {
+		return ""
+	}
 	if p.End() != p.Start() {
 		return fmt.Sprintf("%d-%d", p.Start(), p.End())
 	}
@@ -290,7 +308,9 @@ func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
 		res[protocol] = make([]PortRange, 0)
 		// TODO: consider leave the slice of ports empty if portSet covers the full range
 		for _, v := range portSet.Ports.Intervals() {
-			res[protocol] = append(res[protocol], &portRange{Interval: v})
+			if !v.isEndInterval() {
+				res[protocol] = append(res[protocol], &portRange{Interval: v})
+			}
 		}
 	}
 	return res
@@ -316,11 +336,12 @@ func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[
 	}
 	var connStr string
 	// connStrings will contain the string of given conns protocols and ports as is
-	connStrings := make([]string, len(protocolsAndPorts))
-	index := 0
+	connStrings := make([]string, 0, len(protocolsAndPorts))
 	for protocol, ports := range protocolsAndPorts {
-		connStrings[index] = protocolAndPortsStr(protocol, portsString(ports))
-		index++
+		if thePortsStr := portsString(ports); thePortsStr != "" {
+			// thePortsStr might be empty if 'ports' does not contain 'InSet' ports
+			connStrings = append(connStrings, protocolAndPortsStr(protocol, thePortsStr))
+		}
 	}
 	sort.Strings(connStrings)
 	connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
@@ -329,9 +350,12 @@ func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[
 
 // get string representation for a list of port ranges
 func portsString(ports []PortRange) string {
-	portsStr := make([]string, len(ports))
+	portsStr := make([]string, 0, len(ports))
 	for i := range ports {
-		portsStr[i] = ports[i].String()
+		if thePortStr := ports[i].String(); thePortStr != "" {
+			// thePortsStr might be empty if ports[i].InSet is false
+			portsStr = append(portsStr, thePortStr)
+		}
 	}
 	return strings.Join(portsStr, connsAndPortRangeSeparator)
 }

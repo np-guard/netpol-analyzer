@@ -18,7 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
-	"github.com/np-guard/models/pkg/ipblock"
+	"github.com/np-guard/models/pkg/netset"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -255,7 +255,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			}
 
 			peerIPBlock := peer.GetPeerIPBlock()
-			res := peerIPBlock.ContainedIn(ruleIPBlock)
+			res := peerIPBlock.IsSubset(ruleIPBlock)
 			if res {
 				return true, nil
 			}
@@ -389,8 +389,8 @@ func (np *NetworkPolicy) netpolErr(title, description string) error {
 	return fmt.Errorf("network policy %s %s: %s", np.fullName(), title, description)
 }
 
-func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*ipblock.IPBlock, error) {
-	ipb, err := ipblock.FromCidr(cidr)
+func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*netset.IPBlock, error) {
+	ipb, err := netset.IPBlockFromCidr(cidr)
 	if err != nil {
 		return nil, np.netpolErr(netpolerrors.CidrErrTitle, err.Error())
 	}
@@ -409,8 +409,8 @@ func (np *NetworkPolicy) parseNetpolLabelSelector(selector *metav1.LabelSelector
 	return selectorRes, nil
 }
 
-func (np *NetworkPolicy) rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPolicyPeer) ([]*ipblock.IPBlock, error) {
-	res := []*ipblock.IPBlock{}
+func (np *NetworkPolicy) rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPolicyPeer) ([]*netset.IPBlock, error) {
+	res := []*netset.IPBlock{}
 	for _, peerObj := range rulePeers {
 		if peerObj.IPBlock != nil {
 			ipb, err := np.parseNetpolCIDR(peerObj.IPBlock.CIDR, peerObj.IPBlock.Except)
@@ -424,8 +424,8 @@ func (np *NetworkPolicy) rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPo
 }
 
 // GetReferencedIPBlocks: return list of IPBlock objects referenced in the current network policy
-func (np *NetworkPolicy) GetReferencedIPBlocks() ([]*ipblock.IPBlock, error) {
-	res := []*ipblock.IPBlock{}
+func (np *NetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error) {
+	res := []*netset.IPBlock{}
 	for _, rule := range np.Spec.Ingress {
 		ruleRes, err := np.rulePeersReferencedIPBlocks(rule.From)
 		if err != nil {

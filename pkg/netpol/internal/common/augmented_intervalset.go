@@ -8,6 +8,7 @@ package common
 
 import (
 	"log"
+	"math"
 	"slices"
 	"sort"
 
@@ -52,10 +53,19 @@ func (rules *ImplyingRulesType) Union(other *ImplyingRulesType) {
 	}
 }
 
+const (
+	EndValue = math.MaxInt64
+	NoIndex  = -1
+)
+
 type AugmentedInterval struct {
 	interval      interval.Interval
 	inSet         bool
 	implyingRules *ImplyingRulesType
+}
+
+func (augInt *AugmentedInterval) isEndInterval() bool {
+	return !augInt.inSet && augInt.interval.End() == EndValue
 }
 
 func NewAugmentedInterval(start, end int64, inSet bool) AugmentedInterval {
@@ -63,7 +73,7 @@ func NewAugmentedInterval(start, end int64, inSet bool) AugmentedInterval {
 }
 
 func NewAugmentedIntervalWithRule(start, end int64, inSet bool, rule string) AugmentedInterval {
-	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: &ImplyingRulesType{rule: true}}
+	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: MakeImplyingRulesWithRule(rule)}
 }
 
 func NewAugmentedIntervalWithRules(start, end int64, inSet bool, rules *ImplyingRulesType) AugmentedInterval {
@@ -73,7 +83,7 @@ func NewAugmentedIntervalWithRules(start, end int64, inSet bool, rules *Implying
 // AugmentedCanonicalSet is a set of int64 integers, implemented using an ordered slice of non-overlapping, non-touching interval.
 // The intervals should include both included intervals and holes;
 // i.e., start of every interval is the end of a previous interval incremented by 1.
-// The last interval should always end with '-1' and should have inSet being false (thus representing a hole till the end of the range)
+// The last interval should always end with EndValue and should have inSet being false (thus representing a hole till the end of the range)
 type AugmentedCanonicalSet struct {
 	intervalSet []AugmentedInterval
 }
@@ -81,7 +91,7 @@ type AugmentedCanonicalSet struct {
 func NewAugmentedCanonicalSet() *AugmentedCanonicalSet {
 	return &AugmentedCanonicalSet{
 		intervalSet: []AugmentedInterval{
-			NewAugmentedInterval(0, -1, false), // the full range 'hole'
+			NewAugmentedInterval(0, EndValue, false), // the full range 'hole'
 		},
 	}
 }
@@ -101,7 +111,7 @@ func (c *AugmentedCanonicalSet) Min() int64 {
 	return c.intervalSet[0].interval.Start()
 }
 
-// IsEmpty returns true if the AugmentedCanonicalSet is semantically empty (i.e., at least one 'inSet' interval)
+// IsEmpty returns true if the AugmentedCanonicalSet is semantically empty (i.e., no 'inSet' intervals, but may possibly include holes)
 func (c *AugmentedCanonicalSet) IsEmpty() bool {
 	for _, interval := range c.intervalSet {
 		if interval.inSet {
@@ -111,13 +121,32 @@ func (c *AugmentedCanonicalSet) IsEmpty() bool {
 	return true
 }
 
+// Unfilled returns true if the AugmentedCanonicalSet is syntactically empty (i.e., none of intervals or holes in the interval set)
+func (c *AugmentedCanonicalSet) IsUnfilled() bool {
+	return len(c.intervalSet) == 0
+}
+
 func (c *AugmentedCanonicalSet) CalculateSize() int64 {
 	var res int64 = 0
 	for _, r := range c.intervalSet {
-		res += r.interval.Size()
+		if r.inSet {
+			res += r.interval.Size()
+		}
 	}
 	return res
 }
+
+// func (c *AugmentedCanonicalSet) isConsistent() bool {
+// 	lastInd := len(c.intervalSet) - 1
+// 	if lastInd < 0 {
+// 		return true // the set is empty
+// 	}
+// 	lastInterval := c.intervalSet[lastInd]
+// 	if lastInterval.inSet || lastInterval.interval.Start() < 0 || lastInterval.interval.End() != EndValue {
+// 		return false
+// 	}
+// 	return true
+// }
 
 // nextIncludedInterval finds an interval included in set (not hole), starting from fromInd.
 // if there are a few continuous in set intervals, it will return the union of all of them.
@@ -128,13 +157,13 @@ func (c *AugmentedCanonicalSet) nextIncludedInterval(fromInd int) (res interval.
 		start++
 	}
 	if start >= len(c.intervalSet) {
-		return interval.New(0, -1), -1
+		return interval.New(0, -1), NoIndex
 	}
 	end := start
 	for end < len(c.intervalSet) && c.intervalSet[end].inSet {
 		end++
 	}
-	return interval.New(c.intervalSet[start].interval.Start(), c.intervalSet[end].interval.End()), end
+	return interval.New(c.intervalSet[start].interval.Start(), c.intervalSet[end-1].interval.End()), end - 1
 }
 
 // Equal returns true if the AugmentedCanonicalSet semantically equals the other AugmentedCanonicalSet;
@@ -146,11 +175,14 @@ func (c *AugmentedCanonicalSet) Equal(other *AugmentedCanonicalSet) bool {
 	currThisInd := 0
 	currOtherInd := 0
 
-	for currThisInd != -1 {
+	for currThisInd != NoIndex {
 		thisInterval, thisInd := c.nextIncludedInterval(currThisInd)
 		otherInterval, otherInd := other.nextIncludedInterval(currOtherInd)
-		if (thisInd == -1) != (otherInd == -1) {
+		if (thisInd == NoIndex) != (otherInd == NoIndex) {
 			return false
+		}
+		if thisInd == NoIndex {
+			break
 		}
 		if !(thisInterval.Equal(otherInterval)) {
 			return false
@@ -159,6 +191,12 @@ func (c *AugmentedCanonicalSet) Equal(other *AugmentedCanonicalSet) bool {
 		currOtherInd = otherInd + 1
 	}
 	return true
+}
+
+func appendSlices(slice1 *[]AugmentedInterval, slice2 []AugmentedInterval) {
+	for _, el := range slice2 {
+		*slice1 = append(*slice1, el)
+	}
 }
 
 // AddAugmentedInterval adds a new interval/hole  to the set,
@@ -176,7 +214,14 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval) {
 	})
 	var result []AugmentedInterval
 	// copy left-end intervals not impacted by v
-	copy(result, set[0:left])
+	appendSlices(&result, set[0:left])
+	if set[left].isEndInterval() {
+		// the new interval is the biggest one, it should be added at the end
+		newEnding := NewAugmentedInterval(v.interval.End()+1, EndValue, false)
+		result = append(result, v, newEnding)
+		c.intervalSet = result
+		return
+	}
 	if v.interval.Start() > set[left].interval.Start() && set[left].inSet != v.inSet {
 		// split set[left] into two intervals, while the implying rules of the second interval should get the new value (from v)
 		new1 := AugmentedInterval{interval: interval.New(set[left].interval.Start(), v.interval.Start()-1),
@@ -195,7 +240,7 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval) {
 		}
 	}
 	// copy right-end intervals not impacted by v
-	copy(result[len(result):], set[right:])
+	appendSlices(&result, set[right:])
 	c.intervalSet = result
 	// TODO - optimization: unify subsequent intervals with equal inSet and implyingRules fields
 }
@@ -223,7 +268,9 @@ func (c *AugmentedCanonicalSet) Union(other *AugmentedCanonicalSet) *AugmentedCa
 		return res
 	}
 	for _, v := range other.intervalSet {
-		res.AddAugmentedInterval(v)
+		if !v.isEndInterval() {
+			res.AddAugmentedInterval(v)
+		}
 	}
 	return res
 }
@@ -244,13 +291,13 @@ func (c *AugmentedCanonicalSet) ContainedIn(other *AugmentedCanonicalSet) bool {
 	}
 	currThisInd := 0
 	currOtherInd := 0
-	for currThisInd != -1 {
+	for currThisInd != NoIndex {
 		thisInterval, thisInd := c.nextIncludedInterval(currThisInd)
 		otherInterval, otherInd := other.nextIncludedInterval(currOtherInd)
-		if thisInd == -1 {
+		if thisInd == NoIndex {
 			return true // end of this interval set
 		}
-		if otherInd == -1 {
+		if otherInd == NoIndex {
 			return false // end of other interval set, but still have uncovered interval in this set
 		}
 		if thisInterval.IsSubset(otherInterval) {
@@ -308,10 +355,10 @@ func (c *AugmentedCanonicalSet) Overlap(other *AugmentedCanonicalSet) bool {
 	}
 	currThisInd := 0
 	currOtherInd := 0
-	for currThisInd != -1 {
+	for currThisInd != NoIndex {
 		thisInterval, thisInd := c.nextIncludedInterval(currThisInd)
 		otherInterval, otherInd := other.nextIncludedInterval(currOtherInd)
-		if thisInd == -1 || otherInd == -1 {
+		if thisInd == NoIndex || otherInd == NoIndex {
 			return false // did not find overlapping interval
 		}
 		if thisInterval.Overlap(otherInterval) {
@@ -357,9 +404,11 @@ func (c *AugmentedCanonicalSet) Elements() []int64 {
 	res := make([]int64, c.CalculateSize())
 	i := 0
 	for _, interval := range c.intervalSet {
-		for v := interval.interval.Start(); v <= interval.interval.End(); v++ {
-			res[i] = v
-			i++
+		if interval.inSet {
+			for v := interval.interval.Start(); v <= interval.interval.End(); v++ {
+				res[i] = v
+				i++
+			}
 		}
 	}
 	return res

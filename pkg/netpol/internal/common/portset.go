@@ -67,9 +67,14 @@ func (p *PortSet) Equal(other *PortSet) bool {
 		reflect.DeepEqual(portNames(p.ExcludedNamedPorts), portNames(other.ExcludedNamedPorts))
 }
 
-// IsEmpty: return true if current object is empty (no ports allowed)
+// IsEmpty: return true if current PortSet is semantically empty (no ports allowed)
 func (p *PortSet) IsEmpty() bool {
 	return p.Ports.IsEmpty() && len(p.NamedPorts) == 0
+}
+
+// Unfilled: return true if current PortSet is syntactically empty
+func (p *PortSet) IsUnfilled() bool {
+	return p.Ports.IsUnfilled() && len(p.NamedPorts) == 0
 }
 
 // Copy: return a new copy of a PortSet object
