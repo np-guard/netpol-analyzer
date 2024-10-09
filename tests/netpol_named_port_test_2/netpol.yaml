@@ -14,11 +14,11 @@ spec:
   - from:
     - namespaceSelector: {}
     ports:
-    - port: newport
+    - port: newport # this port with its protocol has no match in the pod configuration
       protocol: UDP
-    - port: sctp-port
+    - port: sctp-port # its matching port number in the pod configuration is 8956
       protocol: SCTP
-    - port: newport
+    - port: newport # its matching port number in the pod configuration is 9090
       protocol: SCTP
-    - port: not-found
+    - port: not-found # this port with its protocol has no match in the pod configuration
       protocol: SCTP
