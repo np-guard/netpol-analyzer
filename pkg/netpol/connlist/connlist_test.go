@@ -1124,6 +1124,21 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    []string{output.DefaultFormat},
 	},
+	{
+		// the netpol allows connection to pod-a on a named port "newport" with "protocol UDP",
+		// but since the configuration of "pod-a" contains a port with same name but a different protocol,
+		// i.e. there is no matching named port in the pod's configuration; then the output does not contain
+		// a connection from new-pod to pod-a
+		testDirName:   "netpol_named_port_test",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		// the netpol allows connection to "pod-b" on multiple named-ports;
+		// only some of the ports have a matching named-port + protocol in the pod's configuration
+		// so we see only the successfully converted ports in the connlist output
+		testDirName:   "netpol_named_port_test_2",
+		outputFormats: []string{output.DefaultFormat},
+	},
 	// tests with adminNetworkPolicy
 	{
 		testDirName:   "anp_test1_deny_traffic_at_cluster_level",

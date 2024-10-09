@@ -215,7 +215,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common
 				continue // @todo should raise a warning
 			}
 			if podProtocol != "" {
-				protocol = podProtocol
+				protocol = v1.Protocol(podProtocol)
 			}
 			portSet.AddPort(intstr.FromInt32(podPort))
 		case anpPort.PortRange != nil:
