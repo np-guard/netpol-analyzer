@@ -277,16 +277,20 @@ func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 	return res
 }
 
-// ConvertPodNamedPort returns the ContainerPort number that matches the named port
-// if there is no match, returns -1
+// ConvertPodNamedPort returns the ContainerPort's protocol and number that matches the named port
+// if there is no match, returns empty string for protocol and -1 for number
 // namedPort is unique within the pod
-func (pod *Pod) ConvertPodNamedPort(namedPort string) int32 {
+func (pod *Pod) ConvertPodNamedPort(namedPort string) (protocol string, portNum int32) {
 	for _, containerPort := range pod.Ports {
-		if namedPort == containerPort.Name {
-			return containerPort.ContainerPort
+		if namedPort == containerPort.Name { // found
+			if containerPort.Protocol == "" {
+				// found the named port with unspecified protocol this means "TCP" protocol (default)
+				return string(corev1.ProtocolTCP), containerPort.ContainerPort
+			}
+			return string(containerPort.Protocol), containerPort.ContainerPort
 		}
 	}
-	return common.NoPort
+	return "", common.NoPort
 }
 
 // updatePodXgressExposureToEntireClusterData updates the pods' fields which are related to entire class exposure on ingress/egress
@@ -313,11 +317,13 @@ func (pod *Pod) checkAndConvertNamedPortsInConnection(conns *common.ConnectionSe
 		return nil
 	} // else - found named ports
 	connsCopy := conns.Copy() // copying the connectionSet; in order to replace
-	// the named ports with pod's port numbers
+	// the named ports with pod's port numbers if possible
 	for protocol, namedPorts := range connNamedPorts {
 		for _, namedPort := range namedPorts {
-			portNum := pod.ConvertPodNamedPort(namedPort)
-			connsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum)
+			podProtocol, portNum := pod.ConvertPodNamedPort(namedPort)
+			if podProtocol == string(protocol) && portNum != common.NoPort { // matching port and protocol
+				connsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum)
+			}
 		}
 	}
 	return connsCopy
