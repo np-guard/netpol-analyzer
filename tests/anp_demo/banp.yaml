@@ -1,0 +1,15 @@
+---
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: BaselineAdminNetworkPolicy
+metadata:
+  name: default
+spec:
+  subject:
+    namespaces: {}
+  ingress:
+  - name: "deny-all-ingress-from-hufflepuff"
+    action: "Deny"
+    from:
+    - namespaces:
+        matchLabels:
+            kubernetes.io/metadata.name: hufflepuff
