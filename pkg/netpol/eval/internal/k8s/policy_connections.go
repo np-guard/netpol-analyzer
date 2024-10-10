@@ -84,12 +84,12 @@ func (pc *PolicyConnections) CollectANPConns(newAdminPolicyConns *PolicyConnecti
 	pc.PassConns.Union(newAdminPolicyConns.PassConns)
 }
 
-// CollectConnsFromLowerPolicyType updates current PolicyConnections object with connections from a
+// CollectConnsFromLowerPrecedencePolicyType updates current PolicyConnections object with connections from a
 // policy with lower priority than ANP. (e.g. network-policy or baseline-admin-network-policy or instead system-default connection)
 // allowed and denied connections of current PolicyConnections object (admin-network-policy) are non-overridden.
 // but pass connections in current PolicyConnections object will be determined by the input PolicyConnections parameter.
 // note that: passConns in otherConns will always be empty. (np and banp don't contain pass connections)
-func (pc *PolicyConnections) CollectConnsFromLowerPolicyType(otherConns *PolicyConnections) {
+func (pc *PolicyConnections) CollectConnsFromLowerPrecedencePolicyType(otherConns *PolicyConnections) {
 	// allowed and denied conns of current pc are non-overridden
 	otherConns.AllowedConns.Subtract(pc.DeniedConns)
 	otherConns.DeniedConns.Subtract(pc.AllowedConns)

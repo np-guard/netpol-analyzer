@@ -17,7 +17,7 @@
   {
     "src": "gryffindor/harry-potter[StatefulSet]",
     "dst": "hufflepuff/cedric-diggory[StatefulSet]",
-    "conn": "SCTP 9003,TCP 8080,UDP 53,5353"
+    "conn": "SCTP 9003,TCP 8080,UDP 5353"
   },
   {
     "src": "gryffindor/harry-potter[StatefulSet]",
@@ -38,11 +38,6 @@
     "src": "hufflepuff/cedric-diggory[StatefulSet]",
     "dst": "gryffindor/harry-potter[StatefulSet]",
     "conn": "SCTP 9003,TCP 80,UDP 5353"
-  },
-  {
-    "src": "ravenclaw/luna-lovegood[StatefulSet]",
-    "dst": "gryffindor/harry-potter[StatefulSet]",
-    "conn": "All Connections"
   },
   {
     "src": "slytherin/draco-malfoy[StatefulSet]",

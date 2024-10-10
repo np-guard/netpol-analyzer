@@ -1828,7 +1828,7 @@ func runParsedResourcesEvalTests(t *testing.T, testList []testutils.ParsedResour
 		test := &testList[i]
 		t.Run(test.Name, func(t *testing.T) {
 			t.Parallel()
-			pe, err := NewPolicyEngineWithObjects(test.Getk8sObjects())
+			pe, err := NewPolicyEngineWithObjects(test.GetK8sObjects())
 			require.Nil(t, err, test.TestInfo)
 			for _, evalTest := range test.EvalTests {
 				src := evalTest.Src

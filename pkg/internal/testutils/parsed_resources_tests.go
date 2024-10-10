@@ -32,9 +32,9 @@ const (
 	connUDP80              = "UDP 80"
 	allButUDP80            = "SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535"
 	allButTCP80A81UDP80A81 = "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-79,82-65535"
-	allButTCP80UDP80       = "SCTP 1-65535,TCP 1-79,81-65535,UDP 1-79,81-65535"
 	noConns                = "No Connections"
 	connTCP80A81UDP80A81   = "TCP 80-81,UDP 80-81"
+	connTCP80A81           = "TCP 80-81"
 	priority100            = 100
 )
 
@@ -148,7 +148,7 @@ func initBanp(banp *v1alpha1.BaselineAdminNetworkPolicy) *v1alpha1.BaselineAdmin
 	return banp
 }
 
-func (test *ParsedResourcesTest) Getk8sObjects() []parser.K8sObject {
+func (test *ParsedResourcesTest) GetK8sObjects() []parser.K8sObject {
 	res := []parser.K8sObject{}
 	test.TestInfo = fmt.Sprintf("test: %q, output format: %q", test.Name, test.OutputFormat)
 	for _, ns := range test.Resources.NsList {
@@ -296,6 +296,16 @@ var (
 	allNamespacesSubject = v1alpha1.AdminNetworkPolicySubject{
 		Namespaces: &metav1.LabelSelector{},
 	}
+	subjectNsY = v1alpha1.AdminNetworkPolicySubject{
+		Namespaces: &metav1.LabelSelector{
+			MatchLabels: map[string]string{"ns": "y"},
+		},
+	}
+	subjectNsX = v1alpha1.AdminNetworkPolicySubject{
+		Namespaces: &metav1.LabelSelector{
+			MatchLabels: map[string]string{"ns": "x"},
+		},
+	}
 	toXPeer = []v1alpha1.AdminNetworkPolicyEgressPeer{
 		{
 			Namespaces: &metav1.LabelSelector{
@@ -307,6 +317,13 @@ var (
 		{
 			Namespaces: &metav1.LabelSelector{
 				MatchLabels: map[string]string{"ns": "y"},
+			},
+		},
+	}
+	fromXPeer = []v1alpha1.AdminNetworkPolicyIngressPeer{
+		{
+			Namespaces: &metav1.LabelSelector{
+				MatchLabels: map[string]string{"ns": "x"},
 			},
 		},
 	}
@@ -337,6 +354,11 @@ var (
 		To:     toXPeer,
 		Ports:  ports80,
 	}
+	egressRuleAllowToXTCP8081 = v1alpha1.AdminNetworkPolicyEgressRule{
+		Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
+		To:     toXPeer,
+		Ports:  portsTCP8081,
+	}
 	egressRuleDenyAllToX = v1alpha1.AdminNetworkPolicyEgressRule{
 		Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
 		To:     toXPeer,
@@ -366,6 +388,10 @@ var (
 		To:     toXPeer,
 		Ports:  ports80,
 	}
+	egressRulePassAllToX = v1alpha1.AdminNetworkPolicyEgressRule{
+		Action: v1alpha1.AdminNetworkPolicyRuleActionPass,
+		To:     toXPeer,
+	}
 	egressRuleDenyToXUDP80 = v1alpha1.AdminNetworkPolicyEgressRule{
 		Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
 		To:     toXPeer,
@@ -389,6 +415,10 @@ var (
 		Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
 		From:   fromYPeer,
 		Ports:  portsUDP80,
+	}
+	ingressRuleAllowAllFromX = v1alpha1.AdminNetworkPolicyIngressRule{
+		Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
+		From:   fromXPeer,
 	}
 	anp1 = v1alpha1.AdminNetworkPolicySpec{
 		Priority: priority100,
@@ -427,6 +457,18 @@ var (
 			},
 		},
 	})
+	banpDenyAllToX = initBanp(&v1alpha1.BaselineAdminNetworkPolicy{
+		Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
+			Subject: subjectNsY,
+			Egress: []v1alpha1.BaselineAdminNetworkPolicyEgressRule{
+				{
+					Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
+					To:     toXPeer,
+				},
+			},
+		},
+	})
+
 	ANPConnectivityFromParsedResourcesTest = []ParsedResourcesTest{
 		{
 			Name:                   "egress port number protocol unspecified",
@@ -974,6 +1016,65 @@ var (
 			}),
 		},
 		{
+			Name: "ANP with unmatched ingress and egress connection #7",
+			// ANP 1:
+			// - subject ns : y
+			// - priority : 15
+			// - egress rule to x :
+			//    - allow TCP 80-81
+			//    - deny others
+			// ANP 2:
+			// - subject ns : x
+			// - priority : 4
+			// - ingress rule from y:
+			//      - allow UDP 80
+			// what happens from y->x:
+			// actual table from policy-assistant:
+			// +--------+---------+---------+---------+---------+
+			// | TCP/80 |   X/A   |   X/B   |   Y/A   |   Y/B   |
+			// | TCP/81 |         |         |         |         |
+			// | UDP/80 |         |         |         |         |
+			// | UDP/81 |         |         |         |         |
+			// +--------+---------+---------+---------+---------+
+			// | x/a    | # # # # | . . . . | . . . . | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | x/b    | . . . . | # # # # | . . . . | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | y/a    | . . X X | . . X X | # # # # | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | y/b    | . . X X | . . X X | . . . . | # # # # |
+			// +--------+---------+---------+---------+---------+
+			OutputFormat:           output.TextFormat,
+			ExpectedOutputFileName: "test7_anp_unmatched_ingress_egress_from_parsed_res.txt",
+			EvalTests: []EvalAllowedConnTest{
+				{
+					Src: "x/a", Dst: "y/b",
+					ExpResult: allConnsStr,
+				},
+				{
+					Src: "y/a", Dst: "x/b",
+					ExpResult: connTCP80A81,
+				},
+			},
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 15,
+						Subject:  subjectNsY,
+						Egress:   []v1alpha1.AdminNetworkPolicyEgressRule{egressRuleAllowToXTCP8081, egressRuleDenyAllToX},
+					},
+				},
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 4,
+						Subject:  subjectNsX,
+						Ingress:  []v1alpha1.AdminNetworkPolicyIngressRule{ingressRuleAllowFromYUDP80},
+					},
+				},
+			}),
+		},
+		{
 			Name: "ANP with unmatched ingress and egress connection #13",
 			// ANP:
 			// - subject is all namespaces (x,y)
@@ -1289,6 +1390,66 @@ var (
 				},
 			}),
 		},
+		{
+			Name: "ANP with unmatched ingress and egress connection #8",
+			// ANP :
+			// - subject ns : y
+			// - priority : 15
+			// - ingress rule allow all from x
+			// NP:
+			// - ns : x
+			// - empty egress (deny all egress)
+			// what happens from x->y:
+			// actual table from policy-assistant:
+			// +--------+---------+---------+---------+---------+
+			// | TCP/80 |   X/A   |   X/B   |   Y/A   |   Y/B   |
+			// | TCP/81 |         |         |         |         |
+			// | UDP/80 |         |         |         |         |
+			// | UDP/81 |         |         |         |         |
+			// +--------+---------+---------+---------+---------+
+			// | x/a    | # # # # | X X X X | X X X X | X X X X |
+			// +--------+---------+---------+---------+---------+
+			// | x/b    | X X X X | # # # # | X X X X | X X X X |
+			// +--------+---------+---------+---------+---------+
+			// | y/a    | . . . . | . . . . | # # # # | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | y/b    | . . . . | . . . . | . . . . | # # # # |
+			// +--------+---------+---------+---------+---------+
+			OutputFormat:           output.TextFormat,
+			ExpectedOutputFileName: "test8_anp_np_unmatched_ingress_egress_from_parsed_res.txt",
+			EvalTests: []EvalAllowedConnTest{
+				{
+					Src: "x/b", Dst: "y/a",
+					ExpResult: noConns,
+				},
+				{
+					Src: "y/b", Dst: "x/a",
+					ExpResult: allConnsStr,
+				},
+			},
+			Resources: initResources(podInfo1),
+			NpList: initNpList([]*netv1.NetworkPolicy{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "x",
+						Name:      "base",
+					},
+					Spec: netv1.NetworkPolicySpec{
+						PodSelector: metav1.LabelSelector{},
+						PolicyTypes: []netv1.PolicyType{netv1.PolicyTypeEgress},
+					},
+				},
+			}),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: 15,
+						Subject:  subjectNsY,
+						Ingress:  []v1alpha1.AdminNetworkPolicyIngressRule{ingressRuleAllowAllFromX},
+					},
+				},
+			}),
+		},
 	}
 
 	BANPWithNetPolV1FromParsedResourcesTest = []ParsedResourcesTest{
@@ -1505,7 +1666,6 @@ var (
 			// | y/b    | X X . X | X X . X | X X . X | # # # # |
 			// +--------+---------+---------+---------+---------+
 
-			// @TBD: Note that expected output is different from the actual output generated by policy-assistant
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test3_anp_banp_unmatched_ingress_egress_from_parsed_res.txt",
 			EvalTests: []EvalAllowedConnTest{
@@ -1515,7 +1675,7 @@ var (
 				},
 				{
 					Src: "y/a", Dst: "x/b",
-					ExpResult: noConns, // policy-assistant expects UDP80
+					ExpResult: connUDP80,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -1526,6 +1686,56 @@ var (
 						Subject:  allNamespacesSubject,
 						Egress:   []v1alpha1.AdminNetworkPolicyEgressRule{egressRulePassToXUDP80},
 						Ingress:  []v1alpha1.AdminNetworkPolicyIngressRule{ingressRuleAllowFromYUDP80},
+					},
+				},
+			}),
+			Banp: banpDenyAllFromY,
+		},
+		{
+			Name: "ANP with unmatched ingress and egress connection #5",
+			// ANP:
+			// - subject is all namespaces (x,y)
+			// - ingress rule from y : Pass UDP80
+			// - egress rule to x : Allow UDP 80
+			// BANP:
+			// - subject : all namespaces
+			// - ingress rule : deny all from y
+			// what happens from y->x:
+			// actual table from policy-assistant: (y->x all conns are denied)
+			// +--------+---------+---------+---------+---------+
+			// | TCP/80 |   X/A   |   X/B   |   Y/A   |   Y/B   |
+			// | TCP/81 |         |         |         |         |
+			// | UDP/80 |         |         |         |         |
+			// | UDP/81 |         |         |         |         |
+			// +--------+---------+---------+---------+---------+
+			// | x/a    | # # # # | . . . . | . . . . | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | x/b    | . . . . | # # # # | . . . . | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | y/a    | X X X X | X X X X | # # # # | X X X X |
+			// +--------+---------+---------+---------+---------+
+			// | y/b    | X X X X | X X X X | X X X X | # # # # |
+			// +--------+---------+---------+---------+---------+
+			OutputFormat:           output.TextFormat,
+			ExpectedOutputFileName: "test5_anp_banp_unmatched_ingress_egress_from_parsed_res.txt",
+			EvalTests: []EvalAllowedConnTest{
+				{
+					Src: "x/a", Dst: "y/b",
+					ExpResult: allConnsStr,
+				},
+				{
+					Src: "y/a", Dst: "x/b",
+					ExpResult: noConns,
+				},
+			},
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: priority100,
+						Subject:  allNamespacesSubject,
+						Egress:   []v1alpha1.AdminNetworkPolicyEgressRule{egressRuleAllowToXUDP80},
+						Ingress:  []v1alpha1.AdminNetworkPolicyIngressRule{ingressRulePassFromYUDP80},
 					},
 				},
 			}),
@@ -1660,8 +1870,6 @@ var (
 			// +--------+---------+---------+---------+---------+
 			// | y/b    | . . X . | . . X . | . . X . | # # # # |
 			// +--------+---------+---------+---------+---------+
-
-			// @TBD: Note that expected output is different from the actual output generated by policy-assistant
 			OutputFormat:           output.TextFormat,
 			ExpectedOutputFileName: "test14_anp_banp_unmatched_ingress_egress_from_parsed_res.txt",
 			EvalTests: []EvalAllowedConnTest{
@@ -1671,7 +1879,7 @@ var (
 				},
 				{
 					Src: "y/a", Dst: "x/b",
-					ExpResult: allButTCP80UDP80, // policy-assistant expects allButUDP80 only
+					ExpResult: allButUDP80,
 				},
 			},
 			Resources: initResources(podInfo1),
@@ -1686,6 +1894,53 @@ var (
 				},
 			}),
 			Banp: banpDenyAllFromY,
+		},
+		{
+			Name: "ANP with unmatched ingress and egress connection #9",
+			// ANP:
+			// - subject is ns:y
+			// - egress rule pass all to x
+			// BANP:
+			// - subject : ns:y
+			// - egress rule deny all to x
+			// actual table form policy-assistant:
+			// +--------+---------+---------+---------+---------+
+			// | TCP/80 |   X/A   |   X/B   |   Y/A   |   Y/B   |
+			// | TCP/81 |         |         |         |         |
+			// | UDP/80 |         |         |         |         |
+			// | UDP/81 |         |         |         |         |
+			// +--------+---------+---------+---------+---------+
+			// | x/a    | # # # # | . . . . | . . . . | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | x/b    | . . . . | # # # # | . . . . | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | y/a    | X X X X | X X X X | # # # # | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | y/b    | X X X X | X X X X | . . . . | # # # # |
+			// +--------+---------+---------+---------+---------+
+			OutputFormat:           output.TextFormat,
+			ExpectedOutputFileName: "test9_anp_banp_unmatched_ingress_egress_from_parsed_res.txt",
+			EvalTests: []EvalAllowedConnTest{
+				{
+					Src: "x/a", Dst: "y/b",
+					ExpResult: allConnsStr,
+				},
+				{
+					Src: "y/a", Dst: "x/b",
+					ExpResult: noConns,
+				},
+			},
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: v1alpha1.AdminNetworkPolicySpec{
+						Priority: priority100,
+						Subject:  subjectNsY,
+						Egress:   []v1alpha1.AdminNetworkPolicyEgressRule{egressRulePassAllToX},
+					},
+				},
+			}),
+			Banp: banpDenyAllToX,
 		},
 	}
 )
