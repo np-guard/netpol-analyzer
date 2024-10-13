@@ -352,7 +352,7 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 	}
 }
 
-// allAllowedConnectionsBetweenPeers: returns the allowed connections from srcPeer to dstPeer on the
+// allAllowedXgressConnections: returns the allowed connections from srcPeer to dstPeer on the
 // given direction (ingress/egress)
 // allowed conns are computed by walking through all the available resources of k8s network policy api:
 // admin-network-policies, network-policies and baseline-admin-network-policies;
@@ -581,7 +581,7 @@ func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer
 	return policiesConns, true, nil
 }
 
-// analyzing baseline-admin-network-policies for conns between peers (object kind == BaselineAdminNetworkPolicy):
+// analyzing baseline-admin-network-policy for conns between peers (object kind == BaselineAdminNetworkPolicy):
 
 // getXgressDefaultConns returns the default connections between src and dst on the given direction (ingress/egress);
 // considering the existence of a baseline-admin-network-policy
