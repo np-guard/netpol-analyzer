@@ -1,0 +1,12 @@
+0.0.0.0-255.255.255.255 => x/a[Pod] : All Connections
+0.0.0.0-255.255.255.255 => x/b[Pod] : All Connections
+0.0.0.0-255.255.255.255 => y/a[Pod] : All Connections
+0.0.0.0-255.255.255.255 => y/b[Pod] : All Connections
+y/a[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+y/a[Pod] => x/a[Pod] : All Connections
+y/a[Pod] => x/b[Pod] : All Connections
+y/a[Pod] => y/b[Pod] : All Connections
+y/b[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+y/b[Pod] => x/a[Pod] : All Connections
+y/b[Pod] => x/b[Pod] : All Connections
+y/b[Pod] => y/a[Pod] : All Connections

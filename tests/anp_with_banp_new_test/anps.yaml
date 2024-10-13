@@ -1,0 +1,72 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: new-pass-example-with-banp
+spec:
+  priority: 10
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: ns1
+      podSelector:
+        matchLabels:
+          app: a-app
+  ingress:
+  - name: "pass-tcp-80-from-ns2-pod1" 
+    action: "Pass"
+    from:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: ns2
+        podSelector:
+          matchLabels:
+            app: a-app
+    ports:
+    - portNumber:
+        port: 80
+        protocol: TCP
+---
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: BaselineAdminNetworkPolicy
+metadata:
+  name: default
+spec:
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: ns1
+      podSelector:
+        matchLabels:
+          app: a-app
+  ingress:
+  - name: "allow-tcp-80-81-from-ns2-pod1"
+    action: "Allow"
+    from:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: ns2
+        podSelector:
+          matchLabels:
+            app: a-app
+    ports:
+    - portNumber:
+        port: 81
+        protocol: TCP
+    - portNumber:
+        port: 80
+        protocol: TCP
+  - name: "deny-others-from-ns2-pod1"
+    action: "Deny"
+    from:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: ns2
+        podSelector:
+          matchLabels:
+            app: a-app    
+---    
