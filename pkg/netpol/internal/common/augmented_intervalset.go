@@ -54,7 +54,8 @@ func (rules *ImplyingRulesType) Union(other *ImplyingRulesType) {
 }
 
 const (
-	EndValue = math.MaxInt64
+	MinValue = 0
+	MaxValue = math.MaxInt64
 	NoIndex  = -1
 )
 
@@ -65,7 +66,7 @@ type AugmentedInterval struct {
 }
 
 func (augInt *AugmentedInterval) isEndInterval() bool {
-	return !augInt.inSet && augInt.interval.End() == EndValue
+	return !augInt.inSet && augInt.interval.End() == MaxValue
 }
 
 func NewAugmentedInterval(start, end int64, inSet bool) AugmentedInterval {
@@ -83,7 +84,7 @@ func NewAugmentedIntervalWithRules(start, end int64, inSet bool, rules *Implying
 // AugmentedCanonicalSet is a set of int64 integers, implemented using an ordered slice of non-overlapping, non-touching interval.
 // The intervals should include both included intervals and holes;
 // i.e., start of every interval is the end of a previous interval incremented by 1.
-// The last interval should always end with EndValue and should have inSet being false (thus representing a hole till the end of the range)
+// The last interval should always end with MaxValue and should have inSet being false (thus representing a hole till the end of the range)
 type AugmentedCanonicalSet struct {
 	intervalSet []AugmentedInterval
 }
@@ -91,7 +92,7 @@ type AugmentedCanonicalSet struct {
 func NewAugmentedCanonicalSet() *AugmentedCanonicalSet {
 	return &AugmentedCanonicalSet{
 		intervalSet: []AugmentedInterval{
-			NewAugmentedInterval(0, EndValue, false), // the full range 'hole'
+			NewAugmentedInterval(MinValue, MaxValue, false), // the full range 'hole'
 		},
 	}
 }
@@ -108,7 +109,13 @@ func (c *AugmentedCanonicalSet) Min() int64 {
 	if len(c.intervalSet) == 0 {
 		log.Panic("cannot take min from empty interval set")
 	}
-	return c.intervalSet[0].interval.Start()
+	for _, interval := range c.intervalSet {
+		if interval.inSet {
+			return interval.interval.Start()
+		}
+	}
+	log.Panic("cannot take min from empty interval set")
+	return 0 // making linter happy
 }
 
 // IsEmpty returns true if the AugmentedCanonicalSet is semantically empty (i.e., no 'inSet' intervals, but may possibly include holes)
@@ -142,7 +149,7 @@ func (c *AugmentedCanonicalSet) CalculateSize() int64 {
 // 		return true // the set is empty
 // 	}
 // 	lastInterval := c.intervalSet[lastInd]
-// 	if lastInterval.inSet || lastInterval.interval.Start() < 0 || lastInterval.interval.End() != EndValue {
+// 	if lastInterval.inSet || lastInterval.interval.Start() < 0 || lastInterval.interval.End() != MaxValue {
 // 		return false
 // 	}
 // 	return true
@@ -210,37 +217,50 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval) {
 		return set[i].interval.End() >= v.interval.Start()
 	})
 	right := sort.Search(len(set), func(j int) bool {
-		return set[j].interval.Start() > v.interval.End()
+		return set[j].interval.End() >= v.interval.End()
 	})
 	var result []AugmentedInterval
 	// copy left-end intervals not impacted by v
 	appendSlices(&result, set[0:left])
-	if set[left].isEndInterval() {
-		// the new interval is the biggest one, it should be added at the end
-		newEnding := NewAugmentedInterval(v.interval.End()+1, EndValue, false)
-		result = append(result, v, newEnding)
-		c.intervalSet = result
-		return
-	}
+
+	// handle the left-hand side of the intersection of v with set
 	if v.interval.Start() > set[left].interval.Start() && set[left].inSet != v.inSet {
 		// split set[left] into two intervals, while the implying rules of the second interval should get the new value (from v)
 		new1 := AugmentedInterval{interval: interval.New(set[left].interval.Start(), v.interval.Start()-1),
 			inSet: set[left].inSet, implyingRules: set[left].implyingRules.Copy()}
-		new2 := AugmentedInterval{interval: interval.New(v.interval.Start(), set[left].interval.End()),
+		new2 := AugmentedInterval{interval: interval.New(v.interval.Start(), min(set[left].interval.End(), v.interval.End())),
 			inSet: v.inSet, implyingRules: v.implyingRules.Copy()}
 		result = append(result, new1, new2)
 		left++
 	}
-	for ind := left; ind < right; ind++ {
+	for ind := left; ind <= right; ind++ {
 		if set[ind].inSet == v.inSet {
 			// this interval is not impacted by v - don't change its implying rules
 			result = append(result, set[ind])
 		} else {
+			if ind == right && v.interval.End() < set[right].interval.End() {
+				break // this is the corner case handled following the loop below
+			}
 			result = append(result, AugmentedInterval{interval: set[ind].interval, inSet: v.inSet, implyingRules: v.implyingRules.Copy()})
 		}
 	}
+	// handle the right-hand side of the intersection of v with set
+	if v.interval.End() < set[right].interval.End() && set[right].inSet != v.inSet {
+		// split set[right] into two intervals, while the implying rules of the first interval should get the new value (from v)
+		if left < right {
+			// a special case when left==right (i.e., v is included in one interval from set) was already handled
+			// at the lef-hand side of the intersection of v with set
+			new1 := AugmentedInterval{interval: interval.New(set[right].interval.Start(), v.interval.End()),
+				inSet: v.inSet, implyingRules: v.implyingRules.Copy()}
+			result = append(result, new1)
+		}
+		new2 := AugmentedInterval{interval: interval.New(v.interval.End()+1, set[right].interval.End()),
+			inSet: set[right].inSet, implyingRules: set[right].implyingRules.Copy()}
+		result = append(result, new2)
+	}
+
 	// copy right-end intervals not impacted by v
-	appendSlices(&result, set[right:])
+	appendSlices(&result, set[right+1:])
 	c.intervalSet = result
 	// TODO - optimization: unify subsequent intervals with equal inSet and implyingRules fields
 }
