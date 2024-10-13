@@ -5,5 +5,4 @@ diff-type: added, source: network-policy-conformance-gryffindor/harry-potter[Sta
 diff-type: added, source: network-policy-conformance-gryffindor/harry-potter[StatefulSet], destination: network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet], ref1: No Connections, ref2: All Connections
 diff-type: added, source: network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet], destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: No Connections, ref2: All Connections
 diff-type: added, source: network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet], destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: No Connections, ref2: All Connections
-diff-type: removed, source: network-policy-conformance-gryffindor/harry-potter[StatefulSet], destination: network-policy-conformance-slytherin/draco-malfoy[StatefulSet], ref1: All Connections, ref2: No Connections
 diff-type: removed, source: network-policy-conformance-slytherin/draco-malfoy[StatefulSet], destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: All Connections, ref2: No Connections

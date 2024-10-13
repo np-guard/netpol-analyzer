@@ -218,7 +218,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string, d
 				continue // @todo should raise a warning
 			}
 			if podProtocol != "" {
-				protocol = podProtocol
+				protocol = v1.Protocol(podProtocol)
 			}
 			portSet.AddPort(intstr.FromInt32(podPort), common.MakeImplyingRulesWithRule(ruleName))
 		case anpPort.PortRange != nil:
