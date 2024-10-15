@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/np-guard/models/pkg/interval"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
 	v1 "k8s.io/api/core/v1"
@@ -107,6 +108,9 @@ func (conn *ConnectionSet) updateIfAllConnections() {
 func (conn *ConnectionSet) rebuildAllowAllExplicitly() {
 	if !conn.AllowAll {
 		return
+	}
+	if len(conn.AllowedProtocols) > 0 {
+		return // if AllowedProtocols exist, they already include all possible connections
 	}
 	for _, protocol := range allProtocols {
 		portSet := MakeAllPortSetWithImplyingRules(conn.CommonImplyingRules)
@@ -349,13 +353,27 @@ func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[
 }
 
 // get string representation for a list of port ranges
+// return a canonical form (longest in-set ranges)
 func portsString(ports []PortRange) string {
 	portsStr := make([]string, 0, len(ports))
+	currInterval := interval.New(0, -1) // an empty interval
 	for i := range ports {
 		if thePortStr := ports[i].String(); thePortStr != "" {
-			// thePortsStr might be empty if ports[i].InSet is false
-			portsStr = append(portsStr, thePortStr)
+			if currInterval.IsEmpty() {
+				currInterval = interval.New(ports[i].Start(), ports[i].End())
+			} else if currInterval.End()+1 == ports[i].Start() {
+				currInterval = interval.New(currInterval.Start(), ports[i].End()) // extend the interval
+			} else {
+				portsStr = append(portsStr, currInterval.ShortString())
+				currInterval = interval.New(0, -1)
+			}
+		} else if !currInterval.IsEmpty() { // thePortsStr will be empty if ports[i].InSet is false
+			portsStr = append(portsStr, currInterval.ShortString())
+			currInterval = interval.New(0, -1)
 		}
+	}
+	if !currInterval.IsEmpty() {
+		portsStr = append(portsStr, currInterval.ShortString())
 	}
 	return strings.Join(portsStr, connsAndPortRangeSeparator)
 }

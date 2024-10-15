@@ -247,7 +247,7 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval) {
 	// handle the right-hand side of the intersection of v with set
 	if v.interval.End() < set[right].interval.End() && set[right].inSet != v.inSet {
 		// split set[right] into two intervals, while the implying rules of the first interval should get the new value (from v)
-		if left < right {
+		if left < right || (left == right && v.interval.Start() == set[left].interval.Start()) {
 			// a special case when left==right (i.e., v is included in one interval from set) was already handled
 			// at the lef-hand side of the intersection of v with set
 			new1 := AugmentedInterval{interval: interval.New(set[right].interval.Start(), v.interval.End()),
