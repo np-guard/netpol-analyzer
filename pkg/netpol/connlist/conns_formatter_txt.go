@@ -34,13 +34,16 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 
 // writeConnlistOutput writes the section of the connlist result of the output
 func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns bool) string {
-	connLines := make([]string, len(conns))
+	connLines := make([]string, 0, len(conns))
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
-		connLines[i] = formSingleP2PConn(conns[i]).string()
-		// if we have exposure analysis results, also check if src/dst is an IP and store the connection
-		if saveIPConns {
-			t.ipMaps.saveConnsWithIPs(conns[i])
+		if p2pConn := formSingleP2PConn(conns[i]); p2pConn.ConnString != "" {
+			// ConnString might be empty if conns[i] does not contain 'InSet' ports
+			connLines = append(connLines, p2pConn.string())
+			// if we have exposure analysis results, also check if src/dst is an IP and store the connection
+			if saveIPConns {
+				t.ipMaps.saveConnsWithIPs(conns[i])
+			}
 		}
 	}
 	sort.Strings(connLines)

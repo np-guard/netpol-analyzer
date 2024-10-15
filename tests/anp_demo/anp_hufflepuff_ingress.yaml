@@ -1,0 +1,27 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: ingress-to-hufflepuff
+spec:
+  priority: 4
+  subject:
+    namespaces:
+      matchLabels:
+        kubernetes.io/metadata.name:  hufflepuff
+  ingress:
+  - name: "pass-from-slytherin"
+    action: "Pass"
+    from:
+    - namespaces:
+        matchLabels:
+          kubernetes.io/metadata.name:  slytherin
+  - name: "allow-from-gryffindor-at-port-53"
+    action: "Allow"
+    from:
+    - namespaces:
+        matchLabels:
+          kubernetes.io/metadata.name:  gryffindor
+    ports:
+    - portNumber:
+        protocol: UDP
+        port: 53

@@ -270,7 +270,7 @@ func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 		protocol := corev1.ProtocolTCP
 		if cPort.Protocol == "" || protocol == corev1.ProtocolTCP {
 			ports := common.MakePortSet(false)
-			ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort))
+			ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort), "")
 			res.AddConnection(protocol, ports)
 		}
 	}
@@ -319,10 +319,10 @@ func (pod *Pod) checkAndConvertNamedPortsInConnection(conns *common.ConnectionSe
 	connsCopy := conns.Copy() // copying the connectionSet; in order to replace
 	// the named ports with pod's port numbers if possible
 	for protocol, namedPorts := range connNamedPorts {
-		for _, namedPort := range namedPorts {
+		for namedPort, implyingRules := range namedPorts {
 			podProtocol, portNum := pod.ConvertPodNamedPort(namedPort)
 			if podProtocol == string(protocol) && portNum != common.NoPort { // matching port and protocol
-				connsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum)
+				connsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum, implyingRules)
 			}
 		}
 	}
