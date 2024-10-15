@@ -288,7 +288,7 @@ func (c *AugmentedCanonicalSet) Union(other *AugmentedCanonicalSet) *AugmentedCa
 		return res
 	}
 	for _, v := range other.intervalSet {
-		if !v.isEndInterval() {
+		if v.inSet {
 			res.AddAugmentedInterval(v)
 		}
 	}
