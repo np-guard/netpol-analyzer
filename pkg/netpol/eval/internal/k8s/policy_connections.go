@@ -23,8 +23,8 @@ import (
 type PolicyConnections struct {
 	// AllowedConns allowed connections-set between two peers
 	AllowedConns *common.ConnectionSet
-	// PassConns connections between two peers that was passed by admin-network-policy to policies with lower priority
-	// (network-policies/ baseline-admin-network-policies)
+	// PassConns connections-set between two peers that was passed by admin-network-policy;
+	// i.e. delegate decision about them to next layer of policies, NetworkPolicies or BaselineAdminNetworkPolicies resources
 	PassConns *common.ConnectionSet
 	// DeniedConns denied connections between two peers
 	DeniedConns *common.ConnectionSet
