@@ -66,7 +66,7 @@ const (
 )
 
 func getProtocolStr(p *v1.Protocol) string {
-	if p == nil { // If not specified, this field defaults to TCP.
+	if p == nil || string(*p) == "" { // If not specified, this field defaults to TCP.
 		return "TCP"
 	}
 	return string(*p)

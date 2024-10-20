@@ -71,3 +71,37 @@ func (banp *BaselineAdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*P
 	}
 	return res, nil
 }
+
+func (banp *BaselineAdminNetworkPolicy) CheckEgressConnAllowed(dst Peer, protocol, port string) (res int, captured bool, err error) {
+	for _, rule := range banp.Spec.Egress {
+		rulePeers := rule.To
+		rulePorts := rule.Ports
+		res, captured, err := checkIfEgressRuleContainsConn(rulePeers, rulePorts, dst, string(rule.Action), protocol, port, true)
+		if err != nil {
+			return 0, false, err
+		}
+		if !captured {
+			continue
+		}
+		return res, captured, nil
+	}
+	// getting here means the protocol+port was not captured
+	return Allow, false, nil
+}
+
+func (banp *BaselineAdminNetworkPolicy) CheckIngressConnAllowed(src, dst Peer, protocol, port string) (res int, captured bool, err error) {
+	for _, rule := range banp.Spec.Ingress {
+		rulePeers := rule.From
+		rulePorts := rule.Ports
+		res, captured, err := checkIfIngressRuleContainsConn(rulePeers, rulePorts, src, dst, string(rule.Action), protocol, port, true)
+		if err != nil {
+			return 0, false, err
+		}
+		if !captured {
+			continue
+		}
+		return res, captured, nil
+	}
+	// getting here means the protocol+port was not captured
+	return Allow, false, nil
+}

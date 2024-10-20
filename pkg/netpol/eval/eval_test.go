@@ -1840,10 +1840,9 @@ func runParsedResourcesEvalTests(t *testing.T, testList []testutils.ParsedResour
 				contProtocol, contPort := pickContainedConn(allowedConns)
 				if contPort != "" {
 					var res bool
-					// Tanya: uncomment whenever CheckIfAllowed supports ANPs
-					// res, err := pe.CheckIfAllowed(srcForEval, dstForEval, contProtocol, contPort)
-					// require.Nil(t, err, test.TestInfo)
-					// require.Equal(t, true, res, test.TestInfo)
+					res, err := pe.CheckIfAllowed(src, dst, contProtocol, contPort)
+					require.Nil(t, err, test.TestInfo)
+					require.Equal(t, true, res, test.TestInfo)
 					res, err = pe.checkIfAllowedNew(src, dst, contProtocol, contPort)
 					require.Nil(t, err, test.TestInfo)
 					require.Equal(t, true, res, test.TestInfo)
@@ -1851,10 +1850,9 @@ func runParsedResourcesEvalTests(t *testing.T, testList []testutils.ParsedResour
 				uncontProtocol, uncontPort := pickUncontainedConn(allowedConns)
 				if uncontPort != "" {
 					var res bool
-					// Tanya: uncomment whenever CheckIfAllowed supports ANPs
-					// res, err := pe.CheckIfAllowed(srcForEval, dstForEval, uncontProtocol, uncontPort)
-					// require.Nil(t, err, test.TestInfo)
-					// require.Equal(t, false, res, test.TestInfo)
+					res, err := pe.CheckIfAllowed(src, dst, uncontProtocol, uncontPort)
+					require.Nil(t, err, test.TestInfo)
+					require.Equal(t, false, res, test.TestInfo)
 					res, err = pe.checkIfAllowedNew(src, dst, uncontProtocol, uncontPort)
 					require.Nil(t, err, test.TestInfo)
 					require.Equal(t, false, res, test.TestInfo)
