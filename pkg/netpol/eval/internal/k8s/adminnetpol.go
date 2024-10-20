@@ -308,7 +308,7 @@ func (anp *AdminNetworkPolicy) anpRuleErr(ruleName, description string) error {
 
 // GetIngressPolicyConns returns the connections from the ingress rules selecting the src in spec of the adminNetworkPolicy
 func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConnections, error) {
-	res := InitEmptyPolicyConnections()
+	res := NewPolicyConnections()
 	for _, rule := range anp.Spec.Ingress { // rule is apisv1a.AdminNetworkPolicyIngressRule
 		rulePeers := rule.From
 		rulePorts := rule.Ports
@@ -321,7 +321,7 @@ func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConn
 
 // GetEgressPolicyConns returns the connections from the egress rules selecting the dst in spec of the adminNetworkPolicy
 func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnections, error) {
-	res := InitEmptyPolicyConnections()
+	res := NewPolicyConnections()
 	for _, rule := range anp.Spec.Egress { // rule is apisv1a.AdminNetworkPolicyEgressRule
 		rulePeers := rule.To
 		rulePorts := rule.Ports

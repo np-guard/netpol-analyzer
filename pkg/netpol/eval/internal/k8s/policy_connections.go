@@ -30,8 +30,8 @@ type PolicyConnections struct {
 	DeniedConns *common.ConnectionSet
 }
 
-// InitEmptyPolicyConnections - returns a new PolicyConnections object with empty connection-sets
-func InitEmptyPolicyConnections() *PolicyConnections {
+// NewPolicyConnections - returns a new PolicyConnections object with empty connection-sets
+func NewPolicyConnections() *PolicyConnections {
 	return &PolicyConnections{
 		AllowedConns: common.MakeConnectionSet(false),
 		DeniedConns:  common.MakeConnectionSet(false),

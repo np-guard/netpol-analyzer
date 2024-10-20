@@ -479,7 +479,7 @@ func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, i
 		allowedConns.Union(policyAllowedConnectionsPerDirection)
 	}
 	// putting the result in policiesConns object to be compared with conns allowed by ANP/BANP later
-	policiesConns = k8s.InitEmptyPolicyConnections()
+	policiesConns = k8s.NewPolicyConnections()
 	policiesConns.AllowedConns = allowedConns
 	return policiesConns, true, nil
 }
@@ -536,13 +536,13 @@ func updatePeerXgressClusterWideExposure(policy *k8s.NetworkPolicy, src, dst k8s
 // the Pods selected by the AdminNetworkPolicy, as opposed to implicit deny NetworkPolicy rules imply.
 func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer, isIngress bool) (policiesConns *k8s.PolicyConnections,
 	captured bool, err error) {
-	policiesConns = k8s.InitEmptyPolicyConnections()
+	policiesConns = k8s.NewPolicyConnections()
 	// iterate the sorted admin network policies in order to compute the allowed, pass, and denied xgress connections between the peers
 	// from the admin netpols capturing the src (if !isIngress)/ capturing the dst (if isIngress true).
 	// connections are computed considering ANPs priorities (rules of an ANP with lower priority take precedence on other ANPs rules)
 	// and rules ordering in single ANP (coming first takes precedence).
 	for _, anp := range pe.sortedAdminNetpols {
-		singleANPConns := k8s.InitEmptyPolicyConnections()
+		singleANPConns := k8s.NewPolicyConnections()
 		// collect the allowed, pass, and denied connectivity from the relevant rules into policiesConns
 		if !isIngress { // egress
 			selectsSrc, err := anp.Selects(src, false)
@@ -590,7 +590,7 @@ func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer
 // if there is no BANP or if the BANP does not capture connections between src and dst, then default allow-all connections is returned.
 // - note that the result may contain allowed / denied connections.
 func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool) (*k8s.PolicyConnections, error) {
-	res := k8s.InitEmptyPolicyConnections()
+	res := k8s.NewPolicyConnections()
 	if pe.baselineAdminNetpol == nil {
 		res.AllowedConns = common.MakeConnectionSet(true)
 		return res, nil
