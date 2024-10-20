@@ -89,7 +89,8 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 	objectsList = parser.FilterObjectsList(objectsList, podNames)
 
 	var err error
-	for _, obj := range objectsList {
+	for i := range objectsList {
+		obj := objectsList[i]
 		switch obj.Kind {
 		case parser.Pod:
 			err = pe.InsertObject(obj.Pod)

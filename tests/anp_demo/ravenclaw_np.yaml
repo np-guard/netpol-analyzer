@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-some-ingress-from-to-ravenclaw
+  namespace: ravenclaw
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          conformance-house: slytherin
+    ports: 
+      - port: 1
+        endPort: 65535
+        protocol: TCP
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          conformance-house: gryffindor
+    ports: 
+      - port: 52
+        protocol: UDP
