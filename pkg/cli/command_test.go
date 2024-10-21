@@ -350,7 +350,10 @@ func TestEvalCommandOutput(t *testing.T) {
 	cases := []struct {
 		dir        string
 		sourcePod  string
+		sourceNs   string
+		destNs     string
 		destPod    string
+		protocol   string
 		port       string
 		evalResult bool
 	}{
@@ -368,13 +371,71 @@ func TestEvalCommandOutput(t *testing.T) {
 			port:       "80",
 			evalResult: false,
 		},
+		{
+			dir:        "anp_demo",
+			sourceNs:   "gryffindor",
+			sourcePod:  "harry-potter-1",
+			destPod:    "luna-lovegood-1",
+			destNs:     "ravenclaw",
+			protocol:   "udp",
+			port:       "52",
+			evalResult: true,
+		},
+		{
+			dir:        "anp_test_6",
+			sourceNs:   "network-policy-conformance-slytherin",
+			sourcePod:  "draco-malfoy-1",
+			destPod:    "cedric-diggory-1",
+			destNs:     "network-policy-conformance-hufflepuff",
+			protocol:   "udp",
+			port:       "5353",
+			evalResult: false,
+		},
+		{
+			dir:        "anp_test_multiple_anps",
+			sourceNs:   "network-policy-conformance-ravenclaw",
+			sourcePod:  "luna-lovegood-1",
+			destPod:    "draco-malfoy-1",
+			destNs:     "network-policy-conformance-slytherin",
+			protocol:   "sctp",
+			port:       "9003",
+			evalResult: false,
+		},
+		{
+			dir:        "anp_with_np_and_banp_pass_test",
+			sourceNs:   "ns2",
+			sourcePod:  "pod1-1",
+			destPod:    "pod1-1",
+			destNs:     "ns1",
+			port:       "80",
+			evalResult: true,
+		},
+		{
+			dir:        "anp_with_np_pass_test",
+			sourceNs:   "ns2",
+			sourcePod:  "pod1-1",
+			destPod:    "pod1-1",
+			destNs:     "ns1",
+			port:       "8080",
+			evalResult: false,
+		},
 	}
 	for _, tt := range cases {
 		tt := tt
 		testName := "eval_" + tt.dir + "_from_" + tt.sourcePod + "_to_" + tt.destPod
 		t.Run(testName, func(t *testing.T) {
+			if tt.protocol == "" {
+				tt.protocol = defaultProtocol
+			}
+			if tt.sourceNs == "" {
+				tt.sourceNs = defaultNs
+			}
+			if tt.destNs == "" {
+				tt.destNs = defaultNs
+			}
 			args := []string{"eval", "--dirpath", testutils.GetTestDirPath(tt.dir),
-				"-s", tt.sourcePod, "-d", tt.destPod, "-p", tt.port}
+				"-s", tt.sourcePod, "-d", tt.destPod, "-p", tt.port, "--protocol", tt.protocol,
+				"-n", tt.sourceNs, "--destination-namespace", tt.destNs}
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
 			require.Contains(t, actualOut, fmt.Sprintf("%v", tt.evalResult),
