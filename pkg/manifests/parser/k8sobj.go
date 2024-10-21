@@ -211,6 +211,8 @@ var policyKinds = map[string]bool{
 	BaselineAdminNetworkPolicy: true,
 }
 
+//nolint:funlen // cases may not be shorten
+//gocyclo:ignore
 func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) []K8sObject {
 	podNamesMap := make(map[string]bool, 0)
 	nsMap := make(map[string]bool, 0)
@@ -234,6 +236,40 @@ func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) 
 			if _, ok := podNamesMap[types.NamespacedName{Name: obj.Pod.Name, Namespace: obj.Pod.Namespace}.String()]; ok {
 				res = append(res, obj)
 			}
+		// the input pod-names is the name of the pod (replica);
+		// so if the manifest resources contain a "workload" type (other than Pod);
+		// the pod name is actually a name of a replica of the workload, and not the name of the workload (obj.Name);
+		// so here we will compare only namespaces;
+		// and podName will be compared later after creating the pods (replicas) from the
+		// workload in the eval package
+		case StatefulSet:
+			if _, ok := nsMap[obj.StatefulSet.Namespace]; ok {
+				res = append(res, obj)
+			}
+		case DaemonSet:
+			if _, ok := nsMap[obj.DaemonSet.Namespace]; ok {
+				res = append(res, obj)
+			}
+		case Deployment:
+			if _, ok := nsMap[obj.Deployment.Namespace]; ok {
+				res = append(res, obj)
+			}
+		case ReplicaSet:
+			if _, ok := nsMap[obj.ReplicaSet.Namespace]; ok {
+				res = append(res, obj)
+			}
+		case Job:
+			if _, ok := nsMap[obj.Job.Namespace]; ok {
+				res = append(res, obj)
+			}
+		case CronJob:
+			if _, ok := nsMap[obj.CronJob.Namespace]; ok {
+				res = append(res, obj)
+			}
+		case ReplicationController:
+			if _, ok := nsMap[obj.ReplicationController.Namespace]; ok {
+				res = append(res, obj)
+			}
 		case Service:
 			if _, ok := nsMap[obj.Service.Namespace]; ok {
 				res = append(res, obj)
@@ -246,6 +282,10 @@ func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) 
 			if _, ok := nsMap[obj.Ingress.Namespace]; ok {
 				res = append(res, obj)
 			}
+		case AdminNetworkPolicy:
+			res = append(res, obj)
+		case BaselineAdminNetworkPolicy:
+			res = append(res, obj)
 		default:
 			continue
 		}
