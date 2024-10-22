@@ -13,7 +13,7 @@ import (
 // Connection represents a set of allowed connections between two peers
 type Connection interface {
 	// ProtocolsAndPortsMap returns the set of allowed connections
-	ProtocolsAndPortsMap() map[v1.Protocol][]PortRange
+	ProtocolsAndPortsMap(includeBlockedPorts bool) map[v1.Protocol][]PortRange
 	// AllConnections returns true if all ports are allowed for all protocols
 	AllConnections() bool
 	// IsEmpty returns true if no connection is allowed
