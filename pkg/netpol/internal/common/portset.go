@@ -120,8 +120,8 @@ func (p *PortSet) RemovePort(port intstr.IntOrString) {
 }
 
 // AddPortRange: update current PortSet object with new added port range as allowed
-func (p *PortSet) AddPortRange(minPort, maxPort int64, fromRule string) {
-	p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRule(minPort, maxPort, true, fromRule))
+func (p *PortSet) AddPortRange(minPort, maxPort int64, inSet bool, fromRule string) {
+	p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRule(minPort, maxPort, inSet, fromRule))
 }
 
 // Union: update current PortSet object with union of input PortSet object

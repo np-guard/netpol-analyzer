@@ -160,7 +160,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 				ports.AddPort(intstr.FromString(portName), common.MakeImplyingRulesWithRule(ruleName))
 			}
 			if !isEmptyPortRange(startPort, endPort) {
-				ports.AddPortRange(int64(startPort), int64(endPort), ruleName)
+				ports.AddPortRange(int64(startPort), int64(endPort), true, ruleName)
 			}
 		}
 		res.AddConnection(protocol, ports)

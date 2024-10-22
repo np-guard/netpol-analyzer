@@ -228,7 +228,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string, d
 			if isEmptyPortRange(anpPort.PortRange.Start, anpPort.PortRange.End) {
 				continue // @todo should raise a warning
 			}
-			portSet.AddPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End), ruleName)
+			portSet.AddPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End), true, ruleName)
 		}
 		res.AddConnection(protocol, portSet)
 	}

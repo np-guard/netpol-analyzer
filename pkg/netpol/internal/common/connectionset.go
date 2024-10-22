@@ -297,20 +297,20 @@ func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(protocol v1.Proto
 	protocolPortSet.RemovePort(intstr.FromString(namedPort))
 }
 
-// portRange implements the PortRange interface
-type portRange struct {
+// PortRangeData implements the PortRange interface
+type PortRangeData struct {
 	Interval AugmentedInterval
 }
 
-func (p *portRange) Start() int64 {
+func (p *PortRangeData) Start() int64 {
 	return p.Interval.interval.Start()
 }
 
-func (p *portRange) End() int64 {
+func (p *PortRangeData) End() int64 {
 	return p.Interval.interval.End()
 }
 
-func (p *portRange) String() string {
+func (p *PortRangeData) String() string {
 	if !p.Interval.inSet {
 		return ""
 	}
@@ -318,6 +318,10 @@ func (p *portRange) String() string {
 		return fmt.Sprintf("%d-%d", p.Start(), p.End())
 	}
 	return fmt.Sprintf("%d", p.Start())
+}
+
+func (p *PortRangeData) InSet() bool {
+	return p.Interval.inSet
 }
 
 // ProtocolsAndPortsMap() returns a map from allowed protocol to list of allowed ports ranges.
@@ -328,7 +332,7 @@ func (conn *ConnectionSet) ProtocolsAndPortsMap(includeBlockedPorts bool) map[v1
 		// TODO: consider leave the slice of ports empty if portSet covers the full range
 		for _, v := range portSet.Ports.Intervals() {
 			if /*!v.isEndInterval()*/ includeBlockedPorts || v.inSet {
-				res[protocol] = append(res[protocol], &portRange{Interval: v})
+				res[protocol] = append(res[protocol], &PortRangeData{Interval: v})
 			}
 		}
 	}
