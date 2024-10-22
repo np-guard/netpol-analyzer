@@ -639,7 +639,7 @@ func createConnectionObject(allowedConnections common.Connection, src, dst Peer)
 		src:               src,
 		dst:               dst,
 		allConnections:    allowedConnections.AllConnections(),
-		protocolsAndPorts: allowedConnections.ProtocolsAndPortsMap(),
+		protocolsAndPorts: allowedConnections.ProtocolsAndPortsMap(true),
 	}
 }
 

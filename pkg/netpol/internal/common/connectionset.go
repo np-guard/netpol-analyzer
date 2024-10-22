@@ -41,6 +41,21 @@ func (conn *ConnectionSet) AddCommonImplyingRule(implyingRule string) {
 	conn.CommonImplyingRules.AddRule(implyingRule)
 }
 
+func (conn *ConnectionSet) GetEquivalentCanonicalConnectionSet() *ConnectionSet {
+	res := MakeConnectionSet(false)
+	if conn.AllowAll {
+		res.AllowAll = true
+		return res
+	}
+	for protocol, ports := range conn.AllowedProtocols {
+		canonicalPorts := ports.Ports.GetEquivalentCanonicalAugmentedSet()
+		if !canonicalPorts.IsEmpty() {
+			res.AllowedProtocols[protocol] = &PortSet{Ports: canonicalPorts}
+		}
+	}
+	return res
+}
+
 // GetAllTCPConnections returns a pointer to ConnectionSet object with all TCP protocol connections
 func GetAllTCPConnections() *ConnectionSet {
 	tcpConn := MakeConnectionSet(false)
@@ -306,13 +321,13 @@ func (p *portRange) String() string {
 }
 
 // ProtocolsAndPortsMap() returns a map from allowed protocol to list of allowed ports ranges.
-func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
+func (conn *ConnectionSet) ProtocolsAndPortsMap(includeBlockedPorts bool) map[v1.Protocol][]PortRange {
 	res := make(map[v1.Protocol][]PortRange, 0)
 	for protocol, portSet := range conn.AllowedProtocols {
 		res[protocol] = make([]PortRange, 0)
 		// TODO: consider leave the slice of ports empty if portSet covers the full range
 		for _, v := range portSet.Ports.Intervals() {
-			if !v.isEndInterval() {
+			if /*!v.isEndInterval()*/ includeBlockedPorts || v.inSet {
 				res[protocol] = append(res[protocol], &portRange{Interval: v})
 			}
 		}

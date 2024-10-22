@@ -439,3 +439,13 @@ func NewAugmentedSetFromInterval(augInt AugmentedInterval) *AugmentedCanonicalSe
 	result.AddAugmentedInterval(augInt)
 	return result
 }
+
+func (c *AugmentedCanonicalSet) GetEquivalentCanonicalAugmentedSet() *AugmentedCanonicalSet {
+	res := NewAugmentedCanonicalSet()
+	interval, index := c.nextIncludedInterval(0)
+	for index != NoIndex {
+		res.AddAugmentedInterval(NewAugmentedInterval(interval.Start(), interval.End(), true))
+		interval, index = c.nextIncludedInterval(index + 1)
+	}
+	return res
+}
