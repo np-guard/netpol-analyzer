@@ -23,15 +23,15 @@ import (
 type PolicyConnections struct {
 	// AllowedConns allowed connections-set between two peers
 	AllowedConns *common.ConnectionSet
-	// PassConns connections between two peers that was passed by admin-network-policy to policies with lower priority
-	// (network-policies/ baseline-admin-network-policies)
+	// PassConns connections-set between two peers that was passed by admin-network-policy;
+	// i.e. delegate decision about them to next layer of policies, NetworkPolicies or BaselineAdminNetworkPolicies resources
 	PassConns *common.ConnectionSet
 	// DeniedConns denied connections between two peers
 	DeniedConns *common.ConnectionSet
 }
 
-// InitEmptyPolicyConnections - returns a new PolicyConnections object with empty connection-sets
-func InitEmptyPolicyConnections() *PolicyConnections {
+// NewPolicyConnections - returns a new PolicyConnections object with empty connection-sets
+func NewPolicyConnections() *PolicyConnections {
 	return &PolicyConnections{
 		AllowedConns: common.MakeConnectionSet(false),
 		DeniedConns:  common.MakeConnectionSet(false),
