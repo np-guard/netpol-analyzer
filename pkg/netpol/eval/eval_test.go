@@ -1806,12 +1806,14 @@ func pickContainedConn(conn *common.ConnectionSet) (resProtocol, resPort string)
 	}
 	for protocol, portSet := range conn.AllowedProtocols {
 		resProtocol = string(protocol)
+		resPort = ""
 		if portSet.IsAll() {
 			resPort = defaultPort
-		} else {
+			break
+		} else if !portSet.IsEmpty() {
 			resPort = fmt.Sprintf("%d", portSet.Ports.Min())
+			break
 		}
-		break
 	}
 	return resProtocol, resPort
 }

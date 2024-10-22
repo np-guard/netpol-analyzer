@@ -268,10 +268,11 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval) {
 // String returns a string representation of the current CanonicalSet object
 func (c *AugmentedCanonicalSet) String() string {
 	if c.IsEmpty() {
-		return "Empty"
+		return ""
 	}
 	res := ""
-	for _, interval := range c.intervalSet {
+	canonical := c.GetEquivalentCanonicalAugmentedSet()
+	for _, interval := range canonical.intervalSet {
 		if interval.inSet {
 			res += interval.interval.ShortString() + ","
 		}

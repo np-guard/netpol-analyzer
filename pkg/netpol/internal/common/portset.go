@@ -164,7 +164,6 @@ func (p *PortSet) IsAll() bool {
 }
 
 const comma = ","
-const emptyStr = "Empty"
 
 // String: return string representation of current PortSet
 func (p *PortSet) String() string {
@@ -172,10 +171,7 @@ func (p *PortSet) String() string {
 	if len(p.NamedPorts) > 0 {
 		sortedNamedPorts := p.GetNamedPortsKeys()
 		sort.Strings(sortedNamedPorts)
-		// if p.Ports is empty but p.NamedPorts is not: start a new string
-		if res == emptyStr {
-			res = ""
-		} else {
+		if res != "" {
 			res += comma
 		}
 		res += strings.Join(sortedNamedPorts, comma)

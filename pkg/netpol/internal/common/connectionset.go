@@ -237,7 +237,9 @@ func (conn *ConnectionSet) String() string {
 	}
 	resStrings := []string{}
 	for protocol, ports := range conn.AllowedProtocols {
-		resStrings = append(resStrings, protocolAndPortsStr(protocol, ports.String()))
+		if portsString := ports.String(); portsString != "" {
+			resStrings = append(resStrings, protocolAndPortsStr(protocol, portsString))
+		}
 	}
 	sort.Strings(resStrings)
 	return strings.Join(resStrings, ",")
