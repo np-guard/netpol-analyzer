@@ -250,11 +250,13 @@ func (conn *ConnectionSet) Equal(other *ConnectionSet) bool {
 	if conn.AllowAll != other.AllowAll {
 		return false
 	}
-	if len(conn.AllowedProtocols) != len(other.AllowedProtocols) {
+	connCanonical := conn.GetEquivalentCanonicalConnectionSet()
+	otherCanonical := other.GetEquivalentCanonicalConnectionSet()
+	if len(connCanonical.AllowedProtocols) != len(otherCanonical.AllowedProtocols) {
 		return false
 	}
-	for protocol, ports := range conn.AllowedProtocols {
-		otherPorts, ok := other.AllowedProtocols[protocol]
+	for protocol, ports := range connCanonical.AllowedProtocols {
+		otherPorts, ok := otherCanonical.AllowedProtocols[protocol]
 		if !ok {
 			return false
 		}
