@@ -27,7 +27,7 @@ func (t *diffFormatText) writeDiffOutput(connsDiff ConnectivityDiff) (string, er
 	res := make([]string, 0)
 	res = append(res, connectivityDiffHeader)
 	res = append(res, writeDiffLinesOrderedByCategory(connsDiff, t)...)
-	return strings.Join(res, newLine), nil
+	return strings.Join(res, newLine) + newLine, nil
 }
 
 // singleDiffLine forms a single diff line in the txt format
