@@ -1,0 +1,32 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255",
+    "dst": "ns1/pod1[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255",
+    "dst": "ns2/pod1[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "ns1/pod1[Deployment]",
+    "dst": "0.0.0.0-255.255.255.255",
+    "conn": "All Connections"
+  },
+  {
+    "src": "ns1/pod1[Deployment]",
+    "dst": "ns2/pod1[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "ns2/pod1[Deployment]",
+    "dst": "0.0.0.0-255.255.255.255",
+    "conn": "All Connections"
+  },
+  {
+    "src": "ns2/pod1[Deployment]",
+    "dst": "ns1/pod1[Deployment]",
+    "conn": "TCP 80-81,UDP 81"
+  }
+]

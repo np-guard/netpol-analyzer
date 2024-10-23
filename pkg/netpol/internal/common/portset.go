@@ -95,11 +95,16 @@ func (p *PortSet) AddPortRange(minPort, maxPort int64) {
 // Union: update current PortSet object with union of input PortSet object
 func (p *PortSet) Union(other *PortSet) {
 	p.Ports = p.Ports.Union(other.Ports)
+	// union current namedPorts with other namedPorts, and delete other namedPorts from current excludedNamedPorts
 	for k, v := range other.NamedPorts {
 		p.NamedPorts[k] = v
+		delete(p.ExcludedNamedPorts, k)
 	}
+	// add excludedNamedPorts from other to current excludedNamedPorts if they are not in united p.NamedPorts
 	for k, v := range other.ExcludedNamedPorts {
-		p.ExcludedNamedPorts[k] = v
+		if !p.NamedPorts[k] {
+			p.ExcludedNamedPorts[k] = v
+		}
 	}
 }
 
@@ -152,4 +157,19 @@ func (p *PortSet) GetNamedPortsKeys() []string {
 		index++
 	}
 	return res
+}
+
+// subtract: updates current portSet with the result of subtracting the given portSet from it
+func (p *PortSet) subtract(other *PortSet) {
+	p.Ports = p.Ports.Subtract(other.Ports)
+	p.subtractNamedPorts(other.NamedPorts)
+}
+
+// subtractNamedPorts: deletes given named ports from current portSet's named ports map
+// and adds the deleted named ports to excluded named ports map
+func (p *PortSet) subtractNamedPorts(otherNamedPorts map[string]bool) {
+	for namedPort := range otherNamedPorts {
+		delete(p.NamedPorts, namedPort)
+		p.ExcludedNamedPorts[namedPort] = true
+	}
 }
