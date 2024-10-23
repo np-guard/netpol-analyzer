@@ -22,7 +22,7 @@ type formatText struct {
 func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error) {
 	res := t.writeConnlistOutput(conns, exposureFlag)
 	if !exposureFlag {
-		return res, nil
+		return res + newLineChar, nil
 	}
 	// else append exposure analysis results:
 	if res != "" {
