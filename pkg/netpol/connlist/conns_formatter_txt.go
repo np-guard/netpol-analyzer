@@ -60,6 +60,9 @@ func (t *formatText) writeExposureOutput(exposureResults []ExposedPeer) string {
 	sort.Strings(unprotectedLines)
 	// writing results of exposure for all peers
 	res := exposureAnalysisHeader
+	if len(egressExpLines) == 0 && len(ingressExpLines) == 0 {
+		return res + newLineChar
+	}
 	res += writeExposureSubSection(writeStrings(egressExpLines, false, maxPeerStrLen), newLineChar+egressExposureHeader+newLineChar)
 	res += writeExposureSubSection(writeStrings(ingressExpLines, true, maxPeerStrLen), newLineChar+ingressExposureHeader+newLineChar)
 	res += writeExposureSubSection(unprotectedLines, unprotectedHeader)
