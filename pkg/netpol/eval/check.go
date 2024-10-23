@@ -22,42 +22,12 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
-// CheckIfAllowed returns true if the given input connection is allowed by network policies
-func (pe *PolicyEngine) CheckIfAllowed(src, dst, protocol, port string) (bool, error) {
-	srcPeer, err := pe.getPeer(src)
-	if err != nil {
-		return false, err
-	}
-	dstPeer, err := pe.getPeer(dst)
-	if err != nil {
-		return false, err
-	}
-	// cases where any connection is always allowed
-	if isPodToItself(srcPeer, dstPeer) || isPeerNodeIP(srcPeer, dstPeer) || isPeerNodeIP(dstPeer, srcPeer) {
-		return true, nil
-	}
+// this file contains methods that return all allowed connections between two peers;
+// those funcs are related to the `list` & `diff` commands.
 
-	hasResult, res := pe.cache.hasConnectionResult(srcPeer, dstPeer, protocol, port)
-	if hasResult {
-		return res, nil
-	}
+// it also contains inner funcs in `eval` package; used in this file and `check_eval.go`
 
-	egressRes, err := pe.allowedXgressConnection(srcPeer, dstPeer, false, protocol, port)
-	if err != nil {
-		return false, err
-	}
-	if !egressRes {
-		pe.cache.addConnectionResult(srcPeer, dstPeer, protocol, port, false)
-		return false, nil
-	}
-	ingressRes, err := pe.allowedXgressConnection(srcPeer, dstPeer, true, protocol, port)
-	if err != nil {
-		return false, err
-	}
-	pe.cache.addConnectionResult(srcPeer, dstPeer, protocol, port, ingressRes)
-	return ingressRes, nil
-}
-
+// convertPeerToPodPeer converts a given workload peer to a PodPeer object.
 func (pe *PolicyEngine) convertPeerToPodPeer(peer Peer) (*k8s.PodPeer, error) {
 	var podObj *k8s.Pod
 	var podNamespace *k8s.Namespace
@@ -76,6 +46,9 @@ func (pe *PolicyEngine) convertPeerToPodPeer(peer Peer) (*k8s.PodPeer, error) {
 	return podPeer, nil
 }
 
+// getPeerNamespaceObject returns the namespace object for the given pod.
+// If the pod is a representative peer, it returns nil,
+// Otherwise, it returns the namespace object from the policy engine.
 func (pe *PolicyEngine) getPeerNamespaceObject(podObj *k8s.Pod) (*k8s.Namespace, error) {
 	// if this is a representative peer which is not in a real namespace return nil;
 	// PolicyEngine does not contain representative namespaces.
@@ -100,6 +73,128 @@ func (pe *PolicyEngine) changePodPeerToAnotherPodObject(peer *k8s.PodPeer) {
 			break
 		}
 	}
+}
+
+// getPod: returns a Pod object corresponding to the input pod name
+func (pe *PolicyEngine) getPod(p string) *k8s.Pod {
+	if pod, ok := pe.podsMap[p]; ok {
+		return pod
+	}
+	return nil
+}
+
+// TODO: consider caching: for each pod and direction, test set of policies that are selecting it
+// getPoliciesSelectingPod returns a list of policies that select the input pod on the required direction (ingress/egress)
+func (pe *PolicyEngine) getPoliciesSelectingPod(peer k8s.Peer, direction netv1.PolicyType) ([]*k8s.NetworkPolicy, error) {
+	res := []*k8s.NetworkPolicy{}
+	if peer.PeerType() == k8s.IPBlockType {
+		return res, nil // empty list since netpols may select only pods
+	}
+	p := peer.(*k8s.PodPeer).Pod
+	netpols := pe.netpolsMap[p.Namespace]
+	for _, policy := range netpols {
+		selects, err := policy.Selects(p, direction)
+		if err != nil {
+			return nil, err
+		}
+		if selects {
+			res = append(res, policy)
+		}
+	}
+	if pe.exposureAnalysisFlag && len(res) > 0 {
+		p.UpdatePodXgressProtectedFlag(direction == netv1.PolicyTypeIngress)
+	}
+	return res, nil
+}
+
+// isPeerNodeIP returns true if peer1 is an IP address of a node and peer2 is a pod on that node
+func isPeerNodeIP(peer1, peer2 k8s.Peer) bool {
+	if peer2.PeerType() == k8s.PodType && peer1.PeerType() == k8s.IPBlockType {
+		ip2, err := ipblock.FromIPAddress(peer2.GetPeerPod().HostIP)
+		if err != nil {
+			return peer1.GetPeerIPBlock().Equal(ip2)
+		}
+	}
+	return false
+}
+
+// func isPeerNodeIP(peer1, peer2 k8s.Peer) bool {
+// 	if peer2.PeerType() == k8s.PodType && peer1.PeerType() == k8s.IPBlockType {
+// 		return net.ParseIP(peer2.GetPeerPod().HostIP) != nil
+// 	}
+// 	return false
+// }
+
+func isPodToItself(peer1, peer2 k8s.Peer) bool {
+	return peer1.PeerType() == k8s.PodType && peer2.PeerType() == k8s.PodType &&
+		peer1.GetPeerPod().Name == peer2.GetPeerPod().Name && peer1.GetPeerPod().Namespace == peer2.GetPeerPod().Namespace
+}
+
+func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
+	// check if input peer is cidr
+	if _, _, err := net.ParseCIDR(p); err == nil {
+		peerIPBlock, err := ipblock.FromCidr(p)
+		if err != nil {
+			return nil, err
+		}
+		return &k8s.IPBlockPeer{IPBlock: peerIPBlock}, nil
+	}
+	// check if input peer is an ip address
+	if net.ParseIP(p) != nil {
+		peerIPBlock, err := ipblock.FromIPAddress(p)
+		if err != nil {
+			return nil, err
+		}
+		return &k8s.IPBlockPeer{IPBlock: peerIPBlock}, nil
+	}
+	// check if input peer is a pod name
+	if strings.Contains(p, string(types.Separator)) { // pod name
+		podObj := pe.getPod(p)
+		if podObj != nil {
+			res := &k8s.PodPeer{Pod: podObj}
+			namespaceStr := podObj.Namespace
+			if namespaceStr == metav1.NamespaceNone {
+				namespaceStr = metav1.NamespaceDefault
+			}
+			nsObj, ok := pe.namespacesMap[namespaceStr]
+			if !ok {
+				return nil, errors.New(netpolerrors.NotFoundNamespace)
+			}
+			res.NamespaceObject = nsObj
+			return res, nil
+		}
+		return nil, errors.New(netpolerrors.NotFoundPeerErrStr(p))
+	}
+	return nil, errors.New(netpolerrors.InvalidPeerErrStr(p))
+}
+
+// GetPeerExposedTCPConnections returns the tcp connection (ports) exposed by a workload/pod peer
+func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
+	switch currentPeer := peer.(type) {
+	case *k8s.IPBlockPeer:
+		return nil
+	case *k8s.WorkloadPeer:
+		return currentPeer.Pod.PodExposedTCPConnections()
+	case *k8s.PodPeer:
+		return currentPeer.Pod.PodExposedTCPConnections()
+	default:
+		return nil
+	}
+}
+
+// allAllowedConnections: returns allowed connection between input strings of src and dst
+// currently used only for testing (computations based on all policy resources (e.g. ANP, NP & BANP))
+func (pe *PolicyEngine) allAllowedConnections(src, dst string) (*common.ConnectionSet, error) {
+	srcPeer, err := pe.getPeer(src)
+	if err != nil {
+		return nil, err
+	}
+	dstPeer, err := pe.getPeer(dst)
+	if err != nil {
+		return nil, err
+	}
+	allowedConns, err := pe.allAllowedConnectionsBetweenPeers(srcPeer.(Peer), dstPeer.(Peer))
+	return allowedConns, err
 }
 
 // AllAllowedConnectionsBetweenWorkloadPeers returns the allowed connections from srcPeer to dstPeer,
@@ -173,183 +268,6 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	}
 	res.Intersection(ingressRes)
 	return res, nil
-}
-
-// getPod: returns a Pod object corresponding to the input pod name
-func (pe *PolicyEngine) getPod(p string) *k8s.Pod {
-	if pod, ok := pe.podsMap[p]; ok {
-		return pod
-	}
-	return nil
-}
-
-// TODO: consider caching: for each pod and direction, test set of policies that are selecting it
-// getPoliciesSelectingPod returns a list of policies that select the input pod on the required direction (ingress/egress)
-func (pe *PolicyEngine) getPoliciesSelectingPod(peer k8s.Peer, direction netv1.PolicyType) ([]*k8s.NetworkPolicy, error) {
-	res := []*k8s.NetworkPolicy{}
-	if peer.PeerType() == k8s.IPBlockType {
-		return res, nil // empty list since netpols may select only pods
-	}
-	p := peer.(*k8s.PodPeer).Pod
-	netpols := pe.netpolsMap[p.Namespace]
-	for _, policy := range netpols {
-		selects, err := policy.Selects(p, direction)
-		if err != nil {
-			return nil, err
-		}
-		if selects {
-			res = append(res, policy)
-		}
-	}
-	if pe.exposureAnalysisFlag && len(res) > 0 {
-		p.UpdatePodXgressProtectedFlag(direction == netv1.PolicyTypeIngress)
-	}
-	return res, nil
-}
-
-// allowedXgressConnections returns true if the given connection from src to dst on given direction(ingress/egress)
-// is allowed by network policies rules
-func (pe *PolicyEngine) allowedXgressConnection(src, dst k8s.Peer, isIngress bool, protocol, port string) (bool, error) {
-	// relevant policies: policies that capture dst if isIngress, else policies that capture src
-	var err error
-	var netpols []*k8s.NetworkPolicy
-	if isIngress {
-		netpols, err = pe.getPoliciesSelectingPod(dst, netv1.PolicyTypeIngress)
-	} else {
-		netpols, err = pe.getPoliciesSelectingPod(src, netv1.PolicyTypeEgress)
-	}
-	if err != nil {
-		return false, err
-	}
-
-	if len(netpols) == 0 { // no networkPolicy captures the relevant pod on the required direction
-		return true, nil // all connections allowed
-	}
-
-	// iterate relevant network policies (that capture the required pod)
-	for _, policy := range netpols {
-		// if isIngress: check for ingress rules that capture src within 'from'
-		// if not isIngress: check for egress rules that capture dst within 'to'
-		if isIngress {
-			res, err := policy.IngressAllowedConn(src, protocol, port, dst)
-			if err != nil {
-				return false, err
-			}
-			if res {
-				return true, nil
-			}
-		} else {
-			res, err := policy.EgressAllowedConn(dst, protocol, port)
-			if err != nil {
-				return false, err
-			}
-			if res {
-				return true, nil
-			}
-		}
-	}
-	return false, nil
-}
-
-// isPeerNodeIP returns true if peer1 is an IP address of a node and peer2 is a pod on that node
-func isPeerNodeIP(peer1, peer2 k8s.Peer) bool {
-	if peer2.PeerType() == k8s.PodType && peer1.PeerType() == k8s.IPBlockType {
-		ip2, err := ipblock.FromIPAddress(peer2.GetPeerPod().HostIP)
-		if err != nil {
-			return peer1.GetPeerIPBlock().Equal(ip2)
-		}
-	}
-	return false
-}
-
-// func isPeerNodeIP(peer1, peer2 k8s.Peer) bool {
-// 	if peer2.PeerType() == k8s.PodType && peer1.PeerType() == k8s.IPBlockType {
-// 		return net.ParseIP(peer2.GetPeerPod().HostIP) != nil
-// 	}
-// 	return false
-// }
-
-func isPodToItself(peer1, peer2 k8s.Peer) bool {
-	return peer1.PeerType() == k8s.PodType && peer2.PeerType() == k8s.PodType &&
-		peer1.GetPeerPod().Name == peer2.GetPeerPod().Name && peer1.GetPeerPod().Namespace == peer2.GetPeerPod().Namespace
-}
-
-func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
-	// check if input peer is cidr
-	if _, _, err := net.ParseCIDR(p); err == nil {
-		peerIPBlock, err := ipblock.FromCidr(p)
-		if err != nil {
-			return nil, err
-		}
-		return &k8s.IPBlockPeer{IPBlock: peerIPBlock}, nil
-	}
-	// check if input peer is an ip address
-	if net.ParseIP(p) != nil {
-		peerIPBlock, err := ipblock.FromIPAddress(p)
-		if err != nil {
-			return nil, err
-		}
-		return &k8s.IPBlockPeer{IPBlock: peerIPBlock}, nil
-	}
-	// check if input peer is a pod name
-	if strings.Contains(p, string(types.Separator)) { // pod name
-		podObj := pe.getPod(p)
-		if podObj != nil {
-			res := &k8s.PodPeer{Pod: podObj}
-			namespaceStr := podObj.Namespace
-			if namespaceStr == metav1.NamespaceNone {
-				namespaceStr = metav1.NamespaceDefault
-			}
-			nsObj, ok := pe.namespacesMap[namespaceStr]
-			if !ok {
-				return nil, errors.New(netpolerrors.NotFoundNamespace)
-			}
-			res.NamespaceObject = nsObj
-			return res, nil
-		}
-		return nil, errors.New(netpolerrors.NotFoundPeerErrStr(p))
-	}
-	return nil, errors.New(netpolerrors.InvalidPeerErrStr(p))
-}
-
-// checkIfAllowedNew: (connection-set based computation) returns true if the given input connection is
-// allowed by network policies
-// currently used only for testing
-func (pe *PolicyEngine) checkIfAllowedNew(src, dst, protocol, port string) (bool, error) {
-	allowedConns, err := pe.allAllowedConnections(src, dst)
-	if err != nil {
-		return false, err
-	}
-	return allowedConns.Contains(port, protocol), nil
-}
-
-// allAllowedConnections: returns allowed connection between input strings of src and dst
-// currently used only for testing (computations based on all policy resources (e.g. ANP, NP & BANP))
-func (pe *PolicyEngine) allAllowedConnections(src, dst string) (*common.ConnectionSet, error) {
-	srcPeer, err := pe.getPeer(src)
-	if err != nil {
-		return nil, err
-	}
-	dstPeer, err := pe.getPeer(dst)
-	if err != nil {
-		return nil, err
-	}
-	allowedConns, err := pe.allAllowedConnectionsBetweenPeers(srcPeer.(Peer), dstPeer.(Peer))
-	return allowedConns, err
-}
-
-// GetPeerExposedTCPConnections returns the tcp connection (ports) exposed by a workload/pod peer
-func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
-	switch currentPeer := peer.(type) {
-	case *k8s.IPBlockPeer:
-		return nil
-	case *k8s.WorkloadPeer:
-		return currentPeer.Pod.PodExposedTCPConnections()
-	case *k8s.PodPeer:
-		return currentPeer.Pod.PodExposedTCPConnections()
-	default:
-		return nil
-	}
 }
 
 // allAllowedXgressConnections: returns the allowed connections from srcPeer to dstPeer on the

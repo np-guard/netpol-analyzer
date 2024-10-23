@@ -29,11 +29,16 @@ import (
 // 		Currently adds many options flags, so wait until cobra supports something
 // 		like NamedFlagSet's.
 
+const (
+	defaultNs       = "default"
+	defaultProtocol = "tcp"
+)
+
 var (
 	// evaluated connection information
-	protocol       = "tcp"
-	sourcePod      = types.NamespacedName{Namespace: "default"}
-	destinationPod = types.NamespacedName{Namespace: "default"}
+	protocol       = defaultProtocol
+	sourcePod      = types.NamespacedName{Namespace: defaultNs}
+	destinationPod = types.NamespacedName{Namespace: defaultNs}
 	srcExternalIP  string
 	dstExternalIP  string
 	port           string
@@ -63,6 +68,7 @@ func validateEvalFlags() error {
 	return nil
 }
 
+//gocyclo:ignore
 func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []types.NamespacedName) error {
 	// get relevant resources from dir path
 	eLogger := logger.NewDefaultLoggerWithVerbosity(determineLogVerbosity())
@@ -92,12 +98,33 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 	for i := range objectsList {
 		obj := objectsList[i]
 		switch obj.Kind {
+		// workloads kinds
 		case parser.Pod:
 			err = pe.InsertObject(obj.Pod)
+		case parser.ReplicaSet:
+			err = pe.InsertObject(obj.ReplicaSet)
+		case parser.Deployment:
+			err = pe.InsertObject(obj.Deployment)
+		case parser.DaemonSet:
+			err = pe.InsertObject(obj.DaemonSet)
+		case parser.StatefulSet:
+			err = pe.InsertObject(obj.StatefulSet)
+		case parser.ReplicationController:
+			err = pe.InsertObject(obj.ReplicationController)
+		case parser.Job:
+			err = pe.InsertObject(obj.Job)
+		case parser.CronJob:
+			err = pe.InsertObject(obj.CronJob)
+			// ns kind
 		case parser.Namespace:
 			err = pe.InsertObject(obj.Namespace)
+			// netpols kinds
 		case parser.NetworkPolicy:
 			err = pe.InsertObject(obj.NetworkPolicy)
+		case parser.AdminNetworkPolicy:
+			err = pe.InsertObject(obj.AdminNetworkPolicy)
+		case parser.BaselineAdminNetworkPolicy:
+			err = pe.InsertObject(obj.BaselineAdminNetworkPolicy)
 		default:
 			continue
 		}
