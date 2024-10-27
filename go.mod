@@ -2,11 +2,11 @@ module github.com/np-guard/netpol-analyzer
 
 go 1.23
 
-toolchain go1.23.0
+toolchain go1.23.2
 
 require (
 	github.com/hashicorp/golang-lru/v2 v2.0.7
-	github.com/np-guard/models v0.5.0
+	github.com/np-guard/models v0.5.1
 	github.com/openshift/api v0.0.0-20230502160752-c71432710382
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
