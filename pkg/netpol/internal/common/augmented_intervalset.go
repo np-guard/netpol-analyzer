@@ -65,10 +65,6 @@ type AugmentedInterval struct {
 	implyingRules *ImplyingRulesType
 }
 
-func (augInt *AugmentedInterval) isEndInterval() bool {
-	return !augInt.inSet && augInt.interval.End() == MaxValue
-}
-
 func NewAugmentedInterval(start, end int64, inSet bool) AugmentedInterval {
 	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: &ImplyingRulesType{}}
 }
