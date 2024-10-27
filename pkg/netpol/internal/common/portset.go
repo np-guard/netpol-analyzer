@@ -150,7 +150,7 @@ func (p *PortSet) Union(other *PortSet) {
 
 // ContainedIn: return true if current PortSet object is contained in input PortSet object
 func (p *PortSet) ContainedIn(other *PortSet) bool {
-	return p.Ports.IsSubset(other.Ports)
+	return p.Ports.ContainedIn(other.Ports)
 }
 
 // Intersection: update current PortSet object as intersection with input PortSet object
