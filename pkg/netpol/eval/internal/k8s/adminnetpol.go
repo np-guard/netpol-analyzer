@@ -65,33 +65,6 @@ func doesPodsFieldMatchPeer(pods *apisv1a.NamespacedPod, peer Peer) (bool, error
 	return nsSelector.Matches(labels.Set(peer.GetPeerNamespace().Labels)) && podSelector.Matches(labels.Set(peer.GetPeerPod().Labels)), nil
 }
 
-// why could not success yet with
-// using generics to avoid duplicates in following two funcs `egressRuleSelectsPeer` and `ingressRuleSelectsPeer`:
-// (same for updateConnsIfEgressRuleSelectsPeer and updateConnsIfIngressRuleSelectsPeer)
-//
-// according to https://tip.golang.org/doc/go1.18#generics :
-// "The Go compiler does not support accessing a struct field x.f where x is of type parameter type even if all types in the type
-// parameter’s type set have a field f. We may remove this restriction in a future release."
-// till GO 1.21 this restriction is not removed yet.
-// for example:
-// replacing "func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst Peer) (bool, error)" and
-//           "func ingressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, src Peer) (bool, error)"
-//
-// with a func using generics like this :
-//   "func xgressRuleSelectsPeer[T apisv1a.AdminNetworkPolicyEgressPeer | apisv1a.AdminNetworkPolicyIngressPeer](rulePeers []T,
-//                             dst Peer) (bool, error)"
-// will fail with errors such as :
-//                  "rulePeers[i].Namespaces undefined (type T has no field or method Namespaces)"
-//
-// a useful way to skip the errors is to define an interface with some Getter funcs to be implemented on the "inheriting types"
-// of the parameters.
-// but in this case : since our parameters are not of local types, we can not define new methods (like getters) on them;
-// not even with using aliases since then we'll need to copy values in calling funcs into the aliases and
-// this is not more efficient than current solutions.
-//
-// @todo: if GO is upgraded to a release that does not has this restriction on types with same fields, replace following two "duplicated"
-// funcs with one func that uses generics type
-
 // egressRuleSelectsPeer checks if the given []AdminNetworkPolicyEgressPeer rule selects the given peer
 // currently supposing a single egressPeer rule may contain only Namespaces/ Pods Fields,
 // @todo support also egress rule peer with Networks field
@@ -352,8 +325,8 @@ func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnection
 const (
 	// according to this: https://network-policy-api.sigs.k8s.io/api-overview/#adminnetworkpolicy-priorities
 	// The Priority field in the ANP spec is defined as an integer value within the range 0 to 1000
-	minPriority = 0
-	maxPriority = 1000
+	minANPPriority = 0
+	maxANPPriority = 1000
 )
 
 // HasValidPriority returns if the priority in a valid range
@@ -361,5 +334,5 @@ func (anp *AdminNetworkPolicy) HasValidPriority() bool {
 	// note: k8s defines "1000" as the maximum numeric value for priority
 	// but openshift currently only support priority values between 0 and 99
 	// current implementation satisfies k8s requirement
-	return anp.Spec.Priority >= minPriority && anp.Spec.Priority <= maxPriority
+	return anp.Spec.Priority >= minANPPriority && anp.Spec.Priority <= maxANPPriority
 }

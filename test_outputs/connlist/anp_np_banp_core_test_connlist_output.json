@@ -15,6 +15,11 @@
     "conn": "All Connections"
   },
   {
+    "src": "network-policy-conformance-gryffindor/harry-potter[StatefulSet]",
+    "dst": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
     "src": "network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]",
     "dst": "0.0.0.0-255.255.255.255",
     "conn": "All Connections"

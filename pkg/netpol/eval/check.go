@@ -605,17 +605,17 @@ func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool)
 			if err != nil {
 				return nil, err
 			}
-		} else { // egress (!isIngress)
-			selectsSrc, err := pe.baselineAdminNetpol.Selects(src, false)
+		}
+	} else { // egress (!isIngress)
+		selectsSrc, err := pe.baselineAdminNetpol.Selects(src, false)
+		if err != nil {
+			return nil, err
+		}
+		// if the banp selects the src on egress, get egress conns
+		if selectsSrc {
+			res, err = pe.baselineAdminNetpol.GetEgressPolicyConns(dst)
 			if err != nil {
 				return nil, err
-			}
-			// if the banp selects the src on egress, get egress conns
-			if selectsSrc {
-				res, err = pe.baselineAdminNetpol.GetEgressPolicyConns(dst)
-				if err != nil {
-					return nil, err
-				}
 			}
 		}
 	}
