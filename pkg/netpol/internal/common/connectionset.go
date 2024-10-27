@@ -201,6 +201,9 @@ func (conn *ConnectionSet) ContainedIn(other *ConnectionSet) bool {
 		return false
 	}
 	for protocol, ports := range conn.AllowedProtocols {
+		if ports.IsEmpty() {
+			continue // empty port set might exist due to preserving data for explainability
+		}
 		otherPorts, ok := other.AllowedProtocols[protocol]
 		if !ok {
 			return false
