@@ -25,7 +25,7 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 		return res, nil
 	}
 	// else append exposure analysis results:
-	if res != "" {
+	if res != "" && res != newLineChar {
 		res += newLineChar
 	}
 	res += t.writeExposureOutput(exposureConns)
@@ -61,7 +61,12 @@ func (t *formatText) writeExposureOutput(exposureResults []ExposedPeer) string {
 	// writing results of exposure for all peers
 	res := exposureAnalysisHeader + newLineChar
 	res += writeExposureSubSection(writeStrings(egressExpLines, false, maxPeerStrLen), egressExposureHeader+newLineChar)
-	res += writeExposureSubSection(writeStrings(ingressExpLines, true, maxPeerStrLen), ingressExposureHeader+newLineChar)
+	ingressHead := ingressExposureHeader + newLineChar
+	if len(egressExpLines) > 0 {
+		// add empty line between the sections if both are not empty
+		ingressHead = newLineChar + ingressHead
+	}
+	res += writeExposureSubSection(writeStrings(ingressExpLines, true, maxPeerStrLen), ingressHead)
 	res += writeExposureSubSection(unprotectedLines, unprotectedHeader)
 	return res
 }
