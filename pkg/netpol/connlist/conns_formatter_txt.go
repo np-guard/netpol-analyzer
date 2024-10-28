@@ -59,12 +59,9 @@ func (t *formatText) writeExposureOutput(exposureResults []ExposedPeer) string {
 	ingressExpLines, egressExpLines, unprotectedLines := getExposureConnsAsSortedSingleConnFieldsArray(exposureResults, t.ipMaps)
 	sort.Strings(unprotectedLines)
 	// writing results of exposure for all peers
-	res := exposureAnalysisHeader
-	if len(egressExpLines) == 0 && len(ingressExpLines) == 0 {
-		return res + newLineChar
-	}
-	res += writeExposureSubSection(writeStrings(egressExpLines, false, maxPeerStrLen), newLineChar+egressExposureHeader+newLineChar)
-	res += writeExposureSubSection(writeStrings(ingressExpLines, true, maxPeerStrLen), newLineChar+ingressExposureHeader+newLineChar)
+	res := exposureAnalysisHeader + newLineChar
+	res += writeExposureSubSection(writeStrings(egressExpLines, false, maxPeerStrLen), egressExposureHeader+newLineChar)
+	res += writeExposureSubSection(writeStrings(ingressExpLines, true, maxPeerStrLen), ingressExposureHeader+newLineChar)
 	res += writeExposureSubSection(unprotectedLines, unprotectedHeader)
 	return res
 }
