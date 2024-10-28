@@ -22,11 +22,11 @@ type formatText struct {
 func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error) {
 	res := t.writeConnlistOutput(conns, exposureFlag)
 	if !exposureFlag {
-		return res + newLineChar, nil
+		return res, nil
 	}
 	// else append exposure analysis results:
 	if res != "" {
-		res += "\n\n"
+		res += newLineChar
 	}
 	res += t.writeExposureOutput(exposureConns)
 	return res, nil
@@ -44,7 +44,7 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 		}
 	}
 	sort.Strings(connLines)
-	return strings.Join(connLines, newLineChar)
+	return strings.Join(connLines, newLineChar) + newLineChar
 }
 
 const (
