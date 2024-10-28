@@ -9,7 +9,7 @@ package eval
 import (
 	"fmt"
 
-	"github.com/np-guard/models/pkg/ipblock"
+	"github.com/np-guard/models/pkg/netset"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 )
@@ -35,7 +35,7 @@ type Peer interface {
 // then in the result map there would be entries for (str(A), str(A1), A1) and for (str(A), str(A2), A2)
 func DisjointPeerIPMap(set1, set2 []Peer) (map[string]map[string]Peer, error) {
 	res := map[string]map[string]Peer{}
-	var ipSet1, ipSet2 []*ipblock.IPBlock
+	var ipSet1, ipSet2 []*netset.IPBlock
 	var err error
 	if ipSet1, err = peerIPSetToIPBlockSet(set1); err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func DisjointPeerIPMap(set1, set2 []Peer) (map[string]map[string]Peer, error) {
 	if ipSet2, err = peerIPSetToIPBlockSet(set2); err != nil {
 		return nil, err
 	}
-	disjointIPset := ipblock.DisjointIPBlocks(ipSet1, ipSet2)
+	disjointIPset := netset.DisjointIPBlocks(ipSet1, ipSet2)
 
 	for _, ipb := range disjointIPset {
 		addDisjointIPBlockToMap(ipSet1, ipb, res)
@@ -54,9 +54,9 @@ func DisjointPeerIPMap(set1, set2 []Peer) (map[string]map[string]Peer, error) {
 }
 
 // addDisjointIPBlockToMap updates input map (from peer-str to its disjoint peers) by adding a new disjoint ip
-func addDisjointIPBlockToMap(ipSet []*ipblock.IPBlock, disjointIP *ipblock.IPBlock, m map[string]map[string]Peer) {
+func addDisjointIPBlockToMap(ipSet []*netset.IPBlock, disjointIP *netset.IPBlock, m map[string]map[string]Peer) {
 	for _, ipb1 := range ipSet {
-		if disjointIP.ContainedIn(ipb1) {
+		if disjointIP.IsSubset(ipb1) {
 			updatePeerIPMap(m, ipb1, disjointIP)
 			break
 		}
@@ -65,7 +65,7 @@ func addDisjointIPBlockToMap(ipSet []*ipblock.IPBlock, disjointIP *ipblock.IPBlo
 
 // updatePeerIPMap updates input map (from peer-str to its disjoint peers), given a new disjoint ip (ipb), and its
 // associated original ip-range key from the map (ipb1)
-func updatePeerIPMap(m map[string]map[string]Peer, ipb1, ipb *ipblock.IPBlock) {
+func updatePeerIPMap(m map[string]map[string]Peer, ipb1, ipb *netset.IPBlock) {
 	ipb1Str := ipb1.ToIPRanges()
 	if _, ok := m[ipb1Str]; !ok {
 		m[ipb1Str] = map[string]Peer{}
@@ -74,8 +74,8 @@ func updatePeerIPMap(m map[string]map[string]Peer, ipb1, ipb *ipblock.IPBlock) {
 }
 
 // peerIPSetToIPBlockSet is given as input a list of peers of type ip-block, and returns a list matching IPBlock objects
-func peerIPSetToIPBlockSet(peerSet []Peer) ([]*ipblock.IPBlock, error) {
-	res := make([]*ipblock.IPBlock, len(peerSet))
+func peerIPSetToIPBlockSet(peerSet []Peer) ([]*netset.IPBlock, error) {
+	res := make([]*netset.IPBlock, len(peerSet))
 	for i, p := range peerSet {
 		ipBlock, err := peerIPToIPBlock(p)
 		if err != nil {
@@ -87,7 +87,7 @@ func peerIPSetToIPBlockSet(peerSet []Peer) ([]*ipblock.IPBlock, error) {
 }
 
 // peerIPToIPBlock returns an IPBlock object from a Peer object of IP type
-func peerIPToIPBlock(p Peer) (*ipblock.IPBlock, error) {
+func peerIPToIPBlock(p Peer) (*netset.IPBlock, error) {
 	peerIP, ok := p.(*k8s.IPBlockPeer)
 	if !ok {
 		return nil, fmt.Errorf("input peer not IP block: %s", p.String())
@@ -95,9 +95,9 @@ func peerIPToIPBlock(p Peer) (*ipblock.IPBlock, error) {
 	return peerIP.IPBlock, nil
 }
 
-func mergeIPBlocksList(inputList []*ipblock.IPBlock) []*ipblock.IPBlock {
+func mergeIPBlocksList(inputList []*netset.IPBlock) []*netset.IPBlock {
 	if len(inputList) == 0 {
-		return []*ipblock.IPBlock{}
+		return []*netset.IPBlock{}
 	}
 	union := inputList[0].Copy()
 	for i := 1; i < len(inputList); i++ {
