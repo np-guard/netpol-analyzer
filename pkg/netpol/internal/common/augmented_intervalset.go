@@ -101,16 +101,18 @@ func (c *AugmentedCanonicalSet) NumIntervals() int {
 	return len(c.intervalSet)
 }
 
+const errMinFromEmptySet = "cannot take min from empty interval set"
+
 func (c *AugmentedCanonicalSet) Min() int64 {
 	if len(c.intervalSet) == 0 {
-		log.Panic("cannot take min from empty interval set")
+		log.Panic(errMinFromEmptySet)
 	}
 	for _, interval := range c.intervalSet {
 		if interval.inSet {
 			return interval.interval.Start()
 		}
 	}
-	log.Panic("cannot take min from empty interval set")
+	log.Panic(errMinFromEmptySet)
 	return 0 // making linter happy
 }
 
@@ -196,12 +198,6 @@ func (c *AugmentedCanonicalSet) Equal(other *AugmentedCanonicalSet) bool {
 	return true
 }
 
-func appendSlices(slice1 *[]AugmentedInterval, slice2 []AugmentedInterval) {
-	for _, el := range slice2 {
-		*slice1 = append(*slice1, el)
-	}
-}
-
 // AddAugmentedInterval adds a new interval/hole  to the set,
 // and updates the implying rules accordingly
 func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval) {
@@ -217,7 +213,7 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval) {
 	})
 	var result []AugmentedInterval
 	// copy left-end intervals not impacted by v
-	appendSlices(&result, set[0:left])
+	result = append(result, set[0:left]...)
 
 	// handle the left-hand side of the intersection of v with set
 	if v.interval.Start() > set[left].interval.Start() && set[left].inSet != v.inSet {
@@ -256,7 +252,7 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval) {
 	}
 
 	// copy right-end intervals not impacted by v
-	appendSlices(&result, set[right+1:])
+	result = append(result, set[right+1:]...)
 	c.intervalSet = result
 	// TODO - optimization: unify subsequent intervals with equal inSet and implyingRules fields
 }
@@ -439,10 +435,10 @@ func NewAugmentedSetFromInterval(augInt AugmentedInterval) *AugmentedCanonicalSe
 
 func (c *AugmentedCanonicalSet) GetEquivalentCanonicalAugmentedSet() *AugmentedCanonicalSet {
 	res := NewAugmentedCanonicalSet()
-	interval, index := c.nextIncludedInterval(0)
+	interv, index := c.nextIncludedInterval(0)
 	for index != NoIndex {
-		res.AddAugmentedInterval(NewAugmentedInterval(interval.Start(), interval.End(), true))
-		interval, index = c.nextIncludedInterval(index + 1)
+		res.AddAugmentedInterval(NewAugmentedInterval(interv.Start(), interv.End(), true))
+		interv, index = c.nextIncludedInterval(index + 1)
 	}
 	return res
 }

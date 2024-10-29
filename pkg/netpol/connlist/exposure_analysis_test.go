@@ -367,9 +367,9 @@ func checkXgressExposureContainment(actualArray []XgressExposureData, expectedIt
 				continue
 			}
 		}
-		v1 := expectedItem.PotentialConnectivity().(*common.ConnectionSet)
-		v2 := currItem.PotentialConnectivity().(*common.ConnectionSet)
-		if v1.Equal(v2) {
+		conn1 := expectedItem.PotentialConnectivity().(*common.ConnectionSet)
+		conn2 := currItem.PotentialConnectivity().(*common.ConnectionSet)
+		if conn1.Equal(conn2) {
 			return true
 		}
 	}

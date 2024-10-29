@@ -385,11 +385,12 @@ func portsString(ports []PortRange) string {
 	currInterval := interval.New(0, -1) // an empty interval
 	for i := range ports {
 		if thePortStr := ports[i].String(); thePortStr != "" {
-			if currInterval.IsEmpty() {
+			switch {
+			case currInterval.IsEmpty():
 				currInterval = interval.New(ports[i].Start(), ports[i].End())
-			} else if currInterval.End()+1 == ports[i].Start() {
+			case currInterval.End()+1 == ports[i].Start():
 				currInterval = interval.New(currInterval.Start(), ports[i].End()) // extend the interval
-			} else {
+			default:
 				portsStr = append(portsStr, currInterval.ShortString())
 				currInterval = interval.New(0, -1)
 			}
