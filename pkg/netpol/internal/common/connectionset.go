@@ -48,9 +48,9 @@ func (conn *ConnectionSet) GetEquivalentCanonicalConnectionSet() *ConnectionSet 
 		return res
 	}
 	for protocol, ports := range conn.AllowedProtocols {
-		canonicalPorts := ports.Ports.GetEquivalentCanonicalAugmentedSet()
+		canonicalPorts := ports.GetEquivalentCanonicalPortSet()
 		if !canonicalPorts.IsEmpty() {
-			res.AllowedProtocols[protocol] = &PortSet{Ports: canonicalPorts}
+			res.AllowedProtocols[protocol] = canonicalPorts
 		}
 	}
 	return res

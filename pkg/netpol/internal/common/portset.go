@@ -213,3 +213,9 @@ func (p *PortSet) subtract(other *PortSet) {
 		delete(p.NamedPorts, k)
 	}
 }
+
+func (p *PortSet) GetEquivalentCanonicalPortSet() *PortSet {
+	res := p.Copy()
+	res.Ports = p.Ports.GetEquivalentCanonicalAugmentedSet()
+	return res
+}
