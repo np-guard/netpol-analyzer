@@ -15,7 +15,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/np-guard/models/pkg/ipblock"
+	"github.com/np-guard/models/pkg/netset"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
@@ -110,7 +110,7 @@ func (pe *PolicyEngine) getPoliciesSelectingPod(peer k8s.Peer, direction netv1.P
 // isPeerNodeIP returns true if peer1 is an IP address of a node and peer2 is a pod on that node
 func isPeerNodeIP(peer1, peer2 k8s.Peer) bool {
 	if peer2.PeerType() == k8s.PodType && peer1.PeerType() == k8s.IPBlockType {
-		ip2, err := ipblock.FromIPAddress(peer2.GetPeerPod().HostIP)
+		ip2, err := netset.IPBlockFromIPAddress(peer2.GetPeerPod().HostIP)
 		if err != nil {
 			return peer1.GetPeerIPBlock().Equal(ip2)
 		}
@@ -133,7 +133,7 @@ func isPodToItself(peer1, peer2 k8s.Peer) bool {
 func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 	// check if input peer is cidr
 	if _, _, err := net.ParseCIDR(p); err == nil {
-		peerIPBlock, err := ipblock.FromCidr(p)
+		peerIPBlock, err := netset.IPBlockFromCidr(p)
 		if err != nil {
 			return nil, err
 		}
@@ -141,7 +141,7 @@ func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 	}
 	// check if input peer is an ip address
 	if net.ParseIP(p) != nil {
-		peerIPBlock, err := ipblock.FromIPAddress(p)
+		peerIPBlock, err := netset.IPBlockFromIPAddress(p)
 		if err != nil {
 			return nil, err
 		}
@@ -285,11 +285,14 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 	if err != nil {
 		return nil, err
 	}
+	// optimization: if all the conns between src and dst were determined by the ANPs : return the allowed conns
+	if anpCaptured && anpConns.DeterminesAllConns() {
+		return anpConns.AllowedConns, nil
+	}
 	// second get the allowed xgress conns between the src and dst from the netpols
 	// note that :
 	// - npConns contains only allowed connections
-	// - npCaptured is true iff there are policies selecting either src or dst - since network-policies' rules contain
-	// implicit deny on Pods selected by them.
+	// - npCaptured is true iff there are policies selecting either src or dst based on the checked direction (ingress/ egress)
 	npConns, npCaptured, err := pe.getAllAllowedXgressConnsFromNetpols(src, dst, isIngress)
 	if err != nil {
 		return nil, err
@@ -297,51 +300,41 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 
 	// compute the allowed connections on the given direction considering the which policies captured the xgress connection
 	// and precedence of each policy type:
-	if anpCaptured && npCaptured {
+	switch npCaptured {
+	case true: // npCaptured
+		if !anpCaptured { // npCaptured && !anpCaptured
+			// only NPs capture the peers, return allowed conns from netpols
+			return npConns.AllowedConns, nil
+		}
+		// else: npCaptured && anpCaptured
 		// if conns between src and dst were captured by both the admin-network-policies and by network-policies
 		// collect conns:
 		// - traffic that was allowed or denied by ANPs will not be affected by the netpol conns.
-		// -  traffic that has no match in ANPs but allowed by NPs is added to allowed conns.
+		// - traffic that has no match in ANPs but allowed by NPs is added to allowed conns.
 		// - pass conns from ANPs, are determined by NPs conns;
 		// note that allowed conns by netpols, imply deny on other traffic;
 		// so ANPs.pass conns which intersect with NPs.allowed are added to allowed conns result;
 		// other pass conns (which don't intersect with NPs allowed conns) are not allowed implicitly.
-		anpConns.CollectConnsFromLowerPrecedencePolicyType(npConns)
+		anpConns.CollectAllowedConnsFromNetpols(npConns)
+		return anpConns.AllowedConns, nil
+	default: // !npCaptured - netpols don't capture the connections between src and dst - delegate to banp
+		// get default xgress connection between src and dst from the BANP/ system-default;
+		// note that :
+		// - if there is no banp in the input resources, then default conns is system-default which is allow-all
+		// - if the banp captures the xgress between src and dst; then defaultConns may contain allowed and denied conns
+		defaultConns, err := pe.getXgressDefaultConns(src, dst, isIngress)
+		if err != nil {
+			return nil, err
+		}
+		if !anpCaptured { // !anpCaptured && !npCaptured:
+			return defaultConns.AllowedConns, nil
+		}
+		// else ( anpCaptured && !npCaptured)
+		// ANPs capture the peers, netpols don't , return the allowed conns from ANPs considering default conns
+		// this also determines what happens on traffic (ports) which are not mentioned in the ANPs; since ANP rules are read as is only
+		anpConns.CollectConnsFromBANP(defaultConns)
 		return anpConns.AllowedConns, nil
 	}
-	if !anpCaptured && npCaptured {
-		// only NPs capture the peers, return allowed conns from netpols
-		return npConns.AllowedConns, nil
-	}
-	// otherwise,n getting here means network-policies don't capture the xgress direction traffic between src and dst.
-	// get default xgress connection between src and dst from the BANP/ system-default;
-	// note that :
-	// - if there is no banp in the input resources, then default conns is system-default which is allow-all
-	// - if the banp captures the xgress between src and dst; then defaultConns may contain allowed and denied conns
-	defaultConns, err := pe.getXgressDefaultConns(src, dst, isIngress)
-	if err != nil {
-		return nil, err
-	}
-	if !anpCaptured && !npCaptured { // only BANP captures the xgress between src -> dst (or not captured at all)
-		// if no ANPs nor NPs capturing the xgress connection, return the default allowed conns (from BANP or system-default).
-		// note that: if conns are not captured by an ANP/NP but captured only by BANP, then:
-		// if BANP denies some conns but has no allow rule then, allowed conns are all but the denied conns:
-		if defaultConns.AllowedConns.IsEmpty() && !defaultConns.DeniedConns.IsEmpty() {
-			allowedConns := common.MakeConnectionSet(true)
-			allowedConns.Subtract(defaultConns.DeniedConns)
-			return allowedConns, nil
-		} // else return the allowed conns by BANP
-		return defaultConns.AllowedConns, nil
-	}
-	// else ( anpCaptured && !npCaptured)
-	// ANPs capture the peers, netpols don't , return the allowed conns from ANPs considering default conns
-	// this determines what happens on traffic (ports) which are not mentioned in the ANPs; since ANP rules are read as is only
-	anpConns.CollectConnsFromLowerPrecedencePolicyType(defaultConns)
-	// note that : BANP rules may not match all ANPs.Pass conns, remaining pass conns will be allowed as system-default
-	if !anpConns.PassConns.IsEmpty() {
-		anpConns.AllowedConns.Union(anpConns.PassConns)
-	}
-	return anpConns.AllowedConns, nil
 }
 
 // analyzing network-policies for conns between peers (object kind == NetworkPolicy):
@@ -397,7 +390,7 @@ func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, i
 		allowedConns.Union(policyAllowedConnectionsPerDirection)
 	}
 	// putting the result in policiesConns object to be compared with conns allowed by ANP/BANP later
-	policiesConns = k8s.InitEmptyPolicyConnections()
+	policiesConns = k8s.NewPolicyConnections()
 	policiesConns.AllowedConns = allowedConns
 	return policiesConns, true, nil
 }
@@ -454,13 +447,13 @@ func updatePeerXgressClusterWideExposure(policy *k8s.NetworkPolicy, src, dst k8s
 // the Pods selected by the AdminNetworkPolicy, as opposed to implicit deny NetworkPolicy rules imply.
 func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer, isIngress bool) (policiesConns *k8s.PolicyConnections,
 	captured bool, err error) {
-	policiesConns = k8s.InitEmptyPolicyConnections()
+	policiesConns = k8s.NewPolicyConnections()
 	// iterate the sorted admin network policies in order to compute the allowed, pass, and denied xgress connections between the peers
 	// from the admin netpols capturing the src (if !isIngress)/ capturing the dst (if isIngress true).
 	// connections are computed considering ANPs priorities (rules of an ANP with lower priority take precedence on other ANPs rules)
 	// and rules ordering in single ANP (coming first takes precedence).
 	for _, anp := range pe.sortedAdminNetpols {
-		singleANPConns := k8s.InitEmptyPolicyConnections()
+		singleANPConns := k8s.NewPolicyConnections()
 		// collect the allowed, pass, and denied connectivity from the relevant rules into policiesConns
 		if !isIngress { // egress
 			selectsSrc, err := anp.Selects(src, false)
@@ -508,7 +501,7 @@ func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer
 // if there is no BANP or if the BANP does not capture connections between src and dst, then default allow-all connections is returned.
 // - note that the result may contain allowed / denied connections.
 func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool) (*k8s.PolicyConnections, error) {
-	res := k8s.InitEmptyPolicyConnections()
+	res := k8s.NewPolicyConnections()
 	if pe.baselineAdminNetpol == nil {
 		res.AllowedConns = common.MakeConnectionSet(true)
 		return res, nil
@@ -524,22 +517,28 @@ func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool)
 			if err != nil {
 				return nil, err
 			}
-		} else { // egress (!isIngress)
-			selectsSrc, err := pe.baselineAdminNetpol.Selects(src, false)
+		}
+	} else { // egress (!isIngress)
+		selectsSrc, err := pe.baselineAdminNetpol.Selects(src, false)
+		if err != nil {
+			return nil, err
+		}
+		// if the banp selects the src on egress, get egress conns
+		if selectsSrc {
+			res, err = pe.baselineAdminNetpol.GetEgressPolicyConns(dst)
 			if err != nil {
 				return nil, err
-			}
-			// if the banp selects the src on egress, get egress conns
-			if selectsSrc {
-				res, err = pe.baselineAdminNetpol.GetEgressPolicyConns(dst)
-				if err != nil {
-					return nil, err
-				}
 			}
 		}
 	}
 	if res.IsEmpty() { // banp rules didn't capture xgress conn between src and dst, return system-default: allow-all
 		res.AllowedConns = common.MakeConnectionSet(true)
+	}
+	if res.AllowedConns.IsEmpty() && !res.DeniedConns.IsEmpty() { // banp rules deny some connection but don't capture other conns
+		allowedConns := common.MakeConnectionSet(true)
+		allowedConns.Subtract(res.DeniedConns)
+		res.AllowedConns = allowedConns
+		return res, nil
 	}
 	return res, nil
 }

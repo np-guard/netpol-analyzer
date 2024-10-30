@@ -23,15 +23,15 @@ import (
 type PolicyConnections struct {
 	// AllowedConns allowed connections-set between two peers
 	AllowedConns *common.ConnectionSet
-	// PassConns connections between two peers that was passed by admin-network-policy to policies with lower priority
-	// (network-policies/ baseline-admin-network-policies)
+	// PassConns connections-set between two peers that was passed by admin-network-policy;
+	// i.e. delegate decision about them to next layer of policies, NetworkPolicies or BaselineAdminNetworkPolicies resources
 	PassConns *common.ConnectionSet
 	// DeniedConns denied connections between two peers
 	DeniedConns *common.ConnectionSet
 }
 
-// InitEmptyPolicyConnections - returns a new PolicyConnections object with empty connection-sets
-func InitEmptyPolicyConnections() *PolicyConnections {
+// NewPolicyConnections - returns a new PolicyConnections object with empty connection-sets
+func NewPolicyConnections() *PolicyConnections {
 	return &PolicyConnections{
 		AllowedConns: common.MakeConnectionSet(false),
 		DeniedConns:  common.MakeConnectionSet(false),
@@ -84,46 +84,78 @@ func (pc *PolicyConnections) CollectANPConns(newAdminPolicyConns *PolicyConnecti
 	pc.PassConns.Union(newAdminPolicyConns.PassConns)
 }
 
-// CollectConnsFromLowerPrecedencePolicyType updates current PolicyConnections object with connections from a
-// policy with lower priority than ANP. (e.g. network-policy or baseline-admin-network-policy or instead system-default connection)
-// allowed and denied connections of current PolicyConnections object (admin-network-policy) are non-overridden.
-// but pass connections in current PolicyConnections object will be determined by the input PolicyConnections parameter.
-// note that: passConns in otherConns will always be empty. (np and banp don't contain pass connections)
-func (pc *PolicyConnections) CollectConnsFromLowerPrecedencePolicyType(otherConns *PolicyConnections) {
-	// allowed and denied conns of current pc are non-overridden
-	otherConns.AllowedConns.Subtract(pc.DeniedConns)
-	otherConns.DeniedConns.Subtract(pc.AllowedConns)
-	// PASS conns are determined by otherConns
-	// currently, otherConns.AllowedConns contains:
-	// 1. traffic that was passed by ANP (if there are such conns)
-	// 2. traffic that had no match in ANP (or higher priority policies)
+// CollectAllowedConnsFromNetpols updates allowed conns of current PolicyConnections object with allowed connections from
+// k8s NetworkPolicy objects.
+// Allowed and Denied connections of current PolicyConnections object (admin-network-policy) are non-overridden.
+// note that:
+// 1. the input connections will include only non-empty allowed conns (since its source is netpols);
+// and any connection that is not allowed by the netpols is denied.
+// 2. pass connections in current PolicyConnections object will be determined by the input PolicyConnections parameter.
+func (pc *PolicyConnections) CollectAllowedConnsFromNetpols(npConns *PolicyConnections) {
+	// subtract the denied conns (which are non-overridden) from input conns
+	npConns.AllowedConns.Subtract(pc.DeniedConns)
+	// PASS conns are determined by npConns
+	// currently, npConns.AllowedConns contains:
+	// 1. traffic that was passed by ANPs (if there are such conns)
+	// 2. traffic that had no match in ANPs
 	// so we can update current allowed conns with them
-	pc.AllowedConns.Union(otherConns.AllowedConns)
-	// also, otherConns.DeniedConns currently contains:
-	// 1. traffic that was passed by ANP (if there are such conns)
-	// 2. traffic that had no match in ANP (or higher priority policies)
-	// so we can update current denied conns with otherConns.DeniedConns
-	pc.DeniedConns.Union(otherConns.DeniedConns)
+	pc.AllowedConns.Union(npConns.AllowedConns)
+	// now pc.AllowedConns contains all allowed conns by the ANPs and NPs
+	// the content of pc.Denied and pc.Pass is not relevant anymore;
+	// all the connections that are not allowed by the ANPs and NPs are denied.
+}
+
+// CollectConnsFromBANP updates current PolicyConnections object with connections from a BANP.
+// Allowed and Denied connections of current PolicyConnections object (admin-network-policy) are non-overridden.
+// note that:
+// 1. passConns of the input connections will always be empty. (may contain non-empty allowed/ denied conns)
+// 2. pass connections in current PolicyConnections object will be determined by the input PolicyConnections
+// parameter or system-default value.
+func (pc *PolicyConnections) CollectConnsFromBANP(banpConns *PolicyConnections) {
+	// allowed and denied conns of current pc are non-overridden
+	banpConns.AllowedConns.Subtract(pc.DeniedConns)
+	banpConns.DeniedConns.Subtract(pc.AllowedConns)
+	// PASS conns are determined by banpConns
+	// currently, banpConns.AllowedConns contains:
+	// 1. traffic that was passed by ANPs (if there are such conns)
+	// 2. traffic that had no match in ANPs
+	// so we can update current allowed conns with them
+	pc.AllowedConns.Union(banpConns.AllowedConns)
+	// also, banpConns.DeniedConns currently contains:
+	// 1. traffic that was passed by ANPs (if there are such conns)
+	// 2. traffic that had no match in ANPs
+	// so we can update current denied conns with banpConns.DeniedConns
+	pc.DeniedConns.Union(banpConns.DeniedConns)
 
 	// in order to update pc.PassConns we need:
-	// to find intersection of current pass connections with otherConns's allowedConns and deniedConns
+	// to find intersection of current pass connections with banpConns's allowedConns and deniedConns
 	passAllowCopy := pc.PassConns.Copy() // using a copy since Intersection changes the object, but we want to keep also
 	// non-intersected conns
-	passAllowCopy.Intersection(otherConns.AllowedConns) // pass conns to be allowed
-	// pc.AllowedConns.Union(passAllowCopy) - redundant since passAllowCopy is contained in otherConns.AllowedConns, already updated
+	passAllowCopy.Intersection(banpConns.AllowedConns) // pass conns to be allowed
+	// pc.AllowedConns.Union(passAllowCopy) - redundant since passAllowCopy is contained in banpConns.AllowedConns, already updated
 	passDenyCopy := pc.PassConns.Copy()
-	passDenyCopy.Intersection(otherConns.DeniedConns) // pass conns to be denied
-	// pc.DeniedConns.Union(passDenyCopy) - redundant since passDenyCopy is contained in otherConns.DeniedConns
+	passDenyCopy.Intersection(banpConns.DeniedConns) // pass conns to be denied
+	// pc.DeniedConns.Union(passDenyCopy) - redundant since passDenyCopy is contained in banpConns.DeniedConns
 
 	// subtract pass-deny and pass-allow from the current Pass conns;
-	// note that the updated pc conns may still have non-empty Pass connections (intersection with allow and deny are not full)
-	// - this will not affect evaluated netpols conns, as the allowed conns of netpols implicitly deny other conns.
-	// - this should be considered with banp - so remaining pass conns will get system default.
 	pc.PassConns.Subtract(passAllowCopy)
 	pc.PassConns.Subtract(passDenyCopy)
+	// note that the updated pc conns may still have non-empty Pass connections (BANP rules may did not capture all ANPs.Pass conns).
+	// so, since the BANP is the last evaluated policy of all policy layers, remaining pass conns will be allowed as system-default
+	if !pc.PassConns.IsEmpty() {
+		pc.AllowedConns.Union(pc.PassConns)
+	}
 }
 
 // IsEmpty : returns true iff all connection sets in current policy-connections are empty
 func (pc *PolicyConnections) IsEmpty() bool {
 	return pc.AllowedConns.IsEmpty() && pc.DeniedConns.IsEmpty() && pc.PassConns.IsEmpty()
+}
+
+// DeterminesAllConns : returns true if the allowed and denied connections of the current PolicyConnections object
+// selects all the connections
+func (pc *PolicyConnections) DeterminesAllConns() bool {
+	selectedConns := pc.AllowedConns.Copy()
+	selectedConns.Union(pc.DeniedConns)
+	return selectedConns.AllConnections()
 }

@@ -2,27 +2,21 @@
 Copyright 2023- IBM Inc. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
-
 */
-
-package testutils
+package examples
 
 import (
-	"fmt"
-	"strings"
-
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
-	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 )
 
-// /////////////////////////////////////// ParsedResourcesTests ////////////////////////////////////
+//////////////////////////////////// The following tests are taken from or tested also with /////////////////////////////////////
+// https://github.com/kubernetes-sigs/network-policy-api/blob/main/cmd/policy-assistant/test/integration/integration_test.go
 
 const (
 	podKind                = "Pod"
@@ -38,180 +32,14 @@ const (
 	priority100            = 100
 )
 
+// variables which are used by the anp examples below:
 var (
 	udp        = v1.ProtocolUDP
 	serve80tcp = "serve-80-tcp"
-	genCnt     = 0
-)
-
-func newDefaultPod(namespace, name string, ports []int32, protocols []v1.Protocol) *v1.Pod {
-	podObj := v1.Pod{}
-	podObj.TypeMeta.APIVersion = "v1"
-	podObj.TypeMeta.Kind = podKind
-	podObj.ObjectMeta.Name = name
-	podObj.ObjectMeta.Namespace = namespace
-	podObj.Status.HostIP = parser.IPv4LoopbackAddr
-	podObj.Status.PodIPs = []v1.PodIP{{IP: parser.IPv4LoopbackAddr}}
-	podObj.Labels = map[string]string{"pod": name}
-	for _, port := range ports {
-		for _, protocol := range protocols {
-			podObj.Spec.Containers = append(podObj.Spec.Containers, newDefaultContainer(port, protocol))
-		}
-	}
-	addMetaData(&podObj.ObjectMeta, true)
-	return &podObj
-}
-
-func newDefaultContainer(port int32, protocol v1.Protocol) v1.Container {
-	contObj := v1.Container{}
-	contObj.Name = fmt.Sprintf("cont-%d-%s", port, strings.ToLower(string(protocol)))
-	contObj.Ports = make([]v1.ContainerPort, 1)
-	contObj.Ports[0].Name = fmt.Sprintf("serve-%d-%s", port, strings.ToLower(string(protocol)))
-	contObj.Ports[0].ContainerPort = port
-	contObj.Ports[0].Protocol = protocol
-	return contObj
-}
-
-// The following struct holds information for pod creation for tests;
-// the pods will be created for every namespace and every pod name below (the Cartesian product),
-// having all ports/protocols below in their containers specs
-type PodInfo struct {
-	Namespaces []string
-	PodNames   []string
-	Ports      []int32
-	Protocols  []v1.Protocol
-}
-
-type Resources struct {
-	NsList  []*v1.Namespace
-	PodList []*v1.Pod
-}
-
-type EvalAllowedConnTest struct {
-	Src       string
-	Dst       string
-	ExpResult string
-}
-
-// The following struct holds all test data needed for running a test
-// and for verifying its results
-type ParsedResourcesTest struct {
-	Name                   string
-	OutputFormat           string
-	ExpectedOutputFileName string
-	EvalTests              []EvalAllowedConnTest
-	Resources              *Resources
-	AnpList                []*v1alpha1.AdminNetworkPolicy
-	Banp                   *v1alpha1.BaselineAdminNetworkPolicy
-	NpList                 []*netv1.NetworkPolicy
-	TestInfo               string
-}
-
-func addMetaData(meta *metav1.ObjectMeta, addNsName bool) {
-	if meta.Name == "" {
-		meta.Name = fmt.Sprintf("generated_name_%q", genCnt)
-		genCnt++
-	}
-	if addNsName && meta.Namespace == "" {
-		meta.Namespace = metav1.NamespaceDefault
-	}
-}
-
-func initResources(podInfo *PodInfo) *Resources {
-	res := &Resources{[]*v1.Namespace{}, []*v1.Pod{}}
-	for _, ns := range podInfo.Namespaces {
-		res.NsList = append(res.NsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ns, Labels: map[string]string{"ns": ns}}})
-		for _, pod := range podInfo.PodNames {
-			res.PodList = append(res.PodList, newDefaultPod(ns, pod, podInfo.Ports, podInfo.Protocols))
-		}
-	}
-	return res
-}
-
-func initNpList(npList []*netv1.NetworkPolicy) []*netv1.NetworkPolicy {
-	for _, np := range npList {
-		addMetaData(&np.ObjectMeta, true)
-	}
-	return npList
-}
-
-func initAnpList(anpList []*v1alpha1.AdminNetworkPolicy) []*v1alpha1.AdminNetworkPolicy {
-	for _, anp := range anpList {
-		// ANPs are cluster scoped (has no namespace name)
-		addMetaData(&anp.ObjectMeta, false)
-	}
-	return anpList
-}
-
-func initBanp(banp *v1alpha1.BaselineAdminNetworkPolicy) *v1alpha1.BaselineAdminNetworkPolicy {
-	banp.Name = "default" // "must use default as the name when creating a BaselineAdminNetworkPolicy object."
-	return banp
-}
-
-func (test *ParsedResourcesTest) GetK8sObjects() []parser.K8sObject {
-	res := []parser.K8sObject{}
-	test.TestInfo = fmt.Sprintf("test: %q, output format: %q", test.Name, test.OutputFormat)
-	for _, ns := range test.Resources.NsList {
-		res = append(res, createNamespaceK8sObject(ns))
-	}
-	for _, pod := range test.Resources.PodList {
-		res = append(res, createPodK8sObject(pod))
-	}
-	for _, np := range test.NpList {
-		res = append(res, createNetworkPolicyK8sObject(np))
-	}
-	for _, anp := range test.AnpList {
-		res = append(res, createAdminNetworkPolicyK8sObject(anp))
-	}
-	if test.Banp != nil {
-		res = append(res, createBaselineAdminNetworkPolicyK8sObject(test.Banp))
-	}
-	return res
-}
-
-func createPodK8sObject(pod *v1.Pod) parser.K8sObject {
-	k8sObj := parser.K8sObject{}
-	k8sObj.Kind = podKind
-	k8sObj.Pod = pod
-	return k8sObj
-}
-
-func createNamespaceK8sObject(ns *v1.Namespace) parser.K8sObject {
-	k8sObj := parser.K8sObject{}
-	k8sObj.Kind = "Namespace"
-	k8sObj.Namespace = ns
-	return k8sObj
-}
-
-func createNetworkPolicyK8sObject(np *netv1.NetworkPolicy) parser.K8sObject {
-	k8sObj := parser.K8sObject{}
-	k8sObj.Kind = "NetworkPolicy"
-	k8sObj.NetworkPolicy = np
-	return k8sObj
-}
-
-func createAdminNetworkPolicyK8sObject(anp *v1alpha1.AdminNetworkPolicy) parser.K8sObject {
-	k8sObj := parser.K8sObject{}
-	k8sObj.Kind = "AdminNetworkPolicy"
-	k8sObj.AdminNetworkPolicy = anp
-	return k8sObj
-}
-
-func createBaselineAdminNetworkPolicyK8sObject(banp *v1alpha1.BaselineAdminNetworkPolicy) parser.K8sObject {
-	k8sObj := parser.K8sObject{}
-	k8sObj.Kind = "BaselineAdminNetworkPolicy"
-	k8sObj.BaselineAdminNetworkPolicy = banp
-	return k8sObj
-}
-
-//////////////////////////////////// The following tests are taken from /////////////////////////////////////
-// https://github.com/kubernetes-sigs/network-policy-api/blob/main/cmd/policy-assistant/test/integration/integration_test.go
-
-var (
-	podInfo1 = &PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-		Ports: []int32{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}
-	podInfo2 = &PodInfo{Namespaces: []string{"x", "y"}, PodNames: []string{"a", "b"},
-		Ports: []int32{80}, Protocols: []v1.Protocol{v1.ProtocolTCP}}
+	podInfo1   = &podInfo{namespaces: []string{"x", "y"}, podNames: []string{"a", "b"},
+		ports: []int32{80, 81}, protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}
+	podInfo2 = &podInfo{namespaces: []string{"x", "y"}, podNames: []string{"a", "b"},
+		ports: []int32{80}, protocols: []v1.Protocol{v1.ProtocolTCP}}
 	pods1 = &v1alpha1.NamespacedPod{
 		NamespaceSelector: metav1.LabelSelector{
 			MatchLabels: map[string]string{"ns": "x"},
@@ -468,7 +296,10 @@ var (
 			},
 		},
 	})
+)
 
+// testing examples for K8S Network Policy API
+var (
 	ANPConnectivityFromParsedResourcesTest = []ParsedResourcesTest{
 		{
 			Name:                   "egress port number protocol unspecified",
@@ -583,8 +414,8 @@ var (
 					ExpResult: allConnsStr,
 				},
 			},
-			Resources: initResources(&PodInfo{Namespaces: []string{"x", "y", "z"}, PodNames: []string{"a", "b", "c"},
-				Ports: []int32{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}),
+			Resources: initResources(&podInfo{namespaces: []string{"x", "y", "z"}, podNames: []string{"a", "b", "c"},
+				ports: []int32{80, 81}, protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}),
 			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
 				{
 					Spec: v1alpha1.AdminNetworkPolicySpec{
@@ -1468,8 +1299,8 @@ var (
 				},
 			},
 			// note that resources contain only one namespace x
-			Resources: initResources(&PodInfo{Namespaces: []string{"x"}, PodNames: []string{"a", "b"},
-				Ports: []int32{80, 81}, Protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}),
+			Resources: initResources(&podInfo{namespaces: []string{"x"}, podNames: []string{"a", "b"},
+				ports: []int32{80, 81}, protocols: []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP}}),
 			NpList: initNpList([]*netv1.NetworkPolicy{
 				{
 					ObjectMeta: metav1.ObjectMeta{
