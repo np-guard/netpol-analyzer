@@ -419,6 +419,15 @@ func TestEvalCommandOutput(t *testing.T) {
 			port:       "8080",
 			evalResult: false,
 		},
+		{
+			dir:        "anp_banp_core_test",
+			sourceNs:   "network-policy-conformance-gryffindor",
+			sourcePod:  "harry-potter-1",
+			destPod:    "cedric-diggory-1",
+			destNs:     "network-policy-conformance-hufflepuff",
+			port:       "8080",
+			evalResult: true,
+		},
 	}
 	for _, tt := range cases {
 		tt := tt
