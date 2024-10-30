@@ -15,7 +15,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/np-guard/models/pkg/ipblock"
+	"github.com/np-guard/models/pkg/netset"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
@@ -254,7 +254,7 @@ func (pe *PolicyEngine) allowedXgressConnection(src, dst k8s.Peer, isIngress boo
 // isPeerNodeIP returns true if peer1 is an IP address of a node and peer2 is a pod on that node
 func isPeerNodeIP(peer1, peer2 k8s.Peer) bool {
 	if peer2.PeerType() == k8s.PodType && peer1.PeerType() == k8s.IPBlockType {
-		ip2, err := ipblock.FromIPAddress(peer2.GetPeerPod().HostIP)
+		ip2, err := netset.IPBlockFromIPAddress(peer2.GetPeerPod().HostIP)
 		if err != nil {
 			return peer1.GetPeerIPBlock().Equal(ip2)
 		}
@@ -277,7 +277,7 @@ func isPodToItself(peer1, peer2 k8s.Peer) bool {
 func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 	// check if input peer is cidr
 	if _, _, err := net.ParseCIDR(p); err == nil {
-		peerIPBlock, err := ipblock.FromCidr(p)
+		peerIPBlock, err := netset.IPBlockFromCidr(p)
 		if err != nil {
 			return nil, err
 		}
@@ -285,7 +285,7 @@ func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 	}
 	// check if input peer is an ip address
 	if net.ParseIP(p) != nil {
-		peerIPBlock, err := ipblock.FromIPAddress(p)
+		peerIPBlock, err := netset.IPBlockFromIPAddress(p)
 		if err != nil {
 			return nil, err
 		}
