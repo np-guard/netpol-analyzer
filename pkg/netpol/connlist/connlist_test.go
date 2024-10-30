@@ -15,6 +15,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/examples"
 
 	"github.com/stretchr/testify/require"
 )
@@ -1341,7 +1342,7 @@ var goodPathTests = []struct {
 	},
 }
 
-func runParsedResourcesConnlistTests(t *testing.T, testList []testutils.ParsedResourcesTest) {
+func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {
 	t.Helper()
 	for i := 0; i < len(testList); i++ {
 		test := &testList[i]
@@ -1359,9 +1360,9 @@ func runParsedResourcesConnlistTests(t *testing.T, testList []testutils.ParsedRe
 }
 
 func TestAllParsedResourcesConnlistTests(t *testing.T) {
-	runParsedResourcesConnlistTests(t, testutils.ANPConnectivityFromParsedResourcesTest)
-	runParsedResourcesConnlistTests(t, testutils.BANPConnectivityFromParsedResourcesTest)
-	runParsedResourcesConnlistTests(t, testutils.ANPWithNetPolV1FromParsedResourcesTest)
-	runParsedResourcesConnlistTests(t, testutils.BANPWithNetPolV1FromParsedResourcesTest)
-	runParsedResourcesConnlistTests(t, testutils.ANPWithBANPFromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.ANPConnectivityFromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.BANPConnectivityFromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.ANPWithNetPolV1FromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.BANPWithNetPolV1FromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.ANPWithBANPFromParsedResourcesTest)
 }
