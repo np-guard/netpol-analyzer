@@ -105,46 +105,36 @@ func (pc *PolicyConnections) CollectAllowedConnsFromNetpols(npConns *PolicyConne
 	// all the connections that are not allowed by the ANPs and NPs are denied.
 }
 
-// CollectConnsFromBANP updates current PolicyConnections object with connections from a BANP.
+// CollectConnsFromBANP updates current PolicyConnections object (which contains collected conns from ANPs)
+// with connections from a BANP.
 // Allowed and Denied connections of current PolicyConnections object (admin-network-policy) are non-overridden.
 // note that:
 // 1. passConns of the input connections will always be empty. (may contain non-empty allowed/ denied conns)
 // 2. pass connections in current PolicyConnections object will be determined by the input PolicyConnections
 // parameter or system-default value.
+// 3. since both ANP and BANP rules are read as-is; any connection that is not mentioned in any of the admin-policies
+// is allowed by default
 func (pc *PolicyConnections) CollectConnsFromBANP(banpConns *PolicyConnections) {
 	// allowed and denied conns of current pc are non-overridden
 	banpConns.AllowedConns.Subtract(pc.DeniedConns)
 	banpConns.DeniedConns.Subtract(pc.AllowedConns)
-	// PASS conns are determined by banpConns
 	// currently, banpConns.AllowedConns contains:
 	// 1. traffic that was passed by ANPs (if there are such conns)
-	// 2. traffic that had no match in ANPs
+	// 2. or traffic that had no match in ANPs
 	// so we can update current allowed conns with them
 	pc.AllowedConns.Union(banpConns.AllowedConns)
 	// also, banpConns.DeniedConns currently contains:
 	// 1. traffic that was passed by ANPs (if there are such conns)
-	// 2. traffic that had no match in ANPs
+	// 2. or traffic that had no match in ANPs
 	// so we can update current denied conns with banpConns.DeniedConns
 	pc.DeniedConns.Union(banpConns.DeniedConns)
-
-	// in order to update pc.PassConns we need:
-	// to find intersection of current pass connections with banpConns's allowedConns and deniedConns
-	passAllowCopy := pc.PassConns.Copy() // using a copy since Intersection changes the object, but we want to keep also
-	// non-intersected conns
-	passAllowCopy.Intersection(banpConns.AllowedConns) // pass conns to be allowed
-	// pc.AllowedConns.Union(passAllowCopy) - redundant since passAllowCopy is contained in banpConns.AllowedConns, already updated
-	passDenyCopy := pc.PassConns.Copy()
-	passDenyCopy.Intersection(banpConns.DeniedConns) // pass conns to be denied
-	// pc.DeniedConns.Union(passDenyCopy) - redundant since passDenyCopy is contained in banpConns.DeniedConns
-
-	// subtract pass-deny and pass-allow from the current Pass conns;
-	pc.PassConns.Subtract(passAllowCopy)
-	pc.PassConns.Subtract(passDenyCopy)
-	// note that the updated pc conns may still have non-empty Pass connections (BANP rules may did not capture all ANPs.Pass conns).
-	// so, since the BANP is the last evaluated policy of all policy layers, remaining pass conns will be allowed as system-default
-	if !pc.PassConns.IsEmpty() {
-		pc.AllowedConns.Union(pc.PassConns)
-	}
+	// now Pass conns were handled automatically; pc.PassConns is not relevant anymore.
+	// Pass Conns which are not captured by BANP, will be handled now with all other conns
+	// all conns that are not determined by the ANP and BANP are allowed by default
+	allowedByDefault := common.MakeConnectionSet(true)
+	allowedByDefault.Subtract(pc.DeniedConns)
+	// add the allowed by default connections to the pc.Allowed :
+	pc.AllowedConns.Union(allowedByDefault)
 }
 
 // IsEmpty : returns true iff all connection sets in current policy-connections are empty
