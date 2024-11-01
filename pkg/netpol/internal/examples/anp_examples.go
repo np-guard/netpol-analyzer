@@ -26,6 +26,7 @@ const (
 	connUDP80              = "UDP 80"
 	allButUDP80            = "SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535"
 	allButTCP80A81UDP80A81 = "SCTP 1-65535,TCP 1-79,82-65535,UDP 1-79,82-65535"
+	allButTCP80UDP80       = "SCTP 1-65535,TCP 1-79,81-65535,UDP 1-79,81-65535"
 	noConns                = "No Connections"
 	connTCP80A81UDP80A81   = "TCP 80-81,UDP 80-81"
 	connTCP80A81           = "TCP 80-81"
@@ -314,6 +315,24 @@ var (
 			},
 		},
 	})
+	banpDenySpecificPort = initBanp(&v1alpha1.BaselineAdminNetworkPolicy{
+		Spec: v1alpha1.BaselineAdminNetworkPolicySpec{
+			Subject: v1alpha1.AdminNetworkPolicySubject{
+				Pods: pods1,
+			},
+			Egress: []v1alpha1.BaselineAdminNetworkPolicyEgressRule{
+				{
+					Action: v1alpha1.BaselineAdminNetworkPolicyRuleActionDeny,
+					To: []v1alpha1.AdminNetworkPolicyEgressPeer{
+						{
+							Pods: pods2,
+						},
+					},
+					Ports: ports80,
+				},
+			},
+		},
+	})
 	anpAllowSpecificPort = v1alpha1.AdminNetworkPolicySpec{
 		Priority: priority100,
 		Subject: v1alpha1.AdminNetworkPolicySubject{
@@ -322,6 +341,23 @@ var (
 		Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
 			{
 				Action: v1alpha1.AdminNetworkPolicyRuleActionAllow,
+				To: []v1alpha1.AdminNetworkPolicyEgressPeer{
+					{
+						Pods: pods2,
+					},
+				},
+				Ports: portsUDP80,
+			},
+		},
+	}
+	anpDenySpecificPort = v1alpha1.AdminNetworkPolicySpec{
+		Priority: priority100,
+		Subject: v1alpha1.AdminNetworkPolicySubject{
+			Pods: pods1,
+		},
+		Egress: []v1alpha1.AdminNetworkPolicyEgressRule{
+			{
+				Action: v1alpha1.AdminNetworkPolicyRuleActionDeny,
 				To: []v1alpha1.AdminNetworkPolicyEgressPeer{
 					{
 						Pods: pods2,
@@ -1022,6 +1058,38 @@ var (
 				},
 			}),
 		},
+		{
+			Name: "ANP deny specific port - no other restrictions",
+			// actual table form policy-assistant:
+			// +--------+---------+---------+---------+---------+
+			// | TCP/80 |   X/A   |   X/B   |   Y/A   |   Y/B   |
+			// | TCP/81 |         |         |         |         |
+			// | UDP/80 |         |         |         |         |
+			// | UDP/81 |         |         |         |         |
+			// +--------+---------+---------+---------+---------+
+			// | x/a    | # # # # | . . X . | . . . . | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | x/b    | . . . . | # # # # | . . . . | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | y/a    | . . . . | . . . . | # # # # | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | y/b    | . . . . | . . . . | . . . . | # # # # |
+			// +--------+---------+---------+---------+---------+
+			OutputFormat:           output.TextFormat,
+			ExpectedOutputFileName: "test_anp_deny_specific_port_from_parsed_res.txt",
+			EvalTests: []EvalAllowedConnTest{
+				{
+					Src: "x/a", Dst: "x/b",
+					ExpResult: allButUDP80,
+				},
+			},
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: anpDenySpecificPort,
+				},
+			}),
+		},
 	}
 
 	BANPConnectivityFromParsedResourcesTest = []ParsedResourcesTest{
@@ -1192,6 +1260,34 @@ var (
 			},
 			Resources: initResources(podInfo1),
 			Banp:      banpAllowSpecificPort,
+		},
+		{
+			Name: "banp deny specific port - no other restrictions",
+			// actual table form policy-assistant:
+			// +--------+---------+---------+---------+---------+
+			// | TCP/80 |   X/A   |   X/B   |   Y/A   |   Y/B   |
+			// | TCP/81 |         |         |         |         |
+			// | UDP/80 |         |         |         |         |
+			// | UDP/81 |         |         |         |         |
+			// +--------+---------+---------+---------+---------+
+			// | x/a    | # # # # | X . . . | . . . . | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | x/b    | . . . . | # # # # | . . . . | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | y/a    | . . . . | . . . . | # # # # | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | y/b    | . . . . | . . . . | . . . . | # # # # |
+			// +--------+---------+---------+---------+---------+
+			OutputFormat:           output.TextFormat,
+			ExpectedOutputFileName: "test_banp_deny_specific_port_from_parsed_res.txt",
+			EvalTests: []EvalAllowedConnTest{
+				{
+					Src: "x/a", Dst: "x/b",
+					ExpResult: allButTCP80,
+				},
+			},
+			Resources: initResources(podInfo1),
+			Banp:      banpDenySpecificPort,
 		},
 	}
 
@@ -1868,7 +1964,6 @@ var (
 			}),
 			Banp: banpDenyAllToX,
 		},
-
 		{
 			Name: "ANP and BANP allow specific ports - no other restrictions",
 			// actual table from policy-assistant:
@@ -1901,6 +1996,39 @@ var (
 				},
 			}),
 			Banp: banpAllowSpecificPort,
+		},
+		{
+			Name: "ANP and BANP deny specific ports - no other restrictions",
+			// actual table from policy-assistant:
+			// +--------+---------+---------+---------+---------+
+			// | TCP/80 |   X/A   |   X/B   |   Y/A   |   Y/B   |
+			// | TCP/81 |         |         |         |         |
+			// | UDP/80 |         |         |         |         |
+			// | UDP/81 |         |         |         |         |
+			// +--------+---------+---------+---------+---------+
+			// | x/a    | # # # # | X . X . | . . . . | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | x/b    | . . . . | # # # # | . . . . | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | y/a    | . . . . | . . . . | # # # # | . . . . |
+			// +--------+---------+---------+---------+---------+
+			// | y/b    | . . . . | . . . . | . . . . | # # # # |
+			// +--------+---------+---------+---------+---------+
+			OutputFormat:           output.TextFormat,
+			ExpectedOutputFileName: "test_anp_banp_deny_specific_ports_from_parsed_res.txt",
+			EvalTests: []EvalAllowedConnTest{
+				{
+					Src: "x/a", Dst: "x/b",
+					ExpResult: allButTCP80UDP80,
+				},
+			},
+			Resources: initResources(podInfo1),
+			AnpList: initAnpList([]*v1alpha1.AdminNetworkPolicy{
+				{
+					Spec: anpDenySpecificPort,
+				},
+			}),
+			Banp: banpDenySpecificPort,
 		},
 	}
 )
