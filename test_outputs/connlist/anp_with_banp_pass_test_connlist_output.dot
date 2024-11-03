@@ -17,5 +17,5 @@ digraph {
 	"ns1/pod1[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"ns1/pod1[Deployment]" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"ns2/pod1[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"ns2/pod1[Deployment]" -> "ns1/pod1[Deployment]" [label="TCP 80-81,UDP 81" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns2/pod1[Deployment]" -> "ns1/pod1[Deployment]" [label="SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535" color="gold2" fontcolor="darkgreen" weight=1]
 }
