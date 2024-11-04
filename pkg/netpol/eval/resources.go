@@ -185,6 +185,9 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 // since the priority of policies is critical for computing the conns between peers
 func (pe *PolicyEngine) sortAdminNetpolsByPriority() error {
 	var err error
+	if len(pe.sortedAdminNetpols) == 1 && !pe.sortedAdminNetpols[0].HasValidPriority() {
+		return errors.New(netpolerrors.PriorityValueErr(pe.sortedAdminNetpols[0].Name, pe.sortedAdminNetpols[0].Spec.Priority))
+	}
 	sort.Slice(pe.sortedAdminNetpols, func(i, j int) bool {
 		// outcome is non-deterministic if there are two AdminNetworkPolicies at the same priority
 		if pe.sortedAdminNetpols[i].Spec.Priority == pe.sortedAdminNetpols[j].Spec.Priority {
