@@ -300,13 +300,11 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 
 	// compute the allowed connections on the given direction considering the which policies captured the xgress connection
 	// and precedence of each policy type:
-	switch npCaptured {
-	case true: // npCaptured
-		if !anpCaptured { // npCaptured && !anpCaptured
-			// only NPs capture the peers, return allowed conns from netpols
-			return npConns.AllowedConns, nil
-		}
-		// else: npCaptured && anpCaptured
+	switch {
+	case npCaptured && !anpCaptured:
+		// only NPs capture the peers, return allowed conns from netpols
+		return npConns.AllowedConns, nil
+	case npCaptured && anpCaptured:
 		// if conns between src and dst were captured by both the admin-network-policies and by network-policies
 		// collect conns:
 		// - traffic that was allowed or denied by ANPs will not be affected by the netpol conns.

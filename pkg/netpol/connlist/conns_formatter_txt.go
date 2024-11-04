@@ -25,8 +25,8 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 		return res, nil
 	}
 	// else append exposure analysis results:
-	if res != "" {
-		res += "\n\n"
+	if res != "" && res != newLineChar {
+		res += newLineChar
 	}
 	res += t.writeExposureOutput(exposureConns)
 	return res, nil
@@ -44,7 +44,7 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 		}
 	}
 	sort.Strings(connLines)
-	return strings.Join(connLines, newLineChar)
+	return strings.Join(connLines, newLineChar) + newLineChar
 }
 
 const (
@@ -59,9 +59,14 @@ func (t *formatText) writeExposureOutput(exposureResults []ExposedPeer) string {
 	ingressExpLines, egressExpLines, unprotectedLines := getExposureConnsAsSortedSingleConnFieldsArray(exposureResults, t.ipMaps)
 	sort.Strings(unprotectedLines)
 	// writing results of exposure for all peers
-	res := exposureAnalysisHeader
-	res += writeExposureSubSection(writeStrings(egressExpLines, false, maxPeerStrLen), newLineChar+egressExposureHeader+newLineChar)
-	res += writeExposureSubSection(writeStrings(ingressExpLines, true, maxPeerStrLen), newLineChar+ingressExposureHeader+newLineChar)
+	res := exposureAnalysisHeader + newLineChar
+	res += writeExposureSubSection(writeStrings(egressExpLines, false, maxPeerStrLen), egressExposureHeader+newLineChar)
+	ingressHead := ingressExposureHeader + newLineChar
+	if len(egressExpLines) > 0 {
+		// add empty line between the sections if both are not empty
+		ingressHead = newLineChar + ingressHead
+	}
+	res += writeExposureSubSection(writeStrings(ingressExpLines, true, maxPeerStrLen), ingressHead)
 	res += writeExposureSubSection(unprotectedLines, unprotectedHeader)
 	return res
 }

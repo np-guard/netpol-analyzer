@@ -116,25 +116,15 @@ func (pc *PolicyConnections) CollectAllowedConnsFromNetpols(npConns *PolicyConne
 // is allowed by default
 func (pc *PolicyConnections) CollectConnsFromBANP(banpConns *PolicyConnections) {
 	// allowed and denied conns of current pc are non-overridden
-	banpConns.AllowedConns.Subtract(pc.DeniedConns)
 	banpConns.DeniedConns.Subtract(pc.AllowedConns)
-	// currently, banpConns.AllowedConns contains:
-	// 1. traffic that was passed by ANPs (if there are such conns)
-	// 2. or traffic that had no match in ANPs
-	// so we can update current allowed conns with them
-	pc.AllowedConns.Union(banpConns.AllowedConns)
-	// also, banpConns.DeniedConns currently contains:
-	// 1. traffic that was passed by ANPs (if there are such conns)
-	// 2. or traffic that had no match in ANPs
-	// so we can update current denied conns with banpConns.DeniedConns
 	pc.DeniedConns.Union(banpConns.DeniedConns)
-	// now Pass conns were handled automatically; pc.PassConns is not relevant anymore.
-	// Pass Conns which are not captured by BANP, will be handled now with all other conns
-	// all conns that are not determined by the ANP and BANP are allowed by default
-	allowedByDefault := common.MakeConnectionSet(true)
-	allowedByDefault.Subtract(pc.DeniedConns)
-	// add the allowed by default connections to the pc.Allowed :
-	pc.AllowedConns.Union(allowedByDefault)
+	// now Pass conns which are denied by BANP were handled automatically;
+	// Pass Conns which are allowed or not captured by BANP, will be handled now with all other conns.
+	//  pc.PassConns is not relevant anymore.
+	// the allowed conns are "all conns - the denied conns"
+	// since all conns that are not determined by the ANP and BANP are allowed by default
+	pc.AllowedConns = common.MakeConnectionSet(true)
+	pc.AllowedConns.Subtract(pc.DeniedConns)
 }
 
 // IsEmpty : returns true iff all connection sets in current policy-connections are empty
@@ -147,5 +137,5 @@ func (pc *PolicyConnections) IsEmpty() bool {
 func (pc *PolicyConnections) DeterminesAllConns() bool {
 	selectedConns := pc.AllowedConns.Copy()
 	selectedConns.Union(pc.DeniedConns)
-	return selectedConns.AllConnections()
+	return selectedConns.IsAllConnections()
 }
