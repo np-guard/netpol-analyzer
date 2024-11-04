@@ -131,10 +131,10 @@ func (pc *PolicyConnections) CollectConnsFromBANP(banpConns *PolicyConnections) 
 	// now Pass conns were handled automatically; pc.PassConns is not relevant anymore.
 	// Pass Conns which are not captured by BANP, will be handled now with all other conns
 	// all conns that are not determined by the ANP and BANP are allowed by default
-	allowedByDefault := common.MakeConnectionSet(true)
-	allowedByDefault.Subtract(pc.DeniedConns)
+	nonCapturedConns := common.MakeConnectionSet(true)
+	nonCapturedConns.Subtract(pc.DeniedConns)
 	// add the allowed by default connections to the pc.Allowed :
-	pc.AllowedConns.Union(allowedByDefault)
+	pc.AllowedConns.Union(nonCapturedConns)
 }
 
 // IsEmpty : returns true iff all connection sets in current policy-connections are empty
@@ -147,5 +147,5 @@ func (pc *PolicyConnections) IsEmpty() bool {
 func (pc *PolicyConnections) DeterminesAllConns() bool {
 	selectedConns := pc.AllowedConns.Copy()
 	selectedConns.Union(pc.DeniedConns)
-	return selectedConns.AllConnections()
+	return selectedConns.IsAllConnections()
 }
