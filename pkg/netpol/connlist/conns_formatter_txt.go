@@ -9,7 +9,6 @@ package connlist
 import (
 	"fmt"
 	"sort"
-	"strings"
 )
 
 // formatText: implements the connsFormatter interface for txt output format
@@ -19,8 +18,8 @@ type formatText struct {
 
 // writeOutput returns a textual string format of connections from list of Peer2PeerConnection objects,
 // and exposure analysis results if exist
-func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error) {
-	res := t.writeConnlistOutput(conns, exposureFlag)
+func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool, explain bool) (string, error) {
+	res := t.writeConnlistOutput(conns, exposureFlag, explain)
 	if !exposureFlag {
 		return res, nil
 	}
@@ -33,21 +32,34 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 }
 
 // writeConnlistOutput writes the section of the connlist result of the output
-func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns bool) string {
-	connLines := make([]string, 0, len(conns))
+func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns bool, explain bool) string {
+	connLines := make([]singleConnFields, 0, len(conns))
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
 		if p2pConn := formSingleP2PConn(conns[i]); p2pConn.ConnString != "" {
 			// ConnString might be empty if conns[i] does not contain 'InSet' ports
-			connLines = append(connLines, p2pConn.string())
+			connLines = append(connLines, p2pConn)
 			// if we have exposure analysis results, also check if src/dst is an IP and store the connection
 			if saveIPConns {
 				t.ipMaps.saveConnsWithIPs(conns[i])
 			}
 		}
 	}
-	sort.Strings(connLines)
-	return strings.Join(connLines, newLineChar)
+	sort.Slice(connLines, func(i, j int) bool {
+		return (connLines[i].Src < connLines[j].Src ||
+			(connLines[i].Src == connLines[j].Src && connLines[i].Dst < connLines[j].Dst) ||
+			(connLines[i].Src == connLines[j].Src && connLines[i].Dst == connLines[j].Dst && connLines[i].ConnString < connLines[j].ConnString))
+	})
+	result := ""
+	for _, p2pConn := range connLines {
+		if explain {
+			result += p2pConn.stringWithExplanation()
+		} else {
+			result += p2pConn.string()
+		}
+		result += newLineChar
+	}
+	return result
 }
 
 const (

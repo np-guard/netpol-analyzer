@@ -20,10 +20,14 @@ import (
 
 // ConnectionSet represents a set of allowed connections between two peers on a k8s env
 // and implements Connection interface
+// The explainability information is represented as follows: every PortSet (in AllowedProtocols)
+// includes information about implying rules for every range.
+// CommonImplyingRules contain implying rules for empty or full ConectionSet (when AllowedProtocols is empty)
+// The following variant should hold: CommonImplyingRules not empty <==> AllowedProtocols empty
 type ConnectionSet struct {
 	AllowAll            bool
 	AllowedProtocols    map[v1.Protocol]*PortSet // map from protocol name to set of allowed ports
-	CommonImplyingRules *ImplyingRulesType       // used for explainability, when no AllowedProtocols set (i.e., all allowed or all denied)
+	CommonImplyingRules *ImplyingRulesType       // used for explainability, when AllowedProtocols is empty (i.e., all allowed or all denied)
 }
 
 var allProtocols = []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP, v1.ProtocolSCTP}
@@ -65,11 +69,29 @@ func GetAllTCPConnections() *ConnectionSet {
 
 // Intersection updates ConnectionSet object to be the intersection result with other ConnectionSet
 func (conn *ConnectionSet) Intersection(other *ConnectionSet) {
+	if conn.IsEmpty() {
+		return // nothing changes
+	}
+	if other.IsEmpty() && len(other.AllowedProtocols) == 0 {
+		// a special case when we should replace current common implying rules by others'
+		conn.CommonImplyingRules = other.CommonImplyingRules.Copy()
+		conn.AllowAll = false
+		conn.AllowedProtocols = map[v1.Protocol]*PortSet{}
+		return
+	}
+
+	if len(conn.AllowedProtocols) == 0 && len(other.AllowedProtocols) == 0 {
+		// conn.AllowAll && other.AllowAll should be true
+		// a special case when we should union common implying rules
+		conn.CommonImplyingRules.Union(other.CommonImplyingRules)
+		return
+	}
 	if conn.AllowAll {
-		// prepare for the intersection - we need to seep implying rules info into all protocols/ports
+		// prepare conn for the intersection - we need to seep implying rules info into all protocols/ports
 		conn.rebuildAllowAllExplicitly()
 	}
 	if other.AllowAll {
+		// prepare other for the intersection - we need to seep implying rules info into all protocols/ports
 		other.rebuildAllowAllExplicitly()
 	}
 	conn.AllowAll = false
@@ -136,8 +158,13 @@ func (conn *ConnectionSet) rebuildAllowAllExplicitly() {
 
 // Union updates ConnectionSet object to be the union result with other ConnectionSet
 func (conn *ConnectionSet) Union(other *ConnectionSet) {
+	if conn.IsEmpty() && other.IsEmpty() && len(conn.AllowedProtocols) == 0 && len(other.AllowedProtocols) == 0 {
+		// a special case when we should union implying rules
+		conn.CommonImplyingRules.Union(other.CommonImplyingRules)
+		return
+	}
 	if conn.AllowAll || other.IsEmpty() {
-		return // nothing changed, should't update implying rules
+		return // nothing changed, shouldn't update implying rules
 	}
 	if other.AllowAll {
 		other.rebuildAllowAllExplicitly()
@@ -152,6 +179,7 @@ func (conn *ConnectionSet) Union(other *ConnectionSet) {
 			conn.AllowedProtocols[protocol] = other.AllowedProtocols[protocol].Copy()
 		}
 	}
+	conn.CommonImplyingRules = &ImplyingRulesType{} // clear common implying rules, since we have implying rules in AllowedProtocols
 	conn.updateIfAllConnections()
 }
 
@@ -327,6 +355,10 @@ func (p *PortRangeData) String() string {
 	return fmt.Sprintf("%d", p.Start())
 }
 
+func (p *PortRangeData) StringWithExplanation(protocolString string) string {
+	return protocolString + ":" + p.String() + p.Interval.implyingRules.String()
+}
+
 func (p *PortRangeData) InSet() bool {
 	return p.Interval.inSet
 }
@@ -405,6 +437,46 @@ func portsString(ports []PortRange) string {
 	return strings.Join(portsStr, connsAndPortRangeSeparator)
 }
 
+func portsStringWithExplanation(ports []PortRange, protocolString string) (string, bool) {
+	portsStr := make([]string, 0, len(ports))
+	noPortsExplanation := ImplyingRulesType{}
+	for i := range ports {
+		data := ports[i].(*PortRangeData)
+		if data.InSet() {
+			portsStr = append(portsStr, data.StringWithExplanation(protocolString))
+		} else {
+			noPortsExplanation.Union(data.Interval.implyingRules)
+		}
+	}
+	if len(portsStr) == 0 {
+		return noConnsStr + noPortsExplanation.String(), false
+	}
+	return strings.Join(portsStr, newLine), true
+}
+
 func protocolAndPortsStr(protocol v1.Protocol, ports string) string {
 	return string(protocol) + " " + ports
+}
+
+func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRules *ImplyingRulesType, protocolsAndPorts map[v1.Protocol][]PortRange) string {
+	if allProtocolsAndPorts || len(protocolsAndPorts) == 0 {
+		connStr := noConnsStr
+		if allProtocolsAndPorts {
+			connStr = allConnsStr
+		}
+		return connStr + commonImplyingRules.String()
+
+	}
+	var connStr string
+	// connStrings will contain the string of given conns protocols and ports as is
+	connStrings := make([]string, 0, len(protocolsAndPorts))
+	for protocol, ports := range protocolsAndPorts {
+		if thePortsStr, hasPorts := portsStringWithExplanation(ports, string(protocol)); hasPorts {
+			// thePortsStr might be empty if 'ports' does not contain 'InSet' ports
+			connStrings = append(connStrings, thePortsStr)
+		}
+	}
+	sort.Strings(connStrings)
+	connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
+	return connStr
 }

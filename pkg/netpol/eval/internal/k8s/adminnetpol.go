@@ -13,7 +13,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
@@ -283,15 +282,15 @@ func (anp *AdminNetworkPolicy) anpRuleErr(ruleName, description string) error {
 }
 
 func (anp *AdminNetworkPolicy) fullName() string {
-	return types.NamespacedName{Name: anp.Name, Namespace: anp.Namespace}.String()
+	return anp.Name
 }
 
-func ruleFullName(policyName, ruleName string, isIngress bool) string {
+func ruleFullName(policyName, ruleName, action string, isIngress bool) string {
 	xgress := egressName
 	if isIngress {
 		xgress = ingressName
 	}
-	return fmt.Sprintf("%s %s rule %s", policyName, xgress, ruleName)
+	return fmt.Sprintf("%s//%s rule %s (%s)", policyName, xgress, ruleName, action)
 }
 
 // GetIngressPolicyConns returns the connections from the ingress rules selecting the src in spec of the adminNetworkPolicy
@@ -300,7 +299,7 @@ func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConn
 	for _, rule := range anp.Spec.Ingress { // rule is apisv1a.AdminNetworkPolicyIngressRule
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		if err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, ruleFullName(anp.fullName(), rule.Name, true),
+		if err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, ruleFullName("ANP "+anp.fullName(), rule.Name, string(rule.Action), true),
 			src, dst, res, string(rule.Action), false); err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}
@@ -314,7 +313,7 @@ func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnection
 	for _, rule := range anp.Spec.Egress { // rule is apisv1a.AdminNetworkPolicyEgressRule
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		if err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, ruleFullName(anp.fullName(), rule.Name, false),
+		if err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, ruleFullName("ANP "+anp.fullName(), rule.Name, string(rule.Action), false),
 			dst, res, string(rule.Action), false); err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}

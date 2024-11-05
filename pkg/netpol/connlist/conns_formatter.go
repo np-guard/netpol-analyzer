@@ -57,14 +57,15 @@ func createIPMaps(initMapsFlag bool) (ipMaps ipMaps) {
 
 // connsFormatter implements output formatting in the required output format
 type connsFormatter interface {
-	writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error)
+	writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool, explain bool) (string, error)
 }
 
 // singleConnFields represents a single connection object
 type singleConnFields struct {
-	Src        string `json:"src"`
-	Dst        string `json:"dst"`
-	ConnString string `json:"conn"`
+	Src         string `json:"src"`
+	Dst         string `json:"dst"`
+	ConnString  string `json:"conn"`
+	Explanation string
 }
 
 // string representation of the singleConnFields struct
@@ -72,10 +73,15 @@ func (c singleConnFields) string() string {
 	return fmt.Sprintf("%s => %s : %s", c.Src, c.Dst, c.ConnString)
 }
 
+func (c singleConnFields) stringWithExplanation() string {
+	return fmt.Sprintf("%s => %s :\n%s", c.Src, c.Dst, c.Explanation)
+}
+
 // formSingleP2PConn returns a string representation of single connection fields as singleConnFields object
 func formSingleP2PConn(conn Peer2PeerConnection) singleConnFields {
 	connStr := common.ConnStrFromConnProperties(conn.AllProtocolsAndPorts(), conn.ProtocolsAndPorts())
-	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr}
+	expl := common.ExplanationFromConnProperties(conn.AllProtocolsAndPorts(), conn.(*connection).commonImplyingRules, conn.ProtocolsAndPorts())
+	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr, Explanation: expl}
 }
 
 // commonly (to be) used for exposure analysis output formatters

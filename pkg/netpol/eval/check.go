@@ -357,6 +357,9 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 // admin-network-policies, network-policies and baseline-admin-network-policies;
 // considering the precedence of each policy
 func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress bool) (allowedConns *common.ConnectionSet, err error) {
+	// Tanya TODO: think about the implicitly denied protocols/port ranges (due to NPs capturing this src/dst, but defining only some of protocols/ports)
+	// How to update implying rules in this case?
+
 	// first get allowed xgress conn between the src and dst from the ANPs
 	// note that:
 	// - anpConns may contain allowed, denied or/and passed connections
@@ -580,6 +583,8 @@ func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer
 	return policiesConns, true, nil
 }
 
+const systemDefaultRule = "system default: allow all"
+
 // analyzing baseline-admin-network-policy for conns between peers (object kind == BaselineAdminNetworkPolicy):
 
 // getXgressDefaultConns returns the default connections between src and dst on the given direction (ingress/egress);
@@ -592,6 +597,7 @@ func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool)
 	res := k8s.NewPolicyConnections()
 	if pe.baselineAdminNetpol == nil {
 		res.AllowedConns = common.MakeConnectionSet(true)
+		res.AllowedConns.AddCommonImplyingRule(systemDefaultRule)
 		return res, nil
 	}
 	if isIngress { // ingress

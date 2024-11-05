@@ -1785,7 +1785,7 @@ func TestPolicyEngineWithWorkloads(t *testing.T) {
 	if len(processingErrs) > 0 {
 		t.Fatalf("TestPolicyEngineWithWorkloads errors: %v", processingErrs)
 	}
-	pe, err := NewPolicyEngineWithObjects(objects)
+	pe, err := NewPolicyEngineWithObjects(objects, false)
 	if err != nil {
 		t.Fatalf("TestPolicyEngineWithWorkloads error: %v", err)
 	}
@@ -1830,7 +1830,7 @@ func runParsedResourcesEvalTests(t *testing.T, testList []testutils.ParsedResour
 		test := &testList[i]
 		t.Run(test.Name, func(t *testing.T) {
 			t.Parallel()
-			pe, err := NewPolicyEngineWithObjects(test.GetK8sObjects())
+			pe, err := NewPolicyEngineWithObjects(test.GetK8sObjects(), test.Explain)
 			require.Nil(t, err, test.TestInfo)
 			for _, evalTest := range test.EvalTests {
 				src := evalTest.Src

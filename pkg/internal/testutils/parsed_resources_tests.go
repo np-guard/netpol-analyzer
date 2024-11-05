@@ -98,6 +98,7 @@ type EvalAllowedConnTest struct {
 type ParsedResourcesTest struct {
 	Name                   string
 	OutputFormat           string
+	Explain                bool
 	ExpectedOutputFileName string
 	EvalTests              []EvalAllowedConnTest
 	Resources              *Resources

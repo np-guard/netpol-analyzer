@@ -347,10 +347,18 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 	}
 	return false, nil
 }
+func (np *NetworkPolicy) nameWithDirection(isIngress bool) string {
+	xgress := "Egress"
+	if isIngress {
+		xgress = "Ingress"
+	}
+	return fmt.Sprintf("%s//%s", np.fullName(), xgress)
+}
 
 // GetEgressAllowedConns returns the set of allowed connections from any captured pod to the destination peer
 func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
+	res.AddCommonImplyingRule(np.nameWithDirection(false))
 	for idx, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
@@ -376,6 +384,7 @@ func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet,
 // GetIngressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer
 func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
+	res.AddCommonImplyingRule(np.nameWithDirection(true))
 	for idx, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
@@ -511,7 +520,7 @@ func (np *NetworkPolicy) ruleName(ruleIdx int, isIngress bool) string {
 	if isIngress {
 		xgress = ingressName
 	}
-	return np.fullName() + fmt.Sprintf(" %s rule #%d", xgress, ruleIdx)
+	return fmt.Sprintf("NP %s//%s rule #%d", np.fullName(), xgress, ruleIdx+1)
 }
 
 // /////////////////////////////////////////////////////////////////////////////////////////////

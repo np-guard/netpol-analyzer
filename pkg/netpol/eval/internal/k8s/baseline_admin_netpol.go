@@ -9,7 +9,6 @@ package k8s
 import (
 	"fmt"
 
-	"k8s.io/apimachinery/pkg/types"
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 )
 
@@ -48,7 +47,7 @@ func banpRuleErr(ruleName, description string) error {
 }
 
 func (banp *BaselineAdminNetworkPolicy) fullName() string {
-	return types.NamespacedName{Name: banp.Name, Namespace: banp.Namespace}.String()
+	return banp.Name
 }
 
 // GetEgressPolicyConns returns the connections from the egress rules selecting the dst in spec of the baselineAdminNetworkPolicy
@@ -57,7 +56,7 @@ func (banp *BaselineAdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyC
 	for _, rule := range banp.Spec.Egress { // rule is apisv1a.BaselineAdminNetworkPolicyEgressRule
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		if err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, ruleFullName(banp.fullName(), rule.Name, false),
+		if err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, ruleFullName("BANP "+banp.fullName(), rule.Name, string(rule.Action), false),
 			dst, res, string(rule.Action), true); err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
@@ -71,7 +70,7 @@ func (banp *BaselineAdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*P
 	for _, rule := range banp.Spec.Ingress { // rule is apisv1a.BaselineAdminNetworkPolicyIngressRule
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		if err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, ruleFullName(banp.fullName(), rule.Name, true),
+		if err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, ruleFullName("BANP "+banp.fullName(), rule.Name, string(rule.Action), true),
 			src, dst, res, string(rule.Action), true); err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}

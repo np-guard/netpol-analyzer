@@ -7,15 +7,17 @@ SPDX-License-Identifier: Apache-2.0
 package common
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"slices"
 	"sort"
+	"strings"
 
 	"github.com/np-guard/models/pkg/interval"
 )
 
-type ImplyingRulesType map[string]bool // an ordered set of rules; used for explainability
+type ImplyingRulesType map[string]int // an ordered set of rules; used for explainability
 
 func MakeImplyingRulesWithRule(rule string) *ImplyingRulesType {
 	res := ImplyingRulesType{}
@@ -34,13 +36,33 @@ func (rules *ImplyingRulesType) Copy() *ImplyingRulesType {
 	return &res
 }
 
-func (rules ImplyingRulesType) Empty() bool {
-	return len(rules) == 0
+const (
+	explTitle = "due to the following policices//rules:"
+	newLine   = "\n"
+)
+
+func (rules *ImplyingRulesType) String() string {
+	if rules.Empty() {
+		return ""
+	}
+	// print the rules according to thier order
+	var formattedRules []string
+	for name, order := range *rules {
+		formattedRules = append(formattedRules, fmt.Sprintf("%d) %s", order+1, name))
+	}
+	sort.Strings(formattedRules) // the rule index begins the string, like "2)"
+	return " " + explTitle + newLine + strings.Join(formattedRules, newLine) + newLine
+}
+
+func (rules *ImplyingRulesType) Empty() bool {
+	return len(*rules) == 0
 }
 
 func (rules *ImplyingRulesType) AddRule(ruleName string) {
 	if ruleName != "" {
-		(*rules)[ruleName] = true
+		if _, ok := (*rules)[ruleName]; !ok {
+			(*rules)[ruleName] = len(*rules) // a new rule should be the last
+		}
 	}
 }
 
@@ -48,8 +70,18 @@ func (rules *ImplyingRulesType) Union(other *ImplyingRulesType) {
 	if other == nil {
 		return
 	}
-	for k, v := range *other {
-		(*rules)[k] = v // v should be always true
+	// first, count how many rules are common in both sets
+	common := 0
+	for name := range *other {
+		if _, ok := (*rules)[name]; ok {
+			common += 1
+		}
+	}
+	offset := len(*rules) - common
+	for name, order := range *other {
+		if _, ok := (*rules)[name]; !ok { // for the common rules, keep their original order in the current rules
+			(*rules)[name] = order + offset // other rules should be addded after the current rules
+		}
 	}
 }
 
