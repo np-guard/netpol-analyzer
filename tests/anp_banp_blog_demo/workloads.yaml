@@ -26,6 +26,19 @@ spec:
 
 ---
 
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: baz
+  name: my-baz
+  labels:
+    security: none
+spec:
+  containers:
+    - name: myfirstContainer
+      image: bazimage
+
+---
 
 apiVersion: v1
 kind: Pod

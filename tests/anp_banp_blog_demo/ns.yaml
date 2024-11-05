@@ -20,6 +20,16 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: baz
+  labels:    
+    kubernetes.io/metadata.name: baz
+
+---
+
+
+apiVersion: v1
+kind: Namespace
+metadata:
   name: monitoring
   labels:
     kubernetes.io/metadata.name: monitoring        
