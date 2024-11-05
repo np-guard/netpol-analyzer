@@ -49,9 +49,11 @@ func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []Exp
 	// Tanya TODO - handle explain flag
 	// first write connlist lines
 	allLines := md.writeMdConnlistLines(conns, exposureFlag)
-	if exposureFlag {
-		allLines = append(allLines, md.writeMdExposureLines(exposureConns)...)
+	if !exposureFlag {
+		return strings.Join(allLines, newLineChar) + newLineChar, nil
 	}
+	// add exposure lines
+	allLines = append(allLines, md.writeMdExposureLines(exposureConns)...)
 	return strings.Join(allLines, newLineChar), nil
 }
 

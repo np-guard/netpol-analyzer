@@ -1,3 +1,4 @@
+
 Exposure Analysis Result:
 Ingress Exposure:
 ns1/pod-in-ns1[Deployment] 	<= 	[namespace with {x=xval}]/[pod with {app=foo}] : TCP 8080
