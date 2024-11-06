@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -197,7 +196,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common
 			if anpPort.PortRange.Protocol != "" {
 				protocol = anpPort.PortRange.Protocol
 			}
-			if isEmptyPortRange(anpPort.PortRange.Start, anpPort.PortRange.End) {
+			if isEmptyPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End)) {
 				continue // @todo should raise a warning
 			}
 			portSet.AddPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End))
@@ -243,6 +242,9 @@ func anpPortContains(rulePorts *[]apisv1a.AdminNetworkPolicyPort, protocol, port
 	if rulePorts == nil {
 		return true, nil // If this field is empty or missing, this rule matches all ports (traffic not restricted by port)
 	}
+	if protocol == "" && port == "" {
+		return false, nil // nothing to do
+	}
 	intPort, err := strconv.ParseInt(port, portBase, portBits)
 	if err != nil {
 		return false, err
@@ -253,29 +255,19 @@ func anpPortContains(rulePorts *[]apisv1a.AdminNetworkPolicyPort, protocol, port
 		}
 		switch { // only one case fits
 		case anpPort.PortNumber != nil:
-			if !strings.EqualFold(protocol, getProtocolStr(&anpPort.PortNumber.Protocol)) {
-				continue
-			}
-			if int64(anpPort.PortNumber.Port) == intPort {
+			if doesRulePortContain(getProtocolStr(&anpPort.PortNumber.Protocol), protocol,
+				int64(anpPort.PortNumber.Port), int64(anpPort.PortNumber.Port), intPort) {
 				return true, nil
 			}
 		case anpPort.NamedPort != nil:
 			podProtocol, podPort := dst.GetPeerPod().ConvertPodNamedPort(*anpPort.NamedPort)
-			if !strings.EqualFold(protocol, podProtocol) {
-				continue
-			}
-			if int64(podPort) == intPort {
+			if doesRulePortContain(podProtocol, protocol, int64(podPort), int64(podPort), intPort) {
 				return true, nil
 			}
 		case anpPort.PortRange != nil:
 			ruleProtocol := &anpPort.PortRange.Protocol
-			if strings.ToUpper(protocol) != getProtocolStr(ruleProtocol) {
-				continue
-			}
-			if isEmptyPortRange(anpPort.PortRange.Start, anpPort.PortRange.End) {
-				return false, nil
-			}
-			if intPort >= int64(anpPort.PortRange.Start) && intPort <= int64(anpPort.PortRange.End) {
+			if doesRulePortContain(getProtocolStr(ruleProtocol), protocol, int64(anpPort.PortRange.Start),
+				int64(anpPort.PortRange.End), intPort) {
 				return true, nil
 			}
 		}
