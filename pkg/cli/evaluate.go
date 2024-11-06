@@ -10,9 +10,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
@@ -30,18 +32,18 @@ import (
 // 		like NamedFlagSet's.
 
 const (
-	defaultNs       = "default"
-	defaultProtocol = "tcp"
+	defaultNs = metav1.NamespaceDefault
 )
 
 var (
 	// evaluated connection information
-	protocol       = defaultProtocol
-	sourcePod      = types.NamespacedName{Namespace: defaultNs}
-	destinationPod = types.NamespacedName{Namespace: defaultNs}
-	srcExternalIP  string
-	dstExternalIP  string
-	port           string
+	defaultProtocol = strings.ToLower(string(v1.ProtocolTCP))
+	protocol        = defaultProtocol
+	sourcePod       = types.NamespacedName{Namespace: defaultNs}
+	destinationPod  = types.NamespacedName{Namespace: defaultNs}
+	srcExternalIP   string
+	dstExternalIP   string
+	port            string
 )
 
 func validateEvalFlags() error {

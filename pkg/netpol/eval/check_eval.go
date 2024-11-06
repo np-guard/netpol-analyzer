@@ -71,11 +71,11 @@ func (pe *PolicyEngine) CheckIfAllowed(src, dst, protocol, port string) (bool, e
 func (pe *PolicyEngine) allowedXgressConnection(src, dst k8s.Peer, isIngress bool, protocol, port string) (bool, error) {
 	// first checks if the connection is allowed or denied by the admin-network-policies (return anpRes).
 	// if the connection is passed by the ANPs or not captured by them, then will continue to NPs (pass = true)
-	anpRes, pass, err := pe.allowedXgressConnectionByAdminNetpols(src, dst, isIngress, protocol, port)
+	anpRes, passOrNonCaptured, err := pe.allowedXgressConnectionByAdminNetpols(src, dst, isIngress, protocol, port)
 	if err != nil {
 		return false, err
 	}
-	if !pass { // i.e the connection is captured by the adminNetworkPolicies and definitely is either allowed or denied
+	if !passOrNonCaptured { // i.e the connection is captured by the adminNetworkPolicies and definitely is either allowed or denied
 		pe.cache.addConnectionResult(src, dst, protocol, port, anpRes)
 		return anpRes, nil
 	}
@@ -105,8 +105,8 @@ func (pe *PolicyEngine) allowedXgressConnection(src, dst k8s.Peer, isIngress boo
 
 // allowedXgressConnectionByAdminNetpols returns if the given input connection is allowed on the given ingress/egress direction
 // by k8s admin-network-policies
-func (pe *PolicyEngine) allowedXgressConnectionByAdminNetpols(src, dst k8s.Peer, isIngress bool, protocol, port string) (res, pass bool,
-	err error) {
+func (pe *PolicyEngine) allowedXgressConnectionByAdminNetpols(src, dst k8s.Peer, isIngress bool, protocol, port string) (res,
+	passOrNonCaptured bool, err error) {
 	// iterate sorted by priority admin netpols
 	for _, anp := range pe.sortedAdminNetpols {
 		if isIngress {
@@ -115,14 +115,14 @@ func (pe *PolicyEngine) allowedXgressConnectionByAdminNetpols(src, dst k8s.Peer,
 				return false, false, err
 			}
 			if selectsDst {
-				res, captured, err := anp.CheckIngressConnAllowed(src, dst, protocol, port)
+				res, err := anp.CheckIngressConnAllowed(src, dst, protocol, port)
 				if err != nil {
 					return false, false, err
 				}
-				if !captured {
+				if res == k8s.NotCaptured {
 					continue // continue to next ANP
 				}
-				return analyzeANPCapturedRes(res)
+				return isAllowedByANPCapturedRes(res)
 			}
 		} else { // egress
 			selectsSrc, err := anp.Selects(src, false)
@@ -130,14 +130,14 @@ func (pe *PolicyEngine) allowedXgressConnectionByAdminNetpols(src, dst k8s.Peer,
 				return false, false, err
 			}
 			if selectsSrc {
-				res, captured, err := anp.CheckEgressConnAllowed(dst, protocol, port)
+				res, err := anp.CheckEgressConnAllowed(dst, protocol, port)
 				if err != nil {
 					return false, false, err
 				}
-				if !captured {
+				if res == k8s.NotCaptured {
 					continue // continue to next ANP
 				}
-				return analyzeANPCapturedRes(res)
+				return isAllowedByANPCapturedRes(res)
 			}
 		}
 	}
@@ -145,9 +145,14 @@ func (pe *PolicyEngine) allowedXgressConnectionByAdminNetpols(src, dst k8s.Peer,
 	return false, true, nil
 }
 
-// analyzeANPCapturedRes when an admin-network-policy captures a connection , its result may be Allow (final- allowed conn),
+// isAllowedByANPCapturedRes when an admin-network-policy captures a connection , its result may be Allow (final- allowed conn),
 // or Deny (final - denied conn) or Pass (to be determined by netpol/ banp)
-func analyzeANPCapturedRes(anpRes int) (allowedOrDenied, pass bool, err error) {
+// return value (allowedOrDenied, pass bool, err error)
+// * if the given ANP result is Allow or Deny : returns true for allow and false for deny as the value of allowedOrDenied.
+// in this case returns pass = false (not important)
+// * if the given ANP result is Pass : returns true for pass and false for allow/deny
+// as the value of pass is the only important in this case.
+func isAllowedByANPCapturedRes(anpRes k8s.ANPRulesResult) (allowedOrDenied, pass bool, err error) {
 	switch anpRes {
 	case k8s.Pass:
 		return false, true, nil
@@ -217,14 +222,11 @@ func (pe *PolicyEngine) allowedXgressByBaselineAdminNetpolOrByDefault(src, dst k
 			return false, err
 		}
 		if selectsDst {
-			res, captured, err := pe.baselineAdminNetpol.CheckIngressConnAllowed(src, dst, protocol, port)
+			res, err := pe.baselineAdminNetpol.CheckIngressConnAllowed(src, dst, protocol, port)
 			if err != nil {
 				return false, err
 			}
-			if !captured {
-				return true, nil // system-default
-			}
-			return analyzeBANPCapturedRes(res)
+			return res, nil
 		}
 	} else {
 		selectsSrc, err := pe.baselineAdminNetpol.Selects(src, false)
@@ -232,26 +234,12 @@ func (pe *PolicyEngine) allowedXgressByBaselineAdminNetpolOrByDefault(src, dst k
 			return false, err
 		}
 		if selectsSrc {
-			res, captured, err := pe.baselineAdminNetpol.CheckEgressConnAllowed(dst, protocol, port)
+			res, err := pe.baselineAdminNetpol.CheckEgressConnAllowed(dst, protocol, port)
 			if err != nil {
 				return false, err
 			}
-			if !captured {
-				return true, nil // system-default
-			}
-			return analyzeBANPCapturedRes(res)
+			return res, nil
 		}
 	}
 	return true, nil // default
-}
-
-// analyzeBANPCapturedRes when a baseline-admin-network-policy captures a connection , its result may be Allow or Deny
-func analyzeBANPCapturedRes(res int) (allowedOrDenied bool, err error) {
-	switch res {
-	case k8s.Allow:
-		return true, nil
-	case k8s.Deny:
-		return false, nil
-	}
-	return false, errors.New(netpolerrors.UnknownRuleActionErr) // will not get here
 }
