@@ -100,24 +100,8 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 	for i := range objectsList {
 		obj := objectsList[i]
 		switch obj.Kind {
-		// workloads kinds
 		case parser.Pod:
 			err = pe.InsertObject(obj.Pod)
-		case parser.ReplicaSet:
-			err = pe.InsertObject(obj.ReplicaSet)
-		case parser.Deployment:
-			err = pe.InsertObject(obj.Deployment)
-		case parser.DaemonSet:
-			err = pe.InsertObject(obj.DaemonSet)
-		case parser.StatefulSet:
-			err = pe.InsertObject(obj.StatefulSet)
-		case parser.ReplicationController:
-			err = pe.InsertObject(obj.ReplicationController)
-		case parser.Job:
-			err = pe.InsertObject(obj.Job)
-		case parser.CronJob:
-			err = pe.InsertObject(obj.CronJob)
-			// ns kind
 		case parser.Namespace:
 			err = pe.InsertObject(obj.Namespace)
 			// netpols kinds
