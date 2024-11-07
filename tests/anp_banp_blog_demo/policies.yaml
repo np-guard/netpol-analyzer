@@ -25,12 +25,12 @@ spec:
       matchLabels:
         security: internal
   ingress:
-  - name: "deny-ingress-from-monitoring"
+  - name: "deny-ingress-from-all-namespaces"
     action: "Deny"
     from:
-    - namespaces:
-          matchLabels:
-            kubernetes.io/metadata.name: monitoring
+    - namespaces: {}
+#          matchLabels:
+#            kubernetes.io/metadata.name: monitoring
 
 ---
 
