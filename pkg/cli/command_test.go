@@ -348,14 +348,15 @@ func TestDiffCommandOutput(t *testing.T) {
 // TestEvalCommandOutput tests the output of legal eval command
 func TestEvalCommandOutput(t *testing.T) {
 	cases := []struct {
-		dir        string
-		sourcePod  string
-		sourceNs   string
-		destNs     string
-		destPod    string
-		protocol   string
-		port       string
-		evalResult bool
+		dir               string
+		sourcePod         string
+		sourceNs          string
+		destNs            string
+		destPod           string
+		protocol          string
+		port              string
+		evalResult        bool
+		generateManifests bool // indicates if the test dir does not contain pods - to be generated
 	}{
 		{
 			dir:        "onlineboutique",
@@ -372,61 +373,67 @@ func TestEvalCommandOutput(t *testing.T) {
 			evalResult: false,
 		},
 		{
-			dir:        "anp_demo",
-			sourceNs:   "gryffindor",
-			sourcePod:  "harry-potter-1",
-			destPod:    "luna-lovegood-1",
-			destNs:     "ravenclaw",
-			protocol:   "udp",
-			port:       "52",
-			evalResult: true,
+			dir:               "anp_demo",
+			sourceNs:          "gryffindor",
+			sourcePod:         "harry-potter",
+			destPod:           "luna-lovegood",
+			destNs:            "ravenclaw",
+			protocol:          "udp",
+			port:              "52",
+			evalResult:        true,
+			generateManifests: true,
 		},
 		{
-			dir:        "anp_test_6",
-			sourceNs:   "network-policy-conformance-slytherin",
-			sourcePod:  "draco-malfoy-1",
-			destPod:    "cedric-diggory-1",
-			destNs:     "network-policy-conformance-hufflepuff",
-			protocol:   "udp",
-			port:       "5353",
-			evalResult: false,
+			dir:               "anp_test_6",
+			sourceNs:          "network-policy-conformance-slytherin",
+			sourcePod:         "draco-malfoy",
+			destPod:           "cedric-diggory",
+			destNs:            "network-policy-conformance-hufflepuff",
+			protocol:          "udp",
+			port:              "5353",
+			evalResult:        false,
+			generateManifests: true,
 		},
 		{
-			dir:        "anp_test_multiple_anps",
-			sourceNs:   "network-policy-conformance-ravenclaw",
-			sourcePod:  "luna-lovegood-1",
-			destPod:    "draco-malfoy-1",
-			destNs:     "network-policy-conformance-slytherin",
-			protocol:   "sctp",
-			port:       "9003",
-			evalResult: false,
+			dir:               "anp_test_multiple_anps",
+			sourceNs:          "network-policy-conformance-ravenclaw",
+			sourcePod:         "luna-lovegood",
+			destPod:           "draco-malfoy",
+			destNs:            "network-policy-conformance-slytherin",
+			protocol:          "sctp",
+			port:              "9003",
+			evalResult:        false,
+			generateManifests: true,
 		},
 		{
-			dir:        "anp_with_np_and_banp_pass_test",
-			sourceNs:   "ns2",
-			sourcePod:  "pod1-1",
-			destPod:    "pod1-1",
-			destNs:     "ns1",
-			port:       "80",
-			evalResult: true,
+			dir:               "anp_with_np_and_banp_pass_test",
+			sourceNs:          "ns2",
+			sourcePod:         "pod1",
+			destPod:           "pod1",
+			destNs:            "ns1",
+			port:              "80",
+			evalResult:        true,
+			generateManifests: true,
 		},
 		{
-			dir:        "anp_with_np_pass_test",
-			sourceNs:   "ns2",
-			sourcePod:  "pod1-1",
-			destPod:    "pod1-1",
-			destNs:     "ns1",
-			port:       "8080",
-			evalResult: false,
+			dir:               "anp_with_np_pass_test",
+			sourceNs:          "ns2",
+			sourcePod:         "pod1",
+			destPod:           "pod1",
+			destNs:            "ns1",
+			port:              "8080",
+			evalResult:        false,
+			generateManifests: true,
 		},
 		{
-			dir:        "anp_banp_core_test",
-			sourceNs:   "network-policy-conformance-gryffindor",
-			sourcePod:  "harry-potter-1",
-			destPod:    "cedric-diggory-1",
-			destNs:     "network-policy-conformance-hufflepuff",
-			port:       "8080",
-			evalResult: true,
+			dir:               "anp_banp_core_test",
+			sourceNs:          "network-policy-conformance-gryffindor",
+			sourcePod:         "harry-potter",
+			destPod:           "cedric-diggory",
+			destNs:            "network-policy-conformance-hufflepuff",
+			port:              "8080",
+			evalResult:        true,
+			generateManifests: true,
 		},
 	}
 	for _, tt := range cases {
@@ -442,7 +449,18 @@ func TestEvalCommandOutput(t *testing.T) {
 			if tt.destNs == "" {
 				tt.destNs = defaultNs
 			}
-			args := []string{"eval", "--dirpath", testutils.GetTestDirPath(tt.dir),
+			dirPath := testutils.GetTestDirPath(tt.dir)
+			var err error
+			if tt.generateManifests {
+				// getting here means the test dir contains workloads in the manifests (not pods)
+				// but since eval command only supports pods, we will generate a copy of the dirs with
+				// pods yaml files from the matching workload resource of the tt's source and dst.
+				// so the command may be executed with the given args
+				dirPath, err = testutils.GenerateTempDirWithPods(dirPath, tt.sourcePod, tt.sourceNs, tt.destPod, tt.destNs)
+				require.Nil(t, err, "test: %q", testName)
+				defer os.RemoveAll(dirPath) // clean up after finishing the test
+			}
+			args := []string{"eval", "--dirpath", dirPath,
 				"-s", tt.sourcePod, "-d", tt.destPod, "-p", tt.port, "--protocol", tt.protocol,
 				"-n", tt.sourceNs, "--destination-namespace", tt.destNs}
 			actualOut, err := buildAndExecuteCommand(args)

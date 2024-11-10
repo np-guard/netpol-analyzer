@@ -1870,3 +1870,105 @@ func TestAllParsedResourcesEvalTests(t *testing.T) {
 	runParsedResourcesEvalTests(t, examples.BANPWithNetPolV1FromParsedResourcesTest)
 	runParsedResourcesEvalTests(t, examples.ANPWithBANPFromParsedResourcesTest)
 }
+
+func TestDirPathEvalResults(t *testing.T) {
+	cases := []struct {
+		dir        string
+		sourcePod  string
+		sourceNs   string
+		destNs     string
+		destPod    string
+		protocol   string
+		port       string
+		evalResult bool
+	}{
+		{
+			dir:        "anp_demo",
+			sourceNs:   "gryffindor",
+			sourcePod:  "harry-potter",
+			destPod:    "luna-lovegood",
+			destNs:     "ravenclaw",
+			protocol:   "udp",
+			port:       "52",
+			evalResult: true,
+		},
+		{
+			dir:        "anp_test_6",
+			sourceNs:   "network-policy-conformance-slytherin",
+			sourcePod:  "draco-malfoy",
+			destPod:    "cedric-diggory",
+			destNs:     "network-policy-conformance-hufflepuff",
+			protocol:   "udp",
+			port:       "5353",
+			evalResult: false,
+		},
+		{
+			dir:        "anp_test_multiple_anps",
+			sourceNs:   "network-policy-conformance-ravenclaw",
+			sourcePod:  "luna-lovegood",
+			destPod:    "draco-malfoy",
+			destNs:     "network-policy-conformance-slytherin",
+			protocol:   "sctp",
+			port:       "9003",
+			evalResult: false,
+		},
+		{
+			dir:        "anp_with_np_and_banp_pass_test",
+			sourceNs:   "ns2",
+			sourcePod:  "pod1",
+			destPod:    "pod1",
+			destNs:     "ns1",
+			port:       "80",
+			evalResult: true,
+		},
+		{
+			dir:        "anp_with_np_pass_test",
+			sourceNs:   "ns2",
+			sourcePod:  "pod1",
+			destPod:    "pod1",
+			destNs:     "ns1",
+			port:       "8080",
+			evalResult: false,
+		},
+		{
+			dir:        "anp_banp_core_test",
+			sourceNs:   "network-policy-conformance-gryffindor",
+			sourcePod:  "harry-potter",
+			destPod:    "cedric-diggory",
+			destNs:     "network-policy-conformance-hufflepuff",
+			port:       "8080",
+			evalResult: true,
+		},
+	}
+	for _, tt := range cases {
+		tt := tt
+		testName := "eval_" + tt.dir + "_from_" + tt.sourcePod + "_to_" + tt.destPod
+		t.Run(testName, func(t *testing.T) {
+			t.Parallel()
+			if tt.protocol == "" {
+				tt.protocol = strings.ToLower(string(v1.ProtocolTCP))
+			}
+			path := testutils.GetTestDirPath(tt.dir)
+			rList, errs := fsscanner.GetResourceInfosFromDirPath([]string{path}, true, false)
+			require.Empty(t, errs, "test: %q", testName)
+			objectsList, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
+			require.Empty(t, processingErrs, "test: %q", testName)
+			pe, err := NewPolicyEngineWithObjects(objectsList)
+			require.Nil(t, err, "test: %q", testName)
+			var src, dst string
+			for podStr, podObj := range pe.podsMap {
+				if podObj.Owner.Name == tt.sourcePod && podObj.Namespace == tt.sourceNs {
+					src = podStr
+				}
+				if podObj.Owner.Name == tt.destPod && podObj.Namespace == tt.destNs {
+					dst = podStr
+				}
+			}
+			require.NotEmpty(t, src, "test %q, could not find pod for %s", testName, tt.sourcePod)
+			require.NotEmpty(t, dst, "test %q, could not find pod for %s", testName, tt.destPod)
+			res, err := pe.CheckIfAllowed(src, dst, tt.protocol, tt.port)
+			require.Nil(t, err, "test: %q", testName)
+			require.Equal(t, tt.evalResult, res, "unexpected result for test %q, should be %v", testName, tt.evalResult)
+		})
+	}
+}
