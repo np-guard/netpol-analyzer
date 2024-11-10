@@ -458,7 +458,7 @@ func TestEvalCommandOutput(t *testing.T) {
 				// so the command may be executed with the given args
 				dirPath, err = testutils.GenerateTempDirWithPods(dirPath, tt.sourcePod, tt.sourceNs, tt.destPod, tt.destNs)
 				require.Nil(t, err, "test: %q", testName)
-				defer os.RemoveAll(dirPath) // clean up after finishing the test
+				defer os.RemoveAll(testutils.TmpDir) // clean up after finishing the test
 			}
 			args := []string{"eval", "--dirpath", dirPath,
 				"-s", tt.sourcePod, "-d", tt.destPod, "-p", tt.port, "--protocol", tt.protocol,

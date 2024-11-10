@@ -13,6 +13,8 @@ import (
 
 	"gopkg.in/yaml.v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/np-guard/netpol-analyzer/pkg/internal/projectpath"
 )
 
 // a test util for eval command-line; generating a new temporary directory with pod files to be used for testing.
@@ -22,18 +24,32 @@ import (
 // we copy the test-die into a new temporary dir, and generate into the tempDir :
 // Pod yaml files for given src and dst peers from their workload resources
 
+const (
+	tmpPattern = "temp-*"
+	exeMode    = 0o777
+)
+
+var TmpDir = filepath.Join(projectpath.Root, "temp") // cleaned up after the test is done
+
 // GenerateTempDirWithPods generates new temporary dir that copies origDir and adds yaml files of Pod kind
 // matching the input workload resources of the src and dst
 // the function returns the path of the generated temp dir.
 func GenerateTempDirWithPods(origDir, srcName, srcNs, dstName, dstNs string) (string, error) {
+	// create the TmpDir path if does not exist
+	if _, err := os.Stat(TmpDir); os.IsNotExist(err) {
+		osErr := os.Mkdir(TmpDir, exeMode)
+		if osErr != nil {
+			return "", osErr
+		}
+	}
 	// making temp directory in the temp path
-	tmpDir, err := os.MkdirTemp("", "temp-*")
+	testTmpDir, err := os.MkdirTemp(TmpDir, tmpPattern)
 	if err != nil {
 		return "", err
 	}
 	// copy orig dir into the temp dir
-	err = copyDir(origDir, tmpDir, srcName, srcNs, dstName, dstNs)
-	return tmpDir, err
+	err = copyDir(origDir, testTmpDir, srcName, srcNs, dstName, dstNs)
+	return testTmpDir, err
 }
 
 // copyDir copies files of network-policies from origDir into tempDir
