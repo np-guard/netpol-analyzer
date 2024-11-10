@@ -164,7 +164,7 @@ func copyFile(origFile, tempFile string) error {
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(tempFile, contents, os.ModeAppend)
+	err = os.WriteFile(tempFile, contents, exeMode)
 	return err
 }
 
@@ -200,5 +200,5 @@ func generatePodYaml(dirName, podName, podNs string, labels map[string]string) e
 		return err
 	}
 	// write to file
-	return os.WriteFile(podFile, buf.Bytes(), os.ModeAppend)
+	return os.WriteFile(podFile, buf.Bytes(), exeMode)
 }
