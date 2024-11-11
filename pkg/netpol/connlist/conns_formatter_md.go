@@ -67,7 +67,7 @@ func writeMdLines(conns []singleConnFields, srcFirst bool) []string {
 }
 
 // writeMdConnlistLines returns md lines from the list of Peer2PeerConnection
-func (md *formatMD) writeMdConnlistLines(conns []Peer2PeerConnection, saveIPConns bool, explain bool) []string {
+func (md *formatMD) writeMdConnlistLines(conns []Peer2PeerConnection, saveIPConns, explain bool) []string {
 	md.ipMaps = createIPMaps(saveIPConns)
 	sortedConns := getConnlistAsSortedSingleConnFieldsArray(conns, md.ipMaps, saveIPConns, explain)
 	connlistLines := []string{getMDHeader(true)} // connlist results are formatted: src | dst | conn

@@ -299,7 +299,8 @@ func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConn
 	for _, rule := range anp.Spec.Ingress { // rule is apisv1a.AdminNetworkPolicyIngressRule
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		if err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, ruleFullName("ANP "+anp.fullName(), rule.Name, string(rule.Action), true),
+		if err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts,
+			ruleFullName("ANP "+anp.fullName(), rule.Name, string(rule.Action), true),
 			src, dst, res, string(rule.Action), false); err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}
@@ -313,7 +314,8 @@ func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnection
 	for _, rule := range anp.Spec.Egress { // rule is apisv1a.AdminNetworkPolicyEgressRule
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		if err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, ruleFullName("ANP "+anp.fullName(), rule.Name, string(rule.Action), false),
+		if err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts,
+			ruleFullName("ANP "+anp.fullName(), rule.Name, string(rule.Action), false),
 			dst, res, string(rule.Action), false); err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}

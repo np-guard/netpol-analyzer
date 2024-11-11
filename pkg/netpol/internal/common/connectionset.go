@@ -458,14 +458,14 @@ func protocolAndPortsStr(protocol v1.Protocol, ports string) string {
 	return string(protocol) + " " + ports
 }
 
-func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRules *ImplyingRulesType, protocolsAndPorts map[v1.Protocol][]PortRange) string {
+func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRules *ImplyingRulesType,
+	protocolsAndPorts map[v1.Protocol][]PortRange) string {
 	if allProtocolsAndPorts || len(protocolsAndPorts) == 0 {
 		connStr := noConnsStr
 		if allProtocolsAndPorts {
 			connStr = allConnsStr
 		}
 		return connStr + commonImplyingRules.String()
-
 	}
 	var connStr string
 	// connStrings will contain the string of given conns protocols and ports as is

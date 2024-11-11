@@ -45,8 +45,8 @@ func (rules *ImplyingRulesType) String() string {
 	if rules.Empty() {
 		return ""
 	}
-	// print the rules according to thier order
-	var formattedRules []string
+	// print the rules according to their order
+	formattedRules := make([]string, 0, len(*rules))
 	for name, order := range *rules {
 		formattedRules = append(formattedRules, fmt.Sprintf("%d) %s", order+1, name))
 	}

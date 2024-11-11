@@ -18,7 +18,7 @@ type formatCSV struct {
 
 // writeOutput returns a CSV string form of connections from list of Peer2PeerConnection objects
 // and exposure analysis results from list ExposedPeer if exists
-func (cs *formatCSV) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool, explain bool) (string, error) {
+func (cs *formatCSV) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool) (string, error) {
 	// Tanya TODO - handle explain flag
 	// writing csv rows into a buffer
 	buf := new(bytes.Buffer)
@@ -62,7 +62,7 @@ func writeTableRows(conns []singleConnFields, writer *csv.Writer, srcFirst bool)
 }
 
 // writeCsvConnlistTable writes csv table for the Peer2PeerConnection list
-func (cs *formatCSV) writeCsvConnlistTable(conns []Peer2PeerConnection, writer *csv.Writer, saveIPConns bool, explain bool) error {
+func (cs *formatCSV) writeCsvConnlistTable(conns []Peer2PeerConnection, writer *csv.Writer, saveIPConns, explain bool) error {
 	err := writeCsvColumnsHeader(writer, true)
 	if err != nil {
 		return err

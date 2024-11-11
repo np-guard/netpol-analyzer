@@ -357,7 +357,8 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 // admin-network-policies, network-policies and baseline-admin-network-policies;
 // considering the precedence of each policy
 func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress bool) (allowedConns *common.ConnectionSet, err error) {
-	// Tanya TODO: think about the implicitly denied protocols/port ranges (due to NPs capturing this src/dst, but defining only some of protocols/ports)
+	// Tanya TODO: think about the implicitly denied protocols/port ranges
+	// (due to NPs capturing this src/dst, but defining only some of protocols/ports)
 	// How to update implying rules in this case?
 
 	// first get allowed xgress conn between the src and dst from the ANPs

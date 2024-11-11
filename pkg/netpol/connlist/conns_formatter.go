@@ -190,7 +190,7 @@ func getRepresentativePodString(podLabels v1.LabelSelector, txtOutFlag bool) str
 
 // getConnlistAsSortedSingleConnFieldsArray returns a sorted singleConnFields list from Peer2PeerConnection list.
 // creates ipMaps object if the format requires it (to be used for exposure results later)
-func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMaps ipMaps, saveToIPMaps bool, explain bool) []singleConnFields {
+func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMaps ipMaps, saveToIPMaps, explain bool) []singleConnFields {
 	connItems := make([]singleConnFields, len(conns))
 	for i := range conns {
 		if saveToIPMaps {
