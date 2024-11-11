@@ -37,12 +37,12 @@ type ipMaps struct {
 
 // saveConnsWithIPs gets a P2P connection; if the connection includes an IP-Peer as one of its end-points; the conn is saved in the
 // matching map of the formatText maps
-func (i *ipMaps) saveConnsWithIPs(conn Peer2PeerConnection) {
+func (i *ipMaps) saveConnsWithIPs(conn Peer2PeerConnection, explain bool) {
 	if conn.Src().IsPeerIPType() {
-		i.PeerToConnsFromIPs[conn.Dst().String()] = append(i.PeerToConnsFromIPs[conn.Dst().String()], formSingleP2PConn(conn))
+		i.PeerToConnsFromIPs[conn.Dst().String()] = append(i.PeerToConnsFromIPs[conn.Dst().String()], formSingleP2PConn(conn, explain))
 	}
 	if conn.Dst().IsPeerIPType() {
-		i.peerToConnsToIPs[conn.Src().String()] = append(i.peerToConnsToIPs[conn.Src().String()], formSingleP2PConn(conn))
+		i.peerToConnsToIPs[conn.Src().String()] = append(i.peerToConnsToIPs[conn.Src().String()], formSingleP2PConn(conn, explain))
 	}
 }
 
@@ -65,7 +65,7 @@ type singleConnFields struct {
 	Src         string `json:"src"`
 	Dst         string `json:"dst"`
 	ConnString  string `json:"conn"`
-	Explanation string
+	Explanation string `json:"explanation,omitempty"`
 }
 
 // string representation of the singleConnFields struct
@@ -78,9 +78,12 @@ func (c singleConnFields) stringWithExplanation() string {
 }
 
 // formSingleP2PConn returns a string representation of single connection fields as singleConnFields object
-func formSingleP2PConn(conn Peer2PeerConnection) singleConnFields {
+func formSingleP2PConn(conn Peer2PeerConnection, explain bool) singleConnFields {
 	connStr := common.ConnStrFromConnProperties(conn.AllProtocolsAndPorts(), conn.ProtocolsAndPorts())
-	expl := common.ExplanationFromConnProperties(conn.AllProtocolsAndPorts(), conn.(*connection).commonImplyingRules, conn.ProtocolsAndPorts())
+	expl := ""
+	if explain {
+		expl = common.ExplanationFromConnProperties(conn.AllProtocolsAndPorts(), conn.(*connection).commonImplyingRules, conn.ProtocolsAndPorts())
+	}
 	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr, Explanation: expl}
 }
 
@@ -187,13 +190,13 @@ func getRepresentativePodString(podLabels v1.LabelSelector, txtOutFlag bool) str
 
 // getConnlistAsSortedSingleConnFieldsArray returns a sorted singleConnFields list from Peer2PeerConnection list.
 // creates ipMaps object if the format requires it (to be used for exposure results later)
-func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMaps ipMaps, saveToIPMaps bool) []singleConnFields {
+func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMaps ipMaps, saveToIPMaps bool, explain bool) []singleConnFields {
 	connItems := make([]singleConnFields, len(conns))
 	for i := range conns {
 		if saveToIPMaps {
-			ipMaps.saveConnsWithIPs(conns[i])
+			ipMaps.saveConnsWithIPs(conns[i], explain)
 		}
-		connItems[i] = formSingleP2PConn(conns[i])
+		connItems[i] = formSingleP2PConn(conns[i], explain)
 	}
 	return sortConnFields(connItems, true)
 }

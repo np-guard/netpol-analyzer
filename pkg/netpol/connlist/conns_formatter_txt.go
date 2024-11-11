@@ -36,12 +36,12 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 	connLines := make([]singleConnFields, 0, len(conns))
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
-		if p2pConn := formSingleP2PConn(conns[i]); p2pConn.ConnString != "" {
+		if p2pConn := formSingleP2PConn(conns[i], explain); p2pConn.ConnString != "" {
 			// ConnString might be empty if conns[i] does not contain 'InSet' ports
 			connLines = append(connLines, p2pConn)
 			// if we have exposure analysis results, also check if src/dst is an IP and store the connection
 			if saveIPConns {
-				t.ipMaps.saveConnsWithIPs(conns[i])
+				t.ipMaps.saveConnsWithIPs(conns[i], explain)
 			}
 		}
 	}
@@ -51,13 +51,14 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 			(connLines[i].Src == connLines[j].Src && connLines[i].Dst == connLines[j].Dst && connLines[i].ConnString < connLines[j].ConnString))
 	})
 	result := ""
-	for _, p2pConn := range connLines {
-		if explain {
-			result += p2pConn.stringWithExplanation()
-		} else {
-			result += p2pConn.string()
+	if explain {
+		for _, p2pConn := range connLines {
+			result += p2pConn.stringWithExplanation() + newLineChar
 		}
-		result += newLineChar
+	} else {
+		for _, p2pConn := range connLines {
+			result += p2pConn.string() + newLineChar
+		}
 	}
 	return result
 }

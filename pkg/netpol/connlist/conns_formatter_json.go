@@ -36,7 +36,7 @@ func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 	var jsonConns []byte
 	var err error
 	// get an array of sorted connlist items ([]singleConnFields)
-	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, j.ipMaps, exposureFlag)
+	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, j.ipMaps, exposureFlag, explain)
 	if exposureFlag {
 		// get an array of sorted exposure items
 		ingressExposureItems, egressExposureItems, _ := getExposureConnsAsSortedSingleConnFieldsArray(exposureConns, j.ipMaps)

@@ -24,7 +24,7 @@ func (cs *formatCSV) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 	buf := new(bytes.Buffer)
 	writer := csv.NewWriter(buf)
 
-	err := cs.writeCsvConnlistTable(conns, writer, exposureFlag)
+	err := cs.writeCsvConnlistTable(conns, writer, exposureFlag, explain)
 	if err != nil {
 		return "", err
 	}
@@ -62,14 +62,14 @@ func writeTableRows(conns []singleConnFields, writer *csv.Writer, srcFirst bool)
 }
 
 // writeCsvConnlistTable writes csv table for the Peer2PeerConnection list
-func (cs *formatCSV) writeCsvConnlistTable(conns []Peer2PeerConnection, writer *csv.Writer, saveIPConns bool) error {
+func (cs *formatCSV) writeCsvConnlistTable(conns []Peer2PeerConnection, writer *csv.Writer, saveIPConns bool, explain bool) error {
 	err := writeCsvColumnsHeader(writer, true)
 	if err != nil {
 		return err
 	}
 	cs.ipMaps = createIPMaps(saveIPConns)
 	// get an array of sorted conns items ([]singleConnFields), if required also save the relevant conns to ipMaps
-	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, cs.ipMaps, saveIPConns)
+	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, cs.ipMaps, saveIPConns, explain)
 	return writeTableRows(sortedConnItems, writer, true)
 }
 
