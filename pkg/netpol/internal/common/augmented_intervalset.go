@@ -100,9 +100,8 @@ func (rules *ImplyingXgressRulesType) Empty() bool {
 func (rules ImplyingRulesType) Empty(isIngress bool) bool {
 	if isIngress {
 		return rules.Ingress.Empty()
-	} else {
-		return rules.Egress.Empty()
 	}
+	return rules.Egress.Empty()
 }
 
 func (rules *ImplyingXgressRulesType) AddXgressRule(ruleName string) {
