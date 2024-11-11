@@ -18,7 +18,7 @@ type formatText struct {
 
 // writeOutput returns a textual string format of connections from list of Peer2PeerConnection objects,
 // and exposure analysis results if exist
-func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool, explain bool) (string, error) {
+func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool) (string, error) {
 	res := t.writeConnlistOutput(conns, exposureFlag, explain)
 	if !exposureFlag {
 		return res, nil

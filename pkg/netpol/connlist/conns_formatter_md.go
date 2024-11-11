@@ -45,7 +45,7 @@ func getMDLine(c singleConnFields, srcFirst bool) string {
 
 // writeOutput returns a md string form of connections from list of Peer2PeerConnection objects,
 // and exposure analysis results from list ExposedPeer if exists
-func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool, explain bool) (string, error) {
+func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool) (string, error) {
 	// Tanya TODO - handle explain flag
 	// first write connlist lines
 	allLines := md.writeMdConnlistLines(conns, exposureFlag, explain)
