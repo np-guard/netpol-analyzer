@@ -122,8 +122,9 @@ func (pc *PolicyConnections) CollectConnsFromBANP(banpConns *PolicyConnections) 
 	// Pass Conns which are allowed or not captured by BANP, will be handled now with all other conns.
 	//  pc.PassConns is not relevant anymore.
 	// the allowed conns are "all conns - the denied conns"
-	// since all conns that are not determined by the ANP and BANP are allowed by default
-	pc.AllowedConns = common.MakeConnectionSet(true)
+	// all conns that are not determined by the ANP and BANP are allowed by default,
+	// and are kept in banpConns.AllowedConns (were returned by getXgressDefaultConns)
+	pc.AllowedConns = banpConns.AllowedConns
 	pc.AllowedConns.Subtract(pc.DeniedConns)
 }
 

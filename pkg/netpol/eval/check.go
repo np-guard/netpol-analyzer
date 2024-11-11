@@ -620,6 +620,7 @@ func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool)
 	}
 	if res.IsEmpty() { // banp rules didn't capture xgress conn between src and dst, return system-default: allow-all
 		res.AllowedConns = common.MakeConnectionSet(true)
+		res.AllowedConns.AddCommonImplyingRule(systemDefaultRule, isIngress)
 	}
 	return res, nil
 }
