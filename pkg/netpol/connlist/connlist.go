@@ -649,7 +649,7 @@ func createConnectionObject(allowedConnections common.Connection, src, dst Peer)
 	return &connection{
 		src:                 src,
 		dst:                 dst,
-		allConnections:      allowedConnections.AllConnections(),
+		allConnections:      allowedConnections.IsAllConnections(),
 		commonImplyingRules: allowedConnections.(*common.ConnectionSet).CommonImplyingRules,
 		protocolsAndPorts:   allowedConnections.ProtocolsAndPortsMap(true),
 	}

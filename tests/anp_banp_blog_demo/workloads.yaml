@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: foo
+  name: my-foo
+  labels:
+    security: internal
+spec:
+  containers:
+    - name: myfirstContainer
+      image: fooimage
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: bar
+  name: my-bar
+  labels:
+    security: internal
+spec:
+  containers:
+    - name: myfirstContainer
+      image: barimage
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: baz
+  name: my-baz
+  labels:
+    security: none
+spec:
+  containers:
+    - name: myfirstContainer
+      image: bazimage
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: monitoring
+  name: my-monitoring
+  labels:
+    security: monitoring
+spec:
+  containers:
+    - name: myfirstContainer
+      image: monitoringimage
+
+---
+
+
