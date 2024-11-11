@@ -270,7 +270,7 @@ func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 		protocol := corev1.ProtocolTCP
 		if cPort.Protocol == "" || protocol == corev1.ProtocolTCP {
 			ports := common.MakePortSet(false)
-			ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort), true, "")
+			ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort), true, "", true)
 			res.AddConnection(protocol, ports)
 		}
 	}

@@ -17,23 +17,48 @@ import (
 	"github.com/np-guard/models/pkg/interval"
 )
 
-type ImplyingRulesType map[string]int // an ordered set of rules; used for explainability
+type ImplyingXgressRulesType map[string]int
 
-func MakeImplyingRulesWithRule(rule string) *ImplyingRulesType {
-	res := ImplyingRulesType{}
-	res.AddRule(rule)
+type ImplyingRulesType struct {
+	Ingress *ImplyingXgressRulesType // an ordered set of ingress rules, used for explainability
+	Egress  *ImplyingXgressRulesType // an ordered set of egress rules, used for explainability
+}
+
+func MakeImplyingXgressRulesWithRule(rule string) *ImplyingXgressRulesType {
+	res := ImplyingXgressRulesType{}
+	res.AddXgressRule(rule)
 	return &res
 }
 
-func (rules *ImplyingRulesType) Copy() *ImplyingRulesType {
+func MakeImplyingRules() ImplyingRulesType {
+	return ImplyingRulesType{Ingress: &ImplyingXgressRulesType{}, Egress: &ImplyingXgressRulesType{}}
+}
+func MakeImplyingRulesWithRule(rule string, isIngress bool) ImplyingRulesType {
+	res := MakeImplyingRules()
+	if isIngress {
+		res.Ingress = MakeImplyingXgressRulesWithRule(rule)
+	} else {
+		res.Egress = MakeImplyingXgressRulesWithRule(rule)
+	}
+	return res
+}
+
+func (rules *ImplyingXgressRulesType) Copy() *ImplyingXgressRulesType {
 	if rules == nil {
 		return nil
 	}
-	res := ImplyingRulesType{}
+	res := ImplyingXgressRulesType{}
 	for k, v := range *rules {
 		res[k] = v
 	}
 	return &res
+}
+
+func (rules ImplyingRulesType) Copy() ImplyingRulesType {
+	res := MakeImplyingRules()
+	res.Ingress = rules.Ingress.Copy()
+	res.Egress = rules.Egress.Copy()
+	return res
 }
 
 const (
@@ -41,7 +66,7 @@ const (
 	newLine   = "\n"
 )
 
-func (rules *ImplyingRulesType) String() string {
+func (rules *ImplyingXgressRulesType) String() string {
 	if rules.Empty() {
 		return ""
 	}
@@ -51,14 +76,36 @@ func (rules *ImplyingRulesType) String() string {
 		formattedRules = append(formattedRules, fmt.Sprintf("%d) %s", order+1, name))
 	}
 	sort.Strings(formattedRules) // the rule index begins the string, like "2)"
-	return " " + explTitle + newLine + strings.Join(formattedRules, newLine) + newLine
+	return strings.Join(formattedRules, newLine)
 }
 
-func (rules *ImplyingRulesType) Empty() bool {
+func (rules ImplyingRulesType) String() string {
+	res := ""
+	if !rules.Ingress.Empty() {
+		res += fmt.Sprintf("INGRESS DIRECTION:\n%s\n", rules.Ingress.String())
+	}
+	if !rules.Egress.Empty() {
+		res += fmt.Sprintf("EGRESS DIRECTION:\n%s\n", rules.Egress.String())
+	}
+	if res == "" {
+		return ""
+	}
+	return " " + explTitle + newLine + res
+}
+
+func (rules *ImplyingXgressRulesType) Empty() bool {
 	return len(*rules) == 0
 }
 
-func (rules *ImplyingRulesType) AddRule(ruleName string) {
+func (rules ImplyingRulesType) Empty(isIngress bool) bool {
+	if isIngress {
+		return rules.Ingress.Empty()
+	} else {
+		return rules.Egress.Empty()
+	}
+}
+
+func (rules *ImplyingXgressRulesType) AddXgressRule(ruleName string) {
 	if ruleName != "" {
 		if _, ok := (*rules)[ruleName]; !ok {
 			(*rules)[ruleName] = len(*rules) // a new rule should be the last
@@ -66,7 +113,15 @@ func (rules *ImplyingRulesType) AddRule(ruleName string) {
 	}
 }
 
-func (rules *ImplyingRulesType) Union(other *ImplyingRulesType) {
+func (rules ImplyingRulesType) AddRule(ruleName string, isIngress bool) {
+	if isIngress {
+		rules.Ingress.AddXgressRule(ruleName)
+	} else {
+		rules.Egress.AddXgressRule(ruleName)
+	}
+}
+
+func (rules *ImplyingXgressRulesType) Union(other *ImplyingXgressRulesType) {
 	if other == nil {
 		return
 	}
@@ -85,6 +140,11 @@ func (rules *ImplyingRulesType) Union(other *ImplyingRulesType) {
 	}
 }
 
+func (rules ImplyingRulesType) Union(other ImplyingRulesType) {
+	rules.Ingress.Union(other.Ingress)
+	rules.Egress.Union(other.Egress)
+}
+
 const (
 	MinValue = 0
 	MaxValue = math.MaxInt64
@@ -94,18 +154,18 @@ const (
 type AugmentedInterval struct {
 	interval      interval.Interval
 	inSet         bool
-	implyingRules *ImplyingRulesType
+	implyingRules ImplyingRulesType
 }
 
 func NewAugmentedInterval(start, end int64, inSet bool) AugmentedInterval {
-	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: &ImplyingRulesType{}}
+	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: MakeImplyingRules()}
 }
 
-func NewAugmentedIntervalWithRule(start, end int64, inSet bool, rule string) AugmentedInterval {
-	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: MakeImplyingRulesWithRule(rule)}
+func NewAugmentedIntervalWithRule(start, end int64, inSet bool, rule string, isIngress bool) AugmentedInterval {
+	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: MakeImplyingRulesWithRule(rule, isIngress)}
 }
 
-func NewAugmentedIntervalWithRules(start, end int64, inSet bool, rules *ImplyingRulesType) AugmentedInterval {
+func NewAugmentedIntervalWithRules(start, end int64, inSet bool, rules ImplyingRulesType) AugmentedInterval {
 	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: rules.Copy()}
 }
 

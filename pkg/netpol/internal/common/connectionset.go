@@ -27,7 +27,7 @@ import (
 type ConnectionSet struct {
 	AllowAll            bool
 	AllowedProtocols    map[v1.Protocol]*PortSet // map from protocol name to set of allowed ports
-	CommonImplyingRules *ImplyingRulesType       // used for explainability, when AllowedProtocols is empty (i.e., all allowed or all denied)
+	CommonImplyingRules ImplyingRulesType        // used for explainability, when AllowedProtocols is empty (i.e., all allowed or all denied)
 }
 
 var allProtocols = []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP, v1.ProtocolSCTP}
@@ -35,14 +35,14 @@ var allProtocols = []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP, v1.ProtocolSCTP
 // MakeConnectionSet returns a pointer to ConnectionSet object with all connections or no connections
 func MakeConnectionSet(all bool) *ConnectionSet {
 	if all {
-		return &ConnectionSet{AllowAll: true, AllowedProtocols: map[v1.Protocol]*PortSet{}, CommonImplyingRules: &ImplyingRulesType{}}
+		return &ConnectionSet{AllowAll: true, AllowedProtocols: map[v1.Protocol]*PortSet{}, CommonImplyingRules: MakeImplyingRules()}
 	}
-	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}, CommonImplyingRules: &ImplyingRulesType{}}
+	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}, CommonImplyingRules: MakeImplyingRules()}
 }
 
 // Add common implying rule, i.e., a rule that is relevant for the whole ConnectionSet
-func (conn *ConnectionSet) AddCommonImplyingRule(implyingRule string) {
-	conn.CommonImplyingRules.AddRule(implyingRule)
+func (conn *ConnectionSet) AddCommonImplyingRule(implyingRule string, isIngress bool) {
+	conn.CommonImplyingRules.AddRule(implyingRule, isIngress)
 }
 
 func (conn *ConnectionSet) GetEquivalentCanonicalConnectionSet() *ConnectionSet {
@@ -153,7 +153,7 @@ func (conn *ConnectionSet) rebuildAllowAllExplicitly() {
 		portSet := MakeAllPortSetWithImplyingRules(conn.CommonImplyingRules)
 		conn.AddConnection(protocol, portSet)
 	}
-	conn.CommonImplyingRules = &ImplyingRulesType{}
+	conn.CommonImplyingRules = MakeImplyingRules()
 }
 
 // Union updates ConnectionSet object to be the union result with other ConnectionSet
@@ -179,7 +179,7 @@ func (conn *ConnectionSet) Union(other *ConnectionSet) {
 			conn.AllowedProtocols[protocol] = other.AllowedProtocols[protocol].Copy()
 		}
 	}
-	conn.CommonImplyingRules = &ImplyingRulesType{} // clear common implying rules, since we have implying rules in AllowedProtocols
+	conn.CommonImplyingRules = MakeImplyingRules() // clear common implying rules, since we have implying rules in AllowedProtocols
 	conn.updateIfAllConnections()
 }
 
@@ -323,7 +323,7 @@ func (conn *ConnectionSet) GetNamedPorts() map[v1.Protocol]NamedPortsType {
 // ReplaceNamedPortWithMatchingPortNum : replacing given namedPort with the matching given port num in the connection
 // if port num is -1; just deletes the named port from the protocol's list
 func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(protocol v1.Protocol, namedPort string, portNum int32,
-	implyingRules *ImplyingRulesType) {
+	implyingRules ImplyingRulesType) {
 	protocolPortSet := conn.AllowedProtocols[protocol]
 	if portNum != NoPort {
 		protocolPortSet.AddPort(intstr.FromInt32(portNum), implyingRules)
@@ -439,7 +439,7 @@ func portsString(ports []PortRange) string {
 
 func portsStringWithExplanation(ports []PortRange, protocolString string) (string, bool) {
 	portsStr := make([]string, 0, len(ports))
-	noPortsExplanation := ImplyingRulesType{}
+	noPortsExplanation := MakeImplyingRules()
 	for i := range ports {
 		data := ports[i].(*PortRangeData)
 		if data.InSet() {
@@ -458,7 +458,7 @@ func protocolAndPortsStr(protocol v1.Protocol, ports string) string {
 	return string(protocol) + " " + ports
 }
 
-func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRules *ImplyingRulesType,
+func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRules ImplyingRulesType,
 	protocolsAndPorts map[v1.Protocol][]PortRange) string {
 	if allProtocolsAndPorts || len(protocolsAndPorts) == 0 {
 		connStr := noConnsStr

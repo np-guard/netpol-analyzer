@@ -590,7 +590,7 @@ func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool)
 	res := k8s.NewPolicyConnections()
 	if pe.baselineAdminNetpol == nil {
 		res.AllowedConns = common.MakeConnectionSet(true)
-		res.AllowedConns.AddCommonImplyingRule(systemDefaultRule)
+		res.AllowedConns.AddCommonImplyingRule(systemDefaultRule, isIngress)
 		return res, nil
 	}
 	if isIngress { // ingress

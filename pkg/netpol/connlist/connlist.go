@@ -337,7 +337,7 @@ type connection struct {
 	src                 Peer
 	dst                 Peer
 	allConnections      bool
-	commonImplyingRules *common.ImplyingRulesType // used for explainability, when allConnections is true
+	commonImplyingRules common.ImplyingRulesType // used for explainability, when allConnections is true
 	protocolsAndPorts   map[v1.Protocol][]common.PortRange
 }
 
@@ -361,7 +361,8 @@ func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.Connection
 		protocolsToPortSetMap[protocol] = common.MakePortSet(false)
 		for _, p := range portRangeArr {
 			augmentedRange := p.(*common.PortRangeData)
-			protocolsToPortSetMap[protocol].AddPortRange(augmentedRange.Start(), augmentedRange.End(), augmentedRange.InSet(), "")
+			// we cannot fill explainability data here, so we pass an empty rule name and an arbitrary direction (isIngress being true)
+			protocolsToPortSetMap[protocol].AddPortRange(augmentedRange.Start(), augmentedRange.End(), augmentedRange.InSet(), "", true)
 		}
 	}
 	connectionSet := &common.ConnectionSet{AllowAll: c.AllProtocolsAndPorts(), AllowedProtocols: protocolsToPortSetMap}

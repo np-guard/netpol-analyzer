@@ -20,7 +20,7 @@ const (
 	maxPort int64 = 65535
 )
 
-type NamedPortsType map[string]*ImplyingRulesType
+type NamedPortsType map[string]ImplyingRulesType
 
 func portNames(ports NamedPortsType) []string {
 	res := []string{}
@@ -54,7 +54,7 @@ func MakePortSet(all bool) *PortSet {
 	}
 }
 
-func MakeAllPortSetWithImplyingRules(rules *ImplyingRulesType) *PortSet {
+func MakeAllPortSetWithImplyingRules(rules ImplyingRulesType) *PortSet {
 	return &PortSet{Ports: NewAugmentedSetFromInterval(NewAugmentedIntervalWithRules(minPort, maxPort, true, rules)),
 		NamedPorts:         NamedPortsType{},
 		ExcludedNamedPorts: NamedPortsType{},
@@ -97,10 +97,10 @@ func (p *PortSet) ClearPorts() {
 }
 
 // AddPort: update current PortSet object with new added port as allowed
-func (p *PortSet) AddPort(port intstr.IntOrString, implyingRules *ImplyingRulesType) {
+func (p *PortSet) AddPort(port intstr.IntOrString, implyingRules ImplyingRulesType) {
 	if port.Type == intstr.String {
 		if _, ok := p.NamedPorts[port.StrVal]; !ok {
-			p.NamedPorts[port.StrVal] = &ImplyingRulesType{}
+			p.NamedPorts[port.StrVal] = MakeImplyingRules()
 		}
 		p.NamedPorts[port.StrVal].Union(implyingRules)
 		delete(p.ExcludedNamedPorts, port.StrVal)
@@ -120,8 +120,8 @@ func (p *PortSet) RemovePort(port intstr.IntOrString) {
 }
 
 // AddPortRange: update current PortSet object with new added port range as allowed
-func (p *PortSet) AddPortRange(minPort, maxPort int64, inSet bool, fromRule string) {
-	p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRule(minPort, maxPort, inSet, fromRule))
+func (p *PortSet) AddPortRange(minPort, maxPort int64, inSet bool, fromRule string, isIngress bool) {
+	p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRule(minPort, maxPort, inSet, fromRule, isIngress))
 }
 
 // Union: update current PortSet object with union of input PortSet object
@@ -207,7 +207,7 @@ func (p *PortSet) subtract(other *PortSet) {
 	// and add the deleted named ports to excluded named ports map
 	for k, v := range other.NamedPorts {
 		if _, ok := p.ExcludedNamedPorts[k]; !ok {
-			p.ExcludedNamedPorts[k] = &ImplyingRulesType{}
+			p.ExcludedNamedPorts[k] = MakeImplyingRules()
 		}
 		p.ExcludedNamedPorts[k].Union(v.Copy())
 		delete(p.NamedPorts, k)

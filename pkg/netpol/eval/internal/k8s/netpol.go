@@ -122,7 +122,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 	ruleIdx int, isIngress bool) (*common.ConnectionSet, error) {
 	if len(rulePorts) == 0 {
 		res := common.MakeConnectionSet(true) // If this field is empty or missing, this rule matches all ports
-		res.AddCommonImplyingRule(np.ruleName(ruleIdx, isIngress))
+		res.AddCommonImplyingRule(np.ruleName(ruleIdx, isIngress), isIngress)
 		return res, nil
 		// (traffic not restricted by port)
 	}
@@ -157,10 +157,10 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 				// 4- in order to get a connection from any pod to an ip dst (will not get here, as named ports are not defined for ip-blocks)
 
 				// adding portName string to the portSet
-				ports.AddPort(intstr.FromString(portName), common.MakeImplyingRulesWithRule(ruleName))
+				ports.AddPort(intstr.FromString(portName), common.MakeImplyingRulesWithRule(ruleName, isIngress))
 			}
 			if !isEmptyPortRange(startPort, endPort) {
-				ports.AddPortRange(int64(startPort), int64(endPort), true, ruleName)
+				ports.AddPortRange(int64(startPort), int64(endPort), true, ruleName, isIngress)
 			}
 		}
 		res.AddConnection(protocol, ports)
@@ -358,7 +358,7 @@ func (np *NetworkPolicy) nameWithDirection(isIngress bool) string {
 // GetEgressAllowedConns returns the set of allowed connections from any captured pod to the destination peer
 func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
-	res.AddCommonImplyingRule(np.nameWithDirection(false))
+	res.AddCommonImplyingRule(np.nameWithDirection(false), false)
 	for idx, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
@@ -384,7 +384,7 @@ func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet,
 // GetIngressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer
 func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
-	res.AddCommonImplyingRule(np.nameWithDirection(true))
+	res.AddCommonImplyingRule(np.nameWithDirection(true), true)
 	for idx, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports

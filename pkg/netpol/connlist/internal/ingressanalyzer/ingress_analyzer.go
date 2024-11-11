@@ -376,7 +376,7 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 
 		if peerTCPConn.Contains(strconv.Itoa(portNum), string(corev1.ProtocolTCP)) {
 			permittedPort := common.MakePortSet(false)
-			permittedPort.AddPort(intstr.FromInt(portNum), common.MakeImplyingRulesWithRule(ruleName))
+			permittedPort.AddPort(intstr.FromInt(portNum), common.MakeImplyingRulesWithRule(ruleName, true))
 			res.AddConnection(corev1.ProtocolTCP, permittedPort)
 		}
 	}
