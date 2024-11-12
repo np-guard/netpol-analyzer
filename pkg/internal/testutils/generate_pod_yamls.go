@@ -49,15 +49,15 @@ func GenerateTempDirWithPods(origDir, srcName, srcNs, dstName, dstNs string) (st
 	if err != nil {
 		return "", err
 	}
-	// copy orig dir into the temp dir
-	err = copyDir(origDir, testTmpDir, srcName, srcNs, dstName, dstNs)
+	// copy orig dir into the temp dir and add to temp dir generated pods
+	err = copyDirAndAddPods(origDir, testTmpDir, srcName, srcNs, dstName, dstNs)
 	return testTmpDir, err
 }
 
-// copyDir copies files of network-policies from origDir into tempDir
+// copyDirAndAddPods copies files of network-policies from origDir into tempDir
 // and generates into the tempDir : Pod yaml files for given src and dst peers from their workload resources
 // in the origDir
-func copyDir(origDir, tempDir, srcName, srcNs, dstName, dstNs string) error {
+func copyDirAndAddPods(origDir, tempDir, srcName, srcNs, dstName, dstNs string) error {
 	return filepath.Walk(origDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
