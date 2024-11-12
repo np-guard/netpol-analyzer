@@ -36,28 +36,22 @@ var TmpDir = filepath.Join(projectpath.Root, "temp") // cleaned up after the tes
 // GenerateTempDirWithPods generates new temporary dir that copies origDir and adds yaml files of Pod kind
 // matching the input workload resources of the src and dst
 // the function returns the path of the generated temp dir.
-func GenerateTempDirWithPods(origDir, srcName, srcNs, dstName, dstNs string) (string, error) {
-	// create the TmpDir path if does not exist
+func GenerateTempDirWithPods(origDir, srcName, srcNs, dstName, dstNs string) error {
+	// create the TmpDir
 	if _, err := os.Stat(TmpDir); os.IsNotExist(err) {
 		osErr := os.Mkdir(TmpDir, dirMode)
 		if osErr != nil {
-			return "", osErr
+			return osErr
 		}
 	}
-	// making temp directory in the temp path
-	testTmpDir, err := os.MkdirTemp(TmpDir, tmpPattern)
-	if err != nil {
-		return "", err
-	}
 	// copy orig dir into the temp dir and add to temp dir generated pods
-	err = copyDirAndAddPods(origDir, testTmpDir, srcName, srcNs, dstName, dstNs)
-	return testTmpDir, err
+	return copyDirAndAddPods(origDir, srcName, srcNs, dstName, dstNs)
 }
 
 // copyDirAndAddPods copies files of network-policies from origDir into tempDir
 // and generates into the tempDir : Pod yaml files for given src and dst peers from their workload resources
 // in the origDir
-func copyDirAndAddPods(origDir, tempDir, srcName, srcNs, dstName, dstNs string) error {
+func copyDirAndAddPods(origDir, srcName, srcNs, dstName, dstNs string) error {
 	return filepath.Walk(origDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -66,7 +60,7 @@ func copyDirAndAddPods(origDir, tempDir, srcName, srcNs, dstName, dstNs string) 
 			return nil
 		}
 		origFile := filepath.Join(origDir, info.Name())
-		tempFile := filepath.Join(tempDir, info.Name())
+		tempFile := filepath.Join(TmpDir, info.Name())
 		// if the file contains workload with given srcName or dstName : get the workload object and
 		// generate matching pod yaml file in the temp dir
 		// this is needed since we need also a copy of the workload labels which may be used in the netpols rules
@@ -77,7 +71,7 @@ func copyDirAndAddPods(origDir, tempDir, srcName, srcNs, dstName, dstNs string) 
 			return err
 		}
 		if srcLabels != nil { // nil means the src was not found in that file
-			err = generatePodYaml(tempDir, srcName, srcNs, srcLabels)
+			err = generatePodYaml(srcName, srcNs, srcLabels)
 			if err != nil {
 				return err
 			}
@@ -89,7 +83,7 @@ func copyDirAndAddPods(origDir, tempDir, srcName, srcNs, dstName, dstNs string) 
 			return err
 		}
 		if dstLabels != nil { // nil means the dst was not found in that file
-			err = generatePodYaml(tempDir, dstName, dstNs, dstLabels)
+			err = generatePodYaml(dstName, dstNs, dstLabels)
 			if err != nil {
 				return err
 			}
@@ -188,10 +182,10 @@ spec:
 const yamlSuffix = ".yaml"
 
 // generatePodYaml generates a YAML file for a given pod data.
-func generatePodYaml(dirName, podName, podNs string, labels map[string]string) error {
+func generatePodYaml(podName, podNs string, labels map[string]string) error {
 	pod := PodInfo{Name: podName, Namespace: podNs, Labels: labels}
 	fileName := podNs + "_" + podName + yamlSuffix
-	podFile := filepath.Join(dirName, fileName)
+	podFile := filepath.Join(TmpDir, fileName)
 	// write the pod template using the pod data
 	podTmpl, err := template.New("pod").Parse(podYamlTemplate)
 	if err != nil {

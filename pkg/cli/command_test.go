@@ -458,8 +458,9 @@ func TestEvalCommandOutput(t *testing.T) {
 				// but since eval command only supports pods, we will generate a copy of the dirs with
 				// pods yaml files from the matching workload resource of the tt's source and dst.
 				// so the command may be executed with the given args
-				dirPath, err = testutils.GenerateTempDirWithPods(dirPath, tt.sourcePod, tt.sourceNs, tt.destPod, tt.destNs)
+				err = testutils.GenerateTempDirWithPods(dirPath, tt.sourcePod, tt.sourceNs, tt.destPod, tt.destNs)
 				require.Nil(t, err, "test: %q", testName)
+				dirPath = testutils.TmpDir
 				defer os.RemoveAll(testutils.TmpDir) // clean up after finishing the test
 			}
 			args := []string{"eval", "--dirpath", dirPath,
