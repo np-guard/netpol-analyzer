@@ -357,6 +357,7 @@ func TestEvalCommandOutput(t *testing.T) {
 		port              string
 		evalResult        bool
 		generateManifests bool // indicates if the test dir does not contain pods - to be generated
+		// this field will be used till the eval command supports workload inputs too (not just pods)
 	}{
 		{
 			dir:        "onlineboutique",
@@ -451,6 +452,7 @@ func TestEvalCommandOutput(t *testing.T) {
 			}
 			dirPath := testutils.GetTestDirPath(tt.dir)
 			var err error
+			// TODO: following "if" will be deprecated when eval supports input workloads, not just pods
 			if tt.generateManifests {
 				// getting here means the test dir contains workloads in the manifests (not pods)
 				// but since eval command only supports pods, we will generate a copy of the dirs with

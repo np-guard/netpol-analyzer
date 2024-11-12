@@ -23,10 +23,11 @@ import (
 // eval command on those dirs (in unit-testing); this file funcs are used.
 // we copy the test-die into a new temporary dir, and generate into the tempDir :
 // Pod yaml files for given src and dst peers from their workload resources
+// note that : this file will not be used when the eval command supports workload inputs (and not just pods)
 
 const (
 	tmpPattern = "temp-*"
-	exeMode    = 0o777
+	exeMode    = 0o600
 )
 
 var TmpDir = filepath.Join(projectpath.Root, "temp") // cleaned up after the test is done
