@@ -550,8 +550,8 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 					return nil, nil, err
 				}
 			}
-			// skip empty connections
-			if allowedConnections.IsEmpty() {
+			// skip empty connections when running without explainability
+			if allowedConnections.IsEmpty() && !ca.explain {
 				continue
 			}
 			p2pConnection, err := ca.getP2PConnOrUpdateExposureConn(pe, allowedConnections, srcPeer, dstPeer, exposureMaps)

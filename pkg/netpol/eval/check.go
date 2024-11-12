@@ -151,7 +151,10 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	var err error
 	// cases where any connection is always allowed
 	if isPodToItself(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(dstK8sPeer, srcK8sPeer) {
-		return common.MakeConnectionSet(true), nil
+		res = common.MakeConnectionSet(true)
+		res.AddCommonImplyingRule(common.PodToItselfRule, true)
+		res.AddCommonImplyingRule(common.PodToItselfRule, false)
+		return res, nil
 	}
 	// egress: get egress allowed connections between the src and dst by
 	// walking through all k8s egress policies capturing the src;
@@ -576,8 +579,6 @@ func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer
 	return policiesConns, true, nil
 }
 
-const systemDefaultRule = "system default: allow all"
-
 // analyzing baseline-admin-network-policy for conns between peers (object kind == BaselineAdminNetworkPolicy):
 
 // getXgressDefaultConns returns the default connections between src and dst on the given direction (ingress/egress);
@@ -589,8 +590,7 @@ const systemDefaultRule = "system default: allow all"
 func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool) (*k8s.PolicyConnections, error) {
 	res := k8s.NewPolicyConnections()
 	if pe.baselineAdminNetpol == nil {
-		res.AllowedConns = common.MakeConnectionSet(true)
-		res.AllowedConns.AddCommonImplyingRule(systemDefaultRule, isIngress)
+		res.AllowedConns = common.MakeAllConnectionSetWithRule(common.SystemDefaultRule, isIngress)
 		return res, nil
 	}
 	if isIngress { // ingress
@@ -621,7 +621,6 @@ func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool)
 	// if banp rules didn't capture xgress conn between src and dst, return system-default: allow-all;
 	// if banp rule captured xgress conn, only DeniedConns should be impacted by banp rule,
 	// whenever AllowedConns should anyway be system-default: allow-all
-	res.AllowedConns = common.MakeConnectionSet(true)
-	res.AllowedConns.AddCommonImplyingRule(systemDefaultRule, isIngress)
+	res.AllowedConns = common.MakeAllConnectionSetWithRule(common.SystemDefaultRule, isIngress)
 	return res, nil
 }

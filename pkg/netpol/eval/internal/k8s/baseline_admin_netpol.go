@@ -47,7 +47,7 @@ func banpRuleErr(ruleName, description string) error {
 }
 
 func (banp *BaselineAdminNetworkPolicy) fullName() string {
-	return banp.Name
+	return "[BANP] " + banp.Name
 }
 
 // GetEgressPolicyConns returns the connections from the egress rules selecting the dst in spec of the baselineAdminNetworkPolicy
@@ -57,7 +57,7 @@ func (banp *BaselineAdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyC
 		rulePeers := rule.To
 		rulePorts := rule.Ports
 		if err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts,
-			ruleFullName("BANP "+banp.fullName(), rule.Name, string(rule.Action), false),
+			ruleFullName(banp.fullName(), rule.Name, string(rule.Action), false),
 			dst, res, string(rule.Action), true); err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
@@ -72,7 +72,7 @@ func (banp *BaselineAdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*P
 		rulePeers := rule.From
 		rulePorts := rule.Ports
 		if err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts,
-			ruleFullName("BANP "+banp.fullName(), rule.Name, string(rule.Action), true),
+			ruleFullName(banp.fullName(), rule.Name, string(rule.Action), true),
 			src, dst, res, string(rule.Action), true); err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}

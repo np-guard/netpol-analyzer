@@ -62,9 +62,21 @@ func (rules ImplyingRulesType) Copy() ImplyingRulesType {
 }
 
 const (
-	explTitle = "due to the following policices//rules:"
-	newLine   = "\n"
+	ExplWithRulesTitle    = "due to the following policices//rules:"
+	IngressDirectionTitle = "INGRESS DIRECTION:"
+	EgressDirectionTitle  = "EGRESS DIRECTION:"
+	NewLine               = "\n"
+	SystemDefaultRule     = "the system default: allow all"
+	PodToItselfRule       = "pod to itself: allow all"
+	ExplSystemDefault     = "due to " + SystemDefaultRule
 )
+
+func (rules *ImplyingXgressRulesType) onlySystemDefaultRule() bool {
+	if _, ok := (*rules)[SystemDefaultRule]; ok {
+		return len(*rules) == 1
+	}
+	return false
+}
 
 func (rules *ImplyingXgressRulesType) String() string {
 	if rules.Empty() {
@@ -76,21 +88,34 @@ func (rules *ImplyingXgressRulesType) String() string {
 		formattedRules = append(formattedRules, fmt.Sprintf("%d) %s", order+1, name))
 	}
 	sort.Strings(formattedRules) // the rule index begins the string, like "2)"
-	return strings.Join(formattedRules, newLine)
+	return strings.Join(formattedRules, NewLine)
 }
 
 func (rules ImplyingRulesType) String() string {
+	if rules.Ingress.onlySystemDefaultRule() && rules.Egress.onlySystemDefaultRule() {
+		return " " + ExplSystemDefault + NewLine
+	}
 	res := ""
 	if !rules.Ingress.Empty() {
-		res += fmt.Sprintf("INGRESS DIRECTION:\n%s\n", rules.Ingress.String())
+		res += IngressDirectionTitle
+		if rules.Ingress.onlySystemDefaultRule() {
+			res += " " + ExplSystemDefault + NewLine
+		} else {
+			res += NewLine + rules.Ingress.String() + NewLine
+		}
 	}
 	if !rules.Egress.Empty() {
-		res += fmt.Sprintf("EGRESS DIRECTION:\n%s\n", rules.Egress.String())
+		res += EgressDirectionTitle
+		if rules.Egress.onlySystemDefaultRule() {
+			res += " " + ExplSystemDefault + NewLine
+		} else {
+			res += NewLine + rules.Egress.String() + NewLine
+		}
 	}
 	if res == "" {
-		return ""
+		return NewLine
 	}
-	return " " + explTitle + newLine + res
+	return " " + ExplWithRulesTitle + NewLine + res
 }
 
 func (rules *ImplyingXgressRulesType) Empty() bool {

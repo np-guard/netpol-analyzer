@@ -40,6 +40,11 @@ func MakeConnectionSet(all bool) *ConnectionSet {
 	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}, CommonImplyingRules: MakeImplyingRules()}
 }
 
+func MakeAllConnectionSetWithRule(rule string, isIngress bool) *ConnectionSet {
+	return &ConnectionSet{AllowAll: true, AllowedProtocols: map[v1.Protocol]*PortSet{},
+		CommonImplyingRules: MakeImplyingRulesWithRule(rule, isIngress)}
+}
+
 // Add common implying rule, i.e., a rule that is relevant for the whole ConnectionSet
 func (conn *ConnectionSet) AddCommonImplyingRule(implyingRule string, isIngress bool) {
 	conn.CommonImplyingRules.AddRule(implyingRule, isIngress)
@@ -158,9 +163,10 @@ func (conn *ConnectionSet) rebuildAllowAllExplicitly() {
 
 // Union updates ConnectionSet object to be the union result with other ConnectionSet
 func (conn *ConnectionSet) Union(other *ConnectionSet) {
-	if conn.IsEmpty() && other.IsEmpty() && len(conn.AllowedProtocols) == 0 && len(other.AllowedProtocols) == 0 {
+	if conn.IsEmpty() && (other.IsEmpty() || other.AllowAll) && len(conn.AllowedProtocols) == 0 && len(other.AllowedProtocols) == 0 {
 		// a special case when we should union implying rules
 		conn.CommonImplyingRules.Union(other.CommonImplyingRules)
+		conn.AllowAll = other.AllowAll
 		return
 	}
 	if conn.AllowAll || other.IsEmpty() {
@@ -187,6 +193,13 @@ func (conn *ConnectionSet) Union(other *ConnectionSet) {
 // subtracting other ConnectionSet from current ConnectionSet
 func (conn *ConnectionSet) Subtract(other *ConnectionSet) {
 	if other.IsEmpty() { // nothing to subtract
+		return
+	}
+	if other.AllowAll && len(other.AllowedProtocols) == 0 {
+		// a special case when we should replace current common implying rules by others'
+		conn.CommonImplyingRules = other.CommonImplyingRules.Copy()
+		conn.AllowAll = false
+		conn.AllowedProtocols = map[v1.Protocol]*PortSet{}
 		return
 	}
 	if conn.AllowAll {
@@ -451,7 +464,7 @@ func portsStringWithExplanation(ports []PortRange, protocolString string) (strin
 	if len(portsStr) == 0 {
 		return noConnsStr + noPortsExplanation.String(), false
 	}
-	return strings.Join(portsStr, newLine), true
+	return strings.Join(portsStr, NewLine), true
 }
 
 func protocolAndPortsStr(protocol v1.Protocol, ports string) string {
@@ -460,7 +473,7 @@ func protocolAndPortsStr(protocol v1.Protocol, ports string) string {
 
 func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRules ImplyingRulesType,
 	protocolsAndPorts map[v1.Protocol][]PortRange) string {
-	if allProtocolsAndPorts || len(protocolsAndPorts) == 0 {
+	if len(protocolsAndPorts) == 0 {
 		connStr := noConnsStr
 		if allProtocolsAndPorts {
 			connStr = allConnsStr
@@ -477,6 +490,6 @@ func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRule
 		}
 	}
 	sort.Strings(connStrings)
-	connStr = strings.Join(connStrings, connsAndPortRangeSeparator)
+	connStr = strings.Join(connStrings, NewLine)
 	return connStr
 }
