@@ -118,6 +118,13 @@ func isEmptyPortRange(start, end int32) bool {
 	return start == common.NoPort && end == common.NoPort
 }
 
+func (np *NetworkPolicy) rulePeersAndPorts(ruleIdx int, isIngress bool) ([]netv1.NetworkPolicyPeer, []netv1.NetworkPolicyPort) {
+	if isIngress {
+		return np.Spec.Ingress[ruleIdx].From, np.Spec.Ingress[ruleIdx].Ports
+	}
+	return np.Spec.Egress[ruleIdx].To, np.Spec.Egress[ruleIdx].Ports
+}
+
 func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer,
 	ruleIdx int, isIngress bool) (*common.ConnectionSet, error) {
 	if len(rulePorts) == 0 {
@@ -354,26 +361,34 @@ func (np *NetworkPolicy) nameWithDirection(isIngress bool) string {
 	return fmt.Sprintf("%s//%s", np.fullName(), xgress)
 }
 
-// GetEgressAllowedConns returns the set of allowed connections from any captured pod to the destination peer
-func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet, error) {
+// GetXgressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer (for Ingress)
+// or from any captured pod to the dst peer (for Egress)
+func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
-	if len(np.Spec.Egress) == 0 {
-		res.AddCommonImplyingRule(np.nameWithDirection(false), false)
+	if (isIngress && len(np.Spec.Ingress) == 0) || (!isIngress && len(np.Spec.Egress) == 0) {
+		res.AddCommonImplyingRule(np.nameWithDirection(isIngress), isIngress)
 		return res, nil
 	}
-	dstSelectedByAnyRule := false
-	for idx, rule := range np.Spec.Egress {
-		rulePeers := rule.To
-		rulePorts := rule.Ports
-		peerSelected, err := np.ruleSelectsPeer(rulePeers, dst)
+	peerSelectedByAnyRule := false
+	numOfRules := len(np.Spec.Egress)
+	if isIngress {
+		numOfRules = len(np.Spec.Ingress)
+	}
+	for idx := 0; idx < numOfRules; idx++ {
+		rulePeers, rulePorts := np.rulePeersAndPorts(idx, isIngress)
+		peerToSelect := dst
+		if isIngress {
+			peerToSelect = src
+		}
+		peerSelected, err := np.ruleSelectsPeer(rulePeers, peerToSelect)
 		if err != nil {
 			return res, err
 		}
 		if !peerSelected {
 			continue
 		}
-		dstSelectedByAnyRule = true
-		ruleConns, err := np.ruleConnections(rulePorts, dst, idx, false)
+		peerSelectedByAnyRule = true
+		ruleConns, err := np.ruleConnections(rulePorts, dst, idx, isIngress)
 		if err != nil {
 			return res, err
 		}
@@ -382,42 +397,8 @@ func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet,
 			return res, nil
 		}
 	}
-	if !dstSelectedByAnyRule {
-		res.AddCommonImplyingRule(np.nameWithDirection(false), false)
-	}
-	return res, nil
-}
-
-// GetIngressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer
-func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (*common.ConnectionSet, error) {
-	res := common.MakeConnectionSet(false)
-	if len(np.Spec.Ingress) == 0 {
-		res.AddCommonImplyingRule(np.nameWithDirection(true), true)
-		return res, nil
-	}
-	srcSelectedByAnyRule := false
-	for idx, rule := range np.Spec.Ingress {
-		rulePeers := rule.From
-		rulePorts := rule.Ports
-		peerSelected, err := np.ruleSelectsPeer(rulePeers, src)
-		if err != nil {
-			return res, err
-		}
-		if !peerSelected {
-			continue
-		}
-		srcSelectedByAnyRule = true
-		ruleConns, err := np.ruleConnections(rulePorts, dst, idx, true)
-		if err != nil {
-			return res, err
-		}
-		res.Union(ruleConns)
-		if res.AllowAll {
-			return res, nil
-		}
-	}
-	if !srcSelectedByAnyRule {
-		res.AddCommonImplyingRule(np.nameWithDirection(true), true)
+	if !peerSelectedByAnyRule {
+		res.AddCommonImplyingRule(np.nameWithDirection(isIngress), isIngress)
 	}
 	return res, nil
 }

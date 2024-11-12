@@ -168,8 +168,8 @@ func updatePolicyConns(rulePorts *[]apisv1a.AdminNetworkPolicyPort, ruleName str
 
 // ruleConnections returns the connectionSet from the current rule.Ports
 func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string, dst Peer, isIngress bool) (*common.ConnectionSet, error) {
-	if ports == nil {
-		return common.MakeAllConnectionSetWithRule(ruleName, isIngress), nil // If Ports is not set then the rule does not filter traffic via port.
+	if ports == nil { // If Ports is not set then the rule does not filter traffic via port.
+		return common.MakeAllConnectionSetWithRule(ruleName, isIngress), nil
 	}
 	res := common.MakeConnectionSet(false)
 	for _, anpPort := range *ports {

@@ -494,7 +494,7 @@ func (pe *PolicyEngine) determineAllowedConnsPerDirection(policy *k8s.NetworkPol
 		case policy.IngressPolicyExposure.ClusterWideExposure.AllowAll && src.PeerType() == k8s.PodType:
 			return policy.IngressPolicyExposure.ClusterWideExposure, nil
 		default:
-			return policy.GetIngressAllowedConns(src, dst)
+			return policy.GetXgressAllowedConns(src, dst, true)
 		}
 	}
 	// else get egress allowed conns between src and dst
@@ -504,7 +504,7 @@ func (pe *PolicyEngine) determineAllowedConnsPerDirection(policy *k8s.NetworkPol
 	case policy.EgressPolicyExposure.ClusterWideExposure.AllowAll && dst.PeerType() == k8s.PodType:
 		return policy.EgressPolicyExposure.ClusterWideExposure, nil
 	default:
-		return policy.GetEgressAllowedConns(dst)
+		return policy.GetXgressAllowedConns(src, dst, false)
 	}
 }
 
