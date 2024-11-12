@@ -1871,78 +1871,81 @@ func TestAllParsedResourcesEvalTests(t *testing.T) {
 	runParsedResourcesEvalTests(t, examples.ANPWithBANPFromParsedResourcesTest)
 }
 
+// TestDirPathEvalResults tests eval results of an allowed connection between two peers in the given dir.
+// note that: that for some tests, the directory may contain workload resources (not pod resources), then eval result will be
+// between src pod and dst pod with pod names owned by these workloads (pods which are added by policy engine ).
 func TestDirPathEvalResults(t *testing.T) {
 	cases := []struct {
-		dir        string
-		sourcePod  string
-		sourceNs   string
-		destNs     string
-		destPod    string
-		protocol   string
-		port       string
-		evalResult bool
+		dir            string
+		sourceWorkload string
+		sourceNs       string
+		destNs         string
+		destWorkload   string
+		protocol       string
+		port           string
+		evalResult     bool
 	}{
 		{
-			dir:        "anp_demo",
-			sourceNs:   "gryffindor",
-			sourcePod:  "harry-potter",
-			destPod:    "luna-lovegood",
-			destNs:     "ravenclaw",
-			protocol:   "udp",
-			port:       "52",
-			evalResult: true,
+			dir:            "anp_demo",
+			sourceNs:       "gryffindor",
+			sourceWorkload: "harry-potter",
+			destWorkload:   "luna-lovegood",
+			destNs:         "ravenclaw",
+			protocol:       "udp",
+			port:           "52",
+			evalResult:     true,
 		},
 		{
-			dir:        "anp_test_6",
-			sourceNs:   "network-policy-conformance-slytherin",
-			sourcePod:  "draco-malfoy",
-			destPod:    "cedric-diggory",
-			destNs:     "network-policy-conformance-hufflepuff",
-			protocol:   "udp",
-			port:       "5353",
-			evalResult: false,
+			dir:            "anp_test_6",
+			sourceNs:       "network-policy-conformance-slytherin",
+			sourceWorkload: "draco-malfoy",
+			destWorkload:   "cedric-diggory",
+			destNs:         "network-policy-conformance-hufflepuff",
+			protocol:       "udp",
+			port:           "5353",
+			evalResult:     false,
 		},
 		{
-			dir:        "anp_test_multiple_anps",
-			sourceNs:   "network-policy-conformance-ravenclaw",
-			sourcePod:  "luna-lovegood",
-			destPod:    "draco-malfoy",
-			destNs:     "network-policy-conformance-slytherin",
-			protocol:   "sctp",
-			port:       "9003",
-			evalResult: false,
+			dir:            "anp_test_multiple_anps",
+			sourceNs:       "network-policy-conformance-ravenclaw",
+			sourceWorkload: "luna-lovegood",
+			destWorkload:   "draco-malfoy",
+			destNs:         "network-policy-conformance-slytherin",
+			protocol:       "sctp",
+			port:           "9003",
+			evalResult:     false,
 		},
 		{
-			dir:        "anp_with_np_and_banp_pass_test",
-			sourceNs:   "ns2",
-			sourcePod:  "pod1",
-			destPod:    "pod1",
-			destNs:     "ns1",
-			port:       "80",
-			evalResult: true,
+			dir:            "anp_with_np_and_banp_pass_test",
+			sourceNs:       "ns2",
+			sourceWorkload: "pod1",
+			destWorkload:   "pod1",
+			destNs:         "ns1",
+			port:           "80",
+			evalResult:     true,
 		},
 		{
-			dir:        "anp_with_np_pass_test",
-			sourceNs:   "ns2",
-			sourcePod:  "pod1",
-			destPod:    "pod1",
-			destNs:     "ns1",
-			port:       "8080",
-			evalResult: false,
+			dir:            "anp_with_np_pass_test",
+			sourceNs:       "ns2",
+			sourceWorkload: "pod1",
+			destWorkload:   "pod1",
+			destNs:         "ns1",
+			port:           "8080",
+			evalResult:     false,
 		},
 		{
-			dir:        "anp_banp_core_test",
-			sourceNs:   "network-policy-conformance-gryffindor",
-			sourcePod:  "harry-potter",
-			destPod:    "cedric-diggory",
-			destNs:     "network-policy-conformance-hufflepuff",
-			port:       "8080",
-			evalResult: true,
+			dir:            "anp_banp_core_test",
+			sourceNs:       "network-policy-conformance-gryffindor",
+			sourceWorkload: "harry-potter",
+			destWorkload:   "cedric-diggory",
+			destNs:         "network-policy-conformance-hufflepuff",
+			port:           "8080",
+			evalResult:     true,
 		},
 	}
 	for _, tt := range cases {
 		tt := tt
-		testName := "eval_" + tt.dir + "_from_" + tt.sourcePod + "_to_" + tt.destPod
+		testName := "eval_" + tt.dir + "_from_" + tt.sourceWorkload + "_to_" + tt.destWorkload
 		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
 			if tt.protocol == "" {
@@ -1957,15 +1960,15 @@ func TestDirPathEvalResults(t *testing.T) {
 			require.Nil(t, err, "test: %q", testName)
 			var src, dst string
 			for podStr, podObj := range pe.podsMap {
-				if podObj.Owner.Name == tt.sourcePod && podObj.Namespace == tt.sourceNs {
+				if podObj.Owner.Name == tt.sourceWorkload && podObj.Namespace == tt.sourceNs {
 					src = podStr
 				}
-				if podObj.Owner.Name == tt.destPod && podObj.Namespace == tt.destNs {
+				if podObj.Owner.Name == tt.destWorkload && podObj.Namespace == tt.destNs {
 					dst = podStr
 				}
 			}
-			require.NotEmpty(t, src, "test %q, could not find pod for %s", testName, tt.sourcePod)
-			require.NotEmpty(t, dst, "test %q, could not find pod for %s", testName, tt.destPod)
+			require.NotEmpty(t, src, "test %q, could not find pod for %s", testName, tt.sourceWorkload)
+			require.NotEmpty(t, dst, "test %q, could not find pod for %s", testName, tt.destWorkload)
 			res, err := pe.CheckIfAllowed(src, dst, tt.protocol, tt.port)
 			require.Nil(t, err, "test: %q", testName)
 			require.Equal(t, tt.evalResult, res, "unexpected result for test %q, should be %v", testName, tt.evalResult)
