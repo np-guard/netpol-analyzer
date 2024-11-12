@@ -148,17 +148,15 @@ func (pe *PolicyEngine) allowedXgressConnectionByAdminNetpols(src, dst k8s.Peer,
 // isAllowedByANPCapturedRes when an admin-network-policy captures a connection , its result may be Allow (final- allowed conn),
 // or Deny (final - denied conn) or Pass (to be determined by netpol/ banp)
 // return value (allowedOrDenied, pass bool, err error)
-// * if the given ANP result is Allow or Deny : returns true for allow and false for deny as the value of allowedOrDenied.
-// in this case returns pass = false (not important)
-// * if the given ANP result is Pass : returns true for pass and false for allow/deny
-// as the value of pass is the only important in this case.
-func isAllowedByANPCapturedRes(anpRes k8s.ANPRulesResult) (allowedOrDenied, pass bool, err error) {
+// * if the given ANP result is Allow or Deny : returns true for allow and false for deny as the value of res.
+// * if the given ANP result is Pass : returns true for passOrNonCaptured
+func isAllowedByANPCapturedRes(anpRes k8s.ANPRulesResult) (res, passOrNonCaptured bool, err error) {
 	switch anpRes {
-	case k8s.Pass:
+	case k8s.Pass: // we can not determine yet, pass to next policy layer
 		return false, true, nil
-	case k8s.Allow:
+	case k8s.Allow: // result is true (conn is allowed), no need to pass to next policy layer
 		return true, false, nil
-	case k8s.Deny:
+	case k8s.Deny: // result is false (conn is not allowed), no need to pass to next policy layer
 		return false, false, nil
 	}
 	return false, false, errors.New(netpolerrors.UnknownRuleActionErr) // will not get here
