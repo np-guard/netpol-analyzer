@@ -27,7 +27,8 @@ import (
 
 const (
 	tmpPattern = "temp-*"
-	exeMode    = 0o600
+	fileMode   = 0o600
+	dirMode    = 0o700
 )
 
 var TmpDir = filepath.Join(projectpath.Root, "temp") // cleaned up after the test is done
@@ -38,7 +39,7 @@ var TmpDir = filepath.Join(projectpath.Root, "temp") // cleaned up after the tes
 func GenerateTempDirWithPods(origDir, srcName, srcNs, dstName, dstNs string) (string, error) {
 	// create the TmpDir path if does not exist
 	if _, err := os.Stat(TmpDir); os.IsNotExist(err) {
-		osErr := os.Mkdir(TmpDir, exeMode)
+		osErr := os.Mkdir(TmpDir, dirMode)
 		if osErr != nil {
 			return "", osErr
 		}
@@ -165,7 +166,7 @@ func copyFile(origFile, tempFile string) error {
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(tempFile, contents, exeMode)
+	err = os.WriteFile(tempFile, contents, fileMode)
 	return err
 }
 
@@ -201,5 +202,5 @@ func generatePodYaml(dirName, podName, podNs string, labels map[string]string) e
 		return err
 	}
 	// write to file
-	return os.WriteFile(podFile, buf.Bytes(), exeMode)
+	return os.WriteFile(podFile, buf.Bytes(), fileMode)
 }
