@@ -148,9 +148,17 @@ func SamePriorityErr(name1, name2 string) string {
 		"Two policies are considered to be conflicting if they are assigned the same priority."
 }
 
+const (
+	// according to this: https://network-policy-api.sigs.k8s.io/api-overview/#adminnetworkpolicy-priorities
+	// The Priority field in the ANP spec is defined as an integer value within the range 0 to 1000
+	MinANPPriority = 0
+	MaxANPPriority = 1000
+)
+
 // PriorityValueErr returns error message of invalid priority value in an admin-network-policy
 func PriorityValueErr(name string, priority int32) string {
-	return fmt.Sprintf("Invalid Priority Value: %d in Admin Network Policy: %q; Priority value must be between 0-1000", priority, name)
+	return fmt.Sprintf("Invalid Priority Value: %d in Admin Network Policy: %q; Priority value must be between %d-%d", priority, name,
+		MinANPPriority, MaxANPPriority)
 }
 
 const uniquenessRequest = "Only one object of a given kind can have a given name at a time."
