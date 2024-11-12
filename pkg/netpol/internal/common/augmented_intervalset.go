@@ -66,6 +66,7 @@ const (
 	IngressDirectionTitle = "INGRESS DIRECTION:"
 	EgressDirectionTitle  = "EGRESS DIRECTION:"
 	NewLine               = "\n"
+	SpaceSeparator        = " "
 	SystemDefaultRule     = "the system default: allow all"
 	PodToItselfRule       = "pod to itself: allow all"
 	ExplSystemDefault     = "due to " + SystemDefaultRule
@@ -93,13 +94,13 @@ func (rules *ImplyingXgressRulesType) String() string {
 
 func (rules ImplyingRulesType) String() string {
 	if rules.Ingress.onlySystemDefaultRule() && rules.Egress.onlySystemDefaultRule() {
-		return " " + ExplSystemDefault + NewLine
+		return SpaceSeparator + ExplSystemDefault + NewLine
 	}
 	res := ""
 	if !rules.Ingress.Empty() {
 		res += IngressDirectionTitle
 		if rules.Ingress.onlySystemDefaultRule() {
-			res += " " + ExplSystemDefault + NewLine
+			res += SpaceSeparator + ExplSystemDefault + NewLine
 		} else {
 			res += NewLine + rules.Ingress.String() + NewLine
 		}
@@ -107,7 +108,7 @@ func (rules ImplyingRulesType) String() string {
 	if !rules.Egress.Empty() {
 		res += EgressDirectionTitle
 		if rules.Egress.onlySystemDefaultRule() {
-			res += " " + ExplSystemDefault + NewLine
+			res += SpaceSeparator + ExplSystemDefault + NewLine
 		} else {
 			res += NewLine + rules.Egress.String() + NewLine
 		}
@@ -115,7 +116,7 @@ func (rules ImplyingRulesType) String() string {
 	if res == "" {
 		return NewLine
 	}
-	return " " + ExplWithRulesTitle + NewLine + res
+	return SpaceSeparator + ExplWithRulesTitle + NewLine + res
 }
 
 func (rules *ImplyingXgressRulesType) Empty() bool {
