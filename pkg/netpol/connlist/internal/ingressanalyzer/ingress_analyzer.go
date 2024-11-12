@@ -303,7 +303,7 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate
 		}
 		for objName, svcList := range objSvcMap {
 			ingObjStr := types.NamespacedName{Namespace: ns, Name: objName}.String()
-			ingressObjTargetPeersAndPorts, err := ia.getIngressObjectTargetedPeersAndPorts(ns, ingObjStr, svcList)
+			ingressObjTargetPeersAndPorts, err := ia.getIngressObjectTargetedPeersAndPorts(ns, ingObjStr, svcList, ingType)
 			if err != nil {
 				return nil, err
 			}
@@ -328,14 +328,14 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate
 // getIngressObjectTargetedPeersAndPorts returns map from peers which are targeted by Route/k8s-Ingress objects in their namespace to
 // the Ingress required connections
 func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns, ingObjStr string,
-	svcList []serviceInfo) (map[eval.Peer]*common.ConnectionSet, error) {
+	svcList []serviceInfo, ingType string) (map[eval.Peer]*common.ConnectionSet, error) {
 	res := make(map[eval.Peer]*common.ConnectionSet)
 	for _, svc := range svcList {
 		peersAndPorts, ok := ia.servicesToPortsAndPeersMap[ns][svc.serviceName]
 		if !ok {
 			ia.logWarning("Ignoring target service " + svc.serviceName + " : service not found")
 		}
-		ruleName := fmt.Sprintf("%s, service %s", ingObjStr, svc.serviceName)
+		ruleName := fmt.Sprintf("[%s] %s//service %s", ingType, ingObjStr, svc.serviceName)
 		for _, peer := range peersAndPorts.peers {
 			currIngressPeerConn, err := ia.getIngressPeerConnection(peer, peersAndPorts.ports, svc.servicePort, ruleName)
 			if err != nil {
