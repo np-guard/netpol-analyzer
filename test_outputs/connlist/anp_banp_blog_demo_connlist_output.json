@@ -1,0 +1,72 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255",
+    "dst": "bar/my-bar[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255",
+    "dst": "baz/my-baz[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255",
+    "dst": "monitoring/my-monitoring[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bar/my-bar[Pod]",
+    "dst": "0.0.0.0-255.255.255.255",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bar/my-bar[Pod]",
+    "dst": "baz/my-baz[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bar/my-bar[Pod]",
+    "dst": "monitoring/my-monitoring[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "baz/my-baz[Pod]",
+    "dst": "0.0.0.0-255.255.255.255",
+    "conn": "All Connections"
+  },
+  {
+    "src": "baz/my-baz[Pod]",
+    "dst": "monitoring/my-monitoring[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "foo/my-foo[Pod]",
+    "dst": "0.0.0.0-255.255.255.255",
+    "conn": "All Connections"
+  },
+  {
+    "src": "foo/my-foo[Pod]",
+    "dst": "baz/my-baz[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "foo/my-foo[Pod]",
+    "dst": "monitoring/my-monitoring[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "monitoring/my-monitoring[Pod]",
+    "dst": "0.0.0.0-255.255.255.255",
+    "conn": "All Connections"
+  },
+  {
+    "src": "monitoring/my-monitoring[Pod]",
+    "dst": "baz/my-baz[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "monitoring/my-monitoring[Pod]",
+    "dst": "foo/my-foo[Pod]",
+    "conn": "All Connections"
+  }
+]
