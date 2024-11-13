@@ -4,9 +4,7 @@
 bar-ns/bar[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
 bar-ns/bar[Deployment] => foo-ns-1/foo[Deployment] : All Connections
 bar-ns/bar[Deployment] => foo-ns-2/foo[Deployment] : All Connections
-foo-ns-1/foo[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
-foo-ns-1/foo[Deployment] => bar-ns/bar[Deployment] : All Connections
-foo-ns-1/foo[Deployment] => foo-ns-2/foo[Deployment] : All Connections
+foo-ns-1/foo[Deployment] => bar-ns/bar[Deployment] : TCP 9090
 foo-ns-2/foo[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
 foo-ns-2/foo[Deployment] => bar-ns/bar[Deployment] : All Connections
 foo-ns-2/foo[Deployment] => foo-ns-1/foo[Deployment] : All Connections

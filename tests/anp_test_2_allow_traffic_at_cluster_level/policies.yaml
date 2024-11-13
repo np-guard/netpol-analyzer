@@ -17,8 +17,19 @@ spec:
       to:
       - pods:
           namespaceSelector:
-              matchlabels:
-                kubernetes.io/metadata.name: kube-system
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
           podSelector:
-            matchlabels:
+            matchLabels:
               app: kube-dns
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: block-egress-ingress-in-foo-ns-1
+  namespace: foo-ns-1
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress

@@ -17,3 +17,25 @@ spec:
     - portNumber:
         protocol: TCP
         port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: restrict-egress-to-bar-ns
+  namespace: foo-ns-1
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+    - ports:
+        - port: 9090
+          protocol: TCP
+      to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: bar-ns
+
+
+
+    
