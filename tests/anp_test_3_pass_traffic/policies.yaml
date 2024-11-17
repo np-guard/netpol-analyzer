@@ -7,6 +7,25 @@ spec:
   subject:
     namespaces: {}
   egress:
+  - action: Allow
+    to:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: bar-ns
+    ports:
+    - portRange:
+        protocol: TCP
+        start: 1
+        end: 8079
+    - portRange:
+        protocol: TCP
+        start: 8081
+        end: 9089
+    - portRange:
+        protocol: TCP
+        start: 9091
+        end: 65535    
   - action: Pass
     to:
     - pods:
