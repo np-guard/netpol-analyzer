@@ -1,4 +1,5 @@
-# copied from : https://github.com/kundan2707/network-policy-api/blob/f6c1cf24c0488f12c21920d2d9286fe0a380dd76/conformance/base/admin_network_policy/core-priority-field.yaml#L4
+# copied from : 
+# https://github.com/kundan2707/network-policy-api/blob/master/conformance/base/admin_network_policy/core-priority-field.yaml
 # with priority 60 (in second ANP), commenting-out the BANP
 apiVersion: policy.networking.k8s.io/v1alpha1
 kind: AdminNetworkPolicy

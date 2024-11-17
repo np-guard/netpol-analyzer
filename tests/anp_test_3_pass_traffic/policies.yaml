@@ -1,3 +1,7 @@
+# admin network policy reference: 
+# https://network-policy-api.sigs.k8s.io/reference/examples/ 
+# Sample Spec for Story 3: Explicitly Delegate traffic to existing K8s Network Policy ; 
+# with some updates to the policy for our testing goals
 apiVersion: policy.networking.k8s.io/v1alpha1
 kind: AdminNetworkPolicy
 metadata:
