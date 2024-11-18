@@ -1,0 +1,53 @@
+digraph {
+	subgraph "cluster_ns1" {
+		color="black"
+		fontcolor="black"
+		"ns1/pod1[Deployment]" [label="pod1[Deployment]" color="blue" fontcolor="blue"]
+		label="ns1"
+	}
+	subgraph "cluster_ns2" {
+		color="black"
+		fontcolor="black"
+		"ns2/pod1[Deployment]" [label="pod1[Deployment]" color="blue" fontcolor="blue"]
+		label="ns2"
+	}
+	"0.0.0.0-8.8.4.3" [label="0.0.0.0-8.8.4.3" color="red2" fontcolor="red2"]
+	"208.67.222.222-208.67.222.222" [label="208.67.222.222-208.67.222.222" color="red2" fontcolor="red2"]
+	"208.67.222.223-255.255.255.255" [label="208.67.222.223-255.255.255.255" color="red2" fontcolor="red2"]
+	"60.45.72.0-60.45.75.255" [label="60.45.72.0-60.45.75.255" color="red2" fontcolor="red2"]
+	"60.45.76.0-89.246.179.255" [label="60.45.76.0-89.246.179.255" color="red2" fontcolor="red2"]
+	"8.8.4.4-8.8.4.4" [label="8.8.4.4-8.8.4.4" color="red2" fontcolor="red2"]
+	"8.8.4.5-8.8.8.7" [label="8.8.4.5-8.8.8.7" color="red2" fontcolor="red2"]
+	"8.8.8.8-8.8.8.8" [label="8.8.8.8-8.8.8.8" color="red2" fontcolor="red2"]
+	"8.8.8.9-60.45.71.255" [label="8.8.8.9-60.45.71.255" color="red2" fontcolor="red2"]
+	"89.246.180.0-89.246.183.255" [label="89.246.180.0-89.246.183.255" color="red2" fontcolor="red2"]
+	"89.246.184.0-208.67.222.221" [label="89.246.184.0-208.67.222.221" color="red2" fontcolor="red2"]
+	"0.0.0.0-8.8.4.3" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-8.8.4.3" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"208.67.222.222-208.67.222.222" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"208.67.222.222-208.67.222.222" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"208.67.222.223-255.255.255.255" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"208.67.222.223-255.255.255.255" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"60.45.72.0-60.45.75.255" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"60.45.72.0-60.45.75.255" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"60.45.76.0-89.246.179.255" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"60.45.76.0-89.246.179.255" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"8.8.4.4-8.8.4.4" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"8.8.4.4-8.8.4.4" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"8.8.4.5-8.8.8.7" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"8.8.4.5-8.8.8.7" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"8.8.8.8-8.8.8.8" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"8.8.8.8-8.8.8.8" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"8.8.8.9-60.45.71.255" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"8.8.8.9-60.45.71.255" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"89.246.180.0-89.246.183.255" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"89.246.180.0-89.246.183.255" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"89.246.184.0-208.67.222.221" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"89.246.184.0-208.67.222.221" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns1/pod1[Deployment]" -> "60.45.72.0-60.45.75.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns1/pod1[Deployment]" -> "89.246.180.0-89.246.183.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns1/pod1[Deployment]" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns2/pod1[Deployment]" -> "60.45.72.0-60.45.75.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns2/pod1[Deployment]" -> "89.246.180.0-89.246.183.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns2/pod1[Deployment]" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}

@@ -1344,6 +1344,10 @@ var goodPathTests = []struct {
 		testDirName:   "anp_banp_blog_demo",
 		outputFormats: ValidFormats,
 	},
+	{
+		testDirName:   "anp_and_banp_using_networks_test",
+		outputFormats: ValidFormats,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

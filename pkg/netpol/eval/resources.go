@@ -651,8 +651,32 @@ func (pe *PolicyEngine) GetRepresentativePeersList() []Peer {
 	return res
 }
 
-// getDisjointIPBlocks returns a slice of disjoint ip-blocks from all netpols resources
+// getDisjointIPBlocks returns a slice of disjoint ip-blocks from all policy resources
 func (pe *PolicyEngine) getDisjointIPBlocks() ([]*netset.IPBlock, error) {
+	ipbList, err := pe.getDisjointIPBlocksFromNetpols()
+	if err != nil {
+		return nil, err
+	}
+	anpIpbList, err := pe.getDisjointIPBlocksFromAdminNetpols()
+	if err != nil {
+		return nil, err
+	}
+	ipbList = append(ipbList, anpIpbList...)
+	if pe.baselineAdminNetpol != nil {
+		banpIPList, err := pe.baselineAdminNetpol.GetReferencedIPBlocks()
+		if err != nil {
+			return nil, err
+		}
+		ipbList = append(ipbList, banpIPList...)
+	}
+	newAll := netset.GetCidrAll()
+	disjointRes := netset.DisjointIPBlocks(ipbList, []*netset.IPBlock{newAll})
+	return disjointRes, nil
+}
+
+// getDisjointIPBlocksFromNetpols returns a slice of disjoint ip-blocks from all netpols
+// (NetworkPolicy objects)
+func (pe *PolicyEngine) getDisjointIPBlocksFromNetpols() ([]*netset.IPBlock, error) {
 	var ipbList []*netset.IPBlock
 	for _, nsMap := range pe.netpolsMap {
 		for _, policy := range nsMap {
@@ -663,9 +687,21 @@ func (pe *PolicyEngine) getDisjointIPBlocks() ([]*netset.IPBlock, error) {
 			ipbList = append(ipbList, policyIPBlocksList...)
 		}
 	}
-	newAll := netset.GetCidrAll()
-	disjointRes := netset.DisjointIPBlocks(ipbList, []*netset.IPBlock{newAll})
-	return disjointRes, nil
+	return ipbList, nil
+}
+
+// getDisjointIPBlocksFromAdminNetpols returns a slice of disjoint IPBlocks from all admin netpols
+// (AdminNetworkPolicy objects)
+func (pe *PolicyEngine) getDisjointIPBlocksFromAdminNetpols() ([]*netset.IPBlock, error) {
+	var ipbList []*netset.IPBlock
+	for _, anp := range pe.sortedAdminNetpols {
+		anpIPBlocksList, err := anp.GetReferencedIPBlocks()
+		if err != nil {
+			return nil, err
+		}
+		ipbList = append(ipbList, anpIPBlocksList...)
+	}
+	return ipbList, nil
 }
 
 // GetSelectedPeers returns list of workload peers in the given namespace which match the given labels selector

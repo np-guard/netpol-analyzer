@@ -261,10 +261,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			if err != nil {
 				return false, err
 			}
-
-			peerIPBlock := peer.GetPeerIPBlock()
-			res := peerIPBlock.IsSubset(ruleIPBlock)
-			if res {
+			if peer.GetPeerIPBlock().IsSubset(ruleIPBlock) {
 				return true, nil
 			}
 		}

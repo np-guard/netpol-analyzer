@@ -9,12 +9,15 @@ package k8s
 import (
 	"errors"
 	"fmt"
+	"net"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
+
+	"github.com/np-guard/models/pkg/netset"
 
 	pkgcommmon "github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
@@ -65,13 +68,50 @@ func doesPodsFieldMatchPeer(pods *apisv1a.NamespacedPod, peer Peer) (bool, error
 	return nsSelector.Matches(labels.Set(peer.GetPeerNamespace().Labels)) && podSelector.Matches(labels.Set(peer.GetPeerPod().Labels)), nil
 }
 
+// doesNetworksFieldMatchPeer checks if the given peer matches the networks field.
+// returns true if the peer's IPBlock is contained within any of the cidr-s in networks field
+func doesNetworksFieldMatchPeer(networks []apisv1a.CIDR, peer Peer) (bool, error) {
+	if peer.GetPeerIPBlock() == nil {
+		return false, nil // networks field selects peers via CIDR blocks (IPs).
+		// nothing to do with Peer type which is not IPBlock
+	}
+	for _, cidr := range networks {
+		isIPv6, err := isIPv6Cidr(cidr)
+		if err != nil { // invalid cidr
+			return false, err
+		}
+		if isIPv6 {
+			// @todo: if cidr is IPv6 raise a warning
+			continue
+		}
+		ipb, err := netset.IPBlockFromCidr(string(cidr))
+		if err != nil {
+			return false, errors.New(netpolerrors.InvalidCIDRAddr)
+		}
+		if peer.GetPeerIPBlock().IsSubset(ipb) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 // egressRuleSelectsPeer checks if the given []AdminNetworkPolicyEgressPeer rule selects the given peer
-// currently supposing a single egressPeer rule may contain only Namespaces/ Pods Fields,
-// @todo support also egress rule peer with Networks field
-// @todo if egress rule peer contains Nodes field, raise a warning that we don't support it
+// AdminNetworkPolicyEgressPeer may define an:
+// 1. in-cluster peer by one of  Namespaces/ Pods/ Nodes field
+// 2. an external peer with Networks field;
+// However, exactly one of the selector pointers must be set for a given peer.
 func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst Peer) (bool, error) {
 	for i := range rulePeers {
-		fieldMatch, err := ruleFieldsSelectsPeer(rulePeers[i].Namespaces, rulePeers[i].Pods, dst)
+		// Validate: Exactly one of the `AdminNetworkPolicyEgressPeer`'s selector pointers must be
+		// set for a given peer.
+		if !validateEgressRuleFields(rulePeers[i]) {
+			return false, errors.New(netpolerrors.OneFieldSetRulePeerErr)
+		}
+		if rulePeers[i].Nodes != nil {
+			// @todo add warning : field not supported
+			continue // next peer
+		}
+		fieldMatch, err := ruleFieldsSelectsPeer(rulePeers[i].Namespaces, rulePeers[i].Pods, rulePeers[i].Networks, dst)
 		if err != nil {
 			return false, err
 		}
@@ -82,29 +122,51 @@ func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst
 	return false, nil
 }
 
-// ruleFieldsSelectsPeer returns wether the input rule fields selects the peer
-func ruleFieldsSelectsPeer(namespaces *metav1.LabelSelector, pods *apisv1a.NamespacedPod, peer Peer) (bool, error) {
-	// only one field in a rule `apisv1a.AdminNetworkPolicyEgressPeer` or `apisv1a.AdminNetworkPolicyIngressPeer` may be not nil (set)
-	if (namespaces == nil) == (pods == nil) {
-		return false, errors.New(netpolerrors.OneFieldSetRulePeerErr)
+// validateEgressRuleFields checks if exactly one field of AdminNetworkPolicyEgressPeer is set.
+func validateEgressRuleFields(rulePeers apisv1a.AdminNetworkPolicyEgressPeer) bool {
+	count := 0
+	if rulePeers.Namespaces != nil {
+		count++
 	}
-	fieldMatch := false
-	var err error
-	if namespaces != nil {
-		fieldMatch, err = doesNamespacesFieldMatchPeer(namespaces, peer)
-	} else { // else Pods is not nil
-		fieldMatch, err = doesPodsFieldMatchPeer(pods, peer)
+	if rulePeers.Pods != nil {
+		count++
 	}
-	if err != nil {
-		return false, err
+	if rulePeers.Nodes != nil {
+		count++
 	}
-	return fieldMatch, nil
+	if rulePeers.Networks != nil {
+		count++
+	}
+	return count == 1
+}
+
+// ruleFieldsSelectsPeer returns wether the input rule field(s) selects the peer.
+// note that the validation of the rulePeer already checked in the calling funcs, so exactly one of:
+// namespaces , pods , networks input params is not nil.
+func ruleFieldsSelectsPeer(namespaces *metav1.LabelSelector, pods *apisv1a.NamespacedPod,
+	networks []apisv1a.CIDR, peer Peer) (bool, error) {
+	switch {
+	case namespaces != nil:
+		return doesNamespacesFieldMatchPeer(namespaces, peer)
+	case pods != nil:
+		return doesPodsFieldMatchPeer(pods, peer)
+	case networks != nil:
+		return doesNetworksFieldMatchPeer(networks, peer)
+	}
+	return false, nil // will not get here
 }
 
 // ingressRuleSelectsPeer checks if the given AdminNetworkPolicyIngressPeer rule selects the given peer
+// AdminNetworkPolicyIngressPeer defines an in-cluster peer to allow traffic from with either
+// Namespaces or Pods field
 func ingressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, src Peer) (bool, error) {
 	for i := range rulePeers {
-		fieldMatch, err := ruleFieldsSelectsPeer(rulePeers[i].Namespaces, rulePeers[i].Pods, src)
+		// 1.Validate:
+		// Exactly one of the selector pointers must be set for a given peer.
+		if (rulePeers[i].Namespaces == nil) == (rulePeers[i].Pods == nil) {
+			return false, errors.New(netpolerrors.OneFieldSetRulePeerErr)
+		}
+		fieldMatch, err := ruleFieldsSelectsPeer(rulePeers[i].Namespaces, rulePeers[i].Pods, nil, src)
 		if err != nil {
 			return false, err
 		}
@@ -235,6 +297,41 @@ func subjectSelectsPeer(anpSubject apisv1a.AdminNetworkPolicySubject, p Peer) (b
 	return doesPodsFieldMatchPeer(anpSubject.Pods, p)
 }
 
+// isIPv6Cidr returns if the cidr is in IPv6 format
+func isIPv6Cidr(cidr apisv1a.CIDR) (bool, error) {
+	_, ipNet, err := net.ParseCIDR(string(cidr))
+	if err != nil {
+		return false, err
+	}
+	ip := ipNet.IP
+	// if the IP is IPv6, return true
+	return ip.To4() == nil, nil
+}
+
+// rulePeersReferencedNetworks returns a list of IPBlocks representing the CIDRs referenced by the given rulePeers' Networks field.
+func rulePeersReferencedNetworks(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer) ([]*netset.IPBlock, error) {
+	res := []*netset.IPBlock{}
+	for _, peerObj := range rulePeers {
+		if peerObj.Networks != nil {
+			for _, cidr := range peerObj.Networks {
+				isIPv6, err := isIPv6Cidr(cidr)
+				if err != nil { // invalid cidr
+					return nil, err
+				}
+				if isIPv6 {
+					continue
+				}
+				ipb, err := netset.IPBlockFromCidr(string(cidr))
+				if err != nil {
+					return nil, err
+				}
+				res = append(res, ipb.Split()...)
+			}
+		}
+	}
+	return res, nil
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 // AdminNetworkPolicy is an alias for k8s adminNetworkPolicy object
@@ -312,4 +409,18 @@ func (anp *AdminNetworkPolicy) HasValidPriority() bool {
 	// but openshift currently only support priority values between 0 and 99
 	// current implementation satisfies k8s requirement
 	return anp.Spec.Priority >= pkgcommmon.MinANPPriority && anp.Spec.Priority <= pkgcommmon.MaxANPPriority
+}
+
+// GetReferencedIPBlocks returns a list of IPBlocks referenced by the AdminNetworkPolicy's Egress rules.
+func (anp *AdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error) {
+	res := []*netset.IPBlock{}
+	// in ANP only egress rules may contains ip addresses
+	for _, rule := range anp.Spec.Egress {
+		ruleRes, err := rulePeersReferencedNetworks(rule.To)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, ruleRes...)
+	}
+	return res, nil
 }
