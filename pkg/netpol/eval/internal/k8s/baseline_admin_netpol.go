@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/np-guard/models/pkg/netset"
+
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 )
 
@@ -76,7 +77,7 @@ func (banp *BaselineAdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*P
 // GetReferencedIPBlocks returns a list of IPBlocks referenced by the BaselineAdminNetworkPolicy's Egress rules.
 func (banp *BaselineAdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error) {
 	res := []*netset.IPBlock{}
-	// in ANP only egress rules may contains ip addresses
+	// in BANP only egress rules may contain ip addresses
 	for _, rule := range banp.Spec.Egress {
 		ruleRes, err := rulePeersReferencedNetworks(rule.To)
 		if err != nil {
