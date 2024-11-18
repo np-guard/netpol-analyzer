@@ -166,7 +166,8 @@ func runEvalCommand() error {
 		podNames = append(podNames, sourcePod)
 	}
 
-	pe := eval.NewPolicyEngine()
+	cLogger := logger.NewDefaultLoggerWithVerbosity(determineLogVerbosity())
+	pe := eval.NewPolicyEngine(cLogger)
 
 	if dirPath != "" {
 		if err := updatePolicyEngineObjectsFromDirPath(pe, podNames); err != nil {

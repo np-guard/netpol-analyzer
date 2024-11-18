@@ -20,16 +20,18 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
+var l = logger.NewDefaultLogger()
+
 // helping func - scans the directory objects and returns the ingress analyzer built from them
 func getIngressAnalyzerFromDirObjects(t *testing.T, testName, dirName string, processingErrsNum int) *IngressAnalyzer {
 	path := testutils.GetTestDirPath(dirName)
 	rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{path}, true, false)
-	objects, fpErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
+	objects, fpErrs := parser.ResourceInfoListToK8sObjectsList(rList, l, false)
 	require.Len(t, fpErrs, processingErrsNum, "test: %q, expected %d processing errors but got %d",
 		testName, processingErrsNum, len(fpErrs))
-	pe, err := eval.NewPolicyEngineWithObjects(objects)
+	pe, err := eval.NewPolicyEngineWithObjects(objects, l)
 	require.Empty(t, err, "test: %q", testName)
-	ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger(), false)
+	ia, err := NewIngressAnalyzerWithObjects(objects, pe, l, false)
 	require.Empty(t, err, "test: %q", testName)
 	return ia
 }

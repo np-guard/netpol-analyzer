@@ -24,6 +24,7 @@ import (
 	"github.com/np-guard/models/pkg/netset"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -33,6 +34,7 @@ type (
 	// PolicyEngine encapsulates the current "world view" (e.g., workloads, policies)
 	// and allows querying it for allowed or denied connections.
 	PolicyEngine struct {
+		logger                          logger.Logger
 		namespacesMap                   map[string]*k8s.Namespace                // map from ns name to ns object
 		podsMap                         map[string]*k8s.Pod                      // map from pod name to pod object
 		netpolsMap                      map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
@@ -59,8 +61,9 @@ type (
 )
 
 // NewPolicyEngine returns a new PolicyEngine with an empty initial state
-func NewPolicyEngine() *PolicyEngine {
+func NewPolicyEngine(l logger.Logger) *PolicyEngine {
 	return &PolicyEngine{
+		logger:                          l,
 		namespacesMap:                   make(map[string]*k8s.Namespace),
 		podsMap:                         make(map[string]*k8s.Pod),
 		netpolsMap:                      make(map[string]map[string]*k8s.NetworkPolicy),
@@ -71,16 +74,16 @@ func NewPolicyEngine() *PolicyEngine {
 	}
 }
 
-func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, error) {
-	pe := NewPolicyEngine()
+func NewPolicyEngineWithObjects(objects []parser.K8sObject, l logger.Logger) (*PolicyEngine, error) {
+	pe := NewPolicyEngine(l)
 	err := pe.addObjectsByKind(objects)
 	return pe, err
 }
 
 // NewPolicyEngineWithOptions returns a new policy engine with an empty state but updating the exposure analysis flag
 // TBD: currently exposure-analysis is the only option supported by policy-engine, so no need for options list param
-func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
-	pe := NewPolicyEngine()
+func NewPolicyEngineWithOptions(exposureFlag bool, l logger.Logger) *PolicyEngine {
+	pe := NewPolicyEngine(l)
 	pe.exposureAnalysisFlag = exposureFlag
 	if exposureFlag {
 		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)

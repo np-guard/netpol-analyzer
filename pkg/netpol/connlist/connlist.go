@@ -199,12 +199,11 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 
 // getPolicyEngine returns a new policy engine considering the exposure analysis option
 func (ca *ConnlistAnalyzer) getPolicyEngine(objectsList []parser.K8sObject) (*eval.PolicyEngine, error) {
-	// TODO: do we need logger in policyEngine?
 	if !ca.exposureAnalysis {
-		return eval.NewPolicyEngineWithObjects(objectsList)
+		return eval.NewPolicyEngineWithObjects(objectsList, ca.logger)
 	}
 	// else build new policy engine with exposure analysis option
-	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
+	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis, ca.logger)
 	err := pe.AddObjectsForExposureAnalysis(objectsList)
 	return pe, err
 }
@@ -225,7 +224,7 @@ func (ca *ConnlistAnalyzer) connsListFromParsedResources(objectsList []parser.K8
 
 // ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources, and list of all peers names
 func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []Peer, error) {
-	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
+	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis, ca.logger)
 
 	// get all resources from k8s cluster
 	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
