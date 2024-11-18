@@ -9,6 +9,8 @@ package connlist
 import (
 	"fmt"
 	"sort"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // formatText: implements the connsFormatter interface for txt output format
@@ -34,27 +36,32 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 // writeConnlistOutput writes the section of the connlist result of the output
 func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool) string {
 	connLines := make([]singleConnFields, 0, len(conns))
+	systemDefaultConnLines := make([]singleConnFields, 0, len(conns))
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
-		if p2pConn := formSingleP2PConn(conns[i], explain); p2pConn.ConnString != "" {
-			// ConnString might be empty if conns[i] does not contain 'InSet' ports
-			connLines = append(connLines, p2pConn)
-			// if we have exposure analysis results, also check if src/dst is an IP and store the connection
-			if saveIPConns {
-				t.ipMaps.saveConnsWithIPs(conns[i], explain)
+		p2pConn := formSingleP2PConn(conns[i], explain)
+		if explain {
+			// when running with explanation, we print system default connections at the end
+			if conns[i].(*connection).OnlySystemDefaultRule() {
+				systemDefaultConnLines = append(systemDefaultConnLines, p2pConn)
+			} else {
+				connLines = append(connLines, p2pConn)
 			}
+		} else {
+			connLines = append(connLines, p2pConn)
+		}
+		// if we have exposure analysis results, also check if src/dst is an IP and store the connection
+		if saveIPConns {
+			t.ipMaps.saveConnsWithIPs(conns[i], explain)
 		}
 	}
-	sort.Slice(connLines, func(i, j int) bool {
-		return (connLines[i].Src < connLines[j].Src ||
-			(connLines[i].Src == connLines[j].Src && connLines[i].Dst < connLines[j].Dst) ||
-			(connLines[i].Src == connLines[j].Src && connLines[i].Dst == connLines[j].Dst && connLines[i].ConnString < connLines[j].ConnString))
-	})
+	sortConnFields(connLines, true)
+	if explain {
+		sortConnFields(systemDefaultConnLines, true)
+	}
 	result := ""
 	if explain {
-		for _, p2pConn := range connLines {
-			result += p2pConn.stringWithExplanation() + newLineChar
-		}
+		result = writeExplanationOutput(connLines, systemDefaultConnLines)
 	} else {
 		for _, p2pConn := range connLines {
 			result += p2pConn.string() + newLineChar
@@ -63,8 +70,25 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 	return result
 }
 
+func writeExplanationOutput(connLines, systemDefaultConnLines []singleConnFields) string {
+	result := ""
+	for _, p2pConn := range connLines {
+		result += nodePairSeparationLine
+		result += p2pConn.stringWithExplanation() + newLineChar
+	}
+	if len(systemDefaultConnLines) > 0 {
+		result += nodePairSeparationLine + systemDefaultPairsHeader
+		for _, p2pConn := range systemDefaultConnLines {
+			result += p2pConn.nodePairString() + newLineChar
+		}
+	}
+	return result
+}
+
 const (
-	unprotectedHeader = "\nWorkloads not protected by network policies:\n"
+	unprotectedHeader        = "\nWorkloads not protected by network policies:\n"
+	nodePairSeparationLine   = "------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+	systemDefaultPairsHeader = "The following nodes are connected due to " + common.SystemDefaultRule + ":\n"
 )
 
 // writeExposureOutput writes the section of the exposure-analysis result

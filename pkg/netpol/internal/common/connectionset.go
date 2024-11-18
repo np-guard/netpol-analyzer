@@ -359,9 +359,6 @@ func (p *PortRangeData) End() int64 {
 }
 
 func (p *PortRangeData) String() string {
-	if !p.Interval.inSet {
-		return ""
-	}
 	if p.End() != p.Start() {
 		return fmt.Sprintf("%d-%d", p.Start(), p.End())
 	}
@@ -369,7 +366,11 @@ func (p *PortRangeData) String() string {
 }
 
 func (p *PortRangeData) StringWithExplanation(protocolString string) string {
-	return protocolString + ":" + p.String() + p.Interval.implyingRules.String()
+	actionStr := allowConnsStr
+	if !p.InSet() {
+		actionStr = denyConnsStr
+	}
+	return actionStr + " " + protocolString + ":" + p.String() + p.Interval.implyingRules.String()
 }
 
 func (p *PortRangeData) InSet() bool {
@@ -377,13 +378,13 @@ func (p *PortRangeData) InSet() bool {
 }
 
 // ProtocolsAndPortsMap() returns a map from allowed protocol to list of allowed ports ranges.
-func (conn *ConnectionSet) ProtocolsAndPortsMap(includeBlockedPorts bool) map[v1.Protocol][]PortRange {
+func (conn *ConnectionSet) ProtocolsAndPortsMap(includeDeniedPorts bool) map[v1.Protocol][]PortRange {
 	res := make(map[v1.Protocol][]PortRange, 0)
 	for protocol, portSet := range conn.AllowedProtocols {
 		res[protocol] = make([]PortRange, 0)
 		// TODO: consider leave the slice of ports empty if portSet covers the full range
 		for _, v := range portSet.Ports.Intervals() {
-			if /*!v.isEndInterval()*/ includeBlockedPorts || v.inSet {
+			if includeDeniedPorts || v.inSet {
 				res[protocol] = append(res[protocol], &PortRangeData{Interval: v})
 			}
 		}
@@ -400,6 +401,8 @@ const (
 	connsAndPortRangeSeparator = ","
 	allConnsStr                = "All Connections"
 	noConnsStr                 = "No Connections"
+	allowConnsStr              = "ALLOWED"
+	denyConnsStr               = "DENIED"
 )
 
 func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[v1.Protocol][]PortRange) string {
@@ -429,7 +432,7 @@ func portsString(ports []PortRange) string {
 	portsStr := make([]string, 0, len(ports))
 	currInterval := interval.New(0, -1) // an empty interval
 	for i := range ports {
-		if thePortStr := ports[i].String(); thePortStr != "" {
+		if ports[i].(*PortRangeData).InSet() {
 			switch {
 			case currInterval.IsEmpty():
 				currInterval = interval.New(ports[i].Start(), ports[i].End())
@@ -439,7 +442,7 @@ func portsString(ports []PortRange) string {
 				portsStr = append(portsStr, currInterval.ShortString())
 				currInterval = interval.New(0, -1)
 			}
-		} else if !currInterval.IsEmpty() { // thePortsStr will be empty if ports[i].InSet is false
+		} else if !currInterval.IsEmpty() {
 			portsStr = append(portsStr, currInterval.ShortString())
 			currInterval = interval.New(0, -1)
 		}
@@ -450,21 +453,12 @@ func portsString(ports []PortRange) string {
 	return strings.Join(portsStr, connsAndPortRangeSeparator)
 }
 
-func portsStringWithExplanation(ports []PortRange, protocolString string) (string, bool) {
+func portsStringWithExplanation(ports []PortRange, protocolString string) string {
 	portsStr := make([]string, 0, len(ports))
-	noPortsExplanation := MakeImplyingRules()
 	for i := range ports {
-		data := ports[i].(*PortRangeData)
-		if data.InSet() {
-			portsStr = append(portsStr, data.StringWithExplanation(protocolString))
-		} else {
-			noPortsExplanation.Union(data.Interval.implyingRules)
-		}
+		portsStr = append(portsStr, ports[i].(*PortRangeData).StringWithExplanation(protocolString))
 	}
-	if len(portsStr) == 0 {
-		return noConnsStr + noPortsExplanation.String(), false
-	}
-	return strings.Join(portsStr, NewLine), true
+	return strings.Join(portsStr, NewLine)
 }
 
 func protocolAndPortsStr(protocol v1.Protocol, ports string) string {
@@ -484,10 +478,7 @@ func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRule
 	// connStrings will contain the string of given conns protocols and ports as is
 	connStrings := make([]string, 0, len(protocolsAndPorts))
 	for protocol, ports := range protocolsAndPorts {
-		if thePortsStr, hasPorts := portsStringWithExplanation(ports, string(protocol)); hasPorts {
-			// thePortsStr might be empty if 'ports' does not contain 'InSet' ports
-			connStrings = append(connStrings, thePortsStr)
-		}
+		connStrings = append(connStrings, portsStringWithExplanation(ports, string(protocol)))
 	}
 	sort.Strings(connStrings)
 	connStr = strings.Join(connStrings, NewLine)

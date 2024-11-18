@@ -73,6 +73,10 @@ func (c singleConnFields) string() string {
 	return fmt.Sprintf("%s => %s : %s", c.Src, c.Dst, c.ConnString)
 }
 
+func (c singleConnFields) nodePairString() string {
+	return fmt.Sprintf("%s => %s", c.Src, c.Dst)
+}
+
 func (c singleConnFields) stringWithExplanation() string {
 	return fmt.Sprintf("CONNECTIONS BETWEEN %s => %s:\n\n%s", c.Src, c.Dst, c.Explanation)
 }

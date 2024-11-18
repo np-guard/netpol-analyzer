@@ -9,7 +9,6 @@ package common
 import (
 	"fmt"
 	"log"
-	"math"
 	"slices"
 	"sort"
 	"strings"
@@ -62,12 +61,12 @@ func (rules ImplyingRulesType) Copy() ImplyingRulesType {
 }
 
 const (
-	ExplWithRulesTitle    = "due to the following policices//rules:"
+	ExplWithRulesTitle    = "due to the following policies//rules:"
 	IngressDirectionTitle = "INGRESS DIRECTION:"
 	EgressDirectionTitle  = "EGRESS DIRECTION:"
 	NewLine               = "\n"
 	SpaceSeparator        = " "
-	SystemDefaultRule     = "the system default: allow all"
+	SystemDefaultRule     = "the system default (allow all)"
 	PodToItselfRule       = "pod to itself: allow all"
 	ExplSystemDefault     = "due to " + SystemDefaultRule
 )
@@ -92,8 +91,12 @@ func (rules *ImplyingXgressRulesType) String() string {
 	return strings.Join(formattedRules, NewLine)
 }
 
+func (rules *ImplyingRulesType) OnlySystemDefaultRule() bool {
+	return rules.Ingress.onlySystemDefaultRule() && rules.Egress.onlySystemDefaultRule()
+}
+
 func (rules ImplyingRulesType) String() string {
-	if rules.Ingress.onlySystemDefaultRule() && rules.Egress.onlySystemDefaultRule() {
+	if rules.OnlySystemDefaultRule() {
 		return SpaceSeparator + ExplSystemDefault + NewLine
 	}
 	res := ""
@@ -171,9 +174,7 @@ func (rules ImplyingRulesType) Union(other ImplyingRulesType) {
 }
 
 const (
-	MinValue = 0
-	MaxValue = math.MaxInt64
-	NoIndex  = -1
+	NoIndex = -1
 )
 
 type AugmentedInterval struct {
@@ -194,20 +195,28 @@ func NewAugmentedIntervalWithRules(start, end int64, inSet bool, rules ImplyingR
 	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: rules.Copy()}
 }
 
-// AugmentedCanonicalSet is a set of int64 integers, implemented using an ordered slice of non-overlapping, non-touching interval.
+// AugmentedCanonicalSet is a set of int64 integers, implemented using an ordered slice of non-overlapping, non-touching intervals.
 // The intervals should include both included intervals and holes;
 // i.e., start of every interval is the end of a previous interval incremented by 1.
-// The last interval should always end with MaxValue and should have inSet being false (thus representing a hole till the end of the range)
+// An AugmentedCanonicalSet is created with an interval/hole covering the whole range for this kind of set.
+// The assumption is that further operations on a set will never extend this initial range,
+// i.e., the MinValue() and MaxValue() functions will always return the same results.
 type AugmentedCanonicalSet struct {
 	intervalSet []AugmentedInterval
 }
 
-func NewAugmentedCanonicalSet() *AugmentedCanonicalSet {
+func NewAugmentedCanonicalSet(minValue, maxValue int64, isAll bool) *AugmentedCanonicalSet {
 	return &AugmentedCanonicalSet{
 		intervalSet: []AugmentedInterval{
-			NewAugmentedInterval(MinValue, MaxValue, false), // the full range 'hole'
+			NewAugmentedInterval(minValue, maxValue, isAll), // the full range interval (isAll==true) or 'hole' (isAll==false)
 		},
 	}
+}
+
+func NewFullAugmentedSetWithRules(minValue, maxValue int64, rules ImplyingRulesType) *AugmentedCanonicalSet {
+	result := NewAugmentedCanonicalSet(minValue, maxValue, false)
+	result.AddAugmentedInterval(NewAugmentedIntervalWithRules(minValue, maxValue, true, rules))
+	return result
 }
 
 func (c *AugmentedCanonicalSet) Intervals() []AugmentedInterval {
@@ -218,7 +227,25 @@ func (c *AugmentedCanonicalSet) NumIntervals() int {
 	return len(c.intervalSet)
 }
 
-const errMinFromEmptySet = "cannot take min from empty interval set"
+const (
+	errMinFromEmptySet    = "cannot take min from empty interval set"
+	errOutOfRangeInterval = "cannot add interval which is out of scope of AugmentedCanonicalSet"
+)
+
+func (c *AugmentedCanonicalSet) MinValue() int64 {
+	if len(c.intervalSet) == 0 {
+		log.Panic(errMinFromEmptySet)
+	}
+	return c.intervalSet[0].interval.Start()
+}
+
+func (c *AugmentedCanonicalSet) MaxValue() int64 {
+	size := len(c.intervalSet)
+	if size == 0 {
+		log.Panic(errMinFromEmptySet)
+	}
+	return c.intervalSet[size-1].interval.End()
+}
 
 func (c *AugmentedCanonicalSet) Min() int64 {
 	if len(c.intervalSet) == 0 {
@@ -318,6 +345,9 @@ func (c *AugmentedCanonicalSet) Equal(other *AugmentedCanonicalSet) bool {
 // AddAugmentedInterval adds a new interval/hole  to the set,
 // and updates the implying rules accordingly
 func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval) {
+	if v.interval.Start() < c.MinValue() || v.interval.End() > c.MaxValue() {
+		log.Panic(errOutOfRangeInterval)
+	}
 	if v.interval.IsEmpty() {
 		return
 	}
@@ -411,7 +441,9 @@ func (c *AugmentedCanonicalSet) Copy() *AugmentedCanonicalSet {
 }
 
 func (c *AugmentedCanonicalSet) Contains(n int64) bool {
-	return NewAugmentedSetFromInterval(NewAugmentedInterval(n, n, true)).ContainedIn(c)
+	otherSet := NewAugmentedCanonicalSet(c.MinValue(), c.MaxValue(), false)
+	otherSet.AddAugmentedInterval(NewAugmentedInterval(n, n, true))
+	return otherSet.ContainedIn(c)
 }
 
 // ContainedIn returns true of the current AugmentedCanonicalSet is contained in the other AugmentedCanonicalSet
@@ -456,7 +488,7 @@ func (c *AugmentedCanonicalSet) Intersect(other *AugmentedCanonicalSet) *Augment
 	if c == other {
 		return c.Copy()
 	}
-	res := NewAugmentedCanonicalSet()
+	res := NewAugmentedCanonicalSet(c.MinValue(), c.MaxValue(), false)
 	for _, left := range c.intervalSet {
 		if !left.inSet {
 			continue
@@ -508,7 +540,7 @@ func (c *AugmentedCanonicalSet) Overlap(other *AugmentedCanonicalSet) bool {
 // Subtract returns the subtraction result of other AugmentedCanonicalSet
 func (c *AugmentedCanonicalSet) Subtract(other *AugmentedCanonicalSet) *AugmentedCanonicalSet {
 	if c == other {
-		return NewAugmentedCanonicalSet()
+		return NewAugmentedCanonicalSet(c.MinValue(), c.MaxValue(), false)
 	}
 	res := c.Copy()
 	for _, interval := range other.intervalSet {
@@ -544,14 +576,8 @@ func (c *AugmentedCanonicalSet) Elements() []int64 {
 	return res
 }
 
-func NewAugmentedSetFromInterval(augInt AugmentedInterval) *AugmentedCanonicalSet {
-	result := NewAugmentedCanonicalSet()
-	result.AddAugmentedInterval(augInt)
-	return result
-}
-
 func (c *AugmentedCanonicalSet) GetEquivalentCanonicalAugmentedSet() *AugmentedCanonicalSet {
-	res := NewAugmentedCanonicalSet()
+	res := NewAugmentedCanonicalSet(c.MinValue(), c.MaxValue(), false)
 	interv, index := c.nextIncludedInterval(0)
 	for index != NoIndex {
 		res.AddAugmentedInterval(NewAugmentedInterval(interv.Start(), interv.End(), true))

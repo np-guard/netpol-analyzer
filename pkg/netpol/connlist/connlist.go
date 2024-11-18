@@ -354,6 +354,10 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 	return c.protocolsAndPorts
 }
 
+func (c *connection) OnlySystemDefaultRule() bool {
+	return c.allConnections && len(c.protocolsAndPorts) == 0 && c.commonImplyingRules.OnlySystemDefaultRule()
+}
+
 // returns a *common.ConnectionSet from Peer2PeerConnection data
 func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.ConnectionSet {
 	protocolsToPortSetMap := make(map[v1.Protocol]*common.PortSet, len(c.ProtocolsAndPorts()))

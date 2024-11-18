@@ -42,20 +42,14 @@ type PortSet struct {
 
 // MakePortSet: return a new PortSet object, with all ports or no ports allowed
 func MakePortSet(all bool) *PortSet {
-	if all {
-		return &PortSet{Ports: NewAugmentedSetFromInterval(NewAugmentedInterval(minPort, maxPort, true)),
-			NamedPorts:         NamedPortsType{},
-			ExcludedNamedPorts: NamedPortsType{},
-		}
-	}
-	return &PortSet{Ports: NewAugmentedCanonicalSet(),
+	return &PortSet{Ports: NewAugmentedCanonicalSet(minPort, maxPort, all),
 		NamedPorts:         NamedPortsType{},
 		ExcludedNamedPorts: NamedPortsType{},
 	}
 }
 
 func MakeAllPortSetWithImplyingRules(rules ImplyingRulesType) *PortSet {
-	return &PortSet{Ports: NewAugmentedSetFromInterval(NewAugmentedIntervalWithRules(minPort, maxPort, true, rules)),
+	return &PortSet{Ports: NewFullAugmentedSetWithRules(minPort, maxPort, rules),
 		NamedPorts:         NamedPortsType{},
 		ExcludedNamedPorts: NamedPortsType{},
 	}
