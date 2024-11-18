@@ -87,7 +87,8 @@ func writeExplanationOutput(connLines, systemDefaultConnLines []singleConnFields
 
 const (
 	unprotectedHeader        = "\nWorkloads not protected by network policies:\n"
-	nodePairSeparationLine   = "------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+	separationLine80         = "--------------------------------------------------------------------------------"
+	nodePairSeparationLine   = separationLine80 + separationLine80 + common.NewLine
 	systemDefaultPairsHeader = "The following nodes are connected due to " + common.SystemDefaultRule + ":\n"
 )
 

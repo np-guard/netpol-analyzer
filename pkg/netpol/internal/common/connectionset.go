@@ -370,7 +370,7 @@ func (p *PortRangeData) StringWithExplanation(protocolString string) string {
 	if !p.InSet() {
 		actionStr = denyConnsStr
 	}
-	return actionStr + " " + protocolString + ":" + p.String() + p.Interval.implyingRules.String()
+	return actionStr + SpaceSeparator + protocolString + ":" + p.String() + p.Interval.implyingRules.String()
 }
 
 func (p *PortRangeData) InSet() bool {
@@ -462,7 +462,7 @@ func portsStringWithExplanation(ports []PortRange, protocolString string) string
 }
 
 func protocolAndPortsStr(protocol v1.Protocol, ports string) string {
-	return string(protocol) + " " + ports
+	return string(protocol) + SpaceSeparator + ports
 }
 
 func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRules ImplyingRulesType,
