@@ -28,7 +28,7 @@ type ImplyingXgressRulesType struct {
 	Rules map[string]int
 	// Result will keep the final connectivity decision which follows from the above rules
 	// (allow, deny or not set)
-	// It is used for specifiyng explainability decision per direction (Egress/Ingress)
+	// It is used for specifying explainability decision per direction (Egress/Ingress)
 	Result ExplResultType
 }
 
@@ -100,12 +100,16 @@ func (rules *ImplyingXgressRulesType) onlySystemDefaultRule() bool {
 	return false
 }
 
+func formattedExpl(expl string) string {
+	return "(" + expl + ")"
+}
+
 func (rules *ImplyingXgressRulesType) resultString() string {
 	switch rules.Result {
 	case AllowResult:
-		return "(" + allowResultStr + ")"
+		return formattedExpl(allowResultStr)
 	case DenyResult:
-		return "(" + denyResultStr + ")"
+		return formattedExpl(denyResultStr)
 	default:
 		return ""
 	}

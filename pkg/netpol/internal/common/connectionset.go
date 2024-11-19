@@ -73,7 +73,7 @@ func GetAllTCPConnections() *ConnectionSet {
 }
 
 // Intersection updates ConnectionSet object to be the intersection result with other ConnectionSet
-// the implying rules are symetrically updated by both conn and other,
+// the implying rules are symmetrically updated by both conn and other,
 // i.e., conn does not have a precedence over other
 func (conn *ConnectionSet) Intersection(other *ConnectionSet) {
 	if len(conn.AllowedProtocols) == 0 && len(other.AllowedProtocols) == 0 {
