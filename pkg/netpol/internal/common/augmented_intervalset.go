@@ -16,24 +16,43 @@ import (
 	"github.com/np-guard/models/pkg/interval"
 )
 
-type ImplyingXgressRulesType map[string]int
+type ExplResultType int
+
+const (
+	NoResult ExplResultType = iota
+	AllowResult
+	DenyResult
+)
+
+type ImplyingXgressRulesType struct {
+	Rules map[string]int
+	// Result will keep the final connectivity decision which follows from the above rules
+	// (allow, deny or not set)
+	// It is used for specifiyng explainability decision per direction (Egress/Ingress)
+	Result ExplResultType
+}
 
 type ImplyingRulesType struct {
-	Ingress *ImplyingXgressRulesType // an ordered set of ingress rules, used for explainability
-	Egress  *ImplyingXgressRulesType // an ordered set of egress rules, used for explainability
+	Ingress ImplyingXgressRulesType // an ordered set of ingress rules, used for explainability
+	Egress  ImplyingXgressRulesType // an ordered set of egress rules, used for explainability
 }
 
-func MakeImplyingXgressRulesWithRule(rule string) *ImplyingXgressRulesType {
-	res := ImplyingXgressRulesType{}
+func InitImplyingXgressRules() ImplyingXgressRulesType {
+	return ImplyingXgressRulesType{Rules: map[string]int{}, Result: NoResult}
+}
+
+func MakeImplyingXgressRulesWithRule(rule string) ImplyingXgressRulesType {
+	res := InitImplyingXgressRules()
 	res.AddXgressRule(rule)
-	return &res
+	return res
 }
 
-func MakeImplyingRules() ImplyingRulesType {
-	return ImplyingRulesType{Ingress: &ImplyingXgressRulesType{}, Egress: &ImplyingXgressRulesType{}}
+func InitImplyingRules() ImplyingRulesType {
+	return ImplyingRulesType{Ingress: InitImplyingXgressRules(), Egress: InitImplyingXgressRules()}
 }
+
 func MakeImplyingRulesWithRule(rule string, isIngress bool) ImplyingRulesType {
-	res := MakeImplyingRules()
+	res := InitImplyingRules()
 	if isIngress {
 		res.Ingress = MakeImplyingXgressRulesWithRule(rule)
 	} else {
@@ -42,19 +61,19 @@ func MakeImplyingRulesWithRule(rule string, isIngress bool) ImplyingRulesType {
 	return res
 }
 
-func (rules *ImplyingXgressRulesType) Copy() *ImplyingXgressRulesType {
+func (rules *ImplyingXgressRulesType) Copy() ImplyingXgressRulesType {
 	if rules == nil {
-		return nil
+		return InitImplyingXgressRules()
 	}
-	res := ImplyingXgressRulesType{}
-	for k, v := range *rules {
-		res[k] = v
+	res := ImplyingXgressRulesType{Rules: map[string]int{}, Result: rules.Result}
+	for k, v := range rules.Rules {
+		res.Rules[k] = v
 	}
-	return &res
+	return res
 }
 
 func (rules ImplyingRulesType) Copy() ImplyingRulesType {
-	res := MakeImplyingRules()
+	res := InitImplyingRules()
 	res.Ingress = rules.Ingress.Copy()
 	res.Egress = rules.Egress.Copy()
 	return res
@@ -62,33 +81,47 @@ func (rules ImplyingRulesType) Copy() ImplyingRulesType {
 
 const (
 	ExplWithRulesTitle    = "due to the following policies//rules:"
-	IngressDirectionTitle = "INGRESS DIRECTION:"
-	EgressDirectionTitle  = "EGRESS DIRECTION:"
+	IngressDirectionTitle = "\tINGRESS DIRECTION"
+	EgressDirectionTitle  = "\tEGRESS DIRECTION"
 	NewLine               = "\n"
 	SpaceSeparator        = " "
-	SystemDefaultRule     = "the system default (allow all)"
-	PodToItselfRule       = "pod to itself: allow all"
+	ExplAllowAll          = "(Allow all)"
+	SystemDefaultRule     = "the system default " + ExplAllowAll
 	ExplSystemDefault     = "due to " + SystemDefaultRule
+	PodToItselfRule       = "pod to itself " + ExplAllowAll
+	allowResultStr        = "ALLOWED"
+	denyResultStr         = "DENIED"
 )
 
 func (rules *ImplyingXgressRulesType) onlySystemDefaultRule() bool {
-	if _, ok := (*rules)[SystemDefaultRule]; ok {
-		return len(*rules) == 1
+	if _, ok := rules.Rules[SystemDefaultRule]; ok {
+		return len(rules.Rules) == 1
 	}
 	return false
 }
 
-func (rules *ImplyingXgressRulesType) String() string {
-	if rules.Empty() {
+func (rules *ImplyingXgressRulesType) resultString() string {
+	switch rules.Result {
+	case AllowResult:
+		return "(" + allowResultStr + ")"
+	case DenyResult:
+		return "(" + denyResultStr + ")"
+	default:
 		return ""
 	}
+}
+
+func (rules *ImplyingXgressRulesType) String() string {
+	if rules.Empty() {
+		return rules.resultString()
+	}
 	// print the rules according to their order
-	formattedRules := make([]string, 0, len(*rules))
-	for name, order := range *rules {
-		formattedRules = append(formattedRules, fmt.Sprintf("%d) %s", order+1, name))
+	formattedRules := make([]string, 0, len(rules.Rules))
+	for name, order := range rules.Rules {
+		formattedRules = append(formattedRules, fmt.Sprintf("\t\t%d) %s", order+1, name))
 	}
 	sort.Strings(formattedRules) // the rule index begins the string, like "2)"
-	return strings.Join(formattedRules, NewLine)
+	return rules.resultString() + NewLine + strings.Join(formattedRules, NewLine)
 }
 
 func (rules *ImplyingRulesType) OnlySystemDefaultRule() bool {
@@ -97,23 +130,23 @@ func (rules *ImplyingRulesType) OnlySystemDefaultRule() bool {
 
 func (rules ImplyingRulesType) String() string {
 	if rules.OnlySystemDefaultRule() {
-		return SpaceSeparator + ExplSystemDefault + NewLine
+		return SpaceSeparator + SystemDefaultRule + NewLine
 	}
 	res := ""
-	if !rules.Ingress.Empty() {
-		res += IngressDirectionTitle
-		if rules.Ingress.onlySystemDefaultRule() {
-			res += SpaceSeparator + ExplSystemDefault + NewLine
-		} else {
-			res += NewLine + rules.Ingress.String() + NewLine
-		}
-	}
 	if !rules.Egress.Empty() {
 		res += EgressDirectionTitle
 		if rules.Egress.onlySystemDefaultRule() {
-			res += SpaceSeparator + ExplSystemDefault + NewLine
+			res += SpaceSeparator + rules.Egress.resultString() + SpaceSeparator + ExplSystemDefault + NewLine
 		} else {
-			res += NewLine + rules.Egress.String() + NewLine
+			res += SpaceSeparator + rules.Egress.String() + NewLine
+		}
+	}
+	if !rules.Ingress.Empty() {
+		res += IngressDirectionTitle
+		if rules.Ingress.onlySystemDefaultRule() {
+			res += SpaceSeparator + rules.Ingress.resultString() + SpaceSeparator + ExplSystemDefault + NewLine
+		} else {
+			res += SpaceSeparator + rules.Ingress.String() + NewLine
 		}
 	}
 	if res == "" {
@@ -123,7 +156,7 @@ func (rules ImplyingRulesType) String() string {
 }
 
 func (rules *ImplyingXgressRulesType) Empty() bool {
-	return len(*rules) == 0
+	return len(rules.Rules) == 0
 }
 
 func (rules ImplyingRulesType) Empty(isIngress bool) bool {
@@ -135,13 +168,13 @@ func (rules ImplyingRulesType) Empty(isIngress bool) bool {
 
 func (rules *ImplyingXgressRulesType) AddXgressRule(ruleName string) {
 	if ruleName != "" {
-		if _, ok := (*rules)[ruleName]; !ok {
-			(*rules)[ruleName] = len(*rules) // a new rule should be the last
+		if _, ok := rules.Rules[ruleName]; !ok {
+			rules.Rules[ruleName] = len(rules.Rules) // a new rule should be the last
 		}
 	}
 }
 
-func (rules ImplyingRulesType) AddRule(ruleName string, isIngress bool) {
+func (rules *ImplyingRulesType) AddRule(ruleName string, isIngress bool) {
 	if isIngress {
 		rules.Ingress.AddXgressRule(ruleName)
 	} else {
@@ -149,26 +182,46 @@ func (rules ImplyingRulesType) AddRule(ruleName string, isIngress bool) {
 	}
 }
 
-func (rules *ImplyingXgressRulesType) Union(other *ImplyingXgressRulesType) {
-	if other == nil {
-		return
+func (rules *ImplyingXgressRulesType) SetXgressResult(isAllowed bool) {
+	if rules.Result != NoResult {
+		log.Panic(errConflictingExplResult)
 	}
-	// first, count how many rules are common in both sets
-	common := 0
-	for name := range *other {
-		if _, ok := (*rules)[name]; ok {
-			common += 1
-		}
-	}
-	offset := len(*rules) - common
-	for name, order := range *other {
-		if _, ok := (*rules)[name]; !ok { // for the common rules, keep their original order in the current rules
-			(*rules)[name] = order + offset // other rules should be addded after the current rules
-		}
+	if isAllowed {
+		rules.Result = AllowResult
+	} else {
+		rules.Result = DenyResult
 	}
 }
 
-func (rules ImplyingRulesType) Union(other ImplyingRulesType) {
+func (rules *ImplyingRulesType) SetResult(isAllowed, isIngress bool) {
+	if isIngress {
+		rules.Ingress.SetXgressResult(isAllowed)
+	} else {
+		rules.Egress.SetXgressResult(isAllowed)
+	}
+}
+
+func (rules *ImplyingXgressRulesType) Union(other ImplyingXgressRulesType) {
+	// first, count how many rules are common in both sets
+	common := 0
+	for name := range other.Rules {
+		if _, ok := rules.Rules[name]; ok {
+			common += 1
+		}
+	}
+	offset := len(rules.Rules) - common
+	for name, order := range other.Rules {
+		if _, ok := rules.Rules[name]; !ok { // for the common rules, keep their original order in the current rules
+			rules.Rules[name] = order + offset // other rules should be addded after the current rules
+		}
+	}
+	// update Result if set
+	if other.Result != NoResult {
+		rules.SetXgressResult(other.Result == AllowResult)
+	}
+}
+
+func (rules *ImplyingRulesType) Union(other ImplyingRulesType) {
 	rules.Ingress.Union(other.Ingress)
 	rules.Egress.Union(other.Egress)
 }
@@ -184,7 +237,7 @@ type AugmentedInterval struct {
 }
 
 func NewAugmentedInterval(start, end int64, inSet bool) AugmentedInterval {
-	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: MakeImplyingRules()}
+	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: InitImplyingRules()}
 }
 
 func NewAugmentedIntervalWithRule(start, end int64, inSet bool, rule string, isIngress bool) AugmentedInterval {
@@ -213,10 +266,12 @@ func NewAugmentedCanonicalSet(minValue, maxValue int64, isAll bool) *AugmentedCa
 	}
 }
 
-func NewFullAugmentedSetWithRules(minValue, maxValue int64, rules ImplyingRulesType) *AugmentedCanonicalSet {
-	result := NewAugmentedCanonicalSet(minValue, maxValue, false)
-	result.AddAugmentedInterval(NewAugmentedIntervalWithRules(minValue, maxValue, true, rules))
-	return result
+func NewAugmentedCanonicalSetWithRules(minValue, maxValue int64, isAll bool, rules ImplyingRulesType) *AugmentedCanonicalSet {
+	return &AugmentedCanonicalSet{
+		intervalSet: []AugmentedInterval{
+			NewAugmentedIntervalWithRules(minValue, maxValue, isAll, rules), // the full range interval (isAll==true) or 'hole' (isAll==false)
+		},
+	}
 }
 
 func (c *AugmentedCanonicalSet) Intervals() []AugmentedInterval {
@@ -228,8 +283,9 @@ func (c *AugmentedCanonicalSet) NumIntervals() int {
 }
 
 const (
-	errMinFromEmptySet    = "cannot take min from empty interval set"
-	errOutOfRangeInterval = "cannot add interval which is out of scope of AugmentedCanonicalSet"
+	errMinFromEmptySet       = "cannot take min from empty interval set"
+	errOutOfRangeInterval    = "cannot add interval which is out of scope of AugmentedCanonicalSet"
+	errConflictingExplResult = "cannot override explanation result that has been already set"
 )
 
 func (c *AugmentedCanonicalSet) MinValue() int64 {
@@ -584,4 +640,10 @@ func (c *AugmentedCanonicalSet) GetEquivalentCanonicalAugmentedSet() *AugmentedC
 		interv, index = c.nextIncludedInterval(index + 1)
 	}
 	return res
+}
+
+func (c *AugmentedCanonicalSet) SetExplResult(isIngress bool) {
+	for _, v := range c.intervalSet {
+		v.implyingRules.SetResult(v.inSet, isIngress)
+	}
 }

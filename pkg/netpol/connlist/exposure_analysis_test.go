@@ -54,7 +54,7 @@ func newTCPConnWithPorts(ports []int) *common.ConnectionSet {
 	conn := common.MakeConnectionSet(false)
 	portSet := common.MakePortSet(false)
 	for i := range ports {
-		portSet.AddPort(intstr.FromInt(ports[i]), common.MakeImplyingRules())
+		portSet.AddPort(intstr.FromInt(ports[i]), common.InitImplyingRules())
 	}
 	conn.AddConnection(v1.ProtocolTCP, portSet)
 	return conn

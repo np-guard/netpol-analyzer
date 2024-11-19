@@ -49,7 +49,14 @@ func MakePortSet(all bool) *PortSet {
 }
 
 func MakeAllPortSetWithImplyingRules(rules ImplyingRulesType) *PortSet {
-	return &PortSet{Ports: NewFullAugmentedSetWithRules(minPort, maxPort, rules),
+	return &PortSet{Ports: NewAugmentedCanonicalSetWithRules(minPort, maxPort, true, rules),
+		NamedPorts:         NamedPortsType{},
+		ExcludedNamedPorts: NamedPortsType{},
+	}
+}
+
+func MakeEmptyPortSetWithImplyingRules(rules ImplyingRulesType) *PortSet {
+	return &PortSet{Ports: NewAugmentedCanonicalSetWithRules(minPort, maxPort, false, rules),
 		NamedPorts:         NamedPortsType{},
 		ExcludedNamedPorts: NamedPortsType{},
 	}
@@ -94,9 +101,11 @@ func (p *PortSet) ClearPorts() {
 func (p *PortSet) AddPort(port intstr.IntOrString, implyingRules ImplyingRulesType) {
 	if port.Type == intstr.String {
 		if _, ok := p.NamedPorts[port.StrVal]; !ok {
-			p.NamedPorts[port.StrVal] = MakeImplyingRules()
+			p.NamedPorts[port.StrVal] = InitImplyingRules()
 		}
-		p.NamedPorts[port.StrVal].Union(implyingRules)
+		theRules := p.NamedPorts[port.StrVal]
+		theRules.Union(implyingRules)
+		p.NamedPorts[port.StrVal] = theRules
 		delete(p.ExcludedNamedPorts, port.StrVal)
 	} else {
 		p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRules(int64(port.IntVal), int64(port.IntVal), true, implyingRules))
@@ -201,9 +210,11 @@ func (p *PortSet) subtract(other *PortSet) {
 	// and add the deleted named ports to excluded named ports map
 	for k, v := range other.NamedPorts {
 		if _, ok := p.ExcludedNamedPorts[k]; !ok {
-			p.ExcludedNamedPorts[k] = MakeImplyingRules()
+			p.ExcludedNamedPorts[k] = InitImplyingRules()
 		}
-		p.ExcludedNamedPorts[k].Union(v.Copy())
+		theRules := p.ExcludedNamedPorts[k]
+		theRules.Union(v.Copy())
+		p.ExcludedNamedPorts[k] = theRules
 		delete(p.NamedPorts, k)
 	}
 }

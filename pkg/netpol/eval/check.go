@@ -163,6 +163,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	if err != nil {
 		return nil, err
 	}
+	res.SetExplResult(false)
 	if res.IsEmpty() {
 		return res, nil
 	}
@@ -173,6 +174,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	if err != nil {
 		return nil, err
 	}
+	ingressRes.SetExplResult(true)
 	res.Intersection(ingressRes)
 	return res, nil
 }

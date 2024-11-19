@@ -353,12 +353,18 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 	}
 	return false, nil
 }
-func (np *NetworkPolicy) nameWithDirection(isIngress bool) string {
+
+const (
+	NoXgressRulesExpl          = "(no %s rules defined)"
+	CapturedButNotSelectedExpl = "(captured but not selected by any %s rule)"
+)
+
+func (np *NetworkPolicy) nameWithDirectionAndExpl(isIngress bool, expl string) string {
 	xgress := "Egress"
 	if isIngress {
 		xgress = "Ingress"
 	}
-	return fmt.Sprintf("%s//%s", np.fullName(), xgress)
+	return fmt.Sprintf("%s//%s "+expl, np.fullName(), xgress, xgress)
 }
 
 // GetXgressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer (for Ingress)
@@ -366,7 +372,7 @@ func (np *NetworkPolicy) nameWithDirection(isIngress bool) string {
 func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
 	if (isIngress && len(np.Spec.Ingress) == 0) || (!isIngress && len(np.Spec.Egress) == 0) {
-		res.AddCommonImplyingRule(np.nameWithDirection(isIngress), isIngress)
+		res.AddCommonImplyingRule(np.nameWithDirectionAndExpl(isIngress, NoXgressRulesExpl), isIngress)
 		return res, nil
 	}
 	peerSelectedByAnyRule := false
@@ -398,7 +404,7 @@ func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*
 		}
 	}
 	if !peerSelectedByAnyRule {
-		res.AddCommonImplyingRule(np.nameWithDirection(isIngress), isIngress)
+		res.AddCommonImplyingRule(np.nameWithDirectionAndExpl(isIngress, CapturedButNotSelectedExpl), isIngress)
 	}
 	return res, nil
 }

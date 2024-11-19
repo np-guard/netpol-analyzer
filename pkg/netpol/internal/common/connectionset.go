@@ -35,9 +35,9 @@ var allProtocols = []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP, v1.ProtocolSCTP
 // MakeConnectionSet returns a pointer to ConnectionSet object with all connections or no connections
 func MakeConnectionSet(all bool) *ConnectionSet {
 	if all {
-		return &ConnectionSet{AllowAll: true, AllowedProtocols: map[v1.Protocol]*PortSet{}, CommonImplyingRules: MakeImplyingRules()}
+		return &ConnectionSet{AllowAll: true, AllowedProtocols: map[v1.Protocol]*PortSet{}, CommonImplyingRules: InitImplyingRules()}
 	}
-	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}, CommonImplyingRules: MakeImplyingRules()}
+	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}, CommonImplyingRules: InitImplyingRules()}
 }
 
 func MakeAllConnectionSetWithRule(rule string, isIngress bool) *ConnectionSet {
@@ -73,31 +73,26 @@ func GetAllTCPConnections() *ConnectionSet {
 }
 
 // Intersection updates ConnectionSet object to be the intersection result with other ConnectionSet
+// the implying rules are symetrically updated by both conn and other,
+// i.e., conn does not have a precedence over other
 func (conn *ConnectionSet) Intersection(other *ConnectionSet) {
-	if conn.IsEmpty() {
-		return // nothing changes
-	}
-	if other.IsEmpty() && len(other.AllowedProtocols) == 0 {
-		// a special case when we should replace current common implying rules by others'
-		conn.CommonImplyingRules = other.CommonImplyingRules.Copy()
-		conn.AllowAll = false
-		conn.AllowedProtocols = map[v1.Protocol]*PortSet{}
-		return
-	}
-
 	if len(conn.AllowedProtocols) == 0 && len(other.AllowedProtocols) == 0 {
-		// conn.AllowAll && other.AllowAll should be true
-		// a special case when we should union common implying rules
+		// each one of conn and other is either AllowAll or Empty
+		if other.IsEmpty() {
+			conn.AllowAll = false
+			conn.AllowedProtocols = map[v1.Protocol]*PortSet{}
+		}
+		// union common implying rules - a symmetrical update
 		conn.CommonImplyingRules.Union(other.CommonImplyingRules)
 		return
 	}
-	if conn.AllowAll {
+	if len(conn.AllowedProtocols) == 0 {
 		// prepare conn for the intersection - we need to seep implying rules info into all protocols/ports
-		conn.rebuildAllowAllExplicitly()
+		conn.rebuildExplicitly()
 	}
-	if other.AllowAll {
+	if len(other.AllowedProtocols) == 0 {
 		// prepare other for the intersection - we need to seep implying rules info into all protocols/ports
-		other.rebuildAllowAllExplicitly()
+		other.rebuildExplicitly()
 	}
 	conn.AllowAll = false
 	for protocol := range conn.AllowedProtocols {
@@ -145,23 +140,39 @@ func (conn *ConnectionSet) updateIfAllConnections() {
 	// we keep conn.AllowedProtocols data, we might need the ImplyingRules info for explainability
 }
 
-// rebuildAllowAllExplicitly : add all possible connections to the current ConnectionSet's allowed protocols
-// added explicitly, without using the `AllowAll` field
-func (conn *ConnectionSet) rebuildAllowAllExplicitly() {
-	if !conn.AllowAll {
+func (conn *ConnectionSet) SetExplResult(isIngress bool) {
+	if len(conn.AllowedProtocols) == 0 {
+		// no AllowedProtocols --> compute result according to AllowAll
+		conn.CommonImplyingRules.SetResult(conn.AllowAll, isIngress)
 		return
 	}
+	// compute result for every range in AllowedProtocols
+	for _, ports := range conn.AllowedProtocols {
+		ports.Ports.SetExplResult(isIngress)
+	}
+}
+
+// rebuildExplicitly : represent All/No connections explicitly (All connections if AllowAll==true, No connections otherwise),
+// by building AllowedProtocols and adding the whole range intervals/holes (depending on AllowAll field)
+func (conn *ConnectionSet) rebuildExplicitly() {
 	if len(conn.AllowedProtocols) > 0 {
-		return // if AllowedProtocols exist, they already include all possible connections
+		return // if AllowedProtocols exist, the connections are already explicit
+	}
+	var portSet *PortSet
+	if conn.AllowAll {
+		portSet = MakeAllPortSetWithImplyingRules(conn.CommonImplyingRules)
+	} else {
+		portSet = MakeEmptyPortSetWithImplyingRules(conn.CommonImplyingRules)
 	}
 	for _, protocol := range allProtocols {
-		portSet := MakeAllPortSetWithImplyingRules(conn.CommonImplyingRules)
 		conn.AddConnection(protocol, portSet)
 	}
-	conn.CommonImplyingRules = MakeImplyingRules()
+	conn.CommonImplyingRules = InitImplyingRules()
 }
 
 // Union updates ConnectionSet object to be the union result with other ConnectionSet
+// the implying rules are updated only if something changes in conn,
+// i.e., conn has a precedence over other
 func (conn *ConnectionSet) Union(other *ConnectionSet) {
 	if conn.IsEmpty() && (other.IsEmpty() || other.AllowAll) && len(conn.AllowedProtocols) == 0 && len(other.AllowedProtocols) == 0 {
 		// a special case when we should union implying rules
@@ -173,7 +184,7 @@ func (conn *ConnectionSet) Union(other *ConnectionSet) {
 		return // nothing changed, shouldn't update implying rules
 	}
 	if other.AllowAll {
-		other.rebuildAllowAllExplicitly()
+		other.rebuildExplicitly()
 	}
 	for protocol := range conn.AllowedProtocols {
 		if otherPorts, ok := other.AllowedProtocols[protocol]; ok {
@@ -185,14 +196,15 @@ func (conn *ConnectionSet) Union(other *ConnectionSet) {
 			conn.AllowedProtocols[protocol] = other.AllowedProtocols[protocol].Copy()
 		}
 	}
-	conn.CommonImplyingRules = MakeImplyingRules() // clear common implying rules, since we have implying rules in AllowedProtocols
+	conn.CommonImplyingRules = InitImplyingRules() // clear common implying rules, since we have implying rules in AllowedProtocols
 	conn.updateIfAllConnections()
 }
 
 // Subtract : updates current ConnectionSet object with the result of
 // subtracting other ConnectionSet from current ConnectionSet
+// the implying rules are updated by both conn and other
 func (conn *ConnectionSet) Subtract(other *ConnectionSet) {
-	if other.IsEmpty() { // nothing to subtract
+	if /*conn.IsEmpty() ||*/ other.IsEmpty() { // nothing to subtract
 		return
 	}
 	if other.AllowAll && len(other.AllowedProtocols) == 0 {
@@ -202,12 +214,9 @@ func (conn *ConnectionSet) Subtract(other *ConnectionSet) {
 		conn.AllowedProtocols = map[v1.Protocol]*PortSet{}
 		return
 	}
-	if conn.AllowAll {
-		conn.rebuildAllowAllExplicitly()
+	if len(conn.AllowedProtocols) == 0 {
+		conn.rebuildExplicitly()
 		conn.AllowAll = false
-	}
-	if other.AllowAll {
-		other.rebuildAllowAllExplicitly()
 	}
 	for protocol, ports := range conn.AllowedProtocols {
 		if otherPorts, ok := other.AllowedProtocols[protocol]; ok {
@@ -366,11 +375,11 @@ func (p *PortRangeData) String() string {
 }
 
 func (p *PortRangeData) StringWithExplanation(protocolString string) string {
-	actionStr := allowConnsStr
+	resultStr := allowResultStr
 	if !p.InSet() {
-		actionStr = denyConnsStr
+		resultStr = denyResultStr
 	}
-	return actionStr + SpaceSeparator + protocolString + ":" + p.String() + p.Interval.implyingRules.String()
+	return resultStr + SpaceSeparator + protocolString + ":" + p.String() + p.Interval.implyingRules.String()
 }
 
 func (p *PortRangeData) InSet() bool {
@@ -401,8 +410,6 @@ const (
 	connsAndPortRangeSeparator = ","
 	allConnsStr                = "All Connections"
 	noConnsStr                 = "No Connections"
-	allowConnsStr              = "ALLOWED"
-	denyConnsStr               = "DENIED"
 )
 
 func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[v1.Protocol][]PortRange) string {
