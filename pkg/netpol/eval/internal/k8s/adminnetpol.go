@@ -21,6 +21,7 @@ import (
 
 	pkgcommmon "github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -335,7 +336,10 @@ func rulePeersReferencedNetworks(rulePeers []apisv1a.AdminNetworkPolicyEgressPee
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 // AdminNetworkPolicy is an alias for k8s adminNetworkPolicy object
-type AdminNetworkPolicy apisv1a.AdminNetworkPolicy
+type AdminNetworkPolicy struct {
+	*apisv1a.AdminNetworkPolicy // embedding k8s admin-network-policy object
+	Logger                      logger.Logger
+}
 
 // note that could not use Generics with GO 1.21 or older versions; since:
 // according to https://tip.golang.org/doc/go1.18#generics :

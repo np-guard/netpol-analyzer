@@ -21,6 +21,7 @@ import (
 	"github.com/np-guard/models/pkg/netset"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -41,6 +42,7 @@ type NetworkPolicy struct {
 	// - the maximal connection-set which the policy's rules allow to external destinations on egress direction
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on egress direction
 	EgressPolicyExposure PolicyExposureWithoutSelectors
+	Logger               logger.Logger
 }
 
 // @todo might help if while pre-process, to check containment of all rules' connections; if all "specific" rules

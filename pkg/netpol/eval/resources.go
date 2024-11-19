@@ -462,6 +462,7 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		NetworkPolicy:         np,
 		IngressPolicyExposure: initPolicyExposureWithoutSelectors(),
 		EgressPolicyExposure:  initPolicyExposureWithoutSelectors(),
+		Logger:                pe.logger,
 	}
 	if _, ok := pe.netpolsMap[netpolNamespace][np.Name]; ok {
 		return errors.New(netpolerrors.NPWithSameNameError(types.NamespacedName{Namespace: netpolNamespace, Name: np.Name}.String()))
@@ -492,8 +493,12 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 	if pe.adminNetpolsMap[anp.Name] {
 		return errors.New(netpolerrors.ANPsWithSameNameErr(anp.Name))
 	}
+	newAnp := &k8s.AdminNetworkPolicy{
+		AdminNetworkPolicy: anp,
+		Logger:             pe.logger,
+	}
 	pe.adminNetpolsMap[anp.Name] = true
-	pe.sortedAdminNetpols = append(pe.sortedAdminNetpols, (*k8s.AdminNetworkPolicy)(anp))
+	pe.sortedAdminNetpols = append(pe.sortedAdminNetpols, newAnp)
 	return nil
 }
 
@@ -510,7 +515,11 @@ func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineA
 		// or this: https://pkg.go.dev/sigs.k8s.io/network-policy-api@v0.1.5/apis/v1alpha1#BaselineAdminNetworkPolicy
 		return errors.New(netpolerrors.BANPNameAssertion)
 	}
-	pe.baselineAdminNetpol = (*k8s.BaselineAdminNetworkPolicy)(banp)
+	newBanp := &k8s.BaselineAdminNetworkPolicy{
+		BaselineAdminNetworkPolicy: banp,
+		Logger:                     pe.logger,
+	}
+	pe.baselineAdminNetpol = newBanp
 	return nil
 }
 
@@ -576,7 +585,7 @@ func (pe *PolicyEngine) deleteAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 	delete(pe.adminNetpolsMap, anp.Name)
 	// delete anp from the pe.sortedAdminNetpols list
 	for i, item := range pe.sortedAdminNetpols {
-		if item == (*k8s.AdminNetworkPolicy)(anp) {
+		if item.AdminNetworkPolicy == anp {
 			// assign to pe.sortedAdminNetpols all ANPs except for current item
 			pe.sortedAdminNetpols = append(pe.sortedAdminNetpols[:i], pe.sortedAdminNetpols[i+1:]...)
 			break

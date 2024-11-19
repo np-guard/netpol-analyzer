@@ -11,11 +11,16 @@ import (
 
 	"github.com/np-guard/models/pkg/netset"
 
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
+
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 )
 
 // BaselineAdminNetworkPolicy  is an alias for k8s BaselineAdminNetworkPolicy object
-type BaselineAdminNetworkPolicy apisv1a.BaselineAdminNetworkPolicy
+type BaselineAdminNetworkPolicy struct {
+	*apisv1a.BaselineAdminNetworkPolicy // embedding k8s BaselineAdminNetworkPolicy object
+	Logger                              logger.Logger
+}
 
 // Selects returns true if the baseline admin network policy's Spec.Subject selects the peer and if
 // the required direction is in the policy spec
