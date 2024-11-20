@@ -22,6 +22,7 @@ import (
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -114,8 +115,16 @@ func (np *NetworkPolicy) getPortsRange(rulePort netv1.NetworkPolicyPort, dst Pee
 	return start, end, portName, nil
 }
 
+const (
+	minimumPort = 1
+	maximumPort = 65535
+)
+
 func isEmptyPortRange(start, end int32) bool {
-	return start == common.NoPort && end == common.NoPort
+	// an empty range when:
+	// - end is smaller than start
+	// - end or start is not in the legal range (a legal port is 1-65535)
+	return (start < minimumPort || end < minimumPort) || (end < start) || (start > maximumPort || end > maximumPort)
 }
 
 func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) (*common.ConnectionSet, error) {
@@ -141,7 +150,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 			// 1. empty-numbered-range with the string namedPort, if the rule has a named-port which is not (or cannot be) converted to a
 			// numbered-range by the dst's ports.
 			//  2. non empty-range when the rule ports are numbered or the named-port was converted
-			if (dst == nil || isPeerRepresentative(dst)) && isEmptyPortRange(startPort, endPort) && portName != "" {
+			if isEmptyPortRange(startPort, endPort) && portName != "" {
 				// this func may be called:
 				// 1- for computing cluster-wide exposure of the policy (dst is nil);
 				// 2- in-order to get a connection from a real workload to a representative dst.
@@ -149,12 +158,17 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 				// pod from manifests, so we use the named-port as is.
 				// 3- in order to get a connection from any pod to a real dst.
 				// in the third case the namedPort of the policy rule may not have a match in the Pod's configuration,
-				// so it will be ignored (the pod has no matching named-port in its configuration - unknown connection is not allowed)
+				// so it will be ignored and a warning is raised
+				// (the pod has no matching named-port in its configuration - unknown connection is not allowed)
 				// 4- in order to get a connection from any pod to an ip dst (will not get here, as named ports are not defined for ip-blocks)
-
-				// adding portName string to the portSet
-				ports.AddPort(intstr.FromString(portName))
-			}
+				if dst == nil || isPeerRepresentative(dst) { // (1 & 2)
+					// adding portName string to the portSet
+					ports.AddPort(intstr.FromString(portName))
+				} else { // dst is a real pod (3)
+					// raising a warning that the "named port" of the rule is ignored, since it has no match in the pod config.
+					np.Logger.Warnf(np.netpolWarning(alerts.WarnUnmatchedNamedPort(portName, dst.String())))
+				}
+			} // @tbd should raise a warning/error if the portRange is empty (when also namedPort is empty)
 			if !isEmptyPortRange(startPort, endPort) {
 				ports.AddPortRange(int64(startPort), int64(endPort))
 			}
@@ -390,6 +404,10 @@ func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (*common.Connecti
 		}
 	}
 	return res, nil
+}
+
+func (np *NetworkPolicy) netpolWarning(description string) string {
+	return fmt.Sprintf("Network policy %q: %s", np.fullName(), description)
 }
 
 func (np *NetworkPolicy) netpolErr(title, description string) error {

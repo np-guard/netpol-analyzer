@@ -1,0 +1,106 @@
+#copied from: https://github.com/kundan2707/network-policy-api/blob/f6c1cf24c0488f12c21920d2d9286fe0a380dd76/conformance/base/manifests.yaml#L8
+# This file contains the base resources that most conformance tests will rely
+# on. 
+# kept only 2 namespaces and their pods
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: network-policy-conformance-gryffindor
+  labels:
+    conformance-house: gryffindor
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: network-policy-conformance-slytherin
+  labels:
+    conformance-house: slytherin
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: harry-potter
+  namespace: network-policy-conformance-gryffindor
+spec:
+  selector:
+    matchLabels:
+      conformance-house: gryffindor
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        conformance-house: gryffindor
+    spec:
+      containers:
+        - name: harry-potter-client
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+        - name: harry-potter-80
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+          command: ["/bin/bash", "-c", "/agnhost serve-hostname --tcp --http=false --port 80"]
+          ports:
+          - containerPort: 80
+            name: web
+        - name: harry-potter-8080
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+          command: ["/bin/bash", "-c", "/agnhost serve-hostname --tcp --http=false --port 8080"]
+        - name: harry-potter-5353
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+          command: ["/bin/bash", "-c", "/agnhost serve-hostname --udp --http=false --port 5353"]
+        - name: harry-potter-53
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+          command: ["/bin/bash", "-c", "/agnhost serve-hostname --udp --http=false --port 53"]
+        - name: harry-potter-9003
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+          command: ["/bin/bash", "-c", "/agnhost porter"]
+          env:
+          - name: SERVE_SCTP_PORT_9003
+            value: "foo"
+        - name: harry-potter-9005
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+          command: ["/bin/bash", "-c", "/agnhost porter"]
+          env:
+          - name: SERVE_SCTP_PORT_9005
+            value: "foo"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: draco-malfoy
+  namespace: network-policy-conformance-slytherin
+spec:
+  selector:
+    matchLabels:
+      conformance-house: slytherin
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        conformance-house: slytherin
+    spec:
+      containers:
+        - name: draco-malfoy-client
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+        - name: draco-malfoy-80
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+          command: ["/bin/bash", "-c", "/agnhost serve-hostname --tcp --http=false --port 80"]
+        - name: draco-malfoy-8080
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+          command: ["/bin/bash", "-c", "/agnhost serve-hostname --tcp --http=false --port 8080"]
+        - name: draco-malfoy-5353
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+          command: ["/bin/bash", "-c", "/agnhost serve-hostname --udp --http=false --port 5353"]
+        - name: draco-malfoy-53
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+          command: ["/bin/bash", "-c", "/agnhost serve-hostname --udp --http=false --port 53"]
+        - name: draco-malfoy-9003
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+          command: ["/bin/bash", "-c", "/agnhost porter"]
+          env:
+          - name: SERVE_SCTP_PORT_9003
+            value: "foo"
+        - name: draco-malfoy-9005
+          image: registry.k8s.io/e2e-test-images/agnhost:2.43
+          command: ["/bin/bash", "-c", "/agnhost porter"]
+          env:
+          - name: SERVE_SCTP_PORT_9005
+            value: "foo"

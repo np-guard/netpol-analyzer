@@ -48,9 +48,23 @@ func (banp *BaselineAdminNetworkPolicy) baselineAdminPolicyAffectsDirection(isIn
 	return len(banp.Spec.Egress) > 0
 }
 
+const banpErrWarnFormat = "default baseline admin network policy: %s in rule %q: %s"
+
 // banpRuleErr returns string format of an err in a rule in baseline-admin netpol
 func banpRuleErr(ruleName, description string) error {
-	return fmt.Errorf("default baseline admin network policy: %s %q: %s", ruleErrTitle, ruleName, description)
+	return fmt.Errorf(banpErrWarnFormat, ruleErrTitle, ruleName, description)
+}
+
+// banpRuleWarning logs a warning message for a specific banp rule.
+func (banp *BaselineAdminNetworkPolicy) banpRuleWarning(ruleName, warning string) {
+	banp.Logger.Warnf(banpErrWarnFormat, ruleWarningTitle, ruleName, warning)
+}
+
+// logWarnings logs warnings of a given ruleName.
+func (banp *BaselineAdminNetworkPolicy) logWarnings(ruleName string) {
+	for _, warning := range warnings {
+		banp.banpRuleWarning(ruleName, warning)
+	}
 }
 
 // GetEgressPolicyConns returns the connections from the egress rules selecting the dst in spec of the baselineAdminNetworkPolicy
@@ -59,7 +73,10 @@ func (banp *BaselineAdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyC
 	for _, rule := range banp.Spec.Egress { // rule is apisv1a.BaselineAdminNetworkPolicyEgressRule
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		if err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, dst, res, string(rule.Action), true); err != nil {
+		warnings = []string{} // clear warnings (for each rule) to be update while looping rule peers in next call
+		err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, dst, res, string(rule.Action), true)
+		banp.logWarnings(rule.Name)
+		if err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
 	}
@@ -72,7 +89,10 @@ func (banp *BaselineAdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*P
 	for _, rule := range banp.Spec.Ingress { // rule is apisv1a.BaselineAdminNetworkPolicyIngressRule
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		if err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, src, dst, res, string(rule.Action), true); err != nil {
+		warnings = []string{} // clear warnings (for each rule) to be update while looping rule peers in next call
+		err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, src, dst, res, string(rule.Action), true)
+		banp.logWarnings(rule.Name)
+		if err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
 	}

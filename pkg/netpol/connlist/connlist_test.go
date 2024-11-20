@@ -1348,6 +1348,31 @@ var goodPathTests = []struct {
 		testDirName:   "anp_and_banp_using_networks_test",
 		outputFormats: ValidFormats,
 	},
+	{
+		testDirName:   "anp_banp_test_with_named_port_matched",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	// anp tests that raise warnings too (@todo add unit test for warning messages!!)
+	{
+		testDirName:   "anp_and_banp_using_networks_and_nodes_test",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		testDirName:   "anp_and_banp_using_networks_with_ipv6_test",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		testDirName:   "anp_banp_test_multiple_warnings",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		testDirName:   "anp_banp_test_with_named_port_unmatched",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		testDirName:   "anp_test_with_empty_port_range",
+		outputFormats: []string{output.DefaultFormat},
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

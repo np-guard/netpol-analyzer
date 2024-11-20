@@ -22,6 +22,7 @@ import (
 	pkgcommmon "github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -38,7 +39,14 @@ import (
 // But use different types for following fields:
 // Spec, Ingress, Egress, Action, Status - then funcs using/looping any of these fields are not common (sub funcs are common)
 
-const ruleErrTitle = "Error in rule"
+const (
+	ruleErrTitle     = "Error  "
+	ruleWarningTitle = "Warning "
+)
+
+// warnings : to contain the warnings from a single rule of an adminNetworkPolicy or a BaselineAdminNetworkPolicy.
+// global to be used in the common func, initialized (cleared) and logged by the relevant (B)ANP calling funcs
+var warnings = []string{}
 
 // doesNamespacesFieldMatchPeer returns true if the given namespaces LabelSelector matches the given peer
 func doesNamespacesFieldMatchPeer(namespaces *metav1.LabelSelector, peer Peer) (bool, error) {
@@ -81,9 +89,9 @@ func doesNetworksFieldMatchPeer(networks []apisv1a.CIDR, peer Peer) (bool, error
 		if err != nil { // invalid cidr
 			return false, err
 		}
-		if isIPv6 {
-			// @todo: if cidr is IPv6 raise a warning
-			continue
+		if isIPv6 { // not supported addresses
+			warnings = append(warnings, alerts.WarnUnsupportedIPv6Address)
+			continue // next cidr
 		}
 		ipb, err := netset.IPBlockFromCidr(string(cidr))
 		if err != nil {
@@ -108,8 +116,8 @@ func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst
 		if !validateEgressRuleFields(rulePeers[i]) {
 			return false, errors.New(netpolerrors.OneFieldSetRulePeerErr)
 		}
-		if rulePeers[i].Nodes != nil {
-			// @todo add warning : field not supported
+		if rulePeers[i].Nodes != nil { // not supported field
+			warnings = append(warnings, alerts.WarnUnsupportedNodesField)
 			continue // next peer
 		}
 		fieldMatch, err := ruleFieldsSelectsPeer(rulePeers[i].Namespaces, rulePeers[i].Pods, rulePeers[i].Networks, dst)
@@ -247,9 +255,15 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common
 			}
 			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port))
 		case anpPort.NamedPort != nil:
+			if dst.PeerType() == IPBlockType {
+				// IPblock does not have named-ports defined
+				// @tbd should return error? (a rule that combines networks and pods may have such port?)
+				continue // next port
+			}
 			podProtocol, podPort := dst.GetPeerPod().ConvertPodNamedPort(*anpPort.NamedPort)
 			if podPort == common.NoPort { // pod does not have this named port in its container
-				continue // @todo should raise a warning
+				warnings = append(warnings, alerts.WarnUnmatchedNamedPort(*anpPort.NamedPort, dst.String()))
+				continue // next port
 			}
 			if podProtocol != "" {
 				protocol = v1.Protocol(podProtocol)
@@ -260,7 +274,9 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common
 				protocol = anpPort.PortRange.Protocol
 			}
 			if isEmptyPortRange(anpPort.PortRange.Start, anpPort.PortRange.End) {
-				continue // @todo should raise a warning
+				// rule with empty range; @tbd should return an error instead?
+				warnings = append(warnings, alerts.WarnEmptyPortRange)
+				continue // next port
 			}
 			portSet.AddPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End))
 		}
@@ -376,9 +392,23 @@ func (anp *AdminNetworkPolicy) adminPolicyAffectsDirection(isIngress bool) bool 
 	return len(anp.Spec.Egress) > 0
 }
 
+const anpErrWarnFormat = "admin network policy %q: %s in rule %q: %s"
+
 // anpErr returns string format of an error in a rule in admin netpol
 func (anp *AdminNetworkPolicy) anpRuleErr(ruleName, description string) error {
-	return fmt.Errorf("admin network policy %q: %s %q: %s", anp.Name, ruleErrTitle, ruleName, description)
+	return fmt.Errorf(anpErrWarnFormat, anp.Name, ruleErrTitle, ruleName, description)
+}
+
+// anpRuleWarning logs a single warning message for an admin network policy rule.
+func (anp *AdminNetworkPolicy) anpRuleWarning(ruleName, warning string) {
+	anp.Logger.Warnf(fmt.Sprintf(anpErrWarnFormat, anp.Name, ruleWarningTitle, ruleName, warning))
+}
+
+// logWarnings logs any warnings generated for an admin network policy rule.
+func (anp *AdminNetworkPolicy) logWarnings(ruleName string) {
+	for _, warning := range warnings {
+		anp.anpRuleWarning(ruleName, warning)
+	}
 }
 
 // GetIngressPolicyConns returns the connections from the ingress rules selecting the src in spec of the adminNetworkPolicy
@@ -387,7 +417,11 @@ func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConn
 	for _, rule := range anp.Spec.Ingress { // rule is apisv1a.AdminNetworkPolicyIngressRule
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		if err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, src, dst, res, string(rule.Action), false); err != nil {
+		warnings = []string{} // clear warnings (for each rule)
+		// following func also updates the warnings var
+		err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, src, dst, res, string(rule.Action), false)
+		anp.logWarnings(rule.Name)
+		if err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}
 	}
@@ -400,7 +434,10 @@ func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnection
 	for _, rule := range anp.Spec.Egress { // rule is apisv1a.AdminNetworkPolicyEgressRule
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		if err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, dst, res, string(rule.Action), false); err != nil {
+		warnings = []string{} // clear warnings (for each rule), so it is updated by following call
+		err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, dst, res, string(rule.Action), false)
+		anp.logWarnings(rule.Name)
+		if err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}
 	}
