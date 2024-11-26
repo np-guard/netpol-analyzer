@@ -300,12 +300,12 @@ func (pod *Pod) UpdatePodXgressExposureToEntireClusterData(ruleConns *common.Con
 		// matching port number
 		convertedConns := pod.checkAndConvertNamedPortsInConnection(ruleConns)
 		if convertedConns != nil {
-			pod.IngressExposureData.ClusterWideConnection.Union(convertedConns)
+			pod.IngressExposureData.ClusterWideConnection.Union(convertedConns, false)
 		} else {
-			pod.IngressExposureData.ClusterWideConnection.Union(ruleConns)
+			pod.IngressExposureData.ClusterWideConnection.Union(ruleConns, false)
 		}
 	} else {
-		pod.EgressExposureData.ClusterWideConnection.Union(ruleConns)
+		pod.EgressExposureData.ClusterWideConnection.Union(ruleConns, false)
 	}
 }
 

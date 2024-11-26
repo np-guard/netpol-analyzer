@@ -377,6 +377,7 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 	}
 	// optimization: if all the conns between src and dst were determined by the ANPs : return the allowed conns
 	if anpCaptured && anpConns.DeterminesAllConns() {
+		anpConns.AllowedConns.Subtract(anpConns.DeniedConns) // update explainabiliy data
 		return anpConns.AllowedConns, nil
 	}
 	// second get the allowed xgress conns between the src and dst from the netpols
@@ -476,7 +477,7 @@ func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, i
 		if pe.exposureAnalysisFlag {
 			updatePeerXgressClusterWideExposure(policy, src, dst, isIngress)
 		}
-		allowedConns.Union(policyAllowedConnectionsPerDirection)
+		allowedConns.Union(policyAllowedConnectionsPerDirection, true) // collect implying rules from multiple NPs
 	}
 	// putting the result in policiesConns object to be compared with conns allowed by ANP/BANP later
 	policiesConns = k8s.NewPolicyConnections()

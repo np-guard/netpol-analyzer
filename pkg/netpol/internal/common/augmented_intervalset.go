@@ -72,7 +72,7 @@ func (rules *ImplyingXgressRulesType) Copy() ImplyingXgressRulesType {
 	return res
 }
 
-func (rules ImplyingRulesType) Copy() ImplyingRulesType {
+func (rules *ImplyingRulesType) Copy() ImplyingRulesType {
 	res := InitImplyingRules()
 	res.Ingress = rules.Ingress.Copy()
 	res.Egress = rules.Egress.Copy()
@@ -205,7 +205,14 @@ func (rules *ImplyingRulesType) SetResult(isAllowed, isIngress bool) {
 	}
 }
 
-func (rules *ImplyingXgressRulesType) Union(other ImplyingXgressRulesType) {
+func (rules *ImplyingXgressRulesType) Union(other ImplyingXgressRulesType, collectRules bool) {
+	if !collectRules {
+		if rules.Empty() {
+			*rules = other.Copy()
+		}
+		return
+	}
+
 	// first, count how many rules are common in both sets
 	common := 0
 	for name := range other.Rules {
@@ -225,9 +232,25 @@ func (rules *ImplyingXgressRulesType) Union(other ImplyingXgressRulesType) {
 	}
 }
 
-func (rules *ImplyingRulesType) Union(other ImplyingRulesType) {
-	rules.Ingress.Union(other.Ingress)
-	rules.Egress.Union(other.Egress)
+func (rules *ImplyingXgressRulesType) mayBeUpdatedBy(other ImplyingXgressRulesType, collectRules bool) bool {
+	if !collectRules {
+		return rules.Empty() && !other.Empty()
+	}
+	for name := range other.Rules {
+		if _, ok := rules.Rules[name]; !ok {
+			return true
+		}
+	}
+	return false
+}
+
+func (rules *ImplyingRulesType) Union(other ImplyingRulesType, collectRules bool) {
+	rules.Ingress.Union(other.Ingress, collectRules)
+	rules.Egress.Union(other.Egress, collectRules)
+}
+
+func (rules ImplyingRulesType) mayBeUpdatedBy(other ImplyingRulesType, collectRules bool) bool {
+	return rules.Ingress.mayBeUpdatedBy(other.Ingress, collectRules) || rules.Egress.mayBeUpdatedBy(other.Egress, collectRules)
 }
 
 const (
@@ -404,7 +427,7 @@ func (c *AugmentedCanonicalSet) Equal(other *AugmentedCanonicalSet) bool {
 
 // AddAugmentedInterval adds a new interval/hole  to the set,
 // and updates the implying rules accordingly
-func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval) {
+func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval, collectRules bool) {
 	if v.interval.Start() < c.MinValue() || v.interval.End() > c.MaxValue() {
 		log.Panic(errOutOfRangeInterval)
 	}
@@ -420,37 +443,56 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval) {
 	})
 	var result []AugmentedInterval
 	// copy left-end intervals not impacted by v
-	result = append(result, set[0:left]...)
+	result = append(result, slices.Clone(set[0:left])...)
 
 	// handle the left-hand side of the intersection of v with set
-	if v.interval.Start() > set[left].interval.Start() && set[left].inSet != v.inSet {
+	if v.interval.Start() > set[left].interval.Start() && (set[left].inSet != v.inSet || set[left].implyingRules.mayBeUpdatedBy(v.implyingRules, collectRules)) {
 		// split set[left] into two intervals, while the implying rules of the second interval should get the new value (from v)
 		new1 := AugmentedInterval{interval: interval.New(set[left].interval.Start(), v.interval.Start()-1),
 			inSet: set[left].inSet, implyingRules: set[left].implyingRules.Copy()}
+		var newImplyingRules ImplyingRulesType
+		if set[left].inSet == v.inSet { // set[left].implyingRules.mayBeUpdatedBy(v.implyingRules, collectRules)
+			newImplyingRules = set[left].implyingRules.Copy()
+			newImplyingRules.Union(v.implyingRules, collectRules)
+		} else {
+			newImplyingRules = v.implyingRules.Copy()
+		}
 		new2 := AugmentedInterval{interval: interval.New(v.interval.Start(), min(set[left].interval.End(), v.interval.End())),
-			inSet: v.inSet, implyingRules: v.implyingRules.Copy()}
+			inSet: v.inSet, implyingRules: newImplyingRules}
 		result = append(result, new1, new2)
 		left++
 	}
 	for ind := left; ind <= right; ind++ {
-		if set[ind].inSet == v.inSet {
-			// this interval is not impacted by v - don't change its implying rules
-			result = append(result, set[ind])
-		} else {
-			if ind == right && v.interval.End() < set[right].interval.End() {
-				break // this is the corner case handled following the loop below
-			}
-			result = append(result, AugmentedInterval{interval: set[ind].interval, inSet: v.inSet, implyingRules: v.implyingRules.Copy()})
+		if ind == right && v.interval.End() < set[right].interval.End() &&
+			(set[right].inSet != v.inSet || set[right].implyingRules.mayBeUpdatedBy(v.implyingRules, collectRules)) {
+			break // this is the corner case handled following the loop below
 		}
+		var newImplyingRules ImplyingRulesType
+		if set[ind].inSet == v.inSet {
+			// this interval is not impacted by v;
+			// however, its implying rules may be updated by those of v.
+			newImplyingRules = set[ind].implyingRules.Copy()
+			newImplyingRules.Union(v.implyingRules, collectRules)
+		} else {
+			newImplyingRules = v.implyingRules.Copy()
+		}
+		result = append(result, AugmentedInterval{interval: set[ind].interval, inSet: v.inSet, implyingRules: newImplyingRules})
 	}
 	// handle the right-hand side of the intersection of v with set
-	if v.interval.End() < set[right].interval.End() && set[right].inSet != v.inSet {
+	if v.interval.End() < set[right].interval.End() && (set[right].inSet != v.inSet || set[right].implyingRules.mayBeUpdatedBy(v.implyingRules, collectRules)) {
 		// split set[right] into two intervals, while the implying rules of the first interval should get the new value (from v)
 		if left < right || (left == right && v.interval.Start() == set[left].interval.Start()) {
 			// a special case when left==right (i.e., v is included in one interval from set) was already handled
-			// at the lef-hand side of the intersection of v with set
+			// at the left-hand side of the intersection of v with set
+			var newImplyingRules ImplyingRulesType
+			if set[right].inSet == v.inSet {
+				newImplyingRules = set[right].implyingRules.Copy()
+				newImplyingRules.Union(v.implyingRules, collectRules)
+			} else {
+				newImplyingRules = v.implyingRules.Copy()
+			}
 			new1 := AugmentedInterval{interval: interval.New(set[right].interval.Start(), v.interval.End()),
-				inSet: v.inSet, implyingRules: v.implyingRules.Copy()}
+				inSet: v.inSet, implyingRules: newImplyingRules}
 			result = append(result, new1)
 		}
 		new2 := AugmentedInterval{interval: interval.New(v.interval.End()+1, set[right].interval.End()),
@@ -459,7 +501,7 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval) {
 	}
 
 	// copy right-end intervals not impacted by v
-	result = append(result, set[right+1:]...)
+	result = append(result, slices.Clone(set[right+1:])...)
 	c.intervalSet = result
 	// TODO - optimization: unify subsequent intervals with equal inSet and implyingRules fields
 }
@@ -481,15 +523,33 @@ func (c *AugmentedCanonicalSet) String() string {
 
 // Union returns the union of the two sets
 // Note: this function is not symmetrical regarding the update of implying rules:
-// it updates implying rules of 'c' by those of 'other' only for values that get changed in 'c'
-func (c *AugmentedCanonicalSet) Union(other *AugmentedCanonicalSet) *AugmentedCanonicalSet {
-	res := c.Copy()
+// it always prefers implying rules of 'c', and adds to it those of 'other' depending if collectRules == true
+func (c *AugmentedCanonicalSet) Union(other *AugmentedCanonicalSet, collectRules bool) *AugmentedCanonicalSet {
 	if c == other {
-		return res
+		return c.Copy()
 	}
-	for _, v := range other.intervalSet {
-		if v.inSet {
-			res.AddAugmentedInterval(v)
+	// first, we add all 'out of set' intervals from both sets
+	// then, we add all 'in set' intervals from both sets
+	// this way we get the effect of union, while preserving all relevant implying rules
+	res := NewAugmentedCanonicalSet(c.MinValue(), c.MaxValue(), false)
+	for _, left := range c.intervalSet {
+		if !left.inSet {
+			res.AddAugmentedInterval(left, false)
+		}
+	}
+	for _, right := range other.intervalSet {
+		if !right.inSet {
+			res.AddAugmentedInterval(right, false)
+		}
+	}
+	for _, left := range c.intervalSet {
+		if left.inSet {
+			res.AddAugmentedInterval(left, collectRules)
+		}
+	}
+	for _, right := range other.intervalSet {
+		if right.inSet {
+			res.AddAugmentedInterval(right, collectRules)
 		}
 	}
 	return res
@@ -502,7 +562,7 @@ func (c *AugmentedCanonicalSet) Copy() *AugmentedCanonicalSet {
 
 func (c *AugmentedCanonicalSet) Contains(n int64) bool {
 	otherSet := NewAugmentedCanonicalSet(c.MinValue(), c.MaxValue(), false)
-	otherSet.AddAugmentedInterval(NewAugmentedInterval(n, n, true))
+	otherSet.AddAugmentedInterval(NewAugmentedInterval(n, n, true), false)
 	return otherSet.ContainedIn(c)
 }
 
@@ -548,23 +608,28 @@ func (c *AugmentedCanonicalSet) Intersect(other *AugmentedCanonicalSet) *Augment
 	if c == other {
 		return c.Copy()
 	}
+	// first, we add all 'in set' intervals from both sets
+	// then, we add all 'out of set' intervals from both sets
+	// this way we get the effect of intersection, while preserving all relevant implying rules
 	res := NewAugmentedCanonicalSet(c.MinValue(), c.MaxValue(), false)
 	for _, left := range c.intervalSet {
-		if !left.inSet {
-			continue
+		if left.inSet {
+			res.AddAugmentedInterval(left, true) // collect implying rules allowed by both sets
 		}
-		for _, right := range other.intervalSet {
-			if !right.inSet {
-				continue
-			}
-			intersection := left.interval.Intersect(right.interval)
-			if intersection.IsEmpty() {
-				continue
-			}
-			toAdd := NewAugmentedInterval(intersection.Start(), intersection.End(), true)
-			toAdd.implyingRules = left.implyingRules.Copy()
-			toAdd.implyingRules.Union(right.implyingRules)
-			res.AddAugmentedInterval(toAdd)
+	}
+	for _, right := range other.intervalSet {
+		if right.inSet {
+			res.AddAugmentedInterval(right, true) // collect implying rules allowed by both sets
+		}
+	}
+	for _, left := range c.intervalSet {
+		if !left.inSet {
+			res.AddAugmentedInterval(left, false)
+		}
+	}
+	for _, right := range other.intervalSet {
+		if !right.inSet {
+			res.AddAugmentedInterval(right, false)
 		}
 	}
 	return res
@@ -607,7 +672,7 @@ func (c *AugmentedCanonicalSet) Subtract(other *AugmentedCanonicalSet) *Augmente
 		if interval.inSet {
 			hole := interval
 			hole.inSet = false
-			res.AddAugmentedInterval(hole)
+			res.AddAugmentedInterval(hole, false)
 		}
 	}
 	return res
@@ -640,14 +705,14 @@ func (c *AugmentedCanonicalSet) GetEquivalentCanonicalAugmentedSet() *AugmentedC
 	res := NewAugmentedCanonicalSet(c.MinValue(), c.MaxValue(), false)
 	interv, index := c.nextIncludedInterval(0)
 	for index != NoIndex {
-		res.AddAugmentedInterval(NewAugmentedInterval(interv.Start(), interv.End(), true))
+		res.AddAugmentedInterval(NewAugmentedInterval(interv.Start(), interv.End(), true), false)
 		interv, index = c.nextIncludedInterval(index + 1)
 	}
 	return res
 }
 
 func (c *AugmentedCanonicalSet) SetExplResult(isIngress bool) {
-	for _, v := range c.intervalSet {
-		v.implyingRules.SetResult(v.inSet, isIngress)
+	for ind, v := range c.intervalSet {
+		c.intervalSet[ind].implyingRules.SetResult(v.inSet, isIngress)
 	}
 }

@@ -284,7 +284,7 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]*PeerAndIngre
 func mergeResults(routesMap, ingressMap map[string]*PeerAndIngressConnSet) {
 	for k, v := range routesMap {
 		if _, ok := ingressMap[k]; ok {
-			ingressMap[k].ConnSet.Union(v.ConnSet)
+			ingressMap[k].ConnSet.Union(v.ConnSet, false)
 		} else {
 			ingressMap[k] = v
 		}
@@ -315,7 +315,7 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate
 					ingressObjs[ingType] = []string{ingObjStr}
 					res[peer.String()] = &PeerAndIngressConnSet{Peer: peer, ConnSet: pConn, IngressObjects: ingressObjs}
 				} else {
-					res[peer.String()].ConnSet.Union(pConn)
+					res[peer.String()].ConnSet.Union(pConn, false)
 					res[peer.String()].IngressObjects[ingType] = append(res[peer.String()].IngressObjects[ingType], ingObjStr)
 				}
 			}
@@ -344,7 +344,7 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns, ingObjStr s
 			if _, ok := res[peer]; !ok {
 				res[peer] = currIngressPeerConn
 			} else {
-				res[peer].Union(currIngressPeerConn)
+				res[peer].Union(currIngressPeerConn, false)
 			}
 		}
 	}

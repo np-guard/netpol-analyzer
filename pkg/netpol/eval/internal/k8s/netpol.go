@@ -398,7 +398,7 @@ func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*
 		if err != nil {
 			return res, err
 		}
-		res.Union(ruleConns)
+		res.Union(ruleConns, false)
 		if res.AllowAll {
 			return res, nil
 		}
@@ -632,16 +632,16 @@ func (np *NetworkPolicy) updateNetworkPolicyExposureClusterWideConns(externalExp
 	}
 	if externalExposure {
 		if isIngress {
-			np.IngressPolicyExposure.ExternalExposure.Union(ruleConns)
+			np.IngressPolicyExposure.ExternalExposure.Union(ruleConns, false)
 		} else {
-			np.EgressPolicyExposure.ExternalExposure.Union(ruleConns)
+			np.EgressPolicyExposure.ExternalExposure.Union(ruleConns, false)
 		}
 	}
 	if entireCluster {
 		if isIngress {
-			np.IngressPolicyExposure.ClusterWideExposure.Union(ruleConns)
+			np.IngressPolicyExposure.ClusterWideExposure.Union(ruleConns, false)
 		} else {
-			np.EgressPolicyExposure.ClusterWideExposure.Union(ruleConns)
+			np.EgressPolicyExposure.ClusterWideExposure.Union(ruleConns, false)
 		}
 	}
 	return nil
