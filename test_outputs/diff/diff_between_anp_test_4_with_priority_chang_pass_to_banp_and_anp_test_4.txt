@@ -1,0 +1,3 @@
+Connectivity diff:
+diff-type: added, source: network-policy-conformance-gryffindor/harry-potter[StatefulSet], destination: network-policy-conformance-slytherin/draco-malfoy[StatefulSet], ref1: No Connections, ref2: All Connections
+diff-type: added, source: network-policy-conformance-slytherin/draco-malfoy[StatefulSet], destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: No Connections, ref2: All Connections

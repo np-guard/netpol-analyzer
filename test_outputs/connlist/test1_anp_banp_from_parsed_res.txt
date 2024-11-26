@@ -1,0 +1,9 @@
+0.0.0.0-255.255.255.255 => x/a[Pod] : All Connections
+0.0.0.0-255.255.255.255 => x/b[Pod] : All Connections
+0.0.0.0-255.255.255.255 => y/a[Pod] : All Connections
+0.0.0.0-255.255.255.255 => y/b[Pod] : All Connections
+x/a[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+x/b[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+x/b[Pod] => x/a[Pod] : UDP 80
+y/a[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+y/b[Pod] => 0.0.0.0-255.255.255.255 : All Connections

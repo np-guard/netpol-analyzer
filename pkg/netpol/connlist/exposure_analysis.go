@@ -78,6 +78,8 @@ func xgressExposureListToXgressExposureDataList(xgressExp []*xgressExposure) []X
 	res := make([]XgressExposureData, len(xgressExp))
 	for i := range xgressExp {
 		res[i] = xgressExp[i]
+		exposure := res[i].(*xgressExposure)
+		exposure.potentialConn = exposure.potentialConn.GetEquivalentCanonicalConnectionSet()
 	}
 	return res
 }

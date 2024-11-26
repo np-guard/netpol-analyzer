@@ -11,6 +11,7 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
+	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
 	ocroutev1 "github.com/openshift/api/route/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -19,23 +20,27 @@ import (
 
 // relevant K8s resource kinds as string values
 const (
-	NetworkPolicy         string = "NetworkPolicy"
-	Namespace             string = "Namespace"
-	Pod                   string = "Pod"
-	ReplicaSet            string = "ReplicaSet"
-	ReplicationController string = "ReplicationController"
-	Deployment            string = "Deployment"
-	StatefulSet           string = "StatefulSet"
-	DaemonSet             string = "DaemonSet"
-	Job                   string = "Job"
-	CronJob               string = "CronJob"
-	List                  string = "List"
-	NamespaceList         string = "NamespaceList"
-	NetworkPolicyList     string = "NetworkPolicyList"
-	PodList               string = "PodList"
-	Service               string = "Service"
-	Route                 string = "Route"
-	Ingress               string = "Ingress"
+	NetworkPolicy                  string = "NetworkPolicy"
+	Namespace                      string = "Namespace"
+	Pod                            string = "Pod"
+	ReplicaSet                     string = "ReplicaSet"
+	ReplicationController          string = "ReplicationController"
+	Deployment                     string = "Deployment"
+	StatefulSet                    string = "StatefulSet"
+	DaemonSet                      string = "DaemonSet"
+	Job                            string = "Job"
+	CronJob                        string = "CronJob"
+	List                           string = "List"
+	NamespaceList                  string = "NamespaceList"
+	NetworkPolicyList              string = "NetworkPolicyList"
+	PodList                        string = "PodList"
+	Service                        string = "Service"
+	Route                          string = "Route"
+	Ingress                        string = "Ingress"
+	AdminNetworkPolicy             string = "AdminNetworkPolicy"
+	AdminNetworkPolicyList         string = "AdminNetworkPolicyList"
+	BaselineAdminNetworkPolicy     string = "BaselineAdminNetworkPolicy"
+	BaselineAdminNetworkPolicyList string = "BaselineAdminNetworkPolicyList" // a list with max 1 object according to apis/v1alpha
 )
 
 // K8sObject holds a an object kind and a pointer of the relevant object
@@ -44,8 +49,10 @@ type K8sObject struct {
 	// namespace object
 	Namespace *v1.Namespace
 
-	// netpol object
-	NetworkPolicy *netv1.NetworkPolicy
+	// netpol objects
+	NetworkPolicy              *netv1.NetworkPolicy
+	AdminNetworkPolicy         *apisv1a.AdminNetworkPolicy
+	BaselineAdminNetworkPolicy *apisv1a.BaselineAdminNetworkPolicy
 
 	// pod object
 	Pod *v1.Pod
@@ -67,6 +74,7 @@ type K8sObject struct {
 	DaemonSet             *appsv1.DaemonSet
 }
 
+//gocyclo:ignore
 func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
 	switch kind {
 	case Deployment:
@@ -108,6 +116,12 @@ func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
 	case Namespace:
 		k.Namespace = &v1.Namespace{}
 		return k.Namespace
+	case AdminNetworkPolicy:
+		k.AdminNetworkPolicy = &apisv1a.AdminNetworkPolicy{}
+		return k.AdminNetworkPolicy
+	case BaselineAdminNetworkPolicy:
+		k.BaselineAdminNetworkPolicy = &apisv1a.BaselineAdminNetworkPolicy{}
+		return k.BaselineAdminNetworkPolicy
 	}
 	return nil
 }
@@ -191,6 +205,12 @@ var workloadKinds = map[string]bool{
 	ReplicationController: true,
 }
 
+var policyKinds = map[string]bool{
+	NetworkPolicy:              true,
+	AdminNetworkPolicy:         true,
+	BaselineAdminNetworkPolicy: true,
+}
+
 func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) []K8sObject {
 	podNamesMap := make(map[string]bool, 0)
 	nsMap := make(map[string]bool, 0)
@@ -199,7 +219,8 @@ func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) 
 		nsMap[podNames[i].Namespace] = true
 	}
 	res := make([]K8sObject, 0)
-	for _, obj := range allObjects {
+	for i := range allObjects {
+		obj := allObjects[i]
 		switch obj.Kind {
 		case Namespace:
 			if _, ok := nsMap[obj.Namespace.Name]; ok {
