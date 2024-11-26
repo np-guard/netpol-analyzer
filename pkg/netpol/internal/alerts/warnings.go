@@ -8,14 +8,15 @@ package alerts
 import "fmt"
 
 func WarnUnmatchedNamedPort(namedPort, peerStr string) string {
-	return fmt.Sprintf("port name: %q has no match in the configuration of the destination peer %q; %s",
-		namedPort, peerStr, ignoreMsg)
+	return fmt.Sprintf("%s %q has no match in the configuration of the destination peer %q; %s",
+		WarnPrefixPortName, namedPort, peerStr, ignoreMsg)
 	// examples this warning is raised:
 	// - tests/netpol_named_port_test
 	// - tests/anp_banp_test_with_named_port_unmatched
 }
 
 const (
+	WarnPrefixPortName = "port name: "
 	ignoreMsg          = "it will be ignored, and will not appear in the connectivity results."
 	WarnEmptyPortRange = "port range is empty, skipped." // example raising this warning: tests/anp_test_with_empty_port_range
 )

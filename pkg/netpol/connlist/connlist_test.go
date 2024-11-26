@@ -11,8 +11,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"k8s.io/apimachinery/pkg/types"
-
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
@@ -410,10 +408,6 @@ func TestErrorsAndWarningsConnlistFromDirPathOnly(t *testing.T) {
 	}
 }
 
-var examplePeer = types.NamespacedName{Namespace: "network-policy-conformance-gryffindor", Name: "harry-potter-2"}
-
-const examplePort = "no-web"
-
 func TestLoggerWarnings(t *testing.T) {
 	// this test contains writing to a buffer , so it is not running in parallel to other tests.
 	// (we need to add mutex to the TestLogger if we wish to run the tests in parallel)
@@ -438,14 +432,13 @@ func TestLoggerWarnings(t *testing.T) {
 			expectedWarningsStrContains: []string{
 				alerts.WarnUnsupportedIPv6Address,
 				alerts.WarnUnsupportedNodesField,
-				alerts.WarnUnmatchedNamedPort(examplePort, examplePeer.String()),
+				alerts.WarnPrefixPortName,
 			},
 		},
 		{
-			name:    "input_admin_policy_contains_unknown_port_name_should_get_warning",
-			dirName: "anp_banp_test_with_named_port_unmatched",
-			expectedWarningsStrContains: []string{
-				alerts.WarnUnmatchedNamedPort(examplePort, examplePeer.String())},
+			name:                        "input_admin_policy_contains_unknown_port_name_should_get_warning",
+			dirName:                     "anp_banp_test_with_named_port_unmatched",
+			expectedWarningsStrContains: []string{alerts.WarnPrefixPortName},
 		},
 		{
 			name:                        "input_admin_policy_contains_empty_port_range_should_get_warning",
