@@ -1,0 +1,47 @@
+# copied from https://raw.githubusercontent.com/kundan2707/network-policy-api/f6c1cf24c0488f12c21920d2d9286fe0a380dd76/conformance/base/api_integration/core-anp-np-banp.yaml
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: pass-deny-example
+spec:
+  priority: 10
+  subject:
+    namespaces:
+      matchLabels:
+          conformance-house: gryffindor
+  ingress:
+  - name: "deny-all-ingress-from-slytherin" 
+    action: "Deny" 
+    from:
+    - namespaces:
+        matchLabels:
+            conformance-house: slytherin
+  egress:
+  - name: "pass-all-egress-to-slytherin" 
+    action: "Pass"
+    to:
+    - namespaces:
+        matchLabels:
+            conformance-house: slytherin
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-gress-from-to-slytherin-to-gryffindor
+  namespace: network-policy-conformance-gryffindor
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          conformance-house: slytherin
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          conformance-house: slytherin
+---

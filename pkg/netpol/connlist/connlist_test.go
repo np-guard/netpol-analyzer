@@ -15,6 +15,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/examples"
 
 	"github.com/stretchr/testify/require"
 )
@@ -1139,4 +1140,233 @@ var goodPathTests = []struct {
 		testDirName:   "netpol_named_port_test_2",
 		outputFormats: []string{output.DefaultFormat},
 	},
+	// tests with adminNetworkPolicy
+	{
+		testDirName:   "anp_test_1_deny_traffic_at_cluster_level",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		testDirName:   "anp_test_2_allow_traffic_at_cluster_level",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		testDirName:   "anp_test_3_pass_traffic",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// Should Deny traffic from slytherin to gryffindor and
+		// Deny traffic to slytherin from gryffindor respecting ANP with priority 50, ignoring ANP with priority 60
+		testDirName:   "anp_test_4",
+		outputFormats: ValidFormats,
+	},
+	{
+		// Should support a pass-egress to slytherin from gryffindor for ANP and respect the match for network policy
+		// And Dney ingress from slytherin to gryffindor - respecting the ANP ingress rule
+		testDirName:   "anp_test_5",
+		outputFormats: ValidFormats,
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_6",
+		outputFormats: ValidFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_6 but with swaps, so we expect some different results
+		testDirName:   "anp_test_6_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_7",
+		outputFormats: ValidFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_7 but with swaps, so we expect some different results
+		testDirName:   "anp_test_7_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_8",
+		outputFormats: ValidFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_8 but with swaps, so we expect some different results
+		testDirName:   "anp_test_8_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected, with both ingress and egress
+		testDirName:   "anp_test_9",
+		outputFormats: ValidFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_9 but with swaps, so we expect some different results
+		testDirName:   "anp_test_9_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_10",
+		outputFormats: ValidFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_10 but with swaps, so we expect some different results
+		testDirName:   "anp_test_10_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_11",
+		outputFormats: ValidFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_11 but with swaps, so we expect some different results
+		testDirName:   "anp_test_11_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// this test to ensure rule ordering is respected
+		testDirName:   "anp_test_12",
+		outputFormats: ValidFormats,
+	},
+	{
+		// rules are similar to the ones from anp_test_12 but with swaps, so we expect some different results
+		testDirName:   "anp_test_12_swapping_rules",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// test with two ANPs selecting same subject (one is an ingress ANP the other is egress ANP)
+		testDirName:   "anp_test_combining_test_6_and_test_10",
+		outputFormats: []string{output.TextFormat},
+	},
+	{
+		// test with multiple ANPs
+		testDirName:   "anp_test_multiple_anps",
+		outputFormats: ValidFormats,
+	},
+	{
+		// test with an anp where ingress and egress sections are not fully matched,
+		// need to consider intersection before collecting other policies conns
+		testDirName:   "anp_test_ingress_egress_intersection",
+		outputFormats: []string{output.TextFormat},
+	},
+	// tests involving BANPs
+	{
+		testDirName:   "anp_np_banp_core_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_banp_core_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_test_4_with_priority_chang_pass_to_banp",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_with_banp_pass_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_with_np_and_banp_pass_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_with_np_pass_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_sctp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_sctp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_tcp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_tcp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_udp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_udp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_gress_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_gress_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_sctp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_sctp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_tcp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_tcp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_udp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_udp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_with_banp_new_test",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		testDirName:   "anp_demo",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_banp_blog_demo",
+		outputFormats: ValidFormats,
+	},
+}
+
+func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {
+	t.Helper()
+	for i := 0; i < len(testList); i++ {
+		test := &testList[i]
+		t.Run(test.Name, func(t *testing.T) {
+			t.Parallel()
+			analyzer := NewConnlistAnalyzer(WithOutputFormat(test.OutputFormat))
+			res, _, err := analyzer.connsListFromParsedResources(test.GetK8sObjects())
+			require.Nil(t, err, test.TestInfo)
+			out, err := analyzer.ConnectionsListToString(res)
+			require.Nil(t, err, test.TestInfo)
+			testutils.CheckActualVsExpectedOutputMatch(t, test.ExpectedOutputFileName, out,
+				test.TestInfo, currentPkg)
+		})
+	}
+}
+
+func TestAllParsedResourcesConnlistTests(t *testing.T) {
+	runParsedResourcesConnlistTests(t, examples.ANPConnectivityFromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.BANPConnectivityFromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.ANPWithNetPolV1FromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.BANPWithNetPolV1FromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.ANPWithBANPFromParsedResourcesTest)
 }

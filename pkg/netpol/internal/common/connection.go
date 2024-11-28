@@ -14,8 +14,8 @@ import (
 type Connection interface {
 	// ProtocolsAndPortsMap returns the set of allowed connections
 	ProtocolsAndPortsMap() map[v1.Protocol][]PortRange
-	// AllConnections returns true if all ports are allowed for all protocols
-	AllConnections() bool
+	// IsAllConnections returns true if all ports are allowed for all protocols
+	IsAllConnections() bool
 	// IsEmpty returns true if no connection is allowed
 	IsEmpty() bool
 }

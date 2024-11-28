@@ -622,6 +622,136 @@ var goodPathTests = []struct {
 		secondDirName: "test_with_named_ports_changed_netpol_3",
 		formats:       []string{output.DefaultFormat},
 	},
+	{
+		// description:
+		// **changed netpols: anp : ingress-udp to ingress-udp-rules-swap
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_6",
+		secondDirName: "anp_test_6_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// **changed netpols: anp : ingress-tcp to ingress-tcp-with-swapped-rules
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_7",
+		secondDirName: "anp_test_7_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// **changed netpols: anp : ingress-sctp to ingress-sctp-with-swapped-rules
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_8",
+		secondDirName: "anp_test_8_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// **changed netpols: anp : gress-rules to gress-rules-with-swapped-rules
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_9",
+		secondDirName: "anp_test_9_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// **changed netpols: anp : egress-udp to egress-udp-with-swapped-rules
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_10",
+		secondDirName: "anp_test_10_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// **changed netpols: anp : egress-tcp to egress-tcp-with-swapped-rules
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_11",
+		secondDirName: "anp_test_11_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// **changed netpols: anp : egress-sctp to egress-sctp-with-swapped-rules
+		// swapped some rules in the ANP to see different results, as rules orders must be respected
+		firstDirName:  "anp_test_12",
+		secondDirName: "anp_test_12_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// **changed netpols: anp : priority of ANP : `old-priority-60` changed to 40
+		// so it is now taking precedence on ANP: `priority-50-example`; and conns will be passed
+		// BANP : a banp was added
+		firstDirName:  "anp_test_4",
+		secondDirName: "anp_test_4_with_priority_chang_pass_to_banp",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// **removed netpols: netpol : "allow-gress-from-to-slytherin-to-gryffindor"
+		// so now ANP conns are passed to BANP;
+		// denies conns between slytherin and gryffindor; no further restrictions on other conns from/to gryffindor.
+		firstDirName:  "anp_np_banp_core_test",
+		secondDirName: "anp_banp_core_test",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_egress_sctp_rules",
+		secondDirName: "banp_test_core_egress_sctp_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_egress_tcp_rules",
+		secondDirName: "banp_test_core_egress_tcp_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_egress_udp_rules",
+		secondDirName: "banp_test_core_egress_udp_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_gress_rules",
+		secondDirName: "banp_test_core_gress_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_ingress_sctp_rules",
+		secondDirName: "banp_test_core_ingress_sctp_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_ingress_tcp_rules",
+		secondDirName: "banp_test_core_ingress_tcp_swapping_rules",
+		formats:       allFormats,
+	},
+	{
+		// description:
+		// in banp default swapped allow rules from first dir with deny rules in second dir;
+		// so results should be changed as rules order must be respected
+		firstDirName:  "banp_test_core_ingress_udp_rules",
+		secondDirName: "banp_test_core_ingress_udp_swapping_rules",
+		formats:       allFormats,
+	},
 }
 
 var commonBadPathTestsFatalErr = []struct {

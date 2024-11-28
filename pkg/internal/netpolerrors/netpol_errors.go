@@ -6,7 +6,11 @@ SPDX-License-Identifier: Apache-2.0
 
 package netpolerrors
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/np-guard/netpol-analyzer/pkg/internal/common"
+)
 
 const (
 	VerbosityFlagsMisUseErrStr = "-q and -v cannot be specified together"
@@ -60,6 +64,21 @@ const (
 	WrongStartCharacterErr  = "found character that cannot start any token"
 	UnmarshalErr            = "cannot unmarshal array into Go value of type unstructured.detector"
 	UnableToDecodeErr       = "unable to decode"
+
+	// errors constants from adminNetworkPolicy and baselineAdminNetworkPolicy
+	SubjectErrTitle                  = "invalid Subject:"
+	oneFieldSetErr                   = "exactly one field must be set"
+	OneFieldSetRulePeerErr           = oneFieldSetErr + " in a rule peer"
+	OneFieldSetSubjectErr            = oneFieldSetErr + " in a subject"
+	UnknownRuleActionErr             = "unrecognized action"
+	ANPPortsError                    = "exactly one field must be set in an AdminNetworkPolicyPort"
+	ANPIngressRulePeersErr           = "from field must be defined and contain at least one item"
+	ANPEgressRulePeersErr            = "to field must be defined and contain at least one item"
+	ANPMissingNameErr                = "missing name for an AdminNetworkPolicy object"
+	ExposureAnalysisDisabledWithANPs = "exposure analysis is disabled when there are admin-network-policies in the input resources"
+
+	BANPAlreadyExists = "only one baseline admin network policy may be provided in input resources; one already exists"
+	BANPNameAssertion = "only one baseline admin network policy with metadata.name=default can be created in the cluster"
 
 	UnknownCommandErr = "unknown command"
 
@@ -125,4 +144,27 @@ const colonSep = ": "
 // ConcatErrors returns the given errors' messages concatenated by colon
 func ConcatErrors(err1, err2 string) string {
 	return err1 + colonSep + err2
+}
+
+// SamePriorityErr returns the error message if a priority appears more than once in different admin-network-policies
+func SamePriorityErr(name1, name2 string) string {
+	return "Admin Network Policies: " + name1 + " and " + name2 + " have same priority;" +
+		"Two policies are considered to be conflicting if they are assigned the same priority."
+}
+
+// PriorityValueErr returns error message of invalid priority value in an admin-network-policy
+func PriorityValueErr(name string, priority int32) string {
+	return fmt.Sprintf("Invalid Priority Value: %d in Admin Network Policy: %q; Priority value must be between %d-%d", priority, name,
+		common.MinANPPriority, common.MaxANPPriority)
+}
+
+const uniquenessRequest = "Only one object of a given kind can have a given name at a time."
+
+// ANPsWithSameNameErr returns error message when there are two admin-network-policies with same name in the manifests
+func ANPsWithSameNameErr(anpName string) string {
+	return fmt.Sprintf("an AdminNetworkPolicy with name %q is already found. %s", anpName, uniquenessRequest)
+}
+
+func NPWithSameNameError(npName string) string {
+	return fmt.Sprintf("NetworkPolicy %q already exists. %s", npName, uniquenessRequest)
 }

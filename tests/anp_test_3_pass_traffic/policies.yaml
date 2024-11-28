@@ -1,0 +1,64 @@
+# admin network policy reference: 
+# https://network-policy-api.sigs.k8s.io/reference/examples/ 
+# Sample Spec for Story 3: Explicitly Delegate traffic to existing K8s Network Policy ; 
+# with some updates to the policy for our testing goals
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: pub-svc-delegate-example
+spec:
+  priority: 20
+  subject:
+    namespaces: {}
+  egress:
+  - action: Allow
+    to:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: bar-ns
+    ports:
+    - portRange:
+        protocol: TCP
+        start: 1
+        end: 8079
+    - portRange:
+        protocol: TCP
+        start: 8081
+        end: 9089
+    - portRange:
+        protocol: TCP
+        start: 9091
+        end: 65535    
+  - action: Pass
+    to:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: bar-ns
+    ports:
+    - portNumber:
+        protocol: TCP
+        port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: restrict-egress-to-bar-ns
+  namespace: foo-ns-1
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+    - ports:
+        - port: 9090
+          protocol: TCP
+      to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: bar-ns
+
+
+
+    

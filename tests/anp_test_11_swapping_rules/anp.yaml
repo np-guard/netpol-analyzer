@@ -1,0 +1,75 @@
+# policy reference:
+# https://github.com/kundan2707/network-policy-api/blob/master/conformance/base/admin_network_policy/core-egress-tcp-rules.yaml
+# swapped some rules
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: egress-tcp-with-swapped-rules
+spec:
+  priority: 6
+  subject:
+    namespaces:
+      matchLabels:
+          kubernetes.io/metadata.name: network-policy-conformance-gryffindor
+  egress:
+  - name: "deny-to-ravenclaw-everything" # swapped with "allow-to-ravenclaw-everything"
+    action: "Deny"
+    to:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-ravenclaw
+  - name: "allow-to-ravenclaw-everything"
+    action: "Allow"
+    to:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-ravenclaw
+  - name: "pass-to-ravenclaw-everything"
+    action: "Pass"
+    to:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-ravenclaw
+  - name: "pass-to-slytherin-at-port-80"
+    action: "Pass"
+    to:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-slytherin
+    ports:
+      - portNumber:
+          protocol: TCP
+          port: 80
+  - name: "deny-to-slytherin-at-port-80" # swapped with "pass-to-slytherin-at-port-80"
+    action: "Deny"
+    to:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-slytherin
+    ports:
+      - portNumber:
+          protocol: TCP
+          port: 80
+  - name: "allow-to-hufflepuff-at-port-8080"
+    action: "Allow"
+    to:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-hufflepuff
+    ports:
+      - portNumber:
+          protocol: TCP
+          port: 8080
+  - name: "deny-to-hufflepuff-everything-else"
+    action: "Deny"
+    to:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: network-policy-conformance-hufflepuff

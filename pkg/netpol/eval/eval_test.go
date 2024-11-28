@@ -24,12 +24,15 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/yaml"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/examples"
 )
 
 const (
@@ -1061,7 +1064,8 @@ func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) erro
 	var netpols = []*netv1.NetworkPolicy{}
 	var pods = []*v1.Pod{}
 	var ns = []*v1.Namespace{}
-	for _, obj := range objectsList {
+	for i := range objectsList {
+		obj := objectsList[i]
 		switch obj.Kind {
 		case "Pod":
 			pods = append(pods, obj.Pod)
@@ -1089,7 +1093,7 @@ func TestGeneralPerformance(t *testing.T) {
 		t.Skip("skipping TestGeneralPerformance")
 	}
 	path := testutils.GetTestDirPath("onlineboutique")
-	// list of connections to test with, for CheckIfAllowed / CheckIfAllowedNew
+	// list of connections to test with, for CheckIfAllowed / checkIfAllowedNew
 	connectionsListForTest := []TestEntry{
 		{protocol: "tcp", port: "5050"},
 		{protocol: "tcp", port: "3550"},
@@ -1790,4 +1794,81 @@ func TestPolicyEngineWithWorkloads(t *testing.T) {
 	if len(pe.podsMap) != 13 {
 		t.Fatalf("TestPolicyEngineWithWorkloads: unexpected podsMap len: %d ", len(pe.podsMap))
 	}
+}
+
+const defaultPort = "80"
+
+func pickContainedConn(conn *common.ConnectionSet) (resProtocol, resPort string) {
+	if conn.IsEmpty() {
+		return "", ""
+	}
+	if conn.AllowAll {
+		return string(v1.ProtocolTCP), defaultPort
+	}
+	for protocol, portSet := range conn.AllowedProtocols {
+		resProtocol = string(protocol)
+		if portSet.IsAll() {
+			resPort = defaultPort
+		} else {
+			resPort = fmt.Sprintf("%d", portSet.Ports.Min())
+		}
+		break
+	}
+	return resProtocol, resPort
+}
+
+func pickUncontainedConn(conn *common.ConnectionSet) (resProtocol, resPort string) {
+	complementSet := common.MakeConnectionSet(true)
+	complementSet.Subtract(conn)
+	return pickContainedConn(complementSet)
+}
+
+func runParsedResourcesEvalTests(t *testing.T, testList []examples.ParsedResourcesTest) {
+	t.Helper()
+	for i := 0; i < len(testList); i++ {
+		test := &testList[i]
+		t.Run(test.Name, func(t *testing.T) {
+			t.Parallel()
+			pe, err := NewPolicyEngineWithObjects(test.GetK8sObjects())
+			require.Nil(t, err, test.TestInfo)
+			for _, evalTest := range test.EvalTests {
+				src := evalTest.Src
+				dst := evalTest.Dst
+				allowedConns, err := pe.allAllowedConnections(src, dst)
+				require.Nil(t, err, test.TestInfo)
+				require.Equal(t, evalTest.ExpResult, allowedConns.String())
+
+				contProtocol, contPort := pickContainedConn(allowedConns)
+				if contPort != "" {
+					var res bool
+					// Tanya: uncomment whenever CheckIfAllowed supports ANPs
+					// res, err := pe.CheckIfAllowed(srcForEval, dstForEval, contProtocol, contPort)
+					// require.Nil(t, err, test.TestInfo)
+					// require.Equal(t, true, res, test.TestInfo)
+					res, err = pe.checkIfAllowedNew(src, dst, contProtocol, contPort)
+					require.Nil(t, err, test.TestInfo)
+					require.Equal(t, true, res, test.TestInfo)
+				}
+				uncontProtocol, uncontPort := pickUncontainedConn(allowedConns)
+				if uncontPort != "" {
+					var res bool
+					// Tanya: uncomment whenever CheckIfAllowed supports ANPs
+					// res, err := pe.CheckIfAllowed(srcForEval, dstForEval, uncontProtocol, uncontPort)
+					// require.Nil(t, err, test.TestInfo)
+					// require.Equal(t, false, res, test.TestInfo)
+					res, err = pe.checkIfAllowedNew(src, dst, uncontProtocol, uncontPort)
+					require.Nil(t, err, test.TestInfo)
+					require.Equal(t, false, res, test.TestInfo)
+				}
+			}
+		})
+	}
+}
+
+func TestAllParsedResourcesEvalTests(t *testing.T) {
+	runParsedResourcesEvalTests(t, examples.ANPConnectivityFromParsedResourcesTest)
+	runParsedResourcesEvalTests(t, examples.BANPConnectivityFromParsedResourcesTest)
+	runParsedResourcesEvalTests(t, examples.ANPWithNetPolV1FromParsedResourcesTest)
+	runParsedResourcesEvalTests(t, examples.BANPWithNetPolV1FromParsedResourcesTest)
+	runParsedResourcesEvalTests(t, examples.ANPWithBANPFromParsedResourcesTest)
 }
