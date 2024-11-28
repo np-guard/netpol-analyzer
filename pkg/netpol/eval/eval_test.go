@@ -32,6 +32,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/examples"
 )
 
 const (
@@ -1822,16 +1823,13 @@ func pickUncontainedConn(conn *common.ConnectionSet) (resProtocol, resPort strin
 	return pickContainedConn(complementSet)
 }
 
-func runParsedResourcesEvalTests(t *testing.T, testList []testutils.ParsedResourcesTest) {
+func runParsedResourcesEvalTests(t *testing.T, testList []examples.ParsedResourcesTest) {
 	t.Helper()
 	for i := 0; i < len(testList); i++ {
 		test := &testList[i]
 		t.Run(test.Name, func(t *testing.T) {
 			t.Parallel()
-			if test.Banp != nil { // Tanya - remove this 'if' whenever BaselineAdminNetworkPolicy is implemented
-				return // Skip tests with BANP, until implemented
-			}
-			pe, err := NewPolicyEngineWithObjects(test.Getk8sObjects())
+			pe, err := NewPolicyEngineWithObjects(test.GetK8sObjects())
 			require.Nil(t, err, test.TestInfo)
 			for _, evalTest := range test.EvalTests {
 				src := evalTest.Src
@@ -1868,9 +1866,9 @@ func runParsedResourcesEvalTests(t *testing.T, testList []testutils.ParsedResour
 }
 
 func TestAllParsedResourcesEvalTests(t *testing.T) {
-	runParsedResourcesEvalTests(t, testutils.ANPConnectivityFromParsedResourcesTest)
-	runParsedResourcesEvalTests(t, testutils.BANPConnectivityFromParsedResourcesTest)
-	runParsedResourcesEvalTests(t, testutils.ANPWithNetPolV1FromParsedResourcesTest)
-	runParsedResourcesEvalTests(t, testutils.BANPWithNetPolV1FromParsedResourcesTest)
-	runParsedResourcesEvalTests(t, testutils.ANPWithBANPFromParsedResourcesTest)
+	runParsedResourcesEvalTests(t, examples.ANPConnectivityFromParsedResourcesTest)
+	runParsedResourcesEvalTests(t, examples.BANPConnectivityFromParsedResourcesTest)
+	runParsedResourcesEvalTests(t, examples.ANPWithNetPolV1FromParsedResourcesTest)
+	runParsedResourcesEvalTests(t, examples.BANPWithNetPolV1FromParsedResourcesTest)
+	runParsedResourcesEvalTests(t, examples.ANPWithBANPFromParsedResourcesTest)
 }

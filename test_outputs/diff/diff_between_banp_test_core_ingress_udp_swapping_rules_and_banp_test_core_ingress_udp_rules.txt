@@ -1,0 +1,2 @@
+Connectivity diff:
+diff-type: removed, source: network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet], destination: network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet], ref1: All Connections, ref2: No Connections

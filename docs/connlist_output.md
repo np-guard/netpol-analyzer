@@ -4,6 +4,7 @@ Resource manifests considered for a connectivity analysis:
 - workload resources (such as Kubernetes Pod / Deployment)
 - Kubernetes NetworkPolicy
 - Kubernetes AdminNetworkPolicy
+- Kubernetes BaselineAdminNetworkPolicy 
 - Kubernetes Ingress
 - Openshift Route
 

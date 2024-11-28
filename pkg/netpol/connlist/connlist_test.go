@@ -15,6 +15,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/examples"
 
 	"github.com/stretchr/testify/require"
 )
@@ -1124,17 +1125,32 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    []string{output.DefaultFormat},
 	},
+	{
+		// the netpol allows connection to pod-a on a named port "newport" with "protocol UDP",
+		// but since the configuration of "pod-a" contains a port with same name but a different protocol,
+		// i.e. there is no matching named port in the pod's configuration; then the output does not contain
+		// a connection from new-pod to pod-a
+		testDirName:   "netpol_named_port_test",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		// the netpol allows connection to "pod-b" on multiple named-ports;
+		// only some of the ports have a matching named-port + protocol in the pod's configuration
+		// so we see only the successfully converted ports in the connlist output
+		testDirName:   "netpol_named_port_test_2",
+		outputFormats: []string{output.DefaultFormat},
+	},
 	// tests with adminNetworkPolicy
 	{
-		testDirName:   "anp_test1_deny_traffic_at_cluster_level",
+		testDirName:   "anp_test_1_deny_traffic_at_cluster_level",
 		outputFormats: []string{output.TextFormat},
 	},
 	{
-		testDirName:   "anp_test2_allow_traffic_at_cluster_level",
+		testDirName:   "anp_test_2_allow_traffic_at_cluster_level",
 		outputFormats: []string{output.TextFormat},
 	},
 	{
-		testDirName:   "anp_test3_pass_traffic",
+		testDirName:   "anp_test_3_pass_traffic",
 		outputFormats: []string{output.TextFormat},
 	},
 	{
@@ -1221,7 +1237,7 @@ var goodPathTests = []struct {
 	},
 	{
 		// test with two ANPs selecting same subject (one is an ingress ANP the other is egress ANP)
-		testDirName:   "anp_test_combining_test6_and_test10",
+		testDirName:   "anp_test_combining_test_6_and_test_10",
 		outputFormats: []string{output.TextFormat},
 	},
 	{
@@ -1235,31 +1251,122 @@ var goodPathTests = []struct {
 		testDirName:   "anp_test_ingress_egress_intersection",
 		outputFormats: []string{output.TextFormat},
 	},
+	// tests involving BANPs
+	{
+		testDirName:   "anp_np_banp_core_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_banp_core_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_test_4_with_priority_chang_pass_to_banp",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_with_banp_pass_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_with_np_and_banp_pass_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_with_np_pass_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_sctp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_sctp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_tcp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_tcp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_udp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_egress_udp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_gress_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_gress_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_sctp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_sctp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_tcp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_tcp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_udp_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "banp_test_core_ingress_udp_swapping_rules",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_with_banp_new_test",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		testDirName:   "anp_demo",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_banp_blog_demo",
+		outputFormats: ValidFormats,
+	},
 }
 
-func runParsedResourcesConnlistTests(t *testing.T, testList []testutils.ParsedResourcesTest) {
+func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {
 	t.Helper()
 	for i := 0; i < len(testList); i++ {
 		test := &testList[i]
 		t.Run(test.Name, func(t *testing.T) {
 			t.Parallel()
 			analyzer := NewConnlistAnalyzer(WithOutputFormat(test.OutputFormat))
-			res, _, err := analyzer.connsListFromParsedResources(test.Getk8sObjects())
+			res, _, err := analyzer.connsListFromParsedResources(test.GetK8sObjects())
 			require.Nil(t, err, test.TestInfo)
 			out, err := analyzer.ConnectionsListToString(res)
 			require.Nil(t, err, test.TestInfo)
-			if test.Banp == nil { // Tanya - remove this 'if' whenever BaselineAdminNetworkPolicy is implemented
-				testutils.CheckActualVsExpectedOutputMatch(t, test.ExpectedOutputFileName, out,
-					test.TestInfo, currentPkg)
-			}
+			testutils.CheckActualVsExpectedOutputMatch(t, test.ExpectedOutputFileName, out,
+				test.TestInfo, currentPkg)
 		})
 	}
 }
 
 func TestAllParsedResourcesConnlistTests(t *testing.T) {
-	runParsedResourcesConnlistTests(t, testutils.ANPConnectivityFromParsedResourcesTest)
-	runParsedResourcesConnlistTests(t, testutils.BANPConnectivityFromParsedResourcesTest)
-	runParsedResourcesConnlistTests(t, testutils.ANPWithNetPolV1FromParsedResourcesTest)
-	runParsedResourcesConnlistTests(t, testutils.BANPWithNetPolV1FromParsedResourcesTest)
-	runParsedResourcesConnlistTests(t, testutils.ANPWithBANPFromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.ANPConnectivityFromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.BANPConnectivityFromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.ANPWithNetPolV1FromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.BANPWithNetPolV1FromParsedResourcesTest)
+	runParsedResourcesConnlistTests(t, examples.ANPWithBANPFromParsedResourcesTest)
 }

@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 // The connlist package of netpol-analyzer allows producing a k8s connectivity report based on several resources:
-// k8s NetworkPolicy & AdminNetworkPolicy, k8s Ingress, openshift Route
+// k8s NetworkPolicy & AdminNetworkPolicy & BaselineAdminNetworkPolicy, k8s Ingress, openshift Route
 // It lists the set of allowed connections between each pair of different peers (k8s workloads or ip-blocks).
 // Connections between workload to itself are excluded from the output.
 // Connectivity inferred from Ingress/Route resources is between {ingress-controller} to k8s workloads.
@@ -347,9 +347,9 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 // returns a *common.ConnectionSet from Peer2PeerConnection data
 func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.ConnectionSet {
 	protocolsToPortSetMap := make(map[v1.Protocol]*common.PortSet, len(c.ProtocolsAndPorts()))
-	for protocol, portRageArr := range c.ProtocolsAndPorts() {
+	for protocol, portRangeArr := range c.ProtocolsAndPorts() {
 		protocolsToPortSetMap[protocol] = common.MakePortSet(false)
-		for _, p := range portRageArr {
+		for _, p := range portRangeArr {
 			protocolsToPortSetMap[protocol].AddPortRange(p.Start(), p.End())
 		}
 	}
@@ -638,7 +638,7 @@ func createConnectionObject(allowedConnections common.Connection, src, dst Peer)
 	return &connection{
 		src:               src,
 		dst:               dst,
-		allConnections:    allowedConnections.AllConnections(),
+		allConnections:    allowedConnections.IsAllConnections(),
 		protocolsAndPorts: allowedConnections.ProtocolsAndPortsMap(),
 	}
 }

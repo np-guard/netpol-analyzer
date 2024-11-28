@@ -1,0 +1,3 @@
+Connectivity diff:
+diff-type: removed, source: network-policy-conformance-gryffindor/harry-potter[StatefulSet], destination: network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet], ref1: All Connections, ref2: No Connections
+diff-type: removed, source: network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet], destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: All Connections, ref2: No Connections

@@ -304,8 +304,8 @@ func (conn *ConnectionSet) ProtocolsAndPortsMap() map[v1.Protocol][]PortRange {
 	return res
 }
 
-// AllConnections returns true if all ports are allowed for all protocols
-func (conn *ConnectionSet) AllConnections() bool {
+// IsAllConnections returns true if all ports are allowed for all protocols
+func (conn *ConnectionSet) IsAllConnections() bool {
 	return conn.AllowAll
 }
 

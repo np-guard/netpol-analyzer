@@ -1,0 +1,18 @@
+# policy reference: 
+# https://network-policy-api.sigs.k8s.io/reference/examples/ 
+# Sample Spec for Story 1: Deny traffic at a cluster level
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: cluster-wide-deny-example
+spec:
+  priority: 10
+  subject:
+    namespaces:
+      matchLabels:
+        kubernetes.io/metadata.name: sensitive-ns
+  ingress:
+    - name: select-all-deny-all 
+      action: Deny
+      from:
+      - namespaces: {}

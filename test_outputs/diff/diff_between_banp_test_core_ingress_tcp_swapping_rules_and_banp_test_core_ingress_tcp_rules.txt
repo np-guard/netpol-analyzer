@@ -1,0 +1,2 @@
+Connectivity diff:
+diff-type: removed, source: network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet], destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: TCP 80, ref2: No Connections

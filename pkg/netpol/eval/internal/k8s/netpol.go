@@ -18,7 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
-	"github.com/np-guard/models/pkg/ipblock"
+	"github.com/np-guard/models/pkg/netset"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -72,35 +72,41 @@ func getProtocolStr(p *v1.Protocol) string {
 	return string(*p)
 }
 
-func (np *NetworkPolicy) convertNamedPort(namedPort string, pod *Pod) int32 {
-	_, portNum := pod.ConvertPodNamedPort(namedPort)
-	return portNum
-}
-
-// getPortsRange returns the start and end port numbers given input port, endPort and dest peer
-// and the portName if it is a named port
-// if input port is a named port, and the dst peer is nil or  does not have a matching named port defined, return
-// an empty range represented by (-1,-1)
-func (np *NetworkPolicy) getPortsRange(port *intstr.IntOrString, endPort *int32, dst Peer) (startNum, endNum int32,
-	namedPort string, err error) {
-	var start, end int32
-	portName := ""
-	if port.Type == intstr.String {
+// getPortsRange given a rule port and dest peer, returns: the start and end port numbers,
+// or the port name if it is a named port
+// if input port is a named port, and the dst peer is nil or does not have a matching named port defined, returns
+// an empty range represented by (-1,-1) with the named port string
+func (np *NetworkPolicy) getPortsRange(rulePort netv1.NetworkPolicyPort, dst Peer) (start, end int32,
+	portName string, err error) {
+	if rulePort.Port.Type == intstr.String { // rule.Port is namedPort
+		ruleProtocol := getProtocolStr(rulePort.Protocol)
+		portName = rulePort.Port.StrVal
 		if dst == nil {
-			return common.NoPort, common.NoPort, port.StrVal, nil
+			// dst is nil, so the namedPort can not be converted, return string port name
+			return common.NoPort, common.NoPort, portName, nil
 		}
 		if dst.PeerType() != PodType {
+			// namedPort is not defined for IP-blocks
 			return start, end, "", np.netpolErr(netpolerrors.NamedPortErrTitle, netpolerrors.ConvertNamedPortErrStr)
 		}
-		portName = port.StrVal
-		portNum := np.convertNamedPort(portName, dst.GetPeerPod())
-		start = portNum
-		end = portNum
-	} else {
-		start = port.IntVal
+		podProtocol, podPortNum := dst.GetPeerPod().ConvertPodNamedPort(portName)
+		if podProtocol == "" && podPortNum == common.NoPort {
+			// there is no match for the namedPort in the configuration of the pod, return the portName string as "ports range"
+			return common.NoPort, common.NoPort, portName, nil
+		}
+		if podProtocol != ruleProtocol {
+			// the pod has a matching namedPort, but not on same protocol as the rule's protocol; so it can not be converted,
+			// return the string named-port as the "ports range"
+			return common.NoPort, common.NoPort, portName, nil
+		}
+		// else, found match for the rule's named-port in the pod's ports, so it may be converted to port number
+		start = podPortNum
+		end = podPortNum
+	} else { // rule.Port is number
+		start = rulePort.Port.IntVal
 		end = start
-		if endPort != nil {
-			end = *endPort
+		if rulePort.EndPort != nil {
+			end = *rulePort.EndPort
 		}
 	}
 	return start, end, portName, nil
@@ -125,17 +131,25 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 		if rulePorts[i].Port == nil {
 			ports = common.MakePortSet(true)
 		} else {
-			startPort, endPort, portName, err := np.getPortsRange(rulePorts[i].Port, rulePorts[i].EndPort, dst)
+			startPort, endPort, portName, err := np.getPortsRange(rulePorts[i], dst)
 			if err != nil {
 				return res, err
 			}
-			if (dst == nil || isPeerRepresentative(dst)) && portName != "" {
+			// valid returned values from `getsPortsRange` :
+			// 1. empty-numbered-range with the string namedPort, if the rule has a named-port which is not (or cannot be) converted to a
+			// numbered-range by the dst's ports.
+			//  2. non empty-range when the rule ports are numbered or the named-port was converted
+			if (dst == nil || isPeerRepresentative(dst)) && isEmptyPortRange(startPort, endPort) && portName != "" {
 				// this func may be called:
-				// - for computing cluster-wide exposure of the policy (dst is nil);
-				// - in-order to get a connection from a real workload to a representative dst.
-				// - in order to get a connection from any pod to a real dst or an ip dst (will not get to this if)
+				// 1- for computing cluster-wide exposure of the policy (dst is nil);
+				// 2- in-order to get a connection from a real workload to a representative dst.
 				// in both first cases, we can't convert the named port to its number, like when dst peer is a real
 				// pod from manifests, so we use the named-port as is.
+				// 3- in order to get a connection from any pod to a real dst.
+				// in the third case the namedPort of the policy rule may not have a match in the Pod's configuration,
+				// so it will be ignored (the pod has no matching named-port in its configuration - unknown connection is not allowed)
+				// 4- in order to get a connection from any pod to an ip dst (will not get here, as named ports are not defined for ip-blocks)
+
 				// adding portName string to the portSet
 				ports.AddPort(intstr.FromString(portName))
 			}
@@ -168,7 +182,7 @@ func (np *NetworkPolicy) ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, p
 		if rulePorts[i].Port == nil { // If this field is not provided, this matches all port names and numbers.
 			return true, nil
 		}
-		startPort, endPort, _, err := np.getPortsRange(rulePorts[i].Port, rulePorts[i].EndPort, dst)
+		startPort, endPort, _, err := np.getPortsRange(rulePorts[i], dst)
 		if err != nil {
 			return false, err
 		}
@@ -249,7 +263,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			}
 
 			peerIPBlock := peer.GetPeerIPBlock()
-			res := peerIPBlock.ContainedIn(ruleIPBlock)
+			res := peerIPBlock.IsSubset(ruleIPBlock)
 			if res {
 				return true, nil
 			}
@@ -383,8 +397,8 @@ func (np *NetworkPolicy) netpolErr(title, description string) error {
 	return fmt.Errorf("network policy %s %s: %s", np.fullName(), title, description)
 }
 
-func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*ipblock.IPBlock, error) {
-	ipb, err := ipblock.FromCidr(cidr)
+func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*netset.IPBlock, error) {
+	ipb, err := netset.IPBlockFromCidr(cidr)
 	if err != nil {
 		return nil, np.netpolErr(netpolerrors.CidrErrTitle, err.Error())
 	}
@@ -403,8 +417,8 @@ func (np *NetworkPolicy) parseNetpolLabelSelector(selector *metav1.LabelSelector
 	return selectorRes, nil
 }
 
-func (np *NetworkPolicy) rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPolicyPeer) ([]*ipblock.IPBlock, error) {
-	res := []*ipblock.IPBlock{}
+func (np *NetworkPolicy) rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPolicyPeer) ([]*netset.IPBlock, error) {
+	res := []*netset.IPBlock{}
 	for _, peerObj := range rulePeers {
 		if peerObj.IPBlock != nil {
 			ipb, err := np.parseNetpolCIDR(peerObj.IPBlock.CIDR, peerObj.IPBlock.Except)
@@ -418,8 +432,8 @@ func (np *NetworkPolicy) rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPo
 }
 
 // GetReferencedIPBlocks: return list of IPBlock objects referenced in the current network policy
-func (np *NetworkPolicy) GetReferencedIPBlocks() ([]*ipblock.IPBlock, error) {
-	res := []*ipblock.IPBlock{}
+func (np *NetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error) {
+	res := []*netset.IPBlock{}
 	for _, rule := range np.Spec.Ingress {
 		ruleRes, err := np.rulePeersReferencedIPBlocks(rule.From)
 		if err != nil {
