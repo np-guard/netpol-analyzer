@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"gopkg.in/yaml.v2"
@@ -57,6 +58,11 @@ func copyDirAndAddPods(origDir, srcName, srcNs, dstName, dstNs string) error {
 			return err
 		}
 		if info.IsDir() { // nothing to do
+			return nil
+		}
+		// nothing to do if the file is not a yaml file
+		// @todo assuming suffeix of our yaml files is "yaml" (not yml); which is the state of our testing dirs' files
+		if !strings.HasSuffix(path, yamlSuffix) {
 			return nil
 		}
 		origFile := filepath.Join(origDir, info.Name())
