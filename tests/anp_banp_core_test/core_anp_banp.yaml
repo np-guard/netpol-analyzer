@@ -1,3 +1,6 @@
+# policies are taken from:
+# https://github.com/kundan2707/network-policy-api/blob/master/conformance/base/api_integration/core-anp-np-banp.yaml
+# in this test - commented out the NetworkPolicy 
 apiVersion: policy.networking.k8s.io/v1alpha1
 kind: AdminNetworkPolicy
 metadata:
