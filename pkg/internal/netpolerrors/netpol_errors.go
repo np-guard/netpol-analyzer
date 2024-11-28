@@ -6,7 +6,11 @@ SPDX-License-Identifier: Apache-2.0
 
 package netpolerrors
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/np-guard/netpol-analyzer/pkg/internal/common"
+)
 
 const (
 	VerbosityFlagsMisUseErrStr = "-q and -v cannot be specified together"
@@ -151,7 +155,8 @@ func SamePriorityErr(name1, name2 string) string {
 
 // PriorityValueErr returns error message of invalid priority value in an admin-network-policy
 func PriorityValueErr(name string, priority int32) string {
-	return fmt.Sprintf("Invalid Priority Value: %d in Admin Network Policy: %q; Priority value must be between 0-1000", priority, name)
+	return fmt.Sprintf("Invalid Priority Value: %d in Admin Network Policy: %q; Priority value must be between %d-%d", priority, name,
+		common.MinANPPriority, common.MaxANPPriority)
 }
 
 const uniquenessRequest = "Only one object of a given kind can have a given name at a time."

@@ -1298,15 +1298,15 @@ var goodPathTests = []struct {
 	},
 	// tests with adminNetworkPolicy
 	{
-		testDirName:   "anp_test1_deny_traffic_at_cluster_level",
+		testDirName:   "anp_test_1_deny_traffic_at_cluster_level",
 		outputFormats: []string{output.TextFormat},
 	},
 	{
-		testDirName:   "anp_test2_allow_traffic_at_cluster_level",
+		testDirName:   "anp_test_2_allow_traffic_at_cluster_level",
 		outputFormats: []string{output.TextFormat},
 	},
 	{
-		testDirName:   "anp_test3_pass_traffic",
+		testDirName:   "anp_test_3_pass_traffic",
 		outputFormats: []string{output.TextFormat},
 	},
 	{
@@ -1393,7 +1393,7 @@ var goodPathTests = []struct {
 	},
 	{
 		// test with two ANPs selecting same subject (one is an ingress ANP the other is egress ANP)
-		testDirName:   "anp_test_combining_test6_and_test10",
+		testDirName:   "anp_test_combining_test_6_and_test_10",
 		outputFormats: []string{output.TextFormat},
 	},
 	{
@@ -1494,6 +1494,10 @@ var goodPathTests = []struct {
 	},
 	{
 		testDirName:   "anp_demo",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_banp_blog_demo",
 		outputFormats: ValidFormats,
 	},
 }

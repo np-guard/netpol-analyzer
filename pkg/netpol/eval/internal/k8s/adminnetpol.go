@@ -16,6 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
+	pkgcommmon "github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -308,17 +309,10 @@ func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnection
 	return res, nil
 }
 
-const (
-	// according to this: https://network-policy-api.sigs.k8s.io/api-overview/#adminnetworkpolicy-priorities
-	// The Priority field in the ANP spec is defined as an integer value within the range 0 to 1000
-	minANPPriority = 0
-	maxANPPriority = 1000
-)
-
 // HasValidPriority returns if the priority in a valid range
 func (anp *AdminNetworkPolicy) HasValidPriority() bool {
 	// note: k8s defines "1000" as the maximum numeric value for priority
 	// but openshift currently only support priority values between 0 and 99
 	// current implementation satisfies k8s requirement
-	return anp.Spec.Priority >= minANPPriority && anp.Spec.Priority <= maxANPPriority
+	return anp.Spec.Priority >= pkgcommmon.MinANPPriority && anp.Spec.Priority <= pkgcommmon.MaxANPPriority
 }
