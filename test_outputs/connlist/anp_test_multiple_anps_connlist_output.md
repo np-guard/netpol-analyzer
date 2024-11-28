@@ -10,7 +10,7 @@
 | network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet] | network-policy-conformance-slytherin/draco-malfoy[StatefulSet] | All but: UDP 5353 |
 | network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet] | 0.0.0.0-255.255.255.255 | All Connections |
 | network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet] | network-policy-conformance-gryffindor/harry-potter[StatefulSet] | All Connections |
-| network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet] | network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet] | All Connections |
+| network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet] | network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet] | SCTP 9003 |
 | network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet] | network-policy-conformance-slytherin/draco-malfoy[StatefulSet] | All but: SCTP 9003 |
 | network-policy-conformance-slytherin/draco-malfoy[StatefulSet] | 0.0.0.0-255.255.255.255 | All Connections |
 | network-policy-conformance-slytherin/draco-malfoy[StatefulSet] | network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet] | All but: UDP 5353 |

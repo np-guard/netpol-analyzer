@@ -72,7 +72,7 @@
   {
     "src": "network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]",
     "dst": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
-    "conn": "SCTP 1-9002,9004-65535,TCP 1-65535,UDP 1-65535"
+    "conn": "All but: SCTP 9003"
   },
   {
     "src": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",

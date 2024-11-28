@@ -27,6 +27,6 @@
   {
     "src": "ns2/pod1[Deployment]",
     "dst": "ns1/pod1[Deployment]",
-    "conn": "SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535"
+    "conn": "All but: UDP 80"
   }
 ]
