@@ -17,6 +17,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
+	pkgcommmon "github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -427,7 +428,7 @@ func (anp *AdminNetworkPolicy) HasValidPriority() bool {
 	// note: k8s defines "1000" as the maximum numeric value for priority
 	// but openshift currently only support priority values between 0 and 99
 	// current implementation satisfies k8s requirement
-	return anp.Spec.Priority >= netpolerrors.MinANPPriority && anp.Spec.Priority <= netpolerrors.MaxANPPriority
+	return anp.Spec.Priority >= pkgcommmon.MinANPPriority && anp.Spec.Priority <= pkgcommmon.MaxANPPriority
 }
 
 // CheckEgressConnAllowed checks if the input conn is allowed/passed/denied or not captured on egress by current admin-network-policy

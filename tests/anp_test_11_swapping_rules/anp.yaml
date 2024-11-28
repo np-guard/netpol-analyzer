@@ -1,3 +1,6 @@
+# policy reference:
+# https://github.com/kundan2707/network-policy-api/blob/master/conformance/base/admin_network_policy/core-egress-tcp-rules.yaml
+# swapped some rules
 apiVersion: policy.networking.k8s.io/v1alpha1
 kind: AdminNetworkPolicy
 metadata:

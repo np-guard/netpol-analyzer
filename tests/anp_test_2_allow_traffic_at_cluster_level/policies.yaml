@@ -1,0 +1,38 @@
+# admin network policy reference: 
+# https://network-policy-api.sigs.k8s.io/reference/examples/ 
+# Sample Spec for Story 2: Allow traffic at a cluster level
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: cluster-wide-allow-example
+spec:
+  priority: 30
+  subject:
+    namespaces: {}
+  ingress:
+    - action: Allow
+      from:
+      - namespaces:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring-ns
+  egress:
+    - action: Allow
+      to:
+      - pods:
+          namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app: kube-dns
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: block-egress-ingress-in-foo-ns-1
+  namespace: foo-ns-1
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress

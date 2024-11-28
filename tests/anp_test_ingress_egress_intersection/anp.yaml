@@ -14,6 +14,9 @@ spec:
         - portNumber:
             protocol: UDP
             port: 5353
+        - portNumber:
+            protocol: TCP
+            port: 2000
     - action: Deny # deny others
       from:
       - namespaces: {}
@@ -21,5 +24,18 @@ spec:
     - action: Allow
       to:
       - namespaces:
-            matchLabels:
-              kubernetes.io/metadata.name: foo-ns-2
+          matchLabels:
+            kubernetes.io/metadata.name: foo-ns-2
+      ports:
+      - portRange:
+          protocol: UDP # only UDP 5353 will be allowed as the others in the range are denied by ingress
+          start: 5000
+          end: 6000
+      - portNumber:  # will not be allowed (denied by ingress)
+          protocol: TCP
+          port: 8080
+    - action: Deny # deny others
+      to:
+      - namespaces:
+          matchLabels:
+            kubernetes.io/metadata.name: foo-ns-2
