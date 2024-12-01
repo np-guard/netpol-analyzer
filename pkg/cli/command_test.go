@@ -348,11 +348,16 @@ func TestDiffCommandOutput(t *testing.T) {
 // TestEvalCommandOutput tests the output of legal eval command
 func TestEvalCommandOutput(t *testing.T) {
 	cases := []struct {
-		dir        string
-		sourcePod  string
-		destPod    string
-		port       string
-		evalResult bool
+		dir                  string
+		sourcePod            string
+		sourceNs             string
+		destNs               string
+		destPod              string
+		protocol             string
+		port                 string
+		evalResult           bool
+		generatePodManifests bool // indicates if the test dir does not contain pods - to be generated
+		// this field will be used till the eval command supports workload inputs too (not just pods)
 	}{
 		{
 			dir:        "onlineboutique",
@@ -368,13 +373,99 @@ func TestEvalCommandOutput(t *testing.T) {
 			port:       "80",
 			evalResult: false,
 		},
+		{
+			dir:                  "anp_demo",
+			sourceNs:             "gryffindor",
+			sourcePod:            "harry-potter",
+			destPod:              "luna-lovegood",
+			destNs:               "ravenclaw",
+			protocol:             "udp",
+			port:                 "52",
+			evalResult:           true,
+			generatePodManifests: true,
+		},
+		{
+			dir:                  "anp_test_6",
+			sourceNs:             "network-policy-conformance-slytherin",
+			sourcePod:            "draco-malfoy",
+			destPod:              "cedric-diggory",
+			destNs:               "network-policy-conformance-hufflepuff",
+			protocol:             "udp",
+			port:                 "5353",
+			evalResult:           false,
+			generatePodManifests: true,
+		},
+		{
+			dir:                  "anp_test_multiple_anps",
+			sourceNs:             "network-policy-conformance-ravenclaw",
+			sourcePod:            "luna-lovegood",
+			destPod:              "draco-malfoy",
+			destNs:               "network-policy-conformance-slytherin",
+			protocol:             "sctp",
+			port:                 "9003",
+			evalResult:           false,
+			generatePodManifests: true,
+		},
+		{
+			dir:                  "anp_with_np_and_banp_pass_test",
+			sourceNs:             "ns2",
+			sourcePod:            "pod1",
+			destPod:              "pod1",
+			destNs:               "ns1",
+			port:                 "80",
+			evalResult:           true,
+			generatePodManifests: true,
+		},
+		{
+			dir:                  "anp_with_np_pass_test",
+			sourceNs:             "ns2",
+			sourcePod:            "pod1",
+			destPod:              "pod1",
+			destNs:               "ns1",
+			port:                 "8080",
+			evalResult:           false,
+			generatePodManifests: true,
+		},
+		{
+			dir:                  "anp_banp_core_test",
+			sourceNs:             "network-policy-conformance-gryffindor",
+			sourcePod:            "harry-potter",
+			destPod:              "cedric-diggory",
+			destNs:               "network-policy-conformance-hufflepuff",
+			port:                 "8080",
+			evalResult:           true,
+			generatePodManifests: true,
+		},
 	}
 	for _, tt := range cases {
 		tt := tt
 		testName := "eval_" + tt.dir + "_from_" + tt.sourcePod + "_to_" + tt.destPod
 		t.Run(testName, func(t *testing.T) {
-			args := []string{"eval", "--dirpath", testutils.GetTestDirPath(tt.dir),
-				"-s", tt.sourcePod, "-d", tt.destPod, "-p", tt.port}
+			if tt.protocol == "" {
+				tt.protocol = defaultProtocol
+			}
+			if tt.sourceNs == "" {
+				tt.sourceNs = defaultNs
+			}
+			if tt.destNs == "" {
+				tt.destNs = defaultNs
+			}
+			dirPath := testutils.GetTestDirPath(tt.dir)
+			var err error
+			// TODO: following "if" will be deprecated when eval supports input workloads, not just pods
+			if tt.generatePodManifests {
+				// getting here means the test dir contains workloads in the manifests (not pods)
+				// but since eval command only supports pods, we will generate a copy of the dirs with
+				// pods yaml files from the matching workload resource of the tt's source and dst.
+				// so the command may be executed with the given args
+				err = testutils.GenerateTempDirWithPods(dirPath, tt.sourcePod, tt.sourceNs, tt.destPod, tt.destNs)
+				require.Nil(t, err, "test: %q", testName)
+				dirPath = testutils.TmpDir
+				defer os.RemoveAll(testutils.TmpDir) // clean up after finishing the test
+			}
+			args := []string{"eval", "--dirpath", dirPath,
+				"-s", tt.sourcePod, "-d", tt.destPod, "-p", tt.port, "--protocol", tt.protocol,
+				"-n", tt.sourceNs, "--destination-namespace", tt.destNs}
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
 			require.Contains(t, actualOut, fmt.Sprintf("%v", tt.evalResult),

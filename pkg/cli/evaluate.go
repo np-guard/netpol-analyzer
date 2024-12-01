@@ -10,9 +10,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
@@ -29,14 +31,19 @@ import (
 // 		Currently adds many options flags, so wait until cobra supports something
 // 		like NamedFlagSet's.
 
+const (
+	defaultNs = metav1.NamespaceDefault
+)
+
 var (
 	// evaluated connection information
-	protocol       = "tcp"
-	sourcePod      = types.NamespacedName{Namespace: "default"}
-	destinationPod = types.NamespacedName{Namespace: "default"}
-	srcExternalIP  string
-	dstExternalIP  string
-	port           string
+	defaultProtocol = strings.ToLower(string(v1.ProtocolTCP))
+	protocol        = defaultProtocol
+	sourcePod       = types.NamespacedName{Namespace: defaultNs}
+	destinationPod  = types.NamespacedName{Namespace: defaultNs}
+	srcExternalIP   string
+	dstExternalIP   string
+	port            string
 )
 
 func validateEvalFlags() error {
@@ -63,6 +70,7 @@ func validateEvalFlags() error {
 	return nil
 }
 
+//gocyclo:ignore
 func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []types.NamespacedName) error {
 	// get relevant resources from dir path
 	eLogger := logger.NewDefaultLoggerWithVerbosity(determineLogVerbosity())
@@ -96,8 +104,13 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 			err = pe.InsertObject(obj.Pod)
 		case parser.Namespace:
 			err = pe.InsertObject(obj.Namespace)
+			// netpols kinds
 		case parser.NetworkPolicy:
 			err = pe.InsertObject(obj.NetworkPolicy)
+		case parser.AdminNetworkPolicy:
+			err = pe.InsertObject(obj.AdminNetworkPolicy)
+		case parser.BaselineAdminNetworkPolicy:
+			err = pe.InsertObject(obj.BaselineAdminNetworkPolicy)
 		default:
 			continue
 		}

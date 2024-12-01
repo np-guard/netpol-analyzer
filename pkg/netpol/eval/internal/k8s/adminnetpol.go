@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"strconv"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -273,7 +274,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common
 			if anpPort.PortRange.Protocol != "" {
 				protocol = anpPort.PortRange.Protocol
 			}
-			if isEmptyPortRange(anpPort.PortRange.Start, anpPort.PortRange.End) {
+			if isEmptyPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End)) {
 				// rule with empty range; @tbd should return an error instead?
 				warnings = append(warnings, alerts.WarnEmptyPortRange)
 				continue // next port
@@ -312,6 +313,122 @@ func subjectSelectsPeer(anpSubject apisv1a.AdminNetworkPolicySubject, p Peer) (b
 	}
 	// else: Subject.Pods is not empty (Subject.Pods contains both NamespaceSelector and PodSelector)
 	return doesPodsFieldMatchPeer(anpSubject.Pods, p)
+}
+
+// anpPortContains returns if the given AdminNetworkPolicyPort selects the input connection
+//
+//gocyclo:ignore
+func anpPortContains(rulePorts *[]apisv1a.AdminNetworkPolicyPort, protocol, port string, dst Peer) (bool, error) {
+	if rulePorts == nil {
+		return true, nil // If this field is empty or missing, this rule matches all ports (traffic not restricted by port)
+	}
+	if protocol == "" && port == "" {
+		return false, nil // nothing to do
+	}
+	intPort, err := strconv.ParseInt(port, portBase, portBits)
+	if err != nil {
+		return false, err
+	}
+	for _, anpPort := range *rulePorts {
+		if !onlyOnePortFieldsSet(anpPort) {
+			return false, errors.New(fmt.Sprintf("Error in Ports : %v", anpPort) + netpolerrors.ANPPortsError)
+		}
+		switch { // only one case fits
+		case anpPort.PortNumber != nil:
+			if doesRulePortContain(getProtocolStr(&anpPort.PortNumber.Protocol), protocol,
+				int64(anpPort.PortNumber.Port), int64(anpPort.PortNumber.Port), intPort) {
+				return true, nil
+			}
+		case anpPort.NamedPort != nil:
+			podProtocol, podPort := dst.GetPeerPod().ConvertPodNamedPort(*anpPort.NamedPort)
+			if doesRulePortContain(podProtocol, protocol, int64(podPort), int64(podPort), intPort) {
+				return true, nil
+			}
+		case anpPort.PortRange != nil:
+			ruleProtocol := &anpPort.PortRange.Protocol
+			if doesRulePortContain(getProtocolStr(ruleProtocol), protocol, int64(anpPort.PortRange.Start),
+				int64(anpPort.PortRange.End), intPort) {
+				return true, nil
+			}
+		}
+	}
+	return false, nil
+}
+
+// checkIfEgressRuleContainsConn check if the egress rule captures the given connection, if yes returns if it is passed/allowed/denied
+func checkIfEgressRuleContainsConn(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, rulePorts *[]apisv1a.AdminNetworkPolicyPort, dst Peer,
+	action, protocol, port string, isBANPrule bool) (res ANPRulesResult, err error) {
+	if len(rulePeers) == 0 {
+		return NotCaptured, errors.New(netpolerrors.ANPEgressRulePeersErr)
+	}
+	peerSelected, err := egressRuleSelectsPeer(rulePeers, dst)
+	if err != nil {
+		return NotCaptured, err
+	}
+	if !peerSelected {
+		return NotCaptured, nil
+	}
+	connSelected, err := anpPortContains(rulePorts, protocol, port, dst)
+	if err != nil {
+		return NotCaptured, err
+	}
+	if !connSelected {
+		return NotCaptured, nil
+	}
+	// if the protocol and port are in the rulePorts, then action determines what to return
+	return determineConnResByAction(action, isBANPrule)
+}
+
+// checkIfIngressRuleContainsConn check if the ingress rule captures the given connection, if yes returns if it is passed/allowed/denied
+func checkIfIngressRuleContainsConn(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, rulePorts *[]apisv1a.AdminNetworkPolicyPort,
+	src, dst Peer, action, protocol, port string, isBANPrule bool) (res ANPRulesResult, err error) {
+	if len(rulePeers) == 0 {
+		return NotCaptured, errors.New(netpolerrors.ANPIngressRulePeersErr)
+	}
+	peerSelected, err := ingressRuleSelectsPeer(rulePeers, src)
+	if err != nil {
+		return NotCaptured, err
+	}
+	if !peerSelected {
+		return NotCaptured, nil
+	}
+	connSelected, err := anpPortContains(rulePorts, protocol, port, dst)
+	if err != nil {
+		return NotCaptured, err
+	}
+	if !connSelected {
+		return NotCaptured, nil
+	}
+	// if the protocol and port are in the rulePorts, then action determines what to return
+	return determineConnResByAction(action, isBANPrule)
+}
+
+// ANPRulesResult represents the result of the anp/banp rules to a given connection
+// it may be : not-captured, pass (anp only), allow or deny
+type ANPRulesResult int
+
+const (
+	NotCaptured ANPRulesResult = iota
+	Pass
+	Allow
+	Deny
+)
+
+// determineConnResByAction gets rule action that captured a connection and returns the rule res (allow, pass, deny)
+func determineConnResByAction(action string, isBANPrule bool) (res ANPRulesResult, err error) {
+	switch action {
+	case string(apisv1a.AdminNetworkPolicyRuleActionPass):
+		if isBANPrule {
+			return NotCaptured, errors.New(netpolerrors.UnknownRuleActionErr)
+		}
+		return Pass, nil
+	case string(apisv1a.AdminNetworkPolicyRuleActionAllow):
+		return Allow, nil
+	case string(apisv1a.AdminNetworkPolicyRuleActionDeny):
+		return Deny, nil
+	default:
+		return NotCaptured, errors.New(netpolerrors.UnknownRuleActionErr)
+	}
 }
 
 // isIPv6Cidr returns if the cidr is in IPv6 format
@@ -450,6 +567,42 @@ func (anp *AdminNetworkPolicy) HasValidPriority() bool {
 	// but openshift currently only support priority values between 0 and 99
 	// current implementation satisfies k8s requirement
 	return anp.Spec.Priority >= pkgcommmon.MinANPPriority && anp.Spec.Priority <= pkgcommmon.MaxANPPriority
+}
+
+// CheckEgressConnAllowed checks if the input conn is allowed/passed/denied or not captured on egress by current admin-network-policy
+func (anp *AdminNetworkPolicy) CheckEgressConnAllowed(dst Peer, protocol, port string) (res ANPRulesResult, err error) {
+	for _, rule := range anp.Spec.Egress {
+		rulePeers := rule.To
+		rulePorts := rule.Ports
+		ruleRes, err := checkIfEgressRuleContainsConn(rulePeers, rulePorts, dst, string(rule.Action), protocol, port, false)
+		if err != nil {
+			return NotCaptured, anp.anpRuleErr(rule.Name, err.Error())
+		}
+		if ruleRes == NotCaptured { // next rule
+			continue
+		}
+		return ruleRes, nil
+	}
+	// getting here means the protocol+port was not captured
+	return NotCaptured, nil
+}
+
+// CheckIngressConnAllowed checks if the input conn is allowed/passed/denied or not captured on ingress by current admin-network-policy
+func (anp *AdminNetworkPolicy) CheckIngressConnAllowed(src, dst Peer, protocol, port string) (res ANPRulesResult, err error) {
+	for _, rule := range anp.Spec.Ingress {
+		rulePeers := rule.From
+		rulePorts := rule.Ports
+		ruleRes, err := checkIfIngressRuleContainsConn(rulePeers, rulePorts, src, dst, string(rule.Action), protocol, port, false)
+		if err != nil {
+			return NotCaptured, anp.anpRuleErr(rule.Name, err.Error())
+		}
+		if ruleRes == NotCaptured { // next rule
+			continue
+		}
+		return ruleRes, nil
+	}
+	// getting here means the protocol+port was not captured
+	return NotCaptured, nil
 }
 
 // GetReferencedIPBlocks returns a list of IPBlocks referenced by the AdminNetworkPolicy's Egress rules.
