@@ -58,12 +58,31 @@ type (
 		// DeleteObject removes an object from the policy engine's view of the world
 		DeleteObject(obj runtime.Object) error
 	}
+
+	// PolicyEngineOption is the type for specifying options for PolicyEngine,
+	// using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
+	PolicyEngineOption func(*PolicyEngine)
 )
 
+// WithLogger is a functional option which sets the logger for a PolicyEngine to use.
+// The provided logger must conform with the package's Logger interface.
+func WithLogger(l logger.Logger) PolicyEngineOption {
+	return func(pe *PolicyEngine) {
+		pe.logger = l
+	}
+}
+
+// WithExposureAnalysis is a functional option which directs PolicyEngine to perform exposure analysis
+func WithExposureAnalysis() PolicyEngineOption {
+	return func(pe *PolicyEngine) {
+		pe.exposureAnalysisFlag = true
+		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)
+	}
+}
+
 // NewPolicyEngine returns a new PolicyEngine with an empty initial state
-func NewPolicyEngine(l logger.Logger) *PolicyEngine {
+func NewPolicyEngine() *PolicyEngine {
 	return &PolicyEngine{
-		logger:                          l,
 		namespacesMap:                   make(map[string]*k8s.Namespace),
 		podsMap:                         make(map[string]*k8s.Pod),
 		netpolsMap:                      make(map[string]map[string]*k8s.NetworkPolicy),
@@ -71,22 +90,34 @@ func NewPolicyEngine(l logger.Logger) *PolicyEngine {
 		adminNetpolsMap:                 make(map[string]bool),
 		cache:                           newEvalCache(),
 		exposureAnalysisFlag:            false,
+		logger:                          logger.NewDefaultLogger(),
 	}
 }
 
-func NewPolicyEngineWithObjects(objects []parser.K8sObject, l logger.Logger) (*PolicyEngine, error) {
-	pe := NewPolicyEngine(l)
-	err := pe.addObjectsByKind(objects)
+// Deprecated : this func call is replaced by NewPolicyEngineWithOptions + AddObjectsByKind
+// currently is used only for testing
+func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, error) {
+	pe := NewPolicyEngine()
+	err := pe.AddObjectsByKind(objects)
 	return pe, err
 }
 
 // NewPolicyEngineWithOptions returns a new policy engine with an empty state but updating the exposure analysis flag
-// TBD: currently exposure-analysis is the only option supported by policy-engine, so no need for options list param
-func NewPolicyEngineWithOptions(exposureFlag bool, l logger.Logger) *PolicyEngine {
-	pe := NewPolicyEngine(l)
+// Deprecated: this function is implemented also within NewPolicyEngineWithOptionsList
+func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
+	pe := NewPolicyEngine()
 	pe.exposureAnalysisFlag = exposureFlag
 	if exposureFlag {
 		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)
+	}
+	return pe
+}
+
+// NewPolicyEngineWithOptions returns a new policy engine with given options
+func NewPolicyEngineWithOptionsList(opts ...PolicyEngineOption) *PolicyEngine {
+	pe := NewPolicyEngine()
+	for _, o := range opts {
+		o(pe)
 	}
 	return pe
 }
@@ -106,13 +137,13 @@ func (pe *PolicyEngine) AddObjectsForExposureAnalysis(objects []parser.K8sObject
 	policiesAndNamespaces, otherObjects := splitPoliciesAndNamespacesAndOtherObjects(objects)
 	// note: in the first call addObjectsByKind with policy objects, will add
 	// the representative peers
-	err := pe.addObjectsByKind(policiesAndNamespaces)
+	err := pe.AddObjectsByKind(policiesAndNamespaces)
 	if err != nil {
 		return err
 	}
 	// note: in the second call addObjectsByKind with workload objects, will possibly remove some
 	// representative peers (for which there is already an identical actual workload with simple selectors)
-	err = pe.addObjectsByKind(otherObjects)
+	err = pe.AddObjectsByKind(otherObjects)
 	return err
 }
 
@@ -133,10 +164,10 @@ func splitPoliciesAndNamespacesAndOtherObjects(objects []parser.K8sObject) (poli
 	return policiesAndNs, others
 }
 
-// addObjectsByKind adds different k8s objects from parsed resources to the policy engine
+// AddObjectsByKind adds different k8s objects from parsed resources to the policy engine
 //
 //gocyclo:ignore
-func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
+func (pe *PolicyEngine) AddObjectsByKind(objects []parser.K8sObject) error {
 	var err error
 	for i := range objects {
 		obj := objects[i]

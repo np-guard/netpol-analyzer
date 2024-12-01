@@ -941,8 +941,6 @@ func AccidentalOr(namespace string, targetLabels, ingressNamespaceLabels, ingres
 	}
 }
 
-var l = logger.NewDefaultLogger()
-
 type TestEntry struct {
 	name        string
 	src         string
@@ -958,7 +956,7 @@ type TestEntry struct {
 
 func initTest(test *TestEntry, t *testing.T) (*PolicyEngine, error) {
 	t.Helper()
-	pe := NewPolicyEngine(l)
+	pe := NewPolicyEngine()
 	if len(test.nsList) > 0 || len(test.podsList) > 0 || len(test.policies) > 0 {
 		err := pe.SetResources(test.policies, test.podsList, test.nsList)
 		if err != nil {
@@ -1020,7 +1018,7 @@ func TestBasic(t *testing.T) {
 	nsList := []*v1.Namespace{}
 	nsList = append(nsList, &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "default", Labels: map[string]string{"a": "b"}}})
 
-	pe := NewPolicyEngine(l)
+	pe := NewPolicyEngine()
 	err = pe.SetResources(policies, podsList, nsList)
 	if err != nil {
 		t.Fatalf("error SetResources: %v", err)
@@ -1116,7 +1114,7 @@ func TestGeneralPerformance(t *testing.T) {
 	allResStrPerFunc := map[string]string{"CheckIfAllowed": "", "CheckIfAllowedNew": "", "AllAllowedConnections": ""}
 	allResPerFuncAndNetpolLimit := map[int]map[string]string{}
 	for i := netpolLimitMin; i <= netpolLimitMax; i++ {
-		pe := NewPolicyEngine(l)
+		pe := NewPolicyEngine()
 
 		err := setResourcesFromDir(pe, path, i)
 		if err != nil {
@@ -1207,7 +1205,7 @@ func TestGeneralPerformance(t *testing.T) {
 
 func TestFromFiles2(t *testing.T) {
 	path := testutils.GetTestDirPath("onlineboutique")
-	pe := NewPolicyEngine(l)
+	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
 		t.Fatalf("error from SetResourcesFromDir")
@@ -1260,7 +1258,7 @@ func TestFromFiles2(t *testing.T) {
 
 func TestFromFiles(t *testing.T) {
 	path := testutils.GetTestDirPath("onlineboutique")
-	pe := NewPolicyEngine(l)
+	pe := NewPolicyEngine()
 	err := setResourcesFromDir(pe, path)
 	if err != nil {
 		t.Fatalf("error from SetResourcesFromDir")
@@ -1580,7 +1578,7 @@ func computeExpectedCacheHits(pe *PolicyEngine) (int, error) {
 }
 
 func TestCacheWithPodDeletion(t *testing.T) {
-	pe := NewPolicyEngine(l)
+	pe := NewPolicyEngine()
 	var err error
 	testDir := testutils.GetTestDirPath("onlineboutique_with_replicas")
 	if err = setResourcesFromDir(pe, testDir); err != nil {
@@ -1668,7 +1666,7 @@ func TestConnectionsMapExamples(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		pe := NewPolicyEngine(l)
+		pe := NewPolicyEngine()
 		var err error
 		if err = setResourcesFromDir(pe, test.resourcesDir); err != nil {
 			t.Fatal(err)
@@ -1749,7 +1747,7 @@ func testConnectivityMapOutput(res []string, expectedFileName string) (bool, err
 
 func TestDisjointIpBlocks(t *testing.T) {
 	path := testutils.GetTestDirPath("ipblockstest")
-	pe := NewPolicyEngine(l)
+	pe := NewPolicyEngine()
 	if err := setResourcesFromDir(pe, path); err != nil {
 		t.Errorf("%v", err)
 	}
@@ -1788,7 +1786,7 @@ func TestPolicyEngineWithWorkloads(t *testing.T) {
 	if len(processingErrs) > 0 {
 		t.Fatalf("TestPolicyEngineWithWorkloads errors: %v", processingErrs)
 	}
-	pe, err := NewPolicyEngineWithObjects(objects, l)
+	pe, err := NewPolicyEngineWithObjects(objects)
 	if err != nil {
 		t.Fatalf("TestPolicyEngineWithWorkloads error: %v", err)
 	}
@@ -1831,7 +1829,7 @@ func runParsedResourcesEvalTests(t *testing.T, testList []examples.ParsedResourc
 		test := &testList[i]
 		t.Run(test.Name, func(t *testing.T) {
 			t.Parallel()
-			pe, err := NewPolicyEngineWithObjects(test.GetK8sObjects(), l)
+			pe, err := NewPolicyEngineWithObjects(test.GetK8sObjects())
 			require.Nil(t, err, test.TestInfo)
 			for _, evalTest := range test.EvalTests {
 				src := evalTest.Src
@@ -1958,7 +1956,7 @@ func TestDirPathEvalResults(t *testing.T) {
 			require.Empty(t, errs, "test: %q", testName)
 			objectsList, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
 			require.Empty(t, processingErrs, "test: %q", testName)
-			pe, err := NewPolicyEngineWithObjects(objectsList, l)
+			pe, err := NewPolicyEngineWithObjects(objectsList)
 			require.Nil(t, err, "test: %q", testName)
 			var src, dst string
 			for podStr, podObj := range pe.podsMap {

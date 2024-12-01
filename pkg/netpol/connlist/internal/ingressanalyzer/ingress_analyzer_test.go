@@ -29,7 +29,7 @@ func getIngressAnalyzerFromDirObjects(t *testing.T, testName, dirName string, pr
 	objects, fpErrs := parser.ResourceInfoListToK8sObjectsList(rList, l, false)
 	require.Len(t, fpErrs, processingErrsNum, "test: %q, expected %d processing errors but got %d",
 		testName, processingErrsNum, len(fpErrs))
-	pe, err := eval.NewPolicyEngineWithObjects(objects, l)
+	pe, err := eval.NewPolicyEngineWithObjects(objects)
 	require.Empty(t, err, "test: %q", testName)
 	ia, err := NewIngressAnalyzerWithObjects(objects, pe, l, false)
 	require.Empty(t, err, "test: %q", testName)

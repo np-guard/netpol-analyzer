@@ -180,7 +180,7 @@ func runEvalCommand() error {
 	}
 
 	cLogger := logger.NewDefaultLoggerWithVerbosity(determineLogVerbosity())
-	pe := eval.NewPolicyEngine(cLogger)
+	pe := eval.NewPolicyEngineWithOptionsList(eval.WithLogger(cLogger))
 
 	if dirPath != "" {
 		if err := updatePolicyEngineObjectsFromDirPath(pe, podNames); err != nil {
