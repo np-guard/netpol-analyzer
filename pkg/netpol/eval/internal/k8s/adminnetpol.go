@@ -27,7 +27,163 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
-//// first section in the file contains:
+// AdminNetworkPolicy is an alias for k8s adminNetworkPolicy object
+type AdminNetworkPolicy struct {
+	*apisv1a.AdminNetworkPolicy // embedding k8s admin-network-policy object
+	Logger                      logger.Logger
+}
+
+// note that could not use Generics with GO 1.21 or older versions; since:
+// according to https://tip.golang.org/doc/go1.18#generics :
+// "The Go compiler does not support accessing a struct field x.f where x is of type parameter type even if all types in the type
+// parameter’s type set have a field f. We may remove this restriction in a future release."
+// (till GO 1.21 this restriction is not removed yet.)
+// and to resolve remaining duplicated code for AdminNetworkPolicy and BaselineAdminNetworkPolicy we need the option of using
+// the inner fields of  generic type in the funcs, either implicitly or explicitly.
+// @todo: with upgraded GO version, check if using generics may help avoid remaining duplicates in
+// the files adminnetpol.go and baseline_admin_netpol.go
+
+// Selects returns true if the admin network policy's Spec.Subject selects the peer and if the required direction is in the policy spec
+func (anp *AdminNetworkPolicy) Selects(p Peer, isIngress bool) (bool, error) {
+	if p.PeerType() == IPBlockType {
+		// adminNetworkPolicy is a cluster level resource which selects peers with their namespaceSelectors and podSelectors only,
+		// so it might not select IPs
+		return false, nil
+	}
+	if !anp.adminPolicyAffectsDirection(isIngress) {
+		return false, nil
+	}
+	// check if the subject selects the given peer
+	errTitle := fmt.Sprintf("%s %q: ", anpErrTitle, anp.Name)
+	return subjectSelectsPeer(anp.Spec.Subject, p, errTitle)
+}
+
+// adminPolicyAffectsDirection returns whether the anp affects the given direction or not.
+// anp affects a direction, if its spec has rules on that direction
+func (anp *AdminNetworkPolicy) adminPolicyAffectsDirection(isIngress bool) bool {
+	if isIngress {
+		// ANPs with no ingress rules do not affect ingress traffic.
+		return len(anp.Spec.Ingress) > 0
+	}
+	// ANPs with no egress rules do not affect egress traffic.
+	return len(anp.Spec.Egress) > 0
+}
+
+const (
+	anpErrTitle      = "admin network policy"
+	anpErrWarnFormat = anpErrTitle + " %q: %s in rule %q: %s"
+)
+
+// anpErr returns string format of an error in a rule in admin netpol
+func (anp *AdminNetworkPolicy) anpRuleErr(ruleName, description string) error {
+	return fmt.Errorf(anpErrWarnFormat, anp.Name, ruleErrTitle, ruleName, description)
+}
+
+// anpRuleWarning logs a single warning message for an admin network policy rule.
+func (anp *AdminNetworkPolicy) anpRuleWarning(ruleName, warning string) {
+	anp.Logger.Warnf(fmt.Sprintf(anpErrWarnFormat, anp.Name, ruleWarningTitle, ruleName, warning))
+}
+
+// logWarnings logs any warnings generated for an admin network policy rule.
+func (anp *AdminNetworkPolicy) logWarnings(ruleName string) {
+	for _, warning := range warnings {
+		anp.anpRuleWarning(ruleName, warning)
+	}
+}
+
+// GetIngressPolicyConns returns the connections from the ingress rules selecting the src in spec of the adminNetworkPolicy
+func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConnections, error) {
+	res := NewPolicyConnections()
+	for _, rule := range anp.Spec.Ingress { // rule is apisv1a.AdminNetworkPolicyIngressRule
+		rulePeers := rule.From
+		rulePorts := rule.Ports
+		warnings = []string{} // clear warnings (for each rule)
+		// following func also updates the warnings var
+		err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, src, dst, res, string(rule.Action), false)
+		anp.logWarnings(rule.Name)
+		if err != nil {
+			return nil, anp.anpRuleErr(rule.Name, err.Error())
+		}
+	}
+	return res, nil
+}
+
+// GetEgressPolicyConns returns the connections from the egress rules selecting the dst in spec of the adminNetworkPolicy
+func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnections, error) {
+	res := NewPolicyConnections()
+	for _, rule := range anp.Spec.Egress { // rule is apisv1a.AdminNetworkPolicyEgressRule
+		rulePeers := rule.To
+		rulePorts := rule.Ports
+		warnings = []string{} // clear warnings (for each rule), so it is updated by following call
+		err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, dst, res, string(rule.Action), false)
+		anp.logWarnings(rule.Name)
+		if err != nil {
+			return nil, anp.anpRuleErr(rule.Name, err.Error())
+		}
+	}
+	return res, nil
+}
+
+// HasValidPriority returns if the priority in a valid range
+func (anp *AdminNetworkPolicy) HasValidPriority() bool {
+	// note: k8s defines "1000" as the maximum numeric value for priority
+	// but openshift currently only support priority values between 0 and 99
+	// current implementation satisfies k8s requirement
+	return anp.Spec.Priority >= pkgcommmon.MinANPPriority && anp.Spec.Priority <= pkgcommmon.MaxANPPriority
+}
+
+// CheckEgressConnAllowed checks if the input conn is allowed/passed/denied or not captured on egress by current admin-network-policy
+func (anp *AdminNetworkPolicy) CheckEgressConnAllowed(dst Peer, protocol, port string) (res ANPRulesResult, err error) {
+	for _, rule := range anp.Spec.Egress {
+		rulePeers := rule.To
+		rulePorts := rule.Ports
+		ruleRes, err := checkIfEgressRuleContainsConn(rulePeers, rulePorts, dst, string(rule.Action), protocol, port, false)
+		if err != nil {
+			return NotCaptured, anp.anpRuleErr(rule.Name, err.Error())
+		}
+		if ruleRes == NotCaptured { // next rule
+			continue
+		}
+		return ruleRes, nil
+	}
+	// getting here means the protocol+port was not captured
+	return NotCaptured, nil
+}
+
+// CheckIngressConnAllowed checks if the input conn is allowed/passed/denied or not captured on ingress by current admin-network-policy
+func (anp *AdminNetworkPolicy) CheckIngressConnAllowed(src, dst Peer, protocol, port string) (res ANPRulesResult, err error) {
+	for _, rule := range anp.Spec.Ingress {
+		rulePeers := rule.From
+		rulePorts := rule.Ports
+		ruleRes, err := checkIfIngressRuleContainsConn(rulePeers, rulePorts, src, dst, string(rule.Action), protocol, port, false)
+		if err != nil {
+			return NotCaptured, anp.anpRuleErr(rule.Name, err.Error())
+		}
+		if ruleRes == NotCaptured { // next rule
+			continue
+		}
+		return ruleRes, nil
+	}
+	// getting here means the protocol+port was not captured
+	return NotCaptured, nil
+}
+
+// GetReferencedIPBlocks returns a list of IPBlocks referenced by the AdminNetworkPolicy's Egress rules.
+func (anp *AdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error) {
+	res := []*netset.IPBlock{}
+	// in ANP only egress rules may contains ip addresses
+	for _, rule := range anp.Spec.Egress {
+		ruleRes, err := rulePeersReferencedNetworks(rule.To)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, ruleRes...)
+	}
+	return res, nil
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//// second section in the file contains:
 // funcs which are commonly used by AdminNetworkPolicy and BaselineAdminNetworkPolicy types
 
 // note that : according to "sigs.k8s.io/network-policy-api/apis/v1alpha1", AdminNetworkPolicy and BaselineAdminNetworkPolicy
@@ -462,163 +618,6 @@ func rulePeersReferencedNetworks(rulePeers []apisv1a.AdminNetworkPolicyEgressPee
 				res = append(res, ipb.Split()...)
 			}
 		}
-	}
-	return res, nil
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-// AdminNetworkPolicy is an alias for k8s adminNetworkPolicy object
-type AdminNetworkPolicy struct {
-	*apisv1a.AdminNetworkPolicy // embedding k8s admin-network-policy object
-	Logger                      logger.Logger
-}
-
-// note that could not use Generics with GO 1.21 or older versions; since:
-// according to https://tip.golang.org/doc/go1.18#generics :
-// "The Go compiler does not support accessing a struct field x.f where x is of type parameter type even if all types in the type
-// parameter’s type set have a field f. We may remove this restriction in a future release."
-// (till GO 1.21 this restriction is not removed yet.)
-// and to resolve remaining duplicated code for AdminNetworkPolicy and BaselineAdminNetworkPolicy we need the option of using
-// the inner fields of  generic type in the funcs, either implicitly or explicitly.
-// @todo: with upgraded GO version, check if using generics may help avoid remaining duplicates in
-// the files adminnetpol.go and baseline_admin_netpol.go
-
-// Selects returns true if the admin network policy's Spec.Subject selects the peer and if the required direction is in the policy spec
-func (anp *AdminNetworkPolicy) Selects(p Peer, isIngress bool) (bool, error) {
-	if p.PeerType() == IPBlockType {
-		// adminNetworkPolicy is a cluster level resource which selects peers with their namespaceSelectors and podSelectors only,
-		// so it might not select IPs
-		return false, nil
-	}
-	if !anp.adminPolicyAffectsDirection(isIngress) {
-		return false, nil
-	}
-	// check if the subject selects the given peer
-	errTitle := fmt.Sprintf("%s %q: ", anpErrTitle, anp.Name)
-	return subjectSelectsPeer(anp.Spec.Subject, p, errTitle)
-}
-
-// adminPolicyAffectsDirection returns whether the anp affects the given direction or not.
-// anp affects a direction, if its spec has rules on that direction
-func (anp *AdminNetworkPolicy) adminPolicyAffectsDirection(isIngress bool) bool {
-	if isIngress {
-		// ANPs with no ingress rules do not affect ingress traffic.
-		return len(anp.Spec.Ingress) > 0
-	}
-	// ANPs with no egress rules do not affect egress traffic.
-	return len(anp.Spec.Egress) > 0
-}
-
-const (
-	anpErrTitle      = "admin network policy"
-	anpErrWarnFormat = anpErrTitle + " %q: %s in rule %q: %s"
-)
-
-// anpErr returns string format of an error in a rule in admin netpol
-func (anp *AdminNetworkPolicy) anpRuleErr(ruleName, description string) error {
-	return fmt.Errorf(anpErrWarnFormat, anp.Name, ruleErrTitle, ruleName, description)
-}
-
-// anpRuleWarning logs a single warning message for an admin network policy rule.
-func (anp *AdminNetworkPolicy) anpRuleWarning(ruleName, warning string) {
-	anp.Logger.Warnf(fmt.Sprintf(anpErrWarnFormat, anp.Name, ruleWarningTitle, ruleName, warning))
-}
-
-// logWarnings logs any warnings generated for an admin network policy rule.
-func (anp *AdminNetworkPolicy) logWarnings(ruleName string) {
-	for _, warning := range warnings {
-		anp.anpRuleWarning(ruleName, warning)
-	}
-}
-
-// GetIngressPolicyConns returns the connections from the ingress rules selecting the src in spec of the adminNetworkPolicy
-func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConnections, error) {
-	res := NewPolicyConnections()
-	for _, rule := range anp.Spec.Ingress { // rule is apisv1a.AdminNetworkPolicyIngressRule
-		rulePeers := rule.From
-		rulePorts := rule.Ports
-		warnings = []string{} // clear warnings (for each rule)
-		// following func also updates the warnings var
-		err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, src, dst, res, string(rule.Action), false)
-		anp.logWarnings(rule.Name)
-		if err != nil {
-			return nil, anp.anpRuleErr(rule.Name, err.Error())
-		}
-	}
-	return res, nil
-}
-
-// GetEgressPolicyConns returns the connections from the egress rules selecting the dst in spec of the adminNetworkPolicy
-func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnections, error) {
-	res := NewPolicyConnections()
-	for _, rule := range anp.Spec.Egress { // rule is apisv1a.AdminNetworkPolicyEgressRule
-		rulePeers := rule.To
-		rulePorts := rule.Ports
-		warnings = []string{} // clear warnings (for each rule), so it is updated by following call
-		err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, dst, res, string(rule.Action), false)
-		anp.logWarnings(rule.Name)
-		if err != nil {
-			return nil, anp.anpRuleErr(rule.Name, err.Error())
-		}
-	}
-	return res, nil
-}
-
-// HasValidPriority returns if the priority in a valid range
-func (anp *AdminNetworkPolicy) HasValidPriority() bool {
-	// note: k8s defines "1000" as the maximum numeric value for priority
-	// but openshift currently only support priority values between 0 and 99
-	// current implementation satisfies k8s requirement
-	return anp.Spec.Priority >= pkgcommmon.MinANPPriority && anp.Spec.Priority <= pkgcommmon.MaxANPPriority
-}
-
-// CheckEgressConnAllowed checks if the input conn is allowed/passed/denied or not captured on egress by current admin-network-policy
-func (anp *AdminNetworkPolicy) CheckEgressConnAllowed(dst Peer, protocol, port string) (res ANPRulesResult, err error) {
-	for _, rule := range anp.Spec.Egress {
-		rulePeers := rule.To
-		rulePorts := rule.Ports
-		ruleRes, err := checkIfEgressRuleContainsConn(rulePeers, rulePorts, dst, string(rule.Action), protocol, port, false)
-		if err != nil {
-			return NotCaptured, anp.anpRuleErr(rule.Name, err.Error())
-		}
-		if ruleRes == NotCaptured { // next rule
-			continue
-		}
-		return ruleRes, nil
-	}
-	// getting here means the protocol+port was not captured
-	return NotCaptured, nil
-}
-
-// CheckIngressConnAllowed checks if the input conn is allowed/passed/denied or not captured on ingress by current admin-network-policy
-func (anp *AdminNetworkPolicy) CheckIngressConnAllowed(src, dst Peer, protocol, port string) (res ANPRulesResult, err error) {
-	for _, rule := range anp.Spec.Ingress {
-		rulePeers := rule.From
-		rulePorts := rule.Ports
-		ruleRes, err := checkIfIngressRuleContainsConn(rulePeers, rulePorts, src, dst, string(rule.Action), protocol, port, false)
-		if err != nil {
-			return NotCaptured, anp.anpRuleErr(rule.Name, err.Error())
-		}
-		if ruleRes == NotCaptured { // next rule
-			continue
-		}
-		return ruleRes, nil
-	}
-	// getting here means the protocol+port was not captured
-	return NotCaptured, nil
-}
-
-// GetReferencedIPBlocks returns a list of IPBlocks referenced by the AdminNetworkPolicy's Egress rules.
-func (anp *AdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error) {
-	res := []*netset.IPBlock{}
-	// in ANP only egress rules may contains ip addresses
-	for _, rule := range anp.Spec.Egress {
-		ruleRes, err := rulePeersReferencedNetworks(rule.To)
-		if err != nil {
-			return nil, err
-		}
-		res = append(res, ruleRes...)
 	}
 	return res, nil
 }
