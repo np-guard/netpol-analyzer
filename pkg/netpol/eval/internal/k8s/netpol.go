@@ -66,8 +66,8 @@ const (
 )
 
 func getProtocolStr(p *v1.Protocol) string {
-	if p == nil { // If not specified, this field defaults to TCP.
-		return "TCP"
+	if p == nil || string(*p) == "" { // If not specified, this field defaults to TCP.
+		return string(v1.ProtocolTCP)
 	}
 	return string(*p)
 }
@@ -76,7 +76,7 @@ func getProtocolStr(p *v1.Protocol) string {
 // or the port name if it is a named port
 // if input port is a named port, and the dst peer is nil or does not have a matching named port defined, returns
 // an empty range represented by (-1,-1) with the named port string
-func (np *NetworkPolicy) getPortsRange(rulePort netv1.NetworkPolicyPort, dst Peer) (start, end int32,
+func (np *NetworkPolicy) getPortsRange(rulePort netv1.NetworkPolicyPort, dst Peer) (start, end int64,
 	portName string, err error) {
 	if rulePort.Port.Type == intstr.String { // rule.Port is namedPort
 		ruleProtocol := getProtocolStr(rulePort.Protocol)
@@ -100,20 +100,35 @@ func (np *NetworkPolicy) getPortsRange(rulePort netv1.NetworkPolicyPort, dst Pee
 			return common.NoPort, common.NoPort, portName, nil
 		}
 		// else, found match for the rule's named-port in the pod's ports, so it may be converted to port number
-		start = podPortNum
-		end = podPortNum
+		start = int64(podPortNum)
+		end = int64(podPortNum)
 	} else { // rule.Port is number
-		start = rulePort.Port.IntVal
+		start = int64(rulePort.Port.IntVal)
 		end = start
 		if rulePort.EndPort != nil {
-			end = *rulePort.EndPort
+			end = int64(*rulePort.EndPort)
 		}
 	}
 	return start, end, portName, nil
 }
 
-func isEmptyPortRange(start, end int32) bool {
+func isEmptyPortRange(start, end int64) bool {
 	return start == common.NoPort && end == common.NoPort
+}
+
+// doesRulePortContain gets protocol and port numbers of a rule and other protocol and port;
+// returns if other is contained in the rule's port
+func doesRulePortContain(ruleProtocol, otherProtocol string, ruleStartPort, ruleEndPort, otherPort int64) bool {
+	if !strings.EqualFold(ruleProtocol, otherProtocol) {
+		return false
+	}
+	if isEmptyPortRange(ruleStartPort, ruleEndPort) {
+		return false
+	}
+	if otherPort >= ruleStartPort && otherPort <= ruleEndPort {
+		return true
+	}
+	return false
 }
 
 func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) (*common.ConnectionSet, error) {
@@ -154,7 +169,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 				ports.AddPort(intstr.FromString(portName))
 			}
 			if !isEmptyPortRange(startPort, endPort) {
-				ports.AddPortRange(int64(startPort), int64(endPort))
+				ports.AddPortRange(startPort, endPort)
 			}
 		}
 		res.AddConnection(protocol, ports)
@@ -175,10 +190,14 @@ func (np *NetworkPolicy) ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, p
 	if len(rulePorts) == 0 {
 		return true, nil // If this field is empty or missing, this rule matches all ports (traffic not restricted by port)
 	}
+	if protocol == "" && port == "" {
+		return false, nil // nothing to do
+	}
+	intPort, err := strconv.ParseInt(port, portBase, portBits)
+	if err != nil {
+		return false, err
+	}
 	for i := range rulePorts {
-		if strings.ToUpper(protocol) != getProtocolStr(rulePorts[i].Protocol) {
-			continue
-		}
 		if rulePorts[i].Port == nil { // If this field is not provided, this matches all port names and numbers.
 			return true, nil
 		}
@@ -186,14 +205,8 @@ func (np *NetworkPolicy) ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, p
 		if err != nil {
 			return false, err
 		}
-		if isEmptyPortRange(startPort, endPort) {
-			return false, nil
-		}
-		intPort, err := strconv.ParseInt(port, portBase, portBits)
-		if err != nil {
-			return false, err
-		}
-		if intPort >= int64(startPort) && intPort <= int64(endPort) {
+		if doesRulePortContain(getProtocolStr(rulePorts[i].Protocol), protocol,
+			startPort, endPort, intPort) {
 			return true, nil
 		}
 	}
