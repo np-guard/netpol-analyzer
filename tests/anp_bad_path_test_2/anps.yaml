@@ -1,0 +1,38 @@
+
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: invalid-priority
+spec:
+  priority: 1001  # invalid priority
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          conformance-house: gryffindor
+      podSelector:
+        matchLabels:
+          conformance-house: gryffindor
+  ingress:
+  - name: "pass-all-ingress-from-slytherin"
+    action: "Pass"
+    from:
+    - pods:
+        namespaceSelector:
+            matchLabels:
+              conformance-house: slytherin
+        podSelector:
+          matchLabels:
+            conformance-house: slytherin
+  egress:
+  - name: "pass-all-egress-to-slytherin"
+    action: "Pass"
+    to:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+              conformance-house: slytherin
+        podSelector:
+          matchLabels:
+            conformance-house: slytherin
+---
