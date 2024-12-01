@@ -37,7 +37,7 @@ func (banp *BaselineAdminNetworkPolicy) Selects(p Peer, isIngress bool) (bool, e
 		return false, nil
 	}
 	// check if the subject selects the given peer
-	return subjectSelectsPeer(banp.Spec.Subject, p)
+	return subjectSelectsPeer(banp.Spec.Subject, p, banpErrTitle)
 }
 
 // baselineAdminPolicyAffectsDirection returns whether the banp affects the given direction or not.
@@ -51,7 +51,10 @@ func (banp *BaselineAdminNetworkPolicy) baselineAdminPolicyAffectsDirection(isIn
 	return len(banp.Spec.Egress) > 0
 }
 
-const banpErrWarnFormat = "default baseline admin network policy: %s in rule %q: %s"
+const (
+	banpErrTitle      = "default baseline admin network policy: "
+	banpErrWarnFormat = banpErrTitle + " %s in rule %q: %s"
+)
 
 // banpRuleErr returns string format of an err in a rule in baseline-admin netpol
 func banpRuleErr(ruleName, description string) error {

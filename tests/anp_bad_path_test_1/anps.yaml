@@ -1,0 +1,74 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: priority-50-example
+spec:
+  priority: 50
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          conformance-house: gryffindor
+      podSelector:
+        matchLabels:
+          conformance-house: gryffindor
+  ingress:
+  - name: "deny-all-ingress-from-slytherin"
+    action: "Deny"
+    from:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            conformance-house: slytherin
+        podSelector:
+          matchLabels:
+            conformance-house: slytherin
+  egress:
+  - name: "deny-all-egress-to-slytherin"
+    action: "Deny"
+    to:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            conformance-house: slytherin
+        podSelector:
+          matchLabels:
+            conformance-house: slytherin
+---
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: same-priority
+spec:
+  priority: 50   # priority error : two ANPs with same priority
+  subject: 
+    pods:
+      namespaceSelector:
+        matchLabels:
+          conformance-house: gryffindor
+      podSelector:
+        matchLabels:
+          conformance-house: gryffindor
+  ingress:
+  - name: "pass-all-ingress-from-slytherin"
+    action: "Pass"
+    from:
+    - pods:
+        namespaceSelector:
+            matchLabels:
+              conformance-house: slytherin
+        podSelector:
+          matchLabels:
+            conformance-house: slytherin
+  egress:
+  - name: "pass-all-egress-to-slytherin"
+    action: "Pass"
+    to:
+    - pods:
+        namespaceSelector:
+          matchLabels:
+              conformance-house: slytherin
+        podSelector:
+          matchLabels:
+            conformance-house: slytherin
+---

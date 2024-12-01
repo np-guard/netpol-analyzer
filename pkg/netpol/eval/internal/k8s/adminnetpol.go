@@ -302,11 +302,11 @@ func onlyOnePortFieldsSet(anpPort apisv1a.AdminNetworkPolicyPort) bool {
 }
 
 // subjectSelectsPeer returns true iff the given subject of the (baseline)adminNetworkPolicy selects the given peer
-func subjectSelectsPeer(anpSubject apisv1a.AdminNetworkPolicySubject, p Peer) (bool, error) {
+func subjectSelectsPeer(anpSubject apisv1a.AdminNetworkPolicySubject, p Peer, errTitle string) (bool, error) {
 	if (anpSubject.Namespaces == nil) == (anpSubject.Pods == nil) {
 		// (Baseline)AdminNetworkPolicySubject should contain exactly one field
 		// (https://github.com/kubernetes-sigs/network-policy-api/blob/v0.1.5/apis/v1alpha1/shared_types.go#L27))
-		return false, errors.New(netpolerrors.OneFieldSetSubjectErr)
+		return false, errors.New(errTitle + netpolerrors.OneFieldSetSubjectErr)
 	}
 	if anpSubject.Namespaces != nil {
 		return doesNamespacesFieldMatchPeer(anpSubject.Namespaces, p)
@@ -495,7 +495,8 @@ func (anp *AdminNetworkPolicy) Selects(p Peer, isIngress bool) (bool, error) {
 		return false, nil
 	}
 	// check if the subject selects the given peer
-	return subjectSelectsPeer(anp.Spec.Subject, p)
+	errTitle := fmt.Sprintf("%s %q: ", anpErrTitle, anp.Name)
+	return subjectSelectsPeer(anp.Spec.Subject, p, errTitle)
 }
 
 // adminPolicyAffectsDirection returns whether the anp affects the given direction or not.
@@ -509,7 +510,10 @@ func (anp *AdminNetworkPolicy) adminPolicyAffectsDirection(isIngress bool) bool 
 	return len(anp.Spec.Egress) > 0
 }
 
-const anpErrWarnFormat = "admin network policy %q: %s in rule %q: %s"
+const (
+	anpErrTitle      = "admin network policy"
+	anpErrWarnFormat = anpErrTitle + " %q: %s in rule %q: %s"
+)
 
 // anpErr returns string format of an error in a rule in admin netpol
 func (anp *AdminNetworkPolicy) anpRuleErr(ruleName, description string) error {
