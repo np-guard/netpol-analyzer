@@ -115,16 +115,13 @@ func (np *NetworkPolicy) getPortsRange(rulePort netv1.NetworkPolicyPort, dst Pee
 	return start, end, portName, nil
 }
 
-const (
-	minimumPort = 1
-	maximumPort = 65535
-)
-
 func isEmptyPortRange(start, end int64) bool {
 	// an empty range when:
 	// - end is smaller than start
 	// - end or start is not in the legal range (a legal port is 1-65535)
-	return (start < minimumPort || end < minimumPort) || (end < start) || (start > maximumPort || end > maximumPort)
+	return (start < common.MinPort || end < common.MinPort) ||
+		(end < start) ||
+		(start > common.MaxPort || end > common.MaxPort)
 }
 
 // doesRulePortContain gets protocol and port numbers of a rule and other protocol and port;
