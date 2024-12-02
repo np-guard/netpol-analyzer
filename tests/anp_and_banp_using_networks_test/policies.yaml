@@ -1,5 +1,6 @@
 # a file copied from :
 # https://docs.openshift.com/container-platform/4.17/networking/network_security/AdminNetworkPolicy/ovn-k-egress-nodes-networks-peer.html#egress-traffic-control-networks-peer-external-destinations_ovn-k-egress-nodes-networks-peer
+# and enhanced slightly
 apiVersion: policy.networking.k8s.io/v1alpha1
 kind: AdminNetworkPolicy
 metadata:
@@ -50,3 +51,20 @@ spec:
     - networks:
       - 0.0.0.0/0 
 ---
+# adding a policy in "ns1" to allow some of the passed 
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-to-ipblock
+  namespace: ns1
+spec:
+  podSelector:
+  policyTypes:
+  - Egress
+  egress:
+    - to:
+      - ipBlock:
+          cidr: 10.0.0.0/8
+      ports:
+        - port: 53
+          protocol: UDP

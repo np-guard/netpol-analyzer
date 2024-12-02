@@ -10,6 +10,26 @@
     "conn": "All Connections"
   },
   {
+    "src": "10.0.0.0-10.255.255.255",
+    "dst": "ns1/pod1[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "10.0.0.0-10.255.255.255",
+    "dst": "ns2/pod1[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "11.0.0.0-60.45.71.255",
+    "dst": "ns1/pod1[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "11.0.0.0-60.45.71.255",
+    "dst": "ns2/pod1[Deployment]",
+    "conn": "All Connections"
+  },
+  {
     "src": "208.67.222.222-208.67.222.222",
     "dst": "ns1/pod1[Deployment]",
     "conn": "All Connections"
@@ -80,12 +100,12 @@
     "conn": "All Connections"
   },
   {
-    "src": "8.8.8.9-60.45.71.255",
+    "src": "8.8.8.9-9.255.255.255",
     "dst": "ns1/pod1[Deployment]",
     "conn": "All Connections"
   },
   {
-    "src": "8.8.8.9-60.45.71.255",
+    "src": "8.8.8.9-9.255.255.255",
     "dst": "ns2/pod1[Deployment]",
     "conn": "All Connections"
   },
@@ -108,6 +128,11 @@
     "src": "89.246.184.0-208.67.222.221",
     "dst": "ns2/pod1[Deployment]",
     "conn": "All Connections"
+  },
+  {
+    "src": "ns1/pod1[Deployment]",
+    "dst": "10.0.0.0-10.255.255.255",
+    "conn": "UDP 53"
   },
   {
     "src": "ns1/pod1[Deployment]",
