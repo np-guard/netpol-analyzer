@@ -417,7 +417,7 @@ func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (*common.Connecti
 }
 
 func (np *NetworkPolicy) netpolWarning(description string) string {
-	return fmt.Sprintf("Network policy %q: %s", np.fullName(), description)
+	return fmt.Sprintf("network policy %q: %s", np.fullName(), description)
 }
 
 func (np *NetworkPolicy) netpolErr(title, description string) error {

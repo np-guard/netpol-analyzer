@@ -71,17 +71,17 @@ func (anp *AdminNetworkPolicy) adminPolicyAffectsDirection(isIngress bool) bool 
 
 const (
 	anpErrTitle      = "admin network policy"
-	anpErrWarnFormat = anpErrTitle + " %q: %s in rule %q: %s"
+	anpErrWarnFormat = anpErrTitle + " %q: in rule %q: %s"
 )
 
 // anpErr returns string format of an error in a rule in admin netpol
 func (anp *AdminNetworkPolicy) anpRuleErr(ruleName, description string) error {
-	return fmt.Errorf(anpErrWarnFormat, anp.Name, ruleErrTitle, ruleName, description)
+	return fmt.Errorf(anpErrWarnFormat, anp.Name, ruleName, description)
 }
 
 // anpRuleWarning logs a single warning message for an admin network policy rule.
 func (anp *AdminNetworkPolicy) anpRuleWarning(ruleName, warning string) {
-	anp.Logger.Warnf(fmt.Sprintf(anpErrWarnFormat, anp.Name, ruleWarningTitle, ruleName, warning))
+	anp.Logger.Warnf(fmt.Sprintf(anpErrWarnFormat, anp.Name, ruleName, warning))
 }
 
 // logWarnings logs any warnings generated for an admin network policy rule.
@@ -195,11 +195,6 @@ func (anp *AdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error
 //
 // But use different types for following fields:
 // Spec, Ingress, Egress, Action, Status - then funcs using/looping any of these fields are not common (sub funcs are common)
-
-const (
-	ruleErrTitle     = "Error  "
-	ruleWarningTitle = "Warning "
-)
 
 // warnings : to contain the warnings from a single rule of an adminNetworkPolicy or a BaselineAdminNetworkPolicy.
 // global to be used in the common func, initialized (cleared) and logged by the relevant (B)ANP calling funcs

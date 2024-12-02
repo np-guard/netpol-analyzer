@@ -53,17 +53,17 @@ func (banp *BaselineAdminNetworkPolicy) baselineAdminPolicyAffectsDirection(isIn
 
 const (
 	banpErrTitle      = "default baseline admin network policy: "
-	banpErrWarnFormat = banpErrTitle + " %s in rule %q: %s"
+	banpErrWarnFormat = banpErrTitle + " in rule %q: %s"
 )
 
 // banpRuleErr returns string format of an err in a rule in baseline-admin netpol
 func banpRuleErr(ruleName, description string) error {
-	return fmt.Errorf(banpErrWarnFormat, ruleErrTitle, ruleName, description)
+	return fmt.Errorf(banpErrWarnFormat, ruleName, description)
 }
 
 // banpRuleWarning logs a warning message for a specific banp rule.
 func (banp *BaselineAdminNetworkPolicy) banpRuleWarning(ruleName, warning string) {
-	banp.Logger.Warnf(banpErrWarnFormat, ruleWarningTitle, ruleName, warning)
+	banp.Logger.Warnf(banpErrWarnFormat, ruleName, warning)
 }
 
 // logWarnings logs warnings of a given ruleName.
