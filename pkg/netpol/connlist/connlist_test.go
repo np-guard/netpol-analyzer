@@ -1583,6 +1583,10 @@ var goodPathTests = []struct {
 		testDirName:   "anp_test_with_empty_port_range",
 		outputFormats: []string{output.DefaultFormat},
 	},
+	{
+		testDirName:   "np_test_with_empty_port_range",
+		outputFormats: []string{output.DefaultFormat},
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {
