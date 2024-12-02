@@ -408,8 +408,8 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common
 			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port))
 		case anpPort.NamedPort != nil:
 			if dst.PeerType() == IPBlockType {
-				// IPblock does not have named-ports defined
-				// @tbd should return error? (a rule that combines networks and pods may have such port?)
+				// IPblock does not have named-ports defined, warn and continue
+				warnings = append(warnings, alerts.WarnNamedPortIgnoredForIP)
 				continue // next port
 			}
 			podProtocol, podPort := dst.GetPeerPod().ConvertPodNamedPort(*anpPort.NamedPort)

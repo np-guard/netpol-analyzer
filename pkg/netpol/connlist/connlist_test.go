@@ -601,6 +601,11 @@ func TestLoggerWarnings(t *testing.T) {
 			dirName:                     "anp_test_with_empty_port_range",
 			expectedWarningsStrContains: []string{alerts.WarnEmptyPortRange},
 		},
+		{
+			name:                        "input_admin_policy_contains_named_port_with_networks_should_get_warning",
+			dirName:                     "anp_test_named_ports_multiple_peers",
+			expectedWarningsStrContains: []string{alerts.WarnNamedPortIgnoredForIP},
+		},
 	}
 	for _, tt := range cases {
 		tt := tt
@@ -1585,6 +1590,10 @@ var goodPathTests = []struct {
 	},
 	{
 		testDirName:   "np_test_with_empty_port_range",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		testDirName:   "anp_test_named_ports_multiple_peers",
 		outputFormats: []string{output.DefaultFormat},
 	},
 }
