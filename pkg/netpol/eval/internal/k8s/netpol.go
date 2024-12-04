@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package k8s
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -82,6 +83,9 @@ func getProtocolStr(p *v1.Protocol) string {
 func (np *NetworkPolicy) getPortsRange(rulePort netv1.NetworkPolicyPort, dst Peer) (start, end int64,
 	portName string, err error) {
 	if rulePort.Port.Type == intstr.String { // rule.Port is namedPort
+		if rulePort.EndPort != nil { // endPort field may not be defined with named port
+			return start, end, "", np.netpolErr(netpolerrors.NamedPortErrTitle, alerts.EndPortWithNamedPortErrStr)
+		}
 		ruleProtocol := getProtocolStr(rulePort.Protocol)
 		portName = rulePort.Port.StrVal
 		if dst == nil {
@@ -159,29 +163,33 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 				return res, err
 			}
 			// valid returned values from `getsPortsRange` :
-			// 1. empty-numbered-range with the string namedPort, if the rule has a named-port which is not (or cannot be) converted to a
+			// 1. empty-numbered-range with the non-empty string namedPort, if the rule has a named-port which is not (or cannot be) converted to a
 			// numbered-range by the dst's ports.
 			//  2. non empty-range when the rule ports are numbered or the named-port was converted
-			if isEmptyPortRange(startPort, endPort) && portName != "" {
-				// this func may be called:
-				// 1- for computing cluster-wide exposure of the policy (dst is nil);
-				// 2- in-order to get a connection from a real workload to a representative dst.
-				// in both first cases, we can't convert the named port to its number, like when dst peer is a real
-				// pod from manifests, so we use the named-port as is.
-				// 3- in order to get a connection from any pod to a real dst.
-				// in the third case the namedPort of the policy rule may not have a match in the Pod's configuration,
-				// so it will be ignored and a warning is raised
-				// (the pod has no matching named-port in its configuration - unknown connection is not allowed)
-				// 4- in order to get a connection from any pod to an ip dst (will not get here, as named ports are not defined for ip-blocks)
-				if dst == nil || isPeerRepresentative(dst) { // (1 & 2)
-					// adding portName string to the portSet
-					ports.AddPort(intstr.FromString(portName))
-				} else { // dst is a real pod (3)
-					// raising a warning that the "named port" of the rule is ignored, since it has no match in the pod config.
-					np.Logger.Warnf(np.netpolWarning(alerts.WarnUnmatchedNamedPort(portName, dst.String())))
+			if isEmptyPortRange(startPort, endPort) {
+				if portName != "" {
+					// this func may be called:
+					// 1- for computing cluster-wide exposure of the policy (dst is nil);
+					// 2- in-order to get a connection from a real workload to a representative dst.
+					// in both first cases, we can't convert the named port to its number, like when dst peer is a real
+					// pod from manifests, so we use the named-port as is.
+					// 3- in order to get a connection from any pod to a real dst.
+					// in the third case the namedPort of the policy rule may not have a match in the Pod's configuration,
+					// so it will be ignored and a warning is raised
+					// (the pod has no matching named-port in its configuration - unknown connection is not allowed)
+					// 4- in order to get a connection from any pod to an ip dst (will not get here, as named ports are not defined for ip-blocks)
+					if dst == nil || isPeerRepresentative(dst) { // (1 & 2)
+						// adding portName string to the portSet
+						ports.AddPort(intstr.FromString(portName))
+					} else { // dst is a real pod (3)
+						// raising a warning that the "named port" of the rule is ignored, since it has no match in the pod config.
+						np.Logger.Warnf(np.netpolWarning(alerts.WarnUnmatchedNamedPort(portName, dst.String())))
+					}
+				} else { // empty port range with empty port name -> means the range is illegal (start/ end not in the legal range or end < start)
+					return nil, errors.New(alerts.IllegalPortRangeError(startPort, endPort))
 				}
-			} // @tbd should raise a warning/error if the portRange is empty (when also namedPort is empty)
-			if !isEmptyPortRange(startPort, endPort) {
+			} else {
+				// if !isEmptyPortRange(startPort, endPort) (the other valid result)
 				ports.AddPortRange(startPort, endPort)
 			}
 		}

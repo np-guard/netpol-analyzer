@@ -173,6 +173,16 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 			dirName:          "np_bad_path_test_1",
 			errorStrContains: netpolerrors.NPWithSameNameError("default/backend-netpol"),
 		},
+		{
+			name:             "Input_dir_has_netpol_with_illegal_port_should_return_fatal_error",
+			dirName:          "np_bad_path_test_2",
+			errorStrContains: alerts.EndPortWithNamedPortErrStr,
+		},
+		{
+			name:             "Input_dir_has_netpol_with_illegal_port_range_should_return_fatal_error",
+			dirName:          "np_test_with_empty_port_range",
+			errorStrContains: alerts.IllegalPortRangeError(10, 1),
+		},
 		// anp & banp bad path tests
 		{
 			name:             "Input_dir_has_two_admin_netpols_with_same_priority_should_return_fatal_error",
@@ -248,6 +258,11 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_ingress_rule_port_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_17",
 			errorStrContains: netpolerrors.ANPPortsError,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_with_an_illegal_rule_port_range_should_return_fatal_error",
+			dirName:          "anp_test_with_empty_port_range",
+			errorStrContains: alerts.IllegalPortRangeError(10, 1),
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_ingress_rule_action_should_return_fatal_error",
@@ -595,11 +610,6 @@ func TestLoggerWarnings(t *testing.T) {
 			name:                        "input_admin_policy_contains_unknown_port_name_should_get_warning",
 			dirName:                     "anp_banp_test_with_named_port_unmatched",
 			expectedWarningsStrContains: []string{alerts.WarnPrefixPortName},
-		},
-		{
-			name:                        "input_admin_policy_contains_empty_port_range_should_get_warning",
-			dirName:                     "anp_test_with_empty_port_range",
-			expectedWarningsStrContains: []string{alerts.WarnEmptyPortRange},
 		},
 		{
 			name:                        "input_admin_policy_contains_named_port_with_networks_should_get_warning",
@@ -1582,14 +1592,6 @@ var goodPathTests = []struct {
 	},
 	{
 		testDirName:   "anp_banp_test_with_named_port_unmatched",
-		outputFormats: []string{output.DefaultFormat},
-	},
-	{
-		testDirName:   "anp_test_with_empty_port_range",
-		outputFormats: []string{output.DefaultFormat},
-	},
-	{
-		testDirName:   "np_test_with_empty_port_range",
 		outputFormats: []string{output.DefaultFormat},
 	},
 	{

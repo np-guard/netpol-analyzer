@@ -426,9 +426,8 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common
 				protocol = anpPort.PortRange.Protocol
 			}
 			if isEmptyPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End)) {
-				// rule with empty range; @tbd should return an error instead?
-				warnings = append(warnings, alerts.WarnEmptyPortRange)
-				continue // next port
+				// illegal: rule with empty range; (start/ end not in the legal range or end < start)
+				return nil, errors.New(alerts.IllegalPortRangeError(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End)))
 			}
 			portSet.AddPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End))
 		}

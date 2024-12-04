@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: backend-netpol
+spec:
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+  - ports:
+    - port: http
+      endPort: 10000
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app: backendservice
+  policyTypes:
+  - Ingress
+  - Egress
+status: {}
