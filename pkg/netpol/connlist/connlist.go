@@ -464,6 +464,11 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
 	}
+	// log warnings that were raised by the policies during computing the allowed conns between all peers
+	// note that this ensures any warning is printed only once + all relevant warnings are raised.
+	// the decision if to print the warnings to the logger is determined by the logger's verbosity - handled by the logger
+	pe.LogPoliciesWarnings()
+
 	connsRes = peersAllowedConns
 
 	if ca.exposureAnalysis {

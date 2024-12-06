@@ -12,17 +12,16 @@ import (
 
 	"github.com/np-guard/models/pkg/netset"
 
-	"github.com/np-guard/netpol-analyzer/pkg/logger"
-
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 )
 
 // BaselineAdminNetworkPolicy  is an alias for k8s BaselineAdminNetworkPolicy object
 type BaselineAdminNetworkPolicy struct {
-	*apisv1a.BaselineAdminNetworkPolicy // embedding k8s BaselineAdminNetworkPolicy object
-	Logger                              logger.Logger
+	*apisv1a.BaselineAdminNetworkPolicy                 // embedding k8s BaselineAdminNetworkPolicy object
+	warnings                            map[string]bool // set of warnings which are raised by the banp
 }
 
 // Selects returns true if the baseline admin network policy's Spec.Subject selects the peer and if
@@ -61,15 +60,18 @@ func banpRuleErr(ruleName, description string) error {
 	return fmt.Errorf(banpErrWarnFormat, ruleName, description)
 }
 
-// banpRuleWarning logs a warning message for a specific banp rule.
-func (banp *BaselineAdminNetworkPolicy) banpRuleWarning(ruleName, warning string) {
-	banp.Logger.Warnf(banpErrWarnFormat, ruleName, warning)
+// banpRuleWarning returns string format of a warning message for a specific banp rule.
+func banpRuleWarning(ruleName, warning string) string {
+	return fmt.Sprintf(banpErrWarnFormat, ruleName, warning)
 }
 
-// logWarnings logs warnings of a given ruleName.
-func (banp *BaselineAdminNetworkPolicy) logWarnings(ruleName string) {
-	for _, warning := range warnings {
-		banp.banpRuleWarning(ruleName, warning)
+// savePolicyWarnings saves any warnings generated for an admin network policy rule in the policy's warnings set.
+func (banp *BaselineAdminNetworkPolicy) savePolicyWarnings(ruleName string) {
+	if banp.warnings == nil {
+		banp.warnings = make(map[string]bool)
+	}
+	for _, warning := range ruleWarnings {
+		addWarning(banp.warnings, banpRuleWarning(ruleName, warning))
 	}
 }
 
@@ -79,9 +81,9 @@ func (banp *BaselineAdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyC
 	for _, rule := range banp.Spec.Egress { // rule is apisv1a.BaselineAdminNetworkPolicyEgressRule
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		warnings = []string{} // clear warnings (for each rule) to be update while looping rule peers in next call
+		ruleWarnings = []string{} // clear ruleWarnings (for each rule) to be update while looping rule peers in next call
 		err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, dst, res, string(rule.Action), true)
-		banp.logWarnings(rule.Name)
+		banp.savePolicyWarnings(rule.Name)
 		if err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
@@ -95,9 +97,9 @@ func (banp *BaselineAdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*P
 	for _, rule := range banp.Spec.Ingress { // rule is apisv1a.BaselineAdminNetworkPolicyIngressRule
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		warnings = []string{} // clear warnings (for each rule) to be update while looping rule peers in next call
+		ruleWarnings = []string{} // clear ruleWarnings (for each rule) to be update while looping rule peers in next call
 		err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, src, dst, res, string(rule.Action), true)
-		banp.logWarnings(rule.Name)
+		banp.savePolicyWarnings(rule.Name)
 		if err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
@@ -111,7 +113,9 @@ func (banp *BaselineAdminNetworkPolicy) CheckEgressConnAllowed(dst Peer, protoco
 	for _, rule := range banp.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
+		ruleWarnings = []string{} // clear ruleWarnings (for each rule) to be update while looping rule peers in next call
 		res, err := checkIfEgressRuleContainsConn(rulePeers, rulePorts, dst, string(rule.Action), protocol, port, true)
+		banp.savePolicyWarnings(rule.Name)
 		if err != nil {
 			return false, err
 		}
@@ -130,7 +134,9 @@ func (banp *BaselineAdminNetworkPolicy) CheckIngressConnAllowed(src, dst Peer, p
 	for _, rule := range banp.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
+		ruleWarnings = []string{} // clear ruleWarnings (for each rule) to be update while looping rule peers in next call
 		res, err := checkIfIngressRuleContainsConn(rulePeers, rulePorts, src, dst, string(rule.Action), protocol, port, true)
+		banp.savePolicyWarnings(rule.Name)
 		if err != nil {
 			return false, err
 		}
@@ -166,4 +172,8 @@ func (banp *BaselineAdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlo
 		res = append(res, ruleRes...)
 	}
 	return res, nil
+}
+
+func (banp *BaselineAdminNetworkPolicy) LogWarnings(l logger.Logger) {
+	logPolicyWarnings(l, banp.warnings)
 }

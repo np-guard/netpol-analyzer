@@ -29,8 +29,8 @@ import (
 
 // AdminNetworkPolicy is an alias for k8s adminNetworkPolicy object
 type AdminNetworkPolicy struct {
-	*apisv1a.AdminNetworkPolicy // embedding k8s admin-network-policy object
-	Logger                      logger.Logger
+	*apisv1a.AdminNetworkPolicy                 // embedding k8s admin-network-policy object
+	warnings                    map[string]bool // set of warnings which are raised by the anp
 }
 
 // note that could not use Generics with GO 1.21 or older versions; since:
@@ -79,15 +79,18 @@ func (anp *AdminNetworkPolicy) anpRuleErr(ruleName, description string) error {
 	return fmt.Errorf(anpErrWarnFormat, anp.Name, ruleName, description)
 }
 
-// anpRuleWarning logs a single warning message for an admin network policy rule.
-func (anp *AdminNetworkPolicy) anpRuleWarning(ruleName, warning string) {
-	anp.Logger.Warnf(fmt.Sprintf(anpErrWarnFormat, anp.Name, ruleName, warning))
+// anpRuleWarning returns string format of a warning message for an admin network policy rule.
+func (anp *AdminNetworkPolicy) anpRuleWarning(ruleName, warning string) string {
+	return fmt.Sprintf(anpErrWarnFormat, anp.Name, ruleName, warning)
 }
 
-// logWarnings logs any warnings generated for an admin network policy rule.
-func (anp *AdminNetworkPolicy) logWarnings(ruleName string) {
-	for _, warning := range warnings {
-		anp.anpRuleWarning(ruleName, warning)
+// savePolicyWarnings saves any warnings generated for an admin network policy rule in the policy's warnings set.
+func (anp *AdminNetworkPolicy) savePolicyWarnings(ruleName string) {
+	if anp.warnings == nil {
+		anp.warnings = make(map[string]bool)
+	}
+	for _, warning := range ruleWarnings {
+		addWarning(anp.warnings, anp.anpRuleWarning(ruleName, warning))
 	}
 }
 
@@ -97,10 +100,10 @@ func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConn
 	for _, rule := range anp.Spec.Ingress { // rule is apisv1a.AdminNetworkPolicyIngressRule
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		warnings = []string{} // clear warnings (for each rule)
+		ruleWarnings = []string{} // clear the ruleWarnings (for each rule)
 		// following func also updates the warnings var
 		err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, src, dst, res, string(rule.Action), false)
-		anp.logWarnings(rule.Name)
+		anp.savePolicyWarnings(rule.Name)
 		if err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}
@@ -114,9 +117,9 @@ func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnection
 	for _, rule := range anp.Spec.Egress { // rule is apisv1a.AdminNetworkPolicyEgressRule
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		warnings = []string{} // clear warnings (for each rule), so it is updated by following call
+		ruleWarnings = []string{} // clear ruleWarnings (for each rule), so it is updated by following call
 		err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, dst, res, string(rule.Action), false)
-		anp.logWarnings(rule.Name)
+		anp.savePolicyWarnings(rule.Name)
 		if err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
 		}
@@ -137,7 +140,9 @@ func (anp *AdminNetworkPolicy) CheckEgressConnAllowed(dst Peer, protocol, port s
 	for _, rule := range anp.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
+		ruleWarnings = []string{} // clear ruleWarnings (for each rule), so it is updated by following call
 		ruleRes, err := checkIfEgressRuleContainsConn(rulePeers, rulePorts, dst, string(rule.Action), protocol, port, false)
+		anp.savePolicyWarnings(rule.Name)
 		if err != nil {
 			return NotCaptured, anp.anpRuleErr(rule.Name, err.Error())
 		}
@@ -155,7 +160,9 @@ func (anp *AdminNetworkPolicy) CheckIngressConnAllowed(src, dst Peer, protocol, 
 	for _, rule := range anp.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
+		ruleWarnings = []string{} // clear ruleWarnings (for each rule), so it is updated by following call
 		ruleRes, err := checkIfIngressRuleContainsConn(rulePeers, rulePorts, src, dst, string(rule.Action), protocol, port, false)
+		anp.savePolicyWarnings(rule.Name)
 		if err != nil {
 			return NotCaptured, anp.anpRuleErr(rule.Name, err.Error())
 		}
@@ -182,6 +189,10 @@ func (anp *AdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error
 	return res, nil
 }
 
+func (anp *AdminNetworkPolicy) LogWarnings(l logger.Logger) {
+	logPolicyWarnings(l, anp.warnings)
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //// second section in the file contains:
 // funcs which are commonly used by AdminNetworkPolicy and BaselineAdminNetworkPolicy types
@@ -198,7 +209,7 @@ func (anp *AdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error
 
 // warnings : to contain the warnings from a single rule of an adminNetworkPolicy or a BaselineAdminNetworkPolicy.
 // global to be used in the common func, initialized (cleared) and logged by the relevant (B)ANP calling funcs
-var warnings = []string{}
+var ruleWarnings = []string{}
 
 // doesNamespacesFieldMatchPeer returns true if the given namespaces LabelSelector matches the given peer
 func doesNamespacesFieldMatchPeer(namespaces *metav1.LabelSelector, peer Peer) (bool, error) {
@@ -242,7 +253,7 @@ func doesNetworksFieldMatchPeer(networks []apisv1a.CIDR, peer Peer) (bool, error
 			return false, err
 		}
 		if isIPv6 { // not supported addresses
-			warnings = append(warnings, alerts.WarnUnsupportedIPv6Address)
+			ruleWarnings = append(ruleWarnings, alerts.WarnUnsupportedIPv6Address)
 			continue // next cidr
 		}
 		ipb, err := netset.IPBlockFromCidr(string(cidr))
@@ -269,7 +280,7 @@ func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst
 			return false, errors.New(netpolerrors.OneFieldSetRulePeerErr)
 		}
 		if rulePeers[i].Nodes != nil { // not supported field
-			warnings = append(warnings, alerts.WarnUnsupportedNodesField)
+			ruleWarnings = append(ruleWarnings, alerts.WarnUnsupportedNodesField)
 			continue // next peer
 		}
 		fieldMatch, err := ruleFieldsSelectsPeer(rulePeers[i].Namespaces, rulePeers[i].Pods, rulePeers[i].Networks, dst)
@@ -409,12 +420,12 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common
 		case anpPort.NamedPort != nil:
 			if dst.PeerType() == IPBlockType {
 				// IPblock does not have named-ports defined, warn and continue
-				warnings = append(warnings, alerts.WarnNamedPortIgnoredForIP)
+				ruleWarnings = append(ruleWarnings, alerts.WarnNamedPortIgnoredForIP)
 				continue // next port
 			}
 			podProtocol, podPort := dst.GetPeerPod().ConvertPodNamedPort(*anpPort.NamedPort)
 			if podPort == common.NoPort { // pod does not have this named port in its container
-				warnings = append(warnings, alerts.WarnUnmatchedNamedPort(*anpPort.NamedPort, dst.String()))
+				ruleWarnings = append(ruleWarnings, alerts.WarnUnmatchedNamedPort(*anpPort.NamedPort, dst.String()))
 				continue // next port
 			}
 			if podProtocol != "" {
@@ -490,11 +501,24 @@ func anpPortContains(rulePorts *[]apisv1a.AdminNetworkPolicyPort, protocol, port
 				return true, nil
 			}
 		case anpPort.NamedPort != nil:
+			if dst.PeerType() == IPBlockType {
+				// IPblock does not have named-ports defined, warn and continue
+				ruleWarnings = append(ruleWarnings, alerts.WarnNamedPortIgnoredForIP)
+				continue // next port
+			}
 			podProtocol, podPort := dst.GetPeerPod().ConvertPodNamedPort(*anpPort.NamedPort)
+			if podPort == common.NoPort { // pod does not have this named port in its container
+				ruleWarnings = append(ruleWarnings, alerts.WarnUnmatchedNamedPort(*anpPort.NamedPort, dst.String()))
+				continue // next port
+			}
 			if doesRulePortContain(podProtocol, protocol, int64(podPort), int64(podPort), intPort) {
 				return true, nil
 			}
 		case anpPort.PortRange != nil:
+			if isEmptyPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End)) {
+				// illegal: rule with empty range; (start/ end not in the legal range or end < start)
+				return false, errors.New(alerts.IllegalPortRangeError(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End)))
+			}
 			ruleProtocol := &anpPort.PortRange.Protocol
 			if doesRulePortContain(getProtocolStr(ruleProtocol), protocol, int64(anpPort.PortRange.Start),
 				int64(anpPort.PortRange.End), intPort) {
@@ -614,4 +638,18 @@ func rulePeersReferencedNetworks(rulePeers []apisv1a.AdminNetworkPolicyEgressPee
 		}
 	}
 	return res, nil
+}
+
+// addWarning gets a set of warnings and a warning string; adds the warning to the set if not found
+func addWarning(warningsSet map[string]bool, warning string) {
+	if !warningsSet[warning] {
+		warningsSet[warning] = true
+	}
+}
+
+// logPolicyWarnings gets the logger and a set of policy warnings and logs the warnings
+func logPolicyWarnings(l logger.Logger, warningsSet map[string]bool) {
+	for warning := range warningsSet {
+		l.Warnf(warning)
+	}
 }

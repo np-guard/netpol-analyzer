@@ -44,7 +44,7 @@ type NetworkPolicy struct {
 	// - the maximal connection-set which the policy's rules allow to external destinations on egress direction
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on egress direction
 	EgressPolicyExposure PolicyExposureWithoutSelectors
-	Logger               logger.Logger
+	warnings             map[string]bool // set of warnings which are raised by the netpol
 }
 
 // @todo might help if while pre-process, to check containment of all rules' connections; if all "specific" rules
@@ -182,8 +182,8 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 						// adding portName string to the portSet
 						ports.AddPort(intstr.FromString(portName))
 					} else { // dst is a real pod (3)
-						// raising a warning that the "named port" of the rule is ignored, since it has no match in the pod config.
-						np.Logger.Warnf(np.netpolWarning(alerts.WarnUnmatchedNamedPort(portName, dst.String())))
+						// add a warning that the "named port" of the rule is ignored, since it has no match in the pod config.
+						np.saveNetpolWarning(np.netpolWarning(alerts.WarnUnmatchedNamedPort(portName, dst.String())))
 					}
 				} else { // empty port range with empty port name -> means the range is illegal (start/ end not in the legal range or end < start)
 					return nil, errors.New(alerts.IllegalPortRangeError(startPort, endPort))
@@ -206,6 +206,13 @@ func isPeerRepresentative(peer Peer) bool {
 	return peer.GetPeerPod().IsPodRepresentative()
 }
 
+func (np *NetworkPolicy) saveNetpolWarning(warning string) {
+	if np.warnings == nil {
+		np.warnings = make(map[string]bool)
+	}
+	addWarning(np.warnings, warning)
+}
+
 // ruleConnsContain returns true if the given protocol and port are contained in connections allowed by rulePorts
 func (np *NetworkPolicy) ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, protocol, port string, dst Peer) (bool, error) {
 	if len(rulePorts) == 0 {
@@ -222,9 +229,16 @@ func (np *NetworkPolicy) ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, p
 		if rulePorts[i].Port == nil { // If this field is not provided, this matches all port names and numbers.
 			return true, nil
 		}
-		startPort, endPort, _, err := np.getPortsRange(rulePorts[i], dst)
+		startPort, endPort, portName, err := np.getPortsRange(rulePorts[i], dst)
 		if err != nil {
 			return false, err
+		}
+		if isEmptyPortRange(startPort, endPort) {
+			if portName != "" { // there is a port that was not converted, raise a warning
+				np.saveNetpolWarning(np.netpolWarning(alerts.WarnUnmatchedNamedPort(portName, dst.String())))
+			} else { // the policy contains an error : illegal port range
+				return false, errors.New(alerts.IllegalPortRangeError(startPort, endPort))
+			}
 		}
 		if doesRulePortContain(getProtocolStr(rulePorts[i].Protocol), protocol,
 			startPort, endPort, intPort) {
@@ -533,6 +547,10 @@ func (np *NetworkPolicy) Selects(p *Pod, direction netv1.PolicyType) (bool, erro
 
 func (np *NetworkPolicy) fullName() string {
 	return types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String()
+}
+
+func (np *NetworkPolicy) LogWarnings(l logger.Logger) {
+	logPolicyWarnings(l, np.warnings)
 }
 
 // /////////////////////////////////////////////////////////////////////////////////////////////

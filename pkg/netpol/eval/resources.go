@@ -496,7 +496,6 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		NetworkPolicy:         np,
 		IngressPolicyExposure: initPolicyExposureWithoutSelectors(),
 		EgressPolicyExposure:  initPolicyExposureWithoutSelectors(),
-		Logger:                pe.logger,
 	}
 	if _, ok := pe.netpolsMap[netpolNamespace][np.Name]; ok {
 		return errors.New(netpolerrors.NPWithSameNameError(types.NamespacedName{Namespace: netpolNamespace, Name: np.Name}.String()))
@@ -529,7 +528,6 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 	}
 	newAnp := &k8s.AdminNetworkPolicy{
 		AdminNetworkPolicy: anp,
-		Logger:             pe.logger,
 	}
 	pe.adminNetpolsMap[anp.Name] = true
 	pe.sortedAdminNetpols = append(pe.sortedAdminNetpols, newAnp)
@@ -551,7 +549,6 @@ func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineA
 	}
 	newBanp := &k8s.BaselineAdminNetworkPolicy{
 		BaselineAdminNetworkPolicy: banp,
-		Logger:                     pe.logger,
 	}
 	pe.baselineAdminNetpol = newBanp
 	return nil
@@ -849,4 +846,26 @@ func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.Sin
 	// add the new representative peer to the policy-engine
 	pe.representativePeersMap[keyStrFromLabels] = newRepresentativePeer
 	return nil
+}
+
+// LogPoliciesWarnings prints to the logger all warnings raised by policy rules while computing
+// allowed connections between peers.
+// calling this func once after all computations are done, ensures that :
+// - all relevant warnings from looping policy rules are raised
+// - each single warning is printed only once to the logger
+func (pe *PolicyEngine) LogPoliciesWarnings() {
+	// log warnings from k8s NetworkPolicy objects
+	for _, nsMap := range pe.netpolsMap {
+		for _, policy := range nsMap {
+			policy.LogWarnings(pe.logger)
+		}
+	}
+	// log warnings from AdminNetworkPolicy objects
+	for _, anp := range pe.sortedAdminNetpols {
+		anp.LogWarnings(pe.logger)
+	}
+	// log warnings from the BaselineAdminNetworkPolicy
+	if pe.baselineAdminNetpol != nil {
+		pe.baselineAdminNetpol.LogWarnings(pe.logger)
+	}
 }
