@@ -650,13 +650,13 @@ func TestNotContainedOutputLines(t *testing.T) {
 			name:                 "connlist_does_not_contain_connections_from_focus_workload_to_itself",
 			dirName:              "ipblockstest",
 			focusWorkload:        "calico-node",
-			expectedResultLen:    49,
+			expectedResultLen:    43,
 			extractedLineExample: "kube-system/calico-node[DaemonSet] => kube-system/calico-node[DaemonSet] : All Connections",
 		},
 		{
 			name:                 "connlist_of_dir_does_not_contain_any_line_of_connections_from_workload_to_itself",
 			dirName:              "ipblockstest",
-			expectedResultLen:    602,
+			expectedResultLen:    470,
 			extractedLineExample: "kube-system/calico-node[DaemonSet] => kube-system/calico-node[DaemonSet] : All Connections",
 		},
 	}

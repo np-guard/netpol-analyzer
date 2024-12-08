@@ -658,23 +658,14 @@ func (pe *PolicyEngine) createPodOwnersMap() (map[string]Peer, error) {
 }
 
 // GetPeersList returns a slice of peers from all PolicyEngine resources
-// get peers in level of workloads (pod owners) of type WorkloadPeer, and ip-blocks
+// get peers in level of workloads (pod owners) of type WorkloadPeer
 func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
 	podOwnersMap, err := pe.createPodOwnersMap()
 	if err != nil {
 		return nil, err
 	}
-	ipBlocks, err := pe.getDisjointIPBlocks()
-	if err != nil {
-		return nil, err
-	}
-
-	// add ip-blocks to peers list
-	res := make([]Peer, len(ipBlocks)+len(podOwnersMap))
-	for i := range ipBlocks {
-		res[i] = &k8s.IPBlockPeer{IPBlock: ipBlocks[i]}
-	}
-	index := len(ipBlocks)
+	res := make([]Peer, len(podOwnersMap))
+	index := 0
 	// add workload peer objects to peers list
 	for _, workloadPeer := range podOwnersMap {
 		res[index] = workloadPeer
@@ -694,43 +685,69 @@ func (pe *PolicyEngine) GetRepresentativePeersList() []Peer {
 	return res
 }
 
-// getDisjointIPBlocks returns a slice of disjoint ip-blocks from all policy resources
-func (pe *PolicyEngine) getDisjointIPBlocks() ([]*netset.IPBlock, error) {
-	ipbList, err := pe.getDisjointIPBlocksFromNetpols()
+// GetIPBlockPeersLists returns slices of src and dst IP-Block peers from all policy resources
+// also returns one disjoint union src and dst ip-block peers slice
+func (pe *PolicyEngine) GetIPBlockPeersLists() (srcIPPeers, dstIPPeers, disjointIPPeers []Peer, err error) {
+	srcIPBlocks, dstIPBlocks, allIPBlocks, err := pe.getDisjointIPBlocks()
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
-	anpIpbList, err := pe.getDisjointIPBlocksFromAdminNetpols()
-	if err != nil {
-		return nil, err
+	srcIPPeers = make([]Peer, len(srcIPBlocks))
+	dstIPPeers = make([]Peer, len(dstIPBlocks))
+	for i := range srcIPBlocks {
+		srcIPPeers[i] = &k8s.IPBlockPeer{IPBlock: srcIPBlocks[i]}
 	}
-	ipbList = append(ipbList, anpIpbList...)
-	if pe.baselineAdminNetpol != nil {
-		banpIPList, err := pe.baselineAdminNetpol.GetReferencedIPBlocks()
-		if err != nil {
-			return nil, err
-		}
-		ipbList = append(ipbList, banpIPList...)
+	for i := range dstIPBlocks {
+		dstIPPeers[i] = &k8s.IPBlockPeer{IPBlock: dstIPBlocks[i]}
 	}
-	newAll := netset.GetCidrAll()
-	disjointRes := netset.DisjointIPBlocks(ipbList, []*netset.IPBlock{newAll})
-	return disjointRes, nil
+	for i := range allIPBlocks {
+		disjointIPPeers = append(disjointIPPeers, &k8s.IPBlockPeer{IPBlock: allIPBlocks[i]})
+	}
+	return srcIPPeers, dstIPPeers, disjointIPPeers, nil
 }
 
-// getDisjointIPBlocksFromNetpols returns a slice of disjoint ip-blocks from all netpols
+// getDisjointIPBlocks returns two slices of disjoint ip-blocks from all policy resources;
+// one slice from ingress rules - srcIpbList
+// and  the other dstIpbList from egress rules
+func (pe *PolicyEngine) getDisjointIPBlocks() (srcIpbList, dstIpbList, allIpsList []*netset.IPBlock, err error) {
+	srcIPBlocks, dstIPBlocks, err := pe.getDisjointIPBlocksFromNetpols()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	// in (B)Admin netpols only egress rules may contains ip addresses - so only dst-s may contain disjointed ip-blocks peers
+	anpDstIpbList, err := pe.getDisjointIPBlocksFromAdminNetpols()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	dstIPBlocks = append(dstIPBlocks, anpDstIpbList...)
+	if pe.baselineAdminNetpol != nil {
+		banpDstIPList, err := pe.baselineAdminNetpol.GetReferencedIPBlocks()
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		dstIPBlocks = append(dstIPBlocks, banpDstIPList...)
+	}
+	newAll := netset.GetCidrAll()
+	disjointSrcRes := netset.DisjointIPBlocks(srcIPBlocks, []*netset.IPBlock{newAll})
+	disjointDstRes := netset.DisjointIPBlocks(dstIPBlocks, []*netset.IPBlock{newAll})
+	disjointAllIps := netset.DisjointIPBlocks(disjointSrcRes, disjointDstRes)
+	return disjointSrcRes, disjointDstRes, disjointAllIps, nil
+}
+
+// getDisjointIPBlocksFromNetpols returns src and dst slices of disjoint ip-blocks from all netpols
 // (NetworkPolicy objects)
-func (pe *PolicyEngine) getDisjointIPBlocksFromNetpols() ([]*netset.IPBlock, error) {
-	var ipbList []*netset.IPBlock
+func (pe *PolicyEngine) getDisjointIPBlocksFromNetpols() (srcIpbList, dstIpbList []*netset.IPBlock, err error) {
 	for _, nsMap := range pe.netpolsMap {
 		for _, policy := range nsMap {
-			policyIPBlocksList, err := policy.GetReferencedIPBlocks()
+			policySrcIps, policyDstIps, err := policy.GetReferencedIPBlocks()
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
-			ipbList = append(ipbList, policyIPBlocksList...)
+			srcIpbList = append(srcIpbList, policySrcIps...)
+			dstIpbList = append(dstIpbList, policyDstIps...)
 		}
 	}
-	return ipbList, nil
+	return srcIpbList, dstIpbList, nil
 }
 
 // getDisjointIPBlocksFromAdminNetpols returns a slice of disjoint IPBlocks from all admin netpols

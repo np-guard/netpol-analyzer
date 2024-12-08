@@ -1752,7 +1752,7 @@ func TestDisjointIpBlocks(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	ipList, err := pe.getDisjointIPBlocks()
+	_, _, ipList, err := pe.getDisjointIPBlocks()
 	if err != nil {
 		t.Fatalf("unexpected err getDisjointIPBlocks: %v", err)
 	}

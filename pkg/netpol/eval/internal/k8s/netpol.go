@@ -480,24 +480,23 @@ func (np *NetworkPolicy) rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPo
 	return res, nil
 }
 
-// GetReferencedIPBlocks: return list of IPBlock objects referenced in the current network policy
-func (np *NetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error) {
-	res := []*netset.IPBlock{}
+// GetReferencedIPBlocks: return lists of src and dst IPBlock objects referenced in the current network policy
+func (np *NetworkPolicy) GetReferencedIPBlocks() (srcIpbList, dstIpbList []*netset.IPBlock, err error) {
 	for _, rule := range np.Spec.Ingress {
 		ruleRes, err := np.rulePeersReferencedIPBlocks(rule.From)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		res = append(res, ruleRes...)
+		srcIpbList = append(srcIpbList, ruleRes...)
 	}
 	for _, rule := range np.Spec.Egress {
 		ruleRes, err := np.rulePeersReferencedIPBlocks(rule.To)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		res = append(res, ruleRes...)
+		dstIpbList = append(dstIpbList, ruleRes...)
 	}
-	return res, nil
+	return srcIpbList, dstIpbList, nil
 }
 
 // policyAffectsDirection receives ingress/egress direction and returns true if it affects this direction on its captured pods
