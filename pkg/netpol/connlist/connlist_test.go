@@ -167,6 +167,162 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 			dirName:          "semanticDiff-same-topologies-illegal-podlist",
 			errorStrContains: netpolerrors.NotSupportedPodResourcesErrorStr("demo/cog-agents"),
 		},
+		{
+			name:             "Input_dir_has_two_netpols_with_same_name_in_a_namespace_should_return_fatal_error_of_existing_object",
+			dirName:          "np_bad_path_test_1",
+			errorStrContains: netpolerrors.NPWithSameNameError("default/backend-netpol"),
+		},
+		// anp & banp bad path tests
+		{
+			name:             "Input_dir_has_two_admin_netpols_with_same_priority_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_1",
+			errorStrContains: netpolerrors.PriorityErrExplain,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_with_invalid_priority_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_2",
+			errorStrContains: netpolerrors.PriorityValueErr("invalid-priority", 1001),
+		},
+		{
+			name:             "Input_dir_has_two_admin_netpols_with_same_name_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_3",
+			errorStrContains: netpolerrors.ANPsWithSameNameErr("same-name"),
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_with_empty_subject_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_4",
+			errorStrContains: netpolerrors.OneFieldSetSubjectErr,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_with_invalid_subject_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_5",
+			errorStrContains: netpolerrors.OneFieldSetSubjectErr,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_with_an_empty_egress_rule_peer_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_6",
+			errorStrContains: netpolerrors.ANPEgressRulePeersErr,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_egress_rule_peer_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_7",
+			errorStrContains: netpolerrors.OneFieldSetRulePeerErr,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_egress_rule_port_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_8",
+			errorStrContains: netpolerrors.ANPPortsError,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_egress_rule_action_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_9",
+			errorStrContains: netpolerrors.UnknownRuleActionErr,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_missing_egress_rule_peer_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_10",
+			errorStrContains: netpolerrors.ANPEgressRulePeersErr,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_missing_egress_rule_action_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_12",
+			errorStrContains: netpolerrors.UnknownRuleActionErr,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_missing_ingress_rule_peer_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_14",
+			errorStrContains: netpolerrors.ANPIngressRulePeersErr,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_with_an_empty_ingress_rule_peer_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_15",
+			errorStrContains: netpolerrors.ANPIngressRulePeersErr,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_ingress_rule_peer_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_16",
+			errorStrContains: netpolerrors.OneFieldSetRulePeerErr,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_ingress_rule_port_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_17",
+			errorStrContains: netpolerrors.ANPPortsError,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_ingress_rule_action_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_18",
+			errorStrContains: netpolerrors.UnknownRuleActionErr,
+		},
+		{
+			name:             "Input_dir_has_more_than_one_baseline_admin_netpol_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_1",
+			errorStrContains: netpolerrors.BANPAlreadyExists,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_name_not_default_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_2",
+			errorStrContains: netpolerrors.BANPNameAssertion,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_empty_subject_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_3",
+			errorStrContains: netpolerrors.OneFieldSetSubjectErr,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_invalid_subject_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_4",
+			errorStrContains: netpolerrors.OneFieldSetSubjectErr,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_an_empty_egress_rule_peer_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_5",
+			errorStrContains: netpolerrors.ANPEgressRulePeersErr,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_missing_egress_rule_peer_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_6",
+			errorStrContains: netpolerrors.ANPEgressRulePeersErr,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_egress_rule_peer_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_7",
+			errorStrContains: netpolerrors.OneFieldSetRulePeerErr,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_egress_rule_action_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_8",
+			errorStrContains: netpolerrors.UnknownRuleActionErr,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_egress_rule_port_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_9",
+			errorStrContains: netpolerrors.ANPPortsError,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_missing_ingress_rule_peer_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_10",
+			errorStrContains: netpolerrors.ANPIngressRulePeersErr,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_an_empty_ingress_rule_peer_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_11",
+			errorStrContains: netpolerrors.ANPIngressRulePeersErr,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_ingress_rule_peer_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_12",
+			errorStrContains: netpolerrors.OneFieldSetRulePeerErr,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_ingress_rule_port_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_13",
+			errorStrContains: netpolerrors.ANPPortsError,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_ingress_rule_action_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_14",
+			errorStrContains: netpolerrors.UnknownRuleActionErr,
+		},
 	}
 	for _, tt := range cases {
 		tt := tt
