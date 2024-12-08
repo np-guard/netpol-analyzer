@@ -18,8 +18,8 @@ import (
 
 const (
 	NoPort        = -1
-	minPort int64 = 1
-	maxPort int64 = 65535
+	MinPort int64 = 1
+	MaxPort int64 = 65535
 )
 
 // PortSet: represents set of allowed ports in a connection
@@ -32,7 +32,7 @@ type PortSet struct {
 // MakePortSet: return a new PortSet object, with all ports or no ports allowed
 func MakePortSet(all bool) *PortSet {
 	if all {
-		return &PortSet{Ports: interval.New(minPort, maxPort).ToSet(),
+		return &PortSet{Ports: interval.New(MinPort, MaxPort).ToSet(),
 			NamedPorts:         map[string]bool{},
 			ExcludedNamedPorts: map[string]bool{},
 		}

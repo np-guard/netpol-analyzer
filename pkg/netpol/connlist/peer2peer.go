@@ -31,16 +31,17 @@ type Peer eval.Peer
 
 // RefineConnListByDisjointPeers is given as input Peer2PeerConnection slice and a map from peer-str to its disjoint peers,
 // and returns a new Peer2PeerConnection slice with refined ip-blocks from their disjoint peers
-func RefineConnListByDisjointPeers(conns []Peer2PeerConnection, m map[string]map[string]eval.Peer) ([]Peer2PeerConnection, error) {
+func RefineConnListByDisjointPeers(conns []Peer2PeerConnection, srcMap, dstMap map[string]map[string]eval.Peer) ([]Peer2PeerConnection,
+	error) {
 	res := []Peer2PeerConnection{}
 	for _, p2p := range conns {
 		var replacingConns []Peer2PeerConnection
 		var err error
 		switch {
 		case p2p.Src().IsPeerIPType():
-			replacingConns, err = refineP2PConnByDisjointPeers(p2p.Src(), true, p2p, m)
+			replacingConns, err = refineP2PConnByDisjointPeers(p2p.Src(), true, p2p, srcMap)
 		case p2p.Dst().IsPeerIPType():
-			replacingConns, err = refineP2PConnByDisjointPeers(p2p.Dst(), false, p2p, m)
+			replacingConns, err = refineP2PConnByDisjointPeers(p2p.Dst(), false, p2p, dstMap)
 		default:
 			replacingConns = []Peer2PeerConnection{p2p}
 		}

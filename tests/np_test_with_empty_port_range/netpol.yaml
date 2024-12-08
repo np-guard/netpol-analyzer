@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: egress-empty-port-range
+  namespace: ns1
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+    - ports:
+        - port: 3535
+          protocol: UDP
+        - port: 10
+          endPort: 1
+          protocol: TCP

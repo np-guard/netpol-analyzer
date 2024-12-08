@@ -1,0 +1,54 @@
+# a file copied from :
+# https://docs.openshift.com/container-platform/4.17/networking/network_security/AdminNetworkPolicy/ovn-k-egress-nodes-networks-peer.html#egress-traffic-control-networks-peer-external-destinations_ovn-k-egress-nodes-networks-peer
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: egress-peer-1 
+spec:
+  egress: 
+  - action: "Allow"
+    name: "allow-egress"
+    to:
+    - nodes: # unsupported - a warning will be raised
+        matchExpressions:
+        - key: worker-group
+          operator: In
+          values:
+          - workloads # Egress traffic from nodes with label worker-group: workloads is allowed.
+    - networks:
+      - 104.154.164.170/32
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            apps: external-apps
+        podSelector:
+          matchLabels:
+            app: web # This rule in the policy allows the traffic directed to pods labeled apps: web in projects with apps: external-apps to leave the cluster.
+  - action: "Deny"
+    name: "deny-egress"
+    to:
+    - nodes: # unsupported - a warning will be raised
+        matchExpressions:
+        - key: worker-group
+          operator: In
+          values:
+          - infra # Egress traffic from nodes with label worker-group: infra is denied.
+    - networks:
+      - 104.154.164.160/32 # Egress traffic to this IP address from cluster is denied.
+    - pods:
+        namespaceSelector:
+          matchLabels:
+            apps: internal-apps
+        podSelector: {}
+  - action: "Pass"
+    name: "pass-egress"
+    to:
+    - nodes: # unsupported - a warning will be raised
+        matchExpressions:
+        - key: node-role.kubernetes.io/worker
+          operator: Exists # All other egress traffic is passed to NetworkPolicy or BANP for evaluation.
+  priority: 30 
+  subject: 
+    namespaces:
+      matchLabels:
+        apps: all-apps

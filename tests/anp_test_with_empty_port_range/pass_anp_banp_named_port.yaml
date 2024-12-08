@@ -1,0 +1,60 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: pass-example
+spec:
+  priority: 10
+  subject:
+    namespaces:
+      matchLabels:
+          conformance-house: gryffindor
+  ingress:
+  - name: "allow-ingress-from-slytherin-on-some ports" 
+    action: "Allow"
+    from:
+    - namespaces:
+        matchLabels:
+            conformance-house: slytherin
+    ports:
+    - portRange:
+        start: 10
+        end: 1
+    - portNumber:
+        port: 80
+  - name: "pass-all-ingress-from-slytherin" # pass all other than "web" port
+    action: "Pass"
+    from:
+    - namespaces:
+        matchLabels:
+            conformance-house: slytherin
+  egress:
+  - name: "pass-all-egress-to-slytherin"
+    action: "Pass" 
+    to:
+    - namespaces:
+        matchLabels:
+            conformance-house: slytherin
+---
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: BaselineAdminNetworkPolicy
+metadata:
+  name: default
+spec:
+  subject:
+    namespaces:
+      matchLabels:
+          conformance-house: gryffindor
+  ingress:
+  - name: "deny-all-ingress-from-slytherin"
+    action: "Deny"
+    from:
+    - namespaces:
+        matchLabels:
+            conformance-house: slytherin
+  egress:
+  - name: "deny-all-egress-to-slytherin"
+    action: "Deny"
+    to:
+    - namespaces:
+        matchLabels:
+            conformance-house: slytherin

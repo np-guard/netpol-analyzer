@@ -1,0 +1,27 @@
+digraph {
+	subgraph "cluster_ns1" {
+		color="black"
+		fontcolor="black"
+		"ns1/pod1[Deployment]" [label="pod1[Deployment]" color="blue" fontcolor="blue"]
+		label="ns1"
+	}
+	subgraph "cluster_ns2" {
+		color="black"
+		fontcolor="black"
+		"ns2/pod1[Deployment]" [label="pod1[Deployment]" color="blue" fontcolor="blue"]
+		label="ns2"
+	}
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"10.0.0.0-10.255.255.255" [label="10.0.0.0-10.255.255.255" color="red2" fontcolor="red2"]
+	"60.45.72.0-60.45.75.255" [label="60.45.72.0-60.45.75.255" color="red2" fontcolor="red2"]
+	"89.246.180.0-89.246.183.255" [label="89.246.180.0-89.246.183.255" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns1/pod1[Deployment]" -> "10.0.0.0-10.255.255.255" [label="UDP 53" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns1/pod1[Deployment]" -> "60.45.72.0-60.45.75.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns1/pod1[Deployment]" -> "89.246.180.0-89.246.183.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns1/pod1[Deployment]" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns2/pod1[Deployment]" -> "60.45.72.0-60.45.75.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns2/pod1[Deployment]" -> "89.246.180.0-89.246.183.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns2/pod1[Deployment]" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}
