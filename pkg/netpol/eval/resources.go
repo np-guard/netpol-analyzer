@@ -22,7 +22,6 @@ import (
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
 	"github.com/np-guard/models/pkg/netset"
-
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
@@ -44,6 +43,7 @@ type (
 		baselineAdminNetpol    *k8s.BaselineAdminNetworkPolicy // pointer to BaselineAdminNetworkPolicy which is a cluster singleton object
 		cache                  *evalCache
 		exposureAnalysisFlag   bool
+		explain                bool
 		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
 		// used only with exposure analysis (representative peer object is a workloadPeer with kind == "RepresentativePeer")
 	}
@@ -68,23 +68,26 @@ func NewPolicyEngine() *PolicyEngine {
 		adminNetpolsMap:                 make(map[string]bool),
 		cache:                           newEvalCache(),
 		exposureAnalysisFlag:            false,
+		explain:                         false,
 	}
 }
 
-func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, error) {
+func NewPolicyEngineWithObjects(objects []parser.K8sObject, explain bool) (*PolicyEngine, error) {
 	pe := NewPolicyEngine()
+	pe.explain = explain
 	err := pe.addObjectsByKind(objects)
 	return pe, err
 }
 
 // NewPolicyEngineWithOptions returns a new policy engine with an empty state but updating the exposure analysis flag
 // TBD: currently exposure-analysis is the only option supported by policy-engine, so no need for options list param
-func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
+func NewPolicyEngineWithOptions(exposureFlag, explain bool) *PolicyEngine {
 	pe := NewPolicyEngine()
 	pe.exposureAnalysisFlag = exposureFlag
 	if exposureFlag {
 		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)
 	}
+	pe.explain = explain
 	return pe
 }
 
