@@ -576,7 +576,11 @@ func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer
 	}
 
 	if policiesConns.IsEmpty() { // conns between src and dst were not captured by the adminNetpols, to be determined by netpols/default conns
-		return k8s.NewPolicyConnections(), false, nil
+		policiesConns.ComplementPassConns()
+		return policiesConns, false, nil
+	}
+	if !policiesConns.PassConns.AllowAll {
+		policiesConns.ComplementPassConns()
 	}
 
 	return policiesConns, true, nil

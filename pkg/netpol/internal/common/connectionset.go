@@ -173,8 +173,13 @@ func (conn *ConnectionSet) rebuildExplicitly() {
 // i.e., conn has a precedence over other
 func (conn *ConnectionSet) Union(other *ConnectionSet, collectRules bool) {
 	if conn.IsEmpty() && (other.IsEmpty() || other.AllowAll) && len(conn.AllowedProtocols) == 0 && len(other.AllowedProtocols) == 0 {
-		// a special case when we should union implying rules
-		conn.CommonImplyingRules.Union(other.CommonImplyingRules, collectRules)
+		if other.IsEmpty() {
+			// we should union implying rules - both contribute to the result being empty
+			conn.CommonImplyingRules.Union(other.CommonImplyingRules, collectRules)
+		} else {
+			// we should substitute the implying rules by others' rules
+			conn.CommonImplyingRules = other.CommonImplyingRules.Copy()
+		}
 		conn.AllowAll = other.AllowAll
 		return
 	}

@@ -84,6 +84,13 @@ func (pc *PolicyConnections) CollectANPConns(newAdminPolicyConns *PolicyConnecti
 	pc.PassConns.Union(newAdminPolicyConns.PassConns, false)
 }
 
+// ComplementPassConns complements pass connections to all connections (by adding the absent conections)
+func (pc *PolicyConnections) ComplementPassConns() {
+	defaultPassConn := NewPolicyConnections()
+	defaultPassConn.PassConns = common.MakeConnectionSet(true)
+	pc.CollectANPConns(defaultPassConn)
+}
+
 // CollectAllowedConnsFromNetpols updates allowed conns of current PolicyConnections object with allowed connections from
 // k8s NetworkPolicy objects.
 // Allowed and Denied connections of current PolicyConnections object (admin-network-policy) are non-overridden.
@@ -97,7 +104,7 @@ func (pc *PolicyConnections) CollectAllowedConnsFromNetpols(npConns *PolicyConne
 	// We start from PassConn, and union npConns.AllowedConns with it,
 	// because the order of Union impacts the order of implying rules.
 	newConn := pc.PassConns.Copy()
-	newConn.Union(npConns.AllowedConns, true) // collect implying rules from pc.PassConns and npConns.AllowedConns
+	newConn.Intersection(npConns.AllowedConns) // collect implying rules from pc.PassConns and npConns.AllowedConns
 	// subtract the denied conns (which are non-overridden) from input conns
 	newConn.Subtract(pc.DeniedConns)
 	// PASS conns are determined by npConns
@@ -129,18 +136,16 @@ func (pc *PolicyConnections) CollectConnsFromBANP(banpConns *PolicyConnections) 
 	// We start from PassConn, and union banpConns.DeniedConns with it,
 	// because the order of Union impacts the order of implying rules.
 	newDenied := pc.PassConns.Copy()
-	newDenied.Union(banpConns.DeniedConns, true) // collect implying rules from pc.PassConns and banpConns.DeniedConns
+	newDenied.Intersection(banpConns.DeniedConns) // collect implying rules from pc.PassConns and banpConns.DeniedConns
 	newDenied.Subtract(pc.AllowedConns)
-	pc.DeniedConns.Union(newDenied, false)
-	// now Pass conns which are denied by BANP were handled automatically;
-	// Pass Conns which are allowed or not captured by BANP, will be handled now with all other conns.
-	//  pc.PassConns is not relevant anymore.
+	pc.DeniedConns.Union(newDenied, true) // 'true' because denied conns are defined by rules from both sides
 	// the allowed conns are "all conns - the denied conns"
 	// all conns that are not determined by the ANP and BANP are allowed by default,
 	// and are kept in banpConns.AllowedConns (were returned by getXgressDefaultConns)
 	newAllowed := pc.PassConns.Copy()
-	newAllowed.Union(banpConns.AllowedConns, true) // collect implying rules from pc.PassConns and banpConns.AllowedConns
-	pc.AllowedConns.Union(newAllowed, false)       // union instead of assignment, to preserve implying rules
+	newAllowed.Intersection(banpConns.AllowedConns) // collect implying rules from pc.PassConns and banpConns.AllowedConns
+	pc.AllowedConns.Union(newAllowed, false)        // 'false' because allowed conns may be already defined by pc.AllowedConns
+
 	pc.AllowedConns.Subtract(pc.DeniedConns)
 }
 
