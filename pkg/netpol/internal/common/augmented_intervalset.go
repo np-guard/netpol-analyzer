@@ -427,6 +427,8 @@ func (c *AugmentedCanonicalSet) Equal(other *AugmentedCanonicalSet) bool {
 
 // AddAugmentedInterval adds a new interval/hole  to the set,
 // and updates the implying rules accordingly
+//
+//gocyclo:ignore
 func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval, collectRules bool) {
 	if v.interval.Start() < c.MinValue() || v.interval.End() > c.MaxValue() {
 		log.Panic(errOutOfRangeInterval)
@@ -446,7 +448,8 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval, collec
 	result = append(result, slices.Clone(set[0:left])...)
 
 	// handle the left-hand side of the intersection of v with set
-	if v.interval.Start() > set[left].interval.Start() && (set[left].inSet != v.inSet || set[left].implyingRules.mayBeUpdatedBy(v.implyingRules, collectRules)) {
+	if v.interval.Start() > set[left].interval.Start() &&
+		(set[left].inSet != v.inSet || set[left].implyingRules.mayBeUpdatedBy(v.implyingRules, collectRules)) {
 		// split set[left] into two intervals, while the implying rules of the second interval should get the new value (from v)
 		new1 := AugmentedInterval{interval: interval.New(set[left].interval.Start(), v.interval.Start()-1),
 			inSet: set[left].inSet, implyingRules: set[left].implyingRules.Copy()}
@@ -479,7 +482,8 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval, collec
 		result = append(result, AugmentedInterval{interval: set[ind].interval, inSet: v.inSet, implyingRules: newImplyingRules})
 	}
 	// handle the right-hand side of the intersection of v with set
-	if v.interval.End() < set[right].interval.End() && (set[right].inSet != v.inSet || set[right].implyingRules.mayBeUpdatedBy(v.implyingRules, collectRules)) {
+	if v.interval.End() < set[right].interval.End() &&
+		(set[right].inSet != v.inSet || set[right].implyingRules.mayBeUpdatedBy(v.implyingRules, collectRules)) {
 		// split set[right] into two intervals, while the implying rules of the first interval should get the new value (from v)
 		if left < right || (left == right && v.interval.Start() == set[left].interval.Start()) {
 			// a special case when left==right (i.e., v is included in one interval from set) was already handled
@@ -503,7 +507,6 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval, collec
 	// copy right-end intervals not impacted by v
 	result = append(result, slices.Clone(set[right+1:])...)
 	c.intervalSet = result
-	// TODO - optimization: unify subsequent intervals with equal inSet and implyingRules fields
 }
 
 // String returns a string representation of the current CanonicalSet object

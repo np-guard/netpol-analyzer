@@ -18,11 +18,11 @@ import (
 // file for testing functionality of explainability analysis
 
 func TestExplainFromDir(t *testing.T) {
-	//t.Parallel()
+	t.Parallel()
 	for _, tt := range explainTests {
 		tt := tt
 		t.Run(tt.testDirName, func(t *testing.T) {
-			//t.Parallel()
+			t.Parallel()
 			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkload)
 			res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 			require.Nil(t, err, pTest.testInfo)
@@ -30,7 +30,6 @@ func TestExplainFromDir(t *testing.T) {
 			require.Nil(t, err, pTest.testInfo)
 			testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, out,
 				pTest.testInfo, currentPkg)
-
 		})
 	}
 }
@@ -58,7 +57,7 @@ var explainTests = []struct {
 	},
 	{
 		testDirName: "anp_banp_blog_demo_2",
-		//focusWorkload: "my-monitoring",
+		// focusWorkload: "my-monitoring",
 	},
 	// {
 	// 	testDirName: "ipblockstest",

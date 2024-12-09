@@ -181,7 +181,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 				ports.AddPort(intstr.FromString(portName), common.MakeImplyingRulesWithRule(ruleName, isIngress))
 			}
 			if !isEmptyPortRange(startPort, endPort) {
-				ports.AddPortRange(int64(startPort), int64(endPort), true, ruleName, isIngress)
+				ports.AddPortRange(startPort, endPort, true, ruleName, isIngress)
 			}
 		}
 		res.AddConnection(protocol, ports)

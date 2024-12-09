@@ -193,12 +193,6 @@ func (conn *ConnectionSet) Union(other *ConnectionSet, collectRules bool) {
 			conn.AllowedProtocols[protocol].Union(otherPorts, collectRules)
 		}
 	}
-	for protocol := range other.AllowedProtocols {
-		if _, ok := conn.AllowedProtocols[protocol]; !ok {
-			log.Panic("We should not get here")
-			conn.AllowedProtocols[protocol] = other.AllowedProtocols[protocol].Copy()
-		}
-	}
 	conn.CommonImplyingRules = InitImplyingRules() // clear common implying rules, since we have implying rules in AllowedProtocols
 	conn.updateIfAllConnections()
 }
