@@ -1,0 +1,126 @@
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => foo/my-foo[Pod]:
+
+No Connections due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] foo/allow-monitoring//Ingress (captured but not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN bar/my-bar[Pod] => foo/my-foo[Pod]:
+
+No Connections due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] foo/allow-monitoring//Ingress (captured but not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN baz/my-baz[Pod] => foo/my-foo[Pod]:
+
+No Connections due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] foo/allow-monitoring//Ingress (captured but not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN monitoring/my-monitoring[Pod] => bar/my-bar[Pod]:
+
+ALLOWED SCTP:1-65535 the system default (Allow all)
+
+ALLOWED UDP:1-65535 the system default (Allow all)
+
+DENIED TCP:1-1233 due to the following policies//rules:
+	INGRESS DIRECTION (DENIED)
+		1) [BANP] default//Ingress rule deny-ingress-from-all-namespaces (Deny)
+
+ALLOWED TCP:1234 due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [ANP] allow-monitoring//Ingress rule allow-ingress-from-monitoring (Allow)
+
+DENIED TCP:1235-8079 due to the following policies//rules:
+	INGRESS DIRECTION (DENIED)
+		1) [BANP] default//Ingress rule deny-ingress-from-all-namespaces (Deny)
+
+DENIED TCP:8080 due to the following policies//rules:
+	INGRESS DIRECTION (DENIED)
+		1) [ANP] pass-monitoring//Ingress rule pass-ingress-from-monitoring (Pass)
+		2) [BANP] default//Ingress rule deny-ingress-from-all-namespaces (Deny)
+
+DENIED TCP:8081-9000 due to the following policies//rules:
+	INGRESS DIRECTION (DENIED)
+		1) [BANP] default//Ingress rule deny-ingress-from-all-namespaces (Deny)
+
+ALLOWED TCP:9001-65535 the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN monitoring/my-monitoring[Pod] => baz/my-baz[Pod]:
+
+ALLOWED SCTP:1-65535 the system default (Allow all)
+
+ALLOWED TCP:1-1233 the system default (Allow all)
+
+ALLOWED TCP:1234 due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [ANP] allow-monitoring//Ingress rule allow-ingress-from-monitoring (Allow)
+
+ALLOWED TCP:1235-65535 the system default (Allow all)
+
+ALLOWED UDP:1-65535 the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN monitoring/my-monitoring[Pod] => foo/my-foo[Pod]:
+
+ALLOWED SCTP:1-65535 due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [NP] foo/allow-monitoring//Ingress rule #1
+
+ALLOWED TCP:1-1233 due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [NP] foo/allow-monitoring//Ingress rule #1
+
+ALLOWED TCP:1234 due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [ANP] allow-monitoring//Ingress rule allow-ingress-from-monitoring (Allow)
+
+ALLOWED TCP:1235-8079 due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [NP] foo/allow-monitoring//Ingress rule #1
+
+ALLOWED TCP:8080 due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [ANP] pass-monitoring//Ingress rule pass-ingress-from-monitoring (Pass)
+		2) [NP] foo/allow-monitoring//Ingress rule #1
+
+ALLOWED TCP:8081-65535 due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [NP] foo/allow-monitoring//Ingress rule #1
+
+ALLOWED UDP:1-65535 due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [NP] foo/allow-monitoring//Ingress rule #1
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+The following nodes are connected due to the system default (Allow all):
+0.0.0.0-255.255.255.255 => bar/my-bar[Pod]
+0.0.0.0-255.255.255.255 => baz/my-baz[Pod]
+0.0.0.0-255.255.255.255 => monitoring/my-monitoring[Pod]
+bar/my-bar[Pod] => 0.0.0.0-255.255.255.255
+bar/my-bar[Pod] => baz/my-baz[Pod]
+bar/my-bar[Pod] => monitoring/my-monitoring[Pod]
+baz/my-baz[Pod] => 0.0.0.0-255.255.255.255
+baz/my-baz[Pod] => bar/my-bar[Pod]
+baz/my-baz[Pod] => monitoring/my-monitoring[Pod]
+foo/my-foo[Pod] => 0.0.0.0-255.255.255.255
+foo/my-foo[Pod] => bar/my-bar[Pod]
+foo/my-foo[Pod] => baz/my-baz[Pod]
+foo/my-foo[Pod] => monitoring/my-monitoring[Pod]
+monitoring/my-monitoring[Pod] => 0.0.0.0-255.255.255.255
