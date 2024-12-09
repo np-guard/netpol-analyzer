@@ -46,13 +46,19 @@ func banpRuleErr(ruleName, description string) error {
 	return fmt.Errorf("default baseline admin network policy: %s %q: %s", ruleErrTitle, ruleName, description)
 }
 
+func (banp *BaselineAdminNetworkPolicy) fullName() string {
+	return "[BANP] " + banp.Name
+}
+
 // GetEgressPolicyConns returns the connections from the egress rules selecting the dst in spec of the baselineAdminNetworkPolicy
 func (banp *BaselineAdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnections, error) {
 	res := NewPolicyConnections()
 	for _, rule := range banp.Spec.Egress { // rule is apisv1a.BaselineAdminNetworkPolicyEgressRule
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		if err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, dst, res, string(rule.Action), true); err != nil {
+		if err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts,
+			ruleFullName(banp.fullName(), rule.Name, string(rule.Action), false),
+			dst, res, string(rule.Action), true); err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
 	}
@@ -65,7 +71,9 @@ func (banp *BaselineAdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*P
 	for _, rule := range banp.Spec.Ingress { // rule is apisv1a.BaselineAdminNetworkPolicyIngressRule
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		if err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, src, dst, res, string(rule.Action), true); err != nil {
+		if err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts,
+			ruleFullName(banp.fullName(), rule.Name, string(rule.Action), true),
+			src, dst, res, string(rule.Action), true); err != nil {
 			return nil, banpRuleErr(rule.Name, err.Error())
 		}
 	}

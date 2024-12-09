@@ -16,7 +16,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/models/pkg/netset"
-
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -152,7 +151,10 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	var err error
 	// cases where any connection is always allowed
 	if isPodToItself(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(dstK8sPeer, srcK8sPeer) {
-		return common.MakeConnectionSet(true), nil
+		res = common.MakeConnectionSet(true)
+		res.AddCommonImplyingRule(common.PodToItselfRule, true)
+		res.AddCommonImplyingRule(common.PodToItselfRule, false)
+		return res, nil
 	}
 	// egress: get egress allowed connections between the src and dst by
 	// walking through all k8s egress policies capturing the src;
@@ -161,6 +163,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	if err != nil {
 		return nil, err
 	}
+	res.SetExplResult(false)
 	if res.IsEmpty() {
 		return res, nil
 	}
@@ -171,6 +174,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	if err != nil {
 		return nil, err
 	}
+	ingressRes.SetExplResult(true)
 	res.Intersection(ingressRes)
 	return res, nil
 }
@@ -358,6 +362,10 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 // admin-network-policies, network-policies and baseline-admin-network-policies;
 // considering the precedence of each policy
 func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress bool) (allowedConns *common.ConnectionSet, err error) {
+	// Tanya TODO: think about the implicitly denied protocols/port ranges
+	// (due to NPs capturing this src/dst, but defining only some of protocols/ports)
+	// How to update implying rules in this case?
+
 	// first get allowed xgress conn between the src and dst from the ANPs
 	// note that:
 	// - anpConns may contain allowed, denied or/and passed connections
@@ -369,6 +377,7 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 	}
 	// optimization: if all the conns between src and dst were determined by the ANPs : return the allowed conns
 	if anpCaptured && anpConns.DeterminesAllConns() {
+		anpConns.AllowedConns.Subtract(anpConns.DeniedConns) // update explainabiliy data
 		return anpConns.AllowedConns, nil
 	}
 	// second get the allowed xgress conns between the src and dst from the netpols
@@ -468,7 +477,7 @@ func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, i
 		if pe.exposureAnalysisFlag {
 			updatePeerXgressClusterWideExposure(policy, src, dst, isIngress)
 		}
-		allowedConns.Union(policyAllowedConnectionsPerDirection)
+		allowedConns.Union(policyAllowedConnectionsPerDirection, true) // collect implying rules from multiple NPs
 	}
 	// putting the result in policiesConns object to be compared with conns allowed by ANP/BANP later
 	policiesConns = k8s.NewPolicyConnections()
@@ -488,7 +497,7 @@ func (pe *PolicyEngine) determineAllowedConnsPerDirection(policy *k8s.NetworkPol
 		case policy.IngressPolicyExposure.ClusterWideExposure.AllowAll && src.PeerType() == k8s.PodType:
 			return policy.IngressPolicyExposure.ClusterWideExposure, nil
 		default:
-			return policy.GetIngressAllowedConns(src, dst)
+			return policy.GetXgressAllowedConns(src, dst, true)
 		}
 	}
 	// else get egress allowed conns between src and dst
@@ -498,7 +507,7 @@ func (pe *PolicyEngine) determineAllowedConnsPerDirection(policy *k8s.NetworkPol
 	case policy.EgressPolicyExposure.ClusterWideExposure.AllowAll && dst.PeerType() == k8s.PodType:
 		return policy.EgressPolicyExposure.ClusterWideExposure, nil
 	default:
-		return policy.GetEgressAllowedConns(dst)
+		return policy.GetXgressAllowedConns(src, dst, false)
 	}
 }
 
@@ -567,7 +576,11 @@ func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer
 	}
 
 	if policiesConns.IsEmpty() { // conns between src and dst were not captured by the adminNetpols, to be determined by netpols/default conns
-		return k8s.NewPolicyConnections(), false, nil
+		policiesConns.ComplementPassConns()
+		return policiesConns, false, nil
+	}
+	if !policiesConns.PassConns.AllowAll {
+		policiesConns.ComplementPassConns()
 	}
 
 	return policiesConns, true, nil
@@ -584,7 +597,7 @@ func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer
 func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool) (*k8s.PolicyConnections, error) {
 	res := k8s.NewPolicyConnections()
 	if pe.baselineAdminNetpol == nil {
-		res.AllowedConns = common.MakeConnectionSet(true)
+		res.AllowedConns = common.MakeAllConnectionSetWithRule(common.SystemDefaultRule, isIngress)
 		return res, nil
 	}
 	if isIngress { // ingress
@@ -612,8 +625,9 @@ func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool)
 			}
 		}
 	}
-	if res.IsEmpty() { // banp rules didn't capture xgress conn between src and dst, return system-default: allow-all
-		res.AllowedConns = common.MakeConnectionSet(true)
-	}
+	// if banp rules didn't capture xgress conn between src and dst, return system-default: allow-all;
+	// if banp rule captured xgress conn, only DeniedConns should be impacted by banp rule,
+	// whenever AllowedConns should anyway be system-default: allow-all
+	res.AllowedConns = common.MakeAllConnectionSetWithRule(common.SystemDefaultRule, isIngress)
 	return res, nil
 }

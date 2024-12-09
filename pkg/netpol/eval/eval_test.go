@@ -1786,7 +1786,7 @@ func TestPolicyEngineWithWorkloads(t *testing.T) {
 	if len(processingErrs) > 0 {
 		t.Fatalf("TestPolicyEngineWithWorkloads errors: %v", processingErrs)
 	}
-	pe, err := NewPolicyEngineWithObjects(objects)
+	pe, err := NewPolicyEngineWithObjects(objects, false)
 	if err != nil {
 		t.Fatalf("TestPolicyEngineWithWorkloads error: %v", err)
 	}
@@ -1807,12 +1807,14 @@ func pickContainedConn(conn *common.ConnectionSet) (resProtocol, resPort string)
 	}
 	for protocol, portSet := range conn.AllowedProtocols {
 		resProtocol = string(protocol)
+		resPort = ""
 		if portSet.IsAll() {
 			resPort = defaultPort
-		} else {
+			break
+		} else if !portSet.IsEmpty() {
 			resPort = fmt.Sprintf("%d", portSet.Ports.Min())
+			break
 		}
-		break
 	}
 	return resProtocol, resPort
 }
@@ -1829,7 +1831,7 @@ func runParsedResourcesEvalTests(t *testing.T, testList []examples.ParsedResourc
 		test := &testList[i]
 		t.Run(test.Name, func(t *testing.T) {
 			t.Parallel()
-			pe, err := NewPolicyEngineWithObjects(test.GetK8sObjects())
+			pe, err := NewPolicyEngineWithObjects(test.GetK8sObjects(), test.Explain)
 			require.Nil(t, err, test.TestInfo)
 			for _, evalTest := range test.EvalTests {
 				src := evalTest.Src
