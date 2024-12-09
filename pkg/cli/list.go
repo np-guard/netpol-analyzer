@@ -22,7 +22,6 @@ import (
 var (
 	focusWorkload    string
 	exposureAnalysis bool
-	explain          bool
 	output           string // output format
 	outFile          string // output file
 )
@@ -86,9 +85,6 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 	if exposureAnalysis {
 		res = append(res, connlist.WithExposureAnalysis())
 	}
-	if explain {
-		res = append(res, connlist.WithExplanation())
-	}
 	return res
 }
 
@@ -134,7 +130,6 @@ defined`,
 	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "",
 		"Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)")
 	c.Flags().BoolVarP(&exposureAnalysis, "exposure", "", false, "Enhance the analysis of permitted connectivity with exposure analysis")
-	c.Flags().BoolVarP(&explain, "explain", "", false, "Enhance the analysis of permitted connectivity with explainability information")
 	// output format - default txt
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")

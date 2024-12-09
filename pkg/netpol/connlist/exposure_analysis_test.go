@@ -54,7 +54,7 @@ func newTCPConnWithPorts(ports []int) *common.ConnectionSet {
 	conn := common.MakeConnectionSet(false)
 	portSet := common.MakePortSet(false)
 	for i := range ports {
-		portSet.AddPort(intstr.FromInt(ports[i]), common.InitImplyingRules())
+		portSet.AddPort(intstr.FromInt(ports[i]))
 	}
 	conn.AddConnection(v1.ProtocolTCP, portSet)
 	return conn
@@ -337,41 +337,16 @@ func checkExpectedVsActualData(t *testing.T, testName string, actualExp ExposedP
 		"test: %q, mismatch in is egress protected for peer %q", testName, actualExp.ExposedPeer().String())
 	require.Equal(t, expectedData.isIngressProtected, actualExp.IsProtectedByIngressNetpols(),
 		"test: %q, mismatch in is ingress protected for peer %q", testName, actualExp.ExposedPeer().String())
-	ingressExposure := actualExp.IngressExposure()
-	require.Equal(t, expectedData.lenIngressExposedConns, len(ingressExposure),
+	require.Equal(t, expectedData.lenIngressExposedConns, len(actualExp.IngressExposure()),
 		"test: %q, mismatch in length of ingress exposure slice for peer %q", testName, actualExp.ExposedPeer().String())
 	for i := range expectedData.ingressExp {
-		require.True(t, checkXgressExposureContainment(ingressExposure, expectedData.ingressExp[i]),
+		require.Contains(t, actualExp.IngressExposure(), expectedData.ingressExp[i],
 			"test: %q, expected ingress data %v is not contained in actual results", testName, expectedData.ingressExp[i])
 	}
-	egressExposure := actualExp.EgressExposure()
-	require.Equal(t, expectedData.lenEgressExposedConns, len(egressExposure),
+	require.Equal(t, expectedData.lenEgressExposedConns, len(actualExp.EgressExposure()),
 		"test: %q, mismatch in length of egress exposure slice for peer %q", testName, actualExp.ExposedPeer().String())
 	for i := range expectedData.egressExp {
-		require.True(t, checkXgressExposureContainment(egressExposure, expectedData.egressExp[i]),
+		require.Contains(t, actualExp.EgressExposure(), expectedData.egressExp[i],
 			"test: %q, expected egress data %v is not contained in actual results", testName, expectedData.egressExp[i])
 	}
-}
-
-func checkXgressExposureContainment(actualArray []XgressExposureData, expectedItem *xgressExposure) bool {
-	for i := range actualArray {
-		currItem := actualArray[i].(*xgressExposure)
-		if currItem.IsExposedToEntireCluster() != expectedItem.IsExposedToEntireCluster() {
-			continue
-		}
-		if !currItem.IsExposedToEntireCluster() {
-			if currItem.namespaceLabels.String() != expectedItem.namespaceLabels.String() {
-				continue
-			}
-			if currItem.podLabels.String() != expectedItem.podLabels.String() {
-				continue
-			}
-		}
-		conn1 := expectedItem.PotentialConnectivity().(*common.ConnectionSet)
-		conn2 := currItem.PotentialConnectivity().(*common.ConnectionSet)
-		if conn1.Equal(conn2) {
-			return true
-		}
-	}
-	return false
 }

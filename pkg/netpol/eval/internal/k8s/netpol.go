@@ -61,10 +61,8 @@ type PolicyExposureWithoutSelectors struct {
 // 	if so, also consider concurrent access (or declare not goroutine safe?)
 
 const (
-	portBase    = 10
-	portBits    = 32
-	egressName  = "Egress"
-	ingressName = "Ingress"
+	portBase = 10
+	portBits = 32
 )
 
 func getProtocolStr(p *v1.Protocol) string {
@@ -118,22 +116,12 @@ func isEmptyPortRange(start, end int32) bool {
 	return start == common.NoPort && end == common.NoPort
 }
 
-func (np *NetworkPolicy) rulePeersAndPorts(ruleIdx int, isIngress bool) ([]netv1.NetworkPolicyPeer, []netv1.NetworkPolicyPort) {
-	if isIngress {
-		return np.Spec.Ingress[ruleIdx].From, np.Spec.Ingress[ruleIdx].Ports
-	}
-	return np.Spec.Egress[ruleIdx].To, np.Spec.Egress[ruleIdx].Ports
-}
-
-func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer,
-	ruleIdx int, isIngress bool) (*common.ConnectionSet, error) {
+func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, dst Peer) (*common.ConnectionSet, error) {
 	if len(rulePorts) == 0 {
-		// If this field is empty or missing, this rule matches all ports
+		return common.MakeConnectionSet(true), nil // If this field is empty or missing, this rule matches all ports
 		// (traffic not restricted by port)
-		return common.MakeAllConnectionSetWithRule(np.ruleName(ruleIdx, isIngress), isIngress), nil
 	}
 	res := common.MakeConnectionSet(false)
-	ruleName := np.ruleName(ruleIdx, isIngress)
 	for i := range rulePorts {
 		protocol := v1.ProtocolTCP
 		if rulePorts[i].Protocol != nil {
@@ -163,10 +151,10 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 				// 4- in order to get a connection from any pod to an ip dst (will not get here, as named ports are not defined for ip-blocks)
 
 				// adding portName string to the portSet
-				ports.AddPort(intstr.FromString(portName), common.MakeImplyingRulesWithRule(ruleName, isIngress))
+				ports.AddPort(intstr.FromString(portName))
 			}
 			if !isEmptyPortRange(startPort, endPort) {
-				ports.AddPortRange(int64(startPort), int64(endPort), true, ruleName, isIngress)
+				ports.AddPortRange(int64(startPort), int64(endPort))
 			}
 		}
 		res.AddConnection(protocol, ports)
@@ -354,57 +342,53 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 	return false, nil
 }
 
-const (
-	NoXgressRulesExpl          = "(no %s rules defined)"
-	CapturedButNotSelectedExpl = "(captured but not selected by any %s rule)"
-)
-
-func (np *NetworkPolicy) nameWithDirectionAndExpl(isIngress bool, expl string) string {
-	xgress := "Egress"
-	if isIngress {
-		xgress = "Ingress"
-	}
-	return fmt.Sprintf("%s//%s "+expl, np.fullName(), xgress, xgress)
-}
-
-// GetXgressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer (for Ingress)
-// or from any captured pod to the dst peer (for Egress)
-func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*common.ConnectionSet, error) {
+// GetEgressAllowedConns returns the set of allowed connections from any captured pod to the destination peer
+func (np *NetworkPolicy) GetEgressAllowedConns(dst Peer) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
-	if (isIngress && len(np.Spec.Ingress) == 0) || (!isIngress && len(np.Spec.Egress) == 0) {
-		res.AddCommonImplyingRule(np.nameWithDirectionAndExpl(isIngress, NoXgressRulesExpl), isIngress)
-		return res, nil
-	}
-	peerSelectedByAnyRule := false
-	numOfRules := len(np.Spec.Egress)
-	if isIngress {
-		numOfRules = len(np.Spec.Ingress)
-	}
-	for idx := 0; idx < numOfRules; idx++ {
-		rulePeers, rulePorts := np.rulePeersAndPorts(idx, isIngress)
-		peerToSelect := dst
-		if isIngress {
-			peerToSelect = src
-		}
-		peerSelected, err := np.ruleSelectsPeer(rulePeers, peerToSelect)
+	for _, rule := range np.Spec.Egress {
+		rulePeers := rule.To
+		rulePorts := rule.Ports
+		peerSelected, err := np.ruleSelectsPeer(rulePeers, dst)
 		if err != nil {
 			return res, err
 		}
 		if !peerSelected {
 			continue
 		}
-		peerSelectedByAnyRule = true
-		ruleConns, err := np.ruleConnections(rulePorts, dst, idx, isIngress)
+		ruleConns, err := np.ruleConnections(rulePorts, dst)
 		if err != nil {
 			return res, err
 		}
-		res.Union(ruleConns, false)
+		res.Union(ruleConns)
 		if res.AllowAll {
 			return res, nil
 		}
 	}
-	if !peerSelectedByAnyRule {
-		res.AddCommonImplyingRule(np.nameWithDirectionAndExpl(isIngress, CapturedButNotSelectedExpl), isIngress)
+	return res, nil
+}
+
+// GetIngressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer
+func (np *NetworkPolicy) GetIngressAllowedConns(src, dst Peer) (*common.ConnectionSet, error) {
+	res := common.MakeConnectionSet(false)
+	for _, rule := range np.Spec.Ingress {
+		rulePeers := rule.From
+		rulePorts := rule.Ports
+		peerSelected, err := np.ruleSelectsPeer(rulePeers, src)
+		if err != nil {
+			return res, err
+		}
+		if !peerSelected {
+			continue
+		}
+
+		ruleConns, err := np.ruleConnections(rulePorts, dst)
+		if err != nil {
+			return res, err
+		}
+		res.Union(ruleConns)
+		if res.AllowAll {
+			return res, nil
+		}
 	}
 	return res, nil
 }
@@ -513,15 +497,7 @@ func (np *NetworkPolicy) Selects(p *Pod, direction netv1.PolicyType) (bool, erro
 }
 
 func (np *NetworkPolicy) fullName() string {
-	return "[NP] " + types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String()
-}
-
-func (np *NetworkPolicy) ruleName(ruleIdx int, isIngress bool) string {
-	xgress := egressName
-	if isIngress {
-		xgress = ingressName
-	}
-	return fmt.Sprintf("%s//%s rule #%d", np.fullName(), xgress, ruleIdx+1)
+	return types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String()
 }
 
 // /////////////////////////////////////////////////////////////////////////////////////////////
@@ -559,10 +535,10 @@ func (np *NetworkPolicy) GetPolicyRulesSelectorsAndUpdateExposureClusterWideConn
 // scanIngressRules handles policy's ingress rules (for updating policy's wide conns/ returning specific rules' selectors)
 func (np *NetworkPolicy) scanIngressRules() ([]SingleRuleSelectors, error) {
 	rulesSelectors := []SingleRuleSelectors{}
-	for idx, rule := range np.Spec.Ingress {
+	for _, rule := range np.Spec.Ingress {
 		rulePeers := rule.From
 		rulePorts := rule.Ports
-		selectors, err := np.getSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, idx, true)
+		selectors, err := np.getSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, true)
 		if err != nil {
 			return nil, err
 		}
@@ -574,10 +550,10 @@ func (np *NetworkPolicy) scanIngressRules() ([]SingleRuleSelectors, error) {
 // scanEgressRules handles policy's egress rules (for updating policy's wide conns/ returning specific rules' selectors)
 func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 	rulesSelectors := []SingleRuleSelectors{}
-	for idx, rule := range np.Spec.Egress {
+	for _, rule := range np.Spec.Egress {
 		rulePeers := rule.To
 		rulePorts := rule.Ports
-		selectors, err := np.getSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, idx, false)
+		selectors, err := np.getSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, false)
 		if err != nil {
 			return nil, err
 		}
@@ -595,9 +571,9 @@ func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 // - if a rule contains at least one defined selector : appends the rule selectors to a selector list which will be returned.
 // this func assumes rules are legal (rules correctness check occurs later)
 func (np *NetworkPolicy) getSelectorsAndUpdateExposureClusterWideConns(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
-	ruleIdx int, isIngress bool) (rulesSelectors []SingleRuleSelectors, err error) {
+	isIngress bool) (rulesSelectors []SingleRuleSelectors, err error) {
 	if len(rules) == 0 {
-		err = np.updateNetworkPolicyExposureClusterWideConns(true, true, rulePorts, ruleIdx, isIngress)
+		err = np.updateNetworkPolicyExposureClusterWideConns(true, true, rulePorts, isIngress)
 		return nil, err
 	}
 	for i := range rules {
@@ -612,7 +588,7 @@ func (np *NetworkPolicy) getSelectorsAndUpdateExposureClusterWideConns(rules []n
 		// if podSelector is not nil but namespaceSelector is nil, this is the netpol's namespace
 		if rules[i].NamespaceSelector != nil && rules[i].NamespaceSelector.Size() == 0 &&
 			(rules[i].PodSelector == nil || rules[i].PodSelector.Size() == 0) {
-			err = np.updateNetworkPolicyExposureClusterWideConns(false, true, rulePorts, ruleIdx, isIngress)
+			err = np.updateNetworkPolicyExposureClusterWideConns(false, true, rulePorts, isIngress)
 			return nil, err
 		}
 		// else selectors' combination specifies workloads by labels (at least one is not nil and not empty)
@@ -625,23 +601,23 @@ func (np *NetworkPolicy) getSelectorsAndUpdateExposureClusterWideConns(rules []n
 
 // updateNetworkPolicyExposureClusterWideConns updates the cluster-wide exposure connections of the policy
 func (np *NetworkPolicy) updateNetworkPolicyExposureClusterWideConns(externalExposure, entireCluster bool,
-	rulePorts []netv1.NetworkPolicyPort, ruleIdx int, isIngress bool) error {
-	ruleConns, err := np.ruleConnections(rulePorts, nil, ruleIdx, isIngress)
+	rulePorts []netv1.NetworkPolicyPort, isIngress bool) error {
+	ruleConns, err := np.ruleConnections(rulePorts, nil)
 	if err != nil {
 		return err
 	}
 	if externalExposure {
 		if isIngress {
-			np.IngressPolicyExposure.ExternalExposure.Union(ruleConns, false)
+			np.IngressPolicyExposure.ExternalExposure.Union(ruleConns)
 		} else {
-			np.EgressPolicyExposure.ExternalExposure.Union(ruleConns, false)
+			np.EgressPolicyExposure.ExternalExposure.Union(ruleConns)
 		}
 	}
 	if entireCluster {
 		if isIngress {
-			np.IngressPolicyExposure.ClusterWideExposure.Union(ruleConns, false)
+			np.IngressPolicyExposure.ClusterWideExposure.Union(ruleConns)
 		} else {
-			np.EgressPolicyExposure.ClusterWideExposure.Union(ruleConns, false)
+			np.EgressPolicyExposure.ClusterWideExposure.Union(ruleConns)
 		}
 	}
 	return nil

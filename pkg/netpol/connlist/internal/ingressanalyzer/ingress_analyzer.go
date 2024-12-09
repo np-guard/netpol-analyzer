@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package ingressanalyzer
 
 import (
-	"fmt"
 	"strconv"
 
 	ocroutev1 "github.com/openshift/api/route/v1"
@@ -284,7 +283,7 @@ func (ia *IngressAnalyzer) AllowedIngressConnections() (map[string]*PeerAndIngre
 func mergeResults(routesMap, ingressMap map[string]*PeerAndIngressConnSet) {
 	for k, v := range routesMap {
 		if _, ok := ingressMap[k]; ok {
-			ingressMap[k].ConnSet.Union(v.ConnSet, false)
+			ingressMap[k].ConnSet.Union(v.ConnSet)
 		} else {
 			ingressMap[k] = v
 		}
@@ -302,20 +301,20 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate
 			continue
 		}
 		for objName, svcList := range objSvcMap {
-			ingObjStr := types.NamespacedName{Namespace: ns, Name: objName}.String()
-			ingressObjTargetPeersAndPorts, err := ia.getIngressObjectTargetedPeersAndPorts(ns, ingObjStr, svcList, ingType)
+			ingressObjTargetPeersAndPorts, err := ia.getIngressObjectTargetedPeersAndPorts(ns, svcList)
 			if err != nil {
 				return nil, err
 			}
 			// avoid duplicates in the result, consider the different ports supported
 			for peer, pConn := range ingressObjTargetPeersAndPorts {
+				ingObjStr := types.NamespacedName{Namespace: ns, Name: objName}.String()
 				if _, ok := res[peer.String()]; !ok {
 					mapLen := 2
 					ingressObjs := make(map[string][]string, mapLen)
 					ingressObjs[ingType] = []string{ingObjStr}
 					res[peer.String()] = &PeerAndIngressConnSet{Peer: peer, ConnSet: pConn, IngressObjects: ingressObjs}
 				} else {
-					res[peer.String()].ConnSet.Union(pConn, false)
+					res[peer.String()].ConnSet.Union(pConn)
 					res[peer.String()].IngressObjects[ingType] = append(res[peer.String()].IngressObjects[ingType], ingObjStr)
 				}
 			}
@@ -327,24 +326,23 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate
 
 // getIngressObjectTargetedPeersAndPorts returns map from peers which are targeted by Route/k8s-Ingress objects in their namespace to
 // the Ingress required connections
-func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns, ingObjStr string,
-	svcList []serviceInfo, ingType string) (map[eval.Peer]*common.ConnectionSet, error) {
+func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns string,
+	svcList []serviceInfo) (map[eval.Peer]*common.ConnectionSet, error) {
 	res := make(map[eval.Peer]*common.ConnectionSet)
 	for _, svc := range svcList {
 		peersAndPorts, ok := ia.servicesToPortsAndPeersMap[ns][svc.serviceName]
 		if !ok {
 			ia.logWarning("Ignoring target service " + svc.serviceName + " : service not found")
 		}
-		ruleName := fmt.Sprintf("[%s] %s//service %s", ingType, ingObjStr, svc.serviceName)
 		for _, peer := range peersAndPorts.peers {
-			currIngressPeerConn, err := ia.getIngressPeerConnection(peer, peersAndPorts.ports, svc.servicePort, ruleName)
+			currIngressPeerConn, err := ia.getIngressPeerConnection(peer, peersAndPorts.ports, svc.servicePort)
 			if err != nil {
 				return nil, err
 			}
 			if _, ok := res[peer]; !ok {
 				res[peer] = currIngressPeerConn
 			} else {
-				res[peer].Union(currIngressPeerConn, false)
+				res[peer].Union(currIngressPeerConn)
 			}
 		}
 	}
@@ -353,7 +351,7 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns, ingObjStr s
 
 // getIngressPeerConnection returns the ingress connection to a peer based on the required port specified in the ingress objects
 func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServicePorts []corev1.ServicePort,
-	requiredPort intstr.IntOrString, ruleName string) (*common.ConnectionSet, error) {
+	requiredPort intstr.IntOrString) (*common.ConnectionSet, error) {
 	peerTCPConn := eval.GetPeerExposedTCPConnections(peer)
 	// get the peer port/s which may be accessed by the service required port
 	// (if the required port is not specified, all service ports are allowed)
@@ -376,7 +374,7 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 
 		if peerTCPConn.Contains(strconv.Itoa(portNum), string(corev1.ProtocolTCP)) {
 			permittedPort := common.MakePortSet(false)
-			permittedPort.AddPort(intstr.FromInt(portNum), common.MakeImplyingRulesWithRule(ruleName, true))
+			permittedPort.AddPort(intstr.FromInt(portNum))
 			res.AddConnection(corev1.ProtocolTCP, permittedPort)
 		}
 	}
