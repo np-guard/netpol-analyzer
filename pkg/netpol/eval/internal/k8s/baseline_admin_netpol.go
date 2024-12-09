@@ -7,9 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 package k8s
 
 import (
+	"errors"
 	"fmt"
 
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
+
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 )
 
 // BaselineAdminNetworkPolicy  is an alias for k8s BaselineAdminNetworkPolicy object
@@ -27,7 +30,7 @@ func (banp *BaselineAdminNetworkPolicy) Selects(p Peer, isIngress bool) (bool, e
 		return false, nil
 	}
 	// check if the subject selects the given peer
-	return subjectSelectsPeer(banp.Spec.Subject, p)
+	return subjectSelectsPeer(banp.Spec.Subject, p, banpErrTitle)
 }
 
 // baselineAdminPolicyAffectsDirection returns whether the banp affects the given direction or not.
@@ -41,9 +44,11 @@ func (banp *BaselineAdminNetworkPolicy) baselineAdminPolicyAffectsDirection(isIn
 	return len(banp.Spec.Egress) > 0
 }
 
+const banpErrTitle = "default baseline admin network policy: "
+
 // banpRuleErr returns string format of an err in a rule in baseline-admin netpol
 func banpRuleErr(ruleName, description string) error {
-	return fmt.Errorf("default baseline admin network policy: %s %q: %s", ruleErrTitle, ruleName, description)
+	return fmt.Errorf("%s%s %q: %s", banpErrTitle, ruleErrTitle, ruleName, description)
 }
 
 func (banp *BaselineAdminNetworkPolicy) fullName() string {
@@ -78,4 +83,53 @@ func (banp *BaselineAdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*P
 		}
 	}
 	return res, nil
+}
+
+// CheckEgressConnAllowed checks if the input conn is allowed/denied on egress by the baseline-admin-network-policy;
+// note that if the baseline-admin-network-policy does not capture the given connection thus it is allowed by default.
+func (banp *BaselineAdminNetworkPolicy) CheckEgressConnAllowed(dst Peer, protocol, port string) (res bool, err error) {
+	for _, rule := range banp.Spec.Egress {
+		rulePeers := rule.To
+		rulePorts := rule.Ports
+		res, err := checkIfEgressRuleContainsConn(rulePeers, rulePorts, dst, string(rule.Action), protocol, port, true)
+		if err != nil {
+			return false, err
+		}
+		if res == NotCaptured { // next rule
+			continue
+		}
+		return allowedByBANPRules(res)
+	}
+	// getting here means the protocol+port was not captured thus allowed as system-default
+	return true, nil
+}
+
+// CheckIngressConnAllowed checks if the input conn is allowed/denied on ingress by the baseline-admin-network-policy;
+// note that if the baseline-admin-network-policy does not capture the given connection thus it is allowed by default.
+func (banp *BaselineAdminNetworkPolicy) CheckIngressConnAllowed(src, dst Peer, protocol, port string) (res bool, err error) {
+	for _, rule := range banp.Spec.Ingress {
+		rulePeers := rule.From
+		rulePorts := rule.Ports
+		res, err := checkIfIngressRuleContainsConn(rulePeers, rulePorts, src, dst, string(rule.Action), protocol, port, true)
+		if err != nil {
+			return false, err
+		}
+		if res == NotCaptured { // next rule
+			continue
+		}
+		return allowedByBANPRules(res)
+	}
+	// getting here means the protocol+port was not captured thus allowed as system-default
+	return true, nil
+}
+
+// analyzeBANPCapturedRes when a baseline-admin-network-policy captures a connection , its result may be Allow or Deny
+func allowedByBANPRules(res ANPRulesResult) (allowedOrDenied bool, err error) {
+	switch res {
+	case Allow:
+		return true, nil
+	case Deny:
+		return false, nil
+	}
+	return false, errors.New(netpolerrors.UnknownRuleActionErr) // will not get here
 }

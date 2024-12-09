@@ -211,6 +211,7 @@ var policyKinds = map[string]bool{
 	BaselineAdminNetworkPolicy: true,
 }
 
+//gocyclo:ignore
 func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) []K8sObject {
 	podNamesMap := make(map[string]bool, 0)
 	nsMap := make(map[string]bool, 0)
@@ -246,6 +247,10 @@ func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) 
 			if _, ok := nsMap[obj.Ingress.Namespace]; ok {
 				res = append(res, obj)
 			}
+		case AdminNetworkPolicy:
+			res = append(res, obj)
+		case BaselineAdminNetworkPolicy:
+			res = append(res, obj)
 		default:
 			continue
 		}

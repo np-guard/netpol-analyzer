@@ -99,10 +99,10 @@ func (pc *PolicyConnections) ComplementPassConns() {
 // and any connection that is not allowed by the netpols is denied.
 // 2. pass connections in current PolicyConnections object will be determined by the input PolicyConnections parameter.
 func (pc *PolicyConnections) CollectAllowedConnsFromNetpols(npConns *PolicyConnections) {
-	// This Union with PassConn does not have effect on the resulting connectios,
+	// This intersection with PassConn does not have effect the resulting connectios,
 	// but it updates implying rules, representing the effect of PassConn as well
-	// We start from PassConn, and union npConns.AllowedConns with it,
-	// because the order of Union impacts the order of implying rules.
+	// We start from PassConn, and intersect it with npConns.AllowedConns,
+	// because the order of intersection impacts the order of implying rules.
 	newConn := pc.PassConns.Copy()
 	newConn.Intersection(npConns.AllowedConns) // collect implying rules from pc.PassConns and npConns.AllowedConns
 	// subtract the denied conns (which are non-overridden) from input conns
