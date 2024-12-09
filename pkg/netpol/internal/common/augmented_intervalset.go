@@ -454,7 +454,7 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval, collec
 		new1 := AugmentedInterval{interval: interval.New(set[left].interval.Start(), v.interval.Start()-1),
 			inSet: set[left].inSet, implyingRules: set[left].implyingRules.Copy()}
 		var newImplyingRules ImplyingRulesType
-		if set[left].inSet == v.inSet { // set[left].implyingRules.mayBeUpdatedBy(v.implyingRules, collectRules)
+		if set[left].inSet == v.inSet {
 			newImplyingRules = set[left].implyingRules.Copy()
 			newImplyingRules.Union(v.implyingRules, collectRules)
 		} else {
