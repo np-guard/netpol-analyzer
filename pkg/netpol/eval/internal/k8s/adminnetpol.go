@@ -33,16 +33,6 @@ type AdminNetworkPolicy struct {
 	warnings                    map[string]bool // set of warnings which are raised by the anp
 }
 
-// note that could not use Generics with GO 1.21 or older versions; since:
-// according to https://tip.golang.org/doc/go1.18#generics :
-// "The Go compiler does not support accessing a struct field x.f where x is of type parameter type even if all types in the type
-// parameter’s type set have a field f. We may remove this restriction in a future release."
-// (till GO 1.21 this restriction is not removed yet.)
-// and to resolve remaining duplicated code for AdminNetworkPolicy and BaselineAdminNetworkPolicy we need the option of using
-// the inner fields of  generic type in the funcs, either implicitly or explicitly.
-// @todo: with upgraded GO version, check if using generics may help avoid remaining duplicates in
-// the files adminnetpol.go and baseline_admin_netpol.go
-
 // Selects returns true if the admin network policy's Spec.Subject selects the peer and if the required direction is in the policy spec
 func (anp *AdminNetworkPolicy) Selects(p Peer, isIngress bool) (bool, error) {
 	if p.PeerType() == IPBlockType {
