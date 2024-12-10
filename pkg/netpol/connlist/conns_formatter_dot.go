@@ -59,7 +59,7 @@ func getPeerLine(peer Peer) (string, bool) {
 
 // returns a dot string form of connections from list of Peer2PeerConnection objects
 // and from exposure-analysis results if exists
-func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error) {
+func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool) (string, error) {
 	// 1. declaration of maps and slices to be used for forming the graph lines
 	nsPeers := make(map[string][]string)     // map from namespace to its peers (grouping peers by namespaces)
 	nsRepPeers := make(map[string][]string)  // map from representative namespace to its representative peers
