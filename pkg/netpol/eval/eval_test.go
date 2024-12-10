@@ -1786,7 +1786,7 @@ func TestPolicyEngineWithWorkloads(t *testing.T) {
 	if len(processingErrs) > 0 {
 		t.Fatalf("TestPolicyEngineWithWorkloads errors: %v", processingErrs)
 	}
-	pe, err := NewPolicyEngineWithObjects(objects)
+	pe, err := NewPolicyEngineWithObjects(objects, false)
 	if err != nil {
 		t.Fatalf("TestPolicyEngineWithWorkloads error: %v", err)
 	}
@@ -1806,6 +1806,9 @@ func pickContainedConn(conn *common.ConnectionSet) (resProtocol, resPort string)
 		return string(v1.ProtocolTCP), defaultPort
 	}
 	for protocol, portSet := range conn.AllowedProtocols {
+		if portSet.IsEmpty() { // at least in some protocol, portSet will not be empty
+			continue
+		}
 		resProtocol = string(protocol)
 		if portSet.IsAll() {
 			resPort = defaultPort
@@ -1829,7 +1832,8 @@ func runParsedResourcesEvalTests(t *testing.T, testList []examples.ParsedResourc
 		test := &testList[i]
 		t.Run(test.Name, func(t *testing.T) {
 			t.Parallel()
-			pe, err := NewPolicyEngineWithObjects(test.GetK8sObjects())
+			// TODO - support explain (and then change the 'false' below to 'true')
+			pe, err := NewPolicyEngineWithObjects(test.GetK8sObjects(), false)
 			require.Nil(t, err, test.TestInfo)
 			for _, evalTest := range test.EvalTests {
 				src := evalTest.Src
@@ -1956,7 +1960,8 @@ func TestDirPathEvalResults(t *testing.T) {
 			require.Empty(t, errs, "test: %q", testName)
 			objectsList, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
 			require.Empty(t, processingErrs, "test: %q", testName)
-			pe, err := NewPolicyEngineWithObjects(objectsList)
+			// TODO - support explain (and then change the 'false' below to 'true')
+			pe, err := NewPolicyEngineWithObjects(objectsList, false)
 			require.Nil(t, err, "test: %q", testName)
 			var src, dst string
 			for podStr, podObj := range pe.podsMap {
