@@ -249,6 +249,32 @@ func (rules *ImplyingRulesType) Union(other ImplyingRulesType, collectRules bool
 	rules.Egress.Union(other.Egress, collectRules)
 }
 
+func (rules *ImplyingRulesType) onlyIngressDirection() bool {
+	return !rules.Ingress.Empty() && rules.Egress.Empty()
+}
+
+func (rules *ImplyingRulesType) onlyEgressDirection() bool {
+	return rules.Ingress.Empty() && !rules.Egress.Empty()
+}
+
+// OverrideUnlessOppositeDirections checks whether rules and other contain only rules of opposite directions
+// (one of them only Ingress and another only Egress).
+// This happens when performing intersection between ingress and egress connections.
+// In this case the function preserves implying rules of both directions (for detailed explainability report).
+// If this is not the case of 'opposite durections' scenario, the function overrides current implying rules by others'.
+func (rules *ImplyingRulesType) OverrideUnlessOppositeDirections(other ImplyingRulesType) {
+	if rules.onlyIngressDirection() && other.onlyEgressDirection() {
+		// opposite directions (Ingress in rules and Egress in other) -> keep Ingress, copy Egress
+		rules.Egress = other.Egress.Copy()
+	} else if rules.onlyEgressDirection() && other.onlyIngressDirection() {
+		// opposite directions (Egress in rules and Ingress in other) -> keep Egress, copy Ingress
+		rules.Ingress = other.Ingress.Copy()
+	} else {
+		// this is not the case of opposite directions -> override everything
+		*rules = other.Copy()
+	}
+}
+
 func (rules ImplyingRulesType) mayBeUpdatedBy(other ImplyingRulesType, collectRules bool) bool {
 	return rules.Ingress.mayBeUpdatedBy(other.Ingress, collectRules) || rules.Egress.mayBeUpdatedBy(other.Egress, collectRules)
 }
@@ -453,12 +479,11 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval, collec
 		// split set[left] into two intervals, while the implying rules of the second interval should get the new value (from v)
 		new1 := AugmentedInterval{interval: interval.New(set[left].interval.Start(), v.interval.Start()-1),
 			inSet: set[left].inSet, implyingRules: set[left].implyingRules.Copy()}
-		var newImplyingRules ImplyingRulesType
+		newImplyingRules := set[left].implyingRules.Copy()
 		if set[left].inSet == v.inSet {
-			newImplyingRules = set[left].implyingRules.Copy()
 			newImplyingRules.Union(v.implyingRules, collectRules)
 		} else {
-			newImplyingRules = v.implyingRules.Copy()
+			newImplyingRules.OverrideUnlessOppositeDirections(v.implyingRules)
 		}
 		new2 := AugmentedInterval{interval: interval.New(v.interval.Start(), min(set[left].interval.End(), v.interval.End())),
 			inSet: v.inSet, implyingRules: newImplyingRules}
@@ -470,14 +495,13 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval, collec
 			(set[right].inSet != v.inSet || set[right].implyingRules.mayBeUpdatedBy(v.implyingRules, collectRules)) {
 			break // this is the corner case handled following the loop below
 		}
-		var newImplyingRules ImplyingRulesType
+		newImplyingRules := set[ind].implyingRules.Copy()
 		if set[ind].inSet == v.inSet {
 			// this interval is not impacted by v;
 			// however, its implying rules may be updated by those of v.
-			newImplyingRules = set[ind].implyingRules.Copy()
 			newImplyingRules.Union(v.implyingRules, collectRules)
 		} else {
-			newImplyingRules = v.implyingRules.Copy()
+			newImplyingRules.OverrideUnlessOppositeDirections(v.implyingRules)
 		}
 		result = append(result, AugmentedInterval{interval: set[ind].interval, inSet: v.inSet, implyingRules: newImplyingRules})
 	}
@@ -488,12 +512,11 @@ func (c *AugmentedCanonicalSet) AddAugmentedInterval(v AugmentedInterval, collec
 		if left < right || (left == right && v.interval.Start() == set[left].interval.Start()) {
 			// a special case when left==right (i.e., v is included in one interval from set) was already handled
 			// at the left-hand side of the intersection of v with set
-			var newImplyingRules ImplyingRulesType
+			newImplyingRules := set[right].implyingRules.Copy()
 			if set[right].inSet == v.inSet {
-				newImplyingRules = set[right].implyingRules.Copy()
 				newImplyingRules.Union(v.implyingRules, collectRules)
 			} else {
-				newImplyingRules = v.implyingRules.Copy()
+				newImplyingRules.OverrideUnlessOppositeDirections(v.implyingRules)
 			}
 			new1 := AugmentedInterval{interval: interval.New(set[right].interval.Start(), v.interval.End()),
 				inSet: v.inSet, implyingRules: newImplyingRules}
@@ -537,12 +560,12 @@ func (c *AugmentedCanonicalSet) Union(other *AugmentedCanonicalSet, collectRules
 	res := NewAugmentedCanonicalSet(c.MinValue(), c.MaxValue(), false)
 	for _, left := range c.intervalSet {
 		if !left.inSet {
-			res.AddAugmentedInterval(left, false)
+			res.AddAugmentedInterval(left, collectRules)
 		}
 	}
 	for _, right := range other.intervalSet {
 		if !right.inSet {
-			res.AddAugmentedInterval(right, false)
+			res.AddAugmentedInterval(right, collectRules)
 		}
 	}
 	for _, left := range c.intervalSet {
@@ -627,12 +650,12 @@ func (c *AugmentedCanonicalSet) Intersect(other *AugmentedCanonicalSet) *Augment
 	}
 	for _, left := range c.intervalSet {
 		if !left.inSet {
-			res.AddAugmentedInterval(left, false)
+			res.AddAugmentedInterval(left, true) // collect implying rules allowed by both sets
 		}
 	}
 	for _, right := range other.intervalSet {
 		if !right.inSet {
-			res.AddAugmentedInterval(right, false)
+			res.AddAugmentedInterval(right, true) // collect implying rules allowed by both sets
 		}
 	}
 	return res

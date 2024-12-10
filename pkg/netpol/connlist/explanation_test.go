@@ -52,12 +52,10 @@ var explainTests = []struct {
 	// 	testDirName: "anp_test_10",
 	// },
 	{
-		testDirName:   "anp_banp_blog_demo",
-		focusWorkload: "my-monitoring",
+		testDirName: "anp_banp_blog_demo",
 	},
 	{
 		testDirName: "anp_banp_blog_demo_2",
-		// focusWorkload: "my-monitoring",
 	},
 	// {
 	// 	testDirName: "ipblockstest",
