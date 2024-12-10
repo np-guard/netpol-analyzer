@@ -104,6 +104,6 @@ The frames in the graph represent namespaces of the analyzed cluster.
 
 Since the analysis assumes the manifest of the ingress controller is unknown, it checks whether an arbitrary workload can access the destination workloads specified in Ingress/Route rules. If such access is not permitted by network policies, this connection is removed from the report. It may be an allowed connection if a network policy specifically allows ingress access to that workload from a specific workload/namespace of the actual ingress controller installed.
 
-`IPv6 addresses are not supported; it will be ignored, and will not appear in the connectivity results.`
+`IPv6 addresses are not supported`
 
 While egress rules with `networks` field in an (baseline-)admin-network-policy may select an external destination by IPv6 address format, such addresses will be ignored and omitted from the connectivity report, since the analysis supports only IPv4 addresses for external IP-blocks.
