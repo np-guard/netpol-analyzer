@@ -61,22 +61,31 @@ type (
 
 	// PolicyEngineOption is the type for specifying options for PolicyEngine,
 	// using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
-	PolicyEngineOption func(*PolicyEngine)
+	PolicyEngineOption func(*PolicyEngine) error
 )
 
 // WithLogger is a functional option which sets the logger for a PolicyEngine to use.
 // The provided logger must conform with the package's Logger interface.
 func WithLogger(l logger.Logger) PolicyEngineOption {
-	return func(pe *PolicyEngine) {
+	return func(pe *PolicyEngine) error {
 		pe.logger = l
+		return nil
 	}
 }
 
 // WithExposureAnalysis is a functional option which directs PolicyEngine to perform exposure analysis
 func WithExposureAnalysis() PolicyEngineOption {
-	return func(pe *PolicyEngine) {
+	return func(pe *PolicyEngine) error {
 		pe.exposureAnalysisFlag = true
 		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)
+		return nil
+	}
+}
+
+// WithObjectsList is a functional option which directs the policyEngine to insert given k8s objects by kind
+func WithObjectsList(objects []parser.K8sObject) PolicyEngineOption {
+	return func(pe *PolicyEngine) error {
+		return pe.addObjectsByKind(objects)
 	}
 }
 
@@ -94,11 +103,10 @@ func NewPolicyEngine() *PolicyEngine {
 	}
 }
 
-// Deprecated : this func call is replaced by NewPolicyEngineWithOptions + AddObjectsByKind
-// currently is used only for testing
+// Deprecated : this func call is contained in NewPolicyEngineWithOptionsList
 func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, error) {
 	pe := NewPolicyEngine()
-	err := pe.AddObjectsByKind(objects)
+	err := pe.addObjectsByKind(objects)
 	return pe, err
 }
 
@@ -113,13 +121,15 @@ func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 	return pe
 }
 
-// NewPolicyEngineWithOptions returns a new policy engine with given options
-func NewPolicyEngineWithOptionsList(opts ...PolicyEngineOption) *PolicyEngine {
-	pe := NewPolicyEngine()
+// NewPolicyEngineWithOptionsList returns a new policy engine with given options
+func NewPolicyEngineWithOptionsList(opts ...PolicyEngineOption) (pe *PolicyEngine, err error) {
+	pe = NewPolicyEngine()
 	for _, o := range opts {
-		o(pe)
+		if err := o(pe); err != nil {
+			return nil, err
+		}
 	}
-	return pe
+	return pe, nil
 }
 
 // AddObjectsForExposureAnalysis adds k8s objects to the policy engine: first adds network-policies and namespaces and then other objects.
@@ -137,13 +147,13 @@ func (pe *PolicyEngine) AddObjectsForExposureAnalysis(objects []parser.K8sObject
 	policiesAndNamespaces, otherObjects := splitPoliciesAndNamespacesAndOtherObjects(objects)
 	// note: in the first call addObjectsByKind with policy objects, will add
 	// the representative peers
-	err := pe.AddObjectsByKind(policiesAndNamespaces)
+	err := pe.addObjectsByKind(policiesAndNamespaces)
 	if err != nil {
 		return err
 	}
 	// note: in the second call addObjectsByKind with workload objects, will possibly remove some
 	// representative peers (for which there is already an identical actual workload with simple selectors)
-	err = pe.AddObjectsByKind(otherObjects)
+	err = pe.addObjectsByKind(otherObjects)
 	return err
 }
 
@@ -164,10 +174,10 @@ func splitPoliciesAndNamespacesAndOtherObjects(objects []parser.K8sObject) (poli
 	return policiesAndNs, others
 }
 
-// AddObjectsByKind adds different k8s objects from parsed resources to the policy engine
+// addObjectsByKind adds different k8s objects from parsed resources to the policy engine
 //
 //gocyclo:ignore
-func (pe *PolicyEngine) AddObjectsByKind(objects []parser.K8sObject) error {
+func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 	var err error
 	for i := range objects {
 		obj := objects[i]

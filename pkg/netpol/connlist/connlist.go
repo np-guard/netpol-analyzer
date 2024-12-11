@@ -200,13 +200,14 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 // getPolicyEngine returns a new policy engine considering the exposure analysis option
 func (ca *ConnlistAnalyzer) getPolicyEngine(objectsList []parser.K8sObject) (*eval.PolicyEngine, error) {
 	if !ca.exposureAnalysis {
-		pe := eval.NewPolicyEngineWithOptionsList(eval.WithLogger(ca.logger))
-		err := pe.AddObjectsByKind(objectsList)
-		return pe, err
+		return eval.NewPolicyEngineWithOptionsList(eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
 	}
 	// else build new policy engine with exposure analysis option
-	pe := eval.NewPolicyEngineWithOptionsList(eval.WithExposureAnalysis(), eval.WithLogger(ca.logger))
-	err := pe.AddObjectsForExposureAnalysis(objectsList)
+	pe, err := eval.NewPolicyEngineWithOptionsList(eval.WithExposureAnalysis(), eval.WithLogger(ca.logger))
+	if err != nil { // will not get here
+		return nil, err
+	}
+	err = pe.AddObjectsForExposureAnalysis(objectsList)
 	return pe, err
 }
 
