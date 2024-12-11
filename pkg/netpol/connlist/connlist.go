@@ -431,7 +431,7 @@ func (ca *ConnlistAnalyzer) getPeersForConnsComputation(pe *eval.PolicyEngine) (
 	peers = convertEvalPeersToConnlistPeer(disjointOfAllIPs)
 
 	// get workload peers - peers from manifests
-	peerList, err := pe.GetPeersList()
+	peerList, err := pe.GetWorkloadPeersList()
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, nil, err
