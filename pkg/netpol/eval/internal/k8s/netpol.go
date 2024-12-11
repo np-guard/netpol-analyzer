@@ -44,7 +44,7 @@ type NetworkPolicy struct {
 	// - the maximal connection-set which the policy's rules allow to external destinations on egress direction
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on egress direction
 	EgressPolicyExposure PolicyExposureWithoutSelectors
-	warnings             map[string]bool // set of warnings which are raised by the netpol
+	warnings             common.Warnings // set of warnings which are raised by the netpol
 }
 
 // @todo might help if while pre-process, to check containment of all rules' connections; if all "specific" rules
@@ -210,7 +210,7 @@ func (np *NetworkPolicy) saveNetpolWarning(warning string) {
 	if np.warnings == nil {
 		np.warnings = make(map[string]bool)
 	}
-	addWarning(np.warnings, warning)
+	np.warnings.AddWarning(warning)
 }
 
 // ruleConnsContain returns true if the given protocol and port are contained in connections allowed by rulePorts
@@ -549,7 +549,7 @@ func (np *NetworkPolicy) fullName() string {
 }
 
 func (np *NetworkPolicy) LogWarnings(l logger.Logger) {
-	logPolicyWarnings(l, np.warnings)
+	np.warnings.LogPolicyWarnings(l)
 }
 
 // /////////////////////////////////////////////////////////////////////////////////////////////

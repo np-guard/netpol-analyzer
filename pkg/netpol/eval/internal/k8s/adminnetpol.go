@@ -30,7 +30,7 @@ import (
 // AdminNetworkPolicy is an alias for k8s adminNetworkPolicy object
 type AdminNetworkPolicy struct {
 	*apisv1a.AdminNetworkPolicy                 // embedding k8s admin-network-policy object
-	warnings                    map[string]bool // set of warnings which are raised by the anp
+	warnings                    common.Warnings // set of warnings which are raised by the anp
 }
 
 // Selects returns true if the admin network policy's Spec.Subject selects the peer and if the required direction is in the policy spec
@@ -80,7 +80,7 @@ func (anp *AdminNetworkPolicy) savePolicyWarnings(ruleName string) {
 		anp.warnings = make(map[string]bool)
 	}
 	for _, warning := range ruleWarnings {
-		addWarning(anp.warnings, anp.anpRuleWarning(ruleName, warning))
+		anp.warnings.AddWarning(anp.anpRuleWarning(ruleName, warning))
 	}
 }
 
@@ -180,7 +180,7 @@ func (anp *AdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error
 }
 
 func (anp *AdminNetworkPolicy) LogWarnings(l logger.Logger) {
-	logPolicyWarnings(l, anp.warnings)
+	anp.warnings.LogPolicyWarnings(l)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -627,18 +627,4 @@ func rulePeersReferencedIPBlocks(rulePeers []apisv1a.AdminNetworkPolicyEgressPee
 		}
 	}
 	return res, nil
-}
-
-// addWarning gets a set of warnings and a warning string; adds the warning to the set if not found
-func addWarning(warningsSet map[string]bool, warning string) {
-	if !warningsSet[warning] {
-		warningsSet[warning] = true
-	}
-}
-
-// logPolicyWarnings gets the logger and a set of policy warnings and logs the warnings
-func logPolicyWarnings(l logger.Logger, warningsSet map[string]bool) {
-	for warning := range warningsSet {
-		l.Warnf(warning)
-	}
 }

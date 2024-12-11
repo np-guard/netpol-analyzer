@@ -16,12 +16,13 @@ import (
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // BaselineAdminNetworkPolicy  is an alias for k8s BaselineAdminNetworkPolicy object
 type BaselineAdminNetworkPolicy struct {
 	*apisv1a.BaselineAdminNetworkPolicy                 // embedding k8s BaselineAdminNetworkPolicy object
-	warnings                            map[string]bool // set of warnings which are raised by the banp
+	warnings                            common.Warnings // set of warnings which are raised by the banp
 }
 
 // Selects returns true if the baseline admin network policy's Spec.Subject selects the peer and if
@@ -71,7 +72,7 @@ func (banp *BaselineAdminNetworkPolicy) savePolicyWarnings(ruleName string) {
 		banp.warnings = make(map[string]bool)
 	}
 	for _, warning := range ruleWarnings {
-		addWarning(banp.warnings, banpRuleWarning(ruleName, warning))
+		banp.warnings.AddWarning(banpRuleWarning(ruleName, warning))
 	}
 }
 
@@ -175,5 +176,5 @@ func (banp *BaselineAdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlo
 }
 
 func (banp *BaselineAdminNetworkPolicy) LogWarnings(l logger.Logger) {
-	logPolicyWarnings(l, banp.warnings)
+	banp.warnings.LogPolicyWarnings(l)
 }
