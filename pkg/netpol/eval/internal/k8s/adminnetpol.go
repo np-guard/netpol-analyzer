@@ -601,9 +601,8 @@ func isIPv6Cidr(cidr apisv1a.CIDR) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	ip := ipNet.IP
 	// if the IP is IPv6, return true
-	return ip.To4() == nil, nil
+	return ipNet.IP.To4() == nil, nil
 }
 
 // rulePeersReferencedNetworks returns a list of IPBlocks representing the CIDRs referenced by the given rulePeers' Networks field.
