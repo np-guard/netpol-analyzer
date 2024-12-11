@@ -109,21 +109,27 @@ func (da *DiffAnalyzer) computeDiffFromConnlistResults(
 ) (ConnectivityDiff, error) {
 	workloadsNames1, workloadsNames2 := getPeersNamesFromPeersList(workloads1), getPeersNamesFromPeersList(workloads2)
 
-	// get disjoint ip-blocks from both configs
-	ipPeers1, ipPeers2 := getIPblocksFromConnList(conns1), getIPblocksFromConnList(conns2)
-	disjointPeerIPMap, err := eval.DisjointPeerIPMap(ipPeers1, ipPeers2)
+	// get disjoint src and dst ip-blocks from both configs
+	srcIPPeers1, dstIPPeers1 := getIPblocksFromConnList(conns1)
+	srcIPPeers2, dstIPPeers2 := getIPblocksFromConnList(conns2)
+	srcDisjointPeerIPMap, err := eval.DisjointPeerIPMap(srcIPPeers1, srcIPPeers2)
+	if err != nil {
+		da.errors = append(da.errors, newHandlingIPpeersError(err))
+		return nil, err
+	}
+	dstDisjointPeerIPMap, err := eval.DisjointPeerIPMap(dstIPPeers1, dstIPPeers2)
 	if err != nil {
 		da.errors = append(da.errors, newHandlingIPpeersError(err))
 		return nil, err
 	}
 
 	// refine conns1,conns2 based on common disjoint ip-blocks
-	conns1Refined, err := connlist.RefineConnListByDisjointPeers(conns1, disjointPeerIPMap)
+	conns1Refined, err := connlist.RefineConnListByDisjointPeers(conns1, srcDisjointPeerIPMap, dstDisjointPeerIPMap)
 	if err != nil {
 		da.errors = append(da.errors, newHandlingIPpeersError(err))
 		return nil, err
 	}
-	conns2Refined, err := connlist.RefineConnListByDisjointPeers(conns2, disjointPeerIPMap)
+	conns2Refined, err := connlist.RefineConnListByDisjointPeers(conns2, srcDisjointPeerIPMap, dstDisjointPeerIPMap)
 	if err != nil {
 		da.errors = append(da.errors, newHandlingIPpeersError(err))
 		return nil, err
@@ -235,28 +241,33 @@ func logErrOrWarning(d DiffError, l logger.Logger) {
 	}
 }
 
-// create set from peers-strings
+// create set from peers-strings;
+// peers is a list of workloads from the manifests
 func getPeersNamesFromPeersList(peers []connlist.Peer) map[string]bool {
 	peersSet := make(map[string]bool, 0)
 	for _, peer := range peers {
-		if !peer.IsPeerIPType() {
-			peersSet[peer.String()] = true
-		}
+		peersSet[peer.String()] = true
 	}
 	return peersSet
 }
 
 // getIPblocksFromConnList returns the list of peers of IP type from Peer2PeerConnection slice
-func getIPblocksFromConnList(conns []connlist.Peer2PeerConnection) []eval.Peer {
-	peersMap := map[string]eval.Peer{}
+func getIPblocksFromConnList(conns []connlist.Peer2PeerConnection) (srcPeers, dstPeers []eval.Peer) {
+	srcPeersMap := map[string]eval.Peer{}
+	dstPeersMap := map[string]eval.Peer{}
 	for _, p2p := range conns {
 		if p2p.Src().IsPeerIPType() {
-			peersMap[p2p.Src().String()] = p2p.Src()
+			srcPeersMap[p2p.Src().String()] = p2p.Src()
 		}
 		if p2p.Dst().IsPeerIPType() {
-			peersMap[p2p.Dst().String()] = p2p.Dst()
+			dstPeersMap[p2p.Dst().String()] = p2p.Dst()
 		}
 	}
+	return getPeersSliceFromSet(srcPeersMap), getPeersSliceFromSet(dstPeersMap)
+}
+
+// getPeersSliceFromSet returns slice from the map keys
+func getPeersSliceFromSet(peersMap map[string]eval.Peer) []eval.Peer {
 	res := make([]eval.Peer, len(peersMap))
 	i := 0
 	for _, p := range peersMap {

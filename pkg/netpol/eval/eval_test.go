@@ -1752,7 +1752,7 @@ func TestDisjointIpBlocks(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	ipList, err := pe.getDisjointIPBlocks()
+	_, _, ipList, err := pe.getDisjointIPBlocks()
 	if err != nil {
 		t.Fatalf("unexpected err getDisjointIPBlocks: %v", err)
 	}
@@ -1786,7 +1786,7 @@ func TestPolicyEngineWithWorkloads(t *testing.T) {
 	if len(processingErrs) > 0 {
 		t.Fatalf("TestPolicyEngineWithWorkloads errors: %v", processingErrs)
 	}
-	pe, err := NewPolicyEngineWithObjects(objects)
+	pe, err := NewPolicyEngineWithOptionsList(WithObjectsList(objects))
 	if err != nil {
 		t.Fatalf("TestPolicyEngineWithWorkloads error: %v", err)
 	}
@@ -1829,7 +1829,7 @@ func runParsedResourcesEvalTests(t *testing.T, testList []examples.ParsedResourc
 		test := &testList[i]
 		t.Run(test.Name, func(t *testing.T) {
 			t.Parallel()
-			pe, err := NewPolicyEngineWithObjects(test.GetK8sObjects())
+			pe, err := NewPolicyEngineWithOptionsList(WithObjectsList(test.GetK8sObjects()))
 			require.Nil(t, err, test.TestInfo)
 			for _, evalTest := range test.EvalTests {
 				src := evalTest.Src
@@ -1956,7 +1956,7 @@ func TestDirPathEvalResults(t *testing.T) {
 			require.Empty(t, errs, "test: %q", testName)
 			objectsList, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
 			require.Empty(t, processingErrs, "test: %q", testName)
-			pe, err := NewPolicyEngineWithObjects(objectsList)
+			pe, err := NewPolicyEngineWithOptionsList(WithObjectsList(objectsList))
 			require.Nil(t, err, "test: %q", testName)
 			var src, dst string
 			for podStr, podObj := range pe.podsMap {

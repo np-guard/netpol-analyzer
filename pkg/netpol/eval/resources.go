@@ -24,6 +24,7 @@ import (
 	"github.com/np-guard/models/pkg/netset"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -33,6 +34,7 @@ type (
 	// PolicyEngine encapsulates the current "world view" (e.g., workloads, policies)
 	// and allows querying it for allowed or denied connections.
 	PolicyEngine struct {
+		logger                          logger.Logger
 		namespacesMap                   map[string]*k8s.Namespace                // map from ns name to ns object
 		podsMap                         map[string]*k8s.Pod                      // map from pod name to pod object
 		netpolsMap                      map[string]map[string]*k8s.NetworkPolicy // map from namespace to map from netpol name to its object
@@ -46,6 +48,7 @@ type (
 		exposureAnalysisFlag   bool
 		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
 		// used only with exposure analysis (representative peer object is a workloadPeer with kind == "RepresentativePeer")
+		objectsList []parser.K8sObject // list of k8s objects to be inserted to the policy-engine
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -56,7 +59,34 @@ type (
 		// DeleteObject removes an object from the policy engine's view of the world
 		DeleteObject(obj runtime.Object) error
 	}
+
+	// PolicyEngineOption is the type for specifying options for PolicyEngine,
+	// using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
+	PolicyEngineOption func(*PolicyEngine)
 )
+
+// WithLogger is a functional option which sets the logger for a PolicyEngine to use.
+// The provided logger must conform with the package's Logger interface.
+func WithLogger(l logger.Logger) PolicyEngineOption {
+	return func(pe *PolicyEngine) {
+		pe.logger = l
+	}
+}
+
+// WithExposureAnalysis is a functional option which directs PolicyEngine to perform exposure analysis
+func WithExposureAnalysis() PolicyEngineOption {
+	return func(pe *PolicyEngine) {
+		pe.exposureAnalysisFlag = true
+		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)
+	}
+}
+
+// WithObjectsList is a functional option which directs the policyEngine to insert given k8s objects by kind
+func WithObjectsList(objects []parser.K8sObject) PolicyEngineOption {
+	return func(pe *PolicyEngine) {
+		pe.objectsList = objects
+	}
+}
 
 // NewPolicyEngine returns a new PolicyEngine with an empty initial state
 func NewPolicyEngine() *PolicyEngine {
@@ -68,9 +98,11 @@ func NewPolicyEngine() *PolicyEngine {
 		adminNetpolsMap:                 make(map[string]bool),
 		cache:                           newEvalCache(),
 		exposureAnalysisFlag:            false,
+		logger:                          logger.NewDefaultLogger(),
 	}
 }
 
+// Deprecated : this func call is contained in NewPolicyEngineWithOptionsList
 func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, error) {
 	pe := NewPolicyEngine()
 	err := pe.addObjectsByKind(objects)
@@ -78,7 +110,7 @@ func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, erro
 }
 
 // NewPolicyEngineWithOptions returns a new policy engine with an empty state but updating the exposure analysis flag
-// TBD: currently exposure-analysis is the only option supported by policy-engine, so no need for options list param
+// Deprecated: this function is implemented also within NewPolicyEngineWithOptionsList
 func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 	pe := NewPolicyEngine()
 	pe.exposureAnalysisFlag = exposureFlag
@@ -88,7 +120,24 @@ func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 	return pe
 }
 
-// AddObjectsForExposureAnalysis adds k8s objects to the policy engine: first adds network-policies and namespaces and then other objects.
+// NewPolicyEngineWithOptionsList returns a new policy engine with given options
+func NewPolicyEngineWithOptionsList(opts ...PolicyEngineOption) (pe *PolicyEngine, err error) {
+	pe = NewPolicyEngine()
+	for _, o := range opts {
+		o(pe)
+	}
+	// if objects list is not empty insert objects by kind and considering exposure-analysis flag
+	if len(pe.objectsList) > 0 {
+		if pe.exposureAnalysisFlag {
+			err = pe.addObjectsForExposureAnalysis()
+		} else {
+			err = pe.addObjectsByKind(pe.objectsList)
+		}
+	}
+	return pe, err
+}
+
+// addObjectsForExposureAnalysis adds pe's k8s objects: first adds network-policies and namespaces and then other objects.
 // for exposure analysis we need to insert first policies and namespaces so:
 // 1. policies: so a representative peer for each policy rule is added
 // 2. namespaces: so when inserting workloads, we'll be able to check correctly if a generated representative peer
@@ -96,11 +145,11 @@ func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 // i.e. when inserting a new real workload/pod, all real namespaces will be already inserted for sure and the
 // real labels will be considered correctly when looping the representative peers.
 // this func is called only for exposure analysis; otherwise does nothing
-func (pe *PolicyEngine) AddObjectsForExposureAnalysis(objects []parser.K8sObject) error {
+func (pe *PolicyEngine) addObjectsForExposureAnalysis() error {
 	if !pe.exposureAnalysisFlag { // should not be true ever
 		return nil
 	}
-	policiesAndNamespaces, otherObjects := splitPoliciesAndNamespacesAndOtherObjects(objects)
+	policiesAndNamespaces, otherObjects := splitPoliciesAndNamespacesAndOtherObjects(pe.objectsList)
 	// note: in the first call addObjectsByKind with policy objects, will add
 	// the representative peers
 	err := pe.addObjectsByKind(policiesAndNamespaces)
@@ -492,8 +541,11 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 	if pe.adminNetpolsMap[anp.Name] {
 		return errors.New(netpolerrors.ANPsWithSameNameErr(anp.Name))
 	}
+	newAnp := &k8s.AdminNetworkPolicy{
+		AdminNetworkPolicy: anp,
+	}
 	pe.adminNetpolsMap[anp.Name] = true
-	pe.sortedAdminNetpols = append(pe.sortedAdminNetpols, (*k8s.AdminNetworkPolicy)(anp))
+	pe.sortedAdminNetpols = append(pe.sortedAdminNetpols, newAnp)
 	return nil
 }
 
@@ -510,7 +562,10 @@ func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineA
 		// or this: https://pkg.go.dev/sigs.k8s.io/network-policy-api@v0.1.5/apis/v1alpha1#BaselineAdminNetworkPolicy
 		return errors.New(netpolerrors.BANPNameAssertion)
 	}
-	pe.baselineAdminNetpol = (*k8s.BaselineAdminNetworkPolicy)(banp)
+	newBanp := &k8s.BaselineAdminNetworkPolicy{
+		BaselineAdminNetworkPolicy: banp,
+	}
+	pe.baselineAdminNetpol = newBanp
 	return nil
 }
 
@@ -576,7 +631,7 @@ func (pe *PolicyEngine) deleteAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 	delete(pe.adminNetpolsMap, anp.Name)
 	// delete anp from the pe.sortedAdminNetpols list
 	for i, item := range pe.sortedAdminNetpols {
-		if item == (*k8s.AdminNetworkPolicy)(anp) {
+		if item.AdminNetworkPolicy == anp {
 			// assign to pe.sortedAdminNetpols all ANPs except for current item
 			pe.sortedAdminNetpols = append(pe.sortedAdminNetpols[:i], pe.sortedAdminNetpols[i+1:]...)
 			break
@@ -619,22 +674,29 @@ func (pe *PolicyEngine) createPodOwnersMap() (map[string]Peer, error) {
 
 // GetPeersList returns a slice of peers from all PolicyEngine resources
 // get peers in level of workloads (pod owners) of type WorkloadPeer, and ip-blocks
+// Deprecated - instead using funcs GetWorkloadPeersList and GetIPBlockPeersLists
 func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
+	_, _, res, err := pe.GetIPBlockPeersLists()
+	if err != nil {
+		return nil, err
+	}
+	workloads, err := pe.GetWorkloadPeersList()
+	if err != nil {
+		return nil, err
+	}
+	res = append(res, workloads...)
+	return res, nil
+}
+
+// GetWorkloadPeersList returns a slice of peers from all PolicyEngine resources
+// get peers in level of workloads (pod owners) of type WorkloadPeer
+func (pe *PolicyEngine) GetWorkloadPeersList() ([]Peer, error) {
 	podOwnersMap, err := pe.createPodOwnersMap()
 	if err != nil {
 		return nil, err
 	}
-	ipBlocks, err := pe.getDisjointIPBlocks()
-	if err != nil {
-		return nil, err
-	}
-
-	// add ip-blocks to peers list
-	res := make([]Peer, len(ipBlocks)+len(podOwnersMap))
-	for i := range ipBlocks {
-		res[i] = &k8s.IPBlockPeer{IPBlock: ipBlocks[i]}
-	}
-	index := len(ipBlocks)
+	res := make([]Peer, len(podOwnersMap))
+	index := 0
 	// add workload peer objects to peers list
 	for _, workloadPeer := range podOwnersMap {
 		res[index] = workloadPeer
@@ -654,21 +716,83 @@ func (pe *PolicyEngine) GetRepresentativePeersList() []Peer {
 	return res
 }
 
-// getDisjointIPBlocks returns a slice of disjoint ip-blocks from all netpols resources
-func (pe *PolicyEngine) getDisjointIPBlocks() ([]*netset.IPBlock, error) {
-	var ipbList []*netset.IPBlock
-	for _, nsMap := range pe.netpolsMap {
-		for _, policy := range nsMap {
-			policyIPBlocksList, err := policy.GetReferencedIPBlocks()
-			if err != nil {
-				return nil, err
-			}
-			ipbList = append(ipbList, policyIPBlocksList...)
+// GetIPBlockPeersLists returns slices of src and dst IP-Block peers from all policy resources
+// also returns one disjoint union src and dst ip-block peers slice
+func (pe *PolicyEngine) GetIPBlockPeersLists() (srcIPPeers, dstIPPeers, disjointIPPeers []Peer, err error) {
+	srcIPBlocks, dstIPBlocks, allIPBlocks, err := pe.getDisjointIPBlocks()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	srcIPPeers = make([]Peer, len(srcIPBlocks))
+	dstIPPeers = make([]Peer, len(dstIPBlocks))
+	for i := range srcIPBlocks {
+		srcIPPeers[i] = &k8s.IPBlockPeer{IPBlock: srcIPBlocks[i]}
+	}
+	for i := range dstIPBlocks {
+		dstIPPeers[i] = &k8s.IPBlockPeer{IPBlock: dstIPBlocks[i]}
+	}
+	for i := range allIPBlocks {
+		disjointIPPeers = append(disjointIPPeers, &k8s.IPBlockPeer{IPBlock: allIPBlocks[i]})
+	}
+	return srcIPPeers, dstIPPeers, disjointIPPeers, nil
+}
+
+// getDisjointIPBlocks returns two slices of disjoint ip-blocks from all policy resources;
+// one slice from ingress rules - srcIpbList
+// and  the other dstIpbList from egress rules
+func (pe *PolicyEngine) getDisjointIPBlocks() (srcIpbList, dstIpbList, allIpsList []*netset.IPBlock, err error) {
+	srcIPBlocks, dstIPBlocks, err := pe.getDisjointIPBlocksFromNetpols()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	// in (B)Admin netpols only egress rules may contains ip addresses - so only dst-s may contain disjointed ip-blocks peers
+	anpDstIpbList, err := pe.getDisjointIPBlocksFromAdminNetpols()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	dstIPBlocks = append(dstIPBlocks, anpDstIpbList...)
+	if pe.baselineAdminNetpol != nil {
+		banpDstIPList, err := pe.baselineAdminNetpol.GetReferencedIPBlocks()
+		if err != nil {
+			return nil, nil, nil, err
 		}
+		dstIPBlocks = append(dstIPBlocks, banpDstIPList...)
 	}
 	newAll := netset.GetCidrAll()
-	disjointRes := netset.DisjointIPBlocks(ipbList, []*netset.IPBlock{newAll})
-	return disjointRes, nil
+	disjointSrcRes := netset.DisjointIPBlocks(srcIPBlocks, []*netset.IPBlock{newAll})
+	disjointDstRes := netset.DisjointIPBlocks(dstIPBlocks, []*netset.IPBlock{newAll})
+	disjointAllIps := netset.DisjointIPBlocks(disjointSrcRes, disjointDstRes)
+	return disjointSrcRes, disjointDstRes, disjointAllIps, nil
+}
+
+// getDisjointIPBlocksFromNetpols returns src and dst slices of disjoint ip-blocks from all netpols
+// (NetworkPolicy objects)
+func (pe *PolicyEngine) getDisjointIPBlocksFromNetpols() (srcIpbList, dstIpbList []*netset.IPBlock, err error) {
+	for _, nsMap := range pe.netpolsMap {
+		for _, policy := range nsMap {
+			policySrcIps, policyDstIps, err := policy.GetReferencedIPBlocks()
+			if err != nil {
+				return nil, nil, err
+			}
+			srcIpbList = append(srcIpbList, policySrcIps...)
+			dstIpbList = append(dstIpbList, policyDstIps...)
+		}
+	}
+	return srcIpbList, dstIpbList, nil
+}
+
+// getDisjointIPBlocksFromAdminNetpols returns a slice of disjoint IPBlocks from all admin netpols
+// (AdminNetworkPolicy objects)
+func (pe *PolicyEngine) getDisjointIPBlocksFromAdminNetpols() ([]*netset.IPBlock, error) {
+	var ipbList []*netset.IPBlock
+	for _, anp := range pe.sortedAdminNetpols {
+		anpIPBlocksList, err := anp.GetReferencedIPBlocks()
+		if err != nil {
+			return nil, err
+		}
+		ipbList = append(ipbList, anpIPBlocksList...)
+	}
+	return ipbList, nil
 }
 
 // GetSelectedPeers returns list of workload peers in the given namespace which match the given labels selector
@@ -770,4 +894,26 @@ func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.Sin
 	// add the new representative peer to the policy-engine
 	pe.representativePeersMap[keyStrFromLabels] = newRepresentativePeer
 	return nil
+}
+
+// LogPoliciesWarnings prints to the logger all warnings raised by policy rules while computing
+// allowed connections between peers.
+// calling this func once after all computations are done, ensures that :
+// - all relevant warnings from looping policy rules are raised
+// - each single warning is printed only once to the logger
+func (pe *PolicyEngine) LogPoliciesWarnings() {
+	// log warnings from k8s NetworkPolicy objects
+	for _, nsMap := range pe.netpolsMap {
+		for _, policy := range nsMap {
+			policy.LogWarnings(pe.logger)
+		}
+	}
+	// log warnings from AdminNetworkPolicy objects
+	for _, anp := range pe.sortedAdminNetpols {
+		anp.LogWarnings(pe.logger)
+	}
+	// log warnings from the BaselineAdminNetworkPolicy
+	if pe.baselineAdminNetpol != nil {
+		pe.baselineAdminNetpol.LogWarnings(pe.logger)
+	}
 }

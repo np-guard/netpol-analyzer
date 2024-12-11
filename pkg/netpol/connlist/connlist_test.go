@@ -15,6 +15,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/examples"
 
 	"github.com/stretchr/testify/require"
@@ -172,6 +173,16 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 			dirName:          "np_bad_path_test_1",
 			errorStrContains: netpolerrors.NPWithSameNameError("default/backend-netpol"),
 		},
+		{
+			name:             "Input_dir_has_netpol_with_illegal_port_should_return_fatal_error",
+			dirName:          "np_bad_path_test_2",
+			errorStrContains: alerts.EndPortWithNamedPortErrStr,
+		},
+		{
+			name:             "Input_dir_has_netpol_with_illegal_port_range_should_return_fatal_error",
+			dirName:          "np_test_with_empty_port_range",
+			errorStrContains: alerts.IllegalPortRangeError(10, 1),
+		},
 		// anp & banp bad path tests
 		{
 			name:             "Input_dir_has_two_admin_netpols_with_same_priority_should_return_fatal_error",
@@ -247,6 +258,11 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_ingress_rule_port_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_17",
 			errorStrContains: netpolerrors.ANPPortsError,
+		},
+		{
+			name:             "Input_dir_has_an_admin_netpol_with_an_illegal_rule_port_range_should_return_fatal_error",
+			dirName:          "anp_test_with_empty_port_range",
+			errorStrContains: alerts.IllegalPortRangeError(10, 1),
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_ingress_rule_action_should_return_fatal_error",
@@ -563,6 +579,59 @@ func TestErrorsAndWarningsConnlistFromDirPathOnly(t *testing.T) {
 	}
 }
 
+func TestLoggerWarnings(t *testing.T) {
+	// this test contains writing to a buffer , so it is not running in parallel to other tests.
+	// (we need to add mutex to the TestLogger if we wish to run the tests in parallel)
+	cases := []struct {
+		name                        string
+		dirName                     string
+		expectedWarningsStrContains []string
+	}{
+		{
+			name:                        "input_admin_policy_contains_nodes_egress_peer_should_get_warning",
+			dirName:                     "anp_and_banp_using_networks_and_nodes_test",
+			expectedWarningsStrContains: []string{alerts.WarnUnsupportedNodesField},
+		},
+		{
+			name:                        "input_admin_policy_contains_ipv6_addresses_in_networks_egress_peer_should_get_warning",
+			dirName:                     "anp_and_banp_using_networks_with_ipv6_test",
+			expectedWarningsStrContains: []string{alerts.WarnUnsupportedIPv6Address},
+		},
+		{
+			name:    "input_admin_policy_contains_unsupported_fields_and_unknown_named_port_should_get_some_warnings",
+			dirName: "anp_banp_test_multiple_warnings",
+			expectedWarningsStrContains: []string{
+				alerts.WarnUnsupportedIPv6Address,
+				alerts.WarnUnsupportedNodesField,
+				alerts.WarnPrefixPortName,
+			},
+		},
+		{
+			name:                        "input_admin_policy_contains_unknown_port_name_should_get_warning",
+			dirName:                     "anp_banp_test_with_named_port_unmatched",
+			expectedWarningsStrContains: []string{alerts.WarnPrefixPortName},
+		},
+		{
+			name:                        "input_admin_policy_contains_named_port_with_networks_should_get_warning",
+			dirName:                     "anp_test_named_ports_multiple_peers",
+			expectedWarningsStrContains: []string{alerts.WarnNamedPortIgnoredForIP},
+		},
+	}
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			tLogger := testutils.NewTestLogger()
+			_, _, err := getConnlistFromDirPathRes([]ConnlistAnalyzerOption{WithLogger(tLogger)}, tt.dirName)
+			require.Nil(t, err, "test: %q", tt.name)
+			logMsges := tLogger.GetLoggerMessages()
+			for _, warn := range tt.expectedWarningsStrContains {
+				require.Contains(t, logMsges, warn,
+					"test: %q; logger warnings do not contain the expected warning : %q", tt.name, warn)
+			}
+		})
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // TestNotContainedOutputLines tests output for non-expected lines to be contained
@@ -581,13 +650,13 @@ func TestNotContainedOutputLines(t *testing.T) {
 			name:                 "connlist_does_not_contain_connections_from_focus_workload_to_itself",
 			dirName:              "ipblockstest",
 			focusWorkload:        "calico-node",
-			expectedResultLen:    49,
+			expectedResultLen:    43,
 			extractedLineExample: "kube-system/calico-node[DaemonSet] => kube-system/calico-node[DaemonSet] : All Connections",
 		},
 		{
 			name:                 "connlist_of_dir_does_not_contain_any_line_of_connections_from_workload_to_itself",
 			dirName:              "ipblockstest",
-			expectedResultLen:    602,
+			expectedResultLen:    470,
 			extractedLineExample: "kube-system/calico-node[DaemonSet] => kube-system/calico-node[DaemonSet] : All Connections",
 		},
 	}
@@ -1499,6 +1568,35 @@ var goodPathTests = []struct {
 	{
 		testDirName:   "anp_banp_blog_demo",
 		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_and_banp_using_networks_test",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "anp_banp_test_with_named_port_matched",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	// anp tests that raise warnings too (@todo add unit test for warning messages!!)
+	{
+		testDirName:   "anp_and_banp_using_networks_and_nodes_test",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		testDirName:   "anp_and_banp_using_networks_with_ipv6_test",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		testDirName:   "anp_banp_test_multiple_warnings",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		testDirName:   "anp_banp_test_with_named_port_unmatched",
+		outputFormats: []string{output.DefaultFormat},
+	},
+	{
+		testDirName:   "anp_test_named_ports_multiple_peers",
+		outputFormats: []string{output.DefaultFormat},
 	},
 }
 

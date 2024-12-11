@@ -179,7 +179,11 @@ func runEvalCommand() error {
 		podNames = append(podNames, sourcePod)
 	}
 
-	pe := eval.NewPolicyEngine()
+	cLogger := logger.NewDefaultLoggerWithVerbosity(determineLogVerbosity())
+	pe, err := eval.NewPolicyEngineWithOptionsList(eval.WithLogger(cLogger))
+	if err != nil { // will not get here
+		return err
+	}
 
 	if dirPath != "" {
 		if err := updatePolicyEngineObjectsFromDirPath(pe, podNames); err != nil {
