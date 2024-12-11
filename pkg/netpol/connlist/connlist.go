@@ -203,12 +203,7 @@ func (ca *ConnlistAnalyzer) getPolicyEngine(objectsList []parser.K8sObject) (*ev
 		return eval.NewPolicyEngineWithOptionsList(eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
 	}
 	// else build new policy engine with exposure analysis option
-	pe, err := eval.NewPolicyEngineWithOptionsList(eval.WithExposureAnalysis(), eval.WithLogger(ca.logger))
-	if err != nil { // will not get here
-		return nil, err
-	}
-	err = pe.AddObjectsForExposureAnalysis(objectsList)
-	return pe, err
+	return eval.NewPolicyEngineWithOptionsList(eval.WithExposureAnalysis(), eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
 }
 
 func (ca *ConnlistAnalyzer) connsListFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {

@@ -48,6 +48,7 @@ type (
 		exposureAnalysisFlag   bool
 		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
 		// used only with exposure analysis (representative peer object is a workloadPeer with kind == "RepresentativePeer")
+		objectsList []parser.K8sObject // list of k8s objects to be inserted to the policy-engine
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -61,31 +62,29 @@ type (
 
 	// PolicyEngineOption is the type for specifying options for PolicyEngine,
 	// using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
-	PolicyEngineOption func(*PolicyEngine) error
+	PolicyEngineOption func(*PolicyEngine)
 )
 
 // WithLogger is a functional option which sets the logger for a PolicyEngine to use.
 // The provided logger must conform with the package's Logger interface.
 func WithLogger(l logger.Logger) PolicyEngineOption {
-	return func(pe *PolicyEngine) error {
+	return func(pe *PolicyEngine) {
 		pe.logger = l
-		return nil
 	}
 }
 
 // WithExposureAnalysis is a functional option which directs PolicyEngine to perform exposure analysis
 func WithExposureAnalysis() PolicyEngineOption {
-	return func(pe *PolicyEngine) error {
+	return func(pe *PolicyEngine) {
 		pe.exposureAnalysisFlag = true
 		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)
-		return nil
 	}
 }
 
 // WithObjectsList is a functional option which directs the policyEngine to insert given k8s objects by kind
 func WithObjectsList(objects []parser.K8sObject) PolicyEngineOption {
-	return func(pe *PolicyEngine) error {
-		return pe.addObjectsByKind(objects)
+	return func(pe *PolicyEngine) {
+		pe.objectsList = objects
 	}
 }
 
@@ -125,14 +124,20 @@ func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 func NewPolicyEngineWithOptionsList(opts ...PolicyEngineOption) (pe *PolicyEngine, err error) {
 	pe = NewPolicyEngine()
 	for _, o := range opts {
-		if err := o(pe); err != nil {
-			return nil, err
+		o(pe)
+	}
+	// if objects list is not empty insert objects by kind and considering exposure-analysis flag
+	if len(pe.objectsList) > 0 {
+		if pe.exposureAnalysisFlag {
+			err = pe.addObjectsForExposureAnalysis()
+		} else {
+			err = pe.addObjectsByKind(pe.objectsList)
 		}
 	}
-	return pe, nil
+	return pe, err
 }
 
-// AddObjectsForExposureAnalysis adds k8s objects to the policy engine: first adds network-policies and namespaces and then other objects.
+// addObjectsForExposureAnalysis adds pe's k8s objects: first adds network-policies and namespaces and then other objects.
 // for exposure analysis we need to insert first policies and namespaces so:
 // 1. policies: so a representative peer for each policy rule is added
 // 2. namespaces: so when inserting workloads, we'll be able to check correctly if a generated representative peer
@@ -140,11 +145,11 @@ func NewPolicyEngineWithOptionsList(opts ...PolicyEngineOption) (pe *PolicyEngin
 // i.e. when inserting a new real workload/pod, all real namespaces will be already inserted for sure and the
 // real labels will be considered correctly when looping the representative peers.
 // this func is called only for exposure analysis; otherwise does nothing
-func (pe *PolicyEngine) AddObjectsForExposureAnalysis(objects []parser.K8sObject) error {
+func (pe *PolicyEngine) addObjectsForExposureAnalysis() error {
 	if !pe.exposureAnalysisFlag { // should not be true ever
 		return nil
 	}
-	policiesAndNamespaces, otherObjects := splitPoliciesAndNamespacesAndOtherObjects(objects)
+	policiesAndNamespaces, otherObjects := splitPoliciesAndNamespacesAndOtherObjects(pe.objectsList)
 	// note: in the first call addObjectsByKind with policy objects, will add
 	// the representative peers
 	err := pe.addObjectsByKind(policiesAndNamespaces)
