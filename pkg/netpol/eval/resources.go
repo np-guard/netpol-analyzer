@@ -676,26 +676,15 @@ func (pe *PolicyEngine) createPodOwnersMap() (map[string]Peer, error) {
 // get peers in level of workloads (pod owners) of type WorkloadPeer, and ip-blocks
 // Deprecated - instead using funcs GetWorkloadPeersList and GetIPBlockPeersLists
 func (pe *PolicyEngine) GetPeersList() ([]Peer, error) {
-	podOwnersMap, err := pe.createPodOwnersMap()
+	_, _, res, err := pe.GetIPBlockPeersLists()
 	if err != nil {
 		return nil, err
 	}
-	_, _, ipBlocks, err := pe.getDisjointIPBlocks()
+	workloads, err := pe.GetWorkloadPeersList()
 	if err != nil {
 		return nil, err
 	}
-
-	// add ip-blocks to peers list
-	res := make([]Peer, len(ipBlocks)+len(podOwnersMap))
-	for i := range ipBlocks {
-		res[i] = &k8s.IPBlockPeer{IPBlock: ipBlocks[i]}
-	}
-	index := len(ipBlocks)
-	// add workload peer objects to peers list
-	for _, workloadPeer := range podOwnersMap {
-		res[index] = workloadPeer
-		index++
-	}
+	res = append(res, workloads...)
 	return res, nil
 }
 
