@@ -412,7 +412,12 @@ func convertEvalPeersToConnlistPeer(peers []eval.Peer) []Peer {
 	return res
 }
 
-// getPeersForConnsComputation returns two slices of src and dst peers and a union slice of all peers (disjoint);
+// getPeersForConnsComputation returns two slices of src and dst peers and a slice of workload peers.
+// - srcPeers contains all workload peers from manifests + (if exposure-analysis) representative peers + disjoint ip-blocks
+// from ingress policy rules
+// - dstPeers contains all workload peers from manifests + (if exposure-analysis) representative peers + disjoint ip-blocks
+// from egress policy rules
+// - peers is list of workload peers from manifests
 func (ca *ConnlistAnalyzer) getPeersForConnsComputation(pe *eval.PolicyEngine) (srcPeers, dstPeers, peers []Peer, err error) {
 	// get ip-block peers (src ip-block and dst ip-blocks and disjoint of both) extracted from policy rules
 	srcIpbList, dstIpbList, _, err := pe.GetIPBlockPeersLists()
