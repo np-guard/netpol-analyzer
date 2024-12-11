@@ -199,9 +199,6 @@ func runEvalCommand() error {
 	if err != nil {
 		return err
 	}
-	// print the warnings that were raised by the policies (if there are any)
-	// note that: the decision if to print the warnings to the logger is determined by the logger's verbosity - handled by the logger
-	pe.LogPoliciesWarnings()
 
 	// @todo: use a logger instead?
 	fmt.Printf("%v => %v over %s/%s: %t\n", source, destination, protocol, port, allowed)
