@@ -165,7 +165,7 @@ func (banp *BaselineAdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlo
 	res := []*netset.IPBlock{}
 	// in BANP only egress rules may contain ip addresses
 	for _, rule := range banp.Spec.Egress {
-		ruleRes, err := rulePeersReferencedNetworks(rule.To)
+		ruleRes, err := rulePeersReferencedIPBlocks(rule.To)
 		if err != nil {
 			return nil, err
 		}

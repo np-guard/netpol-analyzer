@@ -170,7 +170,7 @@ func (anp *AdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error
 	res := []*netset.IPBlock{}
 	// in ANP only egress rules may contains ip addresses
 	for _, rule := range anp.Spec.Egress {
-		ruleRes, err := rulePeersReferencedNetworks(rule.To)
+		ruleRes, err := rulePeersReferencedIPBlocks(rule.To)
 		if err != nil {
 			return nil, err
 		}
@@ -606,7 +606,7 @@ func isIPv6Cidr(cidr apisv1a.CIDR) (bool, error) {
 }
 
 // rulePeersReferencedNetworks returns a list of IPBlocks representing the CIDRs referenced by the given rulePeers' Networks field.
-func rulePeersReferencedNetworks(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer) ([]*netset.IPBlock, error) {
+func rulePeersReferencedIPBlocks(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer) ([]*netset.IPBlock, error) {
 	res := []*netset.IPBlock{}
 	for _, peerObj := range rulePeers {
 		if peerObj.Networks != nil {
