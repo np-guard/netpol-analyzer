@@ -435,7 +435,7 @@ func (ca *ConnlistAnalyzer) getPeersForConnsComputation(pe *eval.PolicyEngine) (
 	// append workload peers to results slices
 	srcPeers = append(srcPeers, workloadPeers...)
 	dstPeers = append(dstPeers, workloadPeers...)
-	peers = append(peers, workloadPeers...)
+	peers = workloadPeers
 
 	// if exposure-analysis is on get representative peers and append to src and dst peers slices
 	if ca.exposureAnalysis {
