@@ -415,7 +415,7 @@ func convertEvalPeersToConnlistPeer(peers []eval.Peer) []Peer {
 // getPeersForConnsComputation returns two slices of src and dst peers and a union slice of all peers (disjoint);
 func (ca *ConnlistAnalyzer) getPeersForConnsComputation(pe *eval.PolicyEngine) (srcPeers, dstPeers, peers []Peer, err error) {
 	// get ip-block peers (src ip-block and dst ip-blocks and disjoint of both) extracted from policy rules
-	srcIpbList, dstIpbList, disjointOfAllIPs, err := pe.GetIPBlockPeersLists()
+	srcIpbList, dstIpbList, _, err := pe.GetIPBlockPeersLists()
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, nil, err
@@ -423,7 +423,6 @@ func (ca *ConnlistAnalyzer) getPeersForConnsComputation(pe *eval.PolicyEngine) (
 	// initiate results slices with IpBlock peers (peers are  converted []connlist.Peer list to be used in connlist pkg and returned)
 	srcPeers = convertEvalPeersToConnlistPeer(srcIpbList)
 	dstPeers = convertEvalPeersToConnlistPeer(dstIpbList)
-	peers = convertEvalPeersToConnlistPeer(disjointOfAllIPs)
 
 	// get workload peers - peers from manifests
 	peerList, err := pe.GetWorkloadPeersList()
@@ -470,7 +469,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	// dstPeers are : all workload peers from manifests + (if exposure-analysis) representative peers + disjoint ip-blocks
 	// from egress policy rules
 	// srcPeers and dstPeers are used to compute allowed conns between peers (to be sent to ca.getConnectionsBetweenPeers)
-	// peers is the list of workload peers from manifests + disjoint of all ip-blocks peers
+	// peers is the list of workload peers from manifests (to be returned by connlist API)
 	srcPeers, dstPeers, peers, err := ca.getPeersForConnsComputation(pe)
 	if err != nil {
 		return nil, nil, err

@@ -241,13 +241,12 @@ func logErrOrWarning(d DiffError, l logger.Logger) {
 	}
 }
 
-// create set from peers-strings
+// create set from peers-strings;
+// peers is a list of workloads from the manifests
 func getPeersNamesFromPeersList(peers []connlist.Peer) map[string]bool {
 	peersSet := make(map[string]bool, 0)
 	for _, peer := range peers {
-		if !peer.IsPeerIPType() {
-			peersSet[peer.String()] = true
-		}
+		peersSet[peer.String()] = true
 	}
 	return peersSet
 }
