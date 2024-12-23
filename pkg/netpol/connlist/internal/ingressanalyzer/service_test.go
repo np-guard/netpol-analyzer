@@ -14,7 +14,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
-	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
@@ -87,12 +86,12 @@ func TestServiceMappingToPods(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{servicesDir}, true, false)
-			objects, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
+			objects, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, l, false)
 			require.Len(t, processingErrs, 1, "test: %q", tt.name) // no policies
 			require.Len(t, objects, 17, "test: %q", tt.name)       // found 6 services and 11 pods
-			pe, err := eval.NewPolicyEngineWithObjects(objects, false)
+			pe, err := eval.NewPolicyEngineWithOptionsList(eval.WithObjectsList(objects))
 			require.Empty(t, err, "test: %q", tt.name)
-			ia, err := NewIngressAnalyzerWithObjects(objects, pe, logger.NewDefaultLogger(), false)
+			ia, err := NewIngressAnalyzerWithObjects(objects, pe, l, false)
 			require.Empty(t, err, "test: %q", tt.name)
 			require.Len(t, ia.servicesToPortsAndPeersMap[tt.serviceNamespace][tt.serviceName].peers,
 				tt.numWorkloadsSelectedByTheService, "mismatch for test %q, service %q expected to map %d pods, got %d",

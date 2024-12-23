@@ -1,0 +1,10 @@
+0.0.0.0-255.255.255.255 => ns1/pod1[Deployment] : All Connections
+0.0.0.0-255.255.255.255 => ns3/pod1[Deployment] : All Connections
+ns1/pod1[Deployment] => 0.0.0.0-104.154.164.169 : All Connections
+ns1/pod1[Deployment] => 104.154.164.170-104.154.164.170 : TCP 8080,UDP 5000-6000
+ns1/pod1[Deployment] => 104.154.164.171-255.255.255.255 : All Connections
+ns1/pod1[Deployment] => ns3/pod1[Deployment] : TCP 8080,UDP 80,5000-6000
+ns3/pod1[Deployment] => 0.0.0.0-104.154.164.169 : All Connections
+ns3/pod1[Deployment] => 104.154.164.170-104.154.164.170 : All Connections
+ns3/pod1[Deployment] => 104.154.164.171-255.255.255.255 : All Connections
+ns3/pod1[Deployment] => ns1/pod1[Deployment] : All Connections

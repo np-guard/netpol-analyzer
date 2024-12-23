@@ -208,14 +208,11 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 
 // getPolicyEngine returns a new policy engine considering the exposure analysis option
 func (ca *ConnlistAnalyzer) getPolicyEngine(objectsList []parser.K8sObject) (*eval.PolicyEngine, error) {
-	// TODO: do we need logger in policyEngine?
 	if !ca.exposureAnalysis {
-		return eval.NewPolicyEngineWithObjects(objectsList, ca.explain)
+		return eval.NewPolicyEngineWithOptionsList(eval.WithExplanation(ca.explain), eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
 	}
 	// else build new policy engine with exposure analysis option
-	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis, ca.explain)
-	err := pe.AddObjectsForExposureAnalysis(objectsList)
-	return pe, err
+	return eval.NewPolicyEngineWithOptionsList(eval.WithExposureAnalysis(), eval.WithExplanation(ca.explain), eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
 }
 
 func (ca *ConnlistAnalyzer) connsListFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
@@ -431,6 +428,54 @@ func convertEvalPeersToConnlistPeer(peers []eval.Peer) []Peer {
 	return res
 }
 
+// getPeersForConnsComputation returns two slices of src and dst peers and a slice of workload peers.
+// - srcPeers contains all workload peers from manifests + (if exposure-analysis) representative peers + disjoint ip-blocks
+// from ingress policy rules
+// - dstPeers contains all workload peers from manifests + (if exposure-analysis) representative peers + disjoint ip-blocks
+// from egress policy rules
+// - peers is list of workload peers from manifests
+func (ca *ConnlistAnalyzer) getPeersForConnsComputation(pe *eval.PolicyEngine) (srcPeers, dstPeers, peers []Peer, err error) {
+	// get ip-block peers (src ip-block and dst ip-blocks and disjoint of both) extracted from policy rules
+	srcIpbList, dstIpbList, _, err := pe.GetIPBlockPeersLists()
+	if err != nil {
+		ca.errors = append(ca.errors, newResourceEvaluationError(err))
+		return nil, nil, nil, err
+	}
+	// initiate results slices with IpBlock peers (peers are  converted []connlist.Peer list to be used in connlist pkg and returned)
+	srcPeers = convertEvalPeersToConnlistPeer(srcIpbList)
+	dstPeers = convertEvalPeersToConnlistPeer(dstIpbList)
+
+	// get workload peers - peers from manifests
+	peerList, err := pe.GetWorkloadPeersList()
+	if err != nil {
+		ca.errors = append(ca.errors, newResourceEvaluationError(err))
+		return nil, nil, nil, err
+	}
+	// represent peerList as []connlist.Peer list to be used and returned by connlist pkg
+	workloadPeers := convertEvalPeersToConnlistPeer(peerList)
+	// append workload peers to results slices
+	srcPeers = append(srcPeers, workloadPeers...)
+	dstPeers = append(dstPeers, workloadPeers...)
+	peers = workloadPeers
+
+	// if exposure-analysis is on get representative peers and append to src and dst peers slices
+	if ca.exposureAnalysis {
+		representativePeers := convertEvalPeersToConnlistPeer(pe.GetRepresentativePeersList())
+		srcPeers = append(srcPeers, representativePeers...)
+		dstPeers = append(dstPeers, representativePeers...)
+	}
+
+	// update the ca.peersList from workload peers list (used for updating dot outputs with all workloads from manifests)
+	ca.peersList = make([]Peer, 0, len(peerList))
+	for _, p := range peerList {
+		if ca.isPeerFocusWorkload(p) {
+			ca.peersList = append(ca.peersList, p)
+		}
+	}
+
+	return srcPeers, dstPeers, peers, nil
+}
+
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
 // if the exposure-analysis option is on, also computes and updates the exposure-analysis results
 func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingressanalyzer.IngressAnalyzer) ([]Peer2PeerConnection,
@@ -440,26 +485,15 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 		return connsRes, []Peer{}, nil
 	}
 
-	// get workload peers and ip blocks
-	peerList, err := pe.GetPeersList()
+	// srcPeers are : all workload peers from manifests + (if exposure-analysis) representative peers + disjoint ip-blocks
+	// from ingress policy rules
+	// dstPeers are : all workload peers from manifests + (if exposure-analysis) representative peers + disjoint ip-blocks
+	// from egress policy rules
+	// srcPeers and dstPeers are used to compute allowed conns between peers (to be sent to ca.getConnectionsBetweenPeers)
+	// peers is the list of workload peers from manifests (to be returned by connlist API)
+	srcPeers, dstPeers, peers, err := ca.getPeersForConnsComputation(pe)
 	if err != nil {
-		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
-	}
-	// represent peerList as []connlist.Peer list to be returned
-	peers := convertEvalPeersToConnlistPeer(peerList)
-
-	// realAndRepresentativePeers represents []connlist.Peer to be sent to ca.getConnectionsBetweenPeers
-	realAndRepresentativePeers := peers
-	if ca.exposureAnalysis {
-		representativePeers := pe.GetRepresentativePeersList()
-		realAndRepresentativePeers = append(realAndRepresentativePeers, convertEvalPeersToConnlistPeer(representativePeers)...)
-	}
-	ca.peersList = make([]Peer, 0, len(peerList))
-	for _, p := range peerList {
-		if ca.isPeerFocusWorkload(p) {
-			ca.peersList = append(ca.peersList, p)
-		}
 	}
 
 	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
@@ -474,11 +508,16 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 
 	// compute connections between peers based on pe analysis of network policies
 	// if exposure-analysis is on, also compute and return the exposures-map
-	peersAllowedConns, exposureMaps, err := ca.getConnectionsBetweenPeers(pe, realAndRepresentativePeers)
+	peersAllowedConns, exposureMaps, err := ca.getConnectionsBetweenPeers(pe, srcPeers, dstPeers)
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
 	}
+	// log warnings that were raised by the policies during computing the allowed conns between all peers
+	// note that this ensures any warning is printed only once + all relevant warnings are raised.
+	// the decision if to print the warnings to the logger is determined by the logger's verbosity - handled by the logger
+	pe.LogPoliciesWarnings()
+
 	connsRes = peersAllowedConns
 
 	if ca.exposureAnalysis {
@@ -527,7 +566,8 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(excludeIngressAnalysis bool) (ex
 
 // getConnectionsBetweenPeers returns connections list from PolicyEngine object
 // and exposures-map containing the exposed peers data if the exposure-analysis is on , else empty map
-func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, peers []Peer) ([]Peer2PeerConnection, *exposureMaps, error) {
+func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, srcPeers, dstPeers []Peer) ([]Peer2PeerConnection,
+	*exposureMaps, error) {
 	connsRes := make([]Peer2PeerConnection, 0)
 	exposureMaps := &exposureMaps{
 		ingressExposureMap: map[Peer]*peerXgressExposureData{},
@@ -537,10 +577,10 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, pe
 	ingressSet := make(map[Peer]bool, 0)
 	egressSet := make(map[Peer]bool, 0)
 
-	for i := range peers {
-		srcPeer := peers[i]
-		for j := range peers {
-			dstPeer := peers[j]
+	for i := range srcPeers {
+		srcPeer := srcPeers[i]
+		for j := range dstPeers {
+			dstPeer := dstPeers[j]
 			if !ca.includePairOfWorkloads(pe, srcPeer, dstPeer) {
 				continue
 			}

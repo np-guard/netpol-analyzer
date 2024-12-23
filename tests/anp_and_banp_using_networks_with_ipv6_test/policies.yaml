@@ -1,0 +1,52 @@
+# a file copied from :
+# https://docs.openshift.com/container-platform/4.17/networking/network_security/AdminNetworkPolicy/ovn-k-egress-nodes-networks-peer.html#egress-traffic-control-networks-peer-external-destinations_ovn-k-egress-nodes-networks-peer
+# replacing some addresses to IPv6
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: network-as-egress-peer
+spec:
+  priority: 70
+  subject:
+    namespaces: {}
+  egress:
+  - name: "deny-egress-to-external-dns-servers"
+    action: "Deny"
+    to:
+    - networks:
+      - 8.8.8.8/32
+      - ff06::/3 # ipv6 unsupported - a warning will be raised
+    ports:
+      - portNumber:
+          protocol: UDP
+          port: 53
+  - name: "allow-all-egress-to-intranet"
+    action: "Allow"
+    to:
+    - networks: 
+      - fd00::/8 # ipv6 unsupported - a warning will be raised
+      - 60.45.72.0/22
+  - name: "allow-all-intra-cluster-traffic"
+    action: "Allow"
+    to:
+    - namespaces: {}
+  - name: "pass-all-egress-to-internet"
+    action: "Pass"
+    to:
+    - networks:
+      - 0.0.0.0/0 
+---
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: BaselineAdminNetworkPolicy
+metadata:
+  name: default
+spec:
+  subject:
+    namespaces: {}
+  egress:
+  - name: "deny-all-egress-to-internet"
+    action: "Deny"
+    to:
+    - networks:
+      - 0.0.0.0/0 
+---

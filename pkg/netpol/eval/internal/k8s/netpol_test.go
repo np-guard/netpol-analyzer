@@ -9,6 +9,7 @@ package k8s
 import (
 	"testing"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -103,6 +104,7 @@ func TestNetworkPolicyPortAnalysis(t *testing.T) {
 		},
 		PolicyExposureWithoutSelectors{},
 		PolicyExposureWithoutSelectors{},
+		common.Warnings{},
 	}
 	res, err := n.ruleConnections([]netv1.NetworkPolicyPort{AllowNamedPortOnProtocol}, &dst, 0, false)
 	expectedConnStr := "UDP 22"

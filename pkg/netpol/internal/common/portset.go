@@ -16,8 +16,8 @@ import (
 
 const (
 	NoPort        = -1
-	minPort int64 = 1
-	maxPort int64 = 65535
+	MinPort int64 = 1
+	MaxPort int64 = 65535
 )
 
 type NamedPortsType map[string]ImplyingRulesType
@@ -42,21 +42,21 @@ type PortSet struct {
 
 // MakePortSet: return a new PortSet object, with all ports or no ports allowed
 func MakePortSet(all bool) *PortSet {
-	return &PortSet{Ports: NewAugmentedCanonicalSet(minPort, maxPort, all),
+	return &PortSet{Ports: NewAugmentedCanonicalSet(MinPort, MaxPort, all),
 		NamedPorts:         NamedPortsType{},
 		ExcludedNamedPorts: NamedPortsType{},
 	}
 }
 
 func MakeAllPortSetWithImplyingRules(rules ImplyingRulesType) *PortSet {
-	return &PortSet{Ports: NewAugmentedCanonicalSetWithRules(minPort, maxPort, true, rules),
+	return &PortSet{Ports: NewAugmentedCanonicalSetWithRules(MinPort, MaxPort, true, rules),
 		NamedPorts:         NamedPortsType{},
 		ExcludedNamedPorts: NamedPortsType{},
 	}
 }
 
 func MakeEmptyPortSetWithImplyingRules(rules ImplyingRulesType) *PortSet {
-	return &PortSet{Ports: NewAugmentedCanonicalSetWithRules(minPort, maxPort, false, rules),
+	return &PortSet{Ports: NewAugmentedCanonicalSetWithRules(MinPort, MaxPort, false, rules),
 		NamedPorts:         NamedPortsType{},
 		ExcludedNamedPorts: NamedPortsType{},
 	}

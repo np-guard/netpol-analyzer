@@ -1,0 +1,106 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns1
+  labels:
+    apps: all-apps
+spec: {}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns2
+  labels:
+    apps: internal-apps
+spec: {}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns3
+  labels:
+    apps: external-apps
+spec: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod1
+  namespace: ns1
+  labels:
+    app: a-app
+spec:
+  selector:
+    matchLabels:
+      app: a-app
+  template:
+    metadata:
+      labels:
+        app: a-app
+    spec:
+      containers:
+      - name: ns1
+        image: quay.io/shfa/ns1:latest
+        ports:
+        - containerPort: 80
+        - containerPort: 81  
+        - containerPort: 80
+          protocol: UDP
+        - containerPort: 81
+          protocol: UDP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod1
+  namespace: ns2
+  labels:
+    app: a-app
+spec:
+  selector:
+    matchLabels:
+      app: a-app
+  template:
+    metadata:
+      labels:
+        app: a-app
+    spec:
+      containers:
+      - name: ns2
+        image: quay.io/shfa/ns2:latest
+        ports:
+        - containerPort: 80
+        - containerPort: 81  
+        - containerPort: 80
+          protocol: UDP
+        - containerPort: 81
+          protocol: UDP  
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod1
+  namespace: ns3
+  labels:
+    app: web
+spec:
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: ns2
+        image: quay.io/shfa/ns2:latest
+        ports:
+        - containerPort: 80
+        - containerPort: 81  
+        - containerPort: 80
+          protocol: UDP
+        - containerPort: 81
+          protocol: UDP  
+---

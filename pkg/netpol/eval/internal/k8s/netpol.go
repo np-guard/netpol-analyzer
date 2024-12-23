@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package k8s
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -21,6 +22,8 @@ import (
 	"github.com/np-guard/models/pkg/netset"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
+	"github.com/np-guard/netpol-analyzer/pkg/logger"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -41,6 +44,7 @@ type NetworkPolicy struct {
 	// - the maximal connection-set which the policy's rules allow to external destinations on egress direction
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on egress direction
 	EgressPolicyExposure PolicyExposureWithoutSelectors
+	warnings             common.Warnings // set of warnings which are raised by the netpol
 }
 
 // @todo might help if while pre-process, to check containment of all rules' connections; if all "specific" rules
@@ -81,6 +85,9 @@ func getProtocolStr(p *v1.Protocol) string {
 func (np *NetworkPolicy) getPortsRange(rulePort netv1.NetworkPolicyPort, dst Peer) (start, end int64,
 	portName string, err error) {
 	if rulePort.Port.Type == intstr.String { // rule.Port is namedPort
+		if rulePort.EndPort != nil { // endPort field may not be defined with named port
+			return start, end, "", np.netpolErr(netpolerrors.NamedPortErrTitle, alerts.EndPortWithNamedPortErrStr)
+		}
 		ruleProtocol := getProtocolStr(rulePort.Protocol)
 		portName = rulePort.Port.StrVal
 		if dst == nil {
@@ -115,7 +122,12 @@ func (np *NetworkPolicy) getPortsRange(rulePort netv1.NetworkPolicyPort, dst Pee
 }
 
 func isEmptyPortRange(start, end int64) bool {
-	return start == common.NoPort && end == common.NoPort
+	// an empty range when:
+	// - end is smaller than start
+	// - end or start is not in the legal range (a legal port is 1-65535)
+	return (start < common.MinPort || end < common.MinPort) ||
+		(end < start) ||
+		(start > common.MaxPort || end > common.MaxPort)
 }
 
 func (np *NetworkPolicy) rulePeersAndPorts(ruleIdx int, isIngress bool) ([]netv1.NetworkPolicyPeer, []netv1.NetworkPolicyPort) {
@@ -163,24 +175,33 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 				return res, err
 			}
 			// valid returned values from `getsPortsRange` :
-			// 1. empty-numbered-range with the string namedPort, if the rule has a named-port which is not (or cannot be) converted to a
+			// 1. empty-numbered-range with the non-empty string namedPort, if the rule has a named-port which is not (or cannot be) converted to a
 			// numbered-range by the dst's ports.
 			//  2. non empty-range when the rule ports are numbered or the named-port was converted
-			if (dst == nil || isPeerRepresentative(dst)) && isEmptyPortRange(startPort, endPort) && portName != "" {
-				// this func may be called:
-				// 1- for computing cluster-wide exposure of the policy (dst is nil);
-				// 2- in-order to get a connection from a real workload to a representative dst.
-				// in both first cases, we can't convert the named port to its number, like when dst peer is a real
-				// pod from manifests, so we use the named-port as is.
-				// 3- in order to get a connection from any pod to a real dst.
-				// in the third case the namedPort of the policy rule may not have a match in the Pod's configuration,
-				// so it will be ignored (the pod has no matching named-port in its configuration - unknown connection is not allowed)
-				// 4- in order to get a connection from any pod to an ip dst (will not get here, as named ports are not defined for ip-blocks)
-
-				// adding portName string to the portSet
-				ports.AddPort(intstr.FromString(portName), common.MakeImplyingRulesWithRule(ruleName, isIngress))
-			}
-			if !isEmptyPortRange(startPort, endPort) {
+			if isEmptyPortRange(startPort, endPort) {
+				if portName != "" {
+					// this func may be called:
+					// 1- for computing cluster-wide exposure of the policy (dst is nil);
+					// 2- in-order to get a connection from a real workload to a representative dst.
+					// in both first cases, we can't convert the named port to its number, like when dst peer is a real
+					// pod from manifests, so we use the named-port as is.
+					// 3- in order to get a connection from any pod to a real dst.
+					// in the third case the namedPort of the policy rule may not have a match in the Pod's configuration,
+					// so it will be ignored and a warning is raised
+					// (the pod has no matching named-port in its configuration - unknown connection is not allowed)
+					// 4- in order to get a connection from any pod to an ip dst (will not get here, as named ports are not defined for ip-blocks)
+					if dst == nil || isPeerRepresentative(dst) { // (1 & 2)
+						// adding portName string to the portSet
+						ports.AddPort(intstr.FromString(portName), common.MakeImplyingRulesWithRule(ruleName, isIngress))
+					} else { // dst is a real pod (3)
+						// add a warning that the "named port" of the rule is ignored, since it has no match in the pod config.
+						np.saveNetpolWarning(np.netpolWarning(alerts.WarnUnmatchedNamedPort(portName, dst.String())))
+					}
+				} else { // empty port range with empty port name -> means the range is illegal (start/ end not in the legal range or end < start)
+					return nil, errors.New(alerts.IllegalPortRangeError(startPort, endPort))
+				}
+			} else {
+				// if !isEmptyPortRange(startPort, endPort) (the other valid result)
 				ports.AddPortRange(startPort, endPort, true, ruleName, isIngress)
 			}
 		}
@@ -195,6 +216,13 @@ func isPeerRepresentative(peer Peer) bool {
 		return false
 	}
 	return peer.GetPeerPod().IsPodRepresentative()
+}
+
+func (np *NetworkPolicy) saveNetpolWarning(warning string) {
+	if np.warnings == nil {
+		np.warnings = make(map[string]bool)
+	}
+	np.warnings.AddWarning(warning)
 }
 
 // ruleConnsContain returns true if the given protocol and port are contained in connections allowed by rulePorts
@@ -213,9 +241,16 @@ func (np *NetworkPolicy) ruleConnsContain(rulePorts []netv1.NetworkPolicyPort, p
 		if rulePorts[i].Port == nil { // If this field is not provided, this matches all port names and numbers.
 			return true, nil
 		}
-		startPort, endPort, _, err := np.getPortsRange(rulePorts[i], dst)
+		startPort, endPort, portName, err := np.getPortsRange(rulePorts[i], dst)
 		if err != nil {
 			return false, err
+		}
+		if isEmptyPortRange(startPort, endPort) {
+			if portName != "" { // there is a port that was not converted, raise a warning
+				np.saveNetpolWarning(np.netpolWarning(alerts.WarnUnmatchedNamedPort(portName, dst.String())))
+			} else { // the policy contains an error : illegal port range
+				return false, errors.New(alerts.IllegalPortRangeError(startPort, endPort))
+			}
 		}
 		if doesRulePortContain(getProtocolStr(rulePorts[i].Protocol), protocol,
 			startPort, endPort, intPort) {
@@ -286,10 +321,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			if err != nil {
 				return false, err
 			}
-
-			peerIPBlock := peer.GetPeerIPBlock()
-			res := peerIPBlock.IsSubset(ruleIPBlock)
-			if res {
+			if peer.GetPeerIPBlock().IsSubset(ruleIPBlock) {
 				return true, nil
 			}
 		}
@@ -422,6 +454,10 @@ func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*
 	return res, nil
 }
 
+func (np *NetworkPolicy) netpolWarning(description string) string {
+	return fmt.Sprintf("network policy %q: %s", np.fullName(), description)
+}
+
 func (np *NetworkPolicy) netpolErr(title, description string) error {
 	return fmt.Errorf("network policy %s %s: %s", np.fullName(), title, description)
 }
@@ -460,24 +496,23 @@ func (np *NetworkPolicy) rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPo
 	return res, nil
 }
 
-// GetReferencedIPBlocks: return list of IPBlock objects referenced in the current network policy
-func (np *NetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error) {
-	res := []*netset.IPBlock{}
+// GetReferencedIPBlocks: return lists of src and dst IPBlock objects referenced in the current network policy
+func (np *NetworkPolicy) GetReferencedIPBlocks() (srcIpbList, dstIpbList []*netset.IPBlock, err error) {
 	for _, rule := range np.Spec.Ingress {
 		ruleRes, err := np.rulePeersReferencedIPBlocks(rule.From)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		res = append(res, ruleRes...)
+		srcIpbList = append(srcIpbList, ruleRes...)
 	}
 	for _, rule := range np.Spec.Egress {
 		ruleRes, err := np.rulePeersReferencedIPBlocks(rule.To)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		res = append(res, ruleRes...)
+		dstIpbList = append(dstIpbList, ruleRes...)
 	}
-	return res, nil
+	return srcIpbList, dstIpbList, nil
 }
 
 // policyAffectsDirection receives ingress/egress direction and returns true if it affects this direction on its captured pods
@@ -535,6 +570,10 @@ func (np *NetworkPolicy) ruleName(ruleIdx int, isIngress bool) string {
 		xgress = ingressName
 	}
 	return fmt.Sprintf("%s//%s rule #%d", np.fullName(), xgress, ruleIdx+1)
+}
+
+func (np *NetworkPolicy) LogWarnings(l logger.Logger) {
+	np.warnings.LogPolicyWarnings(l)
 }
 
 // /////////////////////////////////////////////////////////////////////////////////////////////
