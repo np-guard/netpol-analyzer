@@ -47,6 +47,7 @@ type ConnlistAnalyzer struct {
 	focusWorkload    string
 	exposureAnalysis bool
 	exposureResult   []ExposedPeer
+	explain          bool
 	outputFormat     string
 	muteErrsAndWarns bool
 	peersList        []Peer // internally used peersList used in dot formatting; in case of focusWorkload option contains only relevant peers
@@ -136,6 +137,13 @@ func WithExposureAnalysis() ConnlistAnalyzerOption {
 	}
 }
 
+// WithExplanation is a functional option which directs ConnlistAnalyzer to return explainability of connectivity
+func WithExplanation() ConnlistAnalyzerOption {
+	return func(c *ConnlistAnalyzer) {
+		c.explain = true
+	}
+}
+
 // WithOutputFormat is a functional option, allowing user to choose the output format txt/json/dot/csv/md.
 func WithOutputFormat(outputFormat string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
@@ -158,6 +166,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 		stopOnError:      false,
 		exposureAnalysis: false,
 		exposureResult:   nil,
+		explain:          false,
 		errors:           []ConnlistError{},
 		outputFormat:     output.DefaultFormat,
 	}
@@ -200,10 +209,12 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 // getPolicyEngine returns a new policy engine considering the exposure analysis option
 func (ca *ConnlistAnalyzer) getPolicyEngine(objectsList []parser.K8sObject) (*eval.PolicyEngine, error) {
 	if !ca.exposureAnalysis {
-		return eval.NewPolicyEngineWithOptionsList(eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
+		return eval.NewPolicyEngineWithOptionsList(eval.WithExplanation(ca.explain),
+			eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
 	}
 	// else build new policy engine with exposure analysis option
-	return eval.NewPolicyEngineWithOptionsList(eval.WithExposureAnalysis(), eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
+	return eval.NewPolicyEngineWithOptionsList(eval.WithExposureAnalysis(), eval.WithExplanation(ca.explain),
+		eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
 }
 
 func (ca *ConnlistAnalyzer) connsListFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {
@@ -222,7 +233,7 @@ func (ca *ConnlistAnalyzer) connsListFromParsedResources(objectsList []parser.K8
 
 // ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources, and list of all peers names
 func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []Peer, error) {
-	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
+	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis, ca.explain)
 
 	// get all resources from k8s cluster
 	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
@@ -272,7 +283,7 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
 	}
-	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis)
+	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis, ca.explain)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
@@ -322,10 +333,11 @@ const (
 
 // connection implements the Peer2PeerConnection interface
 type connection struct {
-	src               Peer
-	dst               Peer
-	allConnections    bool
-	protocolsAndPorts map[v1.Protocol][]common.PortRange
+	src                 Peer
+	dst                 Peer
+	allConnections      bool
+	commonImplyingRules common.ImplyingRulesType // used for explainability, when allConnections is true
+	protocolsAndPorts   map[v1.Protocol][]common.PortRange
 }
 
 func (c *connection) Src() Peer {
@@ -341,13 +353,19 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 	return c.protocolsAndPorts
 }
 
+func (c *connection) OnlyDefaultRule() bool {
+	return c.allConnections && len(c.protocolsAndPorts) == 0 && c.commonImplyingRules.OnlyDefaultRule()
+}
+
 // returns a *common.ConnectionSet from Peer2PeerConnection data
 func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.ConnectionSet {
 	protocolsToPortSetMap := make(map[v1.Protocol]*common.PortSet, len(c.ProtocolsAndPorts()))
 	for protocol, portRangeArr := range c.ProtocolsAndPorts() {
 		protocolsToPortSetMap[protocol] = common.MakePortSet(false)
 		for _, p := range portRangeArr {
-			protocolsToPortSetMap[protocol].AddPortRange(p.Start(), p.End())
+			augmentedRange := p.(*common.PortRangeData)
+			// we cannot fill explainability data here, so we pass an empty rule name and an arbitrary direction (isIngress being true)
+			protocolsToPortSetMap[protocol].AddPortRange(augmentedRange.Start(), augmentedRange.End(), augmentedRange.InSet(), "", true)
 		}
 	}
 	connectionSet := &common.ConnectionSet{AllowAll: c.AllProtocolsAndPorts(), AllowedProtocols: protocolsToPortSetMap}
@@ -578,8 +596,8 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, sr
 					return nil, nil, err
 				}
 			}
-			// skip empty connections
-			if allowedConnections.IsEmpty() {
+			// skip empty connections when running without explainability
+			if allowedConnections.IsEmpty() && !ca.explain {
 				continue
 			}
 			p2pConnection, err := ca.getP2PConnOrUpdateExposureConn(pe, allowedConnections, srcPeer, dstPeer, exposureMaps)
@@ -676,10 +694,11 @@ func (ca *ConnlistAnalyzer) getP2PConnOrUpdateExposureConn(pe *eval.PolicyEngine
 // helper function - returns a connection object from the given fields
 func createConnectionObject(allowedConnections common.Connection, src, dst Peer) *connection {
 	return &connection{
-		src:               src,
-		dst:               dst,
-		allConnections:    allowedConnections.IsAllConnections(),
-		protocolsAndPorts: allowedConnections.ProtocolsAndPortsMap(),
+		src:                 src,
+		dst:                 dst,
+		allConnections:      allowedConnections.IsAllConnections(),
+		commonImplyingRules: allowedConnections.(*common.ConnectionSet).CommonImplyingRules,
+		protocolsAndPorts:   allowedConnections.ProtocolsAndPortsMap(true),
 	}
 }
 

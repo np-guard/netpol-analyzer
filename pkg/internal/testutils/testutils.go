@@ -26,6 +26,7 @@ var update = flag.Bool("update", false, "write or override golden files")
 
 const (
 	connlistExpectedOutputFilePartialName = "connlist_output."
+	explainExpectedOutputFilePartialName  = "explain_output."
 	exposureExpectedOutputFilePartialName = "exposure_output."
 	underscore                            = "_"
 	dotSign                               = "."
@@ -53,6 +54,18 @@ func ConnlistTestNameByTestArgs(dirName, focusWorkload, format string, exposureF
 		outputPartialName = exposureExpectedOutputFilePartialName
 	}
 	expectedOutputFileName = namePrefix + underscore + outputPartialName + format
+	return testName, expectedOutputFileName
+}
+
+// ExplainTestNameByTestArgs returns explain test name and test's expected output file from some tests args
+func ExplainTestNameByTestArgs(dirName, focusWorkload string) (testName, expectedOutputFileName string) {
+	namePrefix := dirName
+	if focusWorkload != "" {
+		namePrefix += focusWlAnnotation + strings.Replace(focusWorkload, "/", underscore, 1)
+	}
+	testName = namePrefix
+	outputPartialName := explainExpectedOutputFilePartialName
+	expectedOutputFileName = namePrefix + underscore + outputPartialName + output.TextFormat
 	return testName, expectedOutputFileName
 }
 

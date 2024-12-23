@@ -92,7 +92,9 @@ func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConn
 		rulePorts := rule.Ports
 		ruleWarnings = []string{} // clear the ruleWarnings (for each rule)
 		// following func also updates the warnings var
-		err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts, src, dst, res, string(rule.Action), false)
+		err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts,
+			ruleFullName(anp.fullName(), rule.Name, string(rule.Action), true),
+			src, dst, res, string(rule.Action), false)
 		anp.savePolicyWarnings(rule.Name)
 		if err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
@@ -108,7 +110,9 @@ func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnection
 		rulePeers := rule.To
 		rulePorts := rule.Ports
 		ruleWarnings = []string{} // clear ruleWarnings (for each rule), so it is updated by following call
-		err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts, dst, res, string(rule.Action), false)
+		err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts,
+			ruleFullName(anp.fullName(), rule.Name, string(rule.Action), false),
+			dst, res, string(rule.Action), false)
 		anp.savePolicyWarnings(rule.Name)
 		if err != nil {
 			return nil, anp.anpRuleErr(rule.Name, err.Error())
@@ -342,7 +346,8 @@ func ingressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, s
 // updateConnsIfEgressRuleSelectsPeer checks if the given dst is selected by given egress rule,
 // if yes, updates given policyConns with the rule's connections
 func updateConnsIfEgressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer,
-	rulePorts *[]apisv1a.AdminNetworkPolicyPort, dst Peer, policyConns *PolicyConnections, action string, isBANPrule bool) error {
+	rulePorts *[]apisv1a.AdminNetworkPolicyPort, ruleName string, dst Peer, policyConns *PolicyConnections,
+	action string, isBANPrule bool) error {
 	if len(rulePeers) == 0 {
 		return errors.New(netpolerrors.ANPEgressRulePeersErr)
 	}
@@ -353,14 +358,15 @@ func updateConnsIfEgressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEg
 	if !peerSelected {
 		return nil
 	}
-	err = updatePolicyConns(rulePorts, policyConns, dst, action, isBANPrule)
+	err = updatePolicyConns(rulePorts, ruleName, policyConns, dst, action, isBANPrule, false)
 	return err
 }
 
 // updateConnsIfIngressRuleSelectsPeer checks if the given src is selected by given ingress rule,
 // if yes, updates given policyConns with the rule's connections
 func updateConnsIfIngressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer,
-	rulePorts *[]apisv1a.AdminNetworkPolicyPort, src, dst Peer, policyConns *PolicyConnections, action string, isBANPrule bool) error {
+	rulePorts *[]apisv1a.AdminNetworkPolicyPort, ruleName string, src, dst Peer, policyConns *PolicyConnections,
+	action string, isBANPrule bool) error {
 	if len(rulePeers) == 0 {
 		return errors.New(netpolerrors.ANPIngressRulePeersErr)
 	}
@@ -371,16 +377,16 @@ func updateConnsIfIngressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyI
 	if !peerSelected {
 		return nil
 	}
-	err = updatePolicyConns(rulePorts, policyConns, dst, action, isBANPrule)
+	err = updatePolicyConns(rulePorts, ruleName, policyConns, dst, action, isBANPrule, true)
 	return err
 }
 
 // updatePolicyConns gets the rule connections from the rule.ports and updates the input policy connections
 // with the rule's conns considering the action
-func updatePolicyConns(rulePorts *[]apisv1a.AdminNetworkPolicyPort, policyConns *PolicyConnections, dst Peer,
-	action string, isBANPrule bool) error {
+func updatePolicyConns(rulePorts *[]apisv1a.AdminNetworkPolicyPort, ruleName string, policyConns *PolicyConnections, dst Peer,
+	action string, isBANPrule, isIngress bool) error {
 	// get rule connections from rulePorts
-	ruleConns, err := ruleConnections(rulePorts, dst)
+	ruleConns, err := ruleConnections(rulePorts, ruleName, dst, isIngress)
 	if err != nil {
 		return err
 	}
@@ -390,9 +396,9 @@ func updatePolicyConns(rulePorts *[]apisv1a.AdminNetworkPolicyPort, policyConns 
 }
 
 // ruleConnections returns the connectionSet from the current rule.Ports
-func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common.ConnectionSet, error) {
-	if ports == nil {
-		return common.MakeConnectionSet(true), nil // If Ports is not set then the rule does not filter traffic via port.
+func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string, dst Peer, isIngress bool) (*common.ConnectionSet, error) {
+	if ports == nil { // If Ports is not set then the rule does not filter traffic via port.
+		return common.MakeConnectionSetWithRule(true, ruleName, isIngress), nil
 	}
 	res := common.MakeConnectionSet(false)
 	for _, anpPort := range *ports {
@@ -406,7 +412,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common
 			if anpPort.PortNumber.Protocol != "" {
 				protocol = anpPort.PortNumber.Protocol
 			}
-			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port))
+			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port), common.MakeImplyingRulesWithRule(ruleName, isIngress))
 		case anpPort.NamedPort != nil:
 			if dst.PeerType() == IPBlockType {
 				// IPblock does not have named-ports defined, warn and continue
@@ -421,7 +427,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common
 			if podProtocol != "" {
 				protocol = v1.Protocol(podProtocol)
 			}
-			portSet.AddPort(intstr.FromInt32(podPort))
+			portSet.AddPort(intstr.FromInt32(podPort), common.MakeImplyingRulesWithRule(ruleName, isIngress))
 		case anpPort.PortRange != nil:
 			if anpPort.PortRange.Protocol != "" {
 				protocol = anpPort.PortRange.Protocol
@@ -430,7 +436,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common
 				// illegal: rule with empty range; (start/ end not in the legal range or end < start)
 				return nil, errors.New(alerts.IllegalPortRangeError(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End)))
 			}
-			portSet.AddPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End))
+			portSet.AddPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End), true, ruleName, isIngress)
 		}
 		res.AddConnection(protocol, portSet)
 	}
@@ -603,6 +609,18 @@ func isIPv6Cidr(cidr apisv1a.CIDR) (bool, error) {
 	}
 	// if the IP is IPv6, return true
 	return ipNet.IP.To4() == nil, nil
+}
+
+func (anp *AdminNetworkPolicy) fullName() string {
+	return "[ANP] " + anp.Name
+}
+
+func ruleFullName(policyName, ruleName, action string, isIngress bool) string {
+	xgress := egressName
+	if isIngress {
+		xgress = ingressName
+	}
+	return fmt.Sprintf("%s//%s rule %s (%s)", policyName, xgress, ruleName, action)
 }
 
 // rulePeersReferencedNetworks returns a list of IPBlocks representing the CIDRs referenced by the given rulePeers' Networks field.

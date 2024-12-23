@@ -22,7 +22,6 @@ import (
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
 	"github.com/np-guard/models/pkg/netset"
-
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
@@ -46,6 +45,7 @@ type (
 		baselineAdminNetpol    *k8s.BaselineAdminNetworkPolicy // pointer to BaselineAdminNetworkPolicy which is a cluster singleton object
 		cache                  *evalCache
 		exposureAnalysisFlag   bool
+		explain                bool
 		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
 		// used only with exposure analysis (representative peer object is a workloadPeer with kind == "RepresentativePeer")
 		objectsList []parser.K8sObject // list of k8s objects to be inserted to the policy-engine
@@ -70,6 +70,13 @@ type (
 func WithLogger(l logger.Logger) PolicyEngineOption {
 	return func(pe *PolicyEngine) {
 		pe.logger = l
+	}
+}
+
+// WithExplanation is a functional option which directs PolicyEngine whether to perform explainability analysis
+func WithExplanation(explain bool) PolicyEngineOption {
+	return func(pe *PolicyEngine) {
+		pe.explain = explain
 	}
 }
 
@@ -98,6 +105,7 @@ func NewPolicyEngine() *PolicyEngine {
 		adminNetpolsMap:                 make(map[string]bool),
 		cache:                           newEvalCache(),
 		exposureAnalysisFlag:            false,
+		explain:                         false,
 		logger:                          logger.NewDefaultLogger(),
 	}
 }
@@ -111,9 +119,10 @@ func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, erro
 
 // NewPolicyEngineWithOptions returns a new policy engine with an empty state but updating the exposure analysis flag
 // Deprecated: this function is implemented also within NewPolicyEngineWithOptionsList
-func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
+func NewPolicyEngineWithOptions(exposureFlag, explain bool) *PolicyEngine {
 	pe := NewPolicyEngine()
 	pe.exposureAnalysisFlag = exposureFlag
+	pe.explain = explain
 	if exposureFlag {
 		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)
 	}
