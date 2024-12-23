@@ -209,10 +209,12 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 // getPolicyEngine returns a new policy engine considering the exposure analysis option
 func (ca *ConnlistAnalyzer) getPolicyEngine(objectsList []parser.K8sObject) (*eval.PolicyEngine, error) {
 	if !ca.exposureAnalysis {
-		return eval.NewPolicyEngineWithOptionsList(eval.WithExplanation(ca.explain), eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
+		return eval.NewPolicyEngineWithOptionsList(eval.WithExplanation(ca.explain),
+			eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
 	}
 	// else build new policy engine with exposure analysis option
-	return eval.NewPolicyEngineWithOptionsList(eval.WithExposureAnalysis(), eval.WithExplanation(ca.explain), eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
+	return eval.NewPolicyEngineWithOptionsList(eval.WithExposureAnalysis(), eval.WithExplanation(ca.explain),
+		eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
 }
 
 func (ca *ConnlistAnalyzer) connsListFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {

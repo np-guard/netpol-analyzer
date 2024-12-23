@@ -9,11 +9,12 @@ package k8s
 import (
 	"testing"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 /*func TestCreatePod(t *testing.T) {
