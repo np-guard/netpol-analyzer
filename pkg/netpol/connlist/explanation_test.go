@@ -48,6 +48,9 @@ var explainTests = []struct {
 	testDirName   string
 	focusWorkload string
 }{
+	{
+		testDirName: "netpol_named_port_test",
+	},
 	// {
 	// 	testDirName: "anp_test_10",
 	// },
@@ -62,9 +65,6 @@ var explainTests = []struct {
 	// },
 	// {
 	// 	testDirName: "onlineboutique",
-	// },
-	// {
-	// 	testDirName: "anp_banp_blog_demo",
 	// },
 	// {
 	// 	testDirName: "acs-security-demos",

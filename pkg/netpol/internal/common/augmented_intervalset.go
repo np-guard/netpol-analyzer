@@ -263,13 +263,14 @@ func (rules *ImplyingRulesType) onlyEgressDirection() bool {
 // In this case the function preserves implying rules of both directions (for detailed explainability report).
 // If this is not the case of 'opposite durections' scenario, the function overrides current implying rules by others'.
 func (rules *ImplyingRulesType) OverrideUnlessOppositeDirections(other ImplyingRulesType) {
-	if rules.onlyIngressDirection() && other.onlyEgressDirection() {
+	switch {
+	case rules.onlyIngressDirection() && other.onlyEgressDirection():
 		// opposite directions (Ingress in rules and Egress in other) -> keep Ingress, copy Egress
 		rules.Egress = other.Egress.Copy()
-	} else if rules.onlyEgressDirection() && other.onlyIngressDirection() {
+	case rules.onlyEgressDirection() && other.onlyIngressDirection():
 		// opposite directions (Egress in rules and Ingress in other) -> keep Egress, copy Ingress
 		rules.Ingress = other.Ingress.Copy()
-	} else {
+	default:
 		// this is not the case of opposite directions -> override everything
 		*rules = other.Copy()
 	}
