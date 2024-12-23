@@ -36,14 +36,14 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 // writeConnlistOutput writes the section of the connlist result of the output
 func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool) string {
 	connLines := make([]singleConnFields, 0, len(conns))
-	systemDefaultConnLines := make([]singleConnFields, 0, len(conns))
+	defaultConnLines := make([]singleConnFields, 0, len(conns))
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
 		p2pConn := formSingleP2PConn(conns[i], explain)
 		if explain {
 			// when running with explanation, we print system default connections at the end
-			if conns[i].(*connection).OnlySystemDefaultRule() {
-				systemDefaultConnLines = append(systemDefaultConnLines, p2pConn)
+			if conns[i].(*connection).OnlyDefaultRule() {
+				defaultConnLines = append(defaultConnLines, p2pConn)
 			} else {
 				connLines = append(connLines, p2pConn)
 			}
@@ -57,11 +57,11 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 	}
 	sortConnFields(connLines, true)
 	if explain {
-		sortConnFields(systemDefaultConnLines, true)
+		sortConnFields(defaultConnLines, true)
 	}
 	result := ""
 	if explain {
-		result = writeExplanationOutput(connLines, systemDefaultConnLines)
+		result = writeExplanationOutput(connLines, defaultConnLines)
 	} else {
 		for _, p2pConn := range connLines {
 			result += p2pConn.string() + newLineChar
@@ -70,15 +70,15 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 	return result
 }
 
-func writeExplanationOutput(connLines, systemDefaultConnLines []singleConnFields) string {
+func writeExplanationOutput(connLines, defaultConnLines []singleConnFields) string {
 	result := ""
 	for _, p2pConn := range connLines {
 		result += nodePairSeparationLine
 		result += p2pConn.stringWithExplanation() + newLineChar
 	}
-	if len(systemDefaultConnLines) > 0 {
+	if len(defaultConnLines) > 0 {
 		result += nodePairSeparationLine + systemDefaultPairsHeader
-		for _, p2pConn := range systemDefaultConnLines {
+		for _, p2pConn := range defaultConnLines {
 			result += p2pConn.nodePairString() + newLineChar
 		}
 	}
@@ -89,7 +89,7 @@ const (
 	unprotectedHeader        = "\nWorkloads not protected by network policies:\n"
 	separationLine80         = "--------------------------------------------------------------------------------"
 	nodePairSeparationLine   = separationLine80 + separationLine80 + common.NewLine
-	systemDefaultPairsHeader = "The following nodes are connected due to " + common.SystemDefaultRule + ":\n"
+	systemDefaultPairsHeader = "The following nodes are connected due to " + common.SystemOrIPDefaultRule + ":\n"
 )
 
 // writeExposureOutput writes the section of the exposure-analysis result

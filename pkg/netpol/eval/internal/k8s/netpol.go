@@ -157,7 +157,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 	if len(rulePorts) == 0 {
 		// If this field is empty or missing, this rule matches all ports
 		// (traffic not restricted by port)
-		return common.MakeAllConnectionSetWithRule(np.ruleName(ruleIdx, isIngress), isIngress), nil
+		return common.MakeConnectionSetWithRule(true, np.ruleName(ruleIdx, isIngress), isIngress), nil
 	}
 	res := common.MakeConnectionSet(false)
 	ruleName := np.ruleName(ruleIdx, isIngress)
@@ -168,7 +168,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 		}
 		ports := common.MakePortSet(false)
 		if rulePorts[i].Port == nil {
-			ports = common.MakePortSet(true)
+			ports = common.MakeAllPortSetWithImplyingRules(common.MakeImplyingRulesWithRule(ruleName, isIngress))
 		} else {
 			startPort, endPort, portName, err := np.getPortsRange(rulePorts[i], dst)
 			if err != nil {
@@ -206,6 +206,11 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 			}
 		}
 		res.AddConnection(protocol, ports)
+	}
+	if res.IsEmpty() {
+		// no connections found --> "named ports" of the rule had no match in the pod config
+		// remove empty protocols if any
+		res = common.MakeConnectionSetWithRule(false, explNoMatchOfNamesPortsToDst(ruleName), isIngress)
 	}
 	return res, nil
 }
@@ -410,6 +415,10 @@ func (np *NetworkPolicy) nameWithDirectionAndExpl(isIngress bool, expl string) s
 		xgress = "Ingress"
 	}
 	return fmt.Sprintf("%s//%s "+expl, np.fullName(), xgress, xgress)
+}
+
+func explNoMatchOfNamesPortsToDst(ruleName string) string {
+	return fmt.Sprintf("%s (named ports of the rule have no match in the configuration of the dst peer)", ruleName)
 }
 
 // GetXgressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer (for Ingress)

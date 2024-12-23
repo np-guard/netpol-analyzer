@@ -41,8 +41,8 @@ func MakeConnectionSet(all bool) *ConnectionSet {
 	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}, CommonImplyingRules: InitImplyingRules()}
 }
 
-func MakeAllConnectionSetWithRule(rule string, isIngress bool) *ConnectionSet {
-	return &ConnectionSet{AllowAll: true, AllowedProtocols: map[v1.Protocol]*PortSet{},
+func MakeConnectionSetWithRule(all bool, rule string, isIngress bool) *ConnectionSet {
+	return &ConnectionSet{AllowAll: all, AllowedProtocols: map[v1.Protocol]*PortSet{},
 		CommonImplyingRules: MakeImplyingRulesWithRule(rule, isIngress)}
 }
 

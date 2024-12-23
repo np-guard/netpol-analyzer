@@ -2,7 +2,7 @@
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => foo/my-foo[Pod]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] foo/allow-monitoring//Ingress (captured but not selected by any Ingress rule)
 
@@ -113,7 +113,7 @@ ALLOWED UDP:1-65535 due to the following policies//rules:
 		1) [NP] foo/allow-monitoring//Ingress rule #1
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-The following nodes are connected due to the system default (Allow all):
+The following nodes are connected due to the system default or the assumed default for IPblock (Allow all):
 0.0.0.0-255.255.255.255 => bar/my-bar[Pod]
 0.0.0.0-255.255.255.255 => baz/my-baz[Pod]
 0.0.0.0-255.255.255.255 => monitoring/my-monitoring[Pod]

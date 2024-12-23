@@ -45,6 +45,8 @@ func (pc *PolicyConnections) UpdateWithRuleConns(ruleConns *common.ConnectionSet
 	// banpRules indicates if the rules are coming from BANP; flag used to check the rule Actions are valid since:
 	// Unlike AdminNetworkPolicies that enable: "Pass, Deny or Allow" as the action of each rule.
 	// BaselineAdminNetworkPolicies allows only "Allow and Deny" as the action of each rule.
+	// 'false' in the Union calls below indicates to not collect explainability rules, since in the ANP/BANP level
+	// rule order defines their precedence, and so each connection may ve defined by at most one rule.
 	switch ruleAction {
 	case string(apisv1a.AdminNetworkPolicyRuleActionAllow):
 		ruleConns.Subtract(pc.DeniedConns)
@@ -79,6 +81,8 @@ func (pc *PolicyConnections) CollectANPConns(newAdminPolicyConns *PolicyConnecti
 	newAdminPolicyConns.PassConns.Subtract(pc.DeniedConns)
 	newAdminPolicyConns.PassConns.Subtract(pc.AllowedConns)
 	// add the new conns from current policy to the connections from the policies with higher precedence
+	// 'false' in the Union calls below indicates to not collect explainability rules, since in the ANP level
+	// each connection may ve defined by at most one ANP (according to the precedence).
 	pc.DeniedConns.Union(newAdminPolicyConns.DeniedConns, false)
 	pc.AllowedConns.Union(newAdminPolicyConns.AllowedConns, false)
 	pc.PassConns.Union(newAdminPolicyConns.PassConns, false)
@@ -138,7 +142,7 @@ func (pc *PolicyConnections) CollectConnsFromBANP(banpConns *PolicyConnections) 
 	newDenied := pc.PassConns.Copy()
 	newDenied.Intersection(banpConns.DeniedConns) // collect implying rules from pc.PassConns and banpConns.DeniedConns
 	newDenied.Subtract(pc.AllowedConns)
-	pc.DeniedConns.Union(newDenied, true) // 'true' because denied conns are defined by rules from both sides
+	pc.DeniedConns.Union(newDenied, false) // 'false' because denied conns may be already defined by pc.DeniedConns
 	// the allowed conns are "all conns - the denied conns"
 	// all conns that are not determined by the ANP and BANP are allowed by default,
 	// and are kept in banpConns.AllowedConns (were returned by getXgressDefaultConns)

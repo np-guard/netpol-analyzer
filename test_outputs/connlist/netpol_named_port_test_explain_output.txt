@@ -1,0 +1,36 @@
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => helloworld/pod-a[Deployment]:
+
+No Connections due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] helloworld/enable-ingress-from-named-port//Ingress (captured but not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN helloworld/new-pod[Deployment] => helloworld/pod-a[Deployment]:
+
+No Connections due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] helloworld/enable-ingress-from-named-port//Ingress rule #1 (named ports of the rule have no match in the configuration of the dst peer)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN helloworld/pod-a[Deployment] => 0.0.0.0-255.255.255.255:
+
+No Connections due to the following policies//rules:
+	EGRESS DIRECTION (DENIED)
+		1) [NP] helloworld/enable-ingress-from-named-port//Egress (no Egress rules defined)
+	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN helloworld/pod-a[Deployment] => helloworld/new-pod[Deployment]:
+
+No Connections due to the following policies//rules:
+	EGRESS DIRECTION (DENIED)
+		1) [NP] helloworld/enable-ingress-from-named-port//Egress (no Egress rules defined)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+The following nodes are connected due to the system default or the assumed default for IPblock (Allow all):
+0.0.0.0-255.255.255.255 => helloworld/new-pod[Deployment]
+helloworld/new-pod[Deployment] => 0.0.0.0-255.255.255.255

@@ -48,9 +48,9 @@ var explainTests = []struct {
 	testDirName   string
 	focusWorkload string
 }{
-	// {
-	// 	testDirName: "netpol_named_port_test",
-	// },
+	{
+		testDirName: "netpol_named_port_test",
+	},
 	// {
 	// 	testDirName: "anp_test_10",
 	// },

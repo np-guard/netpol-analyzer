@@ -80,22 +80,32 @@ func (rules *ImplyingRulesType) Copy() ImplyingRulesType {
 }
 
 const (
-	ExplWithRulesTitle    = "due to the following policies//rules:"
+	ExplString            = "due to "
+	ExplWithRulesTitle    = ExplString + "the following policies//rules:"
 	IngressDirectionTitle = "\tINGRESS DIRECTION"
 	EgressDirectionTitle  = "\tEGRESS DIRECTION"
 	NewLine               = "\n"
 	SpaceSeparator        = " "
-	ExplAllowAll          = "(Allow all)"
-	SystemDefaultRule     = "the system default " + ExplAllowAll
-	ExplSystemDefault     = "due to " + SystemDefaultRule
+	ExplAllowAll          = " (Allow all)"
+	SystemDefaultString   = "the system default"
+	SystemDefaultRule     = SystemDefaultString + ExplAllowAll
+	IPDefaultString       = "the assumed default for IPblock"
+	IPDefaultRule         = IPDefaultString + ExplAllowAll
+	SystemOrIPDefaultRule = SystemDefaultString + " or " + IPDefaultString + ExplAllowAll
+	ExplSystemDefault     = ExplString + SystemDefaultRule
 	PodToItselfRule       = "pod to itself " + ExplAllowAll
 	allowResultStr        = "ALLOWED"
 	denyResultStr         = "DENIED"
 )
 
-func (rules *ImplyingXgressRulesType) onlySystemDefaultRule() bool {
-	if _, ok := rules.Rules[SystemDefaultRule]; ok {
-		return len(rules.Rules) == 1
+func (rules *ImplyingXgressRulesType) onlyDefaultRule() bool {
+	if len(rules.Rules) == 1 {
+		if _, ok := rules.Rules[SystemDefaultRule]; ok {
+			return true
+		}
+		if _, ok := rules.Rules[IPDefaultRule]; ok {
+			return true
+		}
 	}
 	return false
 }
@@ -119,39 +129,41 @@ func (rules *ImplyingXgressRulesType) String() string {
 	if rules.Empty() {
 		return rules.resultString()
 	}
+	onlyDefaultRule := rules.onlyDefaultRule()
+
 	// print the rules according to their order
 	formattedRules := make([]string, 0, len(rules.Rules))
 	for name, order := range rules.Rules {
-		formattedRules = append(formattedRules, fmt.Sprintf("\t\t%d) %s", order+1, name))
+		if onlyDefaultRule {
+			formattedRules = append(formattedRules, name)
+		} else {
+			formattedRules = append(formattedRules, fmt.Sprintf("\t\t%d) %s", order+1, name))
+		}
 	}
 	sort.Strings(formattedRules) // the rule index begins the string, like "2)"
-	return rules.resultString() + NewLine + strings.Join(formattedRules, NewLine)
+	result := rules.resultString()
+	if onlyDefaultRule {
+		result += SpaceSeparator + ExplString
+	} else {
+		result += NewLine
+	}
+	return result + strings.Join(formattedRules, NewLine)
 }
 
-func (rules *ImplyingRulesType) OnlySystemDefaultRule() bool {
-	return rules.Ingress.onlySystemDefaultRule() && rules.Egress.onlySystemDefaultRule()
+func (rules *ImplyingRulesType) OnlyDefaultRule() bool {
+	return rules.Ingress.onlyDefaultRule() && rules.Egress.onlyDefaultRule()
 }
 
 func (rules ImplyingRulesType) String() string {
-	if rules.OnlySystemDefaultRule() {
+	if rules.OnlyDefaultRule() {
 		return SpaceSeparator + SystemDefaultRule + NewLine
 	}
 	res := ""
 	if !rules.Egress.Empty() {
-		res += EgressDirectionTitle
-		if rules.Egress.onlySystemDefaultRule() {
-			res += SpaceSeparator + rules.Egress.resultString() + SpaceSeparator + ExplSystemDefault + NewLine
-		} else {
-			res += SpaceSeparator + rules.Egress.String() + NewLine
-		}
+		res += EgressDirectionTitle + SpaceSeparator + rules.Egress.String() + NewLine
 	}
 	if !rules.Ingress.Empty() {
-		res += IngressDirectionTitle
-		if rules.Ingress.onlySystemDefaultRule() {
-			res += SpaceSeparator + rules.Ingress.resultString() + SpaceSeparator + ExplSystemDefault + NewLine
-		} else {
-			res += SpaceSeparator + rules.Ingress.String() + NewLine
-		}
+		res += IngressDirectionTitle + SpaceSeparator + rules.Ingress.String() + NewLine
 	}
 	if res == "" {
 		return NewLine

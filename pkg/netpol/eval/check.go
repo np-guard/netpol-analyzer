@@ -259,7 +259,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 		return nil, err
 	}
 	res.SetExplResult(false)
-	if res.IsEmpty() {
+	if res.IsEmpty() && !pe.explain {
 		return res, nil
 	}
 	// ingress: get ingress allowed connections between the src and dst by
@@ -514,38 +514,40 @@ func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer
 // - note that the result may contain allowed / denied connections.
 func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool) (*k8s.PolicyConnections, error) {
 	res := k8s.NewPolicyConnections()
-	if pe.baselineAdminNetpol == nil {
-		res.AllowedConns = common.MakeAllConnectionSetWithRule(common.SystemDefaultRule, isIngress)
-		return res, nil
-	}
-	if isIngress { // ingress
-		selectsDst, err := pe.baselineAdminNetpol.Selects(dst, true)
-		if err != nil {
-			return nil, err
-		}
-		// if the banp selects the dst on ingress, get ingress conns
-		if selectsDst {
-			res, err = pe.baselineAdminNetpol.GetIngressPolicyConns(src, dst)
+	if pe.baselineAdminNetpol != nil {
+		if isIngress { // ingress
+			selectsDst, err := pe.baselineAdminNetpol.Selects(dst, true)
 			if err != nil {
 				return nil, err
 			}
-		}
-	} else { // egress (!isIngress)
-		selectsSrc, err := pe.baselineAdminNetpol.Selects(src, false)
-		if err != nil {
-			return nil, err
-		}
-		// if the banp selects the src on egress, get egress conns
-		if selectsSrc {
-			res, err = pe.baselineAdminNetpol.GetEgressPolicyConns(dst)
+			// if the banp selects the dst on ingress, get ingress conns
+			if selectsDst {
+				res, err = pe.baselineAdminNetpol.GetIngressPolicyConns(src, dst)
+				if err != nil {
+					return nil, err
+				}
+			}
+		} else { // egress (!isIngress)
+			selectsSrc, err := pe.baselineAdminNetpol.Selects(src, false)
 			if err != nil {
 				return nil, err
 			}
+			// if the banp selects the src on egress, get egress conns
+			if selectsSrc {
+				res, err = pe.baselineAdminNetpol.GetEgressPolicyConns(dst)
+				if err != nil {
+					return nil, err
+				}
+			}
 		}
 	}
-	// if banp rules didn't capture xgress conn between src and dst, return system-default: allow-all;
+	// if no banp or banp rules didn't capture xgress conn between src and dst, return system-default: allow-all;
 	// if banp rule captured xgress conn, only DeniedConns should be impacted by banp rule,
-	// whenever AllowedConns should anyway be system-default: allow-all
-	res.AllowedConns = common.MakeAllConnectionSetWithRule(common.SystemDefaultRule, isIngress)
+	// whenever AllowedConns should anyway be system-default: allow-all (or assumed allow-all for IP-blocks)
+	if (isIngress && dst.PeerType() == k8s.IPBlockType) || (!isIngress && src.PeerType() == k8s.IPBlockType) {
+		res.AllowedConns = common.MakeConnectionSetWithRule(true, common.IPDefaultRule, isIngress)
+	} else {
+		res.AllowedConns = common.MakeConnectionSetWithRule(true, common.SystemDefaultRule, isIngress)
+	}
 	return res, nil
 }

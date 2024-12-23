@@ -353,8 +353,8 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 	return c.protocolsAndPorts
 }
 
-func (c *connection) OnlySystemDefaultRule() bool {
-	return c.allConnections && len(c.protocolsAndPorts) == 0 && c.commonImplyingRules.OnlySystemDefaultRule()
+func (c *connection) OnlyDefaultRule() bool {
+	return c.allConnections && len(c.protocolsAndPorts) == 0 && c.commonImplyingRules.OnlyDefaultRule()
 }
 
 // returns a *common.ConnectionSet from Peer2PeerConnection data
