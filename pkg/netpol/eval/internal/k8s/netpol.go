@@ -159,14 +159,16 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 		// (traffic not restricted by port)
 		return common.MakeConnectionSetWithRule(true, np.ruleName(ruleIdx, isIngress), isIngress), nil
 	}
-	res := common.MakeConnectionSet(false)
 	ruleName := np.ruleName(ruleIdx, isIngress)
+	// all protocols are affected by the rule
+	res := common.MakeConnectionSetWithRule(false, ruleName, isIngress)
 	for i := range rulePorts {
 		protocol := v1.ProtocolTCP
 		if rulePorts[i].Protocol != nil {
 			protocol = *rulePorts[i].Protocol
 		}
-		ports := common.MakePortSet(false)
+		// the whole port range is affected by the rule (not only ports mentioned in the rule)
+		ports := common.MakeEmptyPortSetWithImplyingRules(common.MakeImplyingRulesWithRule(ruleName, isIngress))
 		if rulePorts[i].Port == nil {
 			ports = common.MakeAllPortSetWithImplyingRules(common.MakeImplyingRulesWithRule(ruleName, isIngress))
 		} else {

@@ -25,9 +25,7 @@ No Connections due to the following policies//rules:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN monitoring/my-monitoring[Pod] => bar/my-bar[Pod]:
 
-ALLOWED SCTP:1-65535 the system default (Allow all)
-
-ALLOWED UDP:1-65535 the system default (Allow all)
+ALLOWED {SCTP,UDP}:[ALL PORTS] the system default (Allow all)
 
 DENIED TCP:1-1233 due to the following policies//rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
@@ -60,8 +58,6 @@ ALLOWED TCP:9001-65535 the system default (Allow all)
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN monitoring/my-monitoring[Pod] => baz/my-baz[Pod]:
 
-ALLOWED SCTP:1-65535 the system default (Allow all)
-
 ALLOWED TCP:1-1233 the system default (Allow all)
 
 ALLOWED TCP:1234 due to the following policies//rules:
@@ -71,15 +67,10 @@ ALLOWED TCP:1234 due to the following policies//rules:
 
 ALLOWED TCP:1235-65535 the system default (Allow all)
 
-ALLOWED UDP:1-65535 the system default (Allow all)
+ALLOWED {SCTP,UDP}:[ALL PORTS] the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN monitoring/my-monitoring[Pod] => foo/my-foo[Pod]:
-
-ALLOWED SCTP:1-65535 due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (ALLOWED)
-		1) [NP] foo/allow-monitoring//Ingress rule #1
 
 ALLOWED TCP:1-1233 due to the following policies//rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
@@ -107,7 +98,7 @@ ALLOWED TCP:8081-65535 due to the following policies//rules:
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] foo/allow-monitoring//Ingress rule #1
 
-ALLOWED UDP:1-65535 due to the following policies//rules:
+ALLOWED {SCTP,UDP}:[ALL PORTS] due to the following policies//rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] foo/allow-monitoring//Ingress rule #1

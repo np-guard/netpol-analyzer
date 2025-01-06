@@ -61,6 +61,14 @@ func MakeImplyingRulesWithRule(rule string, isIngress bool) ImplyingRulesType {
 	return res
 }
 
+func (rules *ImplyingXgressRulesType) Equal(other *ImplyingXgressRulesType) bool {
+	return fmt.Sprint(rules) == fmt.Sprint(other)
+}
+
+func (rules *ImplyingRulesType) Equal(other *ImplyingRulesType) bool {
+	return rules.Ingress.Equal(&other.Ingress) && rules.Egress.Equal(&other.Egress)
+}
+
 func (rules *ImplyingXgressRulesType) Copy() ImplyingXgressRulesType {
 	if rules == nil {
 		return InitImplyingXgressRules()
@@ -312,6 +320,10 @@ func NewAugmentedIntervalWithRule(start, end int64, inSet bool, rule string, isI
 
 func NewAugmentedIntervalWithRules(start, end int64, inSet bool, rules ImplyingRulesType) AugmentedInterval {
 	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: rules.Copy()}
+}
+
+func (augInt AugmentedInterval) Equal(other AugmentedInterval) bool {
+	return augInt.inSet == other.inSet && augInt.interval.Equal(other.interval) && augInt.implyingRules.Equal(&other.implyingRules)
 }
 
 // AugmentedCanonicalSet is a set of int64 integers, implemented using an ordered slice of non-overlapping, non-touching intervals.

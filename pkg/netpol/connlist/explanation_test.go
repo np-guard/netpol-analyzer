@@ -49,6 +49,9 @@ var explainTests = []struct {
 	focusWorkload string
 }{
 	{
+		testDirName: "ipblockstest",
+	},
+	{
 		testDirName: "netpol_named_port_test",
 	},
 	// {
@@ -60,9 +63,6 @@ var explainTests = []struct {
 	{
 		testDirName: "anp_banp_blog_demo_2",
 	},
-	// {
-	// 	testDirName: "ipblockstest",
-	// },
 	// {
 	// 	testDirName: "onlineboutique",
 	// },

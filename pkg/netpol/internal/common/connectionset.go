@@ -362,7 +362,18 @@ func (p *PortRangeData) End() int64 {
 	return p.Interval.interval.End()
 }
 
+func (p *PortRangeData) isWholeRange() bool {
+	return p.Start() == MinPort && p.End() == MaxPort
+}
+
+func (p PortRangeData) Equal(other PortRangeData) bool {
+	return p.Interval.Equal(other.Interval)
+}
+
 func (p *PortRangeData) String() string {
+	if p.isWholeRange() {
+		return allPortsStr
+	}
 	if p.End() != p.Start() {
 		return fmt.Sprintf("%d-%d", p.Start(), p.End())
 	}
@@ -405,6 +416,7 @@ const (
 	connsAndPortRangeSeparator = ","
 	allConnsStr                = "All Connections"
 	noConnsStr                 = "No Connections"
+	allPortsStr                = "[ALL PORTS]"
 )
 
 func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[v1.Protocol][]PortRange) string {
@@ -467,6 +479,10 @@ func protocolAndPortsStr(protocol v1.Protocol, ports string) string {
 	return string(protocol) + SpaceSeparator + ports
 }
 
+func isWholeRange(ports []PortRange) bool {
+	return len(ports) == 1 && ports[0].(*PortRangeData).isWholeRange()
+}
+
 func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRules ImplyingRulesType,
 	protocolsAndPorts map[v1.Protocol][]PortRange) string {
 	if len(protocolsAndPorts) == 0 {
@@ -479,8 +495,25 @@ func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRule
 	var connStr string
 	// connStrings will contain the string of given conns protocols and ports as is
 	connStrings := make([]string, 0, len(protocolsAndPorts))
+	// for compact explanation: pick all protocols containing the whole port range
+	wholeCommonRange := PortRangeData{}
+	wholeRangeProtocols := make([]string, 0, len(protocolsAndPorts))
 	for protocol, ports := range protocolsAndPorts {
+		if isWholeRange(ports) {
+			if len(wholeRangeProtocols) == 0 {
+				wholeCommonRange = *ports[0].(*PortRangeData)
+				wholeRangeProtocols = append(wholeRangeProtocols, string(protocol))
+				continue
+			} else if ports[0].(*PortRangeData).Equal(wholeCommonRange) {
+				wholeRangeProtocols = append(wholeRangeProtocols, string(protocol))
+				continue
+			}
+		}
 		connStrings = append(connStrings, portsStringWithExplanation(ports, string(protocol)))
+	}
+	if len(wholeRangeProtocols) > 0 {
+		sort.Strings(wholeRangeProtocols)
+		connStrings = append(connStrings, wholeCommonRange.StringWithExplanation("{"+strings.Join(wholeRangeProtocols, ",")+"}"))
 	}
 	sort.Strings(connStrings)
 	connStr = strings.Join(connStrings, NewLine)
