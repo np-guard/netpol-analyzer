@@ -49,23 +49,23 @@ var explainTests = []struct {
 	focusWorkload string
 }{
 	{
+		testDirName: "onlineboutique",
+	},
+	{
+		testDirName: "anp_test_10",
+	},
+	{
 		testDirName: "ipblockstest",
 	},
 	{
 		testDirName: "netpol_named_port_test",
 	},
-	// {
-	// 	testDirName: "anp_test_10",
-	// },
 	{
 		testDirName: "anp_banp_blog_demo",
 	},
 	{
 		testDirName: "anp_banp_blog_demo_2",
 	},
-	// {
-	// 	testDirName: "onlineboutique",
-	// },
 	// {
 	// 	testDirName: "acs-security-demos",
 	// },
