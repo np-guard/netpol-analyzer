@@ -62,7 +62,7 @@ func MakeImplyingRulesWithRule(rule string, isIngress bool) ImplyingRulesType {
 }
 
 func (rules *ImplyingXgressRulesType) Equal(other *ImplyingXgressRulesType) bool {
-	return fmt.Sprint(rules) == fmt.Sprint(other)
+	return rules.String() == other.String()
 }
 
 func (rules *ImplyingRulesType) Equal(other *ImplyingRulesType) bool {
