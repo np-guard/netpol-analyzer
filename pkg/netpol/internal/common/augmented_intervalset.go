@@ -326,6 +326,10 @@ func (augInt AugmentedInterval) Equal(other AugmentedInterval) bool {
 	return augInt.inSet == other.inSet && augInt.interval.Equal(other.interval) && augInt.implyingRules.Equal(&other.implyingRules)
 }
 
+func (augInt AugmentedInterval) EqualInSetAndRules(other AugmentedInterval) bool {
+	return augInt.inSet == other.inSet && augInt.implyingRules.Equal(&other.implyingRules)
+}
+
 // AugmentedCanonicalSet is a set of int64 integers, implemented using an ordered slice of non-overlapping, non-touching intervals.
 // The intervals should include both included intervals and holes;
 // i.e., start of every interval is the end of a previous interval incremented by 1.

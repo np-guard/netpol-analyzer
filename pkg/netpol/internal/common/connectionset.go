@@ -370,6 +370,10 @@ func (p PortRangeData) Equal(other PortRangeData) bool {
 	return p.Interval.Equal(other.Interval)
 }
 
+func (p PortRangeData) EqualInSetAndRules(other PortRangeData) bool {
+	return p.Interval.EqualInSetAndRules(other.Interval)
+}
+
 func (p *PortRangeData) String() string {
 	if p.isWholeRange() {
 		return allPortsStr
@@ -380,12 +384,16 @@ func (p *PortRangeData) String() string {
 	return fmt.Sprintf("%d", p.Start())
 }
 
-func (p *PortRangeData) StringWithExplanation(protocolString string) string {
+func explOfInSetProtocolPortsAndRules(inSet bool, protocolString, portsString, rulesString string) string {
 	resultStr := allowResultStr
-	if !p.InSet() {
+	if !inSet {
 		resultStr = denyResultStr
 	}
-	return resultStr + SpaceSeparator + protocolString + ":" + p.String() + p.Interval.implyingRules.String()
+	return resultStr + SpaceSeparator + protocolString + ":" + "[" + portsString + "]" + rulesString
+}
+
+func (p *PortRangeData) StringWithExplanation(protocolString string) string {
+	return explOfInSetProtocolPortsAndRules(p.InSet(), protocolString, p.String(), p.Interval.implyingRules.String())
 }
 
 func (p *PortRangeData) InSet() bool {
@@ -416,7 +424,7 @@ const (
 	connsAndPortRangeSeparator = ","
 	allConnsStr                = "All Connections"
 	noConnsStr                 = "No Connections"
-	allPortsStr                = "[ALL PORTS]"
+	allPortsStr                = "ALL PORTS"
 )
 
 func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[v1.Protocol][]PortRange) string {
@@ -467,11 +475,31 @@ func portsString(ports []PortRange) string {
 	return strings.Join(portsStr, connsAndPortRangeSeparator)
 }
 
+type InSetAndRulesStr struct {
+	inSet       bool
+	rulesString string
+}
+
 func portsStringWithExplanation(ports []PortRange, protocolString string) string {
-	portsStr := make([]string, 0, len(ports))
+	// for compact explanation: collect together ranges with the same 'inSet' and impying rules
+	portRangeClasses := map[InSetAndRulesStr]*interval.CanonicalSet{}
 	for i := range ports {
-		portsStr = append(portsStr, ports[i].(*PortRangeData).StringWithExplanation(protocolString))
+		portRangeData := ports[i].(*PortRangeData)
+		thisInSetAndRulesStr := InSetAndRulesStr{portRangeData.Interval.inSet, portRangeData.Interval.implyingRules.String()}
+		_, ok := portRangeClasses[thisInSetAndRulesStr]
+		if !ok {
+			portRangeClasses[thisInSetAndRulesStr] = interval.NewCanonicalSet()
+		}
+		portRangeClasses[thisInSetAndRulesStr].AddInterval(portRangeData.Interval.interval)
 	}
+	portsStr := make([]string, len(portRangeClasses))
+	ind := 0
+	for inSetAndRulesStr, intervals := range portRangeClasses {
+		portsStr[ind] = explOfInSetProtocolPortsAndRules(inSetAndRulesStr.inSet, protocolString,
+			intervals.String(), inSetAndRulesStr.rulesString)
+		ind++
+	}
+	sort.Strings(portsStr)
 	return strings.Join(portsStr, NewLine)
 }
 
