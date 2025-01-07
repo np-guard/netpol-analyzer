@@ -416,7 +416,7 @@ func (np *NetworkPolicy) nameWithDirectionAndExpl(isIngress bool, expl string) s
 	if isIngress {
 		xgress = "Ingress"
 	}
-	return fmt.Sprintf("%s//%s "+expl, np.fullName(), xgress, xgress)
+	return fmt.Sprintf("%s//%s "+expl, np.FullName(), xgress, xgress)
 }
 
 func explNoMatchOfNamedPortsToDst(ruleName string) string {
@@ -474,11 +474,11 @@ func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*
 }
 
 func (np *NetworkPolicy) netpolWarning(description string) string {
-	return fmt.Sprintf("network policy %q: %s", np.fullName(), description)
+	return fmt.Sprintf("network policy %q: %s", np.FullName(), description)
 }
 
 func (np *NetworkPolicy) netpolErr(title, description string) error {
-	return fmt.Errorf("network policy %s %s: %s", np.fullName(), title, description)
+	return fmt.Errorf("network policy %s %s: %s", np.FullName(), title, description)
 }
 
 func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*netset.IPBlock, error) {
@@ -579,7 +579,7 @@ func (np *NetworkPolicy) Selects(p *Pod, direction netv1.PolicyType) (bool, erro
 	return selector.Matches(labels.Set(p.Labels)), nil
 }
 
-func (np *NetworkPolicy) fullName() string {
+func (np *NetworkPolicy) FullName() string {
 	return "[NP] " + types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String()
 }
 
@@ -588,7 +588,7 @@ func (np *NetworkPolicy) ruleName(ruleIdx int, isIngress bool) string {
 	if isIngress {
 		xgress = ingressName
 	}
-	return fmt.Sprintf("%s//%s rule #%d", np.fullName(), xgress, ruleIdx+1)
+	return fmt.Sprintf("%s//%s rule #%d", np.FullName(), xgress, ruleIdx+1)
 }
 
 func (np *NetworkPolicy) LogWarnings(l logger.Logger) {
