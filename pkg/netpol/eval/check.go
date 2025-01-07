@@ -301,6 +301,7 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 	}
 	// optimization: if all the conns between src and dst were determined by the ANPs : return the allowed conns
 	if anpCaptured && anpConns.DeterminesAllConns() {
+		// since NPs/BANPs are not relevant here, perform the subtract below
 		anpConns.AllowedConns.Subtract(anpConns.DeniedConns) // update explainabiliy data
 		return anpConns.AllowedConns, nil
 	}
