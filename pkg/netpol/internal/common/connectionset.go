@@ -480,7 +480,7 @@ type InSetAndRulesStr struct {
 	rulesString string
 }
 
-func portsStringWithExplanation(ports []PortRange, protocolString string) string {
+func portsStringWithExplanation(ports []PortRange, protocolString string) []string {
 	// for compact explanation: collect together ranges with the same 'inSet' and impying rules
 	portRangeClasses := map[InSetAndRulesStr]*interval.CanonicalSet{}
 	for i := range ports {
@@ -500,7 +500,7 @@ func portsStringWithExplanation(ports []PortRange, protocolString string) string
 		ind++
 	}
 	sort.Strings(portsStr)
-	return strings.Join(portsStr, NewLine)
+	return portsStr
 }
 
 func protocolAndPortsStr(protocol v1.Protocol, ports string) string {
@@ -537,7 +537,7 @@ func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRule
 				continue
 			}
 		}
-		connStrings = append(connStrings, portsStringWithExplanation(ports, string(protocol)))
+		connStrings = append(connStrings, portsStringWithExplanation(ports, string(protocol))...)
 	}
 	if len(wholeRangeProtocols) > 0 {
 		sort.Strings(wholeRangeProtocols)

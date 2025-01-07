@@ -29,12 +29,12 @@ CONNECTIONS BETWEEN network-policy-conformance-hufflepuff/cedric-diggory[Statefu
 
 ALLOWED UDP:[1-5352,5354-65535] the system default (Allow all)
 
+ALLOWED {SCTP,TCP}:[ALL PORTS] the system default (Allow all)
+
 DENIED UDP:[5353] due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [ANP] egress-udp//Egress rule deny-to-slytherin-at-port-5353 (Deny)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-
-ALLOWED {SCTP,TCP}:[ALL PORTS] the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 The following nodes are connected due to the system default or the assumed default for IPblock (Allow all):
