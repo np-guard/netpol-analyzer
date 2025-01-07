@@ -69,4 +69,13 @@ var explainTests = []struct {
 	{
 		testDirName: "anp_banp_blog_demo_2",
 	},
+	{
+		testDirName: "anp_and_banp_using_networks_and_nodes_test",
+	},
+	{
+		testDirName: "anp_banp_test_with_named_port_matched",
+	},
+	{
+		testDirName: "anp_banp_test_with_named_port_unmatched",
+	},
 }

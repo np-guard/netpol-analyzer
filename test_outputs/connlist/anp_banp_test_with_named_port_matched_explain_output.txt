@@ -1,0 +1,35 @@
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN network-policy-conformance-gryffindor/harry-potter[StatefulSet] => network-policy-conformance-slytherin/draco-malfoy[StatefulSet]:
+
+No Connections due to the following policies//rules:
+	EGRESS DIRECTION (DENIED)
+		1) [ANP] pass-example//Egress rule pass-all-egress-to-slytherin (Pass)
+		2) [BANP] default//Egress rule deny-all-egress-to-slytherin (Deny)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN network-policy-conformance-slytherin/draco-malfoy[StatefulSet] => network-policy-conformance-gryffindor/harry-potter[StatefulSet]:
+
+ALLOWED TCP:[80] due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [ANP] pass-example//Ingress rule allow-ingress-from-slytherin-on-named-port (Allow)
+
+DENIED TCP:[1-79,81-65535] due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [ANP] pass-example//Ingress rule pass-all-ingress-from-slytherin (Pass)
+		2) [BANP] default//Ingress rule deny-all-ingress-from-slytherin (Deny)
+
+DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies//rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [ANP] pass-example//Ingress rule pass-all-ingress-from-slytherin (Pass)
+		2) [BANP] default//Ingress rule deny-all-ingress-from-slytherin (Deny)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+The following nodes are connected due to the system default or the assumed default for IPblock (Allow all):
+0.0.0.0-255.255.255.255 => network-policy-conformance-gryffindor/harry-potter[StatefulSet]
+0.0.0.0-255.255.255.255 => network-policy-conformance-slytherin/draco-malfoy[StatefulSet]
+network-policy-conformance-gryffindor/harry-potter[StatefulSet] => 0.0.0.0-255.255.255.255
+network-policy-conformance-slytherin/draco-malfoy[StatefulSet] => 0.0.0.0-255.255.255.255
