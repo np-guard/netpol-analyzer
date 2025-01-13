@@ -315,7 +315,8 @@ func NewAugmentedInterval(start, end int64, inSet bool) AugmentedInterval {
 }
 
 func NewAugmentedIntervalWithRule(start, end int64, inSet bool, rule string, layer LayerType, isIngress bool) AugmentedInterval {
-	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: MakeImplyingRulesWithRule(rule, layer, isIngress)}
+	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet,
+		implyingRules: MakeImplyingRulesWithRule(rule, layer, isIngress)}
 }
 
 func NewAugmentedIntervalWithRules(start, end int64, inSet bool, rules ImplyingRulesType) AugmentedInterval {

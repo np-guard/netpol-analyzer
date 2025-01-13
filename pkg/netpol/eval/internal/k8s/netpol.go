@@ -168,7 +168,8 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 			protocol = *rulePorts[i].Protocol
 		}
 		// the whole port range is affected by the rule (not only ports mentioned in the rule)
-		ports := common.MakeEmptyPortSetWithImplyingRules(common.MakeImplyingRulesWithRule(explNotReferencedPorts(ruleName), common.NPLayer, isIngress))
+		ports := common.MakeEmptyPortSetWithImplyingRules(
+			common.MakeImplyingRulesWithRule(explNotReferencedPorts(ruleName), common.NPLayer, isIngress))
 		if rulePorts[i].Port == nil {
 			ports = common.MakeAllPortSetWithImplyingRules(common.MakeImplyingRulesWithRule(ruleName, common.NPLayer, isIngress))
 		} else {
