@@ -386,7 +386,7 @@ func updateConnsIfIngressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyI
 func updatePolicyConns(rulePorts *[]apisv1a.AdminNetworkPolicyPort, ruleName string, policyConns *PolicyConnections, dst Peer,
 	action string, isBANPrule, isIngress bool) error {
 	// get rule connections from rulePorts
-	ruleConns, err := ruleConnections(rulePorts, ruleName, dst, isIngress)
+	ruleConns, err := ruleConnections(rulePorts, ruleName, isBANPrule, dst, isIngress)
 	if err != nil {
 		return err
 	}
@@ -396,9 +396,16 @@ func updatePolicyConns(rulePorts *[]apisv1a.AdminNetworkPolicyPort, ruleName str
 }
 
 // ruleConnections returns the connectionSet from the current rule.Ports
-func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string, dst Peer, isIngress bool) (*common.ConnectionSet, error) {
+func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string,
+	isBANPrule bool, dst Peer, isIngress bool) (*common.ConnectionSet, error) {
+	var layer common.LayerType
+	if isBANPrule {
+		layer = common.BANPLayer
+	} else {
+		layer = common.ANPLayer
+	}
 	if ports == nil { // If Ports is not set then the rule does not filter traffic via port.
-		return common.MakeConnectionSetWithRule(true, ruleName, isIngress), nil
+		return common.MakeConnectionSetWithRule(true, ruleName, layer, isIngress), nil
 	}
 	res := common.MakeConnectionSet(false)
 	for _, anpPort := range *ports {
@@ -412,7 +419,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string, d
 			if anpPort.PortNumber.Protocol != "" {
 				protocol = anpPort.PortNumber.Protocol
 			}
-			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port), common.MakeImplyingRulesWithRule(ruleName, isIngress))
+			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port), common.MakeImplyingRulesWithRule(ruleName, layer, isIngress))
 		case anpPort.NamedPort != nil:
 			if dst.PeerType() == IPBlockType {
 				// IPblock does not have named-ports defined, warn and continue
@@ -427,7 +434,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string, d
 			if podProtocol != "" {
 				protocol = v1.Protocol(podProtocol)
 			}
-			portSet.AddPort(intstr.FromInt32(podPort), common.MakeImplyingRulesWithRule(ruleName, isIngress))
+			portSet.AddPort(intstr.FromInt32(podPort), common.MakeImplyingRulesWithRule(ruleName, layer, isIngress))
 		case anpPort.PortRange != nil:
 			if anpPort.PortRange.Protocol != "" {
 				protocol = anpPort.PortRange.Protocol
@@ -436,7 +443,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string, d
 				// illegal: rule with empty range; (start/ end not in the legal range or end < start)
 				return nil, errors.New(alerts.IllegalPortRangeError(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End)))
 			}
-			portSet.AddPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End), true, ruleName, isIngress)
+			portSet.AddPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End), true, ruleName, layer, isIngress)
 		}
 		res.AddConnection(protocol, portSet)
 	}

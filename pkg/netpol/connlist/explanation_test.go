@@ -49,6 +49,9 @@ var explainTests = []struct {
 	focusWorkload string
 }{
 	{
+		testDirName: "anp_demo",
+	},
+	{
 		testDirName: "acs-security-demos",
 	},
 	{

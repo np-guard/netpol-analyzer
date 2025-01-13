@@ -41,14 +41,14 @@ func MakeConnectionSet(all bool) *ConnectionSet {
 	return &ConnectionSet{AllowedProtocols: map[v1.Protocol]*PortSet{}, CommonImplyingRules: InitImplyingRules()}
 }
 
-func MakeConnectionSetWithRule(all bool, rule string, isIngress bool) *ConnectionSet {
+func MakeConnectionSetWithRule(all bool, rule string, layer LayerType, isIngress bool) *ConnectionSet {
 	return &ConnectionSet{AllowAll: all, AllowedProtocols: map[v1.Protocol]*PortSet{},
-		CommonImplyingRules: MakeImplyingRulesWithRule(rule, isIngress)}
+		CommonImplyingRules: MakeImplyingRulesWithRule(rule, layer, isIngress)}
 }
 
 // Add common implying rule, i.e., a rule that is relevant for the whole ConnectionSet
-func (conn *ConnectionSet) AddCommonImplyingRule(implyingRule string, isIngress bool) {
-	conn.CommonImplyingRules.AddRule(implyingRule, isIngress)
+func (conn *ConnectionSet) AddCommonImplyingRule(implyingRule string, layer LayerType, isIngress bool) {
+	conn.CommonImplyingRules.AddRule(implyingRule, layer, isIngress)
 }
 
 func (conn *ConnectionSet) GetEquivalentCanonicalConnectionSet() *ConnectionSet {
@@ -368,10 +368,6 @@ func (p *PortRangeData) isWholeRange() bool {
 
 func (p PortRangeData) Equal(other PortRangeData) bool {
 	return p.Interval.Equal(other.Interval)
-}
-
-func (p PortRangeData) EqualInSetAndRules(other PortRangeData) bool {
-	return p.Interval.EqualInSetAndRules(other.Interval)
 }
 
 func (p *PortRangeData) String() string {

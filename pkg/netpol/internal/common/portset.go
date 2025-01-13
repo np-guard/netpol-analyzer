@@ -102,7 +102,7 @@ func (p *PortSet) AddPort(port intstr.IntOrString, implyingRules ImplyingRulesTy
 		p.NamedPorts[port.StrVal] = theRules
 		delete(p.ExcludedNamedPorts, port.StrVal)
 	} else {
-		p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRules(int64(port.IntVal), int64(port.IntVal), true, implyingRules), true)
+		p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRules(int64(port.IntVal), int64(port.IntVal), true, implyingRules), SimpleCollect)
 	}
 }
 
@@ -112,13 +112,13 @@ func (p *PortSet) RemovePort(port intstr.IntOrString) {
 		p.ExcludedNamedPorts[port.StrVal] = p.NamedPorts[port.StrVal]
 		delete(p.NamedPorts, port.StrVal)
 	} else {
-		p.Ports.AddAugmentedInterval(NewAugmentedInterval(int64(port.IntVal), int64(port.IntVal), false), false)
+		p.Ports.AddAugmentedInterval(NewAugmentedInterval(int64(port.IntVal), int64(port.IntVal), false), DontCollect)
 	}
 }
 
 // AddPortRange: update current PortSet object with new added port range as allowed
-func (p *PortSet) AddPortRange(minPort, maxPort int64, inSet bool, fromRule string, isIngress bool) {
-	p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRule(minPort, maxPort, inSet, fromRule, isIngress), true)
+func (p *PortSet) AddPortRange(minPort, maxPort int64, inSet bool, fromRule string, layer LayerType, isIngress bool) {
+	p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRule(minPort, maxPort, inSet, fromRule, layer, isIngress), SimpleCollect)
 }
 
 // Union: update current PortSet object with union of input PortSet object
