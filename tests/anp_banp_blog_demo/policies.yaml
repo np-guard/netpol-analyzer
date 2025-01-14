@@ -4,7 +4,7 @@ metadata:
   name: allow-monitoring
   namespace: foo
 spec:
-  podSelector:
+  podSelector: {}
   policyTypes:
     - Ingress
   ingress:
