@@ -226,18 +226,14 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sClusterWithPolicyAPI(clientset *kuber
 	policyAPIClientset *policyapi.Clientset) ([]Peer2PeerConnection, []Peer, error) {
 	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
 
-	// get all resources from k8s cluster
-	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
-	defer cancel()
-
 	// insert namespaces, pods and network-policies from k8s clientset
-	err := updatePolicyEngineWithK8sBasicObjects(pe, clientset, ctx)
+	err := updatePolicyEngineWithK8sBasicObjects(pe, clientset)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// insert admin policies from k8s policy-api clientset
-	err = updatePolicyEngineWithK8sPolicyAPIObjects(pe, policyAPIClientset, ctx)
+	err = updatePolicyEngineWithK8sPolicyAPIObjects(pe, policyAPIClientset)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -245,7 +241,9 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sClusterWithPolicyAPI(clientset *kuber
 }
 
 // updatePolicyEngineWithK8sBasicObjects inserts to the policy engine all k8s pods, namespaces and network-policies
-func updatePolicyEngineWithK8sBasicObjects(pe *eval.PolicyEngine, clientset *kubernetes.Clientset, ctx context.Context) error {
+func updatePolicyEngineWithK8sBasicObjects(pe *eval.PolicyEngine, clientset *kubernetes.Clientset) error {
+	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
+	defer cancel()
 	// get all namespaces
 	nsList, apiErr := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	if apiErr != nil {
@@ -283,7 +281,9 @@ func updatePolicyEngineWithK8sBasicObjects(pe *eval.PolicyEngine, clientset *kub
 }
 
 // updatePolicyEngineWithK8sPolicyAPIObjects inserts to the policy-engine all (baseline)admin network policies
-func updatePolicyEngineWithK8sPolicyAPIObjects(pe *eval.PolicyEngine, clientset *policyapi.Clientset, ctx context.Context) error {
+func updatePolicyEngineWithK8sPolicyAPIObjects(pe *eval.PolicyEngine, clientset *policyapi.Clientset) error {
+	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
+	defer cancel()
 	// get all admin-network-policies
 	anpList, apiErr := clientset.PolicyV1alpha1().AdminNetworkPolicies().List(ctx, metav1.ListOptions{})
 	if apiErr != nil {
@@ -312,12 +312,8 @@ func updatePolicyEngineWithK8sPolicyAPIObjects(pe *eval.PolicyEngine, clientset 
 func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []Peer, error) {
 	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
 
-	// get all resources from k8s cluster
-	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
-	defer cancel()
-
 	// insert namespaces, pods and network-policies from k8s clientset
-	err := updatePolicyEngineWithK8sBasicObjects(pe, clientset, ctx)
+	err := updatePolicyEngineWithK8sBasicObjects(pe, clientset)
 	if err != nil {
 		return nil, nil, err
 	}
