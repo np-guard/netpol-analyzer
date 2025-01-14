@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	policyapi "sigs.k8s.io/network-policy-api/pkg/client/clientset/versioned"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
@@ -25,10 +26,11 @@ var (
 	// resources dir information
 	dirPath string
 	// k8s client
-	clientset        *kubernetes.Clientset
-	quiet            bool
-	verbose          bool
-	stopOnFirstError bool
+	clientset          *kubernetes.Clientset
+	policyAPIClientset *policyapi.Clientset
+	quiet              bool
+	verbose            bool
+	stopOnFirstError   bool
 )
 
 // returns verbosity level based on the -q and -v switches
@@ -69,6 +71,10 @@ func newCommandRoot() *cobra.Command {
 				return err
 			}
 			clientset, err = kubernetes.NewForConfig(k8sconf)
+			if err != nil {
+				return err
+			}
+			policyAPIClientset, err = policyapi.NewForConfig(k8sconf)
 			if err != nil {
 				return err
 			}

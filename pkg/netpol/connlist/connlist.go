@@ -21,6 +21,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
+	policyapi "sigs.k8s.io/network-policy-api/pkg/client/clientset/versioned"
 
 	v1 "k8s.io/api/core/v1"
 
@@ -220,7 +221,94 @@ func (ca *ConnlistAnalyzer) connsListFromParsedResources(objectsList []parser.K8
 	return ca.getConnectionsList(pe, ia)
 }
 
+// ConnlistFromK8sClusterWithPolicyAPI returns the allowed connections list from k8s cluster resources, and list of all peers names
+func (ca *ConnlistAnalyzer) ConnlistFromK8sClusterWithPolicyAPI(clientset *kubernetes.Clientset,
+	policyAPIClientset *policyapi.Clientset) ([]Peer2PeerConnection, []Peer, error) {
+	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
+
+	// get all resources from k8s cluster
+	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
+	defer cancel()
+
+	// insert namespaces, pods and network-policies from k8s clientset
+	err := updatePolicyEngineWithK8sBasicObjects(pe, clientset, ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// insert admin policies from k8s policy-api clientset
+	err = updatePolicyEngineWithK8sPolicyAPIObjects(pe, policyAPIClientset, ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	return ca.getConnectionsList(pe, nil)
+}
+
+// updatePolicyEngineWithK8sBasicObjects inserts to the policy engine all k8s pods, namespaces and network-policies
+func updatePolicyEngineWithK8sBasicObjects(pe *eval.PolicyEngine, clientset *kubernetes.Clientset, ctx context.Context) error {
+	// get all namespaces
+	nsList, apiErr := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
+	if apiErr != nil {
+		return apiErr
+	}
+	for i := range nsList.Items {
+		ns := &nsList.Items[i]
+		if err := pe.InsertObject(ns); err != nil {
+			return err
+		}
+	}
+
+	// get all netpols
+	npList, apiErr := clientset.NetworkingV1().NetworkPolicies(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	if apiErr != nil {
+		return apiErr
+	}
+	for i := range npList.Items {
+		if err := pe.InsertObject(&npList.Items[i]); err != nil {
+			return err
+		}
+	}
+
+	// get all pods
+	podList, apiErr := clientset.CoreV1().Pods(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	if apiErr != nil {
+		return apiErr
+	}
+	for i := range podList.Items {
+		if err := pe.InsertObject(&podList.Items[i]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// updatePolicyEngineWithK8sPolicyAPIObjects inserts to the policy-engine all (baseline)admin network policies
+func updatePolicyEngineWithK8sPolicyAPIObjects(pe *eval.PolicyEngine, clientset *policyapi.Clientset, ctx context.Context) error {
+	// get all admin-network-policies
+	anpList, apiErr := clientset.PolicyV1alpha1().AdminNetworkPolicies().List(ctx, metav1.ListOptions{})
+	if apiErr != nil {
+		return apiErr
+	}
+	for i := range anpList.Items {
+		if err := pe.InsertObject(&anpList.Items[i]); err != nil {
+			return err
+		}
+	}
+	// get baseline-admin-netpol
+	banpList, apiErr := clientset.PolicyV1alpha1().BaselineAdminNetworkPolicies().List(ctx, metav1.ListOptions{})
+	if apiErr != nil {
+		return apiErr
+	}
+	for i := range banpList.Items {
+		if err := pe.InsertObject(&banpList.Items[i]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources, and list of all peers names
+// Deprecated
 func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []Peer, error) {
 	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
 
@@ -228,38 +316,10 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clients
 	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
 	defer cancel()
 
-	// get all namespaces
-	nsList, apiErr := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
-	if apiErr != nil {
-		return nil, nil, apiErr
-	}
-	for i := range nsList.Items {
-		ns := &nsList.Items[i]
-		if err := pe.InsertObject(ns); err != nil {
-			return nil, nil, err
-		}
-	}
-
-	// get all netpols
-	npList, apiErr := clientset.NetworkingV1().NetworkPolicies(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
-	if apiErr != nil {
-		return nil, nil, apiErr
-	}
-	for i := range npList.Items {
-		if err := pe.InsertObject(&npList.Items[i]); err != nil {
-			return nil, nil, err
-		}
-	}
-
-	// get all pods
-	podList, apiErr := clientset.CoreV1().Pods(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
-	if apiErr != nil {
-		return nil, nil, apiErr
-	}
-	for i := range podList.Items {
-		if err := pe.InsertObject(&podList.Items[i]); err != nil {
-			return nil, nil, err
-		}
+	// insert namespaces, pods and network-policies from k8s clientset
+	err := updatePolicyEngineWithK8sBasicObjects(pe, clientset, ctx)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	return ca.getConnectionsList(pe, nil)
