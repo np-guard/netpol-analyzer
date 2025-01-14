@@ -269,13 +269,15 @@ const (
 //
 // The logic of the update is as follows:
 //   - if 'collectStyle' is AlwaysCollectRules (comes from Intersection of connection sets) --> collect the rules in any case
-//     (Intersection of connection sets scenario)
+//     (Intersection of connection sets scenario, mainly for intersecion with pass connections)
 //   - if 'collectStyle' is CollectSameInclusionRules and the inclusion status persists ('sameInclusion' is true) --> collect the rules
 //     (Union of connection sets of multiple NPs scenario)
 //   - otherwise, if the inclusion status changes ('sameInclusion' is false) --> override the rules
 //   - otherwise, if the DominantLayer priortiy of the other rules is higher --> override the rules
 //   - otherwise, keep the current rules.
-func (rules ImplyingXgressRulesType) update(other ImplyingXgressRulesType, sameInclusion bool, collectStyle CollectStyleType) ImplyingXgressRulesType {
+func (rules ImplyingXgressRulesType) update(other ImplyingXgressRulesType, sameInclusion bool,
+	collectStyle CollectStyleType) ImplyingXgressRulesType {
+
 	result := rules.Copy()
 	if other.Empty() {
 		return result
@@ -299,7 +301,8 @@ func (rules ImplyingXgressRulesType) update(other ImplyingXgressRulesType, sameI
 	return result
 }
 
-func (rules ImplyingRulesType) Update(other ImplyingRulesType, sameInclusion bool, collectStyle CollectStyleType) ImplyingRulesType {
+func (rules ImplyingRulesType) Update(other ImplyingRulesType, sameInclusion bool,
+	collectStyle CollectStyleType) ImplyingRulesType {
 	result := ImplyingRulesType{}
 	result.Ingress = rules.Ingress.update(other.Ingress, sameInclusion, collectStyle)
 	result.Egress = rules.Egress.update(other.Egress, sameInclusion, collectStyle)
@@ -308,7 +311,8 @@ func (rules ImplyingRulesType) Update(other ImplyingRulesType, sameInclusion boo
 
 // This function returns whether the current rules may be updated by the other rules.
 // It follows the logic of Update() (see explanation above).
-func (rules *ImplyingXgressRulesType) mayBeUpdatedBy(other ImplyingXgressRulesType, sameInclusion bool, collectStyle CollectStyleType) bool {
+func (rules *ImplyingXgressRulesType) mayBeUpdatedBy(other ImplyingXgressRulesType, sameInclusion bool,
+	collectStyle CollectStyleType) bool {
 	if collectStyle == AlwaysCollectRules || (collectStyle == CollectSameInclusionRules && sameInclusion) {
 		// return true iff Union would change anything
 		for name := range other.Rules {
@@ -321,7 +325,8 @@ func (rules *ImplyingXgressRulesType) mayBeUpdatedBy(other ImplyingXgressRulesTy
 	return (!sameInclusion || rules.Empty() && !other.Empty()) || rules.DominantLayer < other.DominantLayer
 }
 
-func (rules ImplyingRulesType) mayBeUpdatedBy(other ImplyingRulesType, sameInclusion bool, collectStyle CollectStyleType) bool {
+func (rules ImplyingRulesType) mayBeUpdatedBy(other ImplyingRulesType, sameInclusion bool,
+	collectStyle CollectStyleType) bool {
 	return rules.Ingress.mayBeUpdatedBy(other.Ingress, sameInclusion, collectStyle) ||
 		rules.Egress.mayBeUpdatedBy(other.Egress, sameInclusion, collectStyle)
 }

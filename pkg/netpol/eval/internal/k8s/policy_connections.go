@@ -90,12 +90,7 @@ func (pc *PolicyConnections) CollectANPConns(newAdminPolicyConns *PolicyConnecti
 
 // ComplementPassConns complements pass connections to all connections (by adding the absent conections)
 func (pc *PolicyConnections) ComplementPassConns() {
-	defaultPassConn := common.MakeConnectionSet(true)
-	defaultPassConn.Subtract(pc.AllowedConns)
-	defaultPassConn.Subtract(pc.DeniedConns)
-	// 'GetEquivalentCanonicalConnectionSet' below removes implying rules
-	// (we don't collect implying rules for default pass connections)
-	pc.PassConns.Union(defaultPassConn.GetEquivalentCanonicalConnectionSet(), false)
+	pc.PassConns.Union(common.MakeConnectionSet(true), false)
 }
 
 // CollectAllowedConnsFromNetpols updates allowed conns of current PolicyConnections object with allowed connections from

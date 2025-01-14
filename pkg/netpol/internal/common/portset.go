@@ -100,7 +100,8 @@ func (p *PortSet) AddPort(port intstr.IntOrString, implyingRules ImplyingRulesTy
 		p.NamedPorts[port.StrVal] = p.NamedPorts[port.StrVal].Update(implyingRules, false, NeverCollectRules)
 		delete(p.ExcludedNamedPorts, port.StrVal)
 	} else {
-		p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRules(int64(port.IntVal), int64(port.IntVal), true, implyingRules), NeverCollectRules)
+		p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRules(int64(port.IntVal), int64(port.IntVal),
+			true, implyingRules), NeverCollectRules)
 	}
 }
 
