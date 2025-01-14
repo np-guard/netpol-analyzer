@@ -1,72 +1,72 @@
 [
   {
     "src": "0.0.0.0-255.255.255.255",
-    "dst": "bar/my-bar[Pod]",
+    "dst": "bar/mybar[Pod]",
     "conn": "All Connections"
   },
   {
     "src": "0.0.0.0-255.255.255.255",
-    "dst": "baz/my-baz[Pod]",
+    "dst": "baz/mybaz[Pod]",
     "conn": "All Connections"
   },
   {
     "src": "0.0.0.0-255.255.255.255",
-    "dst": "monitoring/my-monitoring[Pod]",
+    "dst": "monitoring/mymonitoring[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "bar/my-bar[Pod]",
+    "src": "bar/mybar[Pod]",
     "dst": "0.0.0.0-255.255.255.255",
     "conn": "All Connections"
   },
   {
-    "src": "bar/my-bar[Pod]",
-    "dst": "baz/my-baz[Pod]",
+    "src": "bar/mybar[Pod]",
+    "dst": "baz/mybaz[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "bar/my-bar[Pod]",
-    "dst": "monitoring/my-monitoring[Pod]",
+    "src": "bar/mybar[Pod]",
+    "dst": "monitoring/mymonitoring[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "baz/my-baz[Pod]",
+    "src": "baz/mybaz[Pod]",
     "dst": "0.0.0.0-255.255.255.255",
     "conn": "All Connections"
   },
   {
-    "src": "baz/my-baz[Pod]",
-    "dst": "monitoring/my-monitoring[Pod]",
+    "src": "baz/mybaz[Pod]",
+    "dst": "monitoring/mymonitoring[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "foo/my-foo[Pod]",
+    "src": "foo/myfoo[Pod]",
     "dst": "0.0.0.0-255.255.255.255",
     "conn": "All Connections"
   },
   {
-    "src": "foo/my-foo[Pod]",
-    "dst": "baz/my-baz[Pod]",
+    "src": "foo/myfoo[Pod]",
+    "dst": "baz/mybaz[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "foo/my-foo[Pod]",
-    "dst": "monitoring/my-monitoring[Pod]",
+    "src": "foo/myfoo[Pod]",
+    "dst": "monitoring/mymonitoring[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "monitoring/my-monitoring[Pod]",
+    "src": "monitoring/mymonitoring[Pod]",
     "dst": "0.0.0.0-255.255.255.255",
     "conn": "All Connections"
   },
   {
-    "src": "monitoring/my-monitoring[Pod]",
-    "dst": "baz/my-baz[Pod]",
+    "src": "monitoring/mymonitoring[Pod]",
+    "dst": "baz/mybaz[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "monitoring/my-monitoring[Pod]",
-    "dst": "foo/my-foo[Pod]",
+    "src": "monitoring/mymonitoring[Pod]",
+    "dst": "foo/myfoo[Pod]",
     "conn": "All Connections"
   }
 ]
