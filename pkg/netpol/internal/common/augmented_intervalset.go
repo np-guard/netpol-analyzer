@@ -277,7 +277,6 @@ const (
 //   - otherwise, keep the current rules.
 func (rules ImplyingXgressRulesType) update(other ImplyingXgressRulesType, sameInclusion bool,
 	collectStyle CollectStyleType) ImplyingXgressRulesType {
-
 	result := rules.Copy()
 	if other.Empty() {
 		return result
