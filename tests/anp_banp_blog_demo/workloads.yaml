@@ -2,12 +2,12 @@ apiVersion: v1
 kind: Pod
 metadata:
   namespace: foo
-  name: my-foo
+  name: myfoo
   labels:
     security: internal
 spec:
   containers:
-    - name: myfirstContainer
+    - name: myfirstcontainer
       image: fooimage
 
 ---
@@ -16,12 +16,12 @@ apiVersion: v1
 kind: Pod
 metadata:
   namespace: bar
-  name: my-bar
+  name: mybar
   labels:
     security: internal
 spec:
   containers:
-    - name: myfirstContainer
+    - name: myfirstcontainer
       image: barimage
 
 ---
@@ -30,12 +30,12 @@ apiVersion: v1
 kind: Pod
 metadata:
   namespace: baz
-  name: my-baz
+  name: mybaz
   labels:
     security: none
 spec:
   containers:
-    - name: myfirstContainer
+    - name: myfirstcontainer
       image: bazimage
 
 ---
@@ -44,12 +44,12 @@ apiVersion: v1
 kind: Pod
 metadata:
   namespace: monitoring
-  name: my-monitoring
+  name: mymonitoring
   labels:
     security: monitoring
 spec:
   containers:
-    - name: myfirstContainer
+    - name: myfirstcontainer
       image: monitoringimage
 
 ---
