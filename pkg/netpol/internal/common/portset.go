@@ -97,12 +97,10 @@ func (p *PortSet) AddPort(port intstr.IntOrString, implyingRules ImplyingRulesTy
 		if _, ok := p.NamedPorts[port.StrVal]; !ok {
 			p.NamedPorts[port.StrVal] = InitImplyingRules()
 		}
-		theRules := p.NamedPorts[port.StrVal]
-		theRules.Union(implyingRules, true)
-		p.NamedPorts[port.StrVal] = theRules
+		p.NamedPorts[port.StrVal] = p.NamedPorts[port.StrVal].Update(implyingRules, false, NeverCollectRules)
 		delete(p.ExcludedNamedPorts, port.StrVal)
 	} else {
-		p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRules(int64(port.IntVal), int64(port.IntVal), true, implyingRules), SimpleCollect)
+		p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRules(int64(port.IntVal), int64(port.IntVal), true, implyingRules), NeverCollectRules)
 	}
 }
 
@@ -112,20 +110,22 @@ func (p *PortSet) RemovePort(port intstr.IntOrString) {
 		p.ExcludedNamedPorts[port.StrVal] = p.NamedPorts[port.StrVal]
 		delete(p.NamedPorts, port.StrVal)
 	} else {
-		p.Ports.AddAugmentedInterval(NewAugmentedInterval(int64(port.IntVal), int64(port.IntVal), false), DontCollect)
+		p.Ports.AddAugmentedInterval(NewAugmentedInterval(int64(port.IntVal), int64(port.IntVal), false), NeverCollectRules)
 	}
 }
 
 // AddPortRange: update current PortSet object with new added port range as allowed
 func (p *PortSet) AddPortRange(minPort, maxPort int64, inSet bool, fromRule string, layer LayerType, isIngress bool) {
-	p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRule(minPort, maxPort, inSet, fromRule, layer, isIngress), SimpleCollect)
+	p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRule(minPort, maxPort, inSet, fromRule, layer, isIngress), NeverCollectRules)
 }
 
 // Union: update current PortSet object with union of input PortSet object
 // Note: this function is not symmetrical regarding the update of implying rules:
-// it updates implying rules of 'p' by those of 'other' only for ports that get changed in 'p'
-func (p *PortSet) Union(other *PortSet, collectRules bool) {
-	p.Ports = p.Ports.Union(other.Ports, collectRules)
+//   - for ports that get changed in 'p', it overrides implying rules of 'p' by those of 'other';
+//   - for unchanged ports it updates implying rules of 'p' according to 'collectSameInclusionRules'
+//     (collecting when true, overriding by priority otherwise)
+func (p *PortSet) Union(other *PortSet, collectSameInclusionRules bool) {
+	p.Ports = p.Ports.Union(other.Ports, collectSameInclusionRules)
 	// union current namedPorts with other namedPorts, and delete other namedPorts from current excludedNamedPorts
 	for k, v := range other.NamedPorts {
 		if _, ok := p.NamedPorts[k]; !ok {
@@ -206,9 +206,7 @@ func (p *PortSet) subtract(other *PortSet) {
 		if _, ok := p.ExcludedNamedPorts[k]; !ok {
 			p.ExcludedNamedPorts[k] = InitImplyingRules()
 		}
-		theRules := p.ExcludedNamedPorts[k]
-		theRules.Union(v.Copy(), true)
-		p.ExcludedNamedPorts[k] = theRules
+		p.ExcludedNamedPorts[k] = p.ExcludedNamedPorts[k].Update(v, false, NeverCollectRules)
 		delete(p.NamedPorts, k)
 	}
 }

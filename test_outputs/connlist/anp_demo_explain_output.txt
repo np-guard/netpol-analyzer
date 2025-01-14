@@ -152,7 +152,7 @@ CONNECTIONS BETWEEN ravenclaw/luna-lovegood[StatefulSet] => 0.0.0.0-255.255.255.
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw//Egress (no Egress rules defined)
+		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ CONNECTIONS BETWEEN ravenclaw/luna-lovegood[StatefulSet] => gryffindor/harry-pot
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw//Egress (no Egress rules defined)
+		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED)
 		1) [ANP] gress-rules-gryffindor//Ingress rule allow-from-ravenclaw-everything (Allow)
 
@@ -169,7 +169,7 @@ CONNECTIONS BETWEEN ravenclaw/luna-lovegood[StatefulSet] => hufflepuff/cedric-di
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw//Egress (no Egress rules defined)
+		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -177,7 +177,7 @@ CONNECTIONS BETWEEN ravenclaw/luna-lovegood[StatefulSet] => slytherin/draco-malf
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw//Egress (no Egress rules defined)
+		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------

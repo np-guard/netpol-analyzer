@@ -408,8 +408,9 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 }
 
 const (
-	NoXgressRulesExpl          = "(no %s rules defined)"
-	CapturedButNotSelectedExpl = "(captured but not selected by any %s rule)"
+	CapturedButNotSelectedTxt  = "captured but not selected by any %s rule"
+	CapturedButNotSelectedExpl = "(" + CapturedButNotSelectedTxt + ")"
+	NoXgressRulesExpl          = "(" + CapturedButNotSelectedTxt + " - no rules defined)"
 )
 
 func (np *NetworkPolicy) nameWithDirectionAndExpl(isIngress bool, expl string) string {

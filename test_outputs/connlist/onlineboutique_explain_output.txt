@@ -52,7 +52,7 @@ CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/loadgenerator-555fbdc87d[
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol//Ingress (no Ingress rules defined)
+		1) [NP] default/loadgenerator-netpol//Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/paymentservice-bbcbdc6b6[ReplicaSet]:
@@ -91,7 +91,7 @@ CONNECTIONS BETWEEN default/adservice-77d5cd745d[ReplicaSet] => 0.0.0.0-255.255.
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/adservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ CONNECTIONS BETWEEN default/adservice-77d5cd745d[ReplicaSet] => default/cartserv
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/adservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/cartservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -108,7 +108,7 @@ CONNECTIONS BETWEEN default/adservice-77d5cd745d[ReplicaSet] => default/checkout
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/adservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/checkoutservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -117,7 +117,7 @@ CONNECTIONS BETWEEN default/adservice-77d5cd745d[ReplicaSet] => default/currency
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/adservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/currencyservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -126,7 +126,7 @@ CONNECTIONS BETWEEN default/adservice-77d5cd745d[ReplicaSet] => default/emailser
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/adservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/emailservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -135,7 +135,7 @@ CONNECTIONS BETWEEN default/adservice-77d5cd745d[ReplicaSet] => default/frontend
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/adservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/frontend-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -144,16 +144,16 @@ CONNECTIONS BETWEEN default/adservice-77d5cd745d[ReplicaSet] => default/loadgene
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/adservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol//Ingress (no Ingress rules defined)
+		1) [NP] default/loadgenerator-netpol//Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/adservice-77d5cd745d[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/adservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/paymentservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -162,7 +162,7 @@ CONNECTIONS BETWEEN default/adservice-77d5cd745d[ReplicaSet] => default/productc
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/adservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/productcatalogservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -171,7 +171,7 @@ CONNECTIONS BETWEEN default/adservice-77d5cd745d[ReplicaSet] => default/recommen
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/adservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/recommendationservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -180,7 +180,7 @@ CONNECTIONS BETWEEN default/adservice-77d5cd745d[ReplicaSet] => default/redis-ca
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/adservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -188,7 +188,7 @@ CONNECTIONS BETWEEN default/adservice-77d5cd745d[ReplicaSet] => default/shipping
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/adservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/shippingservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -197,7 +197,7 @@ CONNECTIONS BETWEEN default/cartservice-74f56fd4b[ReplicaSet] => 0.0.0.0-255.255
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/cartservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ CONNECTIONS BETWEEN default/cartservice-74f56fd4b[ReplicaSet] => default/adservi
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/cartservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/adservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -214,7 +214,7 @@ CONNECTIONS BETWEEN default/cartservice-74f56fd4b[ReplicaSet] => default/checkou
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/cartservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/checkoutservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -223,7 +223,7 @@ CONNECTIONS BETWEEN default/cartservice-74f56fd4b[ReplicaSet] => default/currenc
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/cartservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/currencyservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -232,7 +232,7 @@ CONNECTIONS BETWEEN default/cartservice-74f56fd4b[ReplicaSet] => default/emailse
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/cartservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/emailservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -241,7 +241,7 @@ CONNECTIONS BETWEEN default/cartservice-74f56fd4b[ReplicaSet] => default/fronten
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/cartservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/frontend-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -250,16 +250,16 @@ CONNECTIONS BETWEEN default/cartservice-74f56fd4b[ReplicaSet] => default/loadgen
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/cartservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol//Ingress (no Ingress rules defined)
+		1) [NP] default/loadgenerator-netpol//Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/cartservice-74f56fd4b[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/cartservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/paymentservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -268,7 +268,7 @@ CONNECTIONS BETWEEN default/cartservice-74f56fd4b[ReplicaSet] => default/product
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/cartservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/productcatalogservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -277,7 +277,7 @@ CONNECTIONS BETWEEN default/cartservice-74f56fd4b[ReplicaSet] => default/recomme
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/cartservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/recommendationservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -286,7 +286,7 @@ CONNECTIONS BETWEEN default/cartservice-74f56fd4b[ReplicaSet] => default/redis-c
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/cartservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -294,7 +294,7 @@ CONNECTIONS BETWEEN default/cartservice-74f56fd4b[ReplicaSet] => default/shippin
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/cartservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/shippingservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -394,7 +394,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] default/checkoutservice-netpol//Egress (captured but not selected by any Egress rule)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol//Ingress (no Ingress rules defined)
+		1) [NP] default/loadgenerator-netpol//Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice-69c8ff664b[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
@@ -481,7 +481,7 @@ CONNECTIONS BETWEEN default/currencyservice-77654bbbdd[ReplicaSet] => 0.0.0.0-25
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/currencyservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -489,7 +489,7 @@ CONNECTIONS BETWEEN default/currencyservice-77654bbbdd[ReplicaSet] => default/ad
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/currencyservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/adservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -498,7 +498,7 @@ CONNECTIONS BETWEEN default/currencyservice-77654bbbdd[ReplicaSet] => default/ca
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/currencyservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/cartservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -507,7 +507,7 @@ CONNECTIONS BETWEEN default/currencyservice-77654bbbdd[ReplicaSet] => default/ch
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/currencyservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/checkoutservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -516,7 +516,7 @@ CONNECTIONS BETWEEN default/currencyservice-77654bbbdd[ReplicaSet] => default/em
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/currencyservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/emailservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -525,7 +525,7 @@ CONNECTIONS BETWEEN default/currencyservice-77654bbbdd[ReplicaSet] => default/fr
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/currencyservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/frontend-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -534,16 +534,16 @@ CONNECTIONS BETWEEN default/currencyservice-77654bbbdd[ReplicaSet] => default/lo
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/currencyservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol//Ingress (no Ingress rules defined)
+		1) [NP] default/loadgenerator-netpol//Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/currencyservice-77654bbbdd[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/currencyservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/paymentservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -552,7 +552,7 @@ CONNECTIONS BETWEEN default/currencyservice-77654bbbdd[ReplicaSet] => default/pr
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/currencyservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/productcatalogservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -561,7 +561,7 @@ CONNECTIONS BETWEEN default/currencyservice-77654bbbdd[ReplicaSet] => default/re
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/currencyservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/recommendationservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -570,7 +570,7 @@ CONNECTIONS BETWEEN default/currencyservice-77654bbbdd[ReplicaSet] => default/re
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/currencyservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -578,7 +578,7 @@ CONNECTIONS BETWEEN default/currencyservice-77654bbbdd[ReplicaSet] => default/sh
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/currencyservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/shippingservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -587,7 +587,7 @@ CONNECTIONS BETWEEN default/emailservice-54c7c5d9d[ReplicaSet] => 0.0.0.0-255.25
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/emailservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -595,7 +595,7 @@ CONNECTIONS BETWEEN default/emailservice-54c7c5d9d[ReplicaSet] => default/adserv
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/emailservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/adservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -604,7 +604,7 @@ CONNECTIONS BETWEEN default/emailservice-54c7c5d9d[ReplicaSet] => default/cartse
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/emailservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/cartservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -613,7 +613,7 @@ CONNECTIONS BETWEEN default/emailservice-54c7c5d9d[ReplicaSet] => default/checko
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/emailservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/checkoutservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -622,7 +622,7 @@ CONNECTIONS BETWEEN default/emailservice-54c7c5d9d[ReplicaSet] => default/curren
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/emailservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/currencyservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -631,7 +631,7 @@ CONNECTIONS BETWEEN default/emailservice-54c7c5d9d[ReplicaSet] => default/fronte
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/emailservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/frontend-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -640,16 +640,16 @@ CONNECTIONS BETWEEN default/emailservice-54c7c5d9d[ReplicaSet] => default/loadge
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/emailservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol//Ingress (no Ingress rules defined)
+		1) [NP] default/loadgenerator-netpol//Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/emailservice-54c7c5d9d[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/emailservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/paymentservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -658,7 +658,7 @@ CONNECTIONS BETWEEN default/emailservice-54c7c5d9d[ReplicaSet] => default/produc
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/emailservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/productcatalogservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -667,7 +667,7 @@ CONNECTIONS BETWEEN default/emailservice-54c7c5d9d[ReplicaSet] => default/recomm
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/emailservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/recommendationservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -676,7 +676,7 @@ CONNECTIONS BETWEEN default/emailservice-54c7c5d9d[ReplicaSet] => default/redis-
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/emailservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -684,7 +684,7 @@ CONNECTIONS BETWEEN default/emailservice-54c7c5d9d[ReplicaSet] => default/shippi
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/emailservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/shippingservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -796,7 +796,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] default/frontend-netpol//Egress (captured but not selected by any Egress rule)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol//Ingress (no Ingress rules defined)
+		1) [NP] default/loadgenerator-netpol//Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend-99684f7f8[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
@@ -1001,7 +1001,7 @@ CONNECTIONS BETWEEN default/paymentservice-bbcbdc6b6[ReplicaSet] => 0.0.0.0-255.
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/paymentservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1009,7 +1009,7 @@ CONNECTIONS BETWEEN default/paymentservice-bbcbdc6b6[ReplicaSet] => default/adse
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/paymentservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/adservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1018,7 +1018,7 @@ CONNECTIONS BETWEEN default/paymentservice-bbcbdc6b6[ReplicaSet] => default/cart
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/paymentservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/cartservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1027,7 +1027,7 @@ CONNECTIONS BETWEEN default/paymentservice-bbcbdc6b6[ReplicaSet] => default/chec
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/paymentservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/checkoutservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1036,7 +1036,7 @@ CONNECTIONS BETWEEN default/paymentservice-bbcbdc6b6[ReplicaSet] => default/curr
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/paymentservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/currencyservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1045,7 +1045,7 @@ CONNECTIONS BETWEEN default/paymentservice-bbcbdc6b6[ReplicaSet] => default/emai
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/paymentservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/emailservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1054,7 +1054,7 @@ CONNECTIONS BETWEEN default/paymentservice-bbcbdc6b6[ReplicaSet] => default/fron
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/paymentservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/frontend-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1063,16 +1063,16 @@ CONNECTIONS BETWEEN default/paymentservice-bbcbdc6b6[ReplicaSet] => default/load
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/paymentservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol//Ingress (no Ingress rules defined)
+		1) [NP] default/loadgenerator-netpol//Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/paymentservice-bbcbdc6b6[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/paymentservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/productcatalogservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1081,7 +1081,7 @@ CONNECTIONS BETWEEN default/paymentservice-bbcbdc6b6[ReplicaSet] => default/reco
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/paymentservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/recommendationservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1090,7 +1090,7 @@ CONNECTIONS BETWEEN default/paymentservice-bbcbdc6b6[ReplicaSet] => default/redi
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/paymentservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1098,7 +1098,7 @@ CONNECTIONS BETWEEN default/paymentservice-bbcbdc6b6[ReplicaSet] => default/ship
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/paymentservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/shippingservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1107,7 +1107,7 @@ CONNECTIONS BETWEEN default/productcatalogservice-68765d49b6[ReplicaSet] => 0.0.
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/productcatalogservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1115,7 +1115,7 @@ CONNECTIONS BETWEEN default/productcatalogservice-68765d49b6[ReplicaSet] => defa
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/productcatalogservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/adservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1124,7 +1124,7 @@ CONNECTIONS BETWEEN default/productcatalogservice-68765d49b6[ReplicaSet] => defa
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/productcatalogservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/cartservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1133,7 +1133,7 @@ CONNECTIONS BETWEEN default/productcatalogservice-68765d49b6[ReplicaSet] => defa
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/productcatalogservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/checkoutservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1142,7 +1142,7 @@ CONNECTIONS BETWEEN default/productcatalogservice-68765d49b6[ReplicaSet] => defa
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/productcatalogservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/currencyservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1151,7 +1151,7 @@ CONNECTIONS BETWEEN default/productcatalogservice-68765d49b6[ReplicaSet] => defa
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/productcatalogservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/emailservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1160,7 +1160,7 @@ CONNECTIONS BETWEEN default/productcatalogservice-68765d49b6[ReplicaSet] => defa
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/productcatalogservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/frontend-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1169,16 +1169,16 @@ CONNECTIONS BETWEEN default/productcatalogservice-68765d49b6[ReplicaSet] => defa
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/productcatalogservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol//Ingress (no Ingress rules defined)
+		1) [NP] default/loadgenerator-netpol//Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productcatalogservice-68765d49b6[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/productcatalogservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/paymentservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1187,7 +1187,7 @@ CONNECTIONS BETWEEN default/productcatalogservice-68765d49b6[ReplicaSet] => defa
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/productcatalogservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/recommendationservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1196,7 +1196,7 @@ CONNECTIONS BETWEEN default/productcatalogservice-68765d49b6[ReplicaSet] => defa
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/productcatalogservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1204,7 +1204,7 @@ CONNECTIONS BETWEEN default/productcatalogservice-68765d49b6[ReplicaSet] => defa
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/productcatalogservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/shippingservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1277,7 +1277,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] default/recommendationservice-netpol//Egress (captured but not selected by any Egress rule)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol//Ingress (no Ingress rules defined)
+		1) [NP] default/loadgenerator-netpol//Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice-5f8c456796[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
@@ -1380,7 +1380,7 @@ CONNECTIONS BETWEEN default/redis-cart-78746d49dc[ReplicaSet] => default/loadgen
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol//Ingress (no Ingress rules defined)
+		1) [NP] default/loadgenerator-netpol//Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/redis-cart-78746d49dc[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
@@ -1419,7 +1419,7 @@ CONNECTIONS BETWEEN default/shippingservice-5bd985c46d[ReplicaSet] => 0.0.0.0-25
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/shippingservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1427,7 +1427,7 @@ CONNECTIONS BETWEEN default/shippingservice-5bd985c46d[ReplicaSet] => default/ad
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/shippingservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/adservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1436,7 +1436,7 @@ CONNECTIONS BETWEEN default/shippingservice-5bd985c46d[ReplicaSet] => default/ca
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/shippingservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/cartservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1445,7 +1445,7 @@ CONNECTIONS BETWEEN default/shippingservice-5bd985c46d[ReplicaSet] => default/ch
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/shippingservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/checkoutservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1454,7 +1454,7 @@ CONNECTIONS BETWEEN default/shippingservice-5bd985c46d[ReplicaSet] => default/cu
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/shippingservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/currencyservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1463,7 +1463,7 @@ CONNECTIONS BETWEEN default/shippingservice-5bd985c46d[ReplicaSet] => default/em
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/shippingservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/emailservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1472,7 +1472,7 @@ CONNECTIONS BETWEEN default/shippingservice-5bd985c46d[ReplicaSet] => default/fr
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/shippingservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/frontend-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1481,16 +1481,16 @@ CONNECTIONS BETWEEN default/shippingservice-5bd985c46d[ReplicaSet] => default/lo
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/shippingservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol//Ingress (no Ingress rules defined)
+		1) [NP] default/loadgenerator-netpol//Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/shippingservice-5bd985c46d[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/shippingservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/paymentservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1499,7 +1499,7 @@ CONNECTIONS BETWEEN default/shippingservice-5bd985c46d[ReplicaSet] => default/pr
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/shippingservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/productcatalogservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1508,7 +1508,7 @@ CONNECTIONS BETWEEN default/shippingservice-5bd985c46d[ReplicaSet] => default/re
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/shippingservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] default/recommendationservice-netpol//Ingress (captured but not selected by any Ingress rule)
 
@@ -1517,7 +1517,7 @@ CONNECTIONS BETWEEN default/shippingservice-5bd985c46d[ReplicaSet] => default/re
 
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol//Egress (no Egress rules defined)
+		1) [NP] default/shippingservice-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------

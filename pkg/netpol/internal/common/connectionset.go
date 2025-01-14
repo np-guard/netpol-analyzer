@@ -84,7 +84,7 @@ func (conn *ConnectionSet) Intersection(other *ConnectionSet) {
 			conn.AllowedProtocols = map[v1.Protocol]*PortSet{}
 		}
 		// union common implying rules - a symmetrical update
-		conn.CommonImplyingRules.Union(other.CommonImplyingRules, true)
+		conn.CommonImplyingRules = conn.CommonImplyingRules.Update(other.CommonImplyingRules, true, AlwaysCollectRules)
 		return
 	}
 	// prepare conn and other for the intersection - we need to seep implying rules info into all protocols/ports
@@ -169,17 +169,13 @@ func (conn *ConnectionSet) rebuildExplicitly() {
 }
 
 // Union updates ConnectionSet object to be the union result with other ConnectionSet
-// the implying rules are updated only if something changes in conn,
-// i.e., conn has a precedence over other
-func (conn *ConnectionSet) Union(other *ConnectionSet, collectRules bool) {
+func (conn *ConnectionSet) Union(other *ConnectionSet, collectSameInclusionRules bool) {
+	collectStyle := NeverCollectRules
+	if collectSameInclusionRules {
+		collectStyle = CollectSameInclusionRules
+	}
 	if conn.IsEmpty() && (other.IsEmpty() || other.AllowAll) && len(conn.AllowedProtocols) == 0 && len(other.AllowedProtocols) == 0 {
-		if other.IsEmpty() {
-			// we should union implying rules - both contribute to the result being empty
-			conn.CommonImplyingRules.Union(other.CommonImplyingRules, collectRules)
-		} else {
-			// we should substitute the implying rules by others' rules
-			conn.CommonImplyingRules = other.CommonImplyingRules.Copy()
-		}
+		conn.CommonImplyingRules = conn.CommonImplyingRules.Update(other.CommonImplyingRules, other.IsEmpty(), collectStyle)
 		conn.AllowAll = other.AllowAll
 		return
 	}
@@ -190,7 +186,7 @@ func (conn *ConnectionSet) Union(other *ConnectionSet, collectRules bool) {
 	other.rebuildExplicitly()
 	for protocol := range conn.AllowedProtocols {
 		if otherPorts, ok := other.AllowedProtocols[protocol]; ok {
-			conn.AllowedProtocols[protocol].Union(otherPorts, collectRules)
+			conn.AllowedProtocols[protocol].Union(otherPorts, collectSameInclusionRules)
 		}
 	}
 	conn.CommonImplyingRules = InitImplyingRules() // clear common implying rules, since we have implying rules in AllowedProtocols
@@ -205,8 +201,9 @@ func (conn *ConnectionSet) Subtract(other *ConnectionSet) {
 		return
 	}
 	if other.AllowAll && len(other.AllowedProtocols) == 0 {
-		// a special case when we should replace current common implying rules by others'
-		conn.CommonImplyingRules = other.CommonImplyingRules.Copy()
+		// a special case when we should override the current common implying rules by others'
+		// because conn.AllowAll (aka the inclusion status) changes
+		conn.CommonImplyingRules = conn.CommonImplyingRules.Update(other.CommonImplyingRules, false, NeverCollectRules)
 		conn.AllowAll = false
 		conn.AllowedProtocols = map[v1.Protocol]*PortSet{}
 		return
