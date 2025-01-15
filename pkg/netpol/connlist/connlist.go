@@ -29,6 +29,7 @@ import (
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
@@ -233,7 +234,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sClusterWithPolicyAPI(clientset *kuber
 	}
 
 	// insert admin policies from k8s policy-api clientset
-	err = updatePolicyEngineWithK8sPolicyAPIObjects(pe, policyAPIClientset)
+	err = utils.UpdatePolicyEngineWithK8sPolicyAPIObjects(pe, policyAPIClientset)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -242,7 +243,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sClusterWithPolicyAPI(clientset *kuber
 
 // updatePolicyEngineWithK8sBasicObjects inserts to the policy engine all k8s pods, namespaces and network-policies
 func updatePolicyEngineWithK8sBasicObjects(pe *eval.PolicyEngine, clientset *kubernetes.Clientset) error {
-	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), utils.CtxTimeoutSeconds*time.Second)
 	defer cancel()
 	// get all namespaces
 	nsList, apiErr := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
@@ -274,38 +275,6 @@ func updatePolicyEngineWithK8sBasicObjects(pe *eval.PolicyEngine, clientset *kub
 	}
 	for i := range podList.Items {
 		if err := pe.InsertObject(&podList.Items[i]); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// updatePolicyEngineWithK8sPolicyAPIObjects inserts to the policy-engine all (baseline)admin network policies
-func updatePolicyEngineWithK8sPolicyAPIObjects(pe *eval.PolicyEngine, clientset *policyapi.Clientset) error {
-	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
-	defer cancel()
-	// get all admin-network-policies
-	anpList, apiErr := clientset.PolicyV1alpha1().AdminNetworkPolicies().List(ctx, metav1.ListOptions{})
-	if apiErr != nil {
-		return apiErr
-	}
-	for i := range anpList.Items {
-		if err := pe.InsertObject(&anpList.Items[i]); err != nil {
-			return err
-		}
-	}
-	// sort the admin-netpols by the priority - since their priority ordering is critic for computing allowed conns
-	err := pe.SortAdminNetpolsByPriority()
-	if err != nil {
-		return err
-	}
-	// get baseline-admin-netpol
-	banpList, apiErr := clientset.PolicyV1alpha1().BaselineAdminNetworkPolicies().List(ctx, metav1.ListOptions{})
-	if apiErr != nil {
-		return apiErr
-	}
-	for i := range banpList.Items {
-		if err := pe.InsertObject(&banpList.Items[i]); err != nil {
 			return err
 		}
 	}
@@ -376,10 +345,6 @@ func (ca *ConnlistAnalyzer) getFormatter() (connsFormatter, error) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // internal type definitions below
-
-const (
-	ctxTimeoutSeconds = 3
-)
 
 // connection implements the Peer2PeerConnection interface
 type connection struct {

@@ -21,6 +21,7 @@ import (
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
@@ -121,11 +122,9 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 	return nil
 }
 
-//gocyclo:ignore
 func updatePolicyEngineObjectsFromLiveCluster(pe *eval.PolicyEngine, podNames []types.NamespacedName, nsNames []string) error {
 	// get relevant resources from k8s live cluster
-	const ctxTimeoutSeconds = 3
-	ctx, cancel := context.WithTimeout(context.Background(), ctxTimeoutSeconds*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), utils.CtxTimeoutSeconds*time.Second)
 	defer cancel()
 
 	for _, name := range nsNames {
@@ -159,29 +158,8 @@ func updatePolicyEngineObjectsFromLiveCluster(pe *eval.PolicyEngine, podNames []
 			}
 		}
 	}
-
-	// @todo: move connlist func "updatePolicyEngineWithK8sPolicyAPIObjects" to pkg/internal/common to avoid duplicates with following
-	// get all admin-network-policies
-	anpList, apiErr := policyAPIClientset.PolicyV1alpha1().AdminNetworkPolicies().List(ctx, metav1.ListOptions{})
-	if apiErr != nil {
-		return apiErr
-	}
-	for i := range anpList.Items {
-		if err := pe.InsertObject(&anpList.Items[i]); err != nil {
-			return err
-		}
-	}
-	// get baseline-admin-netpol
-	banpList, apiErr := policyAPIClientset.PolicyV1alpha1().BaselineAdminNetworkPolicies().List(ctx, metav1.ListOptions{})
-	if apiErr != nil {
-		return apiErr
-	}
-	for i := range banpList.Items {
-		if err := pe.InsertObject(&banpList.Items[i]); err != nil {
-			return err
-		}
-	}
-	return nil
+	// update the policy engine with (B)ANPs
+	return utils.UpdatePolicyEngineWithK8sPolicyAPIObjects(pe, policyAPIClientset)
 }
 
 func runEvalCommand() error {
