@@ -17,6 +17,7 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -31,6 +32,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -268,6 +270,13 @@ func (pe *PolicyEngine) UpdatePolicyEngineWithK8sPolicyAPIObjects(clientset *pol
 	// get all admin-network-policies
 	anpList, apiErr := clientset.PolicyV1alpha1().AdminNetworkPolicies().List(ctx, metav1.ListOptions{})
 	if apiErr != nil {
+		// if the apiErr is of type "apierrors.IsNotFound";
+		// it means the api server could not find the requested resource (get adminnetworkpolicies.policy.networking.k8s.io); i.e. the
+		// cluster does not support this type of object (network-policy-api objects)
+		if apierrors.IsNotFound(apiErr) {
+			pe.logger.Warnf(alerts.K8sClusterDoesNotSupportNetworkPolicyAPI)
+			return nil // don't proceed this client is not used
+		}
 		return apiErr
 	}
 	for i := range anpList.Items {
@@ -283,6 +292,11 @@ func (pe *PolicyEngine) UpdatePolicyEngineWithK8sPolicyAPIObjects(clientset *pol
 	// get baseline-admin-netpol
 	banpList, apiErr := clientset.PolicyV1alpha1().BaselineAdminNetworkPolicies().List(ctx, metav1.ListOptions{})
 	if apiErr != nil {
+		if apierrors.IsNotFound(apiErr) { // even though it would not be reached; since if banp is not
+			// supported by the cluster; ANPs would not be supported too
+			pe.logger.Warnf(alerts.K8sClusterDoesNotSupportNetworkPolicyAPI)
+			return nil
+		}
 		return apiErr
 	}
 	for i := range banpList.Items {
