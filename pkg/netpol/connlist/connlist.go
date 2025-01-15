@@ -27,9 +27,9 @@ import (
 
 	"k8s.io/cli-runtime/pkg/resource"
 
+	pkgcommon "github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
-	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
@@ -234,7 +234,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sClusterWithPolicyAPI(clientset *kuber
 	}
 
 	// insert admin policies from k8s policy-api clientset
-	err = utils.UpdatePolicyEngineWithK8sPolicyAPIObjects(pe, policyAPIClientset)
+	err = pe.UpdatePolicyEngineWithK8sPolicyAPIObjects(policyAPIClientset)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -243,7 +243,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sClusterWithPolicyAPI(clientset *kuber
 
 // updatePolicyEngineWithK8sBasicObjects inserts to the policy engine all k8s pods, namespaces and network-policies
 func updatePolicyEngineWithK8sBasicObjects(pe *eval.PolicyEngine, clientset *kubernetes.Clientset) error {
-	ctx, cancel := context.WithTimeout(context.Background(), utils.CtxTimeoutSeconds*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), pkgcommon.CtxTimeoutSeconds*time.Second)
 	defer cancel()
 	// get all namespaces
 	nsList, apiErr := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})

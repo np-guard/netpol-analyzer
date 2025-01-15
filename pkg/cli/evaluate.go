@@ -20,8 +20,8 @@ import (
 
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
-	"github.com/np-guard/netpol-analyzer/pkg/internal/utils"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
@@ -124,7 +124,17 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 
 func updatePolicyEngineObjectsFromLiveCluster(pe *eval.PolicyEngine, podNames []types.NamespacedName, nsNames []string) error {
 	// get relevant resources from k8s live cluster
-	ctx, cancel := context.WithTimeout(context.Background(), utils.CtxTimeoutSeconds*time.Second)
+	// get command's relevant pods, namespaces and policies
+	err := updatePolicyEngineWithBasicK8sObjects(pe, podNames, nsNames)
+	if err != nil {
+		return err
+	}
+	// update the policy engine with (B)ANPs
+	return pe.UpdatePolicyEngineWithK8sPolicyAPIObjects(policyAPIClientset)
+}
+
+func updatePolicyEngineWithBasicK8sObjects(pe *eval.PolicyEngine, podNames []types.NamespacedName, nsNames []string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), common.CtxTimeoutSeconds*time.Second)
 	defer cancel()
 
 	for _, name := range nsNames {
@@ -158,8 +168,7 @@ func updatePolicyEngineObjectsFromLiveCluster(pe *eval.PolicyEngine, podNames []
 			}
 		}
 	}
-	// update the policy engine with (B)ANPs
-	return utils.UpdatePolicyEngineWithK8sPolicyAPIObjects(pe, policyAPIClientset)
+	return nil
 }
 
 func runEvalCommand() error {

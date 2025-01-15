@@ -7,9 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 package eval
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"sort"
+	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -20,9 +22,11 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
+	policyapi "sigs.k8s.io/network-policy-api/pkg/client/clientset/versioned"
 
 	"github.com/np-guard/models/pkg/netset"
 
+	pkgcommon "github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
@@ -222,7 +226,7 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 	}
 	if !pe.exposureAnalysisFlag {
 		// @todo: put following line outside the if statement when exposure analysis is supported with (B)ANPs
-		if err := pe.SortAdminNetpolsByPriority(); err != nil {
+		if err := pe.sortAdminNetpolsByPriority(); err != nil {
 			return err
 		}
 		return pe.resolveMissingNamespaces() // for exposure analysis; this already done
@@ -230,9 +234,9 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 	return nil
 }
 
-// SortAdminNetpolsByPriority sorts all input admin-netpols by their priority;
+// sortAdminNetpolsByPriority sorts all input admin-netpols by their priority;
 // since the priority of policies is critical for computing the conns between peers
-func (pe *PolicyEngine) SortAdminNetpolsByPriority() error {
+func (pe *PolicyEngine) sortAdminNetpolsByPriority() error {
 	var err error
 	if len(pe.sortedAdminNetpols) == 1 && !pe.sortedAdminNetpols[0].HasValidPriority() {
 		return errors.New(netpolerrors.PriorityValueErr(pe.sortedAdminNetpols[0].Name, pe.sortedAdminNetpols[0].Spec.Priority))
@@ -255,6 +259,38 @@ func (pe *PolicyEngine) SortAdminNetpolsByPriority() error {
 		return pe.sortedAdminNetpols[i].Spec.Priority < pe.sortedAdminNetpols[j].Spec.Priority
 	})
 	return err
+}
+
+// UpdatePolicyEngineWithK8sPolicyAPIObjects inserts to the policy-engine all (baseline)admin network policies
+func (pe *PolicyEngine) UpdatePolicyEngineWithK8sPolicyAPIObjects(clientset *policyapi.Clientset) error {
+	ctx, cancel := context.WithTimeout(context.Background(), pkgcommon.CtxTimeoutSeconds*time.Second)
+	defer cancel()
+	// get all admin-network-policies
+	anpList, apiErr := clientset.PolicyV1alpha1().AdminNetworkPolicies().List(ctx, metav1.ListOptions{})
+	if apiErr != nil {
+		return apiErr
+	}
+	for i := range anpList.Items {
+		if err := pe.InsertObject(&anpList.Items[i]); err != nil {
+			return err
+		}
+	}
+	// sort the admin-netpols by the priority - since their priority ordering is critic for computing allowed conns
+	err := pe.sortAdminNetpolsByPriority()
+	if err != nil {
+		return err
+	}
+	// get baseline-admin-netpol
+	banpList, apiErr := clientset.PolicyV1alpha1().BaselineAdminNetworkPolicies().List(ctx, metav1.ListOptions{})
+	if apiErr != nil {
+		return apiErr
+	}
+	for i := range banpList.Items {
+		if err := pe.InsertObject(&banpList.Items[i]); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (pe *PolicyEngine) resolveMissingNamespaces() error {

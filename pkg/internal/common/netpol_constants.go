@@ -11,4 +11,6 @@ const (
 	// The Priority field in the ANP spec is defined as an integer value within the range 0 to 1000
 	MinANPPriority = 0
 	MaxANPPriority = 1000
+
+	CtxTimeoutSeconds = 3
 )
