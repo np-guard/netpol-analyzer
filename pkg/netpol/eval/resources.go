@@ -222,7 +222,7 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 	}
 	if !pe.exposureAnalysisFlag {
 		// @todo: put following line outside the if statement when exposure analysis is supported with (B)ANPs
-		if err := pe.sortAdminNetpolsByPriority(); err != nil {
+		if err := pe.SortAdminNetpolsByPriority(); err != nil {
 			return err
 		}
 		return pe.resolveMissingNamespaces() // for exposure analysis; this already done
@@ -230,9 +230,9 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 	return nil
 }
 
-// sortAdminNetpolsByPriority sorts all input admin-netpols by their priority;
+// SortAdminNetpolsByPriority sorts all input admin-netpols by their priority;
 // since the priority of policies is critical for computing the conns between peers
-func (pe *PolicyEngine) sortAdminNetpolsByPriority() error {
+func (pe *PolicyEngine) SortAdminNetpolsByPriority() error {
 	var err error
 	if len(pe.sortedAdminNetpols) == 1 && !pe.sortedAdminNetpols[0].HasValidPriority() {
 		return errors.New(netpolerrors.PriorityValueErr(pe.sortedAdminNetpols[0].Name, pe.sortedAdminNetpols[0].Spec.Priority))

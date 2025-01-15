@@ -294,6 +294,11 @@ func updatePolicyEngineWithK8sPolicyAPIObjects(pe *eval.PolicyEngine, clientset 
 			return err
 		}
 	}
+	// sort the admin-netpols by the priority - since their priority ordering is critic for computing allowed conns
+	err := pe.SortAdminNetpolsByPriority()
+	if err != nil {
+		return err
+	}
 	// get baseline-admin-netpol
 	banpList, apiErr := clientset.PolicyV1alpha1().BaselineAdminNetworkPolicies().List(ctx, metav1.ListOptions{})
 	if apiErr != nil {
