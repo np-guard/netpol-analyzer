@@ -225,10 +225,15 @@ func (ca *ConnlistAnalyzer) connsListFromParsedResources(objectsList []parser.K8
 // ConnlistFromK8sClusterWithPolicyAPI returns the allowed connections list from k8s cluster resources, and list of all peers names
 func (ca *ConnlistAnalyzer) ConnlistFromK8sClusterWithPolicyAPI(clientset *kubernetes.Clientset,
 	policyAPIClientset *policyapi.Clientset) ([]Peer2PeerConnection, []Peer, error) {
-	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
-
+	pe, err := eval.NewPolicyEngineWithOptionsList(eval.WithLogger(ca.logger))
+	if ca.exposureAnalysis {
+		pe, err = eval.NewPolicyEngineWithOptionsList(eval.WithExposureAnalysis(), eval.WithLogger(ca.logger))
+	}
+	if err != nil {
+		return nil, nil, err
+	}
 	// insert namespaces, pods and network-policies from k8s clientset
-	err := updatePolicyEngineWithK8sBasicObjects(pe, clientset)
+	err = updatePolicyEngineWithK8sBasicObjects(pe, clientset)
 	if err != nil {
 		return nil, nil, err
 	}
