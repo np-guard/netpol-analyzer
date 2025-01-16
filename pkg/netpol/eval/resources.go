@@ -274,7 +274,7 @@ func (pe *PolicyEngine) UpdatePolicyEngineWithK8sPolicyAPIObjects(clientset *pol
 		// it means the api server could not find the requested resource (get adminnetworkpolicies.policy.networking.k8s.io); i.e. the
 		// cluster does not support this type of object (network-policy-api objects)
 		if apierrors.IsNotFound(apiErr) {
-			pe.logger.Warnf(alerts.K8sClusterDoesNotSupportNetworkPolicyAPI)
+			pe.logger.Debugf(alerts.K8sClusterDoesNotSupportNetworkPolicyAPI)
 			return nil // don't proceed this client is not used
 		}
 		return apiErr
@@ -294,7 +294,7 @@ func (pe *PolicyEngine) UpdatePolicyEngineWithK8sPolicyAPIObjects(clientset *pol
 	if apiErr != nil {
 		if apierrors.IsNotFound(apiErr) { // even though it would not be reached; since if banp is not
 			// supported by the cluster; ANPs would not be supported too
-			pe.logger.Warnf(alerts.K8sClusterDoesNotSupportNetworkPolicyAPI)
+			pe.logger.Debugf(alerts.K8sClusterDoesNotSupportNetworkPolicyAPI)
 			return nil
 		}
 		return apiErr
