@@ -20,7 +20,7 @@ const (
 	WarnNamedPortIgnoredForIP = "named port is not defined for IP addresses; skipped"
 	// example raising this warning: tests/anp_test_named_ports_multiple_peers
 
-	K8sClusterDoesNotSupportNetworkPolicyAPI = "Warning: Cluster does not supoort k8s policy-api objects"
+	K8sClusterDoesNotSupportNetworkPolicyAPI = "cluster does not support admin network policies"
 )
 
 var (
