@@ -2,7 +2,7 @@
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => backend/catalog[Deployment]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/catalog-netpol//Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend//Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -11,7 +11,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => backend/checkout[Deployment]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/checkout-netpol//Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend//Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -20,7 +20,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => backend/notification[Deployment]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend//Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/notification-netpol//Ingress (captured but not selected by any Ingress rule)
@@ -29,7 +29,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => backend/recommendation[Deployment]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend//Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/recommendation-netpol//Ingress (captured but not selected by any Ingress rule)
@@ -38,7 +38,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => backend/reports[Deployment]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend//Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/reports-netpol//Ingress (captured but not selected by any Ingress rule)
@@ -47,7 +47,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => backend/shipping[Deployment]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend//Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/shipping-netpol//Ingress (captured but not selected by any Ingress rule)
@@ -56,7 +56,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => frontend/asset-cache[Deployment]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/asset-cache-netpol//Ingress (captured but not selected by any Ingress rule)
 		2) [NP] frontend/default-deny-in-namespace-frontend//Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -65,7 +65,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => frontend/webapp[Deployment]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend//Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] frontend/webapp-netpol//Ingress (captured but not selected by any Ingress rule)
@@ -74,7 +74,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => payments/gateway[Deployment]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments//Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/gateway-netpol//Ingress (captured but not selected by any Ingress rule)
@@ -83,7 +83,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => payments/mastercard-processor[Deployment]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments//Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/mastercard-processor-netpol//Ingress (captured but not selected by any Ingress rule)
@@ -92,7 +92,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => payments/visa-processor[Deployment]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments//Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/visa-processor-netpol//Ingress (captured but not selected by any Ingress rule)
@@ -104,7 +104,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/catalog-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] backend/default-deny-in-namespace-backend//Egress (captured but not selected by any Egress rule - no rules defined)
-	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/catalog[Deployment] => backend/checkout[Deployment]:
@@ -251,7 +251,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/checkout-netpol//Egress (captured but not selected by any Egress rule)
 		2) [NP] backend/default-deny-in-namespace-backend//Egress (captured but not selected by any Egress rule - no rules defined)
-	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => backend/catalog[Deployment]:
@@ -561,7 +561,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend//Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] backend/notification-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
-	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/notification[Deployment] => backend/catalog[Deployment]:
@@ -708,7 +708,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend//Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] backend/recommendation-netpol//Egress (captured but not selected by any Egress rule)
-	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => backend/catalog[Deployment]:
@@ -1013,7 +1013,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend//Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] backend/reports-netpol//Egress (captured but not selected by any Egress rule)
-	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => backend/catalog[Deployment]:
@@ -1332,7 +1332,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend//Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] backend/shipping-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
-	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/shipping[Deployment] => backend/catalog[Deployment]:
@@ -1479,7 +1479,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/asset-cache-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] frontend/default-deny-in-namespace-frontend//Egress (captured but not selected by any Egress rule - no rules defined)
-	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/asset-cache[Deployment] => backend/catalog[Deployment]:
@@ -1613,7 +1613,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend//Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] frontend/webapp-netpol//Egress (captured but not selected by any Egress rule)
-	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => backend/catalog[Deployment]:
@@ -1945,7 +1945,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments//Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] payments/gateway-netpol//Egress (captured but not selected by any Egress rule)
-	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => backend/catalog[Deployment]:
@@ -2268,7 +2268,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments//Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] payments/mastercard-processor-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
-	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => backend/catalog[Deployment]:
@@ -2415,7 +2415,7 @@ No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments//Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] payments/visa-processor-netpol//Egress (captured but not selected by any Egress rule - no rules defined)
-	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => backend/catalog[Deployment]:

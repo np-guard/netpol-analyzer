@@ -89,7 +89,7 @@ const (
 	unprotectedHeader        = "\nWorkloads not protected by network policies:\n"
 	separationLine80         = "--------------------------------------------------------------------------------"
 	nodePairSeparationLine   = separationLine80 + separationLine80 + common.NewLine
-	systemDefaultPairsHeader = "The following nodes are connected due to " + common.SystemOrIPDefaultRule + ":\n"
+	systemDefaultPairsHeader = "The following nodes are connected due to " + common.SystemDefaultRule + ":\n"
 )
 
 // writeExposureOutput writes the section of the exposure-analysis result

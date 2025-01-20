@@ -2,17 +2,17 @@
 CONNECTIONS BETWEEN 0.0.0.0-9.255.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -20,17 +20,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-9.255.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -38,17 +38,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-9.255.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -56,17 +56,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-9.255.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -74,17 +74,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-9.255.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -92,17 +92,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-9.255.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -110,17 +110,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-9.255.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -128,7 +128,7 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 10.0.0.0-10.255.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -136,7 +136,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 10.0.0.0-10.255.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -144,7 +144,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 10.0.0.0-10.255.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -152,7 +152,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 10.0.0.0-10.255.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -160,7 +160,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 10.0.0.0-10.255.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -168,7 +168,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 10.0.0.0-10.255.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -176,7 +176,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 10.0.0.0-10.255.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -184,17 +184,17 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 11.0.0.0-172.20.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -202,17 +202,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 11.0.0.0-172.20.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -220,17 +220,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 11.0.0.0-172.20.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -238,17 +238,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 11.0.0.0-172.20.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -256,17 +256,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 11.0.0.0-172.20.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -274,17 +274,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 11.0.0.0-172.20.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -292,17 +292,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 11.0.0.0-172.20.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -310,7 +310,7 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.21.0.0-172.21.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -318,7 +318,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.21.0.0-172.21.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -326,7 +326,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.21.0.0-172.21.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -334,7 +334,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.21.0.0-172.21.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -342,7 +342,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.21.0.0-172.21.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -350,7 +350,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.21.0.0-172.21.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -358,7 +358,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.21.0.0-172.21.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -366,17 +366,17 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.22.0.0-172.29.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -384,17 +384,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.22.0.0-172.29.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -402,17 +402,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.22.0.0-172.29.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -420,17 +420,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.22.0.0-172.29.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -438,17 +438,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.22.0.0-172.29.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -456,17 +456,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.22.0.0-172.29.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -474,17 +474,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.22.0.0-172.29.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -492,7 +492,7 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.30.0.0-172.30.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -500,7 +500,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.30.0.0-172.30.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -508,7 +508,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.30.0.0-172.30.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -516,7 +516,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.30.0.0-172.30.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -524,7 +524,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.30.0.0-172.30.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -532,7 +532,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.30.0.0-172.30.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -540,7 +540,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.30.0.0-172.30.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
@@ -548,17 +548,17 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 172.31.0.0-255.255.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -566,17 +566,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.31.0.0-255.255.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -584,17 +584,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.31.0.0-255.255.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -602,17 +602,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.31.0.0-255.255.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -620,17 +620,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.31.0.0-255.255.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -638,17 +638,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.31.0.0-255.255.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -656,17 +656,17 @@ DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
 CONNECTIONS BETWEEN 172.31.0.0-255.255.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
 ALLOWED UDP:[53] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1
 
 DENIED UDP:[1-52,54-65535] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (ports not referenced by the rule)
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress rule #1 (protocols not referenced by the rule)
 
@@ -1847,7 +1847,7 @@ No Connections due to the following policies//rules:
 		1) [NP] kube-system/enable-from-ipblock-to-isolated-by-tier//Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-The following nodes are connected due to the system default or the assumed default for IPblock (Allow all):
+The following nodes are connected due to the system default (Allow all):
 0.0.0.0-9.255.255.255 => default/cognetive-agents-agent[DaemonSet]
 0.0.0.0-9.255.255.255 => default/cognetive-agents-analyzer[DaemonSet]
 0.0.0.0-9.255.255.255 => default/cognetive-agents[DaemonSet]

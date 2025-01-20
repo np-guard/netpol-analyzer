@@ -2,7 +2,7 @@
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => gryffindor/harry-potter[StatefulSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] gryffindor/allow-some-ingress-from-to-slytherin-to-gryffindor//Ingress (captured but not selected by any Ingress rule)
 
@@ -10,7 +10,7 @@ No Connections due to the following policies//rules:
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => ravenclaw/luna-lovegood[StatefulSet]:
 
 No Connections due to the following policies//rules:
-	EGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw//Ingress (captured but not selected by any Ingress rule)
 
@@ -153,7 +153,7 @@ CONNECTIONS BETWEEN ravenclaw/luna-lovegood[StatefulSet] => 0.0.0.0-255.255.255.
 No Connections due to the following policies//rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw//Egress (captured but not selected by any Egress rule - no rules defined)
-	INGRESS DIRECTION (ALLOWED) due to the assumed default for IPblock (Allow all)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ravenclaw/luna-lovegood[StatefulSet] => gryffindor/harry-potter[StatefulSet]:
@@ -217,7 +217,7 @@ DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies//rules:
 		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw//Ingress rule #1 (protocols not referenced by the rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-The following nodes are connected due to the system default or the assumed default for IPblock (Allow all):
+The following nodes are connected due to the system default (Allow all):
 0.0.0.0-255.255.255.255 => hufflepuff/cedric-diggory[StatefulSet]
 0.0.0.0-255.255.255.255 => slytherin/draco-malfoy[StatefulSet]
 gryffindor/harry-potter[StatefulSet] => 0.0.0.0-255.255.255.255

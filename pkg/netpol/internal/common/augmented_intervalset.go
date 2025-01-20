@@ -109,9 +109,8 @@ const (
 	ExplAllowAll          = " (Allow all)"
 	SystemDefaultString   = "the system default"
 	SystemDefaultRule     = SystemDefaultString + ExplAllowAll
-	IPDefaultString       = "the assumed default for IPblock"
+	IPDefaultString       = SystemDefaultString // currently the same as system default; change for different explanation for IP default
 	IPDefaultRule         = IPDefaultString + ExplAllowAll
-	SystemOrIPDefaultRule = SystemDefaultString + " or " + IPDefaultString + ExplAllowAll
 	ExplSystemDefault     = ExplString + SystemDefaultRule
 	PodToItselfRule       = "pod to itself " + ExplAllowAll
 	allowResultStr        = "ALLOWED"

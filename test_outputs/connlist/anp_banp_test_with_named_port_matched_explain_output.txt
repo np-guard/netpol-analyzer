@@ -28,7 +28,7 @@ DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies//rules:
 		2) [BANP] default//Ingress rule deny-all-ingress-from-slytherin (Deny)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-The following nodes are connected due to the system default or the assumed default for IPblock (Allow all):
+The following nodes are connected due to the system default (Allow all):
 0.0.0.0-255.255.255.255 => network-policy-conformance-gryffindor/harry-potter[StatefulSet]
 0.0.0.0-255.255.255.255 => network-policy-conformance-slytherin/draco-malfoy[StatefulSet]
 network-policy-conformance-gryffindor/harry-potter[StatefulSet] => 0.0.0.0-255.255.255.255
