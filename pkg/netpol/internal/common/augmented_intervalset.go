@@ -82,9 +82,6 @@ func (rules *ImplyingRulesType) Equal(other *ImplyingRulesType) bool {
 }
 
 func (rules *ImplyingXgressRulesType) Copy() ImplyingXgressRulesType {
-	if rules == nil {
-		return InitImplyingXgressRules()
-	}
 	res := ImplyingXgressRulesType{Rules: map[string]int{}, DominantLayer: rules.DominantLayer, Result: rules.Result}
 	for k, v := range rules.Rules {
 		res.Rules[k] = v
@@ -386,10 +383,6 @@ func (c *AugmentedCanonicalSet) Intervals() []AugmentedInterval {
 	return slices.Clone(c.intervalSet)
 }
 
-func (c *AugmentedCanonicalSet) NumIntervals() int {
-	return len(c.intervalSet)
-}
-
 const (
 	errMinFromEmptySet       = "cannot take min from empty interval set"
 	errOutOfRangeInterval    = "cannot add interval which is out of scope of AugmentedCanonicalSet"
@@ -437,16 +430,6 @@ func (c *AugmentedCanonicalSet) IsEmpty() bool {
 // Unfilled returns true if the AugmentedCanonicalSet is syntactically empty (i.e., none of intervals or holes in the interval set)
 func (c *AugmentedCanonicalSet) IsUnfilled() bool {
 	return len(c.intervalSet) == 0
-}
-
-func (c *AugmentedCanonicalSet) CalculateSize() int64 {
-	var res int64 = 0
-	for _, r := range c.intervalSet {
-		if r.inSet {
-			res += r.interval.Size()
-		}
-	}
-	return res
 }
 
 // func (c *AugmentedCanonicalSet) isConsistent() bool {
@@ -740,29 +723,6 @@ func (c *AugmentedCanonicalSet) Subtract(other *AugmentedCanonicalSet) *Augmente
 			hole := interval
 			hole.inSet = false
 			res.AddAugmentedInterval(hole, NeverCollectRules)
-		}
-	}
-	return res
-}
-
-func (c *AugmentedCanonicalSet) ClearInSet() {
-	for i := range c.intervalSet {
-		c.intervalSet[i].inSet = false
-	}
-}
-
-// Elements returns a slice with all the numbers contained in the set.
-// USE WITH CARE. It can easily run out of memory for large sets.
-func (c *AugmentedCanonicalSet) Elements() []int64 {
-	// allocate memory up front, to fail early
-	res := make([]int64, c.CalculateSize())
-	i := 0
-	for _, interval := range c.intervalSet {
-		if interval.inSet {
-			for v := interval.interval.Start(); v <= interval.interval.End(); v++ {
-				res[i] = v
-				i++
-			}
 		}
 	}
 	return res

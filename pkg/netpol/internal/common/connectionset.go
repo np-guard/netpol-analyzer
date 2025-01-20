@@ -448,14 +448,10 @@ func portsString(ports []PortRange) string {
 	currInterval := interval.New(0, -1) // an empty interval
 	for i := range ports {
 		if ports[i].(*PortRangeData).InSet() {
-			switch {
-			case currInterval.IsEmpty():
+			if currInterval.IsEmpty() {
 				currInterval = interval.New(ports[i].Start(), ports[i].End())
-			case currInterval.End()+1 == ports[i].Start():
+			} else { // the intervals are consequent, i.e., currInterval.End()+1 == ports[i].Start()
 				currInterval = interval.New(currInterval.Start(), ports[i].End()) // extend the interval
-			default:
-				portsStr = append(portsStr, currInterval.ShortString())
-				currInterval = interval.New(0, -1)
 			}
 		} else if !currInterval.IsEmpty() {
 			portsStr = append(portsStr, currInterval.ShortString())
