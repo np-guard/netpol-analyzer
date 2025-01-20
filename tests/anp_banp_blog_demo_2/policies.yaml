@@ -25,7 +25,7 @@ spec:
       matchLabels:
         security: internal
   ingress:
-  - name: "deny-ingress-from-all-namespaces"
+  - name: "deny-ingress-from-all-namespaces-on-TCP1-9000"
     action: "Deny"
     from:
     - namespaces:
@@ -48,7 +48,7 @@ spec:
   subject:
     namespaces: {}
   ingress:
-  - name: "allow-ingress-from-monitoring"
+  - name: "allow-ingress-from-monitoring-on-TCP1234"
     action: "Allow"
     from:
     - namespaces:
@@ -74,7 +74,7 @@ spec:
       matchLabels:
         security: internal
   ingress:
-  - name: "pass-ingress-from-monitoring"
+  - name: "pass-ingress-from-monitoring-on-TCP8080"
     action: "Pass"
     from:
     - namespaces:
