@@ -42,7 +42,7 @@ func runListCommand() error {
 	if dirPath != "" {
 		conns, _, err = analyzer.ConnlistFromDirPath(dirPath)
 	} else {
-		conns, _, err = analyzer.ConnlistFromK8sCluster(clientset)
+		conns, _, err = analyzer.ConnlistFromK8sClusterWithPolicyAPI(clientset, policyAPIClientset)
 	}
 	if err != nil {
 		return err
