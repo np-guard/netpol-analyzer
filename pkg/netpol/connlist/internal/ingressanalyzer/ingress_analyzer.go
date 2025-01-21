@@ -335,7 +335,7 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns, ingObjStr s
 		if !ok {
 			ia.logWarning("Ignoring target service " + svc.serviceName + " : service not found")
 		}
-		ruleName := fmt.Sprintf("[%s] %s//service %s", ingType, ingObjStr, svc.serviceName)
+		ruleName := fmt.Sprintf("[%s] %s // service %s", ingType, ingObjStr, svc.serviceName)
 		for _, peer := range peersAndPorts.peers {
 			currIngressPeerConn, err := ia.getIngressPeerConnection(peer, peersAndPorts.ports, svc.servicePort, ruleName)
 			if err != nil {

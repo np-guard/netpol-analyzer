@@ -627,7 +627,7 @@ func ruleFullName(policyName, ruleName, action string, isIngress bool) string {
 	if isIngress {
 		xgress = ingressName
 	}
-	return fmt.Sprintf("%s//%s rule %s (%s)", policyName, xgress, ruleName, action)
+	return fmt.Sprintf("%s // %s rule %s (%s)", policyName, xgress, ruleName, action)
 }
 
 // rulePeersReferencedNetworks returns a list of IPBlocks representing the CIDRs referenced by the given rulePeers' Networks field.

@@ -49,22 +49,10 @@ var explainTests = []struct {
 	focusWorkload string
 }{
 	{
-		testDirName: "anp_demo",
-	},
-	{
 		testDirName: "acs-security-demos",
 	},
 	{
-		testDirName: "onlineboutique",
-	},
-	{
-		testDirName: "anp_test_10",
-	},
-	{
-		testDirName: "ipblockstest",
-	},
-	{
-		testDirName: "netpol_named_port_test",
+		testDirName: "anp_and_banp_using_networks_and_nodes_test",
 	},
 	{
 		testDirName: "anp_banp_blog_demo",
@@ -73,12 +61,27 @@ var explainTests = []struct {
 		testDirName: "anp_banp_blog_demo_2",
 	},
 	{
-		testDirName: "anp_and_banp_using_networks_and_nodes_test",
-	},
-	{
 		testDirName: "anp_banp_test_with_named_port_matched",
 	},
 	{
 		testDirName: "anp_banp_test_with_named_port_unmatched",
+	},
+	{
+		testDirName: "anp_demo",
+	},
+	{
+		testDirName: "anp_test_10",
+	},
+	{
+		testDirName: "demo_app_with_routes_and_ingress",
+	},
+	{
+		testDirName: "ipblockstest",
+	},
+	{
+		testDirName: "netpol_named_port_test",
+	},
+	{
+		testDirName: "onlineboutique",
 	},
 }

@@ -418,7 +418,7 @@ func (np *NetworkPolicy) nameWithDirectionAndExpl(isIngress bool, expl string) s
 	if isIngress {
 		xgress = "Ingress"
 	}
-	return fmt.Sprintf("%s//%s "+expl, np.FullName(), xgress, xgress)
+	return fmt.Sprintf("%s // %s "+expl, np.FullName(), xgress, xgress)
 }
 
 func explNoMatchOfNamedPortsToDst(ruleName string) string {
@@ -590,7 +590,7 @@ func (np *NetworkPolicy) ruleName(ruleIdx int, isIngress bool) string {
 	if isIngress {
 		xgress = ingressName
 	}
-	return fmt.Sprintf("%s//%s rule #%d", np.FullName(), xgress, ruleIdx+1)
+	return fmt.Sprintf("%s // %s rule #%d", np.FullName(), xgress, ruleIdx+1)
 }
 
 func (np *NetworkPolicy) LogWarnings(l logger.Logger) {
