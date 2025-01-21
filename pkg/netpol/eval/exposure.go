@@ -26,13 +26,19 @@ import (
 // - generated representative peers are unique; i.e. if different rules (e.g in different policies or different directions)
 // have same selectors, one representative peer is generated to represent both.
 // - note that :
-// - if the rule's namespaceSelector is nil, then the representative pod is created in the policy's Namespace (as it is a real namespace)
+// - this func generates only representative pods (does not generate representative namespaces);
+// each representative pod stores in its data its matching namespaceSelector and podSelector
+// - if the rule's namespaceSelector is nil and the policy is a namespace scoped (NetworkPolicy), then the representative pod is created in
+// the policy's Namespace (as it is a real namespace)
+// - if the rule's namespaceSelector is nil and the policy is cluster-scoped (ANP or BANP), then the representative pod will
+// store an empty namespaceSelector (matches all namespaces in the cluster) in its data
 // - if the rule's namespaceSelector is not nil, no representative namespace will be generated (representative pod has empty namespace name)
 // anyway, the representative pod will store the namespace data.
 func (pe *PolicyEngine) generateRepresentativePeers(selectors []k8s.SingleRuleSelectors, policyNs string) (err error) {
 	for i := range selectors {
 		podNs := "" // by default: representative peer has no namespace; (don't generate representative namespaces)
-		if selectors[i].NsSelector == nil {
+		// note that policyNs is "" (empty) for cluster-scoped policies (ANP and BANP) - means podNs kept empty in this case
+		if selectors[i].NsSelector == nil && policyNs != "" {
 			// if namespaceSelector of the rule was nil, then the namespace of the pod is same as the policy's namespace
 			// i.e. the namespace name of the policy should be assigned to the representative pod's Namespace (string field)
 			podNs = policyNs

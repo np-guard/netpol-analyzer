@@ -1598,6 +1598,71 @@ var goodPathTests = []struct {
 		testDirName:   "anp_test_named_ports_multiple_peers",
 		outputFormats: []string{output.DefaultFormat},
 	},
+	{
+		// AdminNetworkPolicy: exposes all pods in namespace hello-world to representative-peers in a "slytherin" labeled namespace
+		// on a TCP-80 connection on both egress and ingress
+		// NetworkPolicy : denies all for hello-world/workload-a
+		// Output: hello-world/workload-a is exposed to all pods in the "slytherin" namespace (on both egress and ingress);
+		// however hello-world/workload-b is exposed to entire-cluster and external-ips on all connections on both egress and ingress
+		testDirName:      "exposure_test_with_anp_1",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// AdminNetworkPolicy: exposes all pods in namespace hello-world to representative-peers in a "slytherin" labeled namespace
+		// on a TCP-80 connection on both egress and ingress
+		// NetworkPolicy : restricts hello-world/workload-a connections to and from representative peers in a "gryffindor" labeled namespace
+		// Output: hello-world/workload-a is exposed to all pods in the "slytherin" namespace and all pods in "gryffindor";
+		// however hello-world/workload-b is exposed to entire-cluster and external-ips on all connections on both egress and ingress
+		testDirName:      "exposure_test_with_anp_2_w_np",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// AdminNetworkPolicy: Passes TCP80 between hello-world and slytherin namespaces on both ingress and egress
+		// BaselineAdminNetworkPolicy: denies any internal ingress to hello-world on TCP80
+		// Output: all pods of hello-world are exposed on egress on all-connections to whole world
+		// On Ingress hello-world pods are exposed externally to all-connections, and internally to all conns but TCP80
+		testDirName:      "exposure_test_with_anp_3_w_banp",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// AdminNetworkPolicy: exposes all pods in namespace hello-world to all-namespaces on a TCP-80 connection on both egress and ingress
+		// NetworkPolicy : denies all for hello-world/workload-a
+		// Output: hello-world/workload-a is exposed to all-namespaces on TCP80 (on both egress and ingress);
+		// however hello-world/workload-b is exposed to entire-cluster and external-ips on all connections on both egress and ingress
+		testDirName:      "exposure_test_with_anp_4_entire_cluster_example",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// AdminNetworkPolicy: denies TCP80 connection between hello-world and all-namespaces on both ingress-egress
+		// Output: all pods in hello-world are exposed externally to all conns
+		// and exposed internally on all-conns but TCP80 on both ingress and egress
+		testDirName:      "exposure_test_with_anp_5_entire_cluster_example",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// AdminNetworkPolicy: Passes TCP80 connection between hello-world to all-namespace on ingress and egress
+		// NetworkPolicy: restricts hello-world/workload-a conns with all-namespaces to some ports (block TCP80 on ingress)
+		// Output: hello-world/workload-a is exposed to entire-cluster to the ports mentioned in the NetworkPolicy only;
+		// however hello-world/workload-b is exposed to entire-cluster and external-ips on all connections on both egress and ingress
+		testDirName:      "exposure_test_with_anp_6_entire_cluster_example",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// AdminNetworkPolicy: ingress ANP that exposes all workloads in namespace: hello-world with PASS rule (on all-conns from entire-cluster)
+		// i.e. ANP protect on Ingress both hello-world/workload-a and hello-world/workload-b
+		// BaselineAdminNetworkPolicy : denies all internal ingress for hello-world/workload-a only
+		// In the Output: hello-world/workload-a is not exposed to ingress from entire-cluster;
+		// however hello-world/workload-b is exposed to entire-cluster on ingress from entire-cluster
+		testDirName:      "exposure_test_with_anp_7_w_banp",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

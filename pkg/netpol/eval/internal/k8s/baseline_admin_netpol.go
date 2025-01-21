@@ -10,9 +10,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/np-guard/models/pkg/netset"
-
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
+
+	"github.com/np-guard/models/pkg/netset"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
@@ -23,6 +23,13 @@ import (
 type BaselineAdminNetworkPolicy struct {
 	*apisv1a.BaselineAdminNetworkPolicy                 // embedding k8s BaselineAdminNetworkPolicy object
 	warnings                            common.Warnings // set of warnings which are raised by the banp
+	// following data stored in preprocessing when exposure-analysis is on;
+	// IngressPolicyExposure contains:
+	// - the maximal connection-set which the baseline-admin-policy's rules allow/deny from all namespaces in the cluster on ingress direction
+	IngressPolicyExposure PolicyExposureWithoutSelectors
+	// EgressPolicyExposure contains:
+	// - the maximal connection-set which the baseline-admin-policy's rules allow/deny to all namespaces in the cluster on egress direction
+	EgressPolicyExposure PolicyExposureWithoutSelectors
 }
 
 // Selects returns true if the baseline admin network policy's Spec.Subject selects the peer and if
@@ -177,4 +184,65 @@ func (banp *BaselineAdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlo
 
 func (banp *BaselineAdminNetworkPolicy) LogWarnings(l logger.Logger) {
 	banp.warnings.LogPolicyWarnings(l)
+}
+
+// /////////////////////////////////////////////////////////////
+// pre-processing computations - currently performed for exposure-analysis goals only;
+// all pre-process funcs assume policies' rules are legal (rules correctness check occurs later)
+
+// GetPolicyRulesSelectorsAndUpdateExposureClusterWideConns scans the BANP rules and :
+// - updates policy's exposed cluster-wide connections from/to all namespaces in the cluster on ingress and egress directions
+// - returns list of SingleRuleSelectors (pair of namespace and pod selectors) from rules which have non-empty selectors,
+// for which the representative peers should be generated
+func (banp *BaselineAdminNetworkPolicy) GetPolicyRulesSelectorsAndUpdateExposureClusterWideConns() (rulesSelectors []SingleRuleSelectors,
+	err error) {
+	if banp.baselineAdminPolicyAffectsDirection(true) {
+		selectors, err := banp.scanIngressRules()
+		if err != nil {
+			return nil, err
+		}
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	if banp.baselineAdminPolicyAffectsDirection(false) {
+		selectors, err := banp.scanEgressRules()
+		if err != nil {
+			return nil, err
+		}
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	return rulesSelectors, nil
+}
+
+// scanIngressRules handles policy's ingress rules for updating policy's wide conns and returning specific rules' selectors
+func (banp *BaselineAdminNetworkPolicy) scanIngressRules() ([]SingleRuleSelectors, error) {
+	rulesSelectors := []SingleRuleSelectors{}
+	for _, rule := range banp.Spec.Ingress {
+		rulePeers := rule.From
+		rulePorts := rule.Ports
+		selectors, err := getIngressSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, string(rule.Action),
+			&banp.IngressPolicyExposure)
+		if err != nil {
+			return nil, err
+		}
+		// rule with selectors selecting specific namespaces/ pods
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	return rulesSelectors, nil
+}
+
+// scanEgressRules handles policy's egress rules for updating policy's wide conns/ returning specific rules' selectors
+func (banp *BaselineAdminNetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
+	rulesSelectors := []SingleRuleSelectors{}
+	for _, rule := range banp.Spec.Egress {
+		rulePeers := rule.To
+		rulePorts := rule.Ports
+		selectors, err := getEgressSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, string(rule.Action),
+			&banp.EgressPolicyExposure)
+		if err != nil {
+			return nil, err
+		}
+		// rule with selectors selecting specific namespaces/ pods
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	return rulesSelectors, nil
 }

@@ -270,42 +270,114 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	return res, nil
 }
 
+// policiesLayerXgressConns stores data of connections from policies of same type (layer) on ingress/egress direction.
+// this is used to store:
+// - the connections between two peers on ingress/ egress or
+// - in case of exposure-analysis: the connections from a peer to entire-cluster (on egress) or from entire-cluster to a peer (on ingress)
+type policiesLayerXgressConns struct {
+	// isCaptured : indicates if the xgress connections are captured by the policies in the current layer
+	isCaptured bool
+	// layerConns : the xgress connections between the peers / (peer and entire-cluster) from all relevant policies in the current layer
+	layerConns *k8s.PolicyConnections
+}
+
+// initEmptyPoliciesLayerXgressConns returns a new empty policiesLayerXgressConns object
+func initEmptyPoliciesLayerXgressConns() *policiesLayerXgressConns {
+	return &policiesLayerXgressConns{isCaptured: false, layerConns: k8s.NewPolicyConnections()}
+}
+
 // allAllowedXgressConnections: returns the allowed connections from srcPeer to dstPeer on the
 // given direction (ingress/egress)
 // allowed conns are computed by walking through all the available resources of k8s network policy api:
 // admin-network-policies, network-policies and baseline-admin-network-policies;
 // considering the precedence of each policy
+// in case of exposure-analysis it also checks and updates if a src is exposed to all namespaces on egress
+// or dst is exposed to all namespaces on ingress
 func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress bool) (allowedConns *common.ConnectionSet, err error) {
 	// first get allowed xgress conn between the src and dst from the ANPs
+	// (in case of exposure-analysis get also cluster wide conns of the selected peer from the ANPs)
 	// note that:
-	// - anpConns may contain allowed, denied or/and passed connections
-	// - anpCaptured is true iff there is at least one rule in the input ANPs that captures both src and dst;
+	// - anpConns.layerConns (or anpExposure.layerConns) may contain allowed, denied or/and passed connections;
+	// connections consider rules and policies precedence
+	// - anpConns.isCaptured is true iff there is at least one rule in the input ANPs that captures both src and dst;
 	// because anp rules are read as is and don't contain any implicit isolation effects for the Pods selected by the AdminNetworkPolicy.
-	anpConns, anpCaptured, err := pe.getAllAllowedXgressConnectionsFromANPs(src, dst, isIngress)
+	// anpExposure - is relevant only if pe.exposureAnalysisFlag == true
+	// - anpExposure.isCaptured is true iff there is at least one ANP that exposes the relevant peer (src on egress/ dst on ingress)
+	// to entire-cluster
+	anpConns, anpExposure, err := pe.getAllAllowedXgressConnectionsFromANPs(src, dst, isIngress)
 	if err != nil {
 		return nil, err
 	}
-	// optimization: if all the conns between src and dst were determined by the ANPs : return the allowed conns
-	if anpCaptured && anpConns.DeterminesAllConns() {
-		return anpConns.AllowedConns, nil
+	// optimizations
+	podExposureUpdatedFlag := false
+	anpConnsDeterminedAllFlag := false
+	// if all cluster-wide conns were determined by the ANP then update the selected peer's cluster wide exposure
+	if pe.exposureAnalysisFlag && anpExposure.layerConns.DeterminesAllConns() {
+		podExposureUpdatedFlag = true
+		updatePeerXgressClusterWideExposure(anpExposure.layerConns.AllowedConns, src, dst, isIngress)
 	}
+	// if all the conns between src and dst were determined by the ANPs : return the allowed conns
+	if anpConns.layerConns.DeterminesAllConns() {
+		if !pe.exposureAnalysisFlag || podExposureUpdatedFlag {
+			return anpConns.layerConns.AllowedConns, nil
+		}
+		// else : exposure-analysis is on and still not determined continue
+		anpConnsDeterminedAllFlag = true
+	}
+
 	// second get the allowed xgress conns between the src and dst from the netpols
+	// (in case of exposure-analysis get also cluster wide conns of the selected peer from the netpols)
 	// note that :
-	// - npConns contains only allowed connections
-	// - npCaptured is true iff there are policies selecting either src or dst based on the checked direction (ingress/ egress)
-	npConns, npCaptured, err := pe.getAllAllowedXgressConnsFromNetpols(src, dst, isIngress)
+	// - npConns.layerConns (or npExposure.layerConns) contains only allowed connections
+	// - npConns.isCaptured is true iff there are policies selecting either src or dst based on the checked direction (ingress/ egress)
+	// - npExposure is relevant only if pe.exposureAnalysisFlag == true
+	// - npExposure.isCaptured is true iff there is at least one policy that exposes the relevant peer (src on egress/ dst on ingress)
+	// to entire-cluster
+	npConns, npExposure, err := pe.getAllAllowedXgressConnsFromNetpols(src, dst, isIngress)
 	if err != nil {
 		return nil, err
 	}
 
-	// compute the allowed connections on the given direction considering the which policies captured the xgress connection
-	// and precedence of each policy type:
+	// get default xgress connection between src and dst from the BANP/ system-default;
+	// (in case of exposure-analysis get also cluster wide conns of the selected peer from the BANP/ system-default)
+	// note that :
+	// - if there is no banp in the input resources, then defaultConns.layerConns (or defaultExposure.layerConns)
+	// is system-default which is allow-all
+	// - if the banp captures the xgress connection; then defaultConns (or defaultExposure.layerConns) may contain allowed and denied conns
+	// - defaultExposure is relevant only if pe.exposureAnalysisFlag == true
+	defaultConns, defaultExposure, err := pe.getXgressDefaultConns(src, dst, isIngress)
+	if err != nil {
+		return nil, err
+	}
+	// after having allowed xgress conns from all policies layers separately, compute final all allowed xgress conns
+	// considering layers precedences:
+
+	// in case of exposure-analysis: update cluster wide exposure data for relevant pod (src on egress, dst on ingress)
+	if pe.exposureAnalysisFlag && !podExposureUpdatedFlag {
+		clusterWideExposureFromAllLayers, err := allAllowedXgressConnsConsideringAllLayersConns(anpExposure, npExposure, defaultExposure)
+		if err != nil {
+			return nil, err
+		}
+		updatePeerXgressClusterWideExposure(clusterWideExposureFromAllLayers, src, dst, isIngress)
+	}
+	if anpConnsDeterminedAllFlag {
+		return anpConns.layerConns.AllowedConns, nil
+	}
+	// return all allowed xgress connections between the src and dst (final result computed considering all layers conns)
+	return allAllowedXgressConnsConsideringAllLayersConns(anpConns, npConns, defaultConns)
+}
+
+// allAllowedXgressConnsConsideringAllLayersConns gets connections from all policies layers and compute the allowed connections on
+// the given direction considering on which policies-layer the xgress connection was captured and the precedence of each policies layer
+func allAllowedXgressConnsConsideringAllLayersConns(anpConns, npConns,
+	defaultOrBanpConns *policiesLayerXgressConns) (allowedConns *common.ConnectionSet, err error) {
 	switch {
-	case npCaptured && !anpCaptured:
-		// only NPs capture the peers, return allowed conns from netpols
-		return npConns.AllowedConns, nil
-	case npCaptured && anpCaptured:
-		// if conns between src and dst were captured by both the admin-network-policies and by network-policies
+	case npConns.isCaptured && !anpConns.isCaptured:
+		// ANPs don't capture the connection; NPs capture the peers, return allowed conns from netpols
+		return npConns.layerConns.AllowedConns, nil
+	case npConns.isCaptured && anpConns.isCaptured:
+		// if conns between src and dst (or between peer and entire-cluster) were captured by both the admin-network-policies and
+		// by network-policies
 		// collect conns:
 		// - traffic that was allowed or denied by ANPs will not be affected by the netpol conns.
 		// - traffic that has no match in ANPs but allowed by NPs is added to allowed conns.
@@ -313,39 +385,48 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 		// note that allowed conns by netpols, imply deny on other traffic;
 		// so ANPs.pass conns which intersect with NPs.allowed are added to allowed conns result;
 		// other pass conns (which don't intersect with NPs allowed conns) are not allowed implicitly.
-		anpConns.CollectAllowedConnsFromNetpols(npConns)
-		return anpConns.AllowedConns, nil
+		anpConns.layerConns.CollectAllowedConnsFromNetpols(npConns.layerConns)
+		return anpConns.layerConns.AllowedConns, nil
 	default: // !npCaptured - netpols don't capture the connections between src and dst - delegate to banp
-		// get default xgress connection between src and dst from the BANP/ system-default;
-		// note that :
-		// - if there is no banp in the input resources, then default conns is system-default which is allow-all
-		// - if the banp captures the xgress between src and dst; then defaultConns may contain allowed and denied conns
-		defaultConns, err := pe.getXgressDefaultConns(src, dst, isIngress)
-		if err != nil {
-			return nil, err
-		}
 		// possible cases :
-		// 1. ANPs capture the peers, netpols don't , return the allowed conns from ANPs considering default conns (& BANP)
-		// 2. only BANP captures conns between the src and dst
+		// 1. ANPs capture the connection, netpols don't, return the allowed conns from ANPs considering default conns (& BANP)
+		// 2. only BANP captures conns between the src and dst (there are no policies in the higher layers)
 		// 3. only default conns (no ANPs, nor BANP)
 		// then collect conns from banp (or system-default):
 		// this also determines what happens on traffic (ports) which are not mentioned in the (B)ANPs;
 		// since (B)ANP rules are read as is only.
-		anpConns.CollectConnsFromBANP(defaultConns)
-		return anpConns.AllowedConns, nil
+		anpConns.layerConns.CollectConnsFromBANP(defaultOrBanpConns.layerConns)
+		return anpConns.layerConns.AllowedConns, nil
+	}
+}
+
+// updatePeerXgressClusterWideExposure updates the cluster-wide exposure of the pod which is selected by input policies.
+// used only when exposure-analysis is active
+func updatePeerXgressClusterWideExposure(allowedXgressExposureConns *common.ConnectionSet, src, dst k8s.Peer, isIngress bool) {
+	if isIngress && dst.PeerType() != k8s.IPBlockType && !dst.GetPeerPod().FakePod {
+		// policy selecting dst (dst pod is real)
+		// update its ingress entire cluster connection relying on policies data
+		dst.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(allowedXgressExposureConns, isIngress)
+	} else if !isIngress && src.PeerType() != k8s.IPBlockType && !src.GetPeerPod().FakePod {
+		// policy selecting src
+		// update its egress entire cluster connection relying on policies data
+		src.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(allowedXgressExposureConns, isIngress)
 	}
 }
 
 // analyzing network-policies for conns between peers (object kind == NetworkPolicy):
 
-// getAllAllowedXgressConnsFromNetpols returns if connections from src to dst are captured by network policies on given direction,
-// if yes, returns also the set of allowed connections from src to dst on given direction(ingress/egress), by network policies rules.
-// also checks and updates if a src is exposed to all namespaces on egress or dst is exposed to all namespaces cluster on ingress
+// getAllAllowedXgressConnsFromNetpols checks and returns the set of allowed connections from src to dst on the given
+// direction(ingress/egress), by network policies rules, if those connections from src to dst are captured by network policies.
+// also, in case of exposure-analysis, checks and returns cluster wide exposure connections if a src is exposed
+// to all namespaces on egress or dst is exposed to all namespaces cluster on ingress.
 // note that network-policies connections represent only allowed conns.
 // note that: if there are policies selecting src (on egress) or dst (on ingress), then the xgress connection is captured;
 // since NetworkPolicy rules implicitly deny unmentioned connections.
-func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, isIngress bool) (policiesConns *k8s.PolicyConnections,
-	captured bool, err error) {
+func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer,
+	isIngress bool) (policiesConns, exposureConns *policiesLayerXgressConns, err error) {
+	policiesConns = initEmptyPoliciesLayerXgressConns() // result of allowed conns between the src and dst
+	exposureConns = initEmptyPoliciesLayerXgressConns() // result of cluster wide exposure of selected pod
 	// relevant policies: policies that capture dst if isIngress, else policies that capture src
 	var netpols []*k8s.NetworkPolicy
 	if isIngress {
@@ -361,13 +442,13 @@ func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, i
 		netpols, err = pe.getPoliciesSelectingPod(src, netv1.PolicyTypeEgress)
 	}
 	if err != nil {
-		return nil, false, err
+		return nil, nil, err
 	}
 
 	if len(netpols) == 0 {
 		// if the given direction is not capturing the connection between src and dst,
 		// this will be ignored and skipped so allowed conns will be determined later by BANP, or default (allow-all)
-		return nil, false, nil
+		return policiesConns, exposureConns, nil
 	}
 	// connections between src and dst are captured by network-policies
 	allowedConns := common.MakeConnectionSet(false)
@@ -380,18 +461,25 @@ func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer, i
 		// collect the allowed connectivity from the relevant rules into allowedConns
 		policyAllowedConnectionsPerDirection, err := pe.determineAllowedConnsPerDirection(policy, src, dst, isIngress)
 		if err != nil {
-			return nil, false, err
+			return nil, nil, err
 		}
-		// in case of exposure-analysis: update cluster wide exposure data for relevant pod
 		if pe.exposureAnalysisFlag {
-			updatePeerXgressClusterWideExposure(policy, src, dst, isIngress)
+			// if there is at least one netpol capturing the peer, then allowedConns is captured
+			// (either allowed by rule or implicitly denied because of the rule's absence)
+			exposureConns.isCaptured = true
+			// update the cluster wide exposure result from the relevant netpol's data
+			if isIngress && !policy.IngressPolicyExposure.ClusterWideExposure.IsEmpty() {
+				exposureConns.layerConns.AllowedConns.Union(policy.IngressPolicyExposure.ClusterWideExposure.AllowedConns)
+			} else if !isIngress && !policy.EgressPolicyExposure.ClusterWideExposure.IsEmpty() {
+				exposureConns.layerConns.AllowedConns.Union(policy.EgressPolicyExposure.ClusterWideExposure.AllowedConns)
+			}
 		}
 		allowedConns.Union(policyAllowedConnectionsPerDirection)
 	}
 	// putting the result in policiesConns object to be compared with conns allowed by ANP/BANP later
-	policiesConns = k8s.NewPolicyConnections()
-	policiesConns.AllowedConns = allowedConns
-	return policiesConns, true, nil
+	policiesConns.isCaptured = true
+	policiesConns.layerConns.AllowedConns = allowedConns
+	return policiesConns, exposureConns, nil
 }
 
 // determineAllowedConnsPerDirection returns the policy's allowed connections between the
@@ -401,94 +489,105 @@ func (pe *PolicyEngine) determineAllowedConnsPerDirection(policy *k8s.NetworkPol
 	if isIngress {
 		// get ingress allowed conns between src and dst
 		switch {
-		case policy.IngressPolicyExposure.ExternalExposure.AllowAll:
-			return policy.IngressPolicyExposure.ExternalExposure, nil
-		case policy.IngressPolicyExposure.ClusterWideExposure.AllowAll && src.PeerType() == k8s.PodType:
-			return policy.IngressPolicyExposure.ClusterWideExposure, nil
+		case policy.IngressPolicyExposure.ExternalExposure.AllowedConns.AllowAll:
+			return policy.IngressPolicyExposure.ExternalExposure.AllowedConns, nil
+		case policy.IngressPolicyExposure.ClusterWideExposure.AllowedConns.AllowAll && src.PeerType() == k8s.PodType:
+			return policy.IngressPolicyExposure.ClusterWideExposure.AllowedConns, nil
 		default:
 			return policy.GetIngressAllowedConns(src, dst)
 		}
 	}
 	// else get egress allowed conns between src and dst
 	switch {
-	case policy.EgressPolicyExposure.ExternalExposure.AllowAll:
-		return policy.EgressPolicyExposure.ExternalExposure, nil
-	case policy.EgressPolicyExposure.ClusterWideExposure.AllowAll && dst.PeerType() == k8s.PodType:
-		return policy.EgressPolicyExposure.ClusterWideExposure, nil
+	case policy.EgressPolicyExposure.ExternalExposure.AllowedConns.AllowAll:
+		return policy.EgressPolicyExposure.ExternalExposure.AllowedConns, nil
+	case policy.EgressPolicyExposure.ClusterWideExposure.AllowedConns.AllowAll && dst.PeerType() == k8s.PodType:
+		return policy.EgressPolicyExposure.ClusterWideExposure.AllowedConns, nil
 	default:
 		return policy.GetEgressAllowedConns(dst)
 	}
 }
 
-// updatePeerXgressClusterWideExposure updates the cluster-wide exposure of the pod which is selected by input policy.
-// used only when exposure-analysis is active
-func updatePeerXgressClusterWideExposure(policy *k8s.NetworkPolicy, src, dst k8s.Peer, isIngress bool) {
-	if isIngress {
-		// policy selecting dst (dst pod is real)
-		// update its ingress entire cluster connection relying on policy data
-		dst.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.IngressPolicyExposure.ClusterWideExposure, isIngress)
-	} else {
-		// policy selecting src
-		// update its egress entire cluster connection relying on policy data
-		src.GetPeerPod().UpdatePodXgressExposureToEntireClusterData(policy.EgressPolicyExposure.ClusterWideExposure, isIngress)
-	}
-}
-
 // analyzing admin-network-policies for conns between peers (object kind == AdminNetworkPolicy):
 
-// getAllAllowedXgressConnectionsFromANPs returns the connections from src to dst on give direction (ingress/egress)
+// getAllAllowedXgressConnectionsFromANPs checks and returns the connections data from src to dst on given direction (ingress/egress)
 // by analyzing admin network policies rules;
-// and whether the connection between the src and dst was captured by admin-network-policies' rules.
+// in case of exposure-analysis returns also connections data between src and entire-cluster on egress / entire-cluster and dst on ingress.
 // note that:
 // - ANP connections may be allowed, passed and denied
 // - a connection between src and dst is captured by an ANP iff there is an xgress rule capturing both peers, since
 // AdminNetworkPolicy rules should be read as-is, i.e. there will not be any implicit isolation effects for
 // the Pods selected by the AdminNetworkPolicy, as opposed to implicit deny NetworkPolicy rules imply.
-func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer, isIngress bool) (policiesConns *k8s.PolicyConnections,
-	captured bool, err error) {
-	policiesConns = k8s.NewPolicyConnections()
+func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer,
+	isIngress bool) (policiesConns, exposureConns *policiesLayerXgressConns, err error) {
+	policiesConns = initEmptyPoliciesLayerXgressConns() // result of allowed conns between the src and dst
+	exposureConns = initEmptyPoliciesLayerXgressConns() // result of cluster wide exposure of selected pod
 	// iterate the sorted admin network policies in order to compute the allowed, pass, and denied xgress connections between the peers
 	// from the admin netpols capturing the src (if !isIngress)/ capturing the dst (if isIngress true).
 	// connections are computed considering ANPs priorities (rules of an ANP with lower priority take precedence on other ANPs rules)
 	// and rules ordering in single ANP (coming first takes precedence).
+	// if exposure-analysis is on, update cluster wide exposure result from the admin-policy's data
 	for _, anp := range pe.sortedAdminNetpols {
 		singleANPConns := k8s.NewPolicyConnections()
 		// collect the allowed, pass, and denied connectivity from the relevant rules into policiesConns
 		if !isIngress { // egress
 			selectsSrc, err := anp.Selects(src, false)
 			if err != nil {
-				return nil, false, err
+				return nil, nil, err
 			}
 			// if the anp captures the src, get the relevant egress conns between src and dst
 			if selectsSrc {
 				singleANPConns, err = anp.GetEgressPolicyConns(dst)
 				if err != nil {
-					return nil, false, err
+					return nil, nil, err
+				}
+				// if exposure-analysis is on, update also the exposure of the src to all namespaces on egress
+				// if it is captured by current policy
+				if pe.exposureAnalysisFlag {
+					src.GetPeerPod().UpdatePodXgressProtectedFlag(false) // mark the pod is protected
+					updateClusterWideExposureResultFromANP(exposureConns, anp.EgressPolicyExposure)
 				}
 			}
 		} else { // ingress
 			selectsDst, err := anp.Selects(dst, true)
 			if err != nil {
-				return nil, false, err
+				return nil, nil, err
 			}
 			// if the anp captures the dst, get the relevant ingress conns (from src to dst)
 			if selectsDst {
 				singleANPConns, err = anp.GetIngressPolicyConns(src, dst)
 				if err != nil {
-					return nil, false, err
+					return nil, nil, err
+				}
+				// if exposure-analysis is on, update also the exposure of the dst from all namespaces on ingress
+				// if it is captured by current policy
+				if pe.exposureAnalysisFlag {
+					dst.GetPeerPod().UpdatePodXgressProtectedFlag(true)
+					updateClusterWideExposureResultFromANP(exposureConns, anp.IngressPolicyExposure)
 				}
 			}
 		}
 		if !singleANPConns.IsEmpty() { // the anp is relevant (the xgress connection is captured)
-			policiesConns.CollectANPConns(singleANPConns)
+			policiesConns.layerConns.CollectANPConns(singleANPConns)
 		}
 	}
 
-	if policiesConns.IsEmpty() { // conns between src and dst were not captured by the adminNetpols, to be determined by netpols/default conns
-		return k8s.NewPolicyConnections(), false, nil
+	if policiesConns.layerConns.IsEmpty() { // conns between src and dst were not captured by the adminNetpols,
+		// to be determined by netpols/default conns
+		policiesConns.isCaptured = false
+		return policiesConns, exposureConns, nil
 	}
+	policiesConns.isCaptured = true
+	return policiesConns, exposureConns, nil
+}
 
-	return policiesConns, true, nil
+// updateClusterWideExposureResultFromANP updates the cluster-wide exposure result of a pod from given (B)ANP exposure info
+func updateClusterWideExposureResultFromANP(exposureResult *policiesLayerXgressConns,
+	xgressPolicyExposure k8s.PolicyExposureWithoutSelectors) {
+	if !xgressPolicyExposure.ClusterWideExposure.IsEmpty() {
+		exposureResult.isCaptured = true
+		exposureResult.layerConns.CollectANPConns(xgressPolicyExposure.ClusterWideExposure)
+	}
 }
 
 // analyzing baseline-admin-network-policy for conns between peers (object kind == BaselineAdminNetworkPolicy):
@@ -497,41 +596,62 @@ func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer
 // considering the existence of a baseline-admin-network-policy
 // if there is a BANP in the input resources, it is analyzed; if it captures xgress conns between src and dst,
 // then the captured conns are returned.
-// if there is no BANP or if the BANP does not capture connections between src and dst, then default allow-all connections is returned.
-// - note that the result may contain allowed / denied connections.
-func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool) (*k8s.PolicyConnections, error) {
-	res := k8s.NewPolicyConnections()
+// if there is no BANP in the policy-engine, then default allow-all connections is returned.
+// in case of exposure-analysis: returns default connections also between src and entire-cluster
+// on egress / dst and entire-cluster on ingress.
+// - note that the results may contain allowed / denied connections.
+func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool) (defaultConns,
+	exposureConns *policiesLayerXgressConns, err error) {
+	// the "layerConns" field of defaultConns and exposureConns is updated with system-default conns also
+	// if banp does not exist/ does not capture the peers.
+	defaultConns = initEmptyPoliciesLayerXgressConns()  // result of allowed conns between the src and dst
+	exposureConns = initEmptyPoliciesLayerXgressConns() // result of cluster wide exposure of selected pod
 	if pe.baselineAdminNetpol == nil {
-		res.AllowedConns = common.MakeConnectionSet(true)
-		return res, nil
+		exposureConns.layerConns.AllowedConns = common.MakeConnectionSet(true)
+		defaultConns.layerConns.AllowedConns = common.MakeConnectionSet(true)
+		return defaultConns, exposureConns, nil
 	}
+	banpConns := k8s.NewPolicyConnections()
 	if isIngress { // ingress
 		selectsDst, err := pe.baselineAdminNetpol.Selects(dst, true)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		// if the banp selects the dst on ingress, get ingress conns
 		if selectsDst {
-			res, err = pe.baselineAdminNetpol.GetIngressPolicyConns(src, dst)
+			banpConns, err = pe.baselineAdminNetpol.GetIngressPolicyConns(src, dst)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
+			}
+			if pe.exposureAnalysisFlag {
+				// if exposure-analysis is on, update also the exposure of the dst from all namespaces on ingress
+				// if it is captured by current policy
+				dst.GetPeerPod().UpdatePodXgressProtectedFlag(true)
+				updateClusterWideExposureResultFromANP(exposureConns, pe.baselineAdminNetpol.IngressPolicyExposure)
 			}
 		}
 	} else { // egress (!isIngress)
 		selectsSrc, err := pe.baselineAdminNetpol.Selects(src, false)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		// if the banp selects the src on egress, get egress conns
 		if selectsSrc {
-			res, err = pe.baselineAdminNetpol.GetEgressPolicyConns(dst)
+			banpConns, err = pe.baselineAdminNetpol.GetEgressPolicyConns(dst)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
+			}
+			// if exposure-analysis is on, update also the exposure of the src to all namespaces on egress
+			// if it is captured by current policy
+			if pe.exposureAnalysisFlag {
+				src.GetPeerPod().UpdatePodXgressProtectedFlag(false)
+				updateClusterWideExposureResultFromANP(exposureConns, pe.baselineAdminNetpol.EgressPolicyExposure)
 			}
 		}
 	}
-	if res.IsEmpty() { // banp rules didn't capture xgress conn between src and dst, return system-default: allow-all
-		res.AllowedConns = common.MakeConnectionSet(true)
-	}
-	return res, nil
+	defaultConns.layerConns = banpConns
+	// note that if the BANP did not capture the connection (i.e. banpConns / exposureConns.layerConns is empty);
+	// then when collecting the result later, any connection that is not determined by the ANP will be
+	// allow-all by default (i.e empty conns are handled in policy_connections.CollectConnsFromBANP)
+	return defaultConns, exposureConns, nil
 }
