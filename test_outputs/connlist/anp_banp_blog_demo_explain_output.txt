@@ -1,3 +1,28 @@
+
+#####################################
+# All Connections and thier reasons #
+#####################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN monitoring/mymonitoring[Pod] => baz/mybaz[Pod]:
+
+All Connections due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [ANP] allow-monitoring // Ingress rule allow-ingress-from-monitoring (Allow)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
+
+All Connections due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring (Pass)
+		2) [NP] foo/allow-monitoring // Ingress rule #1
+
+
+####################################
+# No Connections and their reasons #
+####################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => foo/myfoo[Pod]:
 
@@ -47,25 +72,10 @@ No Connections due to the following policies // rules:
 		1) [ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring (Pass)
 		2) [BANP] default // Ingress rule deny-ingress-from-all-namespaces (Deny)
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN monitoring/mymonitoring[Pod] => baz/mybaz[Pod]:
 
-All Connections due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (ALLOWED)
-		1) [ANP] allow-monitoring // Ingress rule allow-ingress-from-monitoring (Allow)
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
-
-All Connections due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (ALLOWED)
-		1) [ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring (Pass)
-		2) [NP] foo/allow-monitoring // Ingress rule #1
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-The following nodes are connected due to the system default (Allow all):
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
 0.0.0.0-255.255.255.255 => bar/mybar[Pod]
 0.0.0.0-255.255.255.255 => baz/mybaz[Pod]
 0.0.0.0-255.255.255.255 => monitoring/mymonitoring[Pod]

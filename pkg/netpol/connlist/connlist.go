@@ -384,6 +384,10 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 	return c.protocolsAndPorts
 }
 
+func (c *connection) OnlyCommonRules() bool {
+	return len(c.protocolsAndPorts) == 0 && !c.commonImplyingRules.Empty()
+}
+
 func (c *connection) OnlyDefaultRule() bool {
 	return c.allConnections && len(c.protocolsAndPorts) == 0 && c.commonImplyingRules.OnlyDefaultRule()
 }

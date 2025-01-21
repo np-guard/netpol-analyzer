@@ -1,25 +1,13 @@
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN ns1/pod1[Deployment] => 104.154.164.160-104.154.164.160:
 
-No Connections due to the following policies // rules:
-	EGRESS DIRECTION (DENIED)
-		1) [ANP] egress-peer-1 // Egress rule deny-egress (Deny)
-	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-
+#####################################
+# All Connections and thier reasons #
+#####################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ns1/pod1[Deployment] => 104.154.164.170-104.154.164.170:
 
 All Connections due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [ANP] egress-peer-1 // Egress rule allow-egress (Allow)
-	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN ns1/pod1[Deployment] => ns2/pod1[Deployment]:
-
-No Connections due to the following policies // rules:
-	EGRESS DIRECTION (DENIED)
-		1) [ANP] egress-peer-1 // Egress rule deny-egress (Deny)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -30,8 +18,30 @@ All Connections due to the following policies // rules:
 		1) [ANP] egress-peer-1 // Egress rule allow-egress (Allow)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
+
+####################################
+# No Connections and their reasons #
+####################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-The following nodes are connected due to the system default (Allow all):
+CONNECTIONS BETWEEN ns1/pod1[Deployment] => 104.154.164.160-104.154.164.160:
+
+No Connections due to the following policies // rules:
+	EGRESS DIRECTION (DENIED)
+		1) [ANP] egress-peer-1 // Egress rule deny-egress (Deny)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN ns1/pod1[Deployment] => ns2/pod1[Deployment]:
+
+No Connections due to the following policies // rules:
+	EGRESS DIRECTION (DENIED)
+		1) [ANP] egress-peer-1 // Egress rule deny-egress (Deny)
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
 0.0.0.0-255.255.255.255 => ns1/pod1[Deployment]
 0.0.0.0-255.255.255.255 => ns2/pod1[Deployment]
 0.0.0.0-255.255.255.255 => ns3/pod1[Deployment]

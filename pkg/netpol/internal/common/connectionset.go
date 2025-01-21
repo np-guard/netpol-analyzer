@@ -276,9 +276,9 @@ func (conn *ConnectionSet) AddConnection(protocol v1.Protocol, ports *PortSet) {
 // String returns a string representation of the ConnectionSet object
 func (conn *ConnectionSet) String() string {
 	if conn.AllowAll {
-		return allConnsStr
+		return AllConnsStr
 	} else if conn.IsEmpty() {
-		return noConnsStr
+		return NoConnsStr
 	}
 	resStrings := []string{}
 	for protocol, ports := range conn.AllowedProtocols {
@@ -415,17 +415,17 @@ func (conn *ConnectionSet) IsAllConnections() bool {
 
 const (
 	connsAndPortRangeSeparator = ","
-	allConnsStr                = "All Connections"
-	noConnsStr                 = "No Connections"
+	AllConnsStr                = "All Connections"
+	NoConnsStr                 = "No Connections"
 	allPortsStr                = "ALL PORTS"
 )
 
 func ConnStrFromConnProperties(allProtocolsAndPorts bool, protocolsAndPorts map[v1.Protocol][]PortRange) string {
 	if allProtocolsAndPorts {
-		return allConnsStr
+		return AllConnsStr
 	}
 	if len(protocolsAndPorts) == 0 {
-		return noConnsStr
+		return NoConnsStr
 	}
 	var connStr string
 	// connStrings will contain the string of given conns protocols and ports as is
@@ -503,9 +503,9 @@ func isWholeRange(ports []PortRange) bool {
 func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRules ImplyingRulesType,
 	protocolsAndPorts map[v1.Protocol][]PortRange) string {
 	if len(protocolsAndPorts) == 0 {
-		connStr := noConnsStr
+		connStr := NoConnsStr
 		if allProtocolsAndPorts {
-			connStr = allConnsStr
+			connStr = AllConnsStr
 		}
 		return connStr + commonImplyingRules.String()
 	}

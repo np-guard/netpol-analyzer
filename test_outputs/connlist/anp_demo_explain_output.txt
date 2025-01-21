@@ -1,19 +1,29 @@
+
+#####################################
+# All Connections and thier reasons #
+#####################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => gryffindor/harry-potter[StatefulSet]:
+CONNECTIONS BETWEEN slytherin/draco-malfoy[StatefulSet] => gryffindor/harry-potter[StatefulSet]:
 
-No Connections due to the following policies // rules:
+All Connections due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (DENIED)
-		1) [NP] gryffindor/allow-some-ingress-from-to-slytherin-to-gryffindor // Ingress (captured but not selected by any Ingress rule)
+	INGRESS DIRECTION (ALLOWED)
+		1) [ANP] anp-priority-10 // Ingress rule pass-all-ingress-from-slytherin (Pass)
+		2) [NP] gryffindor/allow-some-ingress-from-to-slytherin-to-gryffindor // Ingress rule #1
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => ravenclaw/luna-lovegood[StatefulSet]:
+CONNECTIONS BETWEEN slytherin/draco-malfoy[StatefulSet] => hufflepuff/cedric-diggory[StatefulSet]:
 
-No Connections due to the following policies // rules:
+All Connections due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (DENIED)
-		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw // Ingress (captured but not selected by any Ingress rule)
+	INGRESS DIRECTION (ALLOWED)
+		1) [ANP] ingress-to-hufflepuff // Ingress rule pass-from-slytherin (Pass)
+		2) the system default (Allow all)
 
+
+##########################################
+# Specific connections and their reasons #
+##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN gryffindor/harry-potter[StatefulSet] => hufflepuff/cedric-diggory[StatefulSet]:
 
@@ -132,6 +142,44 @@ DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 		1) [ANP] gress-rules-gryffindor // Ingress rule deny-from-hufflepuff-everything-else (Deny)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN slytherin/draco-malfoy[StatefulSet] => ravenclaw/luna-lovegood[StatefulSet]:
+
+ALLOWED TCP:[1-79,81-65535] due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw // Ingress rule #1
+
+DENIED TCP:[80] due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [ANP] ingress-to-ravenclaw // Ingress rule deny-from-slytherin-at-port-80 (Deny)
+
+DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw // Ingress rule #1 (protocols not referenced by the rule)
+
+
+####################################
+# No Connections and their reasons #
+####################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => gryffindor/harry-potter[StatefulSet]:
+
+No Connections due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] gryffindor/allow-some-ingress-from-to-slytherin-to-gryffindor // Ingress (captured but not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => ravenclaw/luna-lovegood[StatefulSet]:
+
+No Connections due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw // Ingress (captured but not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN hufflepuff/cedric-diggory[StatefulSet] => ravenclaw/luna-lovegood[StatefulSet]:
 
 No Connections due to the following policies // rules:
@@ -180,44 +228,10 @@ No Connections due to the following policies // rules:
 		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN slytherin/draco-malfoy[StatefulSet] => gryffindor/harry-potter[StatefulSet]:
 
-All Connections due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (ALLOWED)
-		1) [ANP] anp-priority-10 // Ingress rule pass-all-ingress-from-slytherin (Pass)
-		2) [NP] gryffindor/allow-some-ingress-from-to-slytherin-to-gryffindor // Ingress rule #1
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN slytherin/draco-malfoy[StatefulSet] => hufflepuff/cedric-diggory[StatefulSet]:
-
-All Connections due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (ALLOWED)
-		1) [ANP] ingress-to-hufflepuff // Ingress rule pass-from-slytherin (Pass)
-		2) the system default (Allow all)
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN slytherin/draco-malfoy[StatefulSet] => ravenclaw/luna-lovegood[StatefulSet]:
-
-ALLOWED TCP:[1-79,81-65535] due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (ALLOWED)
-		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw // Ingress rule #1
-
-DENIED TCP:[80] due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (DENIED)
-		1) [ANP] ingress-to-ravenclaw // Ingress rule deny-from-slytherin-at-port-80 (Deny)
-
-DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (DENIED)
-		1) [NP] ravenclaw/allow-some-ingress-from-to-ravenclaw // Ingress rule #1 (protocols not referenced by the rule)
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-The following nodes are connected due to the system default (Allow all):
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
 0.0.0.0-255.255.255.255 => hufflepuff/cedric-diggory[StatefulSet]
 0.0.0.0-255.255.255.255 => slytherin/draco-malfoy[StatefulSet]
 gryffindor/harry-potter[StatefulSet] => 0.0.0.0-255.255.255.255

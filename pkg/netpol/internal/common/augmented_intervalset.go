@@ -183,11 +183,8 @@ func (rules *ImplyingXgressRulesType) Empty() bool {
 	return len(rules.Rules) == 0
 }
 
-func (rules ImplyingRulesType) Empty(isIngress bool) bool {
-	if isIngress {
-		return rules.Ingress.Empty()
-	}
-	return rules.Egress.Empty()
+func (rules ImplyingRulesType) Empty() bool {
+	return rules.Ingress.Empty() && rules.Egress.Empty()
 }
 
 func (rules *ImplyingXgressRulesType) AddXgressRule(ruleName string, ruleLayer LayerType) {

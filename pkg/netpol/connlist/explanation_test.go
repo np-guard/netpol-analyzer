@@ -79,9 +79,21 @@ var explainTests = []struct {
 		testDirName: "ipblockstest",
 	},
 	{
+		testDirName: "k8s_ingress_test_new",
+	},
+	{
+		testDirName: "multiple_ingress_objects_with_different_ports_new",
+	},
+	{
+		testDirName: "multiple_topology_resources_2",
+	},
+	{
 		testDirName: "netpol_named_port_test",
 	},
 	{
 		testDirName: "onlineboutique",
+	},
+	{
+		testDirName: "new_online_boutique",
 	},
 }

@@ -1,3 +1,7 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => helloworld/hello-world[Deployment]:
 
@@ -37,8 +41,10 @@ DENIED TCP:[1-8059,8061-65535] the system default (Allow all)
 
 DENIED {SCTP,UDP}:[ALL PORTS] the system default (Allow all)
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-The following nodes are connected due to the system default (Allow all):
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
 0.0.0.0-255.255.255.255 => helloworld/hello-world[Deployment]
 0.0.0.0-255.255.255.255 => ingressworld/ingress-world[Deployment]
 0.0.0.0-255.255.255.255 => routeworld/route-world[Deployment]

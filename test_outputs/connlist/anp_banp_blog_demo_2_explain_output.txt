@@ -1,27 +1,7 @@
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => foo/myfoo[Pod]:
 
-No Connections due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (DENIED)
-		1) [NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN bar/mybar[Pod] => foo/myfoo[Pod]:
-
-No Connections due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (DENIED)
-		1) [NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN baz/mybaz[Pod] => foo/myfoo[Pod]:
-
-No Connections due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (DENIED)
-		1) [NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
-
+##########################################
+# Specific connections and their reasons #
+##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN monitoring/mymonitoring[Pod] => bar/mybar[Pod]:
 
@@ -81,8 +61,38 @@ ALLOWED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] foo/allow-monitoring // Ingress rule #1
 
+
+####################################
+# No Connections and their reasons #
+####################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-The following nodes are connected due to the system default (Allow all):
+CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => foo/myfoo[Pod]:
+
+No Connections due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN bar/mybar[Pod] => foo/myfoo[Pod]:
+
+No Connections due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN baz/mybaz[Pod] => foo/myfoo[Pod]:
+
+No Connections due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
+
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
 0.0.0.0-255.255.255.255 => bar/mybar[Pod]
 0.0.0.0-255.255.255.255 => baz/mybaz[Pod]
 0.0.0.0-255.255.255.255 => monitoring/mymonitoring[Pod]

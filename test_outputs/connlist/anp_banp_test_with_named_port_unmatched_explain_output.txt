@@ -1,3 +1,7 @@
+
+####################################
+# No Connections and their reasons #
+####################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN network-policy-conformance-gryffindor/harry-potter[StatefulSet] => network-policy-conformance-slytherin/draco-malfoy[StatefulSet]:
 
@@ -16,8 +20,10 @@ No Connections due to the following policies // rules:
 		1) [ANP] pass-example // Ingress rule pass-all-ingress-from-slytherin (Pass)
 		2) [BANP] default // Ingress rule deny-all-ingress-from-slytherin (Deny)
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-The following nodes are connected due to the system default (Allow all):
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
 0.0.0.0-255.255.255.255 => network-policy-conformance-gryffindor/harry-potter[StatefulSet]
 0.0.0.0-255.255.255.255 => network-policy-conformance-slytherin/draco-malfoy[StatefulSet]
 network-policy-conformance-gryffindor/harry-potter[StatefulSet] => 0.0.0.0-255.255.255.255

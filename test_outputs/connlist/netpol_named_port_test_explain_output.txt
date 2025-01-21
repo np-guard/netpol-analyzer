@@ -1,3 +1,7 @@
+
+####################################
+# No Connections and their reasons #
+####################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => helloworld/pod-a[Deployment]:
 
@@ -30,7 +34,9 @@ No Connections due to the following policies // rules:
 		1) [NP] helloworld/enable-ingress-from-named-port // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-The following nodes are connected due to the system default (Allow all):
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
 0.0.0.0-255.255.255.255 => helloworld/new-pod[Deployment]
 helloworld/new-pod[Deployment] => 0.0.0.0-255.255.255.255

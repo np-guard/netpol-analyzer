@@ -9,6 +9,7 @@ package connlist
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -37,13 +38,21 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool) string {
 	connLines := make([]singleConnFields, 0, len(conns))
 	defaultConnLines := make([]singleConnFields, 0, len(conns))
+	allConnLines := make([]singleConnFields, 0, len(conns))
+	noConnLines := make([]singleConnFields, 0, len(conns))
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
 		p2pConn := formSingleP2PConn(conns[i], explain)
 		if explain {
 			// when running with explanation, we print system default connections at the end
-			if conns[i].(*connection).OnlyDefaultRule() {
-				defaultConnLines = append(defaultConnLines, p2pConn)
+			if conns[i].(*connection).OnlyCommonRules() {
+				if conns[i].(*connection).OnlyDefaultRule() {
+					defaultConnLines = append(defaultConnLines, p2pConn)
+				} else if conns[i].(*connection).AllProtocolsAndPorts() {
+					allConnLines = append(allConnLines, p2pConn)
+				} else {
+					noConnLines = append(noConnLines, p2pConn)
+				}
 			} else {
 				connLines = append(connLines, p2pConn)
 			}
@@ -55,14 +64,18 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 			t.ipMaps.saveConnsWithIPs(conns[i], explain)
 		}
 	}
-	sortConnFields(connLines, true)
-	if explain {
-		sortConnFields(defaultConnLines, true)
-	}
 	result := ""
 	if explain {
-		result = writeExplanationOutput(connLines, defaultConnLines)
+		sortConnFields(connLines, true)
+		sortConnFields(defaultConnLines, true)
+		sortConnFields(allConnLines, true)
+		sortConnFields(noConnLines, true)
+		result = writeSingleTypeLinesExplanationOutput(allConnLines, allConnHeader, false) +
+			writeSingleTypeLinesExplanationOutput(connLines, specificConnHeader, false) +
+			writeSingleTypeLinesExplanationOutput(noConnLines, noConnHeader, false) +
+			writeSingleTypeLinesExplanationOutput(defaultConnLines, systemDefaultPairsHeader, true)
 	} else {
+		sortConnFields(connLines, true)
 		for _, p2pConn := range connLines {
 			result += p2pConn.string() + newLineChar
 		}
@@ -70,18 +83,26 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 	return result
 }
 
-func writeExplanationOutput(connLines, defaultConnLines []singleConnFields) string {
-	result := ""
-	for _, p2pConn := range connLines {
-		result += nodePairSeparationLine
-		result += p2pConn.stringWithExplanation() + newLineChar
+func writeSingleTypeLinesExplanationOutput(lines []singleConnFields, header string, pairsOnly bool) string {
+	if len(lines) == 0 {
+		return ""
 	}
-	if len(defaultConnLines) > 0 {
-		result += nodePairSeparationLine + systemDefaultPairsHeader
-		for _, p2pConn := range defaultConnLines {
+	result := writeGroupHeader(header)
+	for _, p2pConn := range lines {
+		if pairsOnly {
 			result += p2pConn.nodePairString() + newLineChar
+		} else {
+			result += nodePairSeparationLine
+			result += p2pConn.stringWithExplanation() + newLineChar
 		}
 	}
+	return result
+}
+
+func writeGroupHeader(header string) string {
+	result := newLineChar + strings.Repeat("#", len(header)+4) + newLineChar
+	result += "# " + header + " #"
+	result += newLineChar + strings.Repeat("#", len(header)+4) + newLineChar
 	return result
 }
 
@@ -89,7 +110,10 @@ const (
 	unprotectedHeader        = "\nWorkloads not protected by network policies:\n"
 	separationLine80         = "--------------------------------------------------------------------------------"
 	nodePairSeparationLine   = separationLine80 + separationLine80 + common.NewLine
-	systemDefaultPairsHeader = "The following nodes are connected due to " + common.SystemDefaultRule + ":\n"
+	systemDefaultPairsHeader = common.AllConnsStr + " due to " + common.SystemDefaultRule
+	allConnHeader            = common.AllConnsStr + " and thier reasons"
+	noConnHeader             = common.NoConnsStr + " and their reasons"
+	specificConnHeader       = "Specific connections and their reasons"
 )
 
 // writeExposureOutput writes the section of the exposure-analysis result
