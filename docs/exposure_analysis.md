@@ -8,6 +8,10 @@ It does not take into account potential permitted connectivity to workload entit
 The goal of exposure analysis, is to provide this additional information of potential permitted connectivity.
 The report can give hints to where network policies may be tightened, or help validate that no unexpected exposure is present due to policies misconfiguration. 
 
+Notice that when a real workload is exposed to all namespaces (cluster wide exposure), the results are not provided in the resolution of peers.
+A cluster wide connection, i.e. `entire-cluster` may implicitly exclude one or more peers; if there is at least one prior rule in an AdminNetworkPolicy that might except those peers from the cluster wide exposure. 
+For an example [see relevant example](#example-of-exposure-on-all-cluster-namespaces-but-one-representative-peer) below.
+
 The exposure analysis is supported for all output formats of the `list` command. 
 To run exposure analysis, just run the `list` command with the additional `--exposure` flag. 
 
@@ -529,3 +533,96 @@ hello-world/workload-a[Deployment] is not protected on Egress
 ```
 #### Graphical Result:
 ![svg graph](graphs/exposure_test_conn_with_pod_selector_in_any_ns.svg)
+
+### Example of exposure on all cluster namespaces but one representative peer
+
+In the example below, `workload-a` is exposed to all namespaces with all connections, except for TCP-9090 connections to peers in a namespace with labels `conformance-house: slytherin`; because there is a deny rule in the AdminNetworkPolicy which is prior to the Allow to all namespaces rule.
+
+From the output, we see that the `entire-cluster` implicitly exclude the peers in a namespace with labels `conformance-house: slytherin`
+
+#### Input Manifests:
+Namespaces and Pods:
+```
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hello-world
+spec: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-a
+  namespace: hello-world
+  labels:
+    app: a-app
+spec:
+  selector:
+    matchLabels:
+      app: a-app
+  template:
+    metadata:
+      labels:
+        app: a-app
+    spec:
+      containers:
+      - name: hello-world
+        image: quay.io/shfa/hello-world:latest
+        ports:
+        - containerPort: 8000  # containerport1
+        - containerPort: 8050  # containerport2
+        - containerPort: 8090  # containerport3
+```
+Policies:
+```
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-deny-peer-allow-entire-cluster-all-conns
+spec:
+  priority: 10
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: a-app
+  egress:
+  - name: "deny-TCP9090-egress-to-slytherin" 
+    action: "Deny" 
+    to:
+    - namespaces:
+        matchLabels:
+            conformance-house: slytherin
+    ports:
+    - portNumber:
+        port: 9090
+        protocol: TCP    
+  - name: "allow-all-to-entire-cluster"
+    action: "Allow"
+    to:
+    - namespaces: {}
+```
+#### Textual Result:
+```
+0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment] : All Connections
+hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+
+Exposure Analysis Result:
+Egress Exposure:
+hello-world/workload-a[Deployment]      =>      0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-a[Deployment]      =>      [namespace with {conformance-house=slytherin}]/[all pods] : SCTP 1-65535,TCP 1-9089,9091-65535,UDP 1-65535
+hello-world/workload-a[Deployment]      =>      entire-cluster : All Connections
+
+Ingress Exposure:
+hello-world/workload-a[Deployment]      <=      0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-a[Deployment]      <=      entire-cluster : All Connections
+
+Workloads not protected by network policies:
+hello-world/workload-a[Deployment] is not protected on Ingress
+```
+#### Graphical Result:
+![svg graph](graphs/exposure_test_conn_with_implicit_peer_exclude.svg)

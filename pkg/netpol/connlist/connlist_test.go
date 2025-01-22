@@ -1663,6 +1663,17 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
+	{
+		// AdminNetworkPolicy: with a prior deny rule that denies TCP9090 to a representative-peer; and another rule
+		// that allows all conns to entire cluster.
+		// in the output we see exposure to the representative peer on all conns but TCP9090
+		// and also we see that the peer is exposed to entire-cluster on all conns
+		// this example shows that the output is not defined in peers resolution and the `entire-cluster` may implicitly
+		// exclude some peers in the cluster.
+		testDirName:      "exposure_test_with_anp_8",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {
