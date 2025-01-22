@@ -1674,6 +1674,33 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
+	{
+		// AdminNetworkPolicy: with a prior deny rule that denies all conns to a real-peer; and another rule
+		// that allows all conns to entire cluster.
+		// in the connlist output we see that there is no connection from hello-world/workload-a to hello-world/workload-b
+		// since its denied by egress ANP
+		// and in the exposure output we see that the peer is exposed on egress to entire-cluster on all conns
+		// in the graph this is clear that there is no conns between the real-peers
+		// this example shows that the output is not defined in peers resolution and the `entire-cluster` may implicitly
+		// exclude some peers in the cluster (in this case a real-peer).
+		testDirName:      "exposure_test_with_anp_10_with_real_pod",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
+	{
+		// AdminNetworkPolicy: with a prior deny rule that denies all conns to a representative-peer; and another rule
+		// that allows all conns to entire cluster.
+		// in the exposure output we see:
+		// 1. there is No Connections from hello-world/workload-a to the representative-peer
+		// 2. that the peer is exposed on egress to entire-cluster on all conns
+		// this example shows that the output is not defined in peers resolution and the `entire-cluster` may implicitly
+		// exclude some peers in the cluster
+		// in this case a representative-peer - the output with No Connections, was added to help the user see that
+		// it is excluded from entire-cluster
+		testDirName:      "exposure_test_with_anp_9",
+		exposureAnalysis: true,
+		outputFormats:    ValidFormats,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

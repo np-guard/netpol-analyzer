@@ -1,0 +1,25 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-deny-peer-allow-entire-cluster-all-conns
+spec:
+  priority: 10
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: a-app
+  egress:
+  - name: "deny-all-egress-to-slytherin" 
+    action: "Deny" 
+    to:
+    - namespaces:
+        matchLabels:
+            conformance-house: slytherin
+  - name: "allow-all-to-entire-cluster"
+    action: "Allow"
+    to:
+    - namespaces: {}

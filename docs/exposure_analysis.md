@@ -8,8 +8,13 @@ It does not take into account potential permitted connectivity to workload entit
 The goal of exposure analysis, is to provide this additional information of potential permitted connectivity.
 The report can give hints to where network policies may be tightened, or help validate that no unexpected exposure is present due to policies misconfiguration. 
 
-Notice that when a real workload is exposed to all namespaces (cluster wide exposure), the results are not provided in the resolution of peers.
-A cluster wide connection, i.e. `entire-cluster` may implicitly exclude one or more peers; if there is at least one prior rule in an AdminNetworkPolicy that might except those peers from the cluster wide exposure. 
+Output Notes:
+
+- When a real workload is exposed to all namespaces (cluster wide exposure), the results are not provided in the resolution of peers;
+A cluster wide connection, i.e. `entire-cluster` may implicitly exclude one or more peers; if there is at least one prior rule in an AdminNetworkPolicy that might except those peers from the cluster wide exposure.
+  * if the excluded peer is a real peer too, this is displayed in the connlist output.
+  * if the excluded peer is a representative-peer; the precise connection with this representative (or `No connections` if it is blocked) is displayed in the exposure output.
+
 For an example [see relevant example](#example-of-exposure-on-all-cluster-namespaces-but-one-representative-peer) below.
 
 The exposure analysis is supported for all output formats of the `list` command. 

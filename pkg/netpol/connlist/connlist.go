@@ -609,8 +609,8 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, sr
 					return nil, nil, err
 				}
 			}
-			// skip empty connections
-			if allowedConnections.IsEmpty() {
+			// skip empty connections unless one of the peers is representative
+			if allowedConnections.IsEmpty() && !(pe.IsRepresentativePeer(srcPeer) || pe.IsRepresentativePeer(dstPeer)) {
 				continue
 			}
 			p2pConnection, err := ca.getP2PConnOrUpdateExposureConn(pe, allowedConnections, srcPeer, dstPeer, exposureMaps)

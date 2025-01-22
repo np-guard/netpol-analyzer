@@ -123,14 +123,24 @@ func (ex *exposureMaps) addConnToExposureMap(pe *eval.PolicyEngine, allowedConne
 	if !ok { // should not get here
 		return errors.New(netpolerrors.ConversionToConnectionSetErr)
 	}
-	// check if the connection equals an entire cluster connection; if yes skip; if not store the connection data
-	contained, err := connectionEqualsEntireClusterConn(pe, peer, allowedConnSet, isIngress)
+	// check if the peer is exposed to entire-cluster and if connection equals the entire cluster connection;
+	equals, isExposed, err := connectionEqualsEntireClusterConn(pe, peer, allowedConnSet, isIngress)
 	if err != nil {
 		return err
 	}
-	if contained {
+	// skip if:
+	// 1. the allowed connection between the real peer and the representative-peer equals the connection to entire-cluster (containment)
+	// 2. if the peer is not exposed to entire-cluster and there is no connection between the peer and representative-peer (no exposure)
+	if equals || (!isExposed && allowedConnSet.IsEmpty()) {
 		return nil // skip
 	}
+
+	// add entry to exposure map if:
+	// 1. the allowed connection between the real peer and representative peer is not empty (and not covered by
+	// entire-cluster conn) - exposure case
+	// 2. if the connection is empty (no conns) and the peer is exposed to entire-cluster - add this empty connection to the exposure map
+	// to tell that this representative peer is excluded from `entire-cluster` connection
+
 	// the peer is protected, check if peer is in the relevant map; if not initialize a new entry
 	ex.addNewEntry(peer, true, isIngress)
 
@@ -151,24 +161,27 @@ func (ex *exposureMaps) addConnToExposureMap(pe *eval.PolicyEngine, allowedConne
 
 // connectionEqualsEntireClusterConn gets a connectionSet between a representative peer and
 // a given workload peer (existing in the parsed resources),
-// and returns whether the given connectionSet equals the peer's exposure to entire cluster
+// and returns :
+// 1. whether the given connectionSet equals the peer's exposure to entire cluster
 // on the given direction (ingress/egress), or not.
-// * if the peer is not exposed to entire cluster on the given direction: return false
+// 2. whether the peer is exposed to entire-cluster (not-empty connection)
+// * if the peer is not exposed to entire cluster on the given direction: return false, false
 // * if the peer is exposed to entire cluster on given direction: return whether the given conn equals
-// the entire cluster exposed conn (which is the max exposure conn)
-func connectionEqualsEntireClusterConn(pe *eval.PolicyEngine, peer Peer, conns *common.ConnectionSet, isIngress bool) (bool, error) {
+// the entire cluster exposed conn (which is the max exposure conn) and true as isExposed (peer is exposed to entire cluster)
+func connectionEqualsEntireClusterConn(pe *eval.PolicyEngine, peer Peer, conns *common.ConnectionSet,
+	isIngress bool) (equals, isExposed bool, err error) {
 	generalConn, err := pe.GetPeerXgressEntireClusterConn(peer, isIngress)
 	if err != nil {
-		return false, err
+		return false, false, err
 	}
 	if generalConn.IsEmpty() {
 		// not exposed to entire cluster on this direction
-		return false, nil
+		return false, false, nil
 	}
 	// The conns to a rep. peer should be equal to the entire-cluster's conns, in-order to not be added as
 	// a separate entry in the exposure-map.
 	// since with AdminNetworkPolicy we might see that a connection to representative peers is containedIn the entire-cluster
 	// connection but excludes some ports within a deny rule with higher-priority.
 	// see as example the output of tests/exposure_test_with_anp_8
-	return conns.Equal(generalConn), nil
+	return conns.Equal(generalConn), true, nil
 }
