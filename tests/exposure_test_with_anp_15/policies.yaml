@@ -1,0 +1,137 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-example-15
+spec:
+  priority: 10
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: a-app
+  egress:
+  - name: "allow-some-to-all-pods-in-same-ns"
+    action: "Allow"
+    to:
+    - pods:
+        namespaceSelector: 
+          matchLabels:
+            kubernetes.io/metadata.name: hello-world          
+    ports:
+    - portNumber:
+        port: 9090
+        protocol: TCP    
+  ingress:
+  - name: "allow-some-from-pods-in-same-namespace"
+    action: "Allow"
+    from:
+    - pods:
+        namespaceSelector: 
+          matchLabels:
+            kubernetes.io/metadata.name: hello-world
+    ports:
+    - portNumber:
+        port: 9090
+        protocol: TCP
+---
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-example-15-b
+spec:
+  priority: 100
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: a-app
+  egress:
+  - name: "deny-all-to-all-pods-in-same-ns"
+    action: "Deny"
+    to:
+    - pods:
+        namespaceSelector: 
+          matchLabels:
+            kubernetes.io/metadata.name: hello-world          
+  ingress:
+  - name: "deny-all-from-pods-in-same-namespace"
+    action: "Deny"
+    from:
+    - pods:
+        namespaceSelector: 
+          matchLabels:
+            kubernetes.io/metadata.name: hello-world
+---
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-example-15-c
+spec:
+  priority: 25
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+  egress:
+  - name: "pass-some-to-labeled-pods-in-labeled-ns"
+    action: "Pass"
+    to:
+    - pods:
+        namespaceSelector: 
+          matchLabels:
+            kubernetes.io/metadata.name: new-ns
+        podSelector:
+          matchLabels:
+            app: new-app
+    ports:
+    - portNumber: 
+        port: 53
+        protocol: UDP
+  - name: "allow-some-to-labeled-pods-in-labeled-ns"
+    action: "Allow"
+    to:
+    - pods:
+        namespaceSelector: 
+          matchLabels:
+            kubernetes.io/metadata.name: new-ns
+        podSelector:
+          matchLabels:
+            app: new-app
+    ports:
+    - portNumber:
+        port: 58
+        protocol: UDP         
+---
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-example-15-default-deny
+spec:
+  priority: 200
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: a-app
+  egress:
+  - name: "deny-all-to-entire-cluster"
+    action: "Deny"
+    to:
+    - pods:
+        namespaceSelector: {}          
+  ingress:
+  - name: "deny-all-from-entire-cluster"
+    action: "Deny"
+    from:
+    - pods:
+        namespaceSelector: {}

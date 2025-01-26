@@ -1713,6 +1713,34 @@ var goodPathTests = []struct {
 		outputFormats:    []string{output.DefaultFormat},
 		exposureAnalysis: true,
 	},
+	{
+		// AdminNetworkPolicy : exposes the hello-world/workload-a to other hello-world pods on TCP9090 on egress and ingress
+		// BaselineAdminNetworkPolicy: denies TCP9090 on egress and ingress between hello-world/workload-a and entire-cluster
+		// Output: internal conns with hello-world/workload-a is allowed on all conns but TCP9090, except for pods
+		// in hello-world, where all conns are allowed
+		testDirName:      "exposure_test_with_anp_12",
+		outputFormats:    []string{output.DefaultFormat},
+		exposureAnalysis: true,
+	},
+	{
+		// exposure test with ANP and BANP with rules matching existing peers and
+		// rules not matching existing peers
+		testDirName:      "exposure_test_with_anp_13",
+		outputFormats:    ValidFormats,
+		exposureAnalysis: true,
+	},
+	{
+		// exposure test with ANP and BANP with matchExpressions (different order in the rule, but same)
+		testDirName:      "exposure_test_with_anp_14",
+		outputFormats:    ValidFormats,
+		exposureAnalysis: true,
+	},
+	{
+		// exposure test with multiple ANPs
+		testDirName:      "exposure_test_with_anp_15",
+		outputFormats:    []string{output.DefaultFormat},
+		exposureAnalysis: true,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {
