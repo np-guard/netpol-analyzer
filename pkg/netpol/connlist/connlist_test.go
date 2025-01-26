@@ -1701,6 +1701,18 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		outputFormats:    ValidFormats,
 	},
+	{
+		// AdminNetworkPolicy : exposes the hello-world/workload-a to entire-cluster on namedPort on both ingress and egress
+		// NetworkPolicy denies all on hello-world/workload-a (so is exposed only to the named-ports from ANP)
+		// Note that: A rule with NamedPort of ANP does not specify the protocol; protocol is determined by the destination's configuration
+		// On the ingress exposure output, since the dst is hello-world/workload-a itself, the namedPort is converted
+		// according to the pod's configuration
+		// but on egress exposure, we see that the potential is to the namedPort (protocol may be any)
+		// In the connlist output - we see how the named-port is determined by the dest's configuration
+		testDirName:      "exposure_test_with_anp_11_with_named_port",
+		outputFormats:    []string{output.DefaultFormat},
+		exposureAnalysis: true,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

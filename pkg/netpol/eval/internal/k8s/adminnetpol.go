@@ -448,8 +448,12 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common
 			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port))
 		case anpPort.NamedPort != nil:
 			if dst == nil || isPeerRepresentative(dst) {
-				// if dst is nil or representative: named port is added to the conns set as is
+				// if dst is nil or representative: named port is added to the conns without conversion.
+				// the protocol of a named port of an ANP rule is depending on the pod's configuration.
+				// since, we have no indication of a "representative-peer" configuration, this namedPort is added as a potential
+				// exposure without protocol ("").
 				portSet.AddPort(intstr.FromString(*anpPort.NamedPort))
+				res.AddConnection("", portSet)
 				continue
 			}
 			if dst.PeerType() == IPBlockType {
