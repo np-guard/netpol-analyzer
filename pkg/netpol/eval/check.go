@@ -291,8 +291,8 @@ func initEmptyPoliciesLayerXgressConns() *policiesLayerXgressConns {
 // allowed conns are computed by walking through all the available resources of k8s network policy api:
 // admin-network-policies, network-policies and baseline-admin-network-policies;
 // considering the precedence of each policy
-// in case of exposure-analysis it also checks and updates if a src is exposed to all namespaces on egress
-// or dst is exposed to all namespaces on ingress
+// in case of exposure-analysis it also checks and updates if a src is exposed to entire cluster on egress
+// or dst is exposed to entire cluster on ingress
 func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress bool) (allowedConns *common.ConnectionSet, err error) {
 	// first get allowed xgress conn between the src and dst from the ANPs
 	// (in case of exposure-analysis get also cluster wide conns of the selected peer from the ANPs)
