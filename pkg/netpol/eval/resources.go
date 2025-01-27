@@ -578,7 +578,8 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		if scanErr != nil {
 			return scanErr
 		}
-		err = pe.generateRepresentativePeers(rulesSelectors, np.Namespace)
+		// networkpolicy is a namespace-scoped policy (and not cluster-scoped)
+		err = pe.generateRepresentativePeers(rulesSelectors, np.Namespace, false)
 	}
 	// clear the cache on netpols changes
 	pe.cache.clear()
@@ -605,7 +606,8 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 		if scanErr != nil {
 			return scanErr
 		}
-		err = pe.generateRepresentativePeers(rulesSelectors, "")
+		// adminNetworkPolicy is a cluster-scoped policy
+		err = pe.generateRepresentativePeers(rulesSelectors, "", true)
 	}
 	return err
 }
@@ -634,7 +636,8 @@ func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineA
 		if scanErr != nil {
 			return scanErr
 		}
-		err = pe.generateRepresentativePeers(rulesSelectors, "")
+		// baselineAdminNetworkPolicy is a cluster-scoped policy
+		err = pe.generateRepresentativePeers(rulesSelectors, "", true)
 	}
 	return err
 }
