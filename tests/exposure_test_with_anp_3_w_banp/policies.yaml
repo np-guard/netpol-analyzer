@@ -1,0 +1,52 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-pass-example
+spec:
+  priority: 10
+  subject:
+    namespaces:
+      matchLabels:
+        kubernetes.io/metadata.name: hello-world
+  ingress:
+  - name: "pass-tcp-80-ingress-from-slytherin"  # exposed to slytherin on ingress
+    action: "Pass"
+    from:
+    - namespaces:
+        matchLabels:
+            conformance-house: slytherin
+    ports:
+    - portNumber:
+        port: 80
+        protocol: TCP
+  egress:
+  - name: "pass-tcp-80-egress-to-slytherin" # exposed to slytherin on egress
+    action: "Pass" 
+    to:
+    - namespaces:
+        matchLabels:
+            conformance-house: slytherin
+    ports:
+    - portNumber:
+        port: 80
+        protocol: TCP
+---
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: BaselineAdminNetworkPolicy
+metadata:
+  name: default
+spec:
+  subject:
+    namespaces:
+      matchLabels:
+        kubernetes.io/metadata.name: hello-world
+  ingress:
+  - name: "deny-tcp-80-from-all-namespaces"
+    action: "Deny"
+    from:
+    - namespaces: {}
+    ports:
+    - portNumber:
+        port: 80
+        protocol: TCP
+---

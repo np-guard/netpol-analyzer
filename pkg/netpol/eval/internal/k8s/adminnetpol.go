@@ -31,6 +31,22 @@ import (
 type AdminNetworkPolicy struct {
 	*apisv1a.AdminNetworkPolicy                 // embedding k8s admin-network-policy object
 	warnings                    common.Warnings // set of warnings which are raised by the anp
+	// following data stored in preprocessing when exposure-analysis is on;
+
+	// 1. Note that : since (Baseline)AdminNetworkPolicy's rules are read as-is and the peers must be explicitly declared in a rulePeer,
+	// only the `ClusterWideExposure` (when a rule selects all the namespaces) field of
+	// IngressPolicyExposure and EgressPolicyExposure attributes is relevant for AdminNetworkPolicy (and BaselineAdminNetworkPolicy).
+	// example : while an Ingress NetworkPolicy with empty Ingress section - means that the connection is
+	// allowed to whole world (external and internal);
+	// it is not legal to have an empty (no rules) Ingress/Egress section in an (Baseline)AdminNetworkPolicy (there is no strict definition for
+	// allowing connection to whole world in ANPs)
+
+	// IngressPolicyExposure contains:
+	// - the maximal connection-set which the admin-policy's rules allow/deny/pass from all namespaces in the cluster on ingress direction
+	IngressPolicyExposure PolicyExposureWithoutSelectors
+	// EgressPolicyExposure contains:
+	// - the maximal connection-set which the admin-policy's rules allow/deny/pass to all namespaces in the cluster on egress direction
+	EgressPolicyExposure PolicyExposureWithoutSelectors
 }
 
 // Selects returns true if the admin network policy's Spec.Subject selects the peer and if the required direction is in the policy spec
@@ -201,33 +217,56 @@ func (anp *AdminNetworkPolicy) LogWarnings(l logger.Logger) {
 // global to be used in the common func, initialized (cleared) and logged by the relevant (B)ANP calling funcs
 var ruleWarnings = []string{}
 
-// doesNamespacesFieldMatchPeer returns true if the given namespaces LabelSelector matches the given peer
-func doesNamespacesFieldMatchPeer(namespaces *metav1.LabelSelector, peer Peer) (bool, error) {
+// doesNamespaceSelectorMatchesPeer returns true if the given namespaces LabelSelector matches the given peer's namespace object
+func doesNamespaceSelectorMatchesPeer(namespaces *metav1.LabelSelector, peer Peer) (bool, error) {
 	if peer.PeerType() == IPBlockType {
-		return false, nil // namespaces does not select IPs
+		return false, nil // IPs are not namespace-scoped
 	}
-	namespacesSelector, err := metav1.LabelSelectorAsSelector(namespaces)
+	peerNamespace := peer.GetPeerNamespace()
+	var peerNsLabels map[string]string
+	if peerNamespace != nil { // peerNamespace may be nil for representative peers
+		peerNsLabels = peerNamespace.Labels
+	}
+	return selectorsMatch(namespaces, peer.GetPeerPod().RepresentativeNsLabelSelector, peerNsLabels, isPeerRepresentative(peer))
+}
+
+// selectorsMatch checks if the given selectors match each other.
+// called either with namespace-selectors, or with pod-selectors
+// when exposure analysis is on : checks the match between rule selector and the relevant representativePeer selector
+// otherwise, checks match between rule-selector and pod/namespace labels
+func selectorsMatch(ruleSelector, peerSelector *metav1.LabelSelector, peerLabels map[string]string,
+	isPeerRepresentative bool) (selectorsMatch bool, err error) {
+	// for exposure analysis (representative-peer), use relevant func to check if representative peer is matched by rule's selector
+	if isPeerRepresentative {
+		// representative peer is inferred from a rule:
+		// - by having representative selector pointing to same reference of the rule's selector
+		// - or by having representative labelSelector with requirements equal to the rule's requirements
+		// note that if the given ruleSelector is nil, we don't get here.
+		return SelectorsFullMatch(ruleSelector, peerSelector)
+	} // else for real peer just check if the selector matches the peer's labels
+	selector, err := metav1.LabelSelectorAsSelector(ruleSelector)
 	if err != nil {
 		return false, err
 	}
-	return namespacesSelector.Matches(labels.Set(peer.GetPeerNamespace().Labels)), nil
+	return selector.Matches(labels.Set(peerLabels)), nil
 }
 
 // doesPodsFieldMatchPeer returns if the given NamespacedPod object matches the given peer
 // a NamespacedPod object contains both NamespaceSelector and PodSelector
 func doesPodsFieldMatchPeer(pods *apisv1a.NamespacedPod, peer Peer) (bool, error) {
 	if peer.PeerType() == IPBlockType {
-		return false, nil // pods does not select IPs
+		return false, nil // *apisv1a.NamespacedPod does not select IPs
 	}
-	nsSelector, err := metav1.LabelSelectorAsSelector(&pods.NamespaceSelector)
+	nsMatch, err := doesNamespaceSelectorMatchesPeer(&pods.NamespaceSelector, peer)
 	if err != nil {
 		return false, err
 	}
-	podSelector, err := metav1.LabelSelectorAsSelector(&pods.PodSelector)
-	if err != nil {
-		return false, err
+	if !nsMatch {
+		return false, nil
 	}
-	return nsSelector.Matches(labels.Set(peer.GetPeerNamespace().Labels)) && podSelector.Matches(labels.Set(peer.GetPeerPod().Labels)), nil
+	// namespace selector matches the peer's namespace; return if the podSelector also matches the peer's pod
+	return selectorsMatch(&pods.PodSelector, peer.GetPeerPod().RepresentativePodLabelSelector,
+		peer.GetPeerPod().Labels, isPeerRepresentative(peer))
 }
 
 // doesNetworksFieldMatchPeer checks if the given peer matches the networks field.
@@ -309,7 +348,7 @@ func ruleFieldsSelectsPeer(namespaces *metav1.LabelSelector, pods *apisv1a.Names
 	networks []apisv1a.CIDR, peer Peer) (bool, error) {
 	switch {
 	case namespaces != nil:
-		return doesNamespacesFieldMatchPeer(namespaces, peer)
+		return doesNamespaceSelectorMatchesPeer(namespaces, peer)
 	case pods != nil:
 		return doesPodsFieldMatchPeer(pods, peer)
 	case networks != nil:
@@ -408,11 +447,21 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, dst Peer) (*common
 			}
 			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port))
 		case anpPort.NamedPort != nil:
+			if dst == nil || isPeerRepresentative(dst) {
+				// if dst is nil or representative: named port is added to the conns without conversion.
+				// the protocol of a named port of an ANP rule is depending on the pod's configuration.
+				// since, we have no indication of a "representative-peer" configuration, this namedPort is added as a potential
+				// exposure without protocol ("").
+				portSet.AddPort(intstr.FromString(*anpPort.NamedPort))
+				res.AddConnection("", portSet)
+				continue
+			}
 			if dst.PeerType() == IPBlockType {
 				// IPblock does not have named-ports defined, warn and continue
 				ruleWarnings = append(ruleWarnings, alerts.WarnNamedPortIgnoredForIP)
 				continue // next port
 			}
+			// else - regular pod, convert the named port
 			podProtocol, podPort := dst.GetPeerPod().ConvertPodNamedPort(*anpPort.NamedPort)
 			if podPort == common.NoPort { // pod does not have this named port in its container
 				ruleWarnings = append(ruleWarnings, alerts.WarnUnmatchedNamedPort(*anpPort.NamedPort, dst.String()))
@@ -460,7 +509,7 @@ func subjectSelectsPeer(anpSubject apisv1a.AdminNetworkPolicySubject, p Peer, er
 		return false, errors.New(errTitle + netpolerrors.OneFieldSetSubjectErr)
 	}
 	if anpSubject.Namespaces != nil {
-		return doesNamespacesFieldMatchPeer(anpSubject.Namespaces, p)
+		return doesNamespaceSelectorMatchesPeer(anpSubject.Namespaces, p)
 	}
 	// else: Subject.Pods is not empty (Subject.Pods contains both NamespaceSelector and PodSelector)
 	return doesPodsFieldMatchPeer(anpSubject.Pods, p)
@@ -627,4 +676,164 @@ func rulePeersReferencedIPBlocks(rulePeers []apisv1a.AdminNetworkPolicyEgressPee
 		}
 	}
 	return res, nil
+}
+
+// /////////////////////////////////////////////////////////////
+// pre-processing computations - currently performed for exposure-analysis goals only;
+// all pre-process funcs assume policies' rules are legal (rules correctness check occurs later)
+
+// GetPolicyRulesSelectorsAndUpdateExposureClusterWideConns scans policy rules and :
+// - updates policy's exposed cluster-wide connections from/to all namespaces in the cluster on ingress and egress directions
+// - returns list of SingleRuleSelectors (pairs of pod and namespace selectors) from rules which have non-empty selectors,
+// for which the representative peers should be generated
+func (anp *AdminNetworkPolicy) GetPolicyRulesSelectorsAndUpdateExposureClusterWideConns() (rulesSelectors []SingleRuleSelectors,
+	err error) {
+	if anp.adminPolicyAffectsDirection(true) {
+		selectors, err := anp.scanIngressRules()
+		if err != nil {
+			return nil, err
+		}
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	if anp.adminPolicyAffectsDirection(false) {
+		selectors, err := anp.scanEgressRules()
+		if err != nil {
+			return nil, err
+		}
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	return rulesSelectors, nil
+}
+
+// scanIngressRules handles policy's ingress rules for updating policy's wide conns/ returning specific rules' selectors
+func (anp *AdminNetworkPolicy) scanIngressRules() ([]SingleRuleSelectors, error) {
+	rulesSelectors := []SingleRuleSelectors{}
+	for _, rule := range anp.Spec.Ingress {
+		rulePeers := rule.From
+		rulePorts := rule.Ports
+		selectors, err := getIngressSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, string(rule.Action),
+			&anp.IngressPolicyExposure)
+		if err != nil {
+			return nil, err
+		}
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	return rulesSelectors, nil
+}
+
+// scanEgressRules handles policy's egress rules for updating policy's wide conns/ returning specific rules' selectors
+func (anp *AdminNetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
+	rulesSelectors := []SingleRuleSelectors{}
+	for _, rule := range anp.Spec.Egress {
+		rulePeers := rule.To
+		rulePorts := rule.Ports
+		selectors, err := getEgressSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, string(rule.Action),
+			&anp.EgressPolicyExposure)
+		if err != nil {
+			return nil, err
+		}
+		// rule with selectors selecting specific namespaces/ pods
+		rulesSelectors = append(rulesSelectors, selectors...)
+	}
+	return rulesSelectors, nil
+}
+
+// Note that since rulePeers type is not same (different) for Ingress and Egress in (Baseline)AdminNetworkPolicy; then the following
+// funcs to get the Selectors and Update the cluster-wide connection is split to :
+// getEgressSelectorsAndUpdateExposureClusterWideConns and getIngressSelectorsAndUpdateExposureClusterWideConns
+
+// getEgressSelectorsAndUpdateExposureClusterWideConns:
+// loops given egress rules list:
+// - if a rule have empty selectors (podSelector and namespaceSelector) or just empty namespaceSelector (nil podSelector)
+// updates the cluster wide exposure of the policy
+// - if a rule contains at least one defined selector : appends the rule selectors to a selector list which will be returned.
+// this func assumes rules are legal (rules correctness check occurs later)
+func getEgressSelectorsAndUpdateExposureClusterWideConns(rules []apisv1a.AdminNetworkPolicyEgressPeer,
+	rulePorts *[]apisv1a.AdminNetworkPolicyPort, action string,
+	egressPolicyExposure *PolicyExposureWithoutSelectors) (rulesSelectors []SingleRuleSelectors, err error) {
+	if len(rules) == 0 { // not valid case
+		return nil, nil
+	}
+	for i := range rules {
+		if rules[i].Networks != nil || rules[i].Nodes != nil {
+			continue // not relevant to check wide-cluster exposure or get selectors from those fields
+		} // else rules[i].Namespaces != nil || rules[i].Pods != nil
+		ruleSel, err := getSelectorsFromNamespacesOrPodsFieldsAndUpdateExposureClusterWideConns(rules[i].Namespaces, rules[i].Pods,
+			egressPolicyExposure, rulePorts, action)
+		if err != nil {
+			return nil, err
+		}
+		if !ruleSel.isEmpty() {
+			rulesSelectors = append(rulesSelectors, ruleSel)
+		}
+	}
+	return rulesSelectors, nil
+}
+
+// getIngressSelectorsAndUpdateExposureClusterWideConns:
+// loops given ingress rules list:
+// - if a rule have empty selectors (podSelector and namespaceSelector)or just empty namespaceSelector (nil podSelector)
+// updates the cluster wide exposure of the policy
+// - if a rule contains at least one defined selector : appends the rule selectors to a selector list which will be returned.
+// this func assumes rules are legal (rules correctness check occurs later)
+func getIngressSelectorsAndUpdateExposureClusterWideConns(rules []apisv1a.AdminNetworkPolicyIngressPeer,
+	rulePorts *[]apisv1a.AdminNetworkPolicyPort, action string,
+	ingressPolicyExposure *PolicyExposureWithoutSelectors) (rulesSelectors []SingleRuleSelectors, err error) {
+	if len(rules) == 0 {
+		return nil, nil
+	}
+	for i := range rules {
+		var ruleSel SingleRuleSelectors
+		ruleSel, err := getSelectorsFromNamespacesOrPodsFieldsAndUpdateExposureClusterWideConns(rules[i].Namespaces, rules[i].Pods,
+			ingressPolicyExposure, rulePorts, action)
+		if err != nil {
+			return nil, err
+		}
+		if !ruleSel.isEmpty() {
+			rulesSelectors = append(rulesSelectors, ruleSel)
+		}
+	}
+	return rulesSelectors, nil
+}
+
+// getSelectorsFromNamespacesOrPodsFieldsAndUpdateExposureClusterWideConns gets Namespaces and Pods field of an ingress/egress (B)ANP rule;
+// where only one of those fields is not nil.
+// checks if the rule's field selects entire-cluster, then updates the policy xgress cluster-wide exposure;
+// otherwise, returns the rule's field selectors to be returned later for generating representative-peer
+func getSelectorsFromNamespacesOrPodsFieldsAndUpdateExposureClusterWideConns(namespaces *metav1.LabelSelector,
+	pods *apisv1a.NamespacedPod, xgressPolicyExposure *PolicyExposureWithoutSelectors,
+	rulePorts *[]apisv1a.AdminNetworkPolicyPort, action string) (ruleSel SingleRuleSelectors, err error) {
+	if namespaces != nil {
+		if namespaces.Size() == 0 {
+			// empty Namespaces field = all cluster
+			err = updateAdminNetworkPolicyExposureClusterWideConns(rulePorts, xgressPolicyExposure, action)
+			return SingleRuleSelectors{}, err
+		}
+		// else, the namespaces field specifies namespaces by labels
+		ruleSel.NsSelector = namespaces
+		return ruleSel, nil
+	}
+	// else - pods field should not be nil
+	if pods == nil { // should not get here - added for insurance since in pre-process assuming the rules are legal
+		return SingleRuleSelectors{}, nil
+	}
+	if doesRuleSelectAllNamespaces(&pods.NamespaceSelector, &pods.PodSelector) {
+		err = updateAdminNetworkPolicyExposureClusterWideConns(rulePorts, xgressPolicyExposure, action)
+		return SingleRuleSelectors{}, err
+	}
+	// else selectors' combination specifies workloads by labels (at least one label is not nil and not empty)
+	ruleSel.PodSelector = &pods.PodSelector
+	ruleSel.NsSelector = &pods.NamespaceSelector
+	return ruleSel, nil
+}
+
+// updateAdminNetworkPolicyExposureClusterWideConns updates the cluster-wide exposure connections of the (b)anp
+func updateAdminNetworkPolicyExposureClusterWideConns(rulePorts *[]apisv1a.AdminNetworkPolicyPort,
+	xgressPolicyExposure *PolicyExposureWithoutSelectors, ruleAction string) error {
+	ruleConns, err := ruleConnections(rulePorts, nil)
+	if err != nil {
+		return err
+	}
+	return xgressPolicyExposure.ClusterWideExposure.UpdateWithRuleConns(ruleConns, ruleAction, false)
+	// note that : the last parameter sent to UpdateWithRuleConns is false, since the pre-process func assumes rules are legal
 }

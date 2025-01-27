@@ -44,9 +44,9 @@ func MakePortSet(all bool) *PortSet {
 }
 
 // Equal: return true if current object equals another PortSet object
+// Ports are equal if they have same allowed port-numbers and same allowed named-ports
 func (p *PortSet) Equal(other *PortSet) bool {
-	return p.Ports.Equal(other.Ports) && reflect.DeepEqual(p.NamedPorts, other.NamedPorts) &&
-		reflect.DeepEqual(p.ExcludedNamedPorts, other.ExcludedNamedPorts)
+	return p.Ports.Equal(other.Ports) && reflect.DeepEqual(p.NamedPorts, other.NamedPorts)
 }
 
 // IsEmpty: return true if current object is empty (no ports allowed)

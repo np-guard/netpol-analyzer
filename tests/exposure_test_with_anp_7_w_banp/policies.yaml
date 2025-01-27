@@ -1,0 +1,36 @@
+# AdminNetworkPolicy is to test exposure when both hello-world/workload-a and hello-world/workload-b are protected on Ingress
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-pass-example
+spec:
+  priority: 10
+  subject:
+    namespaces:
+      matchLabels:
+        kubernetes.io/metadata.name: hello-world
+  ingress:
+  - name: "pass-all-internal-ingress"
+    action: "Pass"
+    from:
+    - namespaces: {}
+---
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: BaselineAdminNetworkPolicy
+metadata:
+  name: default
+spec:
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: a-app
+  ingress:
+  - name: "deny-all-internal-connections"
+    action: "Deny"
+    from:
+    - namespaces: {}
+---

@@ -143,7 +143,8 @@ func NewPolicyEngineWithOptionsList(opts ...PolicyEngineOption) (pe *PolicyEngin
 	return pe, err
 }
 
-// addObjectsForExposureAnalysis adds pe's k8s objects: first adds network-policies and namespaces and then other objects.
+// addObjectsForExposureAnalysis adds pe's k8s objects: first adds policies (NetworkPolicy, AdminNetworkPolicy
+// and BaselineAdminNetworkPolicy objects) and namespaces and then other objects.
 // for exposure analysis we need to insert first policies and namespaces so:
 // 1. policies: so a representative peer for each policy rule is added
 // 2. namespaces: so when inserting workloads, we'll be able to check correctly if a generated representative peer
@@ -172,9 +173,11 @@ func splitPoliciesAndNamespacesAndOtherObjects(objects []parser.K8sObject) (poli
 	for i := range objects {
 		obj := objects[i]
 		switch obj.Kind {
-		// @todo : when enabling exposure-analysis with projects containing admin netpols:
-		// consider also parser.AdminNetorkPolicy and parser.BaselineAdminNetworkPolicy
 		case parser.NetworkPolicy:
+			policiesAndNs = append(policiesAndNs, obj)
+		case parser.AdminNetworkPolicy:
+			policiesAndNs = append(policiesAndNs, obj)
+		case parser.BaselineAdminNetworkPolicy:
 			policiesAndNs = append(policiesAndNs, obj)
 		case parser.Namespace:
 			policiesAndNs = append(policiesAndNs, obj)
@@ -226,11 +229,10 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 			return err
 		}
 	}
+	if err := pe.sortAdminNetpolsByPriority(); err != nil {
+		return err
+	}
 	if !pe.exposureAnalysisFlag {
-		// @todo: put following line outside the if statement when exposure analysis is supported with (B)ANPs
-		if err := pe.sortAdminNetpolsByPriority(); err != nil {
-			return err
-		}
 		return pe.resolveMissingNamespaces() // for exposure analysis; this already done
 	}
 	return nil
@@ -542,8 +544,8 @@ func (pe *PolicyEngine) insertPod(pod *corev1.Pod) error {
 
 func initPolicyExposureWithoutSelectors() k8s.PolicyExposureWithoutSelectors {
 	return k8s.PolicyExposureWithoutSelectors{
-		ExternalExposure:    common.MakeConnectionSet(false),
-		ClusterWideExposure: common.MakeConnectionSet(false),
+		ExternalExposure:    k8s.NewPolicyConnections(),
+		ClusterWideExposure: k8s.NewPolicyConnections(),
 	}
 }
 
@@ -576,7 +578,8 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		if scanErr != nil {
 			return scanErr
 		}
-		err = pe.generateRepresentativePeers(rulesSelectors, np.Namespace)
+		// networkpolicy is a namespace-scoped policy (and not cluster-scoped)
+		err = pe.generateRepresentativePeers(rulesSelectors, np.Namespace, false)
 	}
 	// clear the cache on netpols changes
 	pe.cache.clear()
@@ -584,26 +587,32 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 }
 
 func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy) error {
-	// @TBD : currently disabling exposure-analysis when there are admin-network-policies in the input resources
-	if pe.exposureAnalysisFlag {
-		return errors.New(netpolerrors.ExposureAnalysisDisabledWithANPs)
-	}
 	if pe.adminNetpolsMap[anp.Name] {
 		return errors.New(netpolerrors.ANPsWithSameNameErr(anp.Name))
 	}
 	newAnp := &k8s.AdminNetworkPolicy{
-		AdminNetworkPolicy: anp,
+		AdminNetworkPolicy:    anp,
+		IngressPolicyExposure: initPolicyExposureWithoutSelectors(),
+		EgressPolicyExposure:  initPolicyExposureWithoutSelectors(),
 	}
 	pe.adminNetpolsMap[anp.Name] = true
 	pe.sortedAdminNetpols = append(pe.sortedAdminNetpols, newAnp)
-	return nil
+	var err error
+	// for exposure analysis only: scan the anp ingress and egress rules:
+	// 1. to store connections from/to entire cluster
+	// 2. to get selectors and generate representativePeers
+	if pe.exposureAnalysisFlag {
+		rulesSelectors, scanErr := newAnp.GetPolicyRulesSelectorsAndUpdateExposureClusterWideConns()
+		if scanErr != nil {
+			return scanErr
+		}
+		// adminNetworkPolicy is a cluster-scoped policy
+		err = pe.generateRepresentativePeers(rulesSelectors, "", true)
+	}
+	return err
 }
 
 func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineAdminNetworkPolicy) error {
-	// @TBD : currently disabling exposure-analysis when there are (baseline)-admin-network-policies in the input resources
-	if pe.exposureAnalysisFlag {
-		return errors.New(netpolerrors.ExposureAnalysisDisabledWithANPs)
-	}
 	if pe.baselineAdminNetpol != nil { // @todo : should this be a warning? the last banp the one considered
 		return errors.New(netpolerrors.BANPAlreadyExists)
 	}
@@ -614,9 +623,23 @@ func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineA
 	}
 	newBanp := &k8s.BaselineAdminNetworkPolicy{
 		BaselineAdminNetworkPolicy: banp,
+		IngressPolicyExposure:      initPolicyExposureWithoutSelectors(),
+		EgressPolicyExposure:       initPolicyExposureWithoutSelectors(),
 	}
 	pe.baselineAdminNetpol = newBanp
-	return nil
+	var err error
+	// for exposure analysis only: scan the banp ingress and egress rules:
+	// 1. to store connections from/to entire cluster
+	// 2. to get selectors and generate representativePeers
+	if pe.exposureAnalysisFlag {
+		rulesSelectors, scanErr := newBanp.GetPolicyRulesSelectorsAndUpdateExposureClusterWideConns()
+		if scanErr != nil {
+			return scanErr
+		}
+		// baselineAdminNetworkPolicy is a cluster-scoped policy
+		err = pe.generateRepresentativePeers(rulesSelectors, "", true)
+	}
+	return err
 }
 
 func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
@@ -904,17 +927,22 @@ func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.Sin
 		return errors.New(netpolerrors.NilRepresentativePodSelectorsErr)
 	}
 	nsLabelSelector := objSelectors.NsSelector
-	if nsLabelSelector == nil && podNs == "" { // should not get here as nsLabelSelector == nil should be equivalent to podNs not empty
-		return errors.New(netpolerrors.NilNamespaceAndNilNsSelectorErr)
-	}
-	if nsLabelSelector == nil && podNs != "" {
-		// if the objSelectors.NsSelector is nil, means inferred from a rule with nil nsSelector, which means the namespace of the
-		// pod is the namespace of the policy, so adding it as its RepresentativeNsLabelSelector requirement.
-		// by this, we ensure a representative peer may only represent the rule it was inferred from
-		// and uniqueness of representative peers.
-		// (another policy in another namespace, may have a rule with same podSelector, but the namespace will be different-
-		// so a different representative peer will be generated)
-		nsLabelSelector = &metav1.LabelSelector{MatchLabels: defaultNamespaceLabelsMap(podNs)}
+	if nsLabelSelector == nil {
+		if podNs != "" {
+			// if the objSelectors.NsSelector is nil but the podNs is not empty, means inferred from
+			// a k8s NetworkPolicy rule with nil nsSelector, which means the namespace of the pod is the namespace of the policy,
+			// so adding it as its RepresentativeNsLabelSelector requirement.
+			// by this, we ensure a representative peer may only represent the rule it was inferred from
+			// and uniqueness of representative peers.
+			// (another nework-policy in another namespace, may have a rule with same podSelector, but the namespace will be different-
+			// so a different representative peer will be generated)
+			nsLabelSelector = &metav1.LabelSelector{MatchLabels: defaultNamespaceLabelsMap(podNs)}
+		} else {
+			// if the objSelectors.NsSelector is nil and the podNs is empty, means inferred from an
+			// (baseline)AdminNetworkPolicy rule with nil namespaceSelector, which means that all namespaces match the rule;
+			// so as the RepresentativeNsLabelSelector will assign an empty namespaceSelector (matches all namespaces)
+			nsLabelSelector = &metav1.LabelSelector{} // all namespaces
+		}
 	}
 	newPod := &k8s.Pod{
 		// all representative pods are having same name since this name is used only to indicate that this Fake Pod is representative;

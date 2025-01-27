@@ -1,0 +1,20 @@
+| src | dst | conn |
+|-----|-----|------|
+| 0.0.0.0-255.255.255.255 | hello-world/workload-b[Deployment] | All Connections |
+| hello-world/workload-b[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+## Exposure Analysis Result:
+### Egress Exposure:
+| src | dst | conn |
+|-----|-----|------|
+| hello-world/workload-a[Deployment] | [namespace with {conformance-house=gryffindor}]/[all pods] | All Connections |
+| hello-world/workload-a[Deployment] | [namespace with {conformance-house=slytherin}]/[all pods] | TCP 80 |
+| hello-world/workload-b[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/workload-b[Deployment] | entire-cluster | All Connections |
+
+### Ingress Exposure:
+| dst | src | conn |
+|-----|-----|------|
+| hello-world/workload-a[Deployment] | [namespace with {conformance-house=gryffindor}]/[all pods] | All Connections |
+| hello-world/workload-a[Deployment] | [namespace with {conformance-house=slytherin}]/[all pods] | TCP 80 |
+| hello-world/workload-b[Deployment] | 0.0.0.0-255.255.255.255 | All Connections |
+| hello-world/workload-b[Deployment] | entire-cluster | All Connections |

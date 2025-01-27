@@ -1,0 +1,52 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-pass-with-entire-cluster-example
+spec:
+  priority: 10
+  subject:
+    namespaces:
+      matchLabels:
+        kubernetes.io/metadata.name: hello-world
+  ingress:
+  - name: "pass-some-ingress-from-entire-cluster"  # exposed to entire-cluster on ingress
+    action: "Pass"
+    from:
+    - namespaces: {}
+    ports:
+    - portNumber:
+        port: 80
+        protocol: TCP
+  egress:
+  - name: "pass-some-egress-to-entire-cluster" # exposed to entire-cluster on egress
+    action: "Pass" 
+    to:
+    - namespaces: {}
+    ports:
+    - portNumber:
+        port: 80
+        protocol: TCP
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-app-a
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector: {}
+    ports:
+    - port: 9090
+  egress:
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - port: 80
+    - port: 9090

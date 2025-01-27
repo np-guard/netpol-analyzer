@@ -1,0 +1,80 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-example-14
+spec:
+  priority: 10
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: a-app
+  egress:
+  - name: "allow-all-to-labeled-pods-in-labeled-ns"
+    action: "Allow"
+    to:
+    - pods:
+        namespaceSelector: 
+          matchExpressions:
+          - key: env
+            operator: Exists
+          - key: app
+            operator: DoesNotExist
+          matchLabels:
+            foo: managed
+        podSelector:
+            matchExpressions:
+            - key: role
+              operator: NotIn
+              values: ["monitoring", "search", "web"]
+            matchLabels:
+              app: app-x
+  ingress:
+  - name: "allow-all-from-labeled-pods-in-labeled-namespace"
+    action: "Allow"
+    from:
+    - pods:
+        podSelector:
+          matchLabels:
+            app: app-x
+          matchExpressions:
+          - key: role
+            operator: NotIn
+            values: ["monitoring", "search", "web"]
+        namespaceSelector: 
+          matchLabels:
+            foo: managed
+          matchExpressions:
+          - key: app
+            operator: DoesNotExist
+          - key: env
+            operator: Exists
+
+---
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: BaselineAdminNetworkPolicy
+metadata:
+  name: default
+spec:
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+  ingress:
+  - name: "deny-all-internal-connections"
+    action: "Deny"
+    from:
+    - pods:
+        namespaceSelector: {}
+        podSelector: {}
+  egress:
+  - name: "deny-all-internal-connections-egress"
+    action: "Deny"
+    to:
+    - pods:
+        namespaceSelector: {}
+        podSelector: {}

@@ -1,0 +1,41 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-allow-with-entire-cluster-example
+spec:
+  priority: 10
+  subject:
+    namespaces:
+      matchLabels:
+        kubernetes.io/metadata.name: hello-world
+  ingress:
+  - name: "allow-some-ingress-from-entire-cluster"  # exposed to entire-cluster on ingress
+    action: "Allow"
+    from:
+    - namespaces: {}
+    ports:
+    - portNumber:
+        port: 80
+        protocol: TCP
+  egress:
+  - name: "allow-some-egress-to-entire-cluster" # exposed to entire-cluster on egress
+    action: "Allow" 
+    to:
+    - namespaces: {}
+    ports:
+    - portNumber:
+        port: 80
+        protocol: TCP
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: deny-all-app-a
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  policyTypes:
+  - Ingress
+  - Egress
