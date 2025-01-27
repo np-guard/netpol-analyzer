@@ -486,10 +486,10 @@ func (pe *PolicyEngine) getAllAllowedXgressConnsFromNetpols(src, dst k8s.Peer,
 			// (either allowed by rule or implicitly denied because of the rule's absence)
 			exposureConns.isCaptured = true
 			// update the cluster wide exposure result from the relevant netpol's data
-			if isIngress && !policy.IngressPolicyExposure.ClusterWideExposure.IsEmpty() {
-				exposureConns.layerConns.AllowedConns.Union(policy.IngressPolicyExposure.ClusterWideExposure.AllowedConns)
-			} else if !isIngress && !policy.EgressPolicyExposure.ClusterWideExposure.IsEmpty() {
-				exposureConns.layerConns.AllowedConns.Union(policy.EgressPolicyExposure.ClusterWideExposure.AllowedConns)
+			if isIngress && !policy.IngressPolicyClusterWideExposure.IsEmpty() {
+				exposureConns.layerConns.AllowedConns.Union(policy.IngressPolicyClusterWideExposure.AllowedConns)
+			} else if !isIngress && !policy.EgressPolicyClusterWideExposure.IsEmpty() {
+				exposureConns.layerConns.AllowedConns.Union(policy.EgressPolicyClusterWideExposure.AllowedConns)
 			}
 		}
 		allowedConns.Union(policyAllowedConnectionsPerDirection)
@@ -507,20 +507,16 @@ func (pe *PolicyEngine) determineAllowedConnsPerDirection(policy *k8s.NetworkPol
 	if isIngress {
 		// get ingress allowed conns between src and dst
 		switch {
-		case policy.IngressPolicyExposure.ExternalExposure.AllowedConns.AllowAll:
-			return policy.IngressPolicyExposure.ExternalExposure.AllowedConns, nil
-		case policy.IngressPolicyExposure.ClusterWideExposure.AllowedConns.AllowAll && src.PeerType() == k8s.PodType:
-			return policy.IngressPolicyExposure.ClusterWideExposure.AllowedConns, nil
+		case policy.IngressPolicyClusterWideExposure.AllowedConns.AllowAll && src.PeerType() == k8s.PodType:
+			return policy.IngressPolicyClusterWideExposure.AllowedConns, nil
 		default:
 			return policy.GetIngressAllowedConns(src, dst)
 		}
 	}
 	// else get egress allowed conns between src and dst
 	switch {
-	case policy.EgressPolicyExposure.ExternalExposure.AllowedConns.AllowAll:
-		return policy.EgressPolicyExposure.ExternalExposure.AllowedConns, nil
-	case policy.EgressPolicyExposure.ClusterWideExposure.AllowedConns.AllowAll && dst.PeerType() == k8s.PodType:
-		return policy.EgressPolicyExposure.ClusterWideExposure.AllowedConns, nil
+	case policy.EgressPolicyClusterWideExposure.AllowedConns.AllowAll && dst.PeerType() == k8s.PodType:
+		return policy.EgressPolicyClusterWideExposure.AllowedConns, nil
 	default:
 		return policy.GetEgressAllowedConns(dst)
 	}
@@ -563,7 +559,7 @@ func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer
 				// if it is captured by current policy
 				if pe.exposureAnalysisFlag {
 					src.GetPeerPod().UpdatePodXgressProtectedFlag(false) // mark the pod is protected
-					updateClusterWideExposureResultFromANP(exposureConns, anp.EgressPolicyExposure)
+					updateClusterWideExposureResultFromANP(exposureConns, anp.EgressPolicyClusterWideExposure)
 				}
 			}
 		} else { // ingress
@@ -581,7 +577,7 @@ func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer
 				// if it is captured by current policy
 				if pe.exposureAnalysisFlag {
 					dst.GetPeerPod().UpdatePodXgressProtectedFlag(true)
-					updateClusterWideExposureResultFromANP(exposureConns, anp.IngressPolicyExposure)
+					updateClusterWideExposureResultFromANP(exposureConns, anp.IngressPolicyClusterWideExposure)
 				}
 			}
 		}
@@ -601,10 +597,10 @@ func (pe *PolicyEngine) getAllAllowedXgressConnectionsFromANPs(src, dst k8s.Peer
 
 // updateClusterWideExposureResultFromANP updates the cluster-wide exposure result of a pod from given (B)ANP exposure info
 func updateClusterWideExposureResultFromANP(exposureResult *policiesLayerXgressConns,
-	xgressPolicyExposure k8s.PolicyExposureWithoutSelectors) {
-	if !xgressPolicyExposure.ClusterWideExposure.IsEmpty() {
+	xgressPolicyClusterWideExposure *k8s.PolicyConnections) {
+	if !xgressPolicyClusterWideExposure.IsEmpty() {
 		exposureResult.isCaptured = true
-		exposureResult.layerConns.CollectANPConns(xgressPolicyExposure.ClusterWideExposure)
+		exposureResult.layerConns.CollectANPConns(xgressPolicyClusterWideExposure)
 	}
 }
 
@@ -645,7 +641,7 @@ func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool)
 				// if exposure-analysis is on, update also the exposure of the dst from all namespaces on ingress
 				// if it is captured by current policy
 				dst.GetPeerPod().UpdatePodXgressProtectedFlag(true)
-				updateClusterWideExposureResultFromANP(exposureConns, pe.baselineAdminNetpol.IngressPolicyExposure)
+				updateClusterWideExposureResultFromANP(exposureConns, pe.baselineAdminNetpol.IngressPolicyClusterWideExposure)
 			}
 		}
 	} else { // egress (!isIngress)
@@ -663,7 +659,7 @@ func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool)
 			// if it is captured by current policy
 			if pe.exposureAnalysisFlag {
 				src.GetPeerPod().UpdatePodXgressProtectedFlag(false)
-				updateClusterWideExposureResultFromANP(exposureConns, pe.baselineAdminNetpol.EgressPolicyExposure)
+				updateClusterWideExposureResultFromANP(exposureConns, pe.baselineAdminNetpol.EgressPolicyClusterWideExposure)
 			}
 		}
 	}
