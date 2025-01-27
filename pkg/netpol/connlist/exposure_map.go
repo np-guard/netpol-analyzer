@@ -124,13 +124,17 @@ func (ex *exposureMaps) addConnToExposureMap(pe *eval.PolicyEngine, allowedConne
 		return errors.New(netpolerrors.ConversionToConnectionSetErr)
 	}
 	// check if the peer is exposed to entire-cluster and if connection equals the entire cluster connection;
+	// if allowed connection between src and dst is not equal to the connection with entire cluster, we need to add this connection
+	// as an entry in the exposure map
+	// more details in the documentation and body  of func `connectionEqualsEntireClusterConn`
 	equals, isExposed, err := connectionEqualsEntireClusterConn(pe, peer, allowedConnSet, isIngress)
 	if err != nil {
 		return err
 	}
 	// skip if:
 	// 1. the allowed connection between the real peer and the representative-peer equals the connection to entire-cluster (containment)
-	// 2. if the peer is not exposed to entire-cluster and there is no connection between the peer and representative-peer (no exposure)
+	// 2. if the peer is not exposed to entire-cluster and there is no connection (empty allowedConnections) between
+	// the peer and representative-peer (no exposure)
 	if equals || (!isExposed && allowedConnSet.IsEmpty()) {
 		return nil // skip
 	}

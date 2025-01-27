@@ -309,19 +309,36 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 		return nil, err
 	}
 	// optimizations
-	podExposureUpdatedFlag := false
-	anpConnsDeterminedAllFlag := false
+	// if all connections between src and dst were determined by the AdminNetworkPolicies (ANP layer); we actually can return the result.
+	// but if the exposure-analysis flag is on, and we are also computing the exposure to entire-cluster of the
+	// selected pod (src if egress/ dst if ingress), then before returning we need to check if also the connection with entire-cluster
+	// was determined by the ANP layer or should proceed to get the exposure connections from the lower layers.
+	// example:
+	// assume ANP denies all conns from a -> b (ANP determined all conns to b; if exposure analysis is off no need to continue to NP/BANP)
+	// But:
+	// assume NP exposes A to entire-cluster on all-conns (if we don't continue - this would not be computed and will have wrong
+	// results as exposure to entire-cluster is computed once for each direction)
+
+	podExposureUpdatedFlag := false    // indicates if all connections of exposure to entire cluster were determined by the ANP layer
+	anpConnsDeterminedAllFlag := false // indicates if all connections between src and dst were determined by the ANP layer
 	// if all cluster-wide conns were determined by the ANP then update the selected peer's cluster wide exposure
 	if pe.exposureAnalysisFlag && anpExposure.layerConns.DeterminesAllConns() {
-		podExposureUpdatedFlag = true
+		podExposureUpdatedFlag = true // the ANP determined all connections between the selected peer and entire-cluster, so we can update
+		// the entire cluster exposure data of the pod
+		// and there is no need to wait and consider the exposure to entire-cluster conns of lower layers (NP and BANP)
 		updatePeerXgressClusterWideExposure(anpExposure.layerConns.AllowedConns, src, dst, isIngress)
 	}
 	// if all the conns between src and dst were determined by the ANPs : return the allowed conns
 	if anpConns.layerConns.DeterminesAllConns() {
+		// the ANP layer determined all connections between src and dst, then no need to consider what connections are allowed between src and dst
+		// from lower layers (NP/ BANP).
 		if !pe.exposureAnalysisFlag || podExposureUpdatedFlag {
+			// if exposure analysis is off or all exposure conns to entire-cluster were also determined by the ANP layer
+			// then return the allowed conns between src and dst (no need to proceed to other layers)
 			return anpConns.layerConns.AllowedConns, nil
 		}
-		// else : exposure-analysis is on and still not determined continue
+		// else : exposure-analysis is on and still not determined continue in order to compute and update the exposure to
+		// entire-cluster of the selected pod
 		anpConnsDeterminedAllFlag = true
 	}
 
@@ -360,7 +377,8 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 		}
 		updatePeerXgressClusterWideExposure(clusterWideExposureFromAllLayers, src, dst, isIngress)
 	}
-	if anpConnsDeterminedAllFlag {
+	if anpConnsDeterminedAllFlag { // if all conns between the src and dst were determined by ANP layer, return the allowed
+		// conns from the ANP layer
 		return anpConns.layerConns.AllowedConns, nil
 	}
 	// return all allowed xgress connections between the src and dst (final result computed considering all layers conns)
