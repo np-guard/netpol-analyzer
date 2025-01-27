@@ -91,9 +91,15 @@ var explainTests = []struct {
 		testDirName: "netpol_named_port_test",
 	},
 	{
+		testDirName: "new_online_boutique",
+	},
+	{
 		testDirName: "onlineboutique",
 	},
 	{
-		testDirName: "new_online_boutique",
+		testDirName: "onlineboutique_workloads_with_ingress",
 	},
+	// {
+	// 	testDirName: "route_example_with_target_port",
+	// },
 }
