@@ -1,7 +1,7 @@
 apiVersion: policy.networking.k8s.io/v1alpha1
 kind: AdminNetworkPolicy
 metadata:
-  name: exposure-deny-peer-allow-entire-cluster-all-conns
+  name: exposure-deny-partial-to-peer-allow-entire-cluster-all-conns
 spec:
   priority: 10
   subject:

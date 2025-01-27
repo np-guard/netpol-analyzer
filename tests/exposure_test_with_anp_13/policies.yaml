@@ -13,12 +13,12 @@ spec:
         matchLabels:
           app: a-app
   egress:
-  - name: "deny-all-to-networks"
+  - name: "deny-all-to-all-networks"
     action: "Deny"
     to:
     - networks:
       - 0.0.0.0/0
-  - name: "allow-some-to-labeled-pods-in-new-ns"
+  - name: "allow-tcp80-to-labeled-pods-in-new-ns"
     action: "Allow"
     to:
     - pods:
@@ -33,7 +33,7 @@ spec:
         port: 80
         protocol: TCP    
   ingress:
-  - name: "allow-some-from-pods-in-existing-namespace"
+  - name: "allow-tcp9090-from-pods-in-existing-namespace"
     action: "Allow"
     from:
     - pods:
@@ -59,7 +59,7 @@ spec:
         matchLabels:
           app: a-app
   ingress:
-  - name: "deny-all-internal-connections"
+  - name: "deny-all-internal-connections-ingress"
     action: "Deny"
     from:
     - pods:

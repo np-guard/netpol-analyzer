@@ -13,7 +13,7 @@ spec:
         matchLabels:
           app: a-app
   egress:
-  - name: "allow-some-to-all-pods-in-same-ns"
+  - name: "allow-tcp9090-to-all-pods-in-same-ns"
     action: "Allow"
     to:
     - pods:
@@ -25,7 +25,7 @@ spec:
         port: 9090
         protocol: TCP    
   ingress:
-  - name: "allow-some-from-pods-in-same-namespace"
+  - name: "allow-tcp9090-from-pods-in-same-namespace"
     action: "Allow"
     from:
     - pods:
@@ -80,7 +80,7 @@ spec:
         matchLabels:
           kubernetes.io/metadata.name: hello-world
   egress:
-  - name: "pass-some-to-labeled-pods-in-labeled-ns"
+  - name: "pass-udp53-to-labeled-pods-in-labeled-ns"
     action: "Pass"
     to:
     - pods:
@@ -94,7 +94,7 @@ spec:
     - portNumber: 
         port: 53
         protocol: UDP
-  - name: "allow-some-to-labeled-pods-in-labeled-ns"
+  - name: "allow-udp58-to-labeled-pods-in-labeled-ns"
     action: "Allow"
     to:
     - pods:

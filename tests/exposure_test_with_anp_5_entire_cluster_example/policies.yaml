@@ -9,7 +9,7 @@ spec:
       matchLabels:
         kubernetes.io/metadata.name: hello-world
   ingress:
-  - name: "deny-some-ingress-from-entire-cluster"  # exposed to entire-cluster on ingress
+  - name: "deny-tcp80-ingress-from-entire-cluster"  # exposed to entire-cluster on ingress
     action: "Deny"
     from:
     - namespaces: {}
@@ -18,7 +18,7 @@ spec:
         port: 80
         protocol: TCP
   egress:
-  - name: "deny-some-egress-to-entire-cluster" # exposed to entire-cluster on egress
+  - name: "deny-tcp80-egress-to-entire-cluster" # exposed to entire-cluster on egress
     action: "Deny" 
     to:
     - namespaces: {}

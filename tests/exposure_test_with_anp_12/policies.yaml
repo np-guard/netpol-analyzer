@@ -13,7 +13,7 @@ spec:
         matchLabels:
           app: a-app
   egress:
-  - name: "allow-some-to-all-pods-in-existing-ns"
+  - name: "allow-tcp9090-to-all-pods-in-existing-ns"
     action: "Allow"
     to:
     - pods:
@@ -25,7 +25,7 @@ spec:
         port: 9090
         protocol: TCP    
   ingress:
-  - name: "allow-some-from-pods-in-existing-namespace"
+  - name: "allow-tcp9090-from-pods-in-existing-namespace"
     action: "Allow"
     from:
     - pods:
@@ -51,7 +51,7 @@ spec:
         matchLabels:
           app: a-app
   ingress:
-  - name: "deny-all-internal-connections-on-port"
+  - name: "deny-all-internal-connections-on-port-tcp9090"
     action: "Deny"
     from:
     - pods:
@@ -62,7 +62,7 @@ spec:
         port: 9090
         protocol: TCP
   egress:
-  - name: "deny-all-internal-connections-egress-on-port"
+  - name: "deny-all-internal-connections-egress-on-port-tcp9090"
     action: "Deny"
     to:
     - pods:
