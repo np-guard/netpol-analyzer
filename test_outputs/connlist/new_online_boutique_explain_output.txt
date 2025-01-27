@@ -187,13 +187,13 @@ DENIED TCP:[1-7069,7071-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/checkoutservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/cartservice // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/checkoutservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/cartservice // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/currencyservice[Deployment]:
@@ -208,13 +208,13 @@ DENIED TCP:[1-6999,7001-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/checkoutservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/currencyservice // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/checkoutservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/currencyservice // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/emailservice[Deployment]:
@@ -229,13 +229,13 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/checkoutservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/emailservice // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/checkoutservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/emailservice // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/paymentservice[Deployment]:
@@ -250,13 +250,13 @@ DENIED TCP:[1-50050,50052-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/checkoutservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/paymentservice // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/checkoutservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/paymentservice // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/productcatalogservice[Deployment]:
@@ -271,13 +271,13 @@ DENIED TCP:[1-3549,3551-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/checkoutservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/productcatalogservice // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/checkoutservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/productcatalogservice // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/shippingservice[Deployment]:
@@ -292,13 +292,13 @@ DENIED TCP:[1-50050,50052-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/checkoutservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/shippingservice // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/checkoutservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/shippingservice // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/adservice[Deployment]:
@@ -313,13 +313,13 @@ DENIED TCP:[1-9554,9556-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-auth // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/adservice-auth // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-auth // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/adservice-auth // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/cartservice[Deployment]:
@@ -334,13 +334,13 @@ DENIED TCP:[1-7069,7071-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/cartservice // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/cartservice // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/checkoutservice[Deployment]:
@@ -355,13 +355,13 @@ DENIED TCP:[1-5049,5051-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/checkoutservice // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/checkoutservice // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/currencyservice[Deployment]:
@@ -376,13 +376,13 @@ DENIED TCP:[1-6999,7001-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/currencyservice // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/currencyservice // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/productcatalogservice[Deployment]:
@@ -397,13 +397,13 @@ DENIED TCP:[1-3549,3551-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/productcatalogservice // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/productcatalogservice // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/recommendationservice[Deployment]:
@@ -418,13 +418,13 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/recommendationservice // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/recommendationservice // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/recommendationservice // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/recommendationservice // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/shippingservice[Deployment]:
@@ -439,13 +439,13 @@ DENIED TCP:[1-50050,50052-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/shippingservice // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/frontend // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/shippingservice // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/loadgenerator[Deployment] => default/frontend[Deployment]:
@@ -460,13 +460,13 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/loadgenerator // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/frontend // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/loadgenerator // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/frontend // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice[Deployment] => default/productcatalogservice[Deployment]:
@@ -481,13 +481,13 @@ DENIED TCP:[1-3549,3551-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/recommendationservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/productcatalogservice // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] default/recommendationservice // Egress rule #1
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/productcatalogservice // Ingress rule #1 (protocols not referenced)
 
 
 ####################################

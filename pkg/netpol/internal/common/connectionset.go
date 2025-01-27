@@ -31,6 +31,18 @@ type ConnectionSet struct {
 	CommonImplyingRules ImplyingRulesType        // used for explainability, when AllowedProtocols is empty (i.e., all allowed or all denied)
 }
 
+func ExplNoMatchOfNamedPortsToDst(ruleName string) string {
+	return fmt.Sprintf("%s (named ports of the rule have no match in the configuration of the dst peer)", ruleName)
+}
+
+func ExplNotReferencedPorts(ruleName string) string {
+	return fmt.Sprintf("%s (ports not referenced)", ruleName)
+}
+
+func ExplNotReferencedProtocols(ruleName string) string {
+	return fmt.Sprintf("%s (protocols not referenced)", ruleName)
+}
+
 var allProtocols = []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP, v1.ProtocolSCTP}
 
 // MakeConnectionSet returns a pointer to ConnectionSet object with all connections or no connections
@@ -64,6 +76,13 @@ func (conn *ConnectionSet) GetEquivalentCanonicalConnectionSet() *ConnectionSet 
 		}
 	}
 	return res
+}
+
+func (conn *ConnectionSet) RemoveDefaultRule(isIngress bool) {
+	conn.CommonImplyingRules.RemoveDefaultRule(isIngress)
+	for _, ports := range conn.AllowedProtocols {
+		ports.RemoveDefaultRule(isIngress)
+	}
 }
 
 // GetAllTCPConnections returns a pointer to ConnectionSet object with all TCP protocol connections

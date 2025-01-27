@@ -30,17 +30,17 @@ ALLOWED UDP:[8080] due to the following policies // rules:
 DENIED TCP:[1-8079,8081-9089,9091-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] demo/ui-to-command // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] demo/ui-to-command // Ingress rule #1 (ports not referenced)
 
 DENIED UDP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] demo/ui-to-command // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] demo/ui-to-command // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] demo/ui-to-command // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] demo/ui-to-command // Ingress rule #1 (protocols not referenced)
 
 
 ####################################

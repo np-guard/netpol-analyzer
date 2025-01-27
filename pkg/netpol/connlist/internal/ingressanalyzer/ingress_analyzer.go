@@ -359,7 +359,8 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 	// (if the required port is not specified, all service ports are allowed)
 	peerPortsToFind := getPeerAccessPort(actualServicePorts, requiredPort)
 	// compute the connection to the peer with the required port/s
-	res := common.MakeConnectionSet(false)
+	// all protocols are affected by Ingress (though only TCP may be specified; the rest are not allowed by Ingress)
+	res := common.MakeConnectionSetWithRule(false, common.ExplNotReferencedProtocols(ruleName), common.NPLayer, true)
 	for _, peerPortToFind := range peerPortsToFind {
 		portNum := peerPortToFind.IntValue()
 		if peerPortToFind.StrVal != "" { // if the port we are searching for is namedPort
@@ -375,7 +376,9 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 		}
 
 		if peerTCPConn.Contains(strconv.Itoa(portNum), string(corev1.ProtocolTCP)) {
-			permittedPort := common.MakePortSet(false)
+			// the whole port range is affected by Ingress (not only ports mentioned by Ingress/Route resource)
+			permittedPort := common.MakeEmptyPortSetWithImplyingRules(
+				common.MakeImplyingRulesWithRule(common.ExplNotReferencedPorts(ruleName), common.NPLayer, true))
 			permittedPort.AddPort(intstr.FromInt(portNum), common.MakeImplyingRulesWithRule(ruleName, common.NPLayer, true))
 			res.AddConnection(corev1.ProtocolTCP, permittedPort)
 		}

@@ -13,15 +13,15 @@ ALLOWED TCP:[7070] due to the following policies // rules:
 
 DENIED TCP:[1-7069,7071-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Egress rule #1 (ports not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Egress rule #1 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/cartservice-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Egress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/cartservice-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice-69c8ff664b[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
@@ -34,15 +34,15 @@ ALLOWED TCP:[7000] due to the following policies // rules:
 
 DENIED TCP:[1-6999,7001-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Egress rule #2 (ports not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/currencyservice-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Egress rule #2 (protocols not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/currencyservice-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice-69c8ff664b[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
@@ -55,15 +55,15 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Egress rule #3 (ports not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/emailservice-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Egress rule #3 (protocols not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/emailservice-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/emailservice-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice-69c8ff664b[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
@@ -76,15 +76,15 @@ ALLOWED TCP:[50051] due to the following policies // rules:
 
 DENIED TCP:[1-50050,50052-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Egress rule #4 (ports not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Egress rule #4 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/paymentservice-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Egress rule #4 (protocols not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/paymentservice-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/paymentservice-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice-69c8ff664b[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
@@ -97,15 +97,15 @@ ALLOWED TCP:[3550] due to the following policies // rules:
 
 DENIED TCP:[1-3549,3551-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Egress rule #5 (ports not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Egress rule #5 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/productcatalogservice-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Egress rule #5 (protocols not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Egress rule #5 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/productcatalogservice-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice-69c8ff664b[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet]:
@@ -118,15 +118,15 @@ ALLOWED TCP:[50051] due to the following policies // rules:
 
 DENIED TCP:[1-50050,50052-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Egress rule #6 (ports not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Egress rule #6 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/shippingservice-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Egress rule #6 (protocols not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Egress rule #6 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/shippingservice-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend-99684f7f8[ReplicaSet] => default/adservice-77d5cd745d[ReplicaSet]:
@@ -139,15 +139,15 @@ ALLOWED TCP:[9555] due to the following policies // rules:
 
 DENIED TCP:[1-9554,9556-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #1 (ports not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #1 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/adservice-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/adservice-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/adservice-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend-99684f7f8[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet]:
@@ -160,15 +160,15 @@ ALLOWED TCP:[7070] due to the following policies // rules:
 
 DENIED TCP:[1-7069,7071-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #2 (ports not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol // Ingress rule #2 (ports not referenced by the rule)
+		1) [NP] default/cartservice-netpol // Ingress rule #2 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #2 (protocols not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/cartservice-netpol // Ingress rule #2 (protocols not referenced by the rule)
+		1) [NP] default/cartservice-netpol // Ingress rule #2 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend-99684f7f8[ReplicaSet] => default/checkoutservice-69c8ff664b[ReplicaSet]:
@@ -181,15 +181,15 @@ ALLOWED TCP:[5050] due to the following policies // rules:
 
 DENIED TCP:[1-5049,5051-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #3 (ports not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #3 (protocols not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/checkoutservice-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/checkoutservice-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend-99684f7f8[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
@@ -202,15 +202,15 @@ ALLOWED TCP:[7000] due to the following policies // rules:
 
 DENIED TCP:[1-6999,7001-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #4 (ports not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #4 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol // Ingress rule #2 (ports not referenced by the rule)
+		1) [NP] default/currencyservice-netpol // Ingress rule #2 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #4 (protocols not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/currencyservice-netpol // Ingress rule #2 (protocols not referenced by the rule)
+		1) [NP] default/currencyservice-netpol // Ingress rule #2 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend-99684f7f8[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
@@ -223,15 +223,15 @@ ALLOWED TCP:[3550] due to the following policies // rules:
 
 DENIED TCP:[1-3549,3551-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #5 (ports not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #5 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol // Ingress rule #2 (ports not referenced by the rule)
+		1) [NP] default/productcatalogservice-netpol // Ingress rule #2 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #5 (protocols not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #5 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol // Ingress rule #2 (protocols not referenced by the rule)
+		1) [NP] default/productcatalogservice-netpol // Ingress rule #2 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend-99684f7f8[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
@@ -244,15 +244,15 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #6 (ports not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #6 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/recommendationservice-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/recommendationservice-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #6 (protocols not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #6 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/recommendationservice-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/recommendationservice-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend-99684f7f8[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet]:
@@ -265,15 +265,15 @@ ALLOWED TCP:[50051] due to the following policies // rules:
 
 DENIED TCP:[1-50050,50052-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #7 (ports not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #7 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol // Ingress rule #2 (ports not referenced by the rule)
+		1) [NP] default/shippingservice-netpol // Ingress rule #2 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Egress rule #7 (protocols not referenced by the rule)
+		1) [NP] default/frontend-netpol // Egress rule #7 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/shippingservice-netpol // Ingress rule #2 (protocols not referenced by the rule)
+		1) [NP] default/shippingservice-netpol // Ingress rule #2 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/loadgenerator-555fbdc87d[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet]:
@@ -286,15 +286,15 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol // Egress rule #1 (ports not referenced by the rule)
+		1) [NP] default/loadgenerator-netpol // Egress rule #1 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] default/frontend-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/loadgenerator-netpol // Egress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/loadgenerator-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/frontend-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/frontend-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice-5f8c456796[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
@@ -307,15 +307,15 @@ ALLOWED TCP:[3550] due to the following policies // rules:
 
 DENIED TCP:[1-3549,3551-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/recommendationservice-netpol // Egress rule #1 (ports not referenced by the rule)
+		1) [NP] default/recommendationservice-netpol // Egress rule #1 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol // Ingress rule #3 (ports not referenced by the rule)
+		1) [NP] default/productcatalogservice-netpol // Ingress rule #3 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] default/recommendationservice-netpol // Egress rule #1 (protocols not referenced by the rule)
+		1) [NP] default/recommendationservice-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] default/productcatalogservice-netpol // Ingress rule #3 (protocols not referenced by the rule)
+		1) [NP] default/productcatalogservice-netpol // Ingress rule #3 (protocols not referenced)
 
 
 ####################################

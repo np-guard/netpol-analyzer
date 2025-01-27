@@ -161,7 +161,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 	}
 	ruleName := np.ruleName(ruleIdx, isIngress)
 	// all protocols are affected by the rule
-	res := common.MakeConnectionSetWithRule(false, explNotReferencedProtocols(ruleName), common.NPLayer, isIngress)
+	res := common.MakeConnectionSetWithRule(false, common.ExplNotReferencedProtocols(ruleName), common.NPLayer, isIngress)
 	for i := range rulePorts {
 		protocol := v1.ProtocolTCP
 		if rulePorts[i].Protocol != nil {
@@ -169,7 +169,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 		}
 		// the whole port range is affected by the rule (not only ports mentioned in the rule)
 		ports := common.MakeEmptyPortSetWithImplyingRules(
-			common.MakeImplyingRulesWithRule(explNotReferencedPorts(ruleName), common.NPLayer, isIngress))
+			common.MakeImplyingRulesWithRule(common.ExplNotReferencedPorts(ruleName), common.NPLayer, isIngress))
 		if rulePorts[i].Port == nil {
 			ports = common.MakeAllPortSetWithImplyingRules(common.MakeImplyingRulesWithRule(ruleName, common.NPLayer, isIngress))
 		} else {
@@ -213,7 +213,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 	if res.IsEmpty() {
 		// no connections found --> "named ports" of the rule had no match in the pod config
 		// remove empty protocols if any
-		res = common.MakeConnectionSetWithRule(false, explNoMatchOfNamedPortsToDst(ruleName), common.NPLayer, isIngress)
+		res = common.MakeConnectionSetWithRule(false, common.ExplNoMatchOfNamedPortsToDst(ruleName), common.NPLayer, isIngress)
 	}
 	return res, nil
 }
@@ -419,18 +419,6 @@ func (np *NetworkPolicy) nameWithDirectionAndExpl(isIngress bool, expl string) s
 		xgress = "Ingress"
 	}
 	return fmt.Sprintf("%s // %s "+expl, np.FullName(), xgress, xgress)
-}
-
-func explNoMatchOfNamedPortsToDst(ruleName string) string {
-	return fmt.Sprintf("%s (named ports of the rule have no match in the configuration of the dst peer)", ruleName)
-}
-
-func explNotReferencedPorts(ruleName string) string {
-	return fmt.Sprintf("%s (ports not referenced by the rule)", ruleName)
-}
-
-func explNotReferencedProtocols(ruleName string) string {
-	return fmt.Sprintf("%s (protocols not referenced by the rule)", ruleName)
 }
 
 // GetXgressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer (for Ingress)

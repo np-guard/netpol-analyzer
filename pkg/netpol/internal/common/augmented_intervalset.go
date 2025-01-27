@@ -118,6 +118,12 @@ func (rules *ImplyingXgressRulesType) onlyDefaultRule() bool {
 	return len(rules.Rules) == 1 && rules.DominantLayer == DefaultLayer
 }
 
+func (rules *ImplyingXgressRulesType) removeDefaultRule() {
+	if rules.onlyDefaultRule() {
+		*rules = InitImplyingXgressRules()
+	}
+}
+
 func formattedExpl(expl string) string {
 	return "(" + expl + ")"
 }
@@ -160,6 +166,14 @@ func (rules *ImplyingXgressRulesType) String() string {
 
 func (rules *ImplyingRulesType) OnlyDefaultRule() bool {
 	return rules.Ingress.onlyDefaultRule() && rules.Egress.onlyDefaultRule()
+}
+
+func (rules *ImplyingRulesType) RemoveDefaultRule(isIngress bool) {
+	if isIngress {
+		rules.Ingress.removeDefaultRule()
+	} else {
+		rules.Egress.removeDefaultRule()
+	}
 }
 
 func (rules ImplyingRulesType) String() string {
@@ -205,9 +219,6 @@ func (rules *ImplyingRulesType) AddRule(ruleName string, ruleLayer LayerType, is
 }
 
 func (rules *ImplyingXgressRulesType) SetXgressResult(isAllowed bool) {
-	if rules.Result != NoResult {
-		log.Panic(errConflictingExplResult)
-	}
 	if isAllowed {
 		rules.Result = AllowResult
 	} else {
@@ -373,6 +384,12 @@ func NewAugmentedCanonicalSetWithRules(minValue, maxValue int64, isAll bool, rul
 		intervalSet: []AugmentedInterval{
 			NewAugmentedIntervalWithRules(minValue, maxValue, isAll, rules), // the full range interval (isAll==true) or 'hole' (isAll==false)
 		},
+	}
+}
+
+func (c *AugmentedCanonicalSet) RemoveDefaultRule(isIngress bool) {
+	for ind := range c.intervalSet {
+		c.intervalSet[ind].implyingRules.RemoveDefaultRule(isIngress)
 	}
 }
 
@@ -671,12 +688,12 @@ func (c *AugmentedCanonicalSet) Intersect(other *AugmentedCanonicalSet) *Augment
 	}
 	for _, left := range c.intervalSet {
 		if !left.inSet {
-			res.AddAugmentedInterval(left, AlwaysCollectRules) // collect implying rules allowed by both sets
+			res.AddAugmentedInterval(left, AlwaysCollectRules) // collect implying rules denied by both sets
 		}
 	}
 	for _, right := range other.intervalSet {
 		if !right.inSet {
-			res.AddAugmentedInterval(right, AlwaysCollectRules) // collect implying rules allowed by both sets
+			res.AddAugmentedInterval(right, AlwaysCollectRules) // collect implying rules denied by both sets
 		}
 	}
 	return res

@@ -672,7 +672,9 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		if err != nil {
 			return nil, err
 		}
+		peConn.RemoveDefaultRule(true)
 		peerAndConn.ConnSet.Intersection(peConn)
+		peerAndConn.ConnSet.SetExplResult(true)
 		if peerAndConn.ConnSet.IsEmpty() {
 			ca.warnBlockedIngress(peerStr, peerAndConn.IngressObjects)
 			continue

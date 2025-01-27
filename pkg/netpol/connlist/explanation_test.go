@@ -99,7 +99,7 @@ var explainTests = []struct {
 	{
 		testDirName: "onlineboutique_workloads_with_ingress",
 	},
-	// {
-	// 	testDirName: "route_example_with_target_port",
-	// },
+	{
+		testDirName: "route_example_with_target_port",
+	},
 }

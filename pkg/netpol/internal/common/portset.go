@@ -62,6 +62,10 @@ func MakeEmptyPortSetWithImplyingRules(rules ImplyingRulesType) *PortSet {
 	}
 }
 
+func (p *PortSet) RemoveDefaultRule(isIngress bool) {
+	p.Ports.RemoveDefaultRule(isIngress)
+}
+
 // Equal: return true if current object equals another PortSet object
 func (p *PortSet) Equal(other *PortSet) bool {
 	return p.Ports.Equal(other.Ports) && reflect.DeepEqual(portNames(p.NamedPorts), portNames(other.NamedPorts)) &&

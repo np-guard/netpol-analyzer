@@ -10,7 +10,7 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 		1) [NP] backend/catalog-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
@@ -24,7 +24,7 @@ DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 		1) [NP] backend/catalog-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/catalog[Deployment] => frontend/webapp[Deployment]:
@@ -35,7 +35,7 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 		2) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
@@ -50,14 +50,14 @@ DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 		2) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => backend/catalog[Deployment]:
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/catalog-netpol // Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -71,7 +71,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/catalog-netpol // Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -87,31 +87,31 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #1 (ports not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #1 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/notification-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] backend/notification-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #1 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/notification-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/notification-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] backend/checkout-netpol // Egress rule #4
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/notification-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/notification-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #1 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/notification-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/notification-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => backend/recommendation[Deployment]:
@@ -124,38 +124,38 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #2 (ports not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #2 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] backend/checkout-netpol // Egress rule #4
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #2 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => backend/reports[Deployment]:
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/reports-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -169,7 +169,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/reports-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -179,7 +179,7 @@ CONNECTIONS BETWEEN backend/checkout[Deployment] => backend/shipping[Deployment]
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/shipping-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -193,7 +193,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/shipping-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -203,70 +203,70 @@ CONNECTIONS BETWEEN backend/checkout[Deployment] => frontend/asset-cache[Deploym
 
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/asset-cache-netpol // Ingress rule #1
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] backend/checkout-netpol // Egress rule #4
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => frontend/webapp[Deployment]:
 
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/webapp-netpol // Ingress rule #1
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] backend/checkout-netpol // Egress rule #4
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => payments/gateway[Deployment]:
@@ -279,38 +279,38 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #3 (ports not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #3 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] backend/checkout-netpol // Egress rule #4
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #3 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => payments/mastercard-processor[Deployment]:
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/mastercard-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -324,7 +324,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/mastercard-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -334,7 +334,7 @@ CONNECTIONS BETWEEN backend/checkout[Deployment] => payments/visa-processor[Depl
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/visa-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -348,7 +348,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/visa-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -361,7 +361,7 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] backend/notification-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
@@ -375,7 +375,7 @@ DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] backend/notification-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/notification[Deployment] => frontend/webapp[Deployment]:
@@ -386,7 +386,7 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 		2) [NP] backend/notification-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
@@ -401,7 +401,7 @@ DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 		2) [NP] backend/notification-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => backend/catalog[Deployment]:
@@ -415,29 +415,29 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #1 (ports not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #1 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] backend/catalog-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] backend/catalog-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] backend/catalog-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] backend/catalog-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] backend/recommendation-netpol // Egress rule #2
 	INGRESS DIRECTION (DENIED)
-		1) [NP] backend/catalog-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] backend/catalog-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] backend/catalog-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] backend/catalog-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => backend/checkout[Deployment]:
@@ -445,7 +445,7 @@ CONNECTIONS BETWEEN backend/recommendation[Deployment] => backend/checkout[Deplo
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/checkout-netpol // Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -460,7 +460,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/checkout-netpol // Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -471,7 +471,7 @@ CONNECTIONS BETWEEN backend/recommendation[Deployment] => backend/notification[D
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/notification-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -486,7 +486,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/notification-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -497,7 +497,7 @@ CONNECTIONS BETWEEN backend/recommendation[Deployment] => backend/reports[Deploy
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/reports-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -512,7 +512,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/reports-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -523,7 +523,7 @@ CONNECTIONS BETWEEN backend/recommendation[Deployment] => backend/shipping[Deplo
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/shipping-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -538,7 +538,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/shipping-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -549,36 +549,36 @@ CONNECTIONS BETWEEN backend/recommendation[Deployment] => frontend/asset-cache[D
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/asset-cache-netpol // Ingress rule #1
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] backend/recommendation-netpol // Egress rule #2
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => frontend/webapp[Deployment]:
@@ -586,40 +586,40 @@ CONNECTIONS BETWEEN backend/recommendation[Deployment] => frontend/webapp[Deploy
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/webapp-netpol // Ingress rule #1
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] backend/recommendation-netpol // Egress rule #2
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => payments/gateway[Deployment]:
@@ -627,7 +627,7 @@ CONNECTIONS BETWEEN backend/recommendation[Deployment] => payments/gateway[Deplo
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/gateway-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -642,7 +642,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/gateway-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -653,7 +653,7 @@ CONNECTIONS BETWEEN backend/recommendation[Deployment] => payments/mastercard-pr
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/mastercard-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -668,7 +668,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/mastercard-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -679,7 +679,7 @@ CONNECTIONS BETWEEN backend/recommendation[Deployment] => payments/visa-processo
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/visa-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -694,7 +694,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/visa-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -711,29 +711,29 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #1 (ports not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #1 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] backend/catalog-netpol // Ingress rule #2 (ports not referenced by the rule)
+		1) [NP] backend/catalog-netpol // Ingress rule #2 (ports not referenced)
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] backend/catalog-netpol // Ingress rule #2 (protocols not referenced by the rule)
+		1) [NP] backend/catalog-netpol // Ingress rule #2 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] backend/reports-netpol // Egress rule #3
 	INGRESS DIRECTION (DENIED)
-		1) [NP] backend/catalog-netpol // Ingress rule #2 (protocols not referenced by the rule)
+		1) [NP] backend/catalog-netpol // Ingress rule #2 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] backend/catalog-netpol // Ingress rule #2 (protocols not referenced by the rule)
+		1) [NP] backend/catalog-netpol // Ingress rule #2 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => backend/checkout[Deployment]:
@@ -741,7 +741,7 @@ CONNECTIONS BETWEEN backend/reports[Deployment] => backend/checkout[Deployment]:
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/checkout-netpol // Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -756,7 +756,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/checkout-netpol // Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -767,7 +767,7 @@ CONNECTIONS BETWEEN backend/reports[Deployment] => backend/notification[Deployme
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/notification-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -782,7 +782,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/notification-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -799,33 +799,33 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #2 (ports not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Ingress rule #2 (ports not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Ingress rule #2 (ports not referenced)
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Ingress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Ingress rule #2 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] backend/reports-netpol // Egress rule #3
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Ingress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Ingress rule #2 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Ingress rule #2 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Ingress rule #2 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => backend/shipping[Deployment]:
@@ -833,7 +833,7 @@ CONNECTIONS BETWEEN backend/reports[Deployment] => backend/shipping[Deployment]:
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/shipping-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -848,7 +848,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/shipping-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -859,36 +859,36 @@ CONNECTIONS BETWEEN backend/reports[Deployment] => frontend/asset-cache[Deployme
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/asset-cache-netpol // Ingress rule #1
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] backend/reports-netpol // Egress rule #3
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => frontend/webapp[Deployment]:
@@ -896,40 +896,40 @@ CONNECTIONS BETWEEN backend/reports[Deployment] => frontend/webapp[Deployment]:
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/webapp-netpol // Ingress rule #1
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] backend/reports-netpol // Egress rule #3
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => payments/gateway[Deployment]:
@@ -937,7 +937,7 @@ CONNECTIONS BETWEEN backend/reports[Deployment] => payments/gateway[Deployment]:
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/gateway-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -952,7 +952,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/gateway-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -963,7 +963,7 @@ CONNECTIONS BETWEEN backend/reports[Deployment] => payments/mastercard-processor
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/mastercard-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -978,7 +978,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/mastercard-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -989,7 +989,7 @@ CONNECTIONS BETWEEN backend/reports[Deployment] => payments/visa-processor[Deplo
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/visa-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1004,7 +1004,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/visa-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1017,7 +1017,7 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] backend/shipping-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
@@ -1031,7 +1031,7 @@ DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 		1) [NP] backend/default-deny-in-namespace-backend // Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] backend/shipping-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/shipping[Deployment] => frontend/webapp[Deployment]:
@@ -1042,7 +1042,7 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 		2) [NP] backend/shipping-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
@@ -1057,7 +1057,7 @@ DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 		2) [NP] backend/shipping-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/asset-cache[Deployment] => frontend/webapp[Deployment]:
@@ -1068,7 +1068,7 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 		2) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
@@ -1083,7 +1083,7 @@ DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 		2) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => backend/catalog[Deployment]:
@@ -1091,7 +1091,7 @@ CONNECTIONS BETWEEN frontend/webapp[Deployment] => backend/catalog[Deployment]:
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/catalog-netpol // Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -1106,7 +1106,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/catalog-netpol // Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -1123,29 +1123,29 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #1 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #1 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/webapp-netpol // Egress rule #5
 	INGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] backend/checkout-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] backend/checkout-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => backend/notification[Deployment]:
@@ -1153,7 +1153,7 @@ CONNECTIONS BETWEEN frontend/webapp[Deployment] => backend/notification[Deployme
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/notification-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1168,7 +1168,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/notification-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1185,33 +1185,33 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #2 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Ingress rule #3 (ports not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Ingress rule #3 (ports not referenced)
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Ingress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Ingress rule #3 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/webapp-netpol // Egress rule #5
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Ingress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Ingress rule #3 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/recommendation-netpol // Ingress rule #3 (protocols not referenced by the rule)
+		2) [NP] backend/recommendation-netpol // Ingress rule #3 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => backend/reports[Deployment]:
@@ -1225,33 +1225,33 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] backend/reports-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/webapp-netpol // Egress rule #5
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/reports-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/reports-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => backend/shipping[Deployment]:
@@ -1265,33 +1265,33 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #4 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #4 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/shipping-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] backend/shipping-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #4 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/shipping-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/shipping-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/webapp-netpol // Egress rule #5
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/shipping-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/shipping-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #4 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #4 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] backend/shipping-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] backend/shipping-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => frontend/asset-cache[Deployment]:
@@ -1299,36 +1299,36 @@ CONNECTIONS BETWEEN frontend/webapp[Deployment] => frontend/asset-cache[Deployme
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/asset-cache-netpol // Ingress rule #1
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/webapp-netpol // Egress rule #5
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => payments/gateway[Deployment]:
@@ -1336,7 +1336,7 @@ CONNECTIONS BETWEEN frontend/webapp[Deployment] => payments/gateway[Deployment]:
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/gateway-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1351,7 +1351,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/gateway-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1362,7 +1362,7 @@ CONNECTIONS BETWEEN frontend/webapp[Deployment] => payments/mastercard-processor
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/mastercard-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1377,7 +1377,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/mastercard-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1388,7 +1388,7 @@ CONNECTIONS BETWEEN frontend/webapp[Deployment] => payments/visa-processor[Deplo
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/visa-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1403,7 +1403,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Egress rule #5 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] payments/visa-processor-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1414,7 +1414,7 @@ CONNECTIONS BETWEEN payments/gateway[Deployment] => backend/catalog[Deployment]:
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/catalog-netpol // Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -1429,7 +1429,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/catalog-netpol // Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -1440,7 +1440,7 @@ CONNECTIONS BETWEEN payments/gateway[Deployment] => backend/checkout[Deployment]
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/checkout-netpol // Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -1455,7 +1455,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/checkout-netpol // Ingress (captured but not selected by any Ingress rule)
 		2) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
@@ -1466,7 +1466,7 @@ CONNECTIONS BETWEEN payments/gateway[Deployment] => backend/notification[Deploym
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/notification-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1481,7 +1481,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/notification-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1492,7 +1492,7 @@ CONNECTIONS BETWEEN payments/gateway[Deployment] => backend/recommendation[Deplo
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/recommendation-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1507,7 +1507,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/recommendation-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1518,7 +1518,7 @@ CONNECTIONS BETWEEN payments/gateway[Deployment] => backend/reports[Deployment]:
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/reports-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1533,7 +1533,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/reports-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1544,7 +1544,7 @@ CONNECTIONS BETWEEN payments/gateway[Deployment] => backend/shipping[Deployment]
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/shipping-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1559,7 +1559,7 @@ DENIED UDP:[5353] due to the following policies // rules:
 DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] backend/default-deny-in-namespace-backend // Ingress (captured but not selected by any Ingress rule - no rules defined)
 		2) [NP] backend/shipping-netpol // Ingress (captured but not selected by any Ingress rule)
@@ -1570,36 +1570,36 @@ CONNECTIONS BETWEEN payments/gateway[Deployment] => frontend/asset-cache[Deploym
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/asset-cache-netpol // Ingress rule #1
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] payments/gateway-netpol // Egress rule #3
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => frontend/webapp[Deployment]:
@@ -1607,40 +1607,40 @@ CONNECTIONS BETWEEN payments/gateway[Deployment] => frontend/webapp[Deployment]:
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (ALLOWED)
 		1) [NP] frontend/webapp-netpol // Ingress rule #1
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] payments/gateway-netpol // Egress rule #3
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #3 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => payments/mastercard-processor[Deployment]:
@@ -1654,33 +1654,33 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #1 (ports not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #1 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] payments/mastercard-processor-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] payments/mastercard-processor-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #1 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] payments/mastercard-processor-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] payments/mastercard-processor-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] payments/gateway-netpol // Egress rule #3
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] payments/mastercard-processor-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] payments/mastercard-processor-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #1 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #1 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] payments/mastercard-processor-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] payments/mastercard-processor-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => payments/visa-processor[Deployment]:
@@ -1694,33 +1694,33 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #2 (ports not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #2 (ports not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] payments/visa-processor-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] payments/visa-processor-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED UDP:[1-5352,5354-65535] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] payments/visa-processor-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] payments/visa-processor-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED UDP:[5353] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED)
 		1) [NP] payments/gateway-netpol // Egress rule #3
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] payments/visa-processor-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] payments/visa-processor-netpol // Ingress rule #1 (protocols not referenced)
 
 DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
-		2) [NP] payments/gateway-netpol // Egress rule #2 (protocols not referenced by the rule)
+		2) [NP] payments/gateway-netpol // Egress rule #2 (protocols not referenced)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] payments/default-deny-in-namespace-payments // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] payments/visa-processor-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] payments/visa-processor-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => frontend/asset-cache[Deployment]:
@@ -1730,7 +1730,7 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] payments/mastercard-processor-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
@@ -1744,7 +1744,7 @@ DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] payments/mastercard-processor-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => frontend/webapp[Deployment]:
@@ -1755,7 +1755,7 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 		2) [NP] payments/mastercard-processor-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
@@ -1770,7 +1770,7 @@ DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 		2) [NP] payments/mastercard-processor-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => frontend/asset-cache[Deployment]:
@@ -1780,7 +1780,7 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] payments/visa-processor-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
@@ -1794,7 +1794,7 @@ DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 		1) [NP] payments/default-deny-in-namespace-payments // Egress (captured but not selected by any Egress rule - no rules defined)
 		2) [NP] payments/visa-processor-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => frontend/webapp[Deployment]:
@@ -1805,7 +1805,7 @@ DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 		2) [NP] payments/visa-processor-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED TCP:[8080] due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
@@ -1820,7 +1820,7 @@ DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 		2) [NP] payments/visa-processor-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => frontend/asset-cache[Deployment]:
@@ -1834,12 +1834,14 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [Route] frontend/asset-cache // service asset-cache-service (ports not referenced)
+		2) [NP] frontend/asset-cache-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [Route] frontend/asset-cache // service asset-cache-service (protocols not referenced)
+		2) [NP] frontend/asset-cache-netpol // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => frontend/webapp[Deployment]:
@@ -1853,14 +1855,16 @@ ALLOWED TCP:[8080] due to the following policies // rules:
 DENIED TCP:[1-8079,8081-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced by the rule)
+		1) [Route] frontend/webapp // service webapp-service (ports not referenced)
+		2) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
+		3) [NP] frontend/webapp-netpol // Ingress rule #1 (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
-		1) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
-		2) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced by the rule)
+		1) [Route] frontend/webapp // service webapp-service (protocols not referenced)
+		2) [NP] frontend/default-deny-in-namespace-frontend // Ingress (captured but not selected by any Ingress rule - no rules defined)
+		3) [NP] frontend/webapp-netpol // Ingress rule #1 (protocols not referenced)
 
 
 ####################################
