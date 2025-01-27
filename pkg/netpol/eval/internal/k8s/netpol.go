@@ -36,30 +36,26 @@ import (
 type NetworkPolicy struct {
 	*netv1.NetworkPolicy // embedding k8s network policy object
 	// following data stored in preprocessing when exposure-analysis is on;
-	// IngressPolicyExposure contains:
-	// - the maximal connection-set which the policy's rules allow from external destinations on ingress direction
+	// storing the cluster wide exposure of the policy on both ingress and egress directions;
+	// those connections are inferred when the policy has no rules, or from empty rules.
+	// note that : when there are no rules in the policy, the pod is actually exposed to entire cluster and all external IP, however the
+	// external exposure is not stored here since we use IP-Block Peers as the external peers when computing allowed connections,
+	// and those conns are also attached to exposure-analysis output.
+
+	// IngressPolicyClusterWideExposure contains:
 	// - the maximal connection-set which the policy's rules allow from all namespaces in the cluster on ingress direction
-	IngressPolicyExposure PolicyExposureWithoutSelectors
-	// EgressPolicyExposure contains:
-	// - the maximal connection-set which the policy's rules allow to external destinations on egress direction
+	// those conns are inferred when the policy has no rules, or from empty rules.
+	IngressPolicyClusterWideExposure *PolicyConnections
+	// EgressPolicyClusterWideExposure contains:
 	// - the maximal connection-set which the policy's rules allow to all namespaces in the cluster on egress direction
-	EgressPolicyExposure PolicyExposureWithoutSelectors
-	warnings             common.Warnings // set of warnings which are raised by the netpol
+	// those conns are inferred when the policy has no rules, or from empty rules.
+	EgressPolicyClusterWideExposure *PolicyConnections
+	warnings                        common.Warnings // set of warnings which are raised by the netpol
 }
 
 // @todo might help if while pre-process, to check containment of all rules' connections; if all "specific" rules
 // connections are contained in the "general" rules connections, then we can avoid iterating policy rules for computing
 // connections between two peers
-
-// PolicyExposureWithoutSelectors describes the maximum allowed conns that the policy exposes as cluster wide or as external,
-// those conns are inferred when the policy has no rules, or from empty rules
-type PolicyExposureWithoutSelectors struct {
-	// ExternalExposure  contains the maximal connection-set which the policy's rules allow from/to external and cluster-wide destinations
-	// (all namespaces, pods and IP addresses)
-	ExternalExposure *PolicyConnections
-	// ClusterWideExposure  contains the maximal connection-set which the policy's rules allow from/to all namespaces in the cluster
-	ClusterWideExposure *PolicyConnections
-}
 
 // @todo need a network policy collection type along with convenience methods?
 // 	if so, also consider concurrent access (or declare not goroutine safe?)
@@ -541,8 +537,7 @@ func (s SingleRuleSelectors) isEmpty() bool {
 }
 
 // GetPolicyRulesSelectorsAndUpdateExposureClusterWideConns scans policy rules and :
-// - updates policy's exposed cluster-wide connections from/to external resources or/and from/to all namespaces in the cluster on
-// ingress and egress directions
+// - updates policy's exposed cluster-wide connections from/to all namespaces in the cluster on ingress and egress directions
 // - returns list of labels.selectors from rules which have non-empty selectors, for which the representative peers should be generated
 func (np *NetworkPolicy) GetPolicyRulesSelectorsAndUpdateExposureClusterWideConns() (rulesSelectors []SingleRuleSelectors, err error) {
 	if np.policyAffectsDirection(netv1.PolicyTypeIngress) {
@@ -595,7 +590,7 @@ func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 
 // getSelectorsAndUpdateExposureClusterWideConns:
 // loops given rules list:
-// - if the rules list is empty updates the external and cluster wide exposure of the policy
+// - if the rules list is empty updates the cluster wide exposure of the policy
 // - if a rule have empty selectors (podSelector and namespaceSelector)or just empty namespaceSelector (nil podSelector)
 // updates the cluster wide exposure of the policy
 // - if a rule contains at least one defined selector : appends the rule selectors to a selector list which will be returned.
@@ -603,7 +598,7 @@ func (np *NetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) {
 func (np *NetworkPolicy) getSelectorsAndUpdateExposureClusterWideConns(rules []netv1.NetworkPolicyPeer, rulePorts []netv1.NetworkPolicyPort,
 	isIngress bool) (rulesSelectors []SingleRuleSelectors, err error) {
 	if len(rules) == 0 {
-		err = np.updateNetworkPolicyExposureClusterWideConns(true, true, rulePorts, isIngress)
+		err = np.updateNetworkPolicyExposureClusterWideConns(rulePorts, isIngress)
 		return nil, err
 	}
 	for i := range rules {
@@ -617,7 +612,7 @@ func (np *NetworkPolicy) getSelectorsAndUpdateExposureClusterWideConns(rules []n
 		// (note that podSelector and namespaceSelector cannot be both nil, this is invalid )
 		// if podSelector is not nil but namespaceSelector is nil, this is the netpol's namespace
 		if doesRuleSelectAllNamespaces(rules[i].NamespaceSelector, rules[i].PodSelector) {
-			err = np.updateNetworkPolicyExposureClusterWideConns(false, true, rulePorts, isIngress)
+			err = np.updateNetworkPolicyExposureClusterWideConns(rulePorts, isIngress)
 			return nil, err
 		}
 		// else selectors' combination specifies workloads by labels (at least one is not nil and not empty)
@@ -639,26 +634,16 @@ func doesRuleSelectAllNamespaces(namespaceSelector, podSelector *metav1.LabelSel
 
 // updateNetworkPolicyExposureClusterWideConns updates the cluster-wide exposure connections of the policy
 // note that, since NetworkPolicy rules may contain only allow conns data then, updating the AllowedConns field of the
-// ExternalExposure and ClusterWideExposure objects of the policy
-func (np *NetworkPolicy) updateNetworkPolicyExposureClusterWideConns(externalExposure, entireCluster bool,
-	rulePorts []netv1.NetworkPolicyPort, isIngress bool) error {
+// ClusterWideExposure objects of the policy
+func (np *NetworkPolicy) updateNetworkPolicyExposureClusterWideConns(rulePorts []netv1.NetworkPolicyPort, isIngress bool) error {
 	ruleConns, err := np.ruleConnections(rulePorts, nil)
 	if err != nil {
 		return err
 	}
-	if externalExposure {
-		if isIngress {
-			np.IngressPolicyExposure.ExternalExposure.AllowedConns.Union(ruleConns)
-		} else {
-			np.EgressPolicyExposure.ExternalExposure.AllowedConns.Union(ruleConns)
-		}
-	}
-	if entireCluster {
-		if isIngress {
-			np.IngressPolicyExposure.ClusterWideExposure.AllowedConns.Union(ruleConns)
-		} else {
-			np.EgressPolicyExposure.ClusterWideExposure.AllowedConns.Union(ruleConns)
-		}
+	if isIngress {
+		np.IngressPolicyClusterWideExposure.AllowedConns.Union(ruleConns)
+	} else {
+		np.EgressPolicyClusterWideExposure.AllowedConns.Union(ruleConns)
 	}
 	return nil
 }

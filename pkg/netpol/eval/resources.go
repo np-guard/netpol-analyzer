@@ -542,13 +542,6 @@ func (pe *PolicyEngine) insertPod(pod *corev1.Pod) error {
 	return err
 }
 
-func initPolicyExposureWithoutSelectors() k8s.PolicyExposureWithoutSelectors {
-	return k8s.PolicyExposureWithoutSelectors{
-		ExternalExposure:    k8s.NewPolicyConnections(),
-		ClusterWideExposure: k8s.NewPolicyConnections(),
-	}
-}
-
 func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 	netpolNamespace := np.ObjectMeta.Namespace
 	if netpolNamespace == "" {
@@ -560,9 +553,9 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 	}
 
 	newNetpol := &k8s.NetworkPolicy{
-		NetworkPolicy:         np,
-		IngressPolicyExposure: initPolicyExposureWithoutSelectors(),
-		EgressPolicyExposure:  initPolicyExposureWithoutSelectors(),
+		NetworkPolicy:                    np,
+		IngressPolicyClusterWideExposure: k8s.NewPolicyConnections(),
+		EgressPolicyClusterWideExposure:  k8s.NewPolicyConnections(),
 	}
 	if _, ok := pe.netpolsMap[netpolNamespace][np.Name]; ok {
 		return errors.New(netpolerrors.NPWithSameNameError(types.NamespacedName{Namespace: netpolNamespace, Name: np.Name}.String()))
@@ -591,9 +584,9 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 		return errors.New(netpolerrors.ANPsWithSameNameErr(anp.Name))
 	}
 	newAnp := &k8s.AdminNetworkPolicy{
-		AdminNetworkPolicy:    anp,
-		IngressPolicyExposure: initPolicyExposureWithoutSelectors(),
-		EgressPolicyExposure:  initPolicyExposureWithoutSelectors(),
+		AdminNetworkPolicy:               anp,
+		IngressPolicyClusterWideExposure: k8s.NewPolicyConnections(),
+		EgressPolicyClusterWideExposure:  k8s.NewPolicyConnections(),
 	}
 	pe.adminNetpolsMap[anp.Name] = true
 	pe.sortedAdminNetpols = append(pe.sortedAdminNetpols, newAnp)
@@ -622,9 +615,9 @@ func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineA
 		return errors.New(netpolerrors.BANPNameAssertion)
 	}
 	newBanp := &k8s.BaselineAdminNetworkPolicy{
-		BaselineAdminNetworkPolicy: banp,
-		IngressPolicyExposure:      initPolicyExposureWithoutSelectors(),
-		EgressPolicyExposure:       initPolicyExposureWithoutSelectors(),
+		BaselineAdminNetworkPolicy:       banp,
+		IngressPolicyClusterWideExposure: k8s.NewPolicyConnections(),
+		EgressPolicyClusterWideExposure:  k8s.NewPolicyConnections(),
 	}
 	pe.baselineAdminNetpol = newBanp
 	var err error

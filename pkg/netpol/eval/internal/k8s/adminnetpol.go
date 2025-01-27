@@ -32,21 +32,14 @@ type AdminNetworkPolicy struct {
 	*apisv1a.AdminNetworkPolicy                 // embedding k8s admin-network-policy object
 	warnings                    common.Warnings // set of warnings which are raised by the anp
 	// following data stored in preprocessing when exposure-analysis is on;
-
-	// 1. Note that : since (Baseline)AdminNetworkPolicy's rules are read as-is and the peers must be explicitly declared in a rulePeer,
-	// only the `ClusterWideExposure` (when a rule selects all the namespaces) field of
-	// IngressPolicyExposure and EgressPolicyExposure attributes is relevant for AdminNetworkPolicy (and BaselineAdminNetworkPolicy).
-	// example : while an Ingress NetworkPolicy with empty Ingress section - means that the connection is
-	// allowed to whole world (external and internal);
-	// it is not legal to have an empty (no rules) Ingress/Egress section in an (Baseline)AdminNetworkPolicy (there is no strict definition for
-	// allowing connection to whole world in ANPs)
-
-	// IngressPolicyExposure contains:
-	// - the maximal connection-set which the admin-policy's rules allow/deny/pass from all namespaces in the cluster on ingress direction
-	IngressPolicyExposure PolicyExposureWithoutSelectors
-	// EgressPolicyExposure contains:
-	// - the maximal connection-set which the admin-policy's rules allow/deny/pass to all namespaces in the cluster on egress direction
-	EgressPolicyExposure PolicyExposureWithoutSelectors
+	// IngressPolicyClusterWideExposure contains:
+	// - the maximal connection-sets which the admin-policy's rules allow/deny/pass from all namespaces in the cluster on ingress direction
+	// those conns are inferred rules with empty selectors
+	IngressPolicyClusterWideExposure *PolicyConnections
+	// EgressPolicyClusterWideExposure contains:
+	// - the maximal connection-sets which the admin-policy's rules allow/deny/pass to all namespaces in the cluster on egress direction
+	// those conns are inferred rules with empty selectors
+	EgressPolicyClusterWideExposure *PolicyConnections
 }
 
 // Selects returns true if the admin network policy's Spec.Subject selects the peer and if the required direction is in the policy spec
@@ -712,7 +705,7 @@ func (anp *AdminNetworkPolicy) scanIngressRules() ([]SingleRuleSelectors, error)
 		rulePeers := rule.From
 		rulePorts := rule.Ports
 		selectors, err := getIngressSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, string(rule.Action),
-			&anp.IngressPolicyExposure)
+			anp.IngressPolicyClusterWideExposure)
 		if err != nil {
 			return nil, err
 		}
@@ -728,7 +721,7 @@ func (anp *AdminNetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) 
 		rulePeers := rule.To
 		rulePorts := rule.Ports
 		selectors, err := getEgressSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, string(rule.Action),
-			&anp.EgressPolicyExposure)
+			anp.EgressPolicyClusterWideExposure)
 		if err != nil {
 			return nil, err
 		}
@@ -750,7 +743,7 @@ func (anp *AdminNetworkPolicy) scanEgressRules() ([]SingleRuleSelectors, error) 
 // this func assumes rules are legal (rules correctness check occurs later)
 func getEgressSelectorsAndUpdateExposureClusterWideConns(rules []apisv1a.AdminNetworkPolicyEgressPeer,
 	rulePorts *[]apisv1a.AdminNetworkPolicyPort, action string,
-	egressPolicyExposure *PolicyExposureWithoutSelectors) (rulesSelectors []SingleRuleSelectors, err error) {
+	egressPolicyClusterWideExposure *PolicyConnections) (rulesSelectors []SingleRuleSelectors, err error) {
 	if len(rules) == 0 { // not valid case
 		return nil, nil
 	}
@@ -759,7 +752,7 @@ func getEgressSelectorsAndUpdateExposureClusterWideConns(rules []apisv1a.AdminNe
 			continue // not relevant to check wide-cluster exposure or get selectors from those fields
 		} // else rules[i].Namespaces != nil || rules[i].Pods != nil
 		ruleSel, err := getSelectorsFromNamespacesOrPodsFieldsAndUpdateExposureClusterWideConns(rules[i].Namespaces, rules[i].Pods,
-			egressPolicyExposure, rulePorts, action)
+			egressPolicyClusterWideExposure, rulePorts, action)
 		if err != nil {
 			return nil, err
 		}
@@ -778,14 +771,14 @@ func getEgressSelectorsAndUpdateExposureClusterWideConns(rules []apisv1a.AdminNe
 // this func assumes rules are legal (rules correctness check occurs later)
 func getIngressSelectorsAndUpdateExposureClusterWideConns(rules []apisv1a.AdminNetworkPolicyIngressPeer,
 	rulePorts *[]apisv1a.AdminNetworkPolicyPort, action string,
-	ingressPolicyExposure *PolicyExposureWithoutSelectors) (rulesSelectors []SingleRuleSelectors, err error) {
+	ingressPolicyClusterWideExposure *PolicyConnections) (rulesSelectors []SingleRuleSelectors, err error) {
 	if len(rules) == 0 {
 		return nil, nil
 	}
 	for i := range rules {
 		var ruleSel SingleRuleSelectors
 		ruleSel, err := getSelectorsFromNamespacesOrPodsFieldsAndUpdateExposureClusterWideConns(rules[i].Namespaces, rules[i].Pods,
-			ingressPolicyExposure, rulePorts, action)
+			ingressPolicyClusterWideExposure, rulePorts, action)
 		if err != nil {
 			return nil, err
 		}
@@ -801,12 +794,12 @@ func getIngressSelectorsAndUpdateExposureClusterWideConns(rules []apisv1a.AdminN
 // checks if the rule's field selects entire-cluster, then updates the policy xgress cluster-wide exposure;
 // otherwise, returns the rule's field selectors to be returned later for generating representative-peer
 func getSelectorsFromNamespacesOrPodsFieldsAndUpdateExposureClusterWideConns(namespaces *metav1.LabelSelector,
-	pods *apisv1a.NamespacedPod, xgressPolicyExposure *PolicyExposureWithoutSelectors,
+	pods *apisv1a.NamespacedPod, xgressPolicyClusterWideExposure *PolicyConnections,
 	rulePorts *[]apisv1a.AdminNetworkPolicyPort, action string) (ruleSel SingleRuleSelectors, err error) {
 	if namespaces != nil {
 		if namespaces.Size() == 0 {
 			// empty Namespaces field = all cluster
-			err = updateAdminNetworkPolicyExposureClusterWideConns(rulePorts, xgressPolicyExposure, action)
+			err = updateAdminNetworkPolicyExposureClusterWideConns(rulePorts, xgressPolicyClusterWideExposure, action)
 			return SingleRuleSelectors{}, err
 		}
 		// else, the namespaces field specifies namespaces by labels
@@ -818,7 +811,7 @@ func getSelectorsFromNamespacesOrPodsFieldsAndUpdateExposureClusterWideConns(nam
 		return SingleRuleSelectors{}, nil
 	}
 	if doesRuleSelectAllNamespaces(&pods.NamespaceSelector, &pods.PodSelector) {
-		err = updateAdminNetworkPolicyExposureClusterWideConns(rulePorts, xgressPolicyExposure, action)
+		err = updateAdminNetworkPolicyExposureClusterWideConns(rulePorts, xgressPolicyClusterWideExposure, action)
 		return SingleRuleSelectors{}, err
 	}
 	// else selectors' combination specifies workloads by labels (at least one label is not nil and not empty)
@@ -829,11 +822,11 @@ func getSelectorsFromNamespacesOrPodsFieldsAndUpdateExposureClusterWideConns(nam
 
 // updateAdminNetworkPolicyExposureClusterWideConns updates the cluster-wide exposure connections of the (b)anp
 func updateAdminNetworkPolicyExposureClusterWideConns(rulePorts *[]apisv1a.AdminNetworkPolicyPort,
-	xgressPolicyExposure *PolicyExposureWithoutSelectors, ruleAction string) error {
+	xgressPolicyClusterWideExposure *PolicyConnections, ruleAction string) error {
 	ruleConns, err := ruleConnections(rulePorts, nil)
 	if err != nil {
 		return err
 	}
-	return xgressPolicyExposure.ClusterWideExposure.UpdateWithRuleConns(ruleConns, ruleAction, false)
+	return xgressPolicyClusterWideExposure.UpdateWithRuleConns(ruleConns, ruleAction, false)
 	// note that : the last parameter sent to UpdateWithRuleConns is false, since the pre-process func assumes rules are legal
 }

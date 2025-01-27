@@ -24,12 +24,14 @@ type BaselineAdminNetworkPolicy struct {
 	*apisv1a.BaselineAdminNetworkPolicy                 // embedding k8s BaselineAdminNetworkPolicy object
 	warnings                            common.Warnings // set of warnings which are raised by the banp
 	// following data stored in preprocessing when exposure-analysis is on;
-	// IngressPolicyExposure contains:
-	// - the maximal connection-set which the baseline-admin-policy's rules allow/deny from all namespaces in the cluster on ingress direction
-	IngressPolicyExposure PolicyExposureWithoutSelectors
-	// EgressPolicyExposure contains:
-	// - the maximal connection-set which the baseline-admin-policy's rules allow/deny to all namespaces in the cluster on egress direction
-	EgressPolicyExposure PolicyExposureWithoutSelectors
+	// IngressPolicyClusterWideExposure contains:
+	// - the maximal connection-sets which the baseline-admin-policy's rules allow/deny from all namespaces in the cluster on ingress direction
+	// those conns are inferred rules with empty selectors
+	IngressPolicyClusterWideExposure *PolicyConnections
+	// EgressPolicyClusterWideExposure contains:
+	// - the maximal connection-sets which the baseline-admin-policy's rules allow/deny to all namespaces in the cluster on egress direction
+	// those conns are inferred rules with empty selectors
+	EgressPolicyClusterWideExposure *PolicyConnections
 }
 
 // Selects returns true if the baseline admin network policy's Spec.Subject selects the peer and if
@@ -220,7 +222,7 @@ func (banp *BaselineAdminNetworkPolicy) scanIngressRules() ([]SingleRuleSelector
 		rulePeers := rule.From
 		rulePorts := rule.Ports
 		selectors, err := getIngressSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, string(rule.Action),
-			&banp.IngressPolicyExposure)
+			banp.IngressPolicyClusterWideExposure)
 		if err != nil {
 			return nil, err
 		}
@@ -237,7 +239,7 @@ func (banp *BaselineAdminNetworkPolicy) scanEgressRules() ([]SingleRuleSelectors
 		rulePeers := rule.To
 		rulePorts := rule.Ports
 		selectors, err := getEgressSelectorsAndUpdateExposureClusterWideConns(rulePeers, rulePorts, string(rule.Action),
-			&banp.EgressPolicyExposure)
+			banp.EgressPolicyClusterWideExposure)
 		if err != nil {
 			return nil, err
 		}
