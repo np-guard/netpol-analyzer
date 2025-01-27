@@ -1,6 +1,6 @@
 
 #####################################
-# All Connections and thier reasons #
+# All Connections and their reasons #
 #####################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet] => network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]:

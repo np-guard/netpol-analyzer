@@ -1,6 +1,6 @@
 
 #####################################
-# All Connections and thier reasons #
+# All Connections and their reasons #
 #####################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN slytherin/draco-malfoy[StatefulSet] => gryffindor/harry-potter[StatefulSet]:

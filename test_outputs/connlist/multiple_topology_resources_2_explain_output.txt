@@ -1,6 +1,6 @@
 
 #####################################
-# All Connections and thier reasons #
+# All Connections and their reasons #
 #####################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]:

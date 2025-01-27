@@ -43,18 +43,15 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
 		p2pConn := formSingleP2PConn(conns[i], explain)
-		if explain {
-			// when running with explanation, we print system default connections at the end
-			if conns[i].(*connection).OnlyCommonRules() {
-				if conns[i].(*connection).OnlyDefaultRule() {
-					defaultConnLines = append(defaultConnLines, p2pConn)
-				} else if conns[i].(*connection).AllProtocolsAndPorts() {
-					allConnLines = append(allConnLines, p2pConn)
-				} else {
-					noConnLines = append(noConnLines, p2pConn)
-				}
-			} else {
-				connLines = append(connLines, p2pConn)
+		if explain && conns[i].(*connection).OnlyCommonRules() {
+			// when running with explanation, we print all/no connections grouped together
+			switch {
+			case conns[i].(*connection).OnlyDefaultRule():
+				defaultConnLines = append(defaultConnLines, p2pConn)
+			case conns[i].(*connection).AllProtocolsAndPorts():
+				allConnLines = append(allConnLines, p2pConn)
+			default:
+				noConnLines = append(noConnLines, p2pConn)
 			}
 		} else {
 			connLines = append(connLines, p2pConn)
@@ -99,10 +96,13 @@ func writeSingleTypeLinesExplanationOutput(lines []singleConnFields, header stri
 	return result
 }
 
+const headerSep = "#"
+
 func writeGroupHeader(header string) string {
-	result := newLineChar + strings.Repeat("#", len(header)+4) + newLineChar
-	result += "# " + header + " #"
-	result += newLineChar + strings.Repeat("#", len(header)+4) + newLineChar
+	headerLine := headerSep + common.SpaceSeparator + header + common.SpaceSeparator + headerSep
+	result := newLineChar + strings.Repeat(headerSep, len(headerLine)) + newLineChar
+	result += headerLine
+	result += newLineChar + strings.Repeat(headerSep, len(headerLine)) + newLineChar
 	return result
 }
 
@@ -111,7 +111,7 @@ const (
 	separationLine80         = "--------------------------------------------------------------------------------"
 	nodePairSeparationLine   = separationLine80 + separationLine80 + common.NewLine
 	systemDefaultPairsHeader = common.AllConnsStr + " due to " + common.SystemDefaultRule
-	allConnHeader            = common.AllConnsStr + " and thier reasons"
+	allConnHeader            = common.AllConnsStr + " and their reasons"
 	noConnHeader             = common.NoConnsStr + " and their reasons"
 	specificConnHeader       = "Specific connections and their reasons"
 )
