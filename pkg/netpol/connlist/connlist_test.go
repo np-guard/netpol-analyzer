@@ -1741,6 +1741,12 @@ var goodPathTests = []struct {
 		outputFormats:    []string{output.DefaultFormat},
 		exposureAnalysis: true,
 	},
+	{
+		// exposure test with excluded labeled pod from any namespace
+		testDirName:      "exposure_test_with_anp_16",
+		outputFormats:    ValidFormats,
+		exposureAnalysis: true,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {
