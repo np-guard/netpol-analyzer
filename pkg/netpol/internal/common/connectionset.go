@@ -171,26 +171,6 @@ func (conn *ConnectionSet) Contains(port, protocol string) bool {
 	return false
 }
 
-// ContainedIn returns true if current ConnectionSet is contained in the input ConnectionSet object
-func (conn *ConnectionSet) ContainedIn(other *ConnectionSet) bool {
-	if other.AllowAll {
-		return true
-	}
-	if conn.AllowAll {
-		return false
-	}
-	for protocol, ports := range conn.AllowedProtocols {
-		otherPorts, ok := other.AllowedProtocols[protocol]
-		if !ok {
-			return false
-		}
-		if !ports.ContainedIn(otherPorts) {
-			return false
-		}
-	}
-	return true
-}
-
 // AddConnection updates current ConnectionSet object with new allowed connection
 func (conn *ConnectionSet) AddConnection(protocol v1.Protocol, ports *PortSet) {
 	if ports.IsEmpty() {
