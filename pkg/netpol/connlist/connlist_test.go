@@ -270,6 +270,16 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 			errorStrContains: netpolerrors.UnknownRuleActionErr,
 		},
 		{
+			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_egress_cidr_peer_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_19",
+			errorStrContains: netpolerrors.InvalidCIDRAddr,
+		},
+		{
+			name:             "Input_dir_has_admin_netpols_one_with_invalid_priority_should_return_fatal_error",
+			dirName:          "anp_bad_path_test_20",
+			errorStrContains: netpolerrors.PriorityValueErr("invalid-priority", 1001),
+		},
+		{
 			name:             "Input_dir_has_more_than_one_baseline_admin_netpol_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_1",
 			errorStrContains: netpolerrors.BANPAlreadyExists,
@@ -338,6 +348,11 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_ingress_rule_action_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_14",
 			errorStrContains: netpolerrors.UnknownRuleActionErr,
+		},
+		{
+			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_egress_cidr_peer_should_return_fatal_error",
+			dirName:          "banp_bad_path_test_15",
+			errorStrContains: netpolerrors.InvalidCIDRAddr,
 		},
 	}
 	for _, tt := range cases {

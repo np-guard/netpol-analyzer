@@ -270,6 +270,7 @@ func doesNetworksFieldMatchPeer(networks []apisv1a.CIDR, peer Peer) (bool, error
 		// nothing to do with Peer type which is not IPBlock
 	}
 	for _, cidr := range networks {
+		// note that: if the cidr is invalid (will not get here), an error would be raised earlier by GetReferencedIPBlocks
 		isIPv6, err := isIPv6Cidr(cidr)
 		if err != nil { // invalid cidr
 			return false, err
