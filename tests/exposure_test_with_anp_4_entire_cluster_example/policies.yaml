@@ -9,7 +9,7 @@ spec:
       matchLabels:
         kubernetes.io/metadata.name: hello-world
   ingress:
-  - name: "allow-some-ingress-from-entire-cluster"  # exposed to entire-cluster on ingress
+  - name: "allow-tcp80-ingress-from-entire-cluster"  # exposed to entire-cluster on ingress
     action: "Allow"
     from:
     - namespaces: {}
@@ -18,7 +18,7 @@ spec:
         port: 80
         protocol: TCP
   egress:
-  - name: "allow-some-egress-to-entire-cluster" # exposed to entire-cluster on egress
+  - name: "allow-tcp80-egress-to-entire-cluster" # exposed to entire-cluster on egress
     action: "Allow" 
     to:
     - namespaces: {}

@@ -1,7 +1,7 @@
 apiVersion: policy.networking.k8s.io/v1alpha1
 kind: AdminNetworkPolicy
 metadata:
-  name: exposure-deny-peer-allow-entire-cluster-all-conns
+  name: exposure-example-10-exclude-real-pod-from-entire-cluster-conn
 spec:
   priority: 10
   subject:
@@ -13,7 +13,7 @@ spec:
         matchLabels:
           app: a-app
   egress:
-  - name: "deny-all-egress-to-slytherin" 
+  - name: "deny-all-egress-to-workload-b" 
     action: "Deny" 
     to:
     - pods:
