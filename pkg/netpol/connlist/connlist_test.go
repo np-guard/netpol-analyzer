@@ -142,6 +142,11 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.SelectorErrTitle, netpolerrors.InvalidKeyVal),
 		},
 		{
+			name:             "Input_dir_has_netpol_with_bad_label_value_should_return_fatal_selector_error",
+			dirName:          filepath.Join("bad_netpols", "subdir7"),
+			errorStrContains: (netpolerrors.SelectorErrTitle),
+		},
+		{
 			name:             "Input_dir_has_netpol_with_invalid_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
 			dirName:          filepath.Join("bad_netpols", "subdir3"),
 			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.RulePeerErrTitle, netpolerrors.CombinedRulePeerErrStr),
