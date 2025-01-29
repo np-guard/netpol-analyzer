@@ -371,10 +371,7 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 
 	// in case of exposure-analysis: update cluster wide exposure data for relevant pod (src on egress, dst on ingress)
 	if pe.exposureAnalysisFlag && !podExposureUpdatedFlag {
-		clusterWideExposureFromAllLayers, err := allAllowedXgressConnsConsideringAllLayersConns(anpExposure, npExposure, defaultExposure)
-		if err != nil {
-			return nil, err
-		}
+		clusterWideExposureFromAllLayers := allAllowedXgressConnsConsideringAllLayersConns(anpExposure, npExposure, defaultExposure)
 		updatePeerXgressClusterWideExposure(clusterWideExposureFromAllLayers, src, dst, isIngress)
 	}
 	if anpConnsDeterminedAllFlag { // if all conns between the src and dst were determined by ANP layer, return the allowed
@@ -382,17 +379,17 @@ func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress
 		return anpConns.layerConns.AllowedConns, nil
 	}
 	// return all allowed xgress connections between the src and dst (final result computed considering all layers conns)
-	return allAllowedXgressConnsConsideringAllLayersConns(anpConns, npConns, defaultConns)
+	return allAllowedXgressConnsConsideringAllLayersConns(anpConns, npConns, defaultConns), nil
 }
 
 // allAllowedXgressConnsConsideringAllLayersConns gets connections from all policies layers and compute the allowed connections on
 // the given direction considering on which policies-layer the xgress connection was captured and the precedence of each policies layer
 func allAllowedXgressConnsConsideringAllLayersConns(anpConns, npConns,
-	defaultOrBanpConns *policiesLayerXgressConns) (allowedConns *common.ConnectionSet, err error) {
+	defaultOrBanpConns *policiesLayerXgressConns) (allowedConns *common.ConnectionSet) {
 	switch {
 	case npConns.isCaptured && !anpConns.isCaptured:
 		// ANPs don't capture the connection; NPs capture the peers, return allowed conns from netpols
-		return npConns.layerConns.AllowedConns, nil
+		return npConns.layerConns.AllowedConns
 	case npConns.isCaptured && anpConns.isCaptured:
 		// if conns between src and dst (or between peer and entire-cluster) were captured by both the admin-network-policies and
 		// by network-policies
@@ -404,7 +401,7 @@ func allAllowedXgressConnsConsideringAllLayersConns(anpConns, npConns,
 		// so ANPs.pass conns which intersect with NPs.allowed are added to allowed conns result;
 		// other pass conns (which don't intersect with NPs allowed conns) are not allowed implicitly.
 		anpConns.layerConns.CollectAllowedConnsFromNetpols(npConns.layerConns)
-		return anpConns.layerConns.AllowedConns, nil
+		return anpConns.layerConns.AllowedConns
 	default: // !npCaptured - netpols don't capture the connections between src and dst - delegate to banp
 		// possible cases :
 		// 1. ANPs capture the connection, netpols don't, return the allowed conns from ANPs considering default conns (& BANP)
@@ -414,7 +411,7 @@ func allAllowedXgressConnsConsideringAllLayersConns(anpConns, npConns,
 		// this also determines what happens on traffic (ports) which are not mentioned in the (B)ANPs;
 		// since (B)ANP rules are read as is only.
 		anpConns.layerConns.CollectConnsFromBANP(defaultOrBanpConns.layerConns)
-		return anpConns.layerConns.AllowedConns, nil
+		return anpConns.layerConns.AllowedConns
 	}
 }
 
