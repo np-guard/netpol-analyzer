@@ -239,7 +239,7 @@ func selectorsMatch(ruleSelector, peerSelector *metav1.LabelSelector, peerLabels
 	} // else for real peer just check if the selector matches the peer's labels
 	selector, err := metav1.LabelSelectorAsSelector(ruleSelector)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("%s", netpolerrors.SelectorErrTitle+" : "+err.Error())
 	}
 	return selector.Matches(labels.Set(peerLabels)), nil
 }
