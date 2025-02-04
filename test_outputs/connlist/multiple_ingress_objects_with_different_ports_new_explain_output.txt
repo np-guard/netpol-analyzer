@@ -19,11 +19,13 @@ DENIED TCP:[1-7999,8001-8089,8091-65535] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [Ingress] ingressworld/ingress-1 // service ingress-world (ports not referenced)
+		2) [Route] ingressworld/route-1 // service ingress-world (ports not referenced)
 
 DENIED {SCTP,UDP}:[ALL PORTS] due to the following policies // rules:
 	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 	INGRESS DIRECTION (DENIED)
 		1) [Ingress] ingressworld/ingress-1 // service ingress-world (protocols not referenced)
+		2) [Route] ingressworld/route-1 // service ingress-world (protocols not referenced)
 
 
 #########################################################
