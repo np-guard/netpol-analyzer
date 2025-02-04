@@ -243,7 +243,7 @@ func selectorsMatch(ruleSelector, peerSelector *metav1.LabelSelector, peerLabels
 	} // else for real peer just check if the selector matches the peer's labels
 	selector, err := metav1.LabelSelectorAsSelector(ruleSelector)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("%s", netpolerrors.SelectorErrTitle+" : "+err.Error())
 	}
 	return selector.Matches(labels.Set(peerLabels)), nil
 }
@@ -274,6 +274,7 @@ func doesNetworksFieldMatchPeer(networks []apisv1a.CIDR, peer Peer) (bool, error
 		// nothing to do with Peer type which is not IPBlock
 	}
 	for _, cidr := range networks {
+		// note that: if the cidr is invalid (will not get here), an error would be raised earlier by GetReferencedIPBlocks
 		isIPv6, err := isIPv6Cidr(cidr)
 		if err != nil { // invalid cidr
 			return false, err

@@ -1,0 +1,49 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-example-16
+spec:
+  priority: 10
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: a-app
+  egress:
+  - name: "deny-all-to-any-pod-with-specific-label"
+    action: "Deny"
+    to:
+    - pods:
+        podSelector:
+          matchLabels:
+            role: monitoring         
+  ingress:
+  - name: "deny-all-from-any-pod-with-specific-label"
+    action: "Deny"
+    from:
+    - pods:
+        podSelector:
+          matchLabels:
+            role: monitoring
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-ingress-and-egress-in-entire-cluster
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector: {}
+  egress:
+  - to:
+    - namespaceSelector: {}

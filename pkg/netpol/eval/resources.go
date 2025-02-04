@@ -943,6 +943,10 @@ func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.Sin
 			// if the objSelectors.NsSelector is nil and the podNs is empty, means inferred from an
 			// (baseline)AdminNetworkPolicy rule with nil namespaceSelector, which means that all namespaces match the rule;
 			// so as the RepresentativeNsLabelSelector will assign an empty namespaceSelector (matches all namespaces)
+			// * keeping this else although currently it is unreached - since `v1alpha1 Pods *NamespacedPod` field uses
+			// `metav1.LabelSelector` (and not pointers); which means it can not be nil, either empty or not.(i.e. already empty)
+			// so anyway generating a representative peer with empty namespaceSelector (all namespaces ) for
+			// cluster-scoped policy rule without namespaceSelector
 			nsLabelSelector = &metav1.LabelSelector{} // all namespaces
 		}
 	}
