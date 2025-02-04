@@ -459,8 +459,9 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string,
 				// since, we have no indication of a "representative-peer" configuration, this namedPort is added as a potential
 				// exposure without protocol ("").
 				portSet.AddPort(intstr.FromString(*anpPort.NamedPort), common.MakeImplyingRulesWithRule(ruleName, layer, isIngress))
-				res.AddConnection("", portSet)
-				continue
+				// In exposure analysis, in connections to entire cluster named ports cannot be resolved, and thus the protocol is unknown.
+				// This is represented by a protocol with an empty name.
+				protocol = ""
 			}
 			if dst.PeerType() == IPBlockType {
 				// IPblock does not have named-ports defined, warn and continue
@@ -848,7 +849,7 @@ func getSelectorsFromNamespacesOrPodsFieldsAndUpdateExposureClusterWideConns(nam
 // updateAdminNetworkPolicyExposureClusterWideConns updates the cluster-wide exposure connections of the (b)anp
 func updateAdminNetworkPolicyExposureClusterWideConns(rulePorts *[]apisv1a.AdminNetworkPolicyPort,
 	xgressPolicyClusterWideExposure *PolicyConnections, ruleAction string) error {
-	// currently in exposure analisys we don't support explainability;
+	// currently in exposure analysis we don't support explainability;
 	// thus, we don't provide rule name info for explainability in 'ruleConnections' below.
 	ruleConns, err := ruleConnections(rulePorts, "", false, nil, false)
 	if err != nil {
