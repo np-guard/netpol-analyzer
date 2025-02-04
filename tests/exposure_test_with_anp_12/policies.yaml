@@ -1,0 +1,74 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-example-12
+spec:
+  priority: 10
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: a-app
+  egress:
+  - name: "allow-tcp9090-to-all-pods-in-existing-ns"
+    action: "Allow"
+    to:
+    - pods:
+        namespaceSelector: 
+          matchLabels:
+            kubernetes.io/metadata.name: hello-world          
+    ports:
+    - portNumber:
+        port: 9090
+        protocol: TCP    
+  ingress:
+  - name: "allow-tcp9090-from-pods-in-existing-namespace"
+    action: "Allow"
+    from:
+    - pods:
+        namespaceSelector: 
+          matchLabels:
+            kubernetes.io/metadata.name: hello-world
+    ports:
+    - portNumber:
+        port: 9090
+        protocol: TCP
+---
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: BaselineAdminNetworkPolicy
+metadata:
+  name: default
+spec:
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: a-app
+  ingress:
+  - name: "deny-all-internal-connections-on-port-tcp9090"
+    action: "Deny"
+    from:
+    - pods:
+        namespaceSelector: {}
+        podSelector: {}
+    ports:
+    - portNumber:
+        port: 9090
+        protocol: TCP
+  egress:
+  - name: "deny-all-internal-connections-egress-on-port-tcp9090"
+    action: "Deny"
+    to:
+    - pods:
+        namespaceSelector: {}
+        podSelector: {}
+    ports:
+    - portNumber:
+        port: 9090
+        protocol: TCP

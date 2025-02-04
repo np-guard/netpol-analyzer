@@ -17,6 +17,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -320,9 +321,20 @@ func (pod *Pod) checkAndConvertNamedPortsInConnection(conns *common.ConnectionSe
 	// the named ports with pod's port numbers if possible
 	for protocol, namedPorts := range connNamedPorts {
 		for namedPort, implyingRules := range namedPorts {
+			// get the matching protocol and port-number from the pod-configuration
 			podProtocol, portNum := pod.ConvertPodNamedPort(namedPort)
-			if podProtocol == string(protocol) && portNum != common.NoPort { // matching port and protocol
-				connsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum, implyingRules)
+			if podProtocol != "" && portNum != common.NoPort { // there is a matching containerPort in the pod configuration
+				switch protocol { // the original protocol in the given conns may be either empty or not
+				case "": // if empty - means inferred from an ANP rule
+					// in this case we need to add the matching connection (pods' protocol+number) to the connsCopy
+					newPort := common.MakePortSet(false)
+					newPort.AddPort(intstr.FromInt32(portNum), implyingRules)
+					connsCopy.AddConnection(corev1.Protocol(podProtocol), newPort)
+					// and remove the entry with "" protocol from connsCopy
+					delete(connsCopy.AllowedProtocols, protocol)
+				default: // protocol is defined, replace named-port of the given protocol with its matching number
+					connsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum, implyingRules)
+				}
 			}
 		}
 	}

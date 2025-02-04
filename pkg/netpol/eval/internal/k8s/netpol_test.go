@@ -103,8 +103,8 @@ func TestNetworkPolicyPortAnalysis(t *testing.T) {
 				Namespace: "test-namespace",
 			},
 		},
-		PolicyExposureWithoutSelectors{},
-		PolicyExposureWithoutSelectors{},
+		NewPolicyConnections(),
+		NewPolicyConnections(),
 		common.Warnings{},
 	}
 	res, err := n.ruleConnections([]netv1.NetworkPolicyPort{AllowNamedPortOnProtocol}, &dst, 0, false)

@@ -67,6 +67,7 @@ func (p *PortSet) RemoveDefaultRule(isIngress bool) {
 }
 
 // Equal: return true if current object equals another PortSet object
+// Ports are equal if they have same allowed port-numbers and same allowed named-ports
 func (p *PortSet) Equal(other *PortSet) bool {
 	return p.Ports.Equal(other.Ports) && reflect.DeepEqual(portNames(p.NamedPorts), portNames(other.NamedPorts)) &&
 		reflect.DeepEqual(portNames(p.ExcludedNamedPorts), portNames(other.ExcludedNamedPorts))
@@ -117,6 +118,12 @@ func (p *PortSet) RemovePort(port intstr.IntOrString) {
 	} else {
 		p.Ports.AddAugmentedInterval(NewAugmentedInterval(int64(port.IntVal), int64(port.IntVal), false), NeverCollectRules)
 	}
+}
+
+// ReplaceNamedPort: add the given numerical port and remove its corresponding named port (without adding to ExcludedNamedPorts)
+func (p *PortSet) ReplaceNamedPort(namedPort string, portNum intstr.IntOrString, implyingRules ImplyingRulesType) {
+	p.AddPort(portNum, implyingRules)
+	delete(p.NamedPorts, namedPort)
 }
 
 // AddPortRange: update current PortSet object with new added port range as allowed

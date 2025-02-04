@@ -632,8 +632,14 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, sr
 					return nil, nil, err
 				}
 			}
-			// skip empty connections when running without explainability
-			if allowedConnections.IsEmpty() && !ca.explain {
+			// skip empty connections when running without explainability,
+			// unless one of the peers is representative
+			// if one of the peers is representative, we keep this empty exposure connection to check later if it is
+			// an exception to an entire-cluster exposure.
+			// e.g if the pod is exposed to entire-cluster but not exposed to this representative-peer (because of a deny rule),
+			// we need to include this "No connection" in the exposure-output.
+			// see example : "tests/exposure_test_with_anp_9"
+			if !ca.explain && allowedConnections.IsEmpty() && !(pe.IsRepresentativePeer(srcPeer) || pe.IsRepresentativePeer(dstPeer)) {
 				continue
 			}
 			p2pConnection, err := ca.getP2PConnOrUpdateExposureConn(pe, allowedConnections, srcPeer, dstPeer, exposureMaps)

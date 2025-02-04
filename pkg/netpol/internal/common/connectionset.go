@@ -130,9 +130,8 @@ func (conn *ConnectionSet) IsEmpty() bool {
 		return true
 	}
 	// now check semantically
-	for _, protocol := range allProtocols {
-		ports, ok := conn.AllowedProtocols[protocol]
-		if ok && !ports.IsEmpty() { // this is a semantic emptiness check (no included ports, may be holes)
+	for _, ports := range conn.AllowedProtocols {
+		if !ports.IsEmpty() { // this is a semantic emptiness check (no included ports, may be holes)
 			return false
 		}
 	}
@@ -170,9 +169,11 @@ func (conn *ConnectionSet) SetExplResult(isIngress bool) {
 // rebuildExplicitly : represent All/No connections explicitly (All connections if AllowAll==true, No connections otherwise),
 // by building AllowedProtocols and adding the whole range intervals/holes (depending on AllowAll field)
 func (conn *ConnectionSet) rebuildExplicitly() {
-	if len(conn.AllowedProtocols) == len(allProtocols) {
-		return // if all protocols exist, nothing to add
-	}
+	// we don't assume that conn.AllowedProtocols contains only protocols from allProtocols var.
+	// in case of exposure analysis with named ports, a protocol with an empty name may exist.
+	// if len(conn.AllowedProtocols) == len(allProtocols) {
+	// 	return // if all protocols exist, nothing to add
+	// }
 	var portSet *PortSet
 	if conn.AllowAll {
 		portSet = MakeAllPortSetWithImplyingRules(conn.CommonImplyingRules)
@@ -193,9 +194,9 @@ func (conn *ConnectionSet) Union(other *ConnectionSet, collectSameInclusionRules
 	if collectSameInclusionRules {
 		collectStyle = CollectSameInclusionRules
 	}
-	if conn.IsEmpty() && (other.IsEmpty() || other.AllowAll) && len(conn.AllowedProtocols) == 0 && len(other.AllowedProtocols) == 0 {
-		conn.CommonImplyingRules = conn.CommonImplyingRules.Update(other.CommonImplyingRules, other.IsEmpty(), collectStyle)
-		conn.AllowAll = other.AllowAll
+	if (conn.IsEmpty() || conn.AllowAll) && (other.IsEmpty() || other.AllowAll) && len(conn.AllowedProtocols) == 0 && len(other.AllowedProtocols) == 0 {
+		conn.CommonImplyingRules = conn.CommonImplyingRules.Update(other.CommonImplyingRules, conn.AllowAll == other.AllowAll, collectStyle)
+		conn.AllowAll = conn.AllowAll || other.AllowAll
 		return
 	}
 	if other.IsEmpty() {
@@ -208,6 +209,15 @@ func (conn *ConnectionSet) Union(other *ConnectionSet, collectSameInclusionRules
 			conn.AllowedProtocols[protocol].Union(otherPorts, collectSameInclusionRules)
 		}
 	}
+	// we don't assume that conn and other contain only protocols from allProtocols var.
+	// in case of exposure analysis with named ports, a protocol with an empty name may exist.
+	// in order to not assume empty name, we pick here all protocols from other, not appearing in conn
+	for protocol, ports := range other.AllowedProtocols {
+		if _, ok := conn.AllowedProtocols[protocol]; !ok {
+			conn.AddConnection(protocol, ports)
+		}
+	}
+
 	conn.CommonImplyingRules = InitImplyingRules() // clear common implying rules, since we have implying rules in AllowedProtocols
 	conn.updateIfAllConnections()
 }
@@ -359,10 +369,11 @@ func (conn *ConnectionSet) ReplaceNamedPortWithMatchingPortNum(protocol v1.Proto
 	implyingRules ImplyingRulesType) {
 	protocolPortSet := conn.AllowedProtocols[protocol]
 	if portNum != NoPort {
-		protocolPortSet.AddPort(intstr.FromInt32(portNum), implyingRules)
+		protocolPortSet.ReplaceNamedPort(namedPort, intstr.FromInt32(portNum), implyingRules)
+	} else {
+		// this should not happen
+		protocolPortSet.RemovePort(intstr.FromString(namedPort))
 	}
-	// after adding the portNum to the protocol's portSet; remove the port name
-	protocolPortSet.RemovePort(intstr.FromString(namedPort))
 }
 
 // PortRangeData implements the PortRange interface

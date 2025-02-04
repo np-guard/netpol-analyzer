@@ -1,0 +1,41 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: exposure-allow-entire-cluster
+spec:
+  priority: 10
+  subject:
+    pods:
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: hello-world
+      podSelector:
+        matchLabels:
+          app: a-app
+  egress:
+  - name: "allow-all-to-entire-cluster-on-local-port"
+    action: "Allow"
+    to:
+    - namespaces: {}
+    ports:
+    - namedPort: local-port
+  ingress:
+  - name: "allow-all-from-entire-cluster-on-local-port"
+    action: "Allow"
+    from:
+    - namespaces: {}
+    ports:
+    - namedPort: local-port
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: deny-all-app-a
+  namespace: hello-world
+spec:
+  podSelector:
+    matchLabels:
+      app: a-app
+  policyTypes:
+  - Ingress
+  - Egress
