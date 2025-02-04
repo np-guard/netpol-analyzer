@@ -668,7 +668,8 @@ func doesRuleSelectAllNamespaces(namespaceSelector, podSelector *metav1.LabelSel
 // updateNetworkPolicyExposureClusterWideConns updates the cluster-wide exposure connections of the policy
 // note that, since NetworkPolicy rules may contain only allow conns data then, updating the AllowedConns field of the
 // ClusterWideExposure objects of the policy
-func (np *NetworkPolicy) updateNetworkPolicyExposureClusterWideConns(rulePorts []netv1.NetworkPolicyPort, ruleIdx int, isIngress bool) error {
+func (np *NetworkPolicy) updateNetworkPolicyExposureClusterWideConns(rulePorts []netv1.NetworkPolicyPort,
+	ruleIdx int, isIngress bool) error {
 	ruleConns, err := np.ruleConnections(rulePorts, nil, ruleIdx, isIngress)
 	if err != nil {
 		return err
