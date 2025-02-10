@@ -189,6 +189,8 @@ func (conn *ConnectionSet) rebuildExplicitly() {
 }
 
 // Union updates ConnectionSet object to be the union result with other ConnectionSet
+//
+//gocyclo:ignore
 func (conn *ConnectionSet) Union(other *ConnectionSet, collectSameInclusionRules bool) {
 	collectStyle := NeverCollectRules
 	if collectSameInclusionRules {

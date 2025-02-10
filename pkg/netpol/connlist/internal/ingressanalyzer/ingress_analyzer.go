@@ -320,14 +320,14 @@ func (ia *IngressAnalyzer) collectAndSortIngressResources(mapToIterate map[strin
 			res = append(res, ingressResource{ns: ns, fullName: ingObjStr, svcList: svcList})
 		}
 	}
-	//sort res
 	sort.Slice(res, func(i, j int) bool {
 		return res[i].fullName < res[j].fullName
 	})
 	return res
 }
 
-func (ia *IngressAnalyzer) allowedIngressConnectionsFromResourceList(resourceList []ingressResource, ingType string) (map[string]*PeerAndIngressConnSet, error) {
+func (ia *IngressAnalyzer) allowedIngressConnectionsFromResourceList(resourceList []ingressResource, ingType string) (
+	map[string]*PeerAndIngressConnSet, error) {
 	res := make(map[string]*PeerAndIngressConnSet)
 	for _, resource := range resourceList {
 		ingressObjTargetPeersAndPorts, err := ia.getIngressObjectTargetedPeersAndPorts(resource.ns, resource.fullName, resource.svcList, ingType)
