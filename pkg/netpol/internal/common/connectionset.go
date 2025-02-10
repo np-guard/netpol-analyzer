@@ -196,12 +196,15 @@ func (conn *ConnectionSet) Union(other *ConnectionSet, collectSameInclusionRules
 	}
 	if (conn.IsEmpty() || conn.AllowAll) && (other.IsEmpty() || other.AllowAll) &&
 		len(conn.AllowedProtocols) == 0 && len(other.AllowedProtocols) == 0 {
+		if conn.AllowAll && other.IsEmpty() {
+			return // conn are not changed, rules should not be updated
+		}
 		conn.CommonImplyingRules = conn.CommonImplyingRules.Update(other.CommonImplyingRules,
 			conn.AllowAll == other.AllowAll, collectStyle)
 		conn.AllowAll = conn.AllowAll || other.AllowAll
 		return
 	}
-	if other.IsEmpty() {
+	if other.IsEmpty() && !collectSameInclusionRules {
 		return // neither connections nor implying rules can be updated
 	}
 	conn.rebuildExplicitly()

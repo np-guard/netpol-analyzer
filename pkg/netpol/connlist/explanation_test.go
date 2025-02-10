@@ -102,4 +102,7 @@ var explainTests = []struct {
 	{
 		testDirName: "route_example_with_target_port",
 	},
+	{
+		testDirName: "vm_example",
+	},
 }

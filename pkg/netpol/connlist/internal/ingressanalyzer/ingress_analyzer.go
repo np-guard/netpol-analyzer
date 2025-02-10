@@ -8,6 +8,7 @@ package ingressanalyzer
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 
 	ocroutev1 "github.com/openshift/api/route/v1"
@@ -291,11 +292,24 @@ func mergeResults(routesMap, ingressMap map[string]*PeerAndIngressConnSet) {
 	}
 }
 
+type ingressResource struct {
+	fullName string
+	ns       string
+	svcList  []serviceInfo
+}
+
 // allowedIngressConnectionsByResourcesType returns map from peers names to the allowed ingress connections
 // based on k8s-Ingress/routes objects rules
 func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate map[string]map[string][]serviceInfo, ingType string) (
 	map[string]*PeerAndIngressConnSet, error) {
-	res := make(map[string]*PeerAndIngressConnSet)
+	ingResources := ia.collectAndSortIngressResources(mapToIterate)
+	return ia.allowedIngressConnectionsFromResourceList(ingResources, ingType)
+}
+
+// collectAndSortIngressResources collects all ingress resources from the given map (k8s-Ingress/routes objects)
+// and sorts them by the full resource name (the sorting is used by explainability for inserting rules in a uniform order)
+func (ia *IngressAnalyzer) collectAndSortIngressResources(mapToIterate map[string]map[string][]serviceInfo) []ingressResource {
+	res := make([]ingressResource, 0)
 	for ns, objSvcMap := range mapToIterate {
 		// if there are no services in same namespace of the Ingress, the ingress objects in this ns will be skipped
 		if _, ok := ia.servicesToPortsAndPeersMap[ns]; !ok {
@@ -303,25 +317,36 @@ func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate
 		}
 		for objName, svcList := range objSvcMap {
 			ingObjStr := types.NamespacedName{Namespace: ns, Name: objName}.String()
-			ingressObjTargetPeersAndPorts, err := ia.getIngressObjectTargetedPeersAndPorts(ns, ingObjStr, svcList, ingType)
-			if err != nil {
-				return nil, err
-			}
-			// avoid duplicates in the result, consider the different ports supported
-			for peer, pConn := range ingressObjTargetPeersAndPorts {
-				if _, ok := res[peer.String()]; !ok {
-					mapLen := 2
-					ingressObjs := make(map[string][]string, mapLen)
-					ingressObjs[ingType] = []string{ingObjStr}
-					res[peer.String()] = &PeerAndIngressConnSet{Peer: peer, ConnSet: pConn, IngressObjects: ingressObjs}
-				} else {
-					res[peer.String()].ConnSet.Union(pConn, true) // collect implying rules from multiple ingress resources
-					res[peer.String()].IngressObjects[ingType] = append(res[peer.String()].IngressObjects[ingType], ingObjStr)
-				}
+			res = append(res, ingressResource{ns: ns, fullName: ingObjStr, svcList: svcList})
+		}
+	}
+	//sort res
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].fullName < res[j].fullName
+	})
+	return res
+}
+
+func (ia *IngressAnalyzer) allowedIngressConnectionsFromResourceList(resourceList []ingressResource, ingType string) (map[string]*PeerAndIngressConnSet, error) {
+	res := make(map[string]*PeerAndIngressConnSet)
+	for _, resource := range resourceList {
+		ingressObjTargetPeersAndPorts, err := ia.getIngressObjectTargetedPeersAndPorts(resource.ns, resource.fullName, resource.svcList, ingType)
+		if err != nil {
+			return nil, err
+		}
+		// avoid duplicates in the result, consider the different ports supported
+		for peer, pConn := range ingressObjTargetPeersAndPorts {
+			if _, ok := res[peer.String()]; !ok {
+				mapLen := 2
+				ingressObjs := make(map[string][]string, mapLen)
+				ingressObjs[ingType] = []string{resource.fullName}
+				res[peer.String()] = &PeerAndIngressConnSet{Peer: peer, ConnSet: pConn, IngressObjects: ingressObjs}
+			} else {
+				res[peer.String()].ConnSet.Union(pConn, true) // collect implying rules from multiple ingress resources
+				res[peer.String()].IngressObjects[ingType] = append(res[peer.String()].IngressObjects[ingType], resource.fullName)
 			}
 		}
 	}
-
 	return res, nil
 }
 

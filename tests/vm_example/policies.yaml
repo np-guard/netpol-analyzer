@@ -1,0 +1,468 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group = research-seg-1) dst: (group = research-seg-1) conn: TCP,UDP'
+        nsx-id: "1023"
+    creationTimestamp: null
+    name: policy0
+    namespace: default
+spec:
+    egress:
+        - to:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-seg-1
+                      operator: Exists
+    podSelector:
+        matchExpressions:
+            - key: group__research-seg-1
+              operator: Exists
+    policyTypes:
+        - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group = research-seg-1) dst: (group = research-seg-1) conn: TCP,UDP'
+        nsx-id: "1023"
+    creationTimestamp: null
+    name: policy1
+    namespace: default
+spec:
+    ingress:
+        - from:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-seg-1
+                      operator: Exists
+    podSelector:
+        matchExpressions:
+            - key: group__research-seg-1
+              operator: Exists
+    policyTypes:
+        - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group = research-app) dst: (group = research-app) conn: TCP dst-ports: 80'
+        nsx-id: "1020"
+    creationTimestamp: null
+    name: policy2
+    namespace: default
+spec:
+    egress:
+        - ports:
+            - port: 80
+              protocol: TCP
+          to:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-app
+                      operator: Exists
+    podSelector:
+        matchExpressions:
+            - key: group__research-app
+              operator: Exists
+    policyTypes:
+        - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group = research-app) dst: (group = research-app) conn: TCP dst-ports: 80'
+        nsx-id: "1020"
+    creationTimestamp: null
+    name: policy3
+    namespace: default
+spec:
+    ingress:
+        - from:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-app
+                      operator: Exists
+          ports:
+            - port: 80
+              protocol: TCP
+    podSelector:
+        matchExpressions:
+            - key: group__research-app
+              operator: Exists
+    policyTypes:
+        - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group != research-app) dst: (*) conn: UDP dst-ports: 67-68'
+        nsx-id: "4"
+    creationTimestamp: null
+    name: policy4
+    namespace: default
+spec:
+    egress:
+        - ports:
+            - endPort: 68
+              port: 67
+              protocol: UDP
+          to:
+            - podSelector: {}
+    podSelector:
+        matchExpressions:
+            - key: group__research-app
+              operator: DoesNotExist
+    policyTypes:
+        - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (*) dst: (group != research-app) conn: UDP dst-ports: 67-68'
+        nsx-id: "4"
+    creationTimestamp: null
+    name: policy5
+    namespace: default
+spec:
+    egress:
+        - ports:
+            - endPort: 68
+              port: 67
+              protocol: UDP
+          to:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-app
+                      operator: DoesNotExist
+    podSelector: {}
+    policyTypes:
+        - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group != research-app) dst: (*) conn: UDP dst-ports: 67-68'
+        nsx-id: "4"
+    creationTimestamp: null
+    name: policy6
+    namespace: default
+spec:
+    ingress:
+        - from:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-app
+                      operator: DoesNotExist
+          ports:
+            - endPort: 68
+              port: 67
+              protocol: UDP
+    podSelector: {}
+    policyTypes:
+        - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (*) dst: (group != research-app) conn: UDP dst-ports: 67-68'
+        nsx-id: "4"
+    creationTimestamp: null
+    name: policy7
+    namespace: default
+spec:
+    ingress:
+        - from:
+            - podSelector: {}
+          ports:
+            - endPort: 68
+              port: 67
+              protocol: UDP
+    podSelector:
+        matchExpressions:
+            - key: group__research-app
+              operator: DoesNotExist
+    policyTypes:
+        - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group != research-seg-1 and group != research-app) dst: (*) conn: All Connections'
+        nsx-id: "2"
+    creationTimestamp: null
+    name: policy8
+    namespace: default
+spec:
+    egress:
+        - to:
+            - podSelector: {}
+    podSelector:
+        matchExpressions:
+            - key: group__research-seg-1
+              operator: DoesNotExist
+            - key: group__research-app
+              operator: DoesNotExist
+    policyTypes:
+        - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group != research-seg-1) dst: (group != research-app) conn: All Connections'
+        nsx-id: "2"
+    creationTimestamp: null
+    name: policy9
+    namespace: default
+spec:
+    egress:
+        - to:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-app
+                      operator: DoesNotExist
+    podSelector:
+        matchExpressions:
+            - key: group__research-seg-1
+              operator: DoesNotExist
+    policyTypes:
+        - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group != research-app) dst: (group != research-seg-1) conn: All Connections'
+        nsx-id: "2"
+    creationTimestamp: null
+    name: policy10
+    namespace: default
+spec:
+    egress:
+        - to:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-seg-1
+                      operator: DoesNotExist
+    podSelector:
+        matchExpressions:
+            - key: group__research-app
+              operator: DoesNotExist
+    policyTypes:
+        - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (*) dst: (group != research-seg-1 and group != research-app) conn: All Connections'
+        nsx-id: "2"
+    creationTimestamp: null
+    name: policy11
+    namespace: default
+spec:
+    egress:
+        - to:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-seg-1
+                      operator: DoesNotExist
+                    - key: group__research-app
+                      operator: DoesNotExist
+    podSelector: {}
+    policyTypes:
+        - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group != research-app) dst: (*) conn: TCP,UDP'
+        nsx-id: "2"
+    creationTimestamp: null
+    name: policy12
+    namespace: default
+spec:
+    egress:
+        - to:
+            - podSelector: {}
+    podSelector:
+        matchExpressions:
+            - key: group__research-app
+              operator: DoesNotExist
+    policyTypes:
+        - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (*) dst: (group != research-app) conn: TCP,UDP'
+        nsx-id: "2"
+    creationTimestamp: null
+    name: policy13
+    namespace: default
+spec:
+    egress:
+        - to:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-app
+                      operator: DoesNotExist
+    podSelector: {}
+    policyTypes:
+        - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group != research-seg-1 and group != research-app) dst: (*) conn: All Connections'
+        nsx-id: "2"
+    creationTimestamp: null
+    name: policy14
+    namespace: default
+spec:
+    ingress:
+        - from:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-seg-1
+                      operator: DoesNotExist
+                    - key: group__research-app
+                      operator: DoesNotExist
+    podSelector: {}
+    policyTypes:
+        - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group != research-seg-1) dst: (group != research-app) conn: All Connections'
+        nsx-id: "2"
+    creationTimestamp: null
+    name: policy15
+    namespace: default
+spec:
+    ingress:
+        - from:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-seg-1
+                      operator: DoesNotExist
+    podSelector:
+        matchExpressions:
+            - key: group__research-app
+              operator: DoesNotExist
+    policyTypes:
+        - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group != research-app) dst: (group != research-seg-1) conn: All Connections'
+        nsx-id: "2"
+    creationTimestamp: null
+    name: policy16
+    namespace: default
+spec:
+    ingress:
+        - from:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-app
+                      operator: DoesNotExist
+    podSelector:
+        matchExpressions:
+            - key: group__research-seg-1
+              operator: DoesNotExist
+    policyTypes:
+        - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (*) dst: (group != research-seg-1 and group != research-app) conn: All Connections'
+        nsx-id: "2"
+    creationTimestamp: null
+    name: policy17
+    namespace: default
+spec:
+    ingress:
+        - from:
+            - podSelector: {}
+    podSelector:
+        matchExpressions:
+            - key: group__research-seg-1
+              operator: DoesNotExist
+            - key: group__research-app
+              operator: DoesNotExist
+    policyTypes:
+        - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (group != research-app) dst: (*) conn: TCP,UDP'
+        nsx-id: "2"
+    creationTimestamp: null
+    name: policy18
+    namespace: default
+spec:
+    ingress:
+        - from:
+            - podSelector:
+                matchExpressions:
+                    - key: group__research-app
+                      operator: DoesNotExist
+    podSelector: {}
+    policyTypes:
+        - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: 'src: (*) dst: (group != research-app) conn: TCP,UDP'
+        nsx-id: "2"
+    creationTimestamp: null
+    name: policy19
+    namespace: default
+spec:
+    ingress:
+        - from:
+            - podSelector: {}
+    podSelector:
+        matchExpressions:
+            - key: group__research-app
+              operator: DoesNotExist
+    policyTypes:
+        - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    annotations:
+        description: Default Deny Network Policy
+        nsx-id: noNsxID
+    creationTimestamp: null
+    name: default-deny
+    namespace: default
+spec:
+    podSelector: {}
+    policyTypes:
+        - Ingress
+        - Egress

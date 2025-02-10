@@ -1,0 +1,314 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: eb15a61d6ddbcd2ff179fa3ebe1692efec7d00129ad6462a4037dd7caad918e0
+      cni.projectcalico.org/podIP: 10.244.120.69/32
+      cni.projectcalico.org/podIPs: 10.244.120.69/32
+    creationTimestamp: "2025-02-10T06:05:04Z"
+    labels:
+      group__research-app: "true"
+      group__research-seg-1: "true"
+    name: new-vm-1
+    namespace: default
+    resourceVersion: "1382"
+    uid: 9ee92ecb-8b45-48e2-b419-ff1393fe3289
+  spec:
+    containers:
+    - image: ahmet/app-on-two-ports
+      imagePullPolicy: Always
+      name: new-vm-1
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-57ncn
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-57ncn
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2025-02-10T06:05:04Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2025-02-10T06:05:10Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2025-02-10T06:05:10Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2025-02-10T06:05:04Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://8b69c36133120f71d71f6e0892c7388942e86f1063669682cd08b386f8450921
+      image: ahmet/app-on-two-ports:latest
+      imageID: docker-pullable://ahmet/app-on-two-ports@sha256:c5e65997e88eb659c960be1d1dfe1252e7dbc779f2714c368f734cffb20e75dd
+      lastState: {}
+      name: new-vm-1
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2025-02-10T06:05:10Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.69
+    podIPs:
+    - ip: 10.244.120.69
+    qosClass: BestEffort
+    startTime: "2025-02-10T06:05:04Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: 37d9b7b859f32387b0c62dbab68843726e093b8cda910a7270cb792c61b3d629
+      cni.projectcalico.org/podIP: 10.244.120.71/32
+      cni.projectcalico.org/podIPs: 10.244.120.71/32
+    creationTimestamp: "2025-02-10T06:12:56Z"
+    labels:
+      group__research-app: "true"
+    name: new-vm-2
+    namespace: default
+    resourceVersion: "1727"
+    uid: e7296e46-388f-4c6b-8e0c-2bdf9e9143fa
+  spec:
+    containers:
+    - image: ahmet/app-on-two-ports
+      imagePullPolicy: Always
+      name: new-vm-2
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-wq6xf
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-wq6xf
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2025-02-10T06:12:56Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2025-02-10T06:12:59Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2025-02-10T06:12:59Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2025-02-10T06:12:56Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://72bfee2efa9400fd1cfc84e087ad484ec9f5d2bd1a6793ce6cd42a4aa42d7375
+      image: ahmet/app-on-two-ports:latest
+      imageID: docker-pullable://ahmet/app-on-two-ports@sha256:c5e65997e88eb659c960be1d1dfe1252e7dbc779f2714c368f734cffb20e75dd
+      lastState: {}
+      name: new-vm-2
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2025-02-10T06:12:59Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.71
+    podIPs:
+    - ip: 10.244.120.71
+    qosClass: BestEffort
+    startTime: "2025-02-10T06:12:56Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      cni.projectcalico.org/containerID: 628e022b0cc1cd8ca2da667faca22ca355914a793f1a5e472f6935e87cd3020a
+      cni.projectcalico.org/podIP: 10.244.120.70/32
+      cni.projectcalico.org/podIPs: 10.244.120.70/32
+    creationTimestamp: "2025-02-10T06:05:04Z"
+    labels:
+      group__research-app: "true"
+      group__research-seg-1: "true"
+    name: new-vm-3
+    namespace: default
+    resourceVersion: "1388"
+    uid: 1951d7c8-675c-4232-ae9c-8296da045ff2
+  spec:
+    containers:
+    - image: ahmet/app-on-two-ports
+      imagePullPolicy: Always
+      name: new-vm-3
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-ksvz4
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-ksvz4
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2025-02-10T06:05:04Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2025-02-10T06:05:12Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2025-02-10T06:05:12Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2025-02-10T06:05:04Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://c4bf856c390ebb97260af7b7319446de641215aa9c9abbf517357a5263c8f9ad
+      image: ahmet/app-on-two-ports:latest
+      imageID: docker-pullable://ahmet/app-on-two-ports@sha256:c5e65997e88eb659c960be1d1dfe1252e7dbc779f2714c368f734cffb20e75dd
+      lastState: {}
+      name: new-vm-3
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2025-02-10T06:05:12Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 10.244.120.70
+    podIPs:
+    - ip: 10.244.120.70
+    qosClass: BestEffort
+    startTime: "2025-02-10T06:05:04Z"
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
