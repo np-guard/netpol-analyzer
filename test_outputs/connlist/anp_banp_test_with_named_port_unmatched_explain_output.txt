@@ -1,7 +1,7 @@
 
-####################################
-# No Connections and their reasons #
-####################################
+##########################################
+# Specific connections and their reasons #
+##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN network-policy-conformance-gryffindor/harry-potter[StatefulSet] => network-policy-conformance-slytherin/draco-malfoy[StatefulSet]:
 

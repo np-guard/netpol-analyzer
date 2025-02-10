@@ -38,21 +38,11 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool) string {
 	connLines := make([]singleConnFields, 0, len(conns))
 	defaultConnLines := make([]singleConnFields, 0, len(conns))
-	allConnLines := make([]singleConnFields, 0, len(conns))
-	noConnLines := make([]singleConnFields, 0, len(conns))
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
 		p2pConn := formSingleP2PConn(conns[i], explain)
-		if explain && conns[i].(*connection).OnlyCommonRules() {
-			// when running with explanation, we print all/no connections grouped together
-			switch {
-			case conns[i].(*connection).OnlyDefaultRule():
-				defaultConnLines = append(defaultConnLines, p2pConn)
-			case conns[i].(*connection).AllProtocolsAndPorts():
-				allConnLines = append(allConnLines, p2pConn)
-			default:
-				noConnLines = append(noConnLines, p2pConn)
-			}
+		if explain && conns[i].(*connection).OnlyDefaultRule() {
+			defaultConnLines = append(defaultConnLines, p2pConn)
 		} else {
 			connLines = append(connLines, p2pConn)
 		}
@@ -65,11 +55,7 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 	if explain {
 		sortConnFields(connLines, true)
 		sortConnFields(defaultConnLines, true)
-		sortConnFields(allConnLines, true)
-		sortConnFields(noConnLines, true)
-		result = writeSingleTypeLinesExplanationOutput(allConnLines, allConnHeader, false) +
-			writeSingleTypeLinesExplanationOutput(connLines, specificConnHeader, false) +
-			writeSingleTypeLinesExplanationOutput(noConnLines, noConnHeader, false) +
+		result = writeSingleTypeLinesExplanationOutput(connLines, specificConnHeader, false) +
 			writeSingleTypeLinesExplanationOutput(defaultConnLines, systemDefaultPairsHeader, true)
 	} else {
 		sortConnFields(connLines, true)

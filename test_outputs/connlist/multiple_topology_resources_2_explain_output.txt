@@ -1,51 +1,7 @@
 
-#####################################
-# All Connections and their reasons #
-#####################################
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]:
-
-All Connections due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED)
-		1) [NP] demo/query-to-ui // Egress rule #1
-	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-
-
 ##########################################
 # Specific connections and their reasons #
 ##########################################
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-bank-ui[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
-
-ALLOWED TCP:[8080,9090] due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (ALLOWED)
-		1) [NP] demo/ui-to-command // Ingress rule #1
-
-ALLOWED UDP:[8080] due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (ALLOWED)
-		1) [NP] demo/ui-to-command // Ingress rule #1
-
-DENIED TCP:[1-8079,8081-9089,9091-65535] due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (DENIED)
-		1) [NP] demo/ui-to-command // Ingress rule #1 (ports not referenced)
-
-DENIED UDP:[1-8079,8081-65535] due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (DENIED)
-		1) [NP] demo/ui-to-command // Ingress rule #1 (ports not referenced)
-
-DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-	INGRESS DIRECTION (DENIED)
-		1) [NP] demo/ui-to-command // Ingress rule #1 (protocols not referenced)
-
-
-####################################
-# No Connections and their reasons #
-####################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => demo/cog-agents-account-command[DaemonSet]:
 
@@ -118,6 +74,14 @@ No Connections due to the following policies // rules:
 		1) [NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
 	INGRESS DIRECTION (DENIED)
 		1) [NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]:
+
+All Connections due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED)
+		1) [NP] demo/query-to-ui // Egress rule #1
+	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]:
@@ -262,6 +226,34 @@ No Connections due to the following policies // rules:
 	EGRESS DIRECTION (DENIED)
 		1) [NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
 	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN demo/cog-agents-bank-ui[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+
+ALLOWED TCP:[8080,9090] due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [NP] demo/ui-to-command // Ingress rule #1
+
+ALLOWED UDP:[8080] due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (ALLOWED)
+		1) [NP] demo/ui-to-command // Ingress rule #1
+
+DENIED TCP:[1-8079,8081-9089,9091-65535] due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] demo/ui-to-command // Ingress rule #1 (ports not referenced)
+
+DENIED UDP:[1-8079,8081-65535] due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] demo/ui-to-command // Ingress rule #1 (ports not referenced)
+
+DENIED {SCTP}:[ALL PORTS] due to the following policies // rules:
+	EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+	INGRESS DIRECTION (DENIED)
+		1) [NP] demo/ui-to-command // Ingress rule #1 (protocols not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
