@@ -99,8 +99,8 @@ func (rules *ImplyingRulesType) Copy() ImplyingRulesType {
 const (
 	ExplString            = "due to "
 	ExplWithRulesTitle    = ExplString + "the following policies // rules:"
-	IngressDirectionTitle = "\tINGRESS DIRECTION"
-	EgressDirectionTitle  = "\tEGRESS DIRECTION"
+	IngressDirectionTitle = "\t\tINGRESS DIRECTION"
+	EgressDirectionTitle  = "\t\tEGRESS DIRECTION"
 	NewLine               = "\n"
 	SpaceSeparator        = " "
 	ExplAllowAll          = " (Allow all)"
@@ -151,7 +151,7 @@ func (rules *ImplyingXgressRulesType) String() string {
 		if onlyDefaultRule {
 			formattedRules = append(formattedRules, name)
 		} else {
-			formattedRules = append(formattedRules, fmt.Sprintf("\t\t%d) %s", order+1, name))
+			formattedRules = append(formattedRules, fmt.Sprintf("\t\t\t%d) %s", order+1, name))
 		}
 	}
 	sort.Strings(formattedRules) // the rule index begins the string, like "2)"
@@ -178,7 +178,7 @@ func (rules *ImplyingRulesType) RemoveDefaultRule(isIngress bool) {
 
 func (rules ImplyingRulesType) String() string {
 	if rules.OnlyDefaultRule() {
-		return SpaceSeparator + SystemDefaultRule + NewLine
+		return SpaceSeparator + ExplSystemDefault + NewLine
 	}
 	res := ""
 	if !rules.Egress.Empty() {

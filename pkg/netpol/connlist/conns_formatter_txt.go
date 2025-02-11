@@ -96,9 +96,7 @@ const (
 	unprotectedHeader        = "\nWorkloads not protected by network policies:\n"
 	separationLine80         = "--------------------------------------------------------------------------------"
 	nodePairSeparationLine   = separationLine80 + separationLine80 + common.NewLine
-	systemDefaultPairsHeader = common.AllConnsStr + " due to " + common.SystemDefaultRule
-	allConnHeader            = common.AllConnsStr + " and their reasons"
-	noConnHeader             = common.NoConnsStr + " and their reasons"
+	systemDefaultPairsHeader = common.AllConnsStr + common.SpaceSeparator + common.ExplSystemDefault
 	specificConnHeader       = "Specific connections and their reasons"
 )
 

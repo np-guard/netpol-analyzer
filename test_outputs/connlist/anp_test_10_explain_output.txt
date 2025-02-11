@@ -5,40 +5,36 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet] => network-policy-conformance-gryffindor/harry-potter[StatefulSet]:
 
-ALLOWED UDP:[53] due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED)
-		1) [ANP] egress-udp // Egress rule allow-to-gryffindor-at-port-53 (Allow)
-	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-
-DENIED UDP:[1-52,54-65535] due to the following policies // rules:
-	EGRESS DIRECTION (DENIED)
-		1) [ANP] egress-udp // Egress rule deny-to-gryffindor-everything-else (Deny)
-	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-
-DENIED {SCTP,TCP}:[ALL PORTS] due to the following policies // rules:
-	EGRESS DIRECTION (DENIED)
-		1) [ANP] egress-udp // Egress rule deny-to-gryffindor-everything-else (Deny)
-	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+ALLOWED:
+	UDP:[53] due to the following policies // rules:
+		EGRESS DIRECTION (ALLOWED)
+			1) [ANP] egress-udp // Egress rule allow-to-gryffindor-at-port-53 (Allow)
+		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+DENIED:
+	SCTP, TCP, UDP:[1-52,54-65535] due to the following policies // rules:
+		EGRESS DIRECTION (DENIED)
+			1) [ANP] egress-udp // Egress rule deny-to-gryffindor-everything-else (Deny)
+		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet] => network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]:
 
-All Connections due to the following policies // rules:
-	EGRESS DIRECTION (ALLOWED)
-		1) [ANP] egress-udp // Egress rule allow-to-ravenclaw-everything (Allow)
-	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+ALLOWED:
+	SCTP, TCP, UDP due to the following policies // rules:
+		EGRESS DIRECTION (ALLOWED)
+			1) [ANP] egress-udp // Egress rule allow-to-ravenclaw-everything (Allow)
+		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet] => network-policy-conformance-slytherin/draco-malfoy[StatefulSet]:
 
-ALLOWED UDP:[1-5352,5354-65535] the system default (Allow all)
-
-ALLOWED {SCTP,TCP}:[ALL PORTS] the system default (Allow all)
-
-DENIED UDP:[5353] due to the following policies // rules:
-	EGRESS DIRECTION (DENIED)
-		1) [ANP] egress-udp // Egress rule deny-to-slytherin-at-port-5353 (Deny)
-	INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+ALLOWED:
+	SCTP, TCP, UDP:[1-5352,5354-65535] due to the system default (Allow all)
+DENIED:
+	UDP:[5353] due to the following policies // rules:
+		EGRESS DIRECTION (DENIED)
+			1) [ANP] egress-udp // Egress rule deny-to-slytherin-at-port-5353 (Deny)
+		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 
 #########################################################
