@@ -8,7 +8,6 @@ package ingressanalyzer
 
 import (
 	"fmt"
-	"sort"
 	"strconv"
 
 	ocroutev1 "github.com/openshift/api/route/v1"
@@ -302,14 +301,7 @@ type ingressResource struct {
 // based on k8s-Ingress/routes objects rules
 func (ia *IngressAnalyzer) allowedIngressConnectionsByResourcesType(mapToIterate map[string]map[string][]serviceInfo, ingType string) (
 	map[string]*PeerAndIngressConnSet, error) {
-	ingResources := ia.collectAndSortIngressResources(mapToIterate)
-	return ia.allowedIngressConnectionsFromResourceList(ingResources, ingType)
-}
-
-// collectAndSortIngressResources collects all ingress resources from the given map (k8s-Ingress/routes objects)
-// and sorts them by the full resource name (the sorting is used by explainability for inserting rules in a uniform order)
-func (ia *IngressAnalyzer) collectAndSortIngressResources(mapToIterate map[string]map[string][]serviceInfo) []ingressResource {
-	res := make([]ingressResource, 0)
+	ingResources := make([]ingressResource, 0)
 	for ns, objSvcMap := range mapToIterate {
 		// if there are no services in same namespace of the Ingress, the ingress objects in this ns will be skipped
 		if _, ok := ia.servicesToPortsAndPeersMap[ns]; !ok {
@@ -317,13 +309,10 @@ func (ia *IngressAnalyzer) collectAndSortIngressResources(mapToIterate map[strin
 		}
 		for objName, svcList := range objSvcMap {
 			ingObjStr := types.NamespacedName{Namespace: ns, Name: objName}.String()
-			res = append(res, ingressResource{ns: ns, fullName: ingObjStr, svcList: svcList})
+			ingResources = append(ingResources, ingressResource{ns: ns, fullName: ingObjStr, svcList: svcList})
 		}
 	}
-	sort.Slice(res, func(i, j int) bool {
-		return res[i].fullName < res[j].fullName
-	})
-	return res
+	return ia.allowedIngressConnectionsFromResourceList(ingResources, ingType)
 }
 
 func (ia *IngressAnalyzer) allowedIngressConnectionsFromResourceList(resourceList []ingressResource, ingType string) (

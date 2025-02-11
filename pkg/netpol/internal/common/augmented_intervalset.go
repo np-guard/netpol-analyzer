@@ -289,7 +289,8 @@ func (rules *ImplyingRulesType) SetResult(isAllowed, isIngress bool) {
 func (rules *ImplyingXgressRulesType) Union(other ImplyingXgressRulesType) {
 	for otherKind, otherRules := range other.Rules {
 		if _, ok := rules.Rules[otherKind]; ok {
-			mergedRules := append(rules.Rules[otherKind], otherRules...)
+			mergedRules := rules.Rules[otherKind]
+			mergedRules = append(mergedRules, otherRules...)
 			sort.Strings(mergedRules)
 			rules.Rules[otherKind] = slices.Compact(mergedRules)
 		} else {
