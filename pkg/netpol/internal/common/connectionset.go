@@ -523,27 +523,29 @@ type connsAndRules struct {
 	rules string
 }
 
-func (conn sameRulesConnections) string() string {
-	if len(conn) == 0 {
-		return "\t" + AllConnsStr
-	}
+func (conn sameRulesConnections) string(isAllowed bool) string {
 	protocolAndPorts := []string{}
-	for protocol, ports := range conn {
-		portsStr := ":[" + ports.String() + "]"
-		if ports.Equal(makeFullPortSet()) {
-			portsStr = ""
+	for _, protocol := range allProtocols {
+		if ports, ok := conn[protocol]; ok {
+			portsStr := ":[" + ports.String() + "]"
+			if ports.Equal(makeFullPortSet()) {
+				portsStr = ""
+			}
+			protocolAndPorts = append(protocolAndPorts, string(protocol)+portsStr)
 		}
-		protocolAndPorts = append(protocolAndPorts, string(protocol)+portsStr)
 	}
-	sort.Strings(protocolAndPorts)
-	return "\t" + strings.Join(protocolAndPorts, ", ")
+	res := allowResultStr
+	if !isAllowed {
+		res = denyResultStr
+	}
+	return "\t" + res + SpaceSeparator + strings.Join(protocolAndPorts, ", ")
 }
 
-func (classes connectionClasses) string(status string) string {
+func (classes connectionClasses) string(isAllowed bool) string {
 	classStr := make([]connsAndRules, len(classes))
 	ind := 0
 	for rulesStr, conn := range classes {
-		classStr[ind] = connsAndRules{conn: conn.string(), rules: rulesStr}
+		classStr[ind] = connsAndRules{conn: conn.string(isAllowed), rules: rulesStr}
 		ind++
 	}
 	// sort classStr by conn
@@ -553,9 +555,13 @@ func (classes connectionClasses) string(status string) string {
 	if len(classStr) == 0 {
 		return ""
 	}
-	res := status + ":" + NewLine
+	res := allowListTitle
+	if !isAllowed {
+		res = denyListTitle
+	}
+	res += ":" + NewLine
 	for i := range classStr {
-		res += classStr[i].conn + classStr[i].rules
+		res += classStr[i].conn + classStr[i].rules + NewLine
 	}
 	return res
 }
@@ -581,5 +587,5 @@ func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRule
 			}
 		}
 	}
-	return allowedConnClasses.string(allowResultStr) + deniedConnClasses.string(denyResultStr)
+	return allowedConnClasses.string(true) + deniedConnClasses.string(false)
 }

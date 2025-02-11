@@ -5,17 +5,19 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => ingressworld/ingress-world-multiple-ports[Deployment]:
 
-ALLOWED:
-	TCP:[8000] due to the following policies // rules:
+ALLOWED LIST:
+	ALLOWED TCP:[8000] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (ALLOWED)
 			1) [Route] ingressworld/route-1 // service ingress-world
-	TCP:[8090] due to the following policies // rules:
+
+	ALLOWED TCP:[8090] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (ALLOWED)
 			1) [Ingress] ingressworld/ingress-1 // service ingress-world
-DENIED:
-	SCTP, TCP:[1-7999,8001-8089,8091-65535], UDP due to the following policies // rules:
+
+DENIED LIST:
+	DENIED TCP:[1-7999,8001-8089,8091-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
 			1) [Ingress] ingressworld/ingress-1 // service ingress-world (protocols/ports not referenced)

@@ -76,7 +76,7 @@ func writeSingleTypeLinesExplanationOutput(lines []singleConnFields, header stri
 			result += p2pConn.nodePairString() + newLineChar
 		} else {
 			result += nodePairSeparationLine
-			result += p2pConn.stringWithExplanation() + newLineChar
+			result += p2pConn.stringWithExplanation()
 		}
 	}
 	return result

@@ -5,14 +5,15 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => helloworld/hello-world[Deployment]:
 
-ALLOWED:
-	TCP:[8000] due to the following policies // rules:
+ALLOWED LIST:
+	ALLOWED TCP:[8000] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (ALLOWED)
 			1) [Ingress] helloworld/hello-world // service hello-world
 			2) [Route] helloworld/hello-world // service hello-world
-DENIED:
-	SCTP, TCP:[1-7999,8001-65535], UDP due to the following policies // rules:
+
+DENIED LIST:
+	DENIED TCP:[1-7999,8001-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
 			1) [Ingress] helloworld/hello-world // service hello-world (protocols/ports not referenced)
@@ -21,13 +22,14 @@ DENIED:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => ingressworld/ingress-world[Deployment]:
 
-ALLOWED:
-	TCP:[8090] due to the following policies // rules:
+ALLOWED LIST:
+	ALLOWED TCP:[8090] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (ALLOWED)
 			1) [Ingress] ingressworld/ingress-world // service ingress-world
-DENIED:
-	SCTP, TCP:[1-8089,8091-65535], UDP due to the following policies // rules:
+
+DENIED LIST:
+	DENIED TCP:[1-8089,8091-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
 			1) [Ingress] ingressworld/ingress-world // service ingress-world (protocols/ports not referenced)
@@ -35,13 +37,14 @@ DENIED:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => routeworld/route-world[Deployment]:
 
-ALLOWED:
-	TCP:[8060] due to the following policies // rules:
+ALLOWED LIST:
+	ALLOWED TCP:[8060] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (ALLOWED)
 			1) [Route] routeworld/route-world // service route-world
-DENIED:
-	SCTP, TCP:[1-8059,8061-65535], UDP due to the following policies // rules:
+
+DENIED LIST:
+	DENIED TCP:[1-8059,8061-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
 			1) [Route] routeworld/route-world // service route-world (protocols/ports not referenced)
