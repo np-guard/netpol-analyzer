@@ -362,7 +362,7 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns, ingObjStr s
 		}
 		ruleName := fmt.Sprintf("[%s] %s // service %s", ingType, ingObjStr, svc.serviceName)
 		for _, peer := range peersAndPorts.peers {
-			currIngressPeerConn, err := ia.getIngressPeerConnection(peer, peersAndPorts.ports, svc.servicePort, ruleName)
+			currIngressPeerConn, err := ia.getIngressPeerConnection(peer, peersAndPorts.ports, svc.servicePort, ingType, ruleName)
 			if err != nil {
 				return nil, err
 			}
@@ -378,14 +378,14 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns, ingObjStr s
 
 // getIngressPeerConnection returns the ingress connection to a peer based on the required port specified in the ingress objects
 func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServicePorts []corev1.ServicePort,
-	requiredPort intstr.IntOrString, ruleName string) (*common.ConnectionSet, error) {
+	requiredPort intstr.IntOrString, ruleKind, ruleName string) (*common.ConnectionSet, error) {
 	peerTCPConn := eval.GetPeerExposedTCPConnections(peer)
 	// get the peer port/s which may be accessed by the service required port
 	// (if the required port is not specified, all service ports are allowed)
 	peerPortsToFind := getPeerAccessPort(actualServicePorts, requiredPort)
 	// compute the connection to the peer with the required port/s
 	// all protocols are affected by Ingress (though only TCP may be specified; the rest are not allowed by Ingress)
-	res := common.MakeConnectionSetWithRule(false, common.ExplNotReferencedProtocolsOrPorts(ruleName), common.NPLayer, true)
+	res := common.MakeConnectionSetWithRule(false, ruleKind, common.ExplNotReferencedProtocolsOrPorts(ruleName), true)
 	for _, peerPortToFind := range peerPortsToFind {
 		portNum := peerPortToFind.IntValue()
 		if peerPortToFind.StrVal != "" { // if the port we are searching for is namedPort
@@ -403,8 +403,8 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 		if peerTCPConn.Contains(strconv.Itoa(portNum), string(corev1.ProtocolTCP)) {
 			// the whole port range is affected by Ingress (not only ports mentioned by Ingress/Route resource)
 			permittedPort := common.MakeEmptyPortSetWithImplyingRules(
-				common.MakeImplyingRulesWithRule(common.ExplNotReferencedProtocolsOrPorts(ruleName), common.NPLayer, true))
-			permittedPort.AddPort(intstr.FromInt(portNum), common.MakeImplyingRulesWithRule(ruleName, common.NPLayer, true))
+				common.MakeImplyingRulesWithRule(ruleKind, common.ExplNotReferencedProtocolsOrPorts(ruleName), true))
+			permittedPort.AddPort(intstr.FromInt(portNum), common.MakeImplyingRulesWithRule(ruleKind, ruleName, true))
 			res.AddConnection(corev1.ProtocolTCP, permittedPort)
 		}
 	}

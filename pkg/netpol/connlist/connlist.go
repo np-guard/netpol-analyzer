@@ -406,7 +406,7 @@ func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.Connection
 			augmentedRange := p.(*common.PortRangeData)
 			// we cannot fill explainability data here, so we pass an empty rule name and an arbitrary direction (isIngress being true)
 			protocolsToPortSetMap[protocol].AddPortRange(augmentedRange.Start(), augmentedRange.End(),
-				augmentedRange.InSet(), "", common.DefaultLayer, true)
+				augmentedRange.InSet(), "", "", true)
 		}
 	}
 	connectionSet := &common.ConnectionSet{AllowAll: c.AllProtocolsAndPorts(), AllowedProtocols: protocolsToPortSetMap}

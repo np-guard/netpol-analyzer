@@ -127,8 +127,8 @@ func (p *PortSet) ReplaceNamedPort(namedPort string, portNum intstr.IntOrString,
 }
 
 // AddPortRange: update current PortSet object with new added port range as allowed
-func (p *PortSet) AddPortRange(minPort, maxPort int64, inSet bool, fromRule string, layer LayerType, isIngress bool) {
-	p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRule(minPort, maxPort, inSet, fromRule, layer, isIngress), NeverCollectRules)
+func (p *PortSet) AddPortRange(minPort, maxPort int64, inSet bool, ruleKind, fromRule string, isIngress bool) {
+	p.Ports.AddAugmentedInterval(NewAugmentedIntervalWithRule(minPort, maxPort, inSet, ruleKind, fromRule, isIngress), NeverCollectRules)
 }
 
 // Union: update current PortSet object with union of input PortSet object

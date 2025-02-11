@@ -253,8 +253,8 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	// cases where any connection is always allowed
 	if isPodToItself(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(srcK8sPeer, dstK8sPeer) || isPeerNodeIP(dstK8sPeer, srcK8sPeer) {
 		res = common.MakeConnectionSet(true)
-		res.AddCommonImplyingRule(common.PodToItselfRule, common.DefaultLayer, true)
-		res.AddCommonImplyingRule(common.PodToItselfRule, common.DefaultLayer, false)
+		res.AddCommonImplyingRule("", common.PodToItselfRule, true)
+		res.AddCommonImplyingRule("", common.PodToItselfRule, false)
 		return res, nil
 	}
 	// egress: get egress allowed connections between the src and dst by
@@ -684,9 +684,9 @@ func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool)
 	// if banp rule captured xgress conn, only DeniedConns should be impacted by banp rule,
 	// whenever AllowedConns should anyway be system-default: allow-all (or assumed allow-all for IP-blocks)
 	if (isIngress && dst.PeerType() == k8s.IPBlockType) || (!isIngress && src.PeerType() == k8s.IPBlockType) {
-		defaultConns.layerConns.AllowedConns = common.MakeConnectionSetWithRule(true, common.IPDefaultRule, common.DefaultLayer, isIngress)
+		defaultConns.layerConns.AllowedConns = common.MakeConnectionSetWithRule(true, "", common.IPDefaultRule, isIngress)
 	} else {
-		defaultConns.layerConns.AllowedConns = common.MakeConnectionSetWithRule(true, common.SystemDefaultRule, common.DefaultLayer, isIngress)
+		defaultConns.layerConns.AllowedConns = common.MakeConnectionSetWithRule(true, "", common.SystemDefaultRule, isIngress)
 	}
 	return defaultConns, exposureConns, nil
 }

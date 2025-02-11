@@ -11,7 +11,6 @@ import (
 	"log"
 	"slices"
 	"sort"
-	"strings"
 
 	"github.com/np-guard/models/pkg/interval"
 )
@@ -34,7 +33,8 @@ const (
 )
 
 type ImplyingXgressRulesType struct {
-	Rules map[string]int
+	// Rules is a map from a rule kind (ANP/NP/Ingres/Route/BANP/default) to an ordered list of rules of that kind
+	Rules map[string][]string
 	// DominantLayer keeps the highest priority layer among the current rules;
 	// used in combination with collectStyle flag (on 'NeverCollectRules' value) in updateImplyingRules
 	DominantLayer LayerType
@@ -45,17 +45,35 @@ type ImplyingXgressRulesType struct {
 }
 
 type ImplyingRulesType struct {
-	Ingress ImplyingXgressRulesType // an ordered set of ingress rules, used for explainability
-	Egress  ImplyingXgressRulesType // an ordered set of egress rules, used for explainability
+	Ingress ImplyingXgressRulesType
+	Egress  ImplyingXgressRulesType
+}
+
+func ruleKindToLayer(kind string) LayerType {
+	switch kind {
+	case "ANP":
+		return ANPLayer
+	case "NP":
+		return NPLayer
+	case "Ingress":
+		return NPLayer
+	case "Route":
+		return NPLayer
+	case "BANP":
+		return BANPLayer
+	case "":
+		return DefaultLayer
+	}
+	return DefaultLayer // should not get here
 }
 
 func InitImplyingXgressRules() ImplyingXgressRulesType {
-	return ImplyingXgressRulesType{Rules: map[string]int{}, DominantLayer: DefaultLayer, Result: NoResult}
+	return ImplyingXgressRulesType{Rules: map[string][]string{}, DominantLayer: DefaultLayer, Result: NoResult}
 }
 
-func MakeImplyingXgressRulesWithRule(rule string, layer LayerType) ImplyingXgressRulesType {
+func MakeImplyingXgressRulesWithRule(ruleKind, rule string) ImplyingXgressRulesType {
 	res := InitImplyingXgressRules()
-	res.AddXgressRule(rule, layer)
+	res.AddXgressRule(ruleKind, rule)
 	return res
 }
 
@@ -63,12 +81,12 @@ func InitImplyingRules() ImplyingRulesType {
 	return ImplyingRulesType{Ingress: InitImplyingXgressRules(), Egress: InitImplyingXgressRules()}
 }
 
-func MakeImplyingRulesWithRule(rule string, layer LayerType, isIngress bool) ImplyingRulesType {
+func MakeImplyingRulesWithRule(ruleKind, rule string, isIngress bool) ImplyingRulesType {
 	res := InitImplyingRules()
 	if isIngress {
-		res.Ingress = MakeImplyingXgressRulesWithRule(rule, layer)
+		res.Ingress = MakeImplyingXgressRulesWithRule(ruleKind, rule)
 	} else {
-		res.Egress = MakeImplyingXgressRulesWithRule(rule, layer)
+		res.Egress = MakeImplyingXgressRulesWithRule(ruleKind, rule)
 	}
 	return res
 }
@@ -82,9 +100,9 @@ func (rules *ImplyingRulesType) Equal(other *ImplyingRulesType) bool {
 }
 
 func (rules *ImplyingXgressRulesType) Copy() ImplyingXgressRulesType {
-	res := ImplyingXgressRulesType{Rules: map[string]int{}, DominantLayer: rules.DominantLayer, Result: rules.Result}
+	res := ImplyingXgressRulesType{Rules: map[string][]string{}, DominantLayer: rules.DominantLayer, Result: rules.Result}
 	for k, v := range rules.Rules {
-		res.Rules[k] = v
+		res.Rules[k] = slices.Clone(v)
 	}
 	return res
 }
@@ -121,6 +139,10 @@ func (rules *ImplyingXgressRulesType) onlyDefaultRule() bool {
 	return len(rules.Rules) == 1 && rules.DominantLayer == DefaultLayer
 }
 
+func (rules *ImplyingXgressRulesType) getDefaultRule() string {
+	return rules.Rules[""][0] // should be SystemDefaultRule
+}
+
 func (rules *ImplyingXgressRulesType) removeDefaultRule() {
 	if rules.onlyDefaultRule() {
 		*rules = InitImplyingXgressRules()
@@ -146,25 +168,42 @@ func (rules *ImplyingXgressRulesType) String() string {
 	if rules.Empty() {
 		return rules.resultString()
 	}
-	onlyDefaultRule := rules.onlyDefaultRule()
-
-	// print the rules according to their order
-	formattedRules := make([]string, 0, len(rules.Rules))
-	for name, order := range rules.Rules {
-		if onlyDefaultRule {
-			formattedRules = append(formattedRules, name)
-		} else {
-			formattedRules = append(formattedRules, fmt.Sprintf("\t\t\t%d) %s", order+1, name))
-		}
-	}
-	sort.Strings(formattedRules) // the rule index begins the string, like "2)"
 	result := rules.resultString()
-	if onlyDefaultRule {
-		result += SpaceSeparator + ExplString
-	} else {
-		result += NewLine
+	if rules.onlyDefaultRule() {
+		result += SpaceSeparator + ExplString + rules.getDefaultRule()
+		return result
 	}
-	return result + strings.Join(formattedRules, NewLine)
+	type rulesAndKind struct {
+		ruleKind string
+		ruleList string
+	}
+	rulesByKind := make([]rulesAndKind, 0, len(rules.Rules))
+	for ruleKind, rules := range rules.Rules {
+		rulesByKind = append(rulesByKind, rulesAndKind{ruleKind: ruleKind, ruleList: formatRulesOfKind(ruleKind, rules)})
+	}
+	// sort rule groups by layer priorities
+	sort.Slice(rulesByKind, func(i, j int) bool {
+		kind1 := ruleKindToLayer(rulesByKind[i].ruleKind)
+		kind2 := ruleKindToLayer(rulesByKind[j].ruleKind)
+		return kind1 > kind2 || (kind1 == kind2 && rulesByKind[i].ruleKind < rulesByKind[j].ruleKind)
+	})
+
+	for _, ruleAndKind := range rulesByKind {
+		result += NewLine + ruleAndKind.ruleList
+	}
+	return result
+}
+
+func formatRulesOfKind(ruleKind string, rules []string) string {
+	res := "\t\t\t"
+	if len(rules) == 1 {
+		return res + rules[0]
+	}
+	res += fmt.Sprintf("%s list:\n", ruleKind)
+	for _, rule := range rules {
+		res += "\t\t\t\t- " + rule + NewLine
+	}
+	return res
 }
 
 func (rules *ImplyingRulesType) OnlyDefaultRule() bool {
@@ -204,20 +243,29 @@ func (rules ImplyingRulesType) Empty() bool {
 	return rules.Ingress.Empty() && rules.Egress.Empty()
 }
 
-func (rules *ImplyingXgressRulesType) AddXgressRule(ruleName string, ruleLayer LayerType) {
+func insertRuleAtIndex(rules []string, rule string, ind int) []string {
+	return append(rules[:ind], append([]string{rule}, rules[ind:]...)...)
+}
+
+func (rules *ImplyingXgressRulesType) AddXgressRule(ruleKind, ruleName string) {
 	if ruleName != "" {
-		if _, ok := rules.Rules[ruleName]; !ok {
-			rules.Rules[ruleName] = len(rules.Rules) // a new rule should be the last
+		if _, ok := rules.Rules[ruleKind]; !ok {
+			rules.Rules[ruleKind] = []string{ruleName}
+		} else {
+			ind := sort.SearchStrings(rules.Rules[ruleKind], ruleName)
+			if ind >= len(rules.Rules[ruleKind]) || rules.Rules[ruleKind][ind] != ruleName { // avoid duplicates
+				rules.Rules[ruleKind] = insertRuleAtIndex(rules.Rules[ruleKind], ruleName, ind)
+			}
 		}
-		rules.DominantLayer = max(rules.DominantLayer, ruleLayer)
+		rules.DominantLayer = max(rules.DominantLayer, ruleKindToLayer(ruleKind))
 	}
 }
 
-func (rules *ImplyingRulesType) AddRule(ruleName string, ruleLayer LayerType, isIngress bool) {
+func (rules *ImplyingRulesType) AddRule(ruleKind, ruleName string, isIngress bool) {
 	if isIngress {
-		rules.Ingress.AddXgressRule(ruleName, ruleLayer)
+		rules.Ingress.AddXgressRule(ruleKind, ruleName)
 	} else {
-		rules.Egress.AddXgressRule(ruleName, ruleLayer)
+		rules.Egress.AddXgressRule(ruleKind, ruleName)
 	}
 }
 
@@ -239,17 +287,13 @@ func (rules *ImplyingRulesType) SetResult(isAllowed, isIngress bool) {
 
 // Union collects other implying rules into the current ones
 func (rules *ImplyingXgressRulesType) Union(other ImplyingXgressRulesType) {
-	// first, count how many rules are common in both sets
-	common := 0
-	for name := range other.Rules {
-		if _, ok := rules.Rules[name]; ok {
-			common += 1
-		}
-	}
-	offset := len(rules.Rules) - common
-	for name, order := range other.Rules {
-		if _, ok := rules.Rules[name]; !ok { // for the common rules, keep their original order in the current rules
-			rules.Rules[name] = order + offset // other rules should be addded after the current rules
+	for otherKind, otherRules := range other.Rules {
+		if _, ok := rules.Rules[otherKind]; ok {
+			mergedRules := append(rules.Rules[otherKind], otherRules...)
+			sort.Strings(mergedRules)
+			rules.Rules[otherKind] = slices.Compact(mergedRules)
+		} else {
+			rules.Rules[otherKind] = slices.Clone(otherRules)
 		}
 	}
 	rules.DominantLayer = max(rules.DominantLayer, other.DominantLayer)
@@ -321,9 +365,15 @@ func (rules *ImplyingXgressRulesType) mayBeUpdatedBy(other ImplyingXgressRulesTy
 	collectStyle CollectStyleType) bool {
 	if collectStyle == AlwaysCollectRules || (collectStyle == CollectSameInclusionRules && sameInclusion) {
 		// return true iff Union would change anything
-		for name := range other.Rules {
-			if _, ok := rules.Rules[name]; !ok {
+		for otherKind, otherRules := range other.Rules {
+			if _, ok := rules.Rules[otherKind]; !ok {
 				return true
+			}
+			for _, otherRule := range otherRules {
+				ind := sort.SearchStrings(rules.Rules[otherKind], otherRule)
+				if ind >= len(rules.Rules[otherKind]) || rules.Rules[otherKind][ind] != otherRule {
+					return true
+				}
 			}
 		}
 		return false
@@ -351,9 +401,9 @@ func NewAugmentedInterval(start, end int64, inSet bool) AugmentedInterval {
 	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet, implyingRules: InitImplyingRules()}
 }
 
-func NewAugmentedIntervalWithRule(start, end int64, inSet bool, rule string, layer LayerType, isIngress bool) AugmentedInterval {
+func NewAugmentedIntervalWithRule(start, end int64, inSet bool, ruleKind, rule string, isIngress bool) AugmentedInterval {
 	return AugmentedInterval{interval: interval.New(start, end), inSet: inSet,
-		implyingRules: MakeImplyingRulesWithRule(rule, layer, isIngress)}
+		implyingRules: MakeImplyingRulesWithRule(ruleKind, rule, isIngress)}
 }
 
 func NewAugmentedIntervalWithRules(start, end int64, inSet bool, rules ImplyingRulesType) AugmentedInterval {

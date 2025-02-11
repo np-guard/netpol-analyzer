@@ -433,14 +433,14 @@ func updatePolicyConns(rulePorts *[]apisv1a.AdminNetworkPolicyPort, ruleName str
 //gocyclo:ignore
 func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string,
 	isBANPrule bool, dst Peer, isIngress bool) (*common.ConnectionSet, error) {
-	var layer common.LayerType
+	var ruleKind string
 	if isBANPrule {
-		layer = common.BANPLayer
+		ruleKind = "BANP"
 	} else {
-		layer = common.ANPLayer
+		ruleKind = "ANP"
 	}
 	if ports == nil { // If Ports is not set then the rule does not filter traffic via port.
-		return common.MakeConnectionSetWithRule(true, ruleName, layer, isIngress), nil
+		return common.MakeConnectionSetWithRule(true, ruleKind, ruleName, isIngress), nil
 	}
 	res := common.MakeConnectionSet(false)
 	for _, anpPort := range *ports {
@@ -454,14 +454,14 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string,
 			if anpPort.PortNumber.Protocol != "" {
 				protocol = anpPort.PortNumber.Protocol
 			}
-			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port), common.MakeImplyingRulesWithRule(ruleName, layer, isIngress))
+			portSet.AddPort(intstr.FromInt32(anpPort.PortNumber.Port), common.MakeImplyingRulesWithRule(ruleKind, ruleName, isIngress))
 		case anpPort.NamedPort != nil:
 			if dst == nil || isPeerRepresentative(dst) {
 				// if dst is nil or representative: named port is added to the conns without conversion.
 				// the protocol of a named port of an ANP rule is depending on the pod's configuration.
 				// since, we have no indication of a "representative-peer" configuration, this namedPort is added as a potential
 				// exposure without protocol ("").
-				portSet.AddPort(intstr.FromString(*anpPort.NamedPort), common.MakeImplyingRulesWithRule(ruleName, layer, isIngress))
+				portSet.AddPort(intstr.FromString(*anpPort.NamedPort), common.MakeImplyingRulesWithRule(ruleKind, ruleName, isIngress))
 				// In exposure analysis, in connections to entire cluster named ports cannot be resolved, and thus the protocol is unknown.
 				// This is represented by a protocol with an empty name.
 				res.AddConnection("", portSet)
@@ -481,7 +481,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string,
 			if podProtocol != "" {
 				protocol = v1.Protocol(podProtocol)
 			}
-			portSet.AddPort(intstr.FromInt32(podPort), common.MakeImplyingRulesWithRule(ruleName, layer, isIngress))
+			portSet.AddPort(intstr.FromInt32(podPort), common.MakeImplyingRulesWithRule(ruleKind, ruleName, isIngress))
 		case anpPort.PortRange != nil:
 			if anpPort.PortRange.Protocol != "" {
 				protocol = anpPort.PortRange.Protocol
@@ -490,7 +490,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string,
 				// illegal: rule with empty range; (start/ end not in the legal range or end < start)
 				return nil, errors.New(alerts.IllegalPortRangeError(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End)))
 			}
-			portSet.AddPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End), true, ruleName, layer, isIngress)
+			portSet.AddPortRange(int64(anpPort.PortRange.Start), int64(anpPort.PortRange.End), true, ruleKind, ruleName, isIngress)
 		}
 		res.AddConnection(protocol, portSet)
 	}

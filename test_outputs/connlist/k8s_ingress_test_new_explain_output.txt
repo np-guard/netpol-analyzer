@@ -9,7 +9,7 @@ DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Ingress (captured but not selected by any Ingress rule)
+			[NP] default/details-netpol // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/productpage-v1-6b746f74dc[ReplicaSet]:
@@ -18,7 +18,7 @@ DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Ingress (captured but not selected by any Ingress rule)
+			[NP] default/productpage-netpol // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/ratings-v1-b6994bb9[ReplicaSet]:
@@ -27,7 +27,7 @@ DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Ingress (captured but not selected by any Ingress rule)
+			[NP] default/ratings-netpol // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/reviews-v1-545db77b95[ReplicaSet]:
@@ -36,7 +36,7 @@ DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/reviews-v2-7bf8c9648f[ReplicaSet]:
@@ -45,7 +45,7 @@ DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -54,7 +54,7 @@ DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/details-v1-79f774bdb9[ReplicaSet] => 0.0.0.0-255.255.255.255:
@@ -62,7 +62,7 @@ CONNECTIONS BETWEEN default/details-v1-79f774bdb9[ReplicaSet] => 0.0.0.0-255.255
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -71,9 +71,9 @@ CONNECTIONS BETWEEN default/details-v1-79f774bdb9[ReplicaSet] => default/product
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Ingress (captured but not selected by any Ingress rule)
+			[NP] default/productpage-netpol // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/details-v1-79f774bdb9[ReplicaSet] => default/ratings-v1-b6994bb9[ReplicaSet]:
@@ -81,9 +81,9 @@ CONNECTIONS BETWEEN default/details-v1-79f774bdb9[ReplicaSet] => default/ratings
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Ingress (captured but not selected by any Ingress rule)
+			[NP] default/ratings-netpol // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/details-v1-79f774bdb9[ReplicaSet] => default/reviews-v1-545db77b95[ReplicaSet]:
@@ -91,9 +91,9 @@ CONNECTIONS BETWEEN default/details-v1-79f774bdb9[ReplicaSet] => default/reviews
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/details-v1-79f774bdb9[ReplicaSet] => default/reviews-v2-7bf8c9648f[ReplicaSet]:
@@ -101,9 +101,9 @@ CONNECTIONS BETWEEN default/details-v1-79f774bdb9[ReplicaSet] => default/reviews
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/details-v1-79f774bdb9[ReplicaSet] => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -111,9 +111,9 @@ CONNECTIONS BETWEEN default/details-v1-79f774bdb9[ReplicaSet] => default/reviews
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/details-v1-79f774bdb9[ReplicaSet] => default/unicorn[Deployment]:
@@ -121,7 +121,7 @@ CONNECTIONS BETWEEN default/details-v1-79f774bdb9[ReplicaSet] => default/unicorn
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/details-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ CONNECTIONS BETWEEN default/productpage-v1-6b746f74dc[ReplicaSet] => 0.0.0.0-255
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -139,15 +139,15 @@ CONNECTIONS BETWEEN default/productpage-v1-6b746f74dc[ReplicaSet] => default/det
 DENIED LIST:
 	DENIED TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
+			[NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 	DENIED TCP:[9080] due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (ALLOWED)
-			1) [NP] default/details-netpol // Ingress rule #1
+			[NP] default/details-netpol // Ingress rule #1
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productpage-v1-6b746f74dc[ReplicaSet] => default/ratings-v1-b6994bb9[ReplicaSet]:
@@ -155,9 +155,9 @@ CONNECTIONS BETWEEN default/productpage-v1-6b746f74dc[ReplicaSet] => default/rat
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Ingress (captured but not selected by any Ingress rule)
+			[NP] default/ratings-netpol // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productpage-v1-6b746f74dc[ReplicaSet] => default/reviews-v1-545db77b95[ReplicaSet]:
@@ -165,9 +165,9 @@ CONNECTIONS BETWEEN default/productpage-v1-6b746f74dc[ReplicaSet] => default/rev
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productpage-v1-6b746f74dc[ReplicaSet] => default/reviews-v2-7bf8c9648f[ReplicaSet]:
@@ -175,9 +175,9 @@ CONNECTIONS BETWEEN default/productpage-v1-6b746f74dc[ReplicaSet] => default/rev
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productpage-v1-6b746f74dc[ReplicaSet] => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -185,9 +185,9 @@ CONNECTIONS BETWEEN default/productpage-v1-6b746f74dc[ReplicaSet] => default/rev
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productpage-v1-6b746f74dc[ReplicaSet] => default/unicorn[Deployment]:
@@ -195,7 +195,7 @@ CONNECTIONS BETWEEN default/productpage-v1-6b746f74dc[ReplicaSet] => default/uni
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/productpage-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -204,7 +204,7 @@ CONNECTIONS BETWEEN default/ratings-v1-b6994bb9[ReplicaSet] => 0.0.0.0-255.255.2
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -213,15 +213,15 @@ CONNECTIONS BETWEEN default/ratings-v1-b6994bb9[ReplicaSet] => default/details-v
 DENIED LIST:
 	DENIED TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
+			[NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 	DENIED TCP:[9080] due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (ALLOWED)
-			1) [NP] default/details-netpol // Ingress rule #1
+			[NP] default/details-netpol // Ingress rule #1
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/ratings-v1-b6994bb9[ReplicaSet] => default/productpage-v1-6b746f74dc[ReplicaSet]:
@@ -229,9 +229,9 @@ CONNECTIONS BETWEEN default/ratings-v1-b6994bb9[ReplicaSet] => default/productpa
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Ingress (captured but not selected by any Ingress rule)
+			[NP] default/productpage-netpol // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/ratings-v1-b6994bb9[ReplicaSet] => default/reviews-v1-545db77b95[ReplicaSet]:
@@ -239,9 +239,9 @@ CONNECTIONS BETWEEN default/ratings-v1-b6994bb9[ReplicaSet] => default/reviews-v
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/ratings-v1-b6994bb9[ReplicaSet] => default/reviews-v2-7bf8c9648f[ReplicaSet]:
@@ -249,9 +249,9 @@ CONNECTIONS BETWEEN default/ratings-v1-b6994bb9[ReplicaSet] => default/reviews-v
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/ratings-v1-b6994bb9[ReplicaSet] => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -259,9 +259,9 @@ CONNECTIONS BETWEEN default/ratings-v1-b6994bb9[ReplicaSet] => default/reviews-v
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/ratings-v1-b6994bb9[ReplicaSet] => default/unicorn[Deployment]:
@@ -269,7 +269,7 @@ CONNECTIONS BETWEEN default/ratings-v1-b6994bb9[ReplicaSet] => default/unicorn[D
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] default/ratings-netpol // Egress (captured but not selected by any Egress rule - no rules defined)
 		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -278,7 +278,7 @@ CONNECTIONS BETWEEN default/reviews-v1-545db77b95[ReplicaSet] => 0.0.0.0-255.255
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -287,15 +287,15 @@ CONNECTIONS BETWEEN default/reviews-v1-545db77b95[ReplicaSet] => default/details
 DENIED LIST:
 	DENIED TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
+			[NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 	DENIED TCP:[9080] due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (ALLOWED)
-			1) [NP] default/details-netpol // Ingress rule #1
+			[NP] default/details-netpol // Ingress rule #1
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v1-545db77b95[ReplicaSet] => default/productpage-v1-6b746f74dc[ReplicaSet]:
@@ -303,16 +303,16 @@ CONNECTIONS BETWEEN default/reviews-v1-545db77b95[ReplicaSet] => default/product
 ALLOWED LIST:
 	ALLOWED TCP:[9080] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED)
-			1) [NP] default/reviews-netpol // Egress rule #1
+			[NP] default/reviews-netpol // Egress rule #1
 		INGRESS DIRECTION (ALLOWED)
-			1) [NP] default/productpage-netpol // Ingress rule #1
+			[NP] default/productpage-netpol // Ingress rule #1
 
 DENIED LIST:
 	DENIED TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress rule #1 (protocols/ports not referenced)
+			[NP] default/reviews-netpol // Egress rule #1 (protocols/ports not referenced)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Ingress rule #1 (protocols/ports not referenced)
+			[NP] default/productpage-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v1-545db77b95[ReplicaSet] => default/ratings-v1-b6994bb9[ReplicaSet]:
@@ -320,16 +320,16 @@ CONNECTIONS BETWEEN default/reviews-v1-545db77b95[ReplicaSet] => default/ratings
 ALLOWED LIST:
 	ALLOWED TCP:[9080] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED)
-			1) [NP] default/reviews-netpol // Egress rule #2
+			[NP] default/reviews-netpol // Egress rule #2
 		INGRESS DIRECTION (ALLOWED)
-			1) [NP] default/ratings-netpol // Ingress rule #1
+			[NP] default/ratings-netpol // Ingress rule #1
 
 DENIED LIST:
 	DENIED TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress rule #2 (protocols/ports not referenced)
+			[NP] default/reviews-netpol // Egress rule #2 (protocols/ports not referenced)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Ingress rule #1 (protocols/ports not referenced)
+			[NP] default/ratings-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v1-545db77b95[ReplicaSet] => default/reviews-v2-7bf8c9648f[ReplicaSet]:
@@ -337,9 +337,9 @@ CONNECTIONS BETWEEN default/reviews-v1-545db77b95[ReplicaSet] => default/reviews
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v1-545db77b95[ReplicaSet] => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -347,9 +347,9 @@ CONNECTIONS BETWEEN default/reviews-v1-545db77b95[ReplicaSet] => default/reviews
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v1-545db77b95[ReplicaSet] => default/unicorn[Deployment]:
@@ -357,7 +357,7 @@ CONNECTIONS BETWEEN default/reviews-v1-545db77b95[ReplicaSet] => default/unicorn
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -366,7 +366,7 @@ CONNECTIONS BETWEEN default/reviews-v2-7bf8c9648f[ReplicaSet] => 0.0.0.0-255.255
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -375,15 +375,15 @@ CONNECTIONS BETWEEN default/reviews-v2-7bf8c9648f[ReplicaSet] => default/details
 DENIED LIST:
 	DENIED TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
+			[NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 	DENIED TCP:[9080] due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (ALLOWED)
-			1) [NP] default/details-netpol // Ingress rule #1
+			[NP] default/details-netpol // Ingress rule #1
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v2-7bf8c9648f[ReplicaSet] => default/productpage-v1-6b746f74dc[ReplicaSet]:
@@ -391,16 +391,16 @@ CONNECTIONS BETWEEN default/reviews-v2-7bf8c9648f[ReplicaSet] => default/product
 ALLOWED LIST:
 	ALLOWED TCP:[9080] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED)
-			1) [NP] default/reviews-netpol // Egress rule #1
+			[NP] default/reviews-netpol // Egress rule #1
 		INGRESS DIRECTION (ALLOWED)
-			1) [NP] default/productpage-netpol // Ingress rule #1
+			[NP] default/productpage-netpol // Ingress rule #1
 
 DENIED LIST:
 	DENIED TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress rule #1 (protocols/ports not referenced)
+			[NP] default/reviews-netpol // Egress rule #1 (protocols/ports not referenced)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Ingress rule #1 (protocols/ports not referenced)
+			[NP] default/productpage-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v2-7bf8c9648f[ReplicaSet] => default/ratings-v1-b6994bb9[ReplicaSet]:
@@ -408,16 +408,16 @@ CONNECTIONS BETWEEN default/reviews-v2-7bf8c9648f[ReplicaSet] => default/ratings
 ALLOWED LIST:
 	ALLOWED TCP:[9080] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED)
-			1) [NP] default/reviews-netpol // Egress rule #2
+			[NP] default/reviews-netpol // Egress rule #2
 		INGRESS DIRECTION (ALLOWED)
-			1) [NP] default/ratings-netpol // Ingress rule #1
+			[NP] default/ratings-netpol // Ingress rule #1
 
 DENIED LIST:
 	DENIED TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress rule #2 (protocols/ports not referenced)
+			[NP] default/reviews-netpol // Egress rule #2 (protocols/ports not referenced)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Ingress rule #1 (protocols/ports not referenced)
+			[NP] default/ratings-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v2-7bf8c9648f[ReplicaSet] => default/reviews-v1-545db77b95[ReplicaSet]:
@@ -425,9 +425,9 @@ CONNECTIONS BETWEEN default/reviews-v2-7bf8c9648f[ReplicaSet] => default/reviews
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v2-7bf8c9648f[ReplicaSet] => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -435,9 +435,9 @@ CONNECTIONS BETWEEN default/reviews-v2-7bf8c9648f[ReplicaSet] => default/reviews
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v2-7bf8c9648f[ReplicaSet] => default/unicorn[Deployment]:
@@ -445,7 +445,7 @@ CONNECTIONS BETWEEN default/reviews-v2-7bf8c9648f[ReplicaSet] => default/unicorn
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -454,7 +454,7 @@ CONNECTIONS BETWEEN default/reviews-v3-84779c7bbc[ReplicaSet] => 0.0.0.0-255.255
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -463,15 +463,15 @@ CONNECTIONS BETWEEN default/reviews-v3-84779c7bbc[ReplicaSet] => default/details
 DENIED LIST:
 	DENIED TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
+			[NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 	DENIED TCP:[9080] due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (ALLOWED)
-			1) [NP] default/details-netpol // Ingress rule #1
+			[NP] default/details-netpol // Ingress rule #1
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v3-84779c7bbc[ReplicaSet] => default/productpage-v1-6b746f74dc[ReplicaSet]:
@@ -479,16 +479,16 @@ CONNECTIONS BETWEEN default/reviews-v3-84779c7bbc[ReplicaSet] => default/product
 ALLOWED LIST:
 	ALLOWED TCP:[9080] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED)
-			1) [NP] default/reviews-netpol // Egress rule #1
+			[NP] default/reviews-netpol // Egress rule #1
 		INGRESS DIRECTION (ALLOWED)
-			1) [NP] default/productpage-netpol // Ingress rule #1
+			[NP] default/productpage-netpol // Ingress rule #1
 
 DENIED LIST:
 	DENIED TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress rule #1 (protocols/ports not referenced)
+			[NP] default/reviews-netpol // Egress rule #1 (protocols/ports not referenced)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Ingress rule #1 (protocols/ports not referenced)
+			[NP] default/productpage-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v3-84779c7bbc[ReplicaSet] => default/ratings-v1-b6994bb9[ReplicaSet]:
@@ -496,16 +496,16 @@ CONNECTIONS BETWEEN default/reviews-v3-84779c7bbc[ReplicaSet] => default/ratings
 ALLOWED LIST:
 	ALLOWED TCP:[9080] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED)
-			1) [NP] default/reviews-netpol // Egress rule #2
+			[NP] default/reviews-netpol // Egress rule #2
 		INGRESS DIRECTION (ALLOWED)
-			1) [NP] default/ratings-netpol // Ingress rule #1
+			[NP] default/ratings-netpol // Ingress rule #1
 
 DENIED LIST:
 	DENIED TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress rule #2 (protocols/ports not referenced)
+			[NP] default/reviews-netpol // Egress rule #2 (protocols/ports not referenced)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Ingress rule #1 (protocols/ports not referenced)
+			[NP] default/ratings-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v3-84779c7bbc[ReplicaSet] => default/reviews-v1-545db77b95[ReplicaSet]:
@@ -513,9 +513,9 @@ CONNECTIONS BETWEEN default/reviews-v3-84779c7bbc[ReplicaSet] => default/reviews
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v3-84779c7bbc[ReplicaSet] => default/reviews-v2-7bf8c9648f[ReplicaSet]:
@@ -523,9 +523,9 @@ CONNECTIONS BETWEEN default/reviews-v3-84779c7bbc[ReplicaSet] => default/reviews
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/reviews-v3-84779c7bbc[ReplicaSet] => default/unicorn[Deployment]:
@@ -533,7 +533,7 @@ CONNECTIONS BETWEEN default/reviews-v3-84779c7bbc[ReplicaSet] => default/unicorn
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
+			[NP] default/reviews-netpol // Egress (captured but not selected by any Egress rule)
 		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -543,13 +543,13 @@ ALLOWED LIST:
 	ALLOWED TCP:[9080] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (ALLOWED)
-			1) [NP] default/details-netpol // Ingress rule #1
+			[NP] default/details-netpol // Ingress rule #1
 
 DENIED LIST:
 	DENIED TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
+			[NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/unicorn[Deployment] => default/productpage-v1-6b746f74dc[ReplicaSet]:
@@ -558,7 +558,7 @@ DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/productpage-netpol // Ingress (captured but not selected by any Ingress rule)
+			[NP] default/productpage-netpol // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/unicorn[Deployment] => default/ratings-v1-b6994bb9[ReplicaSet]:
@@ -567,7 +567,7 @@ DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/ratings-netpol // Ingress (captured but not selected by any Ingress rule)
+			[NP] default/ratings-netpol // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/unicorn[Deployment] => default/reviews-v1-545db77b95[ReplicaSet]:
@@ -576,7 +576,7 @@ DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/unicorn[Deployment] => default/reviews-v2-7bf8c9648f[ReplicaSet]:
@@ -585,7 +585,7 @@ DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/unicorn[Deployment] => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -594,7 +594,7 @@ DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
+			[NP] default/reviews-netpol // Ingress (captured but not selected by any Ingress rule - no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => default/details-v1-79f774bdb9[ReplicaSet]:
@@ -603,15 +603,15 @@ ALLOWED LIST:
 	ALLOWED TCP:[9080] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (ALLOWED)
-			1) [Ingress] default/ingress-policy // service details
-			2) [NP] default/details-netpol // Ingress rule #1
+			[Ingress] default/ingress-policy // service details
+			[NP] default/details-netpol // Ingress rule #1
 
 DENIED LIST:
 	DENIED TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [Ingress] default/ingress-policy // service details (protocols/ports not referenced)
-			2) [NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
+			[Ingress] default/ingress-policy // service details (protocols/ports not referenced)
+			[NP] default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => default/unicorn[Deployment]:
@@ -620,13 +620,13 @@ ALLOWED LIST:
 	ALLOWED TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (ALLOWED)
-			1) [Ingress] default/ingress-policy // service unicorn
+			[Ingress] default/ingress-policy // service unicorn
 
 DENIED LIST:
 	DENIED TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [Ingress] default/ingress-policy // service unicorn (protocols/ports not referenced)
+			[Ingress] default/ingress-policy // service unicorn (protocols/ports not referenced)
 
 
 #########################################################

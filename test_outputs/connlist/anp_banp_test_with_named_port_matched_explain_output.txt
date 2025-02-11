@@ -8,8 +8,8 @@ CONNECTIONS BETWEEN network-policy-conformance-gryffindor/harry-potter[StatefulS
 DENIED LIST:
 	DENIED TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (DENIED)
-			1) [ANP] pass-example // Egress rule pass-all-egress-to-slytherin (Pass)
-			2) [BANP] default // Egress rule deny-all-egress-to-slytherin (Deny)
+			[ANP] pass-example // Egress rule pass-all-egress-to-slytherin (Pass)
+			[BANP] default // Egress rule deny-all-egress-to-slytherin (Deny)
 		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -19,14 +19,14 @@ ALLOWED LIST:
 	ALLOWED TCP:[80] due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (ALLOWED)
-			1) [ANP] pass-example // Ingress rule allow-ingress-from-slytherin-on-named-port (Allow)
+			[ANP] pass-example // Ingress rule allow-ingress-from-slytherin-on-named-port (Allow)
 
 DENIED LIST:
 	DENIED TCP:[1-79,81-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
 		INGRESS DIRECTION (DENIED)
-			1) [ANP] pass-example // Ingress rule pass-all-ingress-from-slytherin (Pass)
-			2) [BANP] default // Ingress rule deny-all-ingress-from-slytherin (Deny)
+			[ANP] pass-example // Ingress rule pass-all-ingress-from-slytherin (Pass)
+			[BANP] default // Ingress rule deny-all-ingress-from-slytherin (Deny)
 
 
 #########################################################
