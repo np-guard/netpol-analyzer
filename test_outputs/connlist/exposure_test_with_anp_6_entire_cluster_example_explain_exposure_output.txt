@@ -1,0 +1,85 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
+
+DENIED LIST:
+	DENIED TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+		INGRESS DIRECTION (DENIED)
+			[NP] hello-world/allow-app-a // Ingress (captured but not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255:
+
+DENIED LIST:
+	DENIED TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (DENIED)
+			[NP] hello-world/allow-app-a // Egress (captured but not selected by any Egress rule)
+		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
+
+ALLOWED LIST:
+	ALLOWED TCP:[80] due to the following policies // rules:
+		EGRESS DIRECTION (ALLOWED)
+			[ANP] exposure-pass-with-entire-cluster-example // Egress rule pass-tcp80-egress-to-entire-cluster (Pass)
+			[NP] hello-world/allow-app-a // Egress rule #1
+		INGRESS DIRECTION (ALLOWED)
+			[ANP] exposure-pass-with-entire-cluster-example // Ingress rule pass-tcp80-ingress-from-entire-cluster (Pass)
+			the system default (Allow all)
+
+	ALLOWED TCP:[9090] due to the following policies // rules:
+		EGRESS DIRECTION (ALLOWED)
+			[NP] hello-world/allow-app-a // Egress rule #1
+		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+
+DENIED LIST:
+	DENIED TCP:[1-79,81-9089,9091-65535], UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (DENIED)
+			[NP] hello-world/allow-app-a // Egress rule #1 (protocols/ports not referenced)
+		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
+
+ALLOWED LIST:
+	ALLOWED TCP:[9090] due to the following policies // rules:
+		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+		INGRESS DIRECTION (ALLOWED)
+			[NP] hello-world/allow-app-a // Ingress rule #1
+
+DENIED LIST:
+	DENIED TCP:[1-79,81-9089,9091-65535], UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+		INGRESS DIRECTION (DENIED)
+			[NP] hello-world/allow-app-a // Ingress rule #1 (protocols/ports not referenced)
+
+	DENIED TCP:[80] due to the following policies // rules:
+		EGRESS DIRECTION (ALLOWED)
+			[ANP] exposure-pass-with-entire-cluster-example // Egress rule pass-tcp80-egress-to-entire-cluster (Pass)
+			the system default (Allow all)
+		INGRESS DIRECTION (DENIED)
+			[ANP] exposure-pass-with-entire-cluster-example // Ingress rule pass-tcp80-ingress-from-entire-cluster (Pass)
+			[NP] hello-world/allow-app-a // Ingress rule #1 (protocols/ports not referenced)
+
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
+0.0.0.0-255.255.255.255 => hello-world/workload-b[Deployment]
+hello-world/workload-b[Deployment] => 0.0.0.0-255.255.255.255
+
+Exposure Analysis Result:
+Egress Exposure:
+hello-world/workload-a[Deployment] 	=> 	entire-cluster : TCP 80,9090
+hello-world/workload-b[Deployment] 	=> 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-b[Deployment] 	=> 	entire-cluster : All Connections
+
+Ingress Exposure:
+hello-world/workload-a[Deployment] 	<= 	entire-cluster : TCP 9090
+hello-world/workload-b[Deployment] 	<= 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-b[Deployment] 	<= 	entire-cluster : All Connections

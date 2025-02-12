@@ -26,6 +26,7 @@ import (
 	policyapi "sigs.k8s.io/network-policy-api/pkg/client/clientset/versioned"
 
 	"github.com/np-guard/models/pkg/netset"
+
 	pkgcommon "github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"

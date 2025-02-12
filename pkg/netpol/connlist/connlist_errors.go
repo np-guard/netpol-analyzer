@@ -33,10 +33,6 @@ type connlistAnalyzerWarnError struct {
 	origErr error
 }
 
-type connlistOptionsIncompatibilityError struct {
-	origErr error
-}
-
 func (e *resultFormattingError) Error() string {
 	return e.origErr.Error()
 }
@@ -46,10 +42,6 @@ func (e *resourceEvaluationError) Error() string {
 }
 
 func (e *connlistAnalyzerWarnError) Error() string {
-	return e.origErr.Error()
-}
-
-func (e *connlistOptionsIncompatibilityError) Error() string {
 	return e.origErr.Error()
 }
 
@@ -85,8 +77,4 @@ func newResourceEvaluationError(err error) *connlistGeneratingError {
 
 func newConnlistAnalyzerWarning(err error) *connlistGeneratingError {
 	return &connlistGeneratingError{err: &connlistAnalyzerWarnError{err}, fatal: false, severe: false}
-}
-
-func newConnlistOptionsIncompativilityError(err error) *connlistGeneratingError {
-	return &connlistGeneratingError{err: &connlistOptionsIncompatibilityError{err}, fatal: true, severe: false}
 }

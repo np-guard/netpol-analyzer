@@ -23,7 +23,7 @@ func TestExplainFromDir(t *testing.T) {
 		tt := tt
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
-			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkload)
+			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkload, tt.exposure)
 			res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 			require.Nil(t, err, pTest.testInfo)
 			out, err := pTest.analyzer.ConnectionsListToString(res)
@@ -34,11 +34,15 @@ func TestExplainFromDir(t *testing.T) {
 	}
 }
 
-func prepareExplainTest(dirName, focusWorkload string) preparedTest {
+func prepareExplainTest(dirName, focusWorkload string, exposure bool) preparedTest {
 	res := preparedTest{}
-	res.testName, res.expectedOutputFileName = testutils.ExplainTestNameByTestArgs(dirName, focusWorkload)
+	res.testName, res.expectedOutputFileName = testutils.ExplainTestNameByTestArgs(dirName, focusWorkload, exposure)
 	res.testInfo = fmt.Sprintf("test: %q", res.testName)
 	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkload(focusWorkload), WithExplanation())
+	if exposure {
+		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkload(focusWorkload), WithExplanation(),
+			WithExposureAnalysis())
+	}
 	res.analyzer = cAnalyzer
 	res.dirPath = testutils.GetTestDirPath(dirName)
 	return res
@@ -47,6 +51,7 @@ func prepareExplainTest(dirName, focusWorkload string) preparedTest {
 var explainTests = []struct {
 	testDirName   string
 	focusWorkload string
+	exposure      bool
 }{
 	{
 		testDirName: "acs-security-demos",
@@ -104,5 +109,102 @@ var explainTests = []struct {
 	},
 	{
 		testDirName: "vm_example",
+	},
+	{
+		testDirName: "vm_example",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_allow_all_test",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_allow_all_in_cluster_test",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_matched_and_unmatched_rules_test",
+		exposure:    true,
+	},
+	{
+		testDirName:   "exposure_matched_and_unmatched_rules_test",
+		exposure:      true,
+		focusWorkload: "hello-world/workload-a",
+	},
+	{
+		testDirName: "exposure_multiple_unmatched_rules_test",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_to_new_namespace_conn_and_entire_cluster",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_pod_exposed_only_to_representative_peers",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_conn_entire_cluster_with_empty_selectors",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_conn_to_all_pods_in_a_new_ns",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_conn_with_only_pod_selector",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_conn_with_pod_selector_in_any_ns",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_1",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_2_w_np",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_3_w_banp",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_4_entire_cluster_example",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_5_entire_cluster_example",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_6_entire_cluster_example",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_7_w_banp",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_8",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_9",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_12",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_15",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_16",
+		exposure:    true,
 	},
 }

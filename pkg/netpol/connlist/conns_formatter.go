@@ -38,12 +38,16 @@ type ipMaps struct {
 // saveConnsWithIPs gets a P2P connection; if the connection includes an IP-Peer as one of its end-points; the conn is saved in the
 // matching map of the formatText maps
 func (i *ipMaps) saveConnsWithIPs(conn Peer2PeerConnection, explain bool) {
-	if conn.Src().IsPeerIPType() {
+	if conn.Src().IsPeerIPType() && !isEmpty(conn) {
 		i.PeerToConnsFromIPs[conn.Dst().String()] = append(i.PeerToConnsFromIPs[conn.Dst().String()], formSingleP2PConn(conn, explain))
 	}
-	if conn.Dst().IsPeerIPType() {
+	if conn.Dst().IsPeerIPType() && !isEmpty(conn) {
 		i.peerToConnsToIPs[conn.Src().String()] = append(i.peerToConnsToIPs[conn.Src().String()], formSingleP2PConn(conn, explain))
 	}
+}
+
+func isEmpty(conn Peer2PeerConnection) bool {
+	return !conn.AllProtocolsAndPorts() && len(conn.ProtocolsAndPorts()) == 0
 }
 
 // createIPMaps returns an ipMaps object with empty maps if required

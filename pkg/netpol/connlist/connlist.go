@@ -175,11 +175,6 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	for _, o := range options {
 		o(ca)
 	}
-	if ca.explain && ca.exposureAnalysis {
-		// currently these two options are incompatible
-		ca.errors = append(ca.errors,
-			newConnlistOptionsIncompativilityError(errors.New("explainability analysis and exposure analysis cannot run together")))
-	}
 	return ca
 }
 
