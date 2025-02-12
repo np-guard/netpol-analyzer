@@ -79,7 +79,6 @@ interfaces to  test:
 func TestConnListFromDir(t *testing.T) {
 	t.Parallel()
 	for _, tt := range goodPathTests {
-		tt := tt
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
@@ -98,7 +97,6 @@ func TestConnListFromDir(t *testing.T) {
 func TestConnListFromResourceInfos(t *testing.T) {
 	t.Parallel()
 	for _, tt := range goodPathTests {
-		tt := tt
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
@@ -361,7 +359,6 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiToTest := range connlistTestedAPIS {
@@ -482,7 +479,6 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 		},*/
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -549,7 +545,6 @@ func TestFatalErrorsConnlistFromDirPathOnly(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, "")
@@ -582,7 +577,6 @@ func TestErrorsAndWarningsConnlistFromDirPathOnly(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, tt.focusWorkload)
@@ -638,7 +632,6 @@ func TestLoggerWarnings(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			tLogger := testutils.NewTestLogger()
 			_, _, err := getConnlistFromDirPathRes([]ConnlistAnalyzerOption{WithLogger(tLogger)}, tt.dirName)
@@ -681,7 +674,6 @@ func TestNotContainedOutputLines(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			analyzerOpts := appendFocusWorkloadOptIfRequired(tt.focusWorkload)
@@ -760,7 +752,6 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			preparedTest := prepareTest(tt.dirName, "", tt.format, tt.exposureFlag)

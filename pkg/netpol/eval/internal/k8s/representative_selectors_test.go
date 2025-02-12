@@ -170,7 +170,6 @@ func TestSelectorsFullMatch(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.testName, func(t *testing.T) {
 			t.Parallel()
 			selectorsMatch, err := SelectorsFullMatch(tt.realSelector, tt.representativeSelector)
