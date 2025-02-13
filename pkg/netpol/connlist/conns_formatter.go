@@ -46,6 +46,10 @@ func (i *ipMaps) saveConnsWithIPs(conn Peer2PeerConnection, explain bool) {
 	}
 }
 
+func isEmpty(conn Peer2PeerConnection) bool {
+	return !conn.AllProtocolsAndPorts() && len(conn.ProtocolsAndPorts()) == 0
+}
+
 // createIPMaps returns an ipMaps object with empty maps if required
 func createIPMaps(initMapsFlag bool) (ipMaps ipMaps) {
 	if initMapsFlag {
@@ -195,12 +199,18 @@ func getRepresentativePodString(podLabels v1.LabelSelector, txtOutFlag bool) str
 // getConnlistAsSortedSingleConnFieldsArray returns a sorted singleConnFields list from Peer2PeerConnection list.
 // creates ipMaps object if the format requires it (to be used for exposure results later)
 func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMaps ipMaps, saveToIPMaps, explain bool) []singleConnFields {
-	connItems := make([]singleConnFields, len(conns))
-	for i := range conns {
+	connItems := make([]singleConnFields, 0)
+	for _, conn := range conns {
 		if saveToIPMaps {
-			ipMaps.saveConnsWithIPs(conns[i], explain)
+			ipMaps.saveConnsWithIPs(conn, explain)
 		}
-		connItems[i] = formSingleP2PConn(conns[i], explain)
+		// Note that : for formats other than 'txt' - if the `explain` flag was on for the analyzer -
+		// we get here with explain=false (ignored for output) and display regular connlist; However,
+		// the analyzer stored empty connections - that we don't want to display them on regular connlist
+		if !explain && isEmpty(conn) {
+			continue
+		}
+		connItems = append(connItems, formSingleP2PConn(conn, explain))
 	}
 	return sortConnFields(connItems, true)
 }
