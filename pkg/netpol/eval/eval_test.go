@@ -1944,7 +1944,6 @@ func TestDirPathEvalResults(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		testName := "eval_" + tt.dir + "_from_" + tt.sourceWorkload + "_to_" + tt.destWorkload
 		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
