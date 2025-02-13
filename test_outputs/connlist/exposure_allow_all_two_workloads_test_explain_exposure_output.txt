@@ -1,0 +1,73 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
+
+Allowed list:
+	Allowed TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed)
+			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Ingress rule #1
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => hello-world/workload-b[Deployment]:
+
+Allowed list:
+	Allowed TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed)
+			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Ingress rule #1
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255:
+
+Allowed list:
+	Allowed TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Allowed)
+			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Egress rule #1
+		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
+
+Allowed list:
+	Allowed TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Allowed)
+			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Egress rule #1
+		INGRESS DIRECTION (Allowed)
+			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Ingress rule #1
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN hello-world/workload-b[Deployment] => 0.0.0.0-255.255.255.255:
+
+Allowed list:
+	Allowed TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Allowed)
+			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Egress rule #1
+		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CONNECTIONS BETWEEN hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
+
+Allowed list:
+	Allowed TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Allowed)
+			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Egress rule #1
+		INGRESS DIRECTION (Allowed)
+			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Ingress rule #1
+
+
+Exposure Analysis Result:
+Egress Exposure:
+hello-world/workload-a[Deployment] 	=> 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-a[Deployment] 	=> 	entire-cluster : All Connections
+hello-world/workload-b[Deployment] 	=> 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-b[Deployment] 	=> 	entire-cluster : All Connections
+
+Ingress Exposure:
+hello-world/workload-a[Deployment] 	<= 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-a[Deployment] 	<= 	entire-cluster : All Connections
+hello-world/workload-b[Deployment] 	<= 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-b[Deployment] 	<= 	entire-cluster : All Connections

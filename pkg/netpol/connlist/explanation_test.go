@@ -122,6 +122,13 @@ var explainTests = []struct {
 		exposure:    true,
 	},
 	{
+		testDirName: "exposure_allow_all_two_workloads_test",
+	},
+	{
+		testDirName: "exposure_allow_all_two_workloads_test",
+		exposure:    true,
+	},
+	{
 		testDirName: "exposure_matched_and_unmatched_rules_test",
 		exposure:    true,
 	},
