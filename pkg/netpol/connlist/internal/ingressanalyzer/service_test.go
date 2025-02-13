@@ -82,7 +82,6 @@ func TestServiceMappingToPods(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{servicesDir}, true, false)

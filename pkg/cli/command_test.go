@@ -205,7 +205,6 @@ func TestCommandsFailExecute(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := buildAndExecuteCommand(tt.args)
 			require.Contains(t, err.Error(), tt.expectedErrorContains,
@@ -276,7 +275,6 @@ func TestListCommandOutput(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		testName, expectedOutputFileName := getListCmdTestNameAndExpectedOutputFile(tt.dirName, tt.focusWorkload, tt.format, tt.exposureFlag)
 		t.Run(testName, func(t *testing.T) {
 			args := []string{"list", "--dirpath", testutils.GetTestDirPath(tt.dirName)}
@@ -328,7 +326,6 @@ func TestDiffCommandOutput(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		testName, expectedOutputFileName := testutils.DiffTestNameByTestArgs(tt.dir1, tt.dir2, determineFileSuffix(tt.format))
 		t.Run(testName, func(t *testing.T) {
 			args := []string{"diff", "--dir1", testutils.GetTestDirPath(tt.dir1), "--dir2",
@@ -438,7 +435,6 @@ func TestEvalCommandOutput(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		testName := "eval_" + tt.dir + "_from_" + tt.sourcePod + "_to_" + tt.destPod
 		t.Run(testName, func(t *testing.T) {
 			if tt.protocol == "" {
@@ -503,7 +499,6 @@ func TestCommandWithFailFlag(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			actualOut, _ := buildAndExecuteCommand(tt.args)
 			require.Empty(t, actualOut, "unexpected result for test %q, should be empty", tt.name)

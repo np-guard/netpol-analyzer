@@ -36,11 +36,8 @@ var diffTestedAPIS = []string{ResourceInfosFunc, DirPathFunc}
 func TestDiff(t *testing.T) {
 	t.Parallel()
 	for _, tt := range goodPathTests {
-		tt := tt
 		for _, format := range tt.formats {
-			format := format
 			for _, apiFunc := range diffTestedAPIS {
-				apiFunc := apiFunc
 				pTest := prepareTest(tt.firstDirName, tt.secondDirName, format, apiFunc, "")
 				t.Run(pTest.testName, func(t *testing.T) {
 					t.Parallel()
@@ -65,7 +62,6 @@ func TestDiff(t *testing.T) {
 func TestDiffAnalyzeFatalErrors(t *testing.T) {
 	t.Parallel()
 	for _, tt := range commonBadPathTestsFatalErr {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiFunc := range diffTestedAPIS {
@@ -151,7 +147,6 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 		},*/
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiFunc := range diffTestedAPIS {
@@ -242,7 +237,6 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			pTest := prepareTest(tt.ref1, tt.ref2, output.DefaultFormat, DirPathFunc, tt.name)
@@ -292,7 +286,6 @@ func TestDiffOutputFatalErrors(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiFunc := range diffTestedAPIS {
