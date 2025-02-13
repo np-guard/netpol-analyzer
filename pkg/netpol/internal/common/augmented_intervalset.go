@@ -117,8 +117,8 @@ func (rules *ImplyingRulesType) Copy() ImplyingRulesType {
 const (
 	ExplString            = "due to "
 	ExplWithRulesTitle    = ExplString + "the following policies // rules:"
-	IngressDirectionTitle = "\t\tINGRESS DIRECTION"
-	EgressDirectionTitle  = "\t\tEGRESS DIRECTION"
+	IngressDirectionTitle = "\t\tIngress"
+	EgressDirectionTitle  = "\t\tEgress"
 	allowListTitle        = allowResultStr + listStr
 	denyListTitle         = denyResultStr + listStr
 	NewLine               = "\n"
