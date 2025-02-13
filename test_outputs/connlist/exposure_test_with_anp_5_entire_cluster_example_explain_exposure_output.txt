@@ -3,29 +3,29 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
+Connections between hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
 
 Allowed list:
 	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the system default (Allow all)
 
 Denied list:
 	Denied TCP:[80] due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[ANP] exposure-deny-with-entire-cluster-example // Egress rule deny-tcp80-egress-to-entire-cluster (Deny)
-		INGRESS DIRECTION (Denied)
+		Ingress (Denied)
 			[ANP] exposure-deny-with-entire-cluster-example // Ingress rule deny-tcp80-ingress-from-entire-cluster (Deny)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
+Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
 
 Allowed list:
 	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the system default (Allow all)
 
 Denied list:
 	Denied TCP:[80] due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[ANP] exposure-deny-with-entire-cluster-example // Egress rule deny-tcp80-egress-to-entire-cluster (Deny)
-		INGRESS DIRECTION (Denied)
+		Ingress (Denied)
 			[ANP] exposure-deny-with-entire-cluster-example // Ingress rule deny-tcp80-ingress-from-entire-cluster (Deny)
 
 

@@ -3,27 +3,27 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
+Connections between hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
 
 Allowed list:
 	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the system default (Allow all)
 
 Denied list:
 	Denied TCP:[80] due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[BANP] default // Ingress rule deny-tcp-80-from-all-namespaces (Deny)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
+Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
 
 Allowed list:
 	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the system default (Allow all)
 
 Denied list:
 	Denied TCP:[80] due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[BANP] default // Ingress rule deny-tcp-80-from-all-namespaces (Deny)
 
 

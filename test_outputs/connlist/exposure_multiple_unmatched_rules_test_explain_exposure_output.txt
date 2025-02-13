@@ -3,12 +3,12 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
+Connections between 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] hello-world/combined-ingress-rules // Ingress (captured but not selected by any Ingress rule)
 
 

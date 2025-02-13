@@ -3,22 +3,22 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
+Connections between hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
 
 Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Allowed)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
 			[ANP] exposure-pass-example // Ingress rule pass-all-internal-ingress (Pass)
 			the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
+Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[ANP] exposure-pass-example // Ingress rule pass-all-internal-ingress (Pass)
 			[BANP] default // Ingress rule deny-all-internal-connections (Deny)
 
