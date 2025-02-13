@@ -126,10 +126,9 @@ func NewPolicyEngineWithObjects(objects []parser.K8sObject) (*PolicyEngine, erro
 
 // NewPolicyEngineWithOptions returns a new policy engine with an empty state but updating the exposure analysis flag
 // Deprecated: this function is implemented also within NewPolicyEngineWithOptionsList
-func NewPolicyEngineWithOptions(exposureFlag, explain bool) *PolicyEngine {
+func NewPolicyEngineWithOptions(exposureFlag bool) *PolicyEngine {
 	pe := NewPolicyEngine()
 	pe.exposureAnalysisFlag = exposureFlag
-	pe.explain = explain
 	if exposureFlag {
 		pe.representativePeersMap = make(map[string]*k8s.WorkloadPeer)
 	}

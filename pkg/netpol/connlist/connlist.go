@@ -304,7 +304,7 @@ func updatePolicyEngineWithK8sBasicObjects(pe *eval.PolicyEngine, clientset *kub
 // ConnlistFromK8sCluster returns the allowed connections list from k8s cluster resources, and list of all peers names
 // Deprecated
 func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []Peer, error) {
-	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis, ca.explain)
+	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
 
 	// insert namespaces, pods and network-policies from k8s clientset
 	err := updatePolicyEngineWithK8sBasicObjects(pe, clientset)
