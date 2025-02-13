@@ -20,7 +20,6 @@ import (
 func TestExplainFromDir(t *testing.T) {
 	t.Parallel()
 	for _, tt := range explainTests {
-		tt := tt
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkload)
