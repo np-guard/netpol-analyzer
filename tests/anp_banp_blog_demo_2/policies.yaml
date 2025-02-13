@@ -28,9 +28,7 @@ spec:
   - name: "deny-ingress-from-all-namespaces-on-TCP1-9000"
     action: "Deny"
     from:
-    - namespaces:
-          matchLabels:
-            kubernetes.io/metadata.name: monitoring
+    - namespaces: {}
     ports:
       - portRange:
           protocol: TCP

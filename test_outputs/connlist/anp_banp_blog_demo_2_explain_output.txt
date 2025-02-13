@@ -21,6 +21,18 @@ Denied list:
 			[NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between baz/mybaz[Pod] => bar/mybar[Pod]:
+
+Allowed list:
+	Allowed TCP:[9001-65535], UDP, SCTP due to the system default (Allow all)
+
+Denied list:
+	Denied TCP:[1-9000] due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[BANP] default // Ingress rule deny-ingress-from-all-namespaces-on-TCP1-9000 (Deny)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between baz/mybaz[Pod] => foo/myfoo[Pod]:
 
 Denied list:
@@ -28,6 +40,18 @@ Denied list:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between foo/myfoo[Pod] => bar/mybar[Pod]:
+
+Allowed list:
+	Allowed TCP:[9001-65535], UDP, SCTP due to the system default (Allow all)
+
+Denied list:
+	Denied TCP:[1-9000] due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[BANP] default // Ingress rule deny-ingress-from-all-namespaces-on-TCP1-9000 (Deny)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => bar/mybar[Pod]:
@@ -94,10 +118,8 @@ bar/mybar[Pod] => 0.0.0.0-255.255.255.255
 bar/mybar[Pod] => baz/mybaz[Pod]
 bar/mybar[Pod] => monitoring/mymonitoring[Pod]
 baz/mybaz[Pod] => 0.0.0.0-255.255.255.255
-baz/mybaz[Pod] => bar/mybar[Pod]
 baz/mybaz[Pod] => monitoring/mymonitoring[Pod]
 foo/myfoo[Pod] => 0.0.0.0-255.255.255.255
-foo/myfoo[Pod] => bar/mybar[Pod]
 foo/myfoo[Pod] => baz/mybaz[Pod]
 foo/myfoo[Pod] => monitoring/mymonitoring[Pod]
 monitoring/mymonitoring[Pod] => 0.0.0.0-255.255.255.255
