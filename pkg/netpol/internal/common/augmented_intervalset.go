@@ -130,8 +130,8 @@ const (
 	IPDefaultRule         = IPDefaultString + ExplAllowAll
 	ExplSystemDefault     = ExplString + SystemDefaultRule
 	PodToItselfRule       = "pod to itself " + ExplAllowAll
-	allowResultStr        = "ALLOWED"
-	denyResultStr         = "DENIED"
+	allowResultStr        = "Allowed"
+	denyResultStr         = "Denied"
 	listStr               = " LIST"
 )
 

@@ -5,21 +5,21 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => routes-world/workload-with-multiple-ports[Deployment]:
 
-ALLOWED LIST:
-	ALLOWED TCP:[8000] due to the following policies // rules:
-		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-		INGRESS DIRECTION (ALLOWED)
+Allowed LIST:
+	Allowed TCP:[8000] due to the following policies // rules:
+		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed)
 			[Route] routes-world/route-1 // service routes-world-svc
 
-	ALLOWED TCP:[8090] due to the following policies // rules:
-		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-		INGRESS DIRECTION (ALLOWED)
+	Allowed TCP:[8090] due to the following policies // rules:
+		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed)
 			[Route] routes-world/route-2 // service routes-world-svc
 
-DENIED LIST:
-	DENIED TCP:[1-7999,8001-8089,8091-65535], UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-		INGRESS DIRECTION (DENIED)
+Denied LIST:
+	Denied TCP:[1-7999,8001-8089,8091-65535], UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		INGRESS DIRECTION (Denied)
 			Route list:
 				- [Route] routes-world/route-1 // service routes-world-svc (protocols/ports not referenced)
 				- [Route] routes-world/route-2 // service routes-world-svc (protocols/ports not referenced)
