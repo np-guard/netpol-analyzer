@@ -3,23 +3,23 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN {ingress-controller} => ingressworld/ingress-world-multiple-ports[Deployment]:
+Connections between {ingress-controller} => ingressworld/ingress-world-multiple-ports[Deployment]:
 
 Allowed list:
 	Allowed TCP:[8000] due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Allowed)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
 			[Route] ingressworld/route-1 // service ingress-world
 
 	Allowed TCP:[8090] due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Allowed)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
 			[Ingress] ingressworld/ingress-1 // service ingress-world
 
 Denied list:
 	Denied TCP:[1-7999,8001-8089,8091-65535], UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[Ingress] ingressworld/ingress-1 // service ingress-world (protocols/ports not referenced)
 			[Route] ingressworld/route-1 // service ingress-world (protocols/ports not referenced)
 

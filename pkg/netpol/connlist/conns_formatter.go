@@ -78,7 +78,7 @@ func (c singleConnFields) nodePairString() string {
 }
 
 func (c singleConnFields) stringWithExplanation() string {
-	return fmt.Sprintf("CONNECTIONS BETWEEN %s => %s:\n\n%s", c.Src, c.Dst, c.Explanation)
+	return fmt.Sprintf("Connections between %s => %s:\n\n%s", c.Src, c.Dst, c.Explanation)
 }
 
 // formSingleP2PConn returns a string representation of single connection fields as singleConnFields object

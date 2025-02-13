@@ -3,83 +3,83 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => foo/myfoo[Pod]:
+Connections between 0.0.0.0-255.255.255.255 => foo/myfoo[Pod]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN bar/mybar[Pod] => foo/myfoo[Pod]:
+Connections between bar/mybar[Pod] => foo/myfoo[Pod]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN baz/mybaz[Pod] => foo/myfoo[Pod]:
+Connections between baz/mybaz[Pod] => foo/myfoo[Pod]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN monitoring/mymonitoring[Pod] => bar/mybar[Pod]:
+Connections between monitoring/mymonitoring[Pod] => bar/mybar[Pod]:
 
 Allowed list:
 	Allowed TCP:[1234] due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Allowed)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
 			[ANP] allow-monitoring // Ingress rule allow-ingress-from-monitoring-on-TCP1234 (Allow)
 
 	Allowed TCP:[9001-65535], UDP, SCTP due to the system default (Allow all)
 
 Denied list:
 	Denied TCP:[1-1233,1235-8079,8081-9000] due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[BANP] default // Ingress rule deny-ingress-from-all-namespaces-on-TCP1-9000 (Deny)
 
 	Denied TCP:[8080] due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring-on-TCP8080 (Pass)
 			[BANP] default // Ingress rule deny-ingress-from-all-namespaces-on-TCP1-9000 (Deny)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN monitoring/mymonitoring[Pod] => baz/mybaz[Pod]:
+Connections between monitoring/mymonitoring[Pod] => baz/mybaz[Pod]:
 
 Allowed list:
 	Allowed TCP:[1-1233,1235-65535], UDP, SCTP due to the system default (Allow all)
 
 	Allowed TCP:[1234] due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Allowed)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
 			[ANP] allow-monitoring // Ingress rule allow-ingress-from-monitoring-on-TCP1234 (Allow)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
+Connections between monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
 
 Allowed list:
 	Allowed TCP:[1-1233,1235-8079,8081-65535], UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Allowed)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
 			[NP] foo/allow-monitoring // Ingress rule #1
 
 	Allowed TCP:[1234] due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Allowed)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
 			[ANP] allow-monitoring // Ingress rule allow-ingress-from-monitoring-on-TCP1234 (Allow)
 
 	Allowed TCP:[8080] due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Allowed)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
 			[ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring-on-TCP8080 (Pass)
 			[NP] foo/allow-monitoring // Ingress rule #1
 

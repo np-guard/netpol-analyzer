@@ -3,433 +3,433 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => demo/cog-agents-account-command[DaemonSet]:
+Connections between 0.0.0.0-255.255.255.255 => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN default/cog-agents-analyzer[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between default/cog-agents-analyzer[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN default/cog-agents[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between default/cog-agents[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => 0.0.0.0-255.255.255.255:
+Connections between demo/cog-agents-account-query[DaemonSet] => 0.0.0.0-255.255.255.255:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => default/cog-agents-analyzer[DaemonSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => default/cog-agents-analyzer[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => default/cog-agents[DaemonSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => default/cog-agents[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Denied)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]:
 
 Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed)
+		Egress (Allowed)
 			[NP] demo/query-to-ui // Egress rule #1
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system/calico-node-frontend[DaemonSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/calico-node-frontend[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system/calico-node[DaemonSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/calico-node[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system/keepalived-watcher[DaemonSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/keepalived-watcher[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system/kube-fluentd-frontend[DaemonSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/kube-fluentd-frontend[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system/kube-fluentd[DaemonSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/kube-fluentd[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => vendor-system/barbar-app[ReplicaSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => vendor-system/barbar-app[ReplicaSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-account-query[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]:
+Connections between demo/cog-agents-account-query[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Denied)
+		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN demo/cog-agents-bank-ui[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between demo/cog-agents-bank-ui[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Allowed list:
 	Allowed TCP:[8080,9090], UDP:[8080] due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Allowed)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
 			[NP] demo/ui-to-command // Ingress rule #1
 
 Denied list:
 	Denied TCP:[1-8079,8081-9089,9091-65535], UDP:[1-8079,8081-65535], SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress rule #1 (protocols/ports not referenced)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system/calico-node-frontend[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system/calico-node-frontend[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system/calico-node[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system/calico-node[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system/heapster-7df8cb8c66[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system/heapster-7df8cb8c66[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system/keepalived-watcher-not-frontend[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system/keepalived-watcher-not-frontend[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system/keepalived-watcher[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system/keepalived-watcher[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system/kube-fluentd-frontend[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system/kube-fluentd-frontend[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system/kube-fluentd[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system/kube-fluentd[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN kube-system/vpn-858f6d9777[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between kube-system/vpn-858f6d9777[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN vendor-system/barbar-app[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between vendor-system/barbar-app[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CONNECTIONS BETWEEN vendor-system/foofoo-app[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+Connections between vendor-system/foofoo-app[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
-		INGRESS DIRECTION (Denied)
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (captured but not selected by any Ingress rule)
 
 
