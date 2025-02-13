@@ -130,9 +130,9 @@ const (
 	IPDefaultRule         = IPDefaultString + ExplAllowAll
 	ExplSystemDefault     = ExplString + SystemDefaultRule
 	PodToItselfRule       = "pod to itself " + ExplAllowAll
-	allowResultStr        = "ALLOWED"
-	denyResultStr         = "DENIED"
-	listStr               = " LIST"
+	allowResultStr        = "Allowed"
+	denyResultStr         = "Denied"
+	listStr               = " list"
 )
 
 func (rules *ImplyingXgressRulesType) onlyDefaultRule() bool {

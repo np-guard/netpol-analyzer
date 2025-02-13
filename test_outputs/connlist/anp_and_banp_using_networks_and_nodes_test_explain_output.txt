@@ -5,38 +5,38 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ns1/pod1[Deployment] => 104.154.164.160-104.154.164.160:
 
-DENIED LIST:
-	DENIED TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (DENIED)
+Denied list:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Denied)
 			[ANP] egress-peer-1 // Egress rule deny-egress (Deny)
-		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ns1/pod1[Deployment] => 104.154.164.170-104.154.164.170:
 
-ALLOWED LIST:
-	ALLOWED TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (ALLOWED)
+Allowed list:
+	Allowed TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Allowed)
 			[ANP] egress-peer-1 // Egress rule allow-egress (Allow)
-		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ns1/pod1[Deployment] => ns2/pod1[Deployment]:
 
-DENIED LIST:
-	DENIED TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (DENIED)
+Denied list:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Denied)
 			[ANP] egress-peer-1 // Egress rule deny-egress (Deny)
-		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ns1/pod1[Deployment] => ns3/pod1[Deployment]:
 
-ALLOWED LIST:
-	ALLOWED TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (ALLOWED)
+Allowed list:
+	Allowed TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Allowed)
 			[ANP] egress-peer-1 // Egress rule allow-egress (Allow)
-		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
 
 
 #########################################################

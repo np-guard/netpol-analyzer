@@ -5,26 +5,26 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN network-policy-conformance-gryffindor/harry-potter[StatefulSet] => network-policy-conformance-slytherin/draco-malfoy[StatefulSet]:
 
-DENIED LIST:
-	DENIED TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (DENIED)
+Denied list:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Denied)
 			[ANP] pass-example // Egress rule pass-all-egress-to-slytherin (Pass)
 			[BANP] default // Egress rule deny-all-egress-to-slytherin (Deny)
-		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN network-policy-conformance-slytherin/draco-malfoy[StatefulSet] => network-policy-conformance-gryffindor/harry-potter[StatefulSet]:
 
-ALLOWED LIST:
-	ALLOWED TCP:[80] due to the following policies // rules:
-		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-		INGRESS DIRECTION (ALLOWED)
+Allowed list:
+	Allowed TCP:[80] due to the following policies // rules:
+		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed)
 			[ANP] pass-example // Ingress rule allow-ingress-from-slytherin-on-named-port (Allow)
 
-DENIED LIST:
-	DENIED TCP:[1-79,81-65535], UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-		INGRESS DIRECTION (DENIED)
+Denied list:
+	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		INGRESS DIRECTION (Denied)
 			[ANP] pass-example // Ingress rule pass-all-ingress-from-slytherin (Pass)
 			[BANP] default // Ingress rule deny-all-ingress-from-slytherin (Deny)
 

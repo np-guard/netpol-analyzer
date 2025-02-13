@@ -309,7 +309,6 @@ func TestExposureBehavior(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.testName, func(t *testing.T) {
 			t.Parallel()
 			ca := NewConnlistAnalyzer(WithExposureAnalysis())

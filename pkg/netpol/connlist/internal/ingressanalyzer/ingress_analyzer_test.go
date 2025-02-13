@@ -59,7 +59,6 @@ func TestRouteMappingToServices(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		testName := "route_" + tt.routeNamespace + "_" + tt.routeName
 		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
@@ -257,7 +256,6 @@ func TestIngressAnalyzerConnectivityToPodsInDir(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.dirName, func(t *testing.T) {
 			t.Parallel()
 			ia := getIngressAnalyzerFromDirObjects(t, tt.dirName, tt.dirName, tt.processingErrorsNum)
