@@ -1,4 +1,3 @@
-
 Exposure Analysis Result:
 Egress Exposure:
 hello-world/workload-a[Deployment] 	=> 	hello-world/[pod with {role=monitoring}] : All Connections

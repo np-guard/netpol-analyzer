@@ -1,4 +1,3 @@
-
 Exposure Analysis Result:
 Egress Exposure:
 hello-world/workload-a[Deployment] 	=> 	[namespace with {{Key:foo.com/managed-state,Operator:In,Values:[managed],}}]/[all pods] : TCP 8050
