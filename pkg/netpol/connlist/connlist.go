@@ -35,6 +35,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/connlist/internal/ingressanalyzer"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -174,6 +175,9 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	}
 	for _, o := range options {
 		o(ca)
+	}
+	if ca.explain && ca.outputFormat != output.DefaultFormat {
+		ca.logger.Warnf(alerts.WarnIncompatibleFormat(ca.outputFormat))
 	}
 	return ca
 }

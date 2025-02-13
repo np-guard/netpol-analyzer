@@ -5,7 +5,16 @@ SPDX-License-Identifier: Apache-2.0
 */
 package alerts
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
+)
+
+func WarnIncompatibleFormat(format string) string {
+	return fmt.Sprintf("explainability is available only with %s format."+
+		" A connlist without explainability will be printed for the input format %s", output.DefaultFormat, format)
+}
 
 func WarnUnmatchedNamedPort(namedPort, peerStr string) string {
 	return fmt.Sprintf("%s %q has no match in the configuration of the destination peer %q",
