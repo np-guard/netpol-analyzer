@@ -45,10 +45,10 @@ func getMDLine(c singleConnFields, srcFirst bool) string {
 
 // writeOutput returns a md string form of connections from list of Peer2PeerConnection objects,
 // and exposure analysis results from list ExposedPeer if exists
+// explain input is ignored since not supported with this format
 func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool) (string, error) {
-	explain = false // not supported
 	// first write connlist lines
-	allLines := md.writeMdConnlistLines(conns, exposureFlag, explain)
+	allLines := md.writeMdConnlistLines(conns, exposureFlag, false)
 	if !exposureFlag {
 		return strings.Join(allLines, newLineChar) + newLineChar, nil
 	}

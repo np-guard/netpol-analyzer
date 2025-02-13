@@ -18,13 +18,13 @@ type formatCSV struct {
 
 // writeOutput returns a CSV string form of connections from list of Peer2PeerConnection objects
 // and exposure analysis results from list ExposedPeer if exists
+// explain input is ignored since not supported with this format
 func (cs *formatCSV) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool) (string, error) {
-	explain = false // not supported
 	// writing csv rows into a buffer
 	buf := new(bytes.Buffer)
 	writer := csv.NewWriter(buf)
 
-	err := cs.writeCsvConnlistTable(conns, writer, exposureFlag, explain)
+	err := cs.writeCsvConnlistTable(conns, writer, exposureFlag, false)
 	if err != nil {
 		return "", err
 	}
