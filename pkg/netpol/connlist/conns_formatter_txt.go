@@ -41,7 +41,7 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
 		p2pConn := formSingleP2PConn(conns[i], explain)
-		if explain && conns[i].(*connection).OnlyDefaultRule() {
+		if explain && conns[i].(*connection).onlyDefaultRule() {
 			defaultConnLines = append(defaultConnLines, p2pConn)
 		} else {
 			connLines = append(connLines, p2pConn)
