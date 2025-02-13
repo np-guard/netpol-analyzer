@@ -30,7 +30,7 @@ type exposureFields struct {
 // writeOutput returns a json string form of connections from list of Peer2PeerConnection objects
 // and exposure analysis results from list ExposedPeer if exists
 func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool) (string, error) {
-	// Tanya TODO - handle explain flag
+	explain = false // not supported
 	j.ipMaps = createIPMaps(exposureFlag)
 	// output variables
 	var jsonConns []byte
