@@ -25,13 +25,14 @@ import (
 var update = flag.Bool("update", false, "write or override golden files")
 
 const (
-	connlistExpectedOutputFilePartialName = "connlist_output."
-	explainExpectedOutputFilePartialName  = "explain_output."
-	exposureExpectedOutputFilePartialName = "exposure_output."
-	underscore                            = "_"
-	dotSign                               = "."
-	formatStr                             = "_format_"
-	focusWlAnnotation                     = "_focus_workload_"
+	connlistExpectedOutputFilePartialName        = "connlist_output."
+	explainExpectedOutputFilePartialName         = "explain_output."
+	explainExposureExpectedOutputFilePartialName = "explain_exposure_output."
+	exposureExpectedOutputFilePartialName        = "exposure_output."
+	underscore                                   = "_"
+	dotSign                                      = "."
+	formatStr                                    = "_format_"
+	focusWlAnnotation                            = "_focus_workload_"
 )
 
 var testsDirPath = filepath.Join(projectpath.Root, "tests")
@@ -58,13 +59,16 @@ func ConnlistTestNameByTestArgs(dirName, focusWorkload, format string, exposureF
 }
 
 // ExplainTestNameByTestArgs returns explain test name and test's expected output file from some tests args
-func ExplainTestNameByTestArgs(dirName, focusWorkload string) (testName, expectedOutputFileName string) {
+func ExplainTestNameByTestArgs(dirName, focusWorkload string, exposure bool) (testName, expectedOutputFileName string) {
 	namePrefix := dirName
 	if focusWorkload != "" {
 		namePrefix += focusWlAnnotation + strings.Replace(focusWorkload, "/", underscore, 1)
 	}
 	testName = namePrefix
 	outputPartialName := explainExpectedOutputFilePartialName
+	if exposure {
+		outputPartialName = explainExposureExpectedOutputFilePartialName
+	}
 	expectedOutputFileName = namePrefix + underscore + outputPartialName + output.TextFormat
 	return testName, expectedOutputFileName
 }

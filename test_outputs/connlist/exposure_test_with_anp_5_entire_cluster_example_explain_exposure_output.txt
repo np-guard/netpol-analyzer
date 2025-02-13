@@ -1,0 +1,51 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
+
+Allowed list:
+	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the system default (Allow all)
+
+Denied list:
+	Denied TCP:[80] due to the following policies // rules:
+		Egress (Denied)
+			[ANP] exposure-deny-with-entire-cluster-example // Egress rule deny-tcp80-egress-to-entire-cluster (Deny)
+		Ingress (Denied)
+			[ANP] exposure-deny-with-entire-cluster-example // Ingress rule deny-tcp80-ingress-from-entire-cluster (Deny)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
+
+Allowed list:
+	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the system default (Allow all)
+
+Denied list:
+	Denied TCP:[80] due to the following policies // rules:
+		Egress (Denied)
+			[ANP] exposure-deny-with-entire-cluster-example // Egress rule deny-tcp80-egress-to-entire-cluster (Deny)
+		Ingress (Denied)
+			[ANP] exposure-deny-with-entire-cluster-example // Ingress rule deny-tcp80-ingress-from-entire-cluster (Deny)
+
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
+0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]
+0.0.0.0-255.255.255.255 => hello-world/workload-b[Deployment]
+hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255
+hello-world/workload-b[Deployment] => 0.0.0.0-255.255.255.255
+
+Exposure Analysis Result:
+Egress Exposure:
+hello-world/workload-a[Deployment] 	=> 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-a[Deployment] 	=> 	entire-cluster : SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535
+hello-world/workload-b[Deployment] 	=> 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-b[Deployment] 	=> 	entire-cluster : SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535
+
+Ingress Exposure:
+hello-world/workload-a[Deployment] 	<= 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-a[Deployment] 	<= 	entire-cluster : SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535
+hello-world/workload-b[Deployment] 	<= 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-b[Deployment] 	<= 	entire-cluster : SCTP 1-65535,TCP 1-79,81-65535,UDP 1-65535

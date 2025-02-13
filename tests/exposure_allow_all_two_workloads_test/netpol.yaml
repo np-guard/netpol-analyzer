@@ -1,0 +1,20 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-ingress-and-egress-in-entire-cluster
+  namespace: hello-world
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector: {}
+    - ipBlock:
+        cidr: 0.0.0.0/0     # All destinations
+  egress:
+  - to:
+    - namespaceSelector: {}
+    - ipBlock:
+        cidr: 0.0.0.0/0     # All destinations

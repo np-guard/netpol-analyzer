@@ -179,11 +179,6 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	if ca.explain && ca.outputFormat != output.DefaultFormat {
 		ca.logger.Warnf(alerts.WarnIncompatibleFormat(ca.outputFormat))
 	}
-	if ca.explain && ca.exposureAnalysis {
-		// currently these two options are incompatible
-		ca.errors = append(ca.errors,
-			newConnlistOptionsIncompativilityError(errors.New("explainability analysis and exposure analysis cannot run together")))
-	}
 	return ca
 }
 
