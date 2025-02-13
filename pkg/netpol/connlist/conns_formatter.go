@@ -69,7 +69,7 @@ type singleConnFields struct {
 	Src         string `json:"src"`
 	Dst         string `json:"dst"`
 	ConnString  string `json:"conn"`
-	Explanation string `json:"explanation,omitempty"`
+	explanation string
 }
 
 // string representation of the singleConnFields struct
@@ -82,7 +82,7 @@ func (c singleConnFields) nodePairString() string {
 }
 
 func (c singleConnFields) stringWithExplanation() string {
-	return fmt.Sprintf("Connections between %s => %s:\n\n%s", c.Src, c.Dst, c.Explanation)
+	return fmt.Sprintf("Connections between %s => %s:\n\n%s", c.Src, c.Dst, c.explanation)
 }
 
 // formSingleP2PConn returns a string representation of single connection fields as singleConnFields object
@@ -92,7 +92,7 @@ func formSingleP2PConn(conn Peer2PeerConnection, explain bool) singleConnFields 
 	if explain {
 		expl = common.ExplanationFromConnProperties(conn.AllProtocolsAndPorts(), conn.(*connection).commonImplyingRules, conn.ProtocolsAndPorts())
 	}
-	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr, Explanation: expl}
+	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr, explanation: expl}
 }
 
 // commonly (to be) used for exposure analysis output formatters
