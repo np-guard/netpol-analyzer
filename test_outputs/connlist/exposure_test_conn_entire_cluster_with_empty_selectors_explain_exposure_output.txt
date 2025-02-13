@@ -5,20 +5,20 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
 
-DENIED LIST:
-	DENIED TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-		INGRESS DIRECTION (DENIED)
+Denied list:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		INGRESS DIRECTION (Denied)
 			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Ingress (captured but not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255:
 
-DENIED LIST:
-	DENIED TCP, UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (DENIED)
+Denied list:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Denied)
 			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Egress (captured but not selected by any Egress rule)
-		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
 
 
 Exposure Analysis Result:

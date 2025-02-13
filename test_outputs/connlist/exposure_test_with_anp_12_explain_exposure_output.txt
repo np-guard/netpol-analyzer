@@ -5,23 +5,23 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
 
-ALLOWED LIST:
-	ALLOWED TCP:[1-9089,9091-65535], UDP, SCTP due to the system default (Allow all)
+Allowed list:
+	Allowed TCP:[1-9089,9091-65535], UDP, SCTP due to the system default (Allow all)
 
-	ALLOWED TCP:[9090] due to the following policies // rules:
-		EGRESS DIRECTION (ALLOWED)
+	Allowed TCP:[9090] due to the following policies // rules:
+		EGRESS DIRECTION (Allowed)
 			[ANP] exposure-example-12 // Egress rule allow-tcp9090-to-all-pods-in-existing-ns (Allow)
-		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
 
-ALLOWED LIST:
-	ALLOWED TCP:[1-9089,9091-65535], UDP, SCTP due to the system default (Allow all)
+Allowed list:
+	Allowed TCP:[1-9089,9091-65535], UDP, SCTP due to the system default (Allow all)
 
-	ALLOWED TCP:[9090] due to the following policies // rules:
-		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-		INGRESS DIRECTION (ALLOWED)
+	Allowed TCP:[9090] due to the following policies // rules:
+		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed)
 			[ANP] exposure-example-12 // Ingress rule allow-tcp9090-from-pods-in-existing-namespace (Allow)
 
 

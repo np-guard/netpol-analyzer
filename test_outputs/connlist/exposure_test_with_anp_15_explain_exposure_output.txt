@@ -5,31 +5,31 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
 
-ALLOWED LIST:
-	ALLOWED TCP:[9090] due to the following policies // rules:
-		EGRESS DIRECTION (ALLOWED)
+Allowed list:
+	Allowed TCP:[9090] due to the following policies // rules:
+		EGRESS DIRECTION (Allowed)
 			[ANP] exposure-example-15 // Egress rule allow-tcp9090-to-all-pods-in-same-ns (Allow)
-		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
 
-DENIED LIST:
-	DENIED TCP:[1-9089,9091-65535], UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (DENIED)
+Denied list:
+	Denied TCP:[1-9089,9091-65535], UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Denied)
 			[ANP] exposure-example-15-b // Egress rule deny-all-to-all-pods-in-same-ns (Deny)
-		INGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
 
-ALLOWED LIST:
-	ALLOWED TCP:[9090] due to the following policies // rules:
-		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-		INGRESS DIRECTION (ALLOWED)
+Allowed list:
+	Allowed TCP:[9090] due to the following policies // rules:
+		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		INGRESS DIRECTION (Allowed)
 			[ANP] exposure-example-15 // Ingress rule allow-tcp9090-from-pods-in-same-namespace (Allow)
 
-DENIED LIST:
-	DENIED TCP:[1-9089,9091-65535], UDP, SCTP due to the following policies // rules:
-		EGRESS DIRECTION (ALLOWED) due to the system default (Allow all)
-		INGRESS DIRECTION (DENIED)
+Denied list:
+	Denied TCP:[1-9089,9091-65535], UDP, SCTP due to the following policies // rules:
+		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
+		INGRESS DIRECTION (Denied)
 			[ANP] exposure-example-15-b // Ingress rule deny-all-from-pods-in-same-namespace (Deny)
 
 
