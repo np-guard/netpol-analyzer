@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ns1/pod1[Deployment] => 104.154.164.160-104.154.164.160:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			[ANP] egress-peer-1 // Egress rule deny-egress (Deny)
@@ -14,7 +14,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ns1/pod1[Deployment] => 104.154.164.170-104.154.164.170:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[ANP] egress-peer-1 // Egress rule allow-egress (Allow)
@@ -23,7 +23,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ns1/pod1[Deployment] => ns2/pod1[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			[ANP] egress-peer-1 // Egress rule deny-egress (Deny)
@@ -32,7 +32,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ns1/pod1[Deployment] => ns3/pod1[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[ANP] egress-peer-1 // Egress rule allow-egress (Allow)

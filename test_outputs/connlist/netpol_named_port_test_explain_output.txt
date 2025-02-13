@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => helloworld/pod-a[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -14,7 +14,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN helloworld/new-pod[Deployment] => helloworld/pod-a[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -23,7 +23,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN helloworld/pod-a[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			[NP] helloworld/enable-ingress-from-named-port // Egress (captured but not selected by any Egress rule - no rules defined)
@@ -32,7 +32,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN helloworld/pod-a[Deployment] => helloworld/new-pod[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			[NP] helloworld/enable-ingress-from-named-port // Egress (captured but not selected by any Egress rule - no rules defined)

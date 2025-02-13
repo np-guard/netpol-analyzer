@@ -132,7 +132,7 @@ const (
 	PodToItselfRule       = "pod to itself " + ExplAllowAll
 	allowResultStr        = "Allowed"
 	denyResultStr         = "Denied"
-	listStr               = " LIST"
+	listStr               = " list"
 )
 
 func (rules *ImplyingXgressRulesType) onlyDefaultRule() bool {

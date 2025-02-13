@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => backend/catalog[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -17,7 +17,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => backend/checkout[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -29,7 +29,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => backend/notification[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -41,7 +41,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => backend/recommendation[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -53,7 +53,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => backend/reports[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -65,7 +65,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => backend/shipping[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -77,7 +77,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => frontend/asset-cache[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -89,7 +89,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => frontend/webapp[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -101,7 +101,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => payments/gateway[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -113,7 +113,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => payments/mastercard-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -125,7 +125,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => payments/visa-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -137,7 +137,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/catalog[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -149,7 +149,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/catalog[Deployment] => backend/checkout[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -165,7 +165,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/catalog[Deployment] => backend/notification[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -181,7 +181,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/catalog[Deployment] => backend/recommendation[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -197,7 +197,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/catalog[Deployment] => backend/reports[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -213,7 +213,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/catalog[Deployment] => backend/shipping[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -229,7 +229,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/catalog[Deployment] => frontend/asset-cache[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -254,7 +254,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/catalog[Deployment] => frontend/webapp[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -279,7 +279,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/catalog[Deployment] => payments/gateway[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -295,7 +295,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/catalog[Deployment] => payments/mastercard-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -311,7 +311,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/catalog[Deployment] => payments/visa-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -327,7 +327,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -339,7 +339,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => backend/catalog[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -364,14 +364,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => backend/notification[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] backend/checkout-netpol // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] backend/notification-netpol // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -396,14 +396,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => backend/recommendation[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] backend/checkout-netpol // Egress rule #2
 		INGRESS DIRECTION (Allowed)
 			[NP] backend/recommendation-netpol // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -428,7 +428,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => backend/reports[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -453,7 +453,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => backend/shipping[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -478,7 +478,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => frontend/asset-cache[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -512,7 +512,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => frontend/webapp[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -546,14 +546,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => payments/gateway[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] backend/checkout-netpol // Egress rule #3
 		INGRESS DIRECTION (Allowed)
 			[NP] payments/gateway-netpol // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -578,7 +578,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => payments/mastercard-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -603,7 +603,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/checkout[Deployment] => payments/visa-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -628,7 +628,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/notification[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -640,7 +640,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/notification[Deployment] => backend/catalog[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -656,7 +656,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/notification[Deployment] => backend/checkout[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -672,7 +672,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/notification[Deployment] => backend/recommendation[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -688,7 +688,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/notification[Deployment] => backend/reports[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -704,7 +704,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/notification[Deployment] => backend/shipping[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -720,7 +720,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/notification[Deployment] => frontend/asset-cache[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -745,7 +745,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/notification[Deployment] => frontend/webapp[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -770,7 +770,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/notification[Deployment] => payments/gateway[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -786,7 +786,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/notification[Deployment] => payments/mastercard-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -802,7 +802,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/notification[Deployment] => payments/visa-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -818,7 +818,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -830,14 +830,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => backend/catalog[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] backend/recommendation-netpol // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] backend/catalog-netpol // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -862,7 +862,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => backend/checkout[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -887,7 +887,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => backend/notification[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -912,7 +912,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => backend/reports[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -937,7 +937,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => backend/shipping[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -962,7 +962,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => frontend/asset-cache[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -996,7 +996,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => frontend/webapp[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1030,7 +1030,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => payments/gateway[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1055,7 +1055,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => payments/mastercard-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1080,7 +1080,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/recommendation[Deployment] => payments/visa-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1105,7 +1105,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1117,14 +1117,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => backend/catalog[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] backend/reports-netpol // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] backend/catalog-netpol // Ingress rule #2
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1149,7 +1149,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => backend/checkout[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1174,7 +1174,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => backend/notification[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1199,14 +1199,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => backend/recommendation[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] backend/reports-netpol // Egress rule #2
 		INGRESS DIRECTION (Allowed)
 			[NP] backend/recommendation-netpol // Ingress rule #2
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1231,7 +1231,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => backend/shipping[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1256,7 +1256,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => frontend/asset-cache[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1290,7 +1290,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => frontend/webapp[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1324,7 +1324,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => payments/gateway[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1349,7 +1349,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => payments/mastercard-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1374,7 +1374,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/reports[Deployment] => payments/visa-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1399,7 +1399,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/shipping[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1411,7 +1411,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/shipping[Deployment] => backend/catalog[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1427,7 +1427,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/shipping[Deployment] => backend/checkout[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1443,7 +1443,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/shipping[Deployment] => backend/notification[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1459,7 +1459,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/shipping[Deployment] => backend/recommendation[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1475,7 +1475,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/shipping[Deployment] => backend/reports[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1491,7 +1491,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/shipping[Deployment] => frontend/asset-cache[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1516,7 +1516,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/shipping[Deployment] => frontend/webapp[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1541,7 +1541,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/shipping[Deployment] => payments/gateway[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1557,7 +1557,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/shipping[Deployment] => payments/mastercard-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1573,7 +1573,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN backend/shipping[Deployment] => payments/visa-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1589,7 +1589,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/asset-cache[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1601,7 +1601,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/asset-cache[Deployment] => backend/catalog[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1617,7 +1617,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/asset-cache[Deployment] => backend/checkout[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1633,7 +1633,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/asset-cache[Deployment] => backend/notification[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1649,7 +1649,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/asset-cache[Deployment] => backend/recommendation[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1665,7 +1665,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/asset-cache[Deployment] => backend/reports[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1681,7 +1681,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/asset-cache[Deployment] => backend/shipping[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1697,7 +1697,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/asset-cache[Deployment] => frontend/webapp[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1722,7 +1722,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/asset-cache[Deployment] => payments/gateway[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1738,7 +1738,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/asset-cache[Deployment] => payments/mastercard-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1754,7 +1754,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/asset-cache[Deployment] => payments/visa-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1770,7 +1770,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1782,7 +1782,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => backend/catalog[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1807,14 +1807,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => backend/checkout[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] frontend/webapp-netpol // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] backend/checkout-netpol // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1839,7 +1839,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => backend/notification[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1864,14 +1864,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => backend/recommendation[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] frontend/webapp-netpol // Egress rule #2
 		INGRESS DIRECTION (Allowed)
 			[NP] backend/recommendation-netpol // Ingress rule #3
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1896,14 +1896,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => backend/reports[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] frontend/webapp-netpol // Egress rule #3
 		INGRESS DIRECTION (Allowed)
 			[NP] backend/reports-netpol // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1928,14 +1928,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => backend/shipping[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] frontend/webapp-netpol // Egress rule #4
 		INGRESS DIRECTION (Allowed)
 			[NP] backend/shipping-netpol // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1960,7 +1960,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => frontend/asset-cache[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -1994,7 +1994,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => payments/gateway[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2019,7 +2019,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => payments/mastercard-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2044,7 +2044,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN frontend/webapp[Deployment] => payments/visa-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2069,7 +2069,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2081,7 +2081,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => backend/catalog[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2106,7 +2106,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => backend/checkout[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2131,7 +2131,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => backend/notification[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2156,7 +2156,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => backend/recommendation[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2181,7 +2181,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => backend/reports[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2206,7 +2206,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => backend/shipping[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2231,7 +2231,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => frontend/asset-cache[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2265,7 +2265,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => frontend/webapp[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2299,14 +2299,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => payments/mastercard-processor[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] payments/gateway-netpol // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] payments/mastercard-processor-netpol // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2331,14 +2331,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/gateway[Deployment] => payments/visa-processor[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] payments/gateway-netpol // Egress rule #2
 		INGRESS DIRECTION (Allowed)
 			[NP] payments/visa-processor-netpol // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-5352,5354-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2363,7 +2363,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2375,7 +2375,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => backend/catalog[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2391,7 +2391,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => backend/checkout[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2407,7 +2407,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => backend/notification[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2423,7 +2423,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => backend/recommendation[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2439,7 +2439,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => backend/reports[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2455,7 +2455,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => backend/shipping[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2471,7 +2471,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => frontend/asset-cache[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2496,7 +2496,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => frontend/webapp[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2521,7 +2521,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => payments/gateway[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2537,7 +2537,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/mastercard-processor[Deployment] => payments/visa-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2553,7 +2553,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2565,7 +2565,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => backend/catalog[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2581,7 +2581,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => backend/checkout[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2597,7 +2597,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => backend/notification[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2613,7 +2613,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => backend/recommendation[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2629,7 +2629,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => backend/reports[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2645,7 +2645,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => backend/shipping[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2661,7 +2661,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => frontend/asset-cache[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2686,7 +2686,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => frontend/webapp[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2711,7 +2711,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => payments/gateway[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2727,7 +2727,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN payments/visa-processor[Deployment] => payments/mastercard-processor[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			NP list:
@@ -2743,14 +2743,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => frontend/asset-cache[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Allowed)
 			[NP] frontend/asset-cache-netpol // Ingress rule #1
 			[Route] frontend/asset-cache // service asset-cache-service
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -2763,14 +2763,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => frontend/webapp[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Allowed)
 			[NP] frontend/webapp-netpol // Ingress rule #1
 			[Route] frontend/webapp // service webapp-service
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)

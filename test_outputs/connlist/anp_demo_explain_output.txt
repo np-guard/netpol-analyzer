@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => gryffindor/harry-potter[StatefulSet]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -14,7 +14,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => ravenclaw/luna-lovegood[StatefulSet]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -23,13 +23,13 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN gryffindor/harry-potter[StatefulSet] => hufflepuff/cedric-diggory[StatefulSet]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080], UDP:[5353], SCTP:[9003] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[ANP] gress-rules-gryffindor // Egress rule allow-to-hufflepuff-at-ports-8080-5353 (Allow)
 		INGRESS DIRECTION (Allowed) due to the system default (Allow all)
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP:[1-52,54-5352,5354-65535], SCTP:[1-9002,9004-65535] due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			[ANP] gress-rules-gryffindor // Egress rule deny-to-hufflepuff-everything-else (Deny)
@@ -44,14 +44,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN gryffindor/harry-potter[StatefulSet] => ravenclaw/luna-lovegood[StatefulSet]:
 
-Allowed LIST:
+Allowed list:
 	Allowed UDP:[52] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Allowed)
 			[ANP] ingress-to-ravenclaw // Ingress rule pass-from-gryffindor-everything (Pass)
 			[NP] ravenclaw/allow-some-ingress-from-to-ravenclaw // Ingress rule #2
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP:[1-51,53-65535], SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -61,10 +61,10 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN gryffindor/harry-potter[StatefulSet] => slytherin/draco-malfoy[StatefulSet]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[1-79,81-65535], UDP:[1-52,54-65535], SCTP:[1-9002,9004-65535] due to the system default (Allow all)
 
-Denied LIST:
+Denied list:
 	Denied TCP:[80], UDP:[53], SCTP:[9003] due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			[ANP] gress-rules-gryffindor // Egress rule deny-to-slytherin-at-ports-80-53-9003 (Deny)
@@ -73,13 +73,13 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN hufflepuff/cedric-diggory[StatefulSet] => gryffindor/harry-potter[StatefulSet]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[80], UDP:[5353], SCTP:[9003] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Allowed)
 			[ANP] gress-rules-gryffindor // Ingress rule allow-from-hufflepuff-at-port-80-5353-9003 (Allow)
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-79,81-65535], UDP:[1-5352,5354-65535], SCTP:[1-9002,9004-65535] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -88,7 +88,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN hufflepuff/cedric-diggory[StatefulSet] => ravenclaw/luna-lovegood[StatefulSet]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -97,7 +97,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN hufflepuff/cedric-diggory[StatefulSet] => slytherin/draco-malfoy[StatefulSet]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -106,7 +106,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ravenclaw/luna-lovegood[StatefulSet] => 0.0.0.0-255.255.255.255:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			[NP] ravenclaw/allow-some-ingress-from-to-ravenclaw // Egress (captured but not selected by any Egress rule - no rules defined)
@@ -115,7 +115,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ravenclaw/luna-lovegood[StatefulSet] => gryffindor/harry-potter[StatefulSet]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			[NP] ravenclaw/allow-some-ingress-from-to-ravenclaw // Egress (captured but not selected by any Egress rule - no rules defined)
@@ -125,7 +125,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ravenclaw/luna-lovegood[StatefulSet] => hufflepuff/cedric-diggory[StatefulSet]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			[NP] ravenclaw/allow-some-ingress-from-to-ravenclaw // Egress (captured but not selected by any Egress rule - no rules defined)
@@ -134,7 +134,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN ravenclaw/luna-lovegood[StatefulSet] => slytherin/draco-malfoy[StatefulSet]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Denied)
 			[NP] ravenclaw/allow-some-ingress-from-to-ravenclaw // Egress (captured but not selected by any Egress rule - no rules defined)
@@ -143,7 +143,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN slytherin/draco-malfoy[StatefulSet] => gryffindor/harry-potter[StatefulSet]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Allowed)
@@ -153,7 +153,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN slytherin/draco-malfoy[StatefulSet] => hufflepuff/cedric-diggory[StatefulSet]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Allowed)
@@ -163,13 +163,13 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN slytherin/draco-malfoy[StatefulSet] => ravenclaw/luna-lovegood[StatefulSet]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[1-79,81-65535] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Allowed)
 			[NP] ravenclaw/allow-some-ingress-from-to-ravenclaw // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[80] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)

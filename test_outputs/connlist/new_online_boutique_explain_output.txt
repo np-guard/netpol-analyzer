@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/adservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -14,7 +14,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/cartservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -23,7 +23,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/checkoutservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -32,7 +32,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/currencyservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -41,7 +41,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/emailservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -50,7 +50,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/frontend[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -59,7 +59,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/paymentservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -68,7 +68,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/productcatalogservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -77,7 +77,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/recommendationservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -86,7 +86,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN 0.0.0.0-255.255.255.255 => default/shippingservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -95,7 +95,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/adservice[Deployment] => 0.0.0.0-255.255.255.255:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/adservice-auth // Egress rule #1
@@ -104,7 +104,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/adservice[Deployment] => default/cartservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/adservice-auth // Egress rule #1
@@ -114,7 +114,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/adservice[Deployment] => default/checkoutservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/adservice-auth // Egress rule #1
@@ -124,7 +124,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/adservice[Deployment] => default/currencyservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/adservice-auth // Egress rule #1
@@ -134,7 +134,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/adservice[Deployment] => default/emailservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/adservice-auth // Egress rule #1
@@ -144,7 +144,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/adservice[Deployment] => default/frontend[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/adservice-auth // Egress rule #1
@@ -154,7 +154,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/adservice[Deployment] => default/loadgenerator[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/adservice-auth // Egress rule #1
@@ -163,7 +163,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/adservice[Deployment] => default/paymentservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/adservice-auth // Egress rule #1
@@ -173,7 +173,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/adservice[Deployment] => default/productcatalogservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/adservice-auth // Egress rule #1
@@ -183,7 +183,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/adservice[Deployment] => default/recommendationservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/adservice-auth // Egress rule #1
@@ -193,7 +193,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/adservice[Deployment] => default/shippingservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/adservice-auth // Egress rule #1
@@ -203,7 +203,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/cartservice[Deployment] => 0.0.0.0-255.255.255.255:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/cartservice // Egress rule #1
@@ -212,7 +212,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/cartservice[Deployment] => default/adservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/cartservice // Egress rule #1
@@ -222,7 +222,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/cartservice[Deployment] => default/checkoutservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/cartservice // Egress rule #1
@@ -232,7 +232,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/cartservice[Deployment] => default/currencyservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/cartservice // Egress rule #1
@@ -242,7 +242,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/cartservice[Deployment] => default/emailservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/cartservice // Egress rule #1
@@ -252,7 +252,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/cartservice[Deployment] => default/frontend[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/cartservice // Egress rule #1
@@ -262,7 +262,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/cartservice[Deployment] => default/loadgenerator[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/cartservice // Egress rule #1
@@ -271,7 +271,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/cartservice[Deployment] => default/paymentservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/cartservice // Egress rule #1
@@ -281,7 +281,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/cartservice[Deployment] => default/productcatalogservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/cartservice // Egress rule #1
@@ -291,7 +291,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/cartservice[Deployment] => default/recommendationservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/cartservice // Egress rule #1
@@ -301,7 +301,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/cartservice[Deployment] => default/shippingservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/cartservice // Egress rule #1
@@ -311,7 +311,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => 0.0.0.0-255.255.255.255:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
@@ -320,7 +320,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/adservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
@@ -330,14 +330,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/cartservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[7070] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/cartservice // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-7069,7071-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
@@ -347,14 +347,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/currencyservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[7000] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/currencyservice // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-6999,7001-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
@@ -364,14 +364,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/emailservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/emailservice // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
@@ -381,7 +381,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/frontend[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
@@ -391,7 +391,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/loadgenerator[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
@@ -400,14 +400,14 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/paymentservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[50051] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/paymentservice // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
@@ -417,14 +417,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/productcatalogservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[3550] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
@@ -434,7 +434,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/recommendationservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
@@ -444,14 +444,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/checkoutservice[Deployment] => default/shippingservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[50051] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/shippingservice // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Egress rule #1
@@ -461,7 +461,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/currencyservice[Deployment] => 0.0.0.0-255.255.255.255:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/currencyservice // Egress rule #1
@@ -470,7 +470,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/currencyservice[Deployment] => default/adservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/currencyservice // Egress rule #1
@@ -480,7 +480,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/currencyservice[Deployment] => default/cartservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/currencyservice // Egress rule #1
@@ -490,7 +490,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/currencyservice[Deployment] => default/checkoutservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/currencyservice // Egress rule #1
@@ -500,7 +500,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/currencyservice[Deployment] => default/emailservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/currencyservice // Egress rule #1
@@ -510,7 +510,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/currencyservice[Deployment] => default/frontend[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/currencyservice // Egress rule #1
@@ -520,7 +520,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/currencyservice[Deployment] => default/loadgenerator[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/currencyservice // Egress rule #1
@@ -529,7 +529,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/currencyservice[Deployment] => default/paymentservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/currencyservice // Egress rule #1
@@ -539,7 +539,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/currencyservice[Deployment] => default/productcatalogservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/currencyservice // Egress rule #1
@@ -549,7 +549,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/currencyservice[Deployment] => default/recommendationservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/currencyservice // Egress rule #1
@@ -559,7 +559,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/currencyservice[Deployment] => default/shippingservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/currencyservice // Egress rule #1
@@ -569,7 +569,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/emailservice[Deployment] => 0.0.0.0-255.255.255.255:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/emailservice // Egress rule #1
@@ -578,7 +578,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/emailservice[Deployment] => default/adservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/emailservice // Egress rule #1
@@ -588,7 +588,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/emailservice[Deployment] => default/cartservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/emailservice // Egress rule #1
@@ -598,7 +598,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/emailservice[Deployment] => default/checkoutservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/emailservice // Egress rule #1
@@ -608,7 +608,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/emailservice[Deployment] => default/currencyservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/emailservice // Egress rule #1
@@ -618,7 +618,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/emailservice[Deployment] => default/frontend[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/emailservice // Egress rule #1
@@ -628,7 +628,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/emailservice[Deployment] => default/loadgenerator[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/emailservice // Egress rule #1
@@ -637,7 +637,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/emailservice[Deployment] => default/paymentservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/emailservice // Egress rule #1
@@ -647,7 +647,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/emailservice[Deployment] => default/productcatalogservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/emailservice // Egress rule #1
@@ -657,7 +657,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/emailservice[Deployment] => default/recommendationservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/emailservice // Egress rule #1
@@ -667,7 +667,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/emailservice[Deployment] => default/shippingservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/emailservice // Egress rule #1
@@ -677,7 +677,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => 0.0.0.0-255.255.255.255:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
@@ -686,14 +686,14 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/adservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[9555] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/adservice-auth // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-9554,9556-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
@@ -703,14 +703,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/cartservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[7070] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/cartservice // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-7069,7071-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
@@ -720,14 +720,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/checkoutservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[5050] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/checkoutservice // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-5049,5051-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
@@ -737,14 +737,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/currencyservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[7000] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/currencyservice // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-6999,7001-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
@@ -754,7 +754,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/emailservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
@@ -764,7 +764,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/loadgenerator[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
@@ -773,7 +773,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/paymentservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
@@ -783,14 +783,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/productcatalogservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[3550] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
@@ -800,14 +800,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/recommendationservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/recommendationservice // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
@@ -817,14 +817,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/frontend[Deployment] => default/shippingservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[50051] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/shippingservice // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Egress rule #1
@@ -834,7 +834,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/loadgenerator[Deployment] => 0.0.0.0-255.255.255.255:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/loadgenerator // Egress rule #1
@@ -843,7 +843,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/loadgenerator[Deployment] => default/adservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/loadgenerator // Egress rule #1
@@ -853,7 +853,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/loadgenerator[Deployment] => default/cartservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/loadgenerator // Egress rule #1
@@ -863,7 +863,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/loadgenerator[Deployment] => default/checkoutservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/loadgenerator // Egress rule #1
@@ -873,7 +873,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/loadgenerator[Deployment] => default/currencyservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/loadgenerator // Egress rule #1
@@ -883,7 +883,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/loadgenerator[Deployment] => default/emailservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/loadgenerator // Egress rule #1
@@ -893,14 +893,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/loadgenerator[Deployment] => default/frontend[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8080] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/loadgenerator // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/frontend // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/loadgenerator // Egress rule #1
@@ -910,7 +910,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/loadgenerator[Deployment] => default/paymentservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/loadgenerator // Egress rule #1
@@ -920,7 +920,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/loadgenerator[Deployment] => default/productcatalogservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/loadgenerator // Egress rule #1
@@ -930,7 +930,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/loadgenerator[Deployment] => default/recommendationservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/loadgenerator // Egress rule #1
@@ -940,7 +940,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/loadgenerator[Deployment] => default/shippingservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/loadgenerator // Egress rule #1
@@ -950,7 +950,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/paymentservice[Deployment] => 0.0.0.0-255.255.255.255:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/paymentservice // Egress rule #1
@@ -959,7 +959,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/paymentservice[Deployment] => default/adservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/paymentservice // Egress rule #1
@@ -969,7 +969,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/paymentservice[Deployment] => default/cartservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/paymentservice // Egress rule #1
@@ -979,7 +979,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/paymentservice[Deployment] => default/checkoutservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/paymentservice // Egress rule #1
@@ -989,7 +989,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/paymentservice[Deployment] => default/currencyservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/paymentservice // Egress rule #1
@@ -999,7 +999,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/paymentservice[Deployment] => default/emailservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/paymentservice // Egress rule #1
@@ -1009,7 +1009,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/paymentservice[Deployment] => default/frontend[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/paymentservice // Egress rule #1
@@ -1019,7 +1019,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/paymentservice[Deployment] => default/loadgenerator[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/paymentservice // Egress rule #1
@@ -1028,7 +1028,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/paymentservice[Deployment] => default/productcatalogservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/paymentservice // Egress rule #1
@@ -1038,7 +1038,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/paymentservice[Deployment] => default/recommendationservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/paymentservice // Egress rule #1
@@ -1048,7 +1048,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/paymentservice[Deployment] => default/shippingservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/paymentservice // Egress rule #1
@@ -1058,7 +1058,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productcatalogservice[Deployment] => 0.0.0.0-255.255.255.255:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Egress rule #1
@@ -1067,7 +1067,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productcatalogservice[Deployment] => default/adservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Egress rule #1
@@ -1077,7 +1077,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productcatalogservice[Deployment] => default/cartservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Egress rule #1
@@ -1087,7 +1087,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productcatalogservice[Deployment] => default/checkoutservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Egress rule #1
@@ -1097,7 +1097,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productcatalogservice[Deployment] => default/currencyservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Egress rule #1
@@ -1107,7 +1107,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productcatalogservice[Deployment] => default/emailservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Egress rule #1
@@ -1117,7 +1117,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productcatalogservice[Deployment] => default/frontend[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Egress rule #1
@@ -1127,7 +1127,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productcatalogservice[Deployment] => default/loadgenerator[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Egress rule #1
@@ -1136,7 +1136,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productcatalogservice[Deployment] => default/paymentservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Egress rule #1
@@ -1146,7 +1146,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productcatalogservice[Deployment] => default/recommendationservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Egress rule #1
@@ -1156,7 +1156,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/productcatalogservice[Deployment] => default/shippingservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Egress rule #1
@@ -1166,7 +1166,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice[Deployment] => 0.0.0.0-255.255.255.255:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/recommendationservice // Egress rule #1
@@ -1175,7 +1175,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice[Deployment] => default/adservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/recommendationservice // Egress rule #1
@@ -1185,7 +1185,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice[Deployment] => default/cartservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/recommendationservice // Egress rule #1
@@ -1195,7 +1195,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice[Deployment] => default/checkoutservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/recommendationservice // Egress rule #1
@@ -1205,7 +1205,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice[Deployment] => default/currencyservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/recommendationservice // Egress rule #1
@@ -1215,7 +1215,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice[Deployment] => default/emailservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/recommendationservice // Egress rule #1
@@ -1225,7 +1225,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice[Deployment] => default/frontend[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/recommendationservice // Egress rule #1
@@ -1235,7 +1235,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice[Deployment] => default/loadgenerator[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/recommendationservice // Egress rule #1
@@ -1244,7 +1244,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice[Deployment] => default/paymentservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/recommendationservice // Egress rule #1
@@ -1254,14 +1254,14 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice[Deployment] => default/productcatalogservice[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[3550] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/recommendationservice // Egress rule #1
 		INGRESS DIRECTION (Allowed)
 			[NP] default/productcatalogservice // Ingress rule #1
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/recommendationservice // Egress rule #1
@@ -1271,7 +1271,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/recommendationservice[Deployment] => default/shippingservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/recommendationservice // Egress rule #1
@@ -1281,7 +1281,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/shippingservice[Deployment] => 0.0.0.0-255.255.255.255:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/shippingservice // Egress rule #1
@@ -1290,7 +1290,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/shippingservice[Deployment] => default/adservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/shippingservice // Egress rule #1
@@ -1300,7 +1300,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/shippingservice[Deployment] => default/cartservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/shippingservice // Egress rule #1
@@ -1310,7 +1310,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/shippingservice[Deployment] => default/checkoutservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/shippingservice // Egress rule #1
@@ -1320,7 +1320,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/shippingservice[Deployment] => default/currencyservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/shippingservice // Egress rule #1
@@ -1330,7 +1330,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/shippingservice[Deployment] => default/emailservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/shippingservice // Egress rule #1
@@ -1340,7 +1340,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/shippingservice[Deployment] => default/frontend[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/shippingservice // Egress rule #1
@@ -1350,7 +1350,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/shippingservice[Deployment] => default/loadgenerator[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/shippingservice // Egress rule #1
@@ -1359,7 +1359,7 @@ Allowed LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/shippingservice[Deployment] => default/paymentservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/shippingservice // Egress rule #1
@@ -1369,7 +1369,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/shippingservice[Deployment] => default/productcatalogservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/shippingservice // Egress rule #1
@@ -1379,7 +1379,7 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN default/shippingservice[Deployment] => default/recommendationservice[Deployment]:
 
-Denied LIST:
+Denied list:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed)
 			[NP] default/shippingservice // Egress rule #1

@@ -5,14 +5,14 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => helloworld/hello-world[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8000] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Allowed)
 			[Ingress] helloworld/hello-world // service hello-world
 			[Route] helloworld/hello-world // service hello-world
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-7999,8001-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -22,13 +22,13 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => ingressworld/ingress-world[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8090] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Allowed)
 			[Ingress] ingressworld/ingress-world // service ingress-world
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8089,8091-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
@@ -37,13 +37,13 @@ Denied LIST:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONNECTIONS BETWEEN {ingress-controller} => routeworld/route-world[Deployment]:
 
-Allowed LIST:
+Allowed list:
 	Allowed TCP:[8060] due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Allowed)
 			[Route] routeworld/route-world // service route-world
 
-Denied LIST:
+Denied list:
 	Denied TCP:[1-8059,8061-65535], UDP, SCTP due to the following policies // rules:
 		EGRESS DIRECTION (Allowed) due to the system default (Allow all)
 		INGRESS DIRECTION (Denied)
