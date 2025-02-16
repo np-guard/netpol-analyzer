@@ -5,10 +5,10 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the system default (Allow all)
 
-Denied list:
+Denied connections:
 	Denied TCP:[80] due to the following policies // rules:
 		Egress (Denied)
 			[ANP] exposure-deny-with-entire-cluster-example // Egress rule deny-tcp80-egress-to-entire-cluster (Deny)
@@ -18,10 +18,10 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the system default (Allow all)
 
-Denied list:
+Denied connections:
 	Denied TCP:[80] due to the following policies // rules:
 		Egress (Denied)
 			[ANP] exposure-deny-with-entire-cluster-example // Egress rule deny-tcp80-egress-to-entire-cluster (Deny)

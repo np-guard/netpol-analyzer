@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between network-policy-conformance-gryffindor/harry-potter[StatefulSet] => network-policy-conformance-slytherin/draco-malfoy[StatefulSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Denied)
 			[ANP] pass-example // Egress rule pass-all-egress-to-slytherin (Pass)
@@ -15,13 +15,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between network-policy-conformance-slytherin/draco-malfoy[StatefulSet] => network-policy-conformance-gryffindor/harry-potter[StatefulSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[80] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[ANP] pass-example // Ingress rule allow-ingress-from-slytherin-on-named-port (Allow)
 
-Denied list:
+Denied connections:
 	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)

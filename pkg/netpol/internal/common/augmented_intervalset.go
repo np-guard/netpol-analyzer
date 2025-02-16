@@ -119,8 +119,8 @@ const (
 	ExplWithRulesTitle    = ExplString + "the following policies // rules:"
 	IngressDirectionTitle = "\t\tIngress"
 	EgressDirectionTitle  = "\t\tEgress"
-	allowListTitle        = allowResultStr + listStr
-	denyListTitle         = denyResultStr + listStr
+	allowListTitle        = allowResultStr + connectionsStr
+	denyListTitle         = denyResultStr + connectionsStr
 	NewLine               = "\n"
 	SpaceSeparator        = " "
 	ExplAllowAll          = " (Allow all)"
@@ -132,7 +132,7 @@ const (
 	PodToItselfRule       = "pod to itself " + ExplAllowAll
 	allowResultStr        = "Allowed"
 	denyResultStr         = "Denied"
-	listStr               = " list"
+	connectionsStr        = " connections"
 )
 
 func (rules *ImplyingXgressRulesType) onlyDefaultRule() bool {

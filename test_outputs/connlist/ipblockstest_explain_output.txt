@@ -5,13 +5,13 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-9.255.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -20,13 +20,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-9.255.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -35,13 +35,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-9.255.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -50,13 +50,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-9.255.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -65,13 +65,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-9.255.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -80,13 +80,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-9.255.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -95,13 +95,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-9.255.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -110,7 +110,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 10.0.0.0-10.255.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -119,7 +119,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 10.0.0.0-10.255.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -128,7 +128,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 10.0.0.0-10.255.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -137,7 +137,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 10.0.0.0-10.255.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -146,7 +146,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 10.0.0.0-10.255.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -155,7 +155,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 10.0.0.0-10.255.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -164,7 +164,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 10.0.0.0-10.255.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -173,13 +173,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 11.0.0.0-172.20.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -188,13 +188,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 11.0.0.0-172.20.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -203,13 +203,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 11.0.0.0-172.20.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -218,13 +218,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 11.0.0.0-172.20.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -233,13 +233,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 11.0.0.0-172.20.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -248,13 +248,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 11.0.0.0-172.20.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -263,13 +263,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 11.0.0.0-172.20.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -278,7 +278,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.21.0.0-172.21.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -287,7 +287,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.21.0.0-172.21.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -296,7 +296,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.21.0.0-172.21.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -305,7 +305,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.21.0.0-172.21.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -314,7 +314,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.21.0.0-172.21.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -323,7 +323,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.21.0.0-172.21.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -332,7 +332,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.21.0.0-172.21.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -341,13 +341,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.22.0.0-172.29.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -356,13 +356,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.22.0.0-172.29.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -371,13 +371,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.22.0.0-172.29.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -386,13 +386,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.22.0.0-172.29.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -401,13 +401,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.22.0.0-172.29.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -416,13 +416,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.22.0.0-172.29.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -431,13 +431,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.22.0.0-172.29.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -446,7 +446,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.30.0.0-172.30.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -455,7 +455,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.30.0.0-172.30.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -464,7 +464,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.30.0.0-172.30.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -473,7 +473,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.30.0.0-172.30.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -482,7 +482,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.30.0.0-172.30.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -491,7 +491,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.30.0.0-172.30.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -500,7 +500,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.30.0.0-172.30.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -509,13 +509,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.31.0.0-255.255.255.255 => kube-system/calico-node-tier[DaemonSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -524,13 +524,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.31.0.0-255.255.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -539,13 +539,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.31.0.0-255.255.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -554,13 +554,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.31.0.0-255.255.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -569,13 +569,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.31.0.0-255.255.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -584,13 +584,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.31.0.0-255.255.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -599,13 +599,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.31.0.0-255.255.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Allowed list:
+Allowed connections:
 	Allowed UDP:[53] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -614,7 +614,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-agent[DaemonSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -623,7 +623,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-agent[DaemonSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -632,7 +632,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-agent[DaemonSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -641,7 +641,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-agent[DaemonSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -650,7 +650,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-agent[DaemonSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -659,7 +659,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-agent[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -668,7 +668,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-agent[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -677,7 +677,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-analyzer[DaemonSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -686,7 +686,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-analyzer[DaemonSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -695,7 +695,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-analyzer[DaemonSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -704,7 +704,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-analyzer[DaemonSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -713,7 +713,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-analyzer[DaemonSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -722,7 +722,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-analyzer[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -731,7 +731,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-analyzer[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -740,7 +740,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents[DaemonSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -749,7 +749,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents[DaemonSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -758,7 +758,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents[DaemonSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -767,7 +767,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents[DaemonSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -776,7 +776,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents[DaemonSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -785,7 +785,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -794,7 +794,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -803,7 +803,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -812,7 +812,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -821,7 +821,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -830,7 +830,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -839,7 +839,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -848,7 +848,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -857,7 +857,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -866,7 +866,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c[ReplicaSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -875,7 +875,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c[ReplicaSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -884,7 +884,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c[ReplicaSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -893,7 +893,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c[ReplicaSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -902,7 +902,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c[ReplicaSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -911,7 +911,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -920,7 +920,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -929,7 +929,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-14-6d448884df[ReplicaSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -938,7 +938,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-14-6d448884df[ReplicaSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -947,7 +947,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-14-6d448884df[ReplicaSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -956,7 +956,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-14-6d448884df[ReplicaSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -965,7 +965,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-14-6d448884df[ReplicaSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -974,7 +974,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-14-6d448884df[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -983,7 +983,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ibm-system/ibm-cloud-provider-ip-169-60-164-14-6d448884df[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -992,7 +992,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1001,7 +1001,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1010,7 +1010,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1019,7 +1019,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1028,7 +1028,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1037,7 +1037,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1046,7 +1046,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1055,7 +1055,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1064,7 +1064,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1073,7 +1073,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1082,7 +1082,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1091,7 +1091,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1100,7 +1100,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1109,7 +1109,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1118,7 +1118,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1127,7 +1127,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1136,7 +1136,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1145,7 +1145,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1154,7 +1154,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1163,7 +1163,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1172,7 +1172,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1181,7 +1181,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1190,7 +1190,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1199,7 +1199,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1208,7 +1208,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1217,7 +1217,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1226,7 +1226,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1235,7 +1235,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1244,7 +1244,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1253,7 +1253,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1262,7 +1262,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1271,7 +1271,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1280,7 +1280,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1289,7 +1289,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1298,7 +1298,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1307,7 +1307,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/calico-node-tier[DaemonSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1316,7 +1316,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/calico-node-tier[DaemonSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1325,7 +1325,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/calico-node-tier[DaemonSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1334,7 +1334,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/calico-node-tier[DaemonSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1343,7 +1343,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/calico-node-tier[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1352,7 +1352,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/calico-node-tier[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1361,7 +1361,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/calico-node[DaemonSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1370,7 +1370,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/calico-node[DaemonSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1379,7 +1379,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/calico-node[DaemonSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1388,7 +1388,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/calico-node[DaemonSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1397,7 +1397,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/calico-node[DaemonSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1406,7 +1406,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/calico-node[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1415,7 +1415,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/calico-node[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1424,7 +1424,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1433,7 +1433,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1442,7 +1442,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1451,7 +1451,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1460,7 +1460,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1469,7 +1469,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1478,7 +1478,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1487,7 +1487,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1496,7 +1496,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1505,7 +1505,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1514,7 +1514,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1523,7 +1523,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1532,7 +1532,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1541,7 +1541,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-keepalived-watcher-for-demo[DaemonSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1550,7 +1550,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-keepalived-watcher-for-demo[DaemonSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1559,7 +1559,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-keepalived-watcher-for-demo[DaemonSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1568,7 +1568,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-keepalived-watcher-for-demo[DaemonSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1577,7 +1577,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-keepalived-watcher-for-demo[DaemonSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1586,7 +1586,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-keepalived-watcher-for-demo[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1595,7 +1595,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-keepalived-watcher-for-demo[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1604,7 +1604,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-keepalived-watcher[DaemonSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1613,7 +1613,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-keepalived-watcher[DaemonSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1622,7 +1622,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-keepalived-watcher[DaemonSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1631,7 +1631,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-keepalived-watcher[DaemonSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1640,7 +1640,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-keepalived-watcher[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1649,7 +1649,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-keepalived-watcher[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1658,7 +1658,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-kube-fluentd-with-tier[DaemonSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1667,7 +1667,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-kube-fluentd-with-tier[DaemonSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1676,7 +1676,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-kube-fluentd-with-tier[DaemonSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1685,7 +1685,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-kube-fluentd-with-tier[DaemonSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1694,7 +1694,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-kube-fluentd-with-tier[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1703,7 +1703,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-kube-fluentd-with-tier[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1712,7 +1712,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-kube-fluentd[DaemonSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1721,7 +1721,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-kube-fluentd[DaemonSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1730,7 +1730,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-kube-fluentd[DaemonSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1739,7 +1739,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-kube-fluentd[DaemonSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1748,7 +1748,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-kube-fluentd[DaemonSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1757,7 +1757,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-kube-fluentd[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1766,7 +1766,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-kube-fluentd[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1775,7 +1775,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1784,7 +1784,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1793,7 +1793,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1802,7 +1802,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1811,7 +1811,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1820,7 +1820,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1829,7 +1829,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1838,7 +1838,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1847,7 +1847,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1856,7 +1856,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1865,7 +1865,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1874,7 +1874,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1883,7 +1883,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/calico-node-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1892,7 +1892,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1901,7 +1901,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/ibm-keepalived-watcher[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1910,7 +1910,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1919,7 +1919,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -1928,7 +1928,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)

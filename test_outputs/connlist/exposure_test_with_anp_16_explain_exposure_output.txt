@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -14,7 +14,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Denied)
 			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Egress (captured but not selected by any Egress rule)
@@ -23,7 +23,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed)
 			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Egress rule #1
@@ -32,7 +32,7 @@ Allowed list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)

@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between {ingress-controller} => routes-world/workload-with-multiple-ports[Deployment]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[8000] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
@@ -16,7 +16,7 @@ Allowed list:
 		Ingress (Allowed)
 			[Route] routes-world/route-2 // service routes-world-svc
 
-Denied list:
+Denied connections:
 	Denied TCP:[1-7999,8001-8089,8091-65535], UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)

@@ -5,14 +5,14 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between {ingress-controller} => helloworld/hello-world[Deployment]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[8000] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[Ingress] helloworld/hello-world // service hello-world
 			[Route] helloworld/hello-world // service hello-world
 
-Denied list:
+Denied connections:
 	Denied TCP:[1-7999,8001-65535], UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -22,13 +22,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between {ingress-controller} => ingressworld/ingress-world[Deployment]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[8090] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[Ingress] ingressworld/ingress-world // service ingress-world
 
-Denied list:
+Denied connections:
 	Denied TCP:[1-8089,8091-65535], UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -37,13 +37,13 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between {ingress-controller} => routeworld/route-world[Deployment]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[8060] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[Route] routeworld/route-world // service route-world
 
-Denied list:
+Denied connections:
 	Denied TCP:[1-8059,8061-65535], UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)

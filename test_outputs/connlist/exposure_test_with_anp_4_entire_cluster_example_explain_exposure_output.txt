@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -14,7 +14,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Denied)
 			[NP] hello-world/deny-all-app-a // Egress (captured but not selected by any Egress rule - no rules defined)
@@ -23,28 +23,28 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[80] due to the following policies // rules:
 		Egress (Allowed)
 			[ANP] exposure-allow-with-entire-cluster-example // Egress rule allow-tcp80-egress-to-entire-cluster (Allow)
 		Ingress (Allowed)
 			[ANP] exposure-allow-with-entire-cluster-example // Ingress rule allow-tcp80-ingress-from-entire-cluster (Allow)
 
-Denied list:
+Denied connections:
 	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies // rules:
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[80] due to the following policies // rules:
 		Egress (Allowed)
 			[ANP] exposure-allow-with-entire-cluster-example // Egress rule allow-tcp80-egress-to-entire-cluster (Allow)
 		Ingress (Allowed)
 			[ANP] exposure-allow-with-entire-cluster-example // Ingress rule allow-tcp80-ingress-from-entire-cluster (Allow)
 
-Denied list:
+Denied connections:
 	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 

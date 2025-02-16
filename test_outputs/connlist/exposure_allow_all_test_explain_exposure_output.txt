@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
@@ -14,7 +14,7 @@ Allowed list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed)
 			[NP] hello-world/allow-conns-to-all-world // Egress rule #1

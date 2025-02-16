@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-255.255.255.255 => foo/myfoo[Pod]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -14,7 +14,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between bar/mybar[Pod] => foo/myfoo[Pod]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -23,10 +23,10 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between baz/mybaz[Pod] => bar/mybar[Pod]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[9001-65535], UDP, SCTP due to the system default (Allow all)
 
-Denied list:
+Denied connections:
 	Denied TCP:[1-9000] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -35,7 +35,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between baz/mybaz[Pod] => foo/myfoo[Pod]:
 
-Denied list:
+Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -44,10 +44,10 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between foo/myfoo[Pod] => bar/mybar[Pod]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[9001-65535], UDP, SCTP due to the system default (Allow all)
 
-Denied list:
+Denied connections:
 	Denied TCP:[1-9000] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -56,7 +56,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => bar/mybar[Pod]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[1234] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
@@ -64,7 +64,7 @@ Allowed list:
 
 	Allowed TCP:[9001-65535], UDP, SCTP due to the system default (Allow all)
 
-Denied list:
+Denied connections:
 	Denied TCP:[1-1233,1235-8079,8081-9000] due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
@@ -79,7 +79,7 @@ Denied list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => baz/mybaz[Pod]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[1-1233,1235-65535], UDP, SCTP due to the system default (Allow all)
 
 	Allowed TCP:[1234] due to the following policies // rules:
@@ -90,7 +90,7 @@ Allowed list:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
 
-Allowed list:
+Allowed connections:
 	Allowed TCP:[1-1233,1235-8079,8081-65535], UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
