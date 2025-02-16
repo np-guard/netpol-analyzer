@@ -1,0 +1,32 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between network-policy-conformance-gryffindor/harry-potter[StatefulSet] => network-policy-conformance-slytherin/draco-malfoy[StatefulSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[ANP] pass-example // Egress rule pass-all-egress-to-slytherin (Pass)
+			[BANP] default // Egress rule deny-all-egress-to-slytherin (Deny)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between network-policy-conformance-slytherin/draco-malfoy[StatefulSet] => network-policy-conformance-gryffindor/harry-potter[StatefulSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[ANP] pass-example // Ingress rule pass-all-ingress-from-slytherin (Pass)
+			[BANP] default // Ingress rule deny-all-ingress-from-slytherin (Deny)
+
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
+0.0.0.0-255.255.255.255 => network-policy-conformance-gryffindor/harry-potter[StatefulSet]
+0.0.0.0-255.255.255.255 => network-policy-conformance-slytherin/draco-malfoy[StatefulSet]
+network-policy-conformance-gryffindor/harry-potter[StatefulSet] => 0.0.0.0-255.255.255.255
+network-policy-conformance-slytherin/draco-malfoy[StatefulSet] => 0.0.0.0-255.255.255.255

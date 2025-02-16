@@ -1,0 +1,31 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
+
+Allowed connections:
+	Allowed TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
+			[NP] hello-world/allow-conns-to-all-world // Ingress rule #1
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255:
+
+Allowed connections:
+	Allowed TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed)
+			[NP] hello-world/allow-conns-to-all-world // Egress rule #1
+		Ingress (Allowed) due to the system default (Allow all)
+
+
+Exposure Analysis Result:
+Egress Exposure:
+hello-world/workload-a[Deployment] 	=> 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-a[Deployment] 	=> 	entire-cluster : All Connections
+
+Ingress Exposure:
+hello-world/workload-a[Deployment] 	<= 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-a[Deployment] 	<= 	entire-cluster : All Connections

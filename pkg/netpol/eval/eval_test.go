@@ -1806,6 +1806,9 @@ func pickContainedConn(conn *common.ConnectionSet) (resProtocol, resPort string)
 		return string(v1.ProtocolTCP), defaultPort
 	}
 	for protocol, portSet := range conn.AllowedProtocols {
+		if portSet.IsEmpty() { // at least in some protocol, portSet will not be empty
+			continue
+		}
 		resProtocol = string(protocol)
 		if portSet.IsAll() {
 			resPort = defaultPort

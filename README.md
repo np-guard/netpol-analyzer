@@ -61,6 +61,7 @@ Examples:
   k8snetpolicy list -k ./kube/config
 
 Flags:
+      --explain                Enhance the analysis of permitted connectivity with explainability information 
       --exposure               Enhance the analysis of permitted connectivity with exposure analysis
   -f, --file string            Write output to specified file
       --focusworkload string   Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)
@@ -150,6 +151,8 @@ source: default/redis-cart[Deployment], destination: 0.0.0.0-255.255.255.255, di
 ```
 
 Additional details about the connectivity analysis and its output is specified [here](docs/connlist_output.md).
+
+Additional details about explainability analysis (`--explain` flag for the `list` command) is specified [here](docs/explain_analysis.md).
 
 Additional details about exposure analysis (`--exposure` flag for the `list` command) is specified [here](docs/exposure_analysis.md).
 

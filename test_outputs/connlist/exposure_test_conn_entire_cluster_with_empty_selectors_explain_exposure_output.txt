@@ -1,0 +1,29 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Ingress (hello-world/workload-a[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] hello-world/allow-ingress-and-egress-in-entire-cluster // Egress (hello-world/workload-a[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+
+Exposure Analysis Result:
+Egress Exposure:
+hello-world/workload-a[Deployment] 	=> 	entire-cluster : All Connections
+
+Ingress Exposure:
+hello-world/workload-a[Deployment] 	<= 	entire-cluster : TCP 8050

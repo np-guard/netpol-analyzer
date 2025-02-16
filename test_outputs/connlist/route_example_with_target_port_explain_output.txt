@@ -1,0 +1,33 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between {ingress-controller} => routes-world/workload-with-multiple-ports[Deployment]:
+
+Allowed connections:
+	Allowed TCP:[8000] due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
+			[Route] routes-world/route-1 // service routes-world-svc
+
+	Allowed TCP:[8090] due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
+			[Route] routes-world/route-2 // service routes-world-svc
+
+Denied connections:
+	Denied TCP:[1-7999,8001-8089,8091-65535], UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			Route list:
+				- [Route] routes-world/route-1 // service routes-world-svc (protocols/ports not referenced)
+				- [Route] routes-world/route-2 // service routes-world-svc (protocols/ports not referenced)
+
+
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
+0.0.0.0-255.255.255.255 => routes-world/workload-with-multiple-ports[Deployment]
+routes-world/workload-with-multiple-ports[Deployment] => 0.0.0.0-255.255.255.255

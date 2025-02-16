@@ -1,0 +1,67 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between {ingress-controller} => helloworld/hello-world[Deployment]:
+
+Allowed connections:
+	Allowed TCP:[8000] due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
+			[Ingress] helloworld/hello-world // service hello-world
+			[Route] helloworld/hello-world // service hello-world
+
+Denied connections:
+	Denied TCP:[1-7999,8001-65535], UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[Ingress] helloworld/hello-world // service hello-world (protocols/ports not referenced)
+			[Route] helloworld/hello-world // service hello-world (protocols/ports not referenced)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between {ingress-controller} => ingressworld/ingress-world[Deployment]:
+
+Allowed connections:
+	Allowed TCP:[8090] due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
+			[Ingress] ingressworld/ingress-world // service ingress-world
+
+Denied connections:
+	Denied TCP:[1-8089,8091-65535], UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[Ingress] ingressworld/ingress-world // service ingress-world (protocols/ports not referenced)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between {ingress-controller} => routeworld/route-world[Deployment]:
+
+Allowed connections:
+	Allowed TCP:[8060] due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
+			[Route] routeworld/route-world // service route-world
+
+Denied connections:
+	Denied TCP:[1-8059,8061-65535], UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[Route] routeworld/route-world // service route-world (protocols/ports not referenced)
+
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
+0.0.0.0-255.255.255.255 => helloworld/hello-world[Deployment]
+0.0.0.0-255.255.255.255 => ingressworld/ingress-world[Deployment]
+0.0.0.0-255.255.255.255 => routeworld/route-world[Deployment]
+helloworld/hello-world[Deployment] => 0.0.0.0-255.255.255.255
+helloworld/hello-world[Deployment] => ingressworld/ingress-world[Deployment]
+helloworld/hello-world[Deployment] => routeworld/route-world[Deployment]
+ingressworld/ingress-world[Deployment] => 0.0.0.0-255.255.255.255
+ingressworld/ingress-world[Deployment] => helloworld/hello-world[Deployment]
+ingressworld/ingress-world[Deployment] => routeworld/route-world[Deployment]
+routeworld/route-world[Deployment] => 0.0.0.0-255.255.255.255
+routeworld/route-world[Deployment] => helloworld/hello-world[Deployment]
+routeworld/route-world[Deployment] => ingressworld/ingress-world[Deployment]

@@ -1,0 +1,216 @@
+/*
+Copyright 2023- IBM Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+*/
+package connlist
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
+	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
+
+	"github.com/stretchr/testify/require"
+)
+
+// file for testing functionality of explainability analysis
+
+func TestExplainFromDir(t *testing.T) {
+	t.Parallel()
+	for _, tt := range explainTests {
+		t.Run(tt.testDirName, func(t *testing.T) {
+			t.Parallel()
+			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkload, tt.exposure)
+			res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
+			require.Nil(t, err, pTest.testInfo)
+			out, err := pTest.analyzer.ConnectionsListToString(res)
+			require.Nil(t, err, pTest.testInfo)
+			testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, out,
+				pTest.testInfo, currentPkg)
+		})
+	}
+}
+
+func prepareExplainTest(dirName, focusWorkload string, exposure bool) preparedTest {
+	res := preparedTest{}
+	res.testName, res.expectedOutputFileName = testutils.ExplainTestNameByTestArgs(dirName, focusWorkload, exposure)
+	res.testInfo = fmt.Sprintf("test: %q", res.testName)
+	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkload(focusWorkload), WithExplanation())
+	if exposure {
+		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkload(focusWorkload), WithExplanation(),
+			WithExposureAnalysis())
+	}
+	res.analyzer = cAnalyzer
+	res.dirPath = testutils.GetTestDirPath(dirName)
+	return res
+}
+
+var explainTests = []struct {
+	testDirName   string
+	focusWorkload string
+	exposure      bool
+}{
+	{
+		testDirName: "acs-security-demos",
+	},
+	{
+		testDirName: "anp_and_banp_using_networks_and_nodes_test",
+	},
+	{
+		testDirName: "anp_banp_blog_demo",
+	},
+	{
+		testDirName: "anp_banp_blog_demo_2",
+	},
+	{
+		testDirName: "anp_banp_test_with_named_port_matched",
+	},
+	{
+		testDirName: "anp_banp_test_with_named_port_unmatched",
+	},
+	{
+		testDirName: "anp_demo",
+	},
+	{
+		testDirName: "anp_test_10",
+	},
+	{
+		testDirName: "demo_app_with_routes_and_ingress",
+	},
+	{
+		testDirName: "ipblockstest",
+	},
+	{
+		testDirName: "k8s_ingress_test_new",
+	},
+	{
+		testDirName: "multiple_ingress_objects_with_different_ports_new",
+	},
+	{
+		testDirName: "multiple_topology_resources_2",
+	},
+	{
+		testDirName: "netpol_named_port_test",
+	},
+	{
+		testDirName: "new_online_boutique",
+	},
+	{
+		testDirName: "onlineboutique",
+	},
+	{
+		testDirName: "onlineboutique_workloads_with_ingress",
+	},
+	{
+		testDirName: "route_example_with_target_port",
+	},
+	{
+		testDirName: "vm_example",
+	},
+	{
+		testDirName: "vm_example",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_allow_all_test",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_allow_all_in_cluster_test",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_allow_all_two_workloads_test",
+	},
+	{
+		testDirName: "exposure_allow_all_two_workloads_test",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_matched_and_unmatched_rules_test",
+		exposure:    true,
+	},
+	{
+		testDirName:   "exposure_matched_and_unmatched_rules_test",
+		exposure:      true,
+		focusWorkload: "hello-world/workload-a",
+	},
+	{
+		testDirName: "exposure_multiple_unmatched_rules_test",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_to_new_namespace_conn_and_entire_cluster",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_pod_exposed_only_to_representative_peers",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_conn_entire_cluster_with_empty_selectors",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_conn_to_all_pods_in_a_new_ns",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_conn_with_only_pod_selector",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_conn_with_pod_selector_in_any_ns",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_1",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_2_w_np",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_3_w_banp",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_4_entire_cluster_example",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_5_entire_cluster_example",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_6_entire_cluster_example",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_7_w_banp",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_8",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_9",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_12",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_15",
+		exposure:    true,
+	},
+	{
+		testDirName: "exposure_test_with_anp_16",
+		exposure:    true,
+	},
+}

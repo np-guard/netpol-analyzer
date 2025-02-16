@@ -98,9 +98,10 @@ func checkConnsEquality(t *testing.T, testName string, ingressConns map[string]*
 		"test: %q, mismatch in ingress connections to %q", testName, peerStr)
 	// if all connections is false; check if actual conns are as expected
 	if !expectedIngressToPeer.allConnections {
-		require.Contains(t, ingressConnsToPeer.ConnSet.ProtocolsAndPortsMap(), v1.Protocol(expectedIngressToPeer.protocol),
+		require.Contains(t, ingressConnsToPeer.ConnSet.ProtocolsAndPortsMap(false), v1.Protocol(expectedIngressToPeer.protocol),
 			"test: %q, mismatch in ingress connections to peer %q, should contain protocol %q", testName, peerStr, expectedIngressToPeer.protocol)
-		connPortRange := ingressConnsToPeer.ConnSet.ProtocolsAndPortsMap()[v1.Protocol(expectedIngressToPeer.protocol)]
+		connSet := ingressConnsToPeer.ConnSet.GetEquivalentCanonicalConnectionSet()
+		connPortRange := connSet.ProtocolsAndPortsMap(false)[v1.Protocol(expectedIngressToPeer.protocol)]
 		require.Len(t, connPortRange, len(expectedIngressToPeer.ports),
 			"test: %q, mismatch in ingress connections to %q", testName, peerStr)
 		for i := range expectedIngressToPeer.ports {

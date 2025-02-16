@@ -1,0 +1,991 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255 => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between default/cog-agents-analyzer[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but default/cog-agents-analyzer[DaemonSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between default/cog-agents[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but default/cog-agents[DaemonSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but default/cog-local-analyzer-7d77fb55cc[ReplicaSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => 0.0.0.0-255.255.255.255:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => default/cog-agents-analyzer[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but default/cog-agents-analyzer[DaemonSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => default/cog-agents[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but default/cog-agents[DaemonSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but default/cog-local-analyzer-7d77fb55cc[ReplicaSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but demo/cog-agents-account-command[DaemonSet] is not selected by any Egress rule)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but demo/cog-agents-account-query[DaemonSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]:
+
+Allowed connections:
+	Allowed TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed)
+			[NP] demo/query-to-ui // Egress rule #1
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/calico-node-frontend[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/calico-node-frontend[DaemonSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/calico-node[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/calico-node[DaemonSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/file-plugin-7bfb8b69bf[ReplicaSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/heapster-7df8cb8c66[ReplicaSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/keepalived-watcher-not-frontend[DaemonSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/keepalived-watcher[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/keepalived-watcher[DaemonSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/kube-fluentd-frontend[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/kube-fluentd-frontend[DaemonSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/kube-fluentd[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/kube-fluentd[DaemonSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/storage-watcher-8494b4b8bb[ReplicaSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/tiller-deploy-5c45c9966b[ReplicaSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/vpn-858f6d9777[ReplicaSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => vendor-system/barbar-app[ReplicaSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but vendor-system/barbar-app[ReplicaSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-account-query[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Denied)
+			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but vendor-system/foofoo-app[ReplicaSet] is not selected by any Egress rule)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between demo/cog-agents-bank-ui[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Allowed connections:
+	Allowed TCP:[8080,9090], UDP:[8080] due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
+			[NP] demo/ui-to-command // Ingress rule #1
+
+Denied connections:
+	Denied TCP:[1-8079,8081-9089,9091-65535], UDP:[1-8079,8081-65535], SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress rule #1 (protocols/ports not referenced)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system/calico-node-frontend[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/calico-node-frontend[DaemonSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system/calico-node[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/calico-node[DaemonSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/file-plugin-7bfb8b69bf[ReplicaSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system/heapster-7df8cb8c66[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/heapster-7df8cb8c66[ReplicaSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system/keepalived-watcher-not-frontend[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/keepalived-watcher-not-frontend[DaemonSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system/keepalived-watcher[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/keepalived-watcher[DaemonSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system/kube-fluentd-frontend[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/kube-fluentd-frontend[DaemonSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system/kube-fluentd[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/kube-fluentd[DaemonSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/storage-watcher-8494b4b8bb[ReplicaSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/tiller-deploy-5c45c9966b[ReplicaSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between kube-system/vpn-858f6d9777[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/vpn-858f6d9777[ReplicaSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between vendor-system/barbar-app[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but vendor-system/barbar-app[ReplicaSet] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between vendor-system/foofoo-app[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but vendor-system/foofoo-app[ReplicaSet] is not selected by any Ingress rule)
+
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
+0.0.0.0-255.255.255.255 => default/cog-agents-analyzer[DaemonSet]
+0.0.0.0-255.255.255.255 => default/cog-agents[DaemonSet]
+0.0.0.0-255.255.255.255 => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+0.0.0.0-255.255.255.255 => demo/cog-agents-account-query[DaemonSet]
+0.0.0.0-255.255.255.255 => demo/cog-agents-bank-ui[DaemonSet]
+0.0.0.0-255.255.255.255 => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+0.0.0.0-255.255.255.255 => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+0.0.0.0-255.255.255.255 => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+0.0.0.0-255.255.255.255 => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+0.0.0.0-255.255.255.255 => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+0.0.0.0-255.255.255.255 => kube-system/calico-node-frontend[DaemonSet]
+0.0.0.0-255.255.255.255 => kube-system/calico-node[DaemonSet]
+0.0.0.0-255.255.255.255 => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+0.0.0.0-255.255.255.255 => kube-system/heapster-7df8cb8c66[ReplicaSet]
+0.0.0.0-255.255.255.255 => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+0.0.0.0-255.255.255.255 => kube-system/keepalived-watcher[DaemonSet]
+0.0.0.0-255.255.255.255 => kube-system/kube-fluentd-frontend[DaemonSet]
+0.0.0.0-255.255.255.255 => kube-system/kube-fluentd[DaemonSet]
+0.0.0.0-255.255.255.255 => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+0.0.0.0-255.255.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+0.0.0.0-255.255.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]
+0.0.0.0-255.255.255.255 => vendor-system/barbar-app[ReplicaSet]
+0.0.0.0-255.255.255.255 => vendor-system/foofoo-app[ReplicaSet]
+default/cog-agents-analyzer[DaemonSet] => 0.0.0.0-255.255.255.255
+default/cog-agents-analyzer[DaemonSet] => default/cog-agents[DaemonSet]
+default/cog-agents-analyzer[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+default/cog-agents-analyzer[DaemonSet] => demo/cog-agents-account-query[DaemonSet]
+default/cog-agents-analyzer[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system/calico-node-frontend[DaemonSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system/calico-node[DaemonSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system/keepalived-watcher[DaemonSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system/kube-fluentd[DaemonSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+default/cog-agents-analyzer[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+default/cog-agents-analyzer[DaemonSet] => vendor-system/barbar-app[ReplicaSet]
+default/cog-agents-analyzer[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]
+default/cog-agents[DaemonSet] => 0.0.0.0-255.255.255.255
+default/cog-agents[DaemonSet] => default/cog-agents-analyzer[DaemonSet]
+default/cog-agents[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+default/cog-agents[DaemonSet] => demo/cog-agents-account-query[DaemonSet]
+default/cog-agents[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]
+default/cog-agents[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+default/cog-agents[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+default/cog-agents[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+default/cog-agents[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+default/cog-agents[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+default/cog-agents[DaemonSet] => kube-system/calico-node-frontend[DaemonSet]
+default/cog-agents[DaemonSet] => kube-system/calico-node[DaemonSet]
+default/cog-agents[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+default/cog-agents[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+default/cog-agents[DaemonSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+default/cog-agents[DaemonSet] => kube-system/keepalived-watcher[DaemonSet]
+default/cog-agents[DaemonSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+default/cog-agents[DaemonSet] => kube-system/kube-fluentd[DaemonSet]
+default/cog-agents[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+default/cog-agents[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+default/cog-agents[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+default/cog-agents[DaemonSet] => vendor-system/barbar-app[ReplicaSet]
+default/cog-agents[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => 0.0.0.0-255.255.255.255
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => default/cog-agents-analyzer[DaemonSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => default/cog-agents[DaemonSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => demo/cog-agents-account-query[DaemonSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => demo/cog-agents-bank-ui[DaemonSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/calico-node-frontend[DaemonSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/calico-node[DaemonSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/keepalived-watcher[DaemonSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/kube-fluentd[DaemonSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => vendor-system/barbar-app[ReplicaSet]
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => vendor-system/foofoo-app[ReplicaSet]
+demo/cog-agents-account-command[DaemonSet] => 0.0.0.0-255.255.255.255
+demo/cog-agents-account-command[DaemonSet] => default/cog-agents-analyzer[DaemonSet]
+demo/cog-agents-account-command[DaemonSet] => default/cog-agents[DaemonSet]
+demo/cog-agents-account-command[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+demo/cog-agents-account-command[DaemonSet] => demo/cog-agents-account-query[DaemonSet]
+demo/cog-agents-account-command[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system/calico-node-frontend[DaemonSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system/calico-node[DaemonSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system/keepalived-watcher[DaemonSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system/kube-fluentd[DaemonSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+demo/cog-agents-account-command[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+demo/cog-agents-account-command[DaemonSet] => vendor-system/barbar-app[ReplicaSet]
+demo/cog-agents-account-command[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]
+demo/cog-agents-bank-ui[DaemonSet] => 0.0.0.0-255.255.255.255
+demo/cog-agents-bank-ui[DaemonSet] => default/cog-agents-analyzer[DaemonSet]
+demo/cog-agents-bank-ui[DaemonSet] => default/cog-agents[DaemonSet]
+demo/cog-agents-bank-ui[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+demo/cog-agents-bank-ui[DaemonSet] => demo/cog-agents-account-query[DaemonSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system/calico-node-frontend[DaemonSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system/calico-node[DaemonSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system/keepalived-watcher[DaemonSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system/kube-fluentd[DaemonSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+demo/cog-agents-bank-ui[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+demo/cog-agents-bank-ui[DaemonSet] => vendor-system/barbar-app[ReplicaSet]
+demo/cog-agents-bank-ui[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => 0.0.0.0-255.255.255.255
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => default/cog-agents[DaemonSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/calico-node[DaemonSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => 0.0.0.0-255.255.255.255
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => default/cog-agents[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/calico-node[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => 0.0.0.0-255.255.255.255
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => default/cog-agents[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/calico-node[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => 0.0.0.0-255.255.255.255
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => default/cog-agents[DaemonSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/calico-node[DaemonSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => 0.0.0.0-255.255.255.255
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => default/cog-agents[DaemonSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/calico-node[DaemonSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system/calico-node-frontend[DaemonSet] => 0.0.0.0-255.255.255.255
+kube-system/calico-node-frontend[DaemonSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system/calico-node-frontend[DaemonSet] => default/cog-agents[DaemonSet]
+kube-system/calico-node-frontend[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system/calico-node-frontend[DaemonSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system/calico-node-frontend[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system/calico-node[DaemonSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system/calico-node-frontend[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system/calico-node-frontend[DaemonSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system/calico-node-frontend[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system/calico-node[DaemonSet] => 0.0.0.0-255.255.255.255
+kube-system/calico-node[DaemonSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system/calico-node[DaemonSet] => default/cog-agents[DaemonSet]
+kube-system/calico-node[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system/calico-node[DaemonSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system/calico-node[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system/calico-node[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system/calico-node[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system/calico-node[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system/calico-node[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system/calico-node[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system/calico-node[DaemonSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system/calico-node[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system/calico-node[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system/calico-node[DaemonSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system/calico-node[DaemonSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system/calico-node[DaemonSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system/calico-node[DaemonSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system/calico-node[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system/calico-node[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system/calico-node[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system/calico-node[DaemonSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system/calico-node[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => 0.0.0.0-255.255.255.255
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => default/cog-agents[DaemonSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/calico-node[DaemonSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => 0.0.0.0-255.255.255.255
+kube-system/heapster-7df8cb8c66[ReplicaSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => default/cog-agents[DaemonSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/calico-node[DaemonSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system/heapster-7df8cb8c66[ReplicaSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => 0.0.0.0-255.255.255.255
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => default/cog-agents[DaemonSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system/calico-node[DaemonSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system/keepalived-watcher-not-frontend[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system/keepalived-watcher[DaemonSet] => 0.0.0.0-255.255.255.255
+kube-system/keepalived-watcher[DaemonSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system/keepalived-watcher[DaemonSet] => default/cog-agents[DaemonSet]
+kube-system/keepalived-watcher[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system/keepalived-watcher[DaemonSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system/keepalived-watcher[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system/calico-node[DaemonSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system/keepalived-watcher[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system/keepalived-watcher[DaemonSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system/keepalived-watcher[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => 0.0.0.0-255.255.255.255
+kube-system/kube-fluentd-frontend[DaemonSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => default/cog-agents[DaemonSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system/calico-node[DaemonSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system/kube-fluentd-frontend[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system/kube-fluentd[DaemonSet] => 0.0.0.0-255.255.255.255
+kube-system/kube-fluentd[DaemonSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system/kube-fluentd[DaemonSet] => default/cog-agents[DaemonSet]
+kube-system/kube-fluentd[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system/kube-fluentd[DaemonSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system/kube-fluentd[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system/calico-node[DaemonSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system/kube-fluentd[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system/kube-fluentd[DaemonSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system/kube-fluentd[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => 0.0.0.0-255.255.255.255
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => default/cog-agents[DaemonSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/calico-node[DaemonSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => 0.0.0.0-255.255.255.255
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => default/cog-agents[DaemonSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/calico-node[DaemonSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => vendor-system/foofoo-app[ReplicaSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => 0.0.0.0-255.255.255.255
+kube-system/vpn-858f6d9777[ReplicaSet] => default/cog-agents-analyzer[DaemonSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => default/cog-agents[DaemonSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => demo/cog-agents-account-query[DaemonSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => demo/cog-agents-bank-ui[DaemonSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/calico-node-frontend[DaemonSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/calico-node[DaemonSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/keepalived-watcher[DaemonSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/kube-fluentd[DaemonSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => vendor-system/barbar-app[ReplicaSet]
+kube-system/vpn-858f6d9777[ReplicaSet] => vendor-system/foofoo-app[ReplicaSet]
+vendor-system/barbar-app[ReplicaSet] => 0.0.0.0-255.255.255.255
+vendor-system/barbar-app[ReplicaSet] => default/cog-agents-analyzer[DaemonSet]
+vendor-system/barbar-app[ReplicaSet] => default/cog-agents[DaemonSet]
+vendor-system/barbar-app[ReplicaSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+vendor-system/barbar-app[ReplicaSet] => demo/cog-agents-account-query[DaemonSet]
+vendor-system/barbar-app[ReplicaSet] => demo/cog-agents-bank-ui[DaemonSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system/calico-node-frontend[DaemonSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system/calico-node[DaemonSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system/keepalived-watcher[DaemonSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system/kube-fluentd[DaemonSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+vendor-system/barbar-app[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+vendor-system/barbar-app[ReplicaSet] => vendor-system/foofoo-app[ReplicaSet]
+vendor-system/foofoo-app[ReplicaSet] => 0.0.0.0-255.255.255.255
+vendor-system/foofoo-app[ReplicaSet] => default/cog-agents-analyzer[DaemonSet]
+vendor-system/foofoo-app[ReplicaSet] => default/cog-agents[DaemonSet]
+vendor-system/foofoo-app[ReplicaSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]
+vendor-system/foofoo-app[ReplicaSet] => demo/cog-agents-account-query[DaemonSet]
+vendor-system/foofoo-app[ReplicaSet] => demo/cog-agents-bank-ui[DaemonSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system/calico-node-frontend[DaemonSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system/calico-node[DaemonSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system/keepalived-watcher[DaemonSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system/kube-fluentd-frontend[DaemonSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system/kube-fluentd[DaemonSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]
+vendor-system/foofoo-app[ReplicaSet] => kube-system/vpn-858f6d9777[ReplicaSet]
+vendor-system/foofoo-app[ReplicaSet] => vendor-system/barbar-app[ReplicaSet]

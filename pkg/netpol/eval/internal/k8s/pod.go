@@ -271,7 +271,7 @@ func (pod *Pod) PodExposedTCPConnections() *common.ConnectionSet {
 		protocol := corev1.ProtocolTCP
 		if cPort.Protocol == "" || protocol == corev1.ProtocolTCP {
 			ports := common.MakePortSet(false)
-			ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort))
+			ports.AddPortRange(int64(cPort.ContainerPort), int64(cPort.ContainerPort), true, "", "", true)
 			res.AddConnection(protocol, ports)
 		}
 	}
@@ -301,12 +301,12 @@ func (pod *Pod) UpdatePodXgressExposureToEntireClusterData(ruleConns *common.Con
 		// matching port number
 		convertedConns := pod.checkAndConvertNamedPortsInConnection(ruleConns)
 		if convertedConns != nil {
-			pod.IngressExposureData.ClusterWideConnection.Union(convertedConns)
+			pod.IngressExposureData.ClusterWideConnection.Union(convertedConns, false)
 		} else {
-			pod.IngressExposureData.ClusterWideConnection.Union(ruleConns)
+			pod.IngressExposureData.ClusterWideConnection.Union(ruleConns, false)
 		}
 	} else {
-		pod.EgressExposureData.ClusterWideConnection.Union(ruleConns)
+		pod.EgressExposureData.ClusterWideConnection.Union(ruleConns, false)
 	}
 }
 
@@ -320,7 +320,7 @@ func (pod *Pod) checkAndConvertNamedPortsInConnection(conns *common.ConnectionSe
 	connsCopy := conns.Copy() // copying the connectionSet; in order to replace
 	// the named ports with pod's port numbers if possible
 	for protocol, namedPorts := range connNamedPorts {
-		for _, namedPort := range namedPorts {
+		for namedPort, implyingRules := range namedPorts {
 			// get the matching protocol and port-number from the pod-configuration
 			podProtocol, portNum := pod.ConvertPodNamedPort(namedPort)
 			if podProtocol != "" && portNum != common.NoPort { // there is a matching containerPort in the pod configuration
@@ -328,12 +328,12 @@ func (pod *Pod) checkAndConvertNamedPortsInConnection(conns *common.ConnectionSe
 				case "": // if empty - means inferred from an ANP rule
 					// in this case we need to add the matching connection (pods' protocol+number) to the connsCopy
 					newPort := common.MakePortSet(false)
-					newPort.AddPort(intstr.FromInt32(portNum))
+					newPort.AddPort(intstr.FromInt32(portNum), implyingRules)
 					connsCopy.AddConnection(corev1.Protocol(podProtocol), newPort)
 					// and remove the entry with "" protocol from connsCopy
 					delete(connsCopy.AllowedProtocols, protocol)
 				default: // protocol is defined, replace named-port of the given protocol with its matching number
-					connsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum)
+					connsCopy.ReplaceNamedPortWithMatchingPortNum(protocol, namedPort, portNum, implyingRules)
 				}
 			}
 		}

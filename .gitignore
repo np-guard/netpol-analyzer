@@ -23,3 +23,4 @@ bin/
 
 # connectivity maps generated in tests
 pkg/netpol/eval/*.txt
+out/

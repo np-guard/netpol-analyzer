@@ -45,9 +45,10 @@ func getMDLine(c singleConnFields, srcFirst bool) string {
 
 // writeOutput returns a md string form of connections from list of Peer2PeerConnection objects,
 // and exposure analysis results from list ExposedPeer if exists
-func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error) {
+// explain input is ignored since not supported with this format
+func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool) (string, error) {
 	// first write connlist lines
-	allLines := md.writeMdConnlistLines(conns, exposureFlag)
+	allLines := md.writeMdConnlistLines(conns, exposureFlag, false)
 	if !exposureFlag {
 		return strings.Join(allLines, newLineChar) + newLineChar, nil
 	}
@@ -66,9 +67,9 @@ func writeMdLines(conns []singleConnFields, srcFirst bool) []string {
 }
 
 // writeMdConnlistLines returns md lines from the list of Peer2PeerConnection
-func (md *formatMD) writeMdConnlistLines(conns []Peer2PeerConnection, saveIPConns bool) []string {
+func (md *formatMD) writeMdConnlistLines(conns []Peer2PeerConnection, saveIPConns, explain bool) []string {
 	md.ipMaps = createIPMaps(saveIPConns)
-	sortedConns := getConnlistAsSortedSingleConnFieldsArray(conns, md.ipMaps, saveIPConns)
+	sortedConns := getConnlistAsSortedSingleConnFieldsArray(conns, md.ipMaps, saveIPConns, explain)
 	connlistLines := []string{getMDHeader(true)} // connlist results are formatted: src | dst | conn
 	connlistLines = append(connlistLines, writeMdLines(sortedConns, true)...)
 	return connlistLines

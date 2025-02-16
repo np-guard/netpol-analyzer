@@ -1,0 +1,48 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
+
+Allowed connections:
+	Allowed TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
+			[ANP] exposure-pass-example // Ingress rule pass-all-internal-ingress (Pass)
+			the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[ANP] exposure-pass-example // Ingress rule pass-all-internal-ingress (Pass)
+			[BANP] default // Ingress rule deny-all-internal-connections (Deny)
+
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
+0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]
+0.0.0.0-255.255.255.255 => hello-world/workload-b[Deployment]
+hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255
+hello-world/workload-b[Deployment] => 0.0.0.0-255.255.255.255
+
+Exposure Analysis Result:
+Egress Exposure:
+hello-world/workload-a[Deployment] 	=> 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-a[Deployment] 	=> 	entire-cluster : All Connections
+hello-world/workload-b[Deployment] 	=> 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-b[Deployment] 	=> 	entire-cluster : All Connections
+
+Ingress Exposure:
+hello-world/workload-a[Deployment] 	<= 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-b[Deployment] 	<= 	0.0.0.0-255.255.255.255 : All Connections
+hello-world/workload-b[Deployment] 	<= 	entire-cluster : All Connections
+
+Workloads not protected by network policies:
+hello-world/workload-a[Deployment] is not protected on Egress
+hello-world/workload-b[Deployment] is not protected on Egress

@@ -29,13 +29,14 @@ type exposureFields struct {
 
 // writeOutput returns a json string form of connections from list of Peer2PeerConnection objects
 // and exposure analysis results from list ExposedPeer if exists
-func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error) {
+// explain input is ignored since not supported with this format
+func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool) (string, error) {
 	j.ipMaps = createIPMaps(exposureFlag)
 	// output variables
 	var jsonConns []byte
 	var err error
 	// get an array of sorted connlist items ([]singleConnFields)
-	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, j.ipMaps, exposureFlag)
+	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, j.ipMaps, exposureFlag, false)
 	if exposureFlag {
 		// get an array of sorted exposure items
 		ingressExposureItems, egressExposureItems, _ := getExposureConnsAsSortedSingleConnFieldsArray(exposureConns, j.ipMaps)

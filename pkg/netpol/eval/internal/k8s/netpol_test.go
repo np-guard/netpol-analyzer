@@ -11,7 +11,10 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 /*func TestCreatePod(t *testing.T) {
@@ -93,8 +96,18 @@ func TestNetworkPolicyPortAnalysis(t *testing.T) {
 		Protocol: &UDP,
 		Port:     &PortHello,
 	}
-	n := &NetworkPolicy{}
-	res, err := n.ruleConnections([]netv1.NetworkPolicyPort{AllowNamedPortOnProtocol}, &dst)
+	n := &NetworkPolicy{
+		&netv1.NetworkPolicy{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-name",
+				Namespace: "test-namespace",
+			},
+		},
+		NewPolicyConnections(),
+		NewPolicyConnections(),
+		common.Warnings{},
+	}
+	res, err := n.ruleConnections([]netv1.NetworkPolicyPort{AllowNamedPortOnProtocol}, &dst, 0, false)
 	expectedConnStr := "UDP 22"
 	if res.String() != expectedConnStr {
 		t.Fatalf("mismatch on ruleConnections result: expected %v, got %v", expectedConnStr, res.String())

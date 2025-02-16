@@ -45,22 +45,24 @@ func (pc *PolicyConnections) UpdateWithRuleConns(ruleConns *common.ConnectionSet
 	// banpRules indicates if the rules are coming from BANP; flag used to check the rule Actions are valid since:
 	// Unlike AdminNetworkPolicies that enable: "Pass, Deny or Allow" as the action of each rule.
 	// BaselineAdminNetworkPolicies allows only "Allow and Deny" as the action of each rule.
+	// 'false' in the Union calls below indicates to not collect explainability rules, since in the ANP/BANP level
+	// rule order defines their precedence, and so each connection may ve defined by at most one rule.
 	switch ruleAction {
 	case string(apisv1a.AdminNetworkPolicyRuleActionAllow):
 		ruleConns.Subtract(pc.DeniedConns)
 		ruleConns.Subtract(pc.PassConns)
-		pc.AllowedConns.Union(ruleConns)
+		pc.AllowedConns.Union(ruleConns, false)
 	case string(apisv1a.AdminNetworkPolicyRuleActionDeny):
 		ruleConns.Subtract(pc.AllowedConns)
 		ruleConns.Subtract(pc.PassConns)
-		pc.DeniedConns.Union(ruleConns)
+		pc.DeniedConns.Union(ruleConns, false)
 	case string(apisv1a.AdminNetworkPolicyRuleActionPass):
 		if banpRules {
 			return fmt.Errorf(netpolerrors.UnknownRuleActionErr)
 		}
 		ruleConns.Subtract(pc.AllowedConns)
 		ruleConns.Subtract(pc.DeniedConns)
-		pc.PassConns.Union(ruleConns)
+		pc.PassConns.Union(ruleConns, false)
 	default:
 		return fmt.Errorf(netpolerrors.UnknownRuleActionErr)
 	}
@@ -79,9 +81,16 @@ func (pc *PolicyConnections) CollectANPConns(newAdminPolicyConns *PolicyConnecti
 	newAdminPolicyConns.PassConns.Subtract(pc.DeniedConns)
 	newAdminPolicyConns.PassConns.Subtract(pc.AllowedConns)
 	// add the new conns from current policy to the connections from the policies with higher precedence
-	pc.DeniedConns.Union(newAdminPolicyConns.DeniedConns)
-	pc.AllowedConns.Union(newAdminPolicyConns.AllowedConns)
-	pc.PassConns.Union(newAdminPolicyConns.PassConns)
+	// 'false' in the Union calls below indicates to not collect explainability rules, since in the ANP level
+	// each connection may ve defined by at most one ANP (according to the precedence).
+	pc.DeniedConns.Union(newAdminPolicyConns.DeniedConns, false)
+	pc.AllowedConns.Union(newAdminPolicyConns.AllowedConns, false)
+	pc.PassConns.Union(newAdminPolicyConns.PassConns, false)
+}
+
+// ComplementPassConns complements pass connections to all connections (by adding the absent conections)
+func (pc *PolicyConnections) ComplementPassConns() {
+	pc.PassConns.Union(common.MakeConnectionSet(true), false)
 }
 
 // CollectAllowedConnsFromNetpols updates allowed conns of current PolicyConnections object with allowed connections from
@@ -92,14 +101,21 @@ func (pc *PolicyConnections) CollectANPConns(newAdminPolicyConns *PolicyConnecti
 // and any connection that is not allowed by the netpols is denied.
 // 2. pass connections in current PolicyConnections object will be determined by the input PolicyConnections parameter.
 func (pc *PolicyConnections) CollectAllowedConnsFromNetpols(npConns *PolicyConnections) {
+	// This intersection with PassConn does not have effect the resulting connectios,
+	// but it updates implying rules, representing the effect of PassConn as well
+	// We start from PassConn, and intersect it with npConns.AllowedConns,
+	// because the order of intersection impacts the order of implying rules.
+	newConn := pc.PassConns.Copy()
+	newConn.Intersection(npConns.AllowedConns) // collect implying rules from pc.PassConns and npConns.AllowedConns
 	// subtract the denied conns (which are non-overridden) from input conns
-	npConns.AllowedConns.Subtract(pc.DeniedConns)
+	newConn.Subtract(pc.DeniedConns)
 	// PASS conns are determined by npConns
 	// currently, npConns.AllowedConns contains:
 	// 1. traffic that was passed by ANPs (if there are such conns)
 	// 2. traffic that had no match in ANPs
 	// so we can update current allowed conns with them
-	pc.AllowedConns.Union(npConns.AllowedConns)
+	// 'false' below: we don't add implying rules from NPs if the connections were defined by ANPs
+	pc.AllowedConns.Union(newConn, false)
 	// now pc.AllowedConns contains all allowed conns by the ANPs and NPs
 	// the content of pc.Denied and pc.Pass is not relevant anymore;
 	// all the connections that are not allowed by the ANPs and NPs are denied.
@@ -116,14 +132,22 @@ func (pc *PolicyConnections) CollectAllowedConnsFromNetpols(npConns *PolicyConne
 // is allowed by default
 func (pc *PolicyConnections) CollectConnsFromBANP(banpConns *PolicyConnections) {
 	// allowed and denied conns of current pc are non-overridden
-	banpConns.DeniedConns.Subtract(pc.AllowedConns)
-	pc.DeniedConns.Union(banpConns.DeniedConns)
-	// now Pass conns which are denied by BANP were handled automatically;
-	// Pass Conns which are allowed or not captured by BANP, will be handled now with all other conns.
-	//  pc.PassConns is not relevant anymore.
+
+	// This Union with PassConn does not have effect on the resulting connectios,
+	// but it updates implying rules, representing the effect of PassConn as well
+	// We start from PassConn, and union banpConns.DeniedConns with it,
+	// because the order of Union impacts the order of implying rules.
+	newDenied := pc.PassConns.Copy()
+	newDenied.Intersection(banpConns.DeniedConns) // collect implying rules from pc.PassConns and banpConns.DeniedConns
+	newDenied.Subtract(pc.AllowedConns)
+	pc.DeniedConns.Union(newDenied, false) // 'false' because denied conns may be already defined by pc.DeniedConns
 	// the allowed conns are "all conns - the denied conns"
-	// since all conns that are not determined by the ANP and BANP are allowed by default
-	pc.AllowedConns = common.MakeConnectionSet(true)
+	// all conns that are not determined by the ANP and BANP are allowed by default,
+	// and are kept in banpConns.AllowedConns (were returned by getXgressDefaultConns)
+	newAllowed := pc.PassConns.Copy()
+	newAllowed.Intersection(banpConns.AllowedConns) // collect implying rules from pc.PassConns and banpConns.AllowedConns
+	pc.AllowedConns.Union(newAllowed, false)        // 'false' because allowed conns may be already defined by pc.AllowedConns
+
 	pc.AllowedConns.Subtract(pc.DeniedConns)
 }
 
@@ -136,6 +160,6 @@ func (pc *PolicyConnections) IsEmpty() bool {
 // selects all the connections
 func (pc *PolicyConnections) DeterminesAllConns() bool {
 	selectedConns := pc.AllowedConns.Copy()
-	selectedConns.Union(pc.DeniedConns)
+	selectedConns.Union(pc.DeniedConns, false)
 	return selectedConns.IsAllConnections()
 }

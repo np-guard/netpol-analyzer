@@ -37,13 +37,17 @@ type ipMaps struct {
 
 // saveConnsWithIPs gets a P2P connection; if the connection includes an IP-Peer as one of its end-points; the conn is saved in the
 // matching map of the formatText maps
-func (i *ipMaps) saveConnsWithIPs(conn Peer2PeerConnection) {
-	if conn.Src().IsPeerIPType() {
-		i.PeerToConnsFromIPs[conn.Dst().String()] = append(i.PeerToConnsFromIPs[conn.Dst().String()], formSingleP2PConn(conn))
+func (i *ipMaps) saveConnsWithIPs(conn Peer2PeerConnection, explain bool) {
+	if conn.Src().IsPeerIPType() && !isEmpty(conn) {
+		i.PeerToConnsFromIPs[conn.Dst().String()] = append(i.PeerToConnsFromIPs[conn.Dst().String()], formSingleP2PConn(conn, explain))
 	}
-	if conn.Dst().IsPeerIPType() {
-		i.peerToConnsToIPs[conn.Src().String()] = append(i.peerToConnsToIPs[conn.Src().String()], formSingleP2PConn(conn))
+	if conn.Dst().IsPeerIPType() && !isEmpty(conn) {
+		i.peerToConnsToIPs[conn.Src().String()] = append(i.peerToConnsToIPs[conn.Src().String()], formSingleP2PConn(conn, explain))
 	}
+}
+
+func isEmpty(conn Peer2PeerConnection) bool {
+	return !conn.AllProtocolsAndPorts() && len(conn.ProtocolsAndPorts()) == 0
 }
 
 // createIPMaps returns an ipMaps object with empty maps if required
@@ -57,14 +61,15 @@ func createIPMaps(initMapsFlag bool) (ipMaps ipMaps) {
 
 // connsFormatter implements output formatting in the required output format
 type connsFormatter interface {
-	writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error)
+	writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool, explain bool) (string, error)
 }
 
 // singleConnFields represents a single connection object
 type singleConnFields struct {
-	Src        string `json:"src"`
-	Dst        string `json:"dst"`
-	ConnString string `json:"conn"`
+	Src         string `json:"src"`
+	Dst         string `json:"dst"`
+	ConnString  string `json:"conn"`
+	explanation string
 }
 
 // string representation of the singleConnFields struct
@@ -72,10 +77,22 @@ func (c singleConnFields) string() string {
 	return fmt.Sprintf("%s => %s : %s", c.Src, c.Dst, c.ConnString)
 }
 
+func (c singleConnFields) nodePairString() string {
+	return fmt.Sprintf("%s => %s", c.Src, c.Dst)
+}
+
+func (c singleConnFields) stringWithExplanation() string {
+	return fmt.Sprintf("Connections between %s => %s:\n\n%s", c.Src, c.Dst, c.explanation)
+}
+
 // formSingleP2PConn returns a string representation of single connection fields as singleConnFields object
-func formSingleP2PConn(conn Peer2PeerConnection) singleConnFields {
+func formSingleP2PConn(conn Peer2PeerConnection, explain bool) singleConnFields {
 	connStr := common.ConnStrFromConnProperties(conn.AllProtocolsAndPorts(), conn.ProtocolsAndPorts())
-	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr}
+	expl := ""
+	if explain {
+		expl = common.ExplanationFromConnProperties(conn.AllProtocolsAndPorts(), conn.(*connection).commonImplyingRules, conn.ProtocolsAndPorts())
+	}
+	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr, explanation: expl}
 }
 
 // commonly (to be) used for exposure analysis output formatters
@@ -181,13 +198,19 @@ func getRepresentativePodString(podLabels v1.LabelSelector, txtOutFlag bool) str
 
 // getConnlistAsSortedSingleConnFieldsArray returns a sorted singleConnFields list from Peer2PeerConnection list.
 // creates ipMaps object if the format requires it (to be used for exposure results later)
-func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMaps ipMaps, saveToIPMaps bool) []singleConnFields {
-	connItems := make([]singleConnFields, len(conns))
-	for i := range conns {
+func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMaps ipMaps, saveToIPMaps, explain bool) []singleConnFields {
+	connItems := make([]singleConnFields, 0)
+	for _, conn := range conns {
 		if saveToIPMaps {
-			ipMaps.saveConnsWithIPs(conns[i])
+			ipMaps.saveConnsWithIPs(conn, explain)
 		}
-		connItems[i] = formSingleP2PConn(conns[i])
+		// Note that : for formats other than 'txt' - if the `explain` flag was on for the analyzer -
+		// we get here with explain=false (ignored for output) and display regular connlist; However,
+		// the analyzer stored empty connections - that we don't want to display them on regular connlist
+		if !explain && isEmpty(conn) {
+			continue
+		}
+		connItems = append(connItems, formSingleP2PConn(conn, explain))
 	}
 	return sortConnFields(connItems, true)
 }

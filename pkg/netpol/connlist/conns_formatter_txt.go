@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // formatText: implements the connsFormatter interface for txt output format
@@ -19,8 +21,8 @@ type formatText struct {
 
 // writeOutput returns a textual string format of connections from list of Peer2PeerConnection objects,
 // and exposure analysis results if exist
-func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool) (string, error) {
-	res := t.writeConnlistOutput(conns, exposureFlag)
+func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool) (string, error) {
+	res := t.writeConnlistOutput(conns, exposureFlag, explain)
 	if !exposureFlag {
 		return res, nil
 	}
@@ -33,22 +35,69 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 }
 
 // writeConnlistOutput writes the section of the connlist result of the output
-func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns bool) string {
-	connLines := make([]string, len(conns))
+func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool) string {
+	connLines := make([]singleConnFields, 0, len(conns))
+	defaultConnLines := make([]singleConnFields, 0, len(conns))
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
-		connLines[i] = formSingleP2PConn(conns[i]).string()
+		p2pConn := formSingleP2PConn(conns[i], explain)
+		if explain && conns[i].(*connection).onlyDefaultRule() {
+			defaultConnLines = append(defaultConnLines, p2pConn)
+		} else {
+			connLines = append(connLines, p2pConn)
+		}
 		// if we have exposure analysis results, also check if src/dst is an IP and store the connection
 		if saveIPConns {
-			t.ipMaps.saveConnsWithIPs(conns[i])
+			t.ipMaps.saveConnsWithIPs(conns[i], explain)
 		}
 	}
-	sort.Strings(connLines)
-	return strings.Join(connLines, newLineChar) + newLineChar
+	result := ""
+	if explain {
+		sortConnFields(connLines, true)
+		sortConnFields(defaultConnLines, true)
+		result = writeSingleTypeLinesExplanationOutput(connLines, specificConnHeader, false) +
+			writeSingleTypeLinesExplanationOutput(defaultConnLines, systemDefaultPairsHeader, true)
+	} else {
+		sortConnFields(connLines, true)
+		for _, p2pConn := range connLines {
+			result += p2pConn.string() + newLineChar
+		}
+	}
+	return result
+}
+
+func writeSingleTypeLinesExplanationOutput(lines []singleConnFields, header string, pairsOnly bool) string {
+	if len(lines) == 0 {
+		return ""
+	}
+	result := writeGroupHeader(header)
+	for _, p2pConn := range lines {
+		if pairsOnly {
+			result += p2pConn.nodePairString() + newLineChar
+		} else {
+			result += nodePairSeparationLine
+			result += p2pConn.stringWithExplanation()
+		}
+	}
+	return result
+}
+
+const headerSep = "#"
+
+func writeGroupHeader(header string) string {
+	headerLine := headerSep + common.SpaceSeparator + header + common.SpaceSeparator + headerSep
+	result := newLineChar + strings.Repeat(headerSep, len(headerLine)) + newLineChar
+	result += headerLine
+	result += newLineChar + strings.Repeat(headerSep, len(headerLine)) + newLineChar
+	return result
 }
 
 const (
-	unprotectedHeader = "\nWorkloads not protected by network policies:\n"
+	unprotectedHeader        = "\nWorkloads not protected by network policies:\n"
+	separationLine80         = "--------------------------------------------------------------------------------"
+	nodePairSeparationLine   = separationLine80 + separationLine80 + common.NewLine
+	systemDefaultPairsHeader = common.AllConnsStr + common.SpaceSeparator + common.ExplSystemDefault
+	specificConnHeader       = "Specific connections and their reasons"
 )
 
 // writeExposureOutput writes the section of the exposure-analysis result
