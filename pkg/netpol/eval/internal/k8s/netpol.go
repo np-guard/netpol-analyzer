@@ -377,39 +377,50 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 }
 
 const (
-	CapturedButNotSelectedTxt  = "captured but not selected by any %s rule"
+	CapturedButNotSelectedTxt  = "%s is selected by the policy, but %s is not selected by any %s rule"
 	CapturedButNotSelectedExpl = "(" + CapturedButNotSelectedTxt + ")"
 	NoXgressRulesExpl          = "(" + CapturedButNotSelectedTxt + " - no rules defined)"
 	NPRuleKind                 = "NP"
 )
 
-func (np *NetworkPolicy) nameWithDirectionAndExpl(isIngress bool, expl string) string {
+func constPeerString(peer Peer) string {
+	peerStr := peer.String()
+	if peer.PeerType() != IPBlockType {
+		peerStr = (&WorkloadPeer{peer.GetPeerPod()}).String()
+	}
+	return peerStr
+}
+func (np *NetworkPolicy) nameWithDirectionAndExpl(isIngress bool, expl string, policyPeer, rulePeer Peer) string {
+	// print the explanation with the pod's owner-name not the peer instance name unless it is ip-block
+	policyPeerStr := constPeerString(policyPeer)
+	rulePeerStr := constPeerString(rulePeer)
 	xgress := "Egress"
 	if isIngress {
 		xgress = "Ingress"
 	}
-	return fmt.Sprintf("%s // %s "+expl, np.FullName(), xgress, xgress)
+	return fmt.Sprintf("%s // %s "+expl, np.FullName(), xgress, policyPeerStr, rulePeerStr, xgress)
 }
 
 // GetXgressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer (for Ingress)
 // or from any captured pod to the dst peer (for Egress)
 func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
-	if (isIngress && len(np.Spec.Ingress) == 0) || (!isIngress && len(np.Spec.Egress) == 0) {
-		res.AddCommonImplyingRule(NPRuleKind, np.nameWithDirectionAndExpl(isIngress, NoXgressRulesExpl), isIngress)
+	numOfRules := len(np.Spec.Egress)
+	peerToSelect := dst // the peer to check if selected by policy rules
+	policyPeer := src   // the peer captured by the policy
+	if isIngress {
+		numOfRules = len(np.Spec.Ingress)
+		peerToSelect = src
+		policyPeer = dst
+	}
+	if numOfRules == 0 {
+		res.AddCommonImplyingRule(NPRuleKind, np.nameWithDirectionAndExpl(isIngress, NoXgressRulesExpl, policyPeer, peerToSelect),
+			isIngress)
 		return res, nil
 	}
 	peerSelectedByAnyRule := false
-	numOfRules := len(np.Spec.Egress)
-	if isIngress {
-		numOfRules = len(np.Spec.Ingress)
-	}
 	for idx := 0; idx < numOfRules; idx++ {
 		rulePeers, rulePorts := np.rulePeersAndPorts(idx, isIngress)
-		peerToSelect := dst
-		if isIngress {
-			peerToSelect = src
-		}
 		peerSelected, err := np.ruleSelectsPeer(rulePeers, peerToSelect)
 		if err != nil {
 			return res, err
@@ -428,7 +439,8 @@ func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*
 		}
 	}
 	if !peerSelectedByAnyRule {
-		res.AddCommonImplyingRule(NPRuleKind, np.nameWithDirectionAndExpl(isIngress, CapturedButNotSelectedExpl), isIngress)
+		res.AddCommonImplyingRule(NPRuleKind, np.nameWithDirectionAndExpl(isIngress, CapturedButNotSelectedExpl, policyPeer, peerToSelect),
+			isIngress)
 	}
 	return res, nil
 }

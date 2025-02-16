@@ -9,7 +9,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			[NP] helloworld/enable-ingress-from-named-port // Ingress (captured but not selected by any Ingress rule)
+			[NP] helloworld/enable-ingress-from-named-port // Ingress (helloworld/pod-a[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between helloworld/new-pod[Deployment] => helloworld/pod-a[Deployment]:
@@ -26,7 +26,7 @@ Connections between helloworld/pod-a[Deployment] => 0.0.0.0-255.255.255.255:
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Denied)
-			[NP] helloworld/enable-ingress-from-named-port // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] helloworld/enable-ingress-from-named-port // Egress (helloworld/pod-a[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ Connections between helloworld/pod-a[Deployment] => helloworld/new-pod[Deploymen
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Denied)
-			[NP] helloworld/enable-ingress-from-named-port // Egress (captured but not selected by any Egress rule - no rules defined)
+			[NP] helloworld/enable-ingress-from-named-port // Egress (helloworld/pod-a[Deployment] is selected by the policy, but helloworld/new-pod[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 

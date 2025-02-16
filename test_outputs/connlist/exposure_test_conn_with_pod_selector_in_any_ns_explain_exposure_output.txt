@@ -9,7 +9,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies // rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			[NP] hello-world/allow-ingress-to-pod-in-any-ns // Ingress (captured but not selected by any Ingress rule)
+			[NP] hello-world/allow-ingress-to-pod-in-any-ns // Ingress (hello-world/workload-a[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
 
 
 #########################################################
