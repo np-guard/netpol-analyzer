@@ -1,0 +1,6 @@
+default/checkoutservice[Deployment] => default/cartservice[Deployment] : TCP 7070
+default/checkoutservice[Deployment] => default/currencyservice[Deployment] : TCP 7000
+default/checkoutservice[Deployment] => default/emailservice[Deployment] : TCP 8080
+default/checkoutservice[Deployment] => default/paymentservice[Deployment] : TCP 50051
+default/checkoutservice[Deployment] => default/productcatalogservice[Deployment] : TCP 3550
+default/checkoutservice[Deployment] => default/shippingservice[Deployment] : TCP 50051

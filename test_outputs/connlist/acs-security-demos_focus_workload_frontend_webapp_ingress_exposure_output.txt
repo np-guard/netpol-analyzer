@@ -1,0 +1,5 @@
+{ingress-controller} => frontend/webapp[Deployment] : TCP 8080
+
+Exposure Analysis Result:
+Ingress Exposure:
+frontend/webapp[Deployment] 	<= 	entire-cluster : TCP 8080

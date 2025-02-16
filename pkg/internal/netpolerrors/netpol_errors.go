@@ -169,3 +169,7 @@ func ANPsWithSameNameErr(anpName string) string {
 func NPWithSameNameError(npName string) string {
 	return fmt.Sprintf("NetworkPolicy %q already exists. %s", npName, uniquenessRequest)
 }
+
+func FocusDirectionNotSupported(focusDirection string) string {
+	return focusDirection + " focus direction is not supported."
+}

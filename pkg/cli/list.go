@@ -21,6 +21,7 @@ import (
 
 var (
 	focusWorkload    string
+	focusDirection   string
 	exposureAnalysis bool
 	explain          bool
 	output           string // output format
@@ -77,6 +78,7 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 	res := []connlist.ConnlistAnalyzerOption{
 		connlist.WithLogger(l),
 		connlist.WithFocusWorkload(focusWorkload),
+		connlist.WithFocusDirection(focusDirection),
 		connlist.WithOutputFormat(output),
 	}
 
@@ -109,6 +111,9 @@ defined`,
 			if err := connlist.ValidateOutputFormat(output); err != nil {
 				return err
 			}
+			if err := connlist.ValidateFocusDirectionValue(focusDirection); err != nil {
+				return err
+			}
 			// call parent pre-run
 			if parent := cmd.Parent(); parent != nil {
 				if parent.PersistentPreRunE != nil {
@@ -133,6 +138,8 @@ defined`,
 	// Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
 	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "",
 		"Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)")
+	c.Flags().StringVarP(&focusDirection, "focus-direction", "", "",
+		"Filter connlist of specified workload for input direction {ingress, egress, both (default both)}")
 	c.Flags().BoolVarP(&exposureAnalysis, "exposure", "", false, "Enhance the analysis of permitted connectivity with exposure analysis")
 	c.Flags().BoolVarP(&explain, "explain", "", false, "Enhance the analysis of permitted connectivity with explainability information")
 	// output format - default txt

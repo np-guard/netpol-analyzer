@@ -14,3 +14,11 @@ const (
 
 	CtxTimeoutSeconds = 3
 )
+
+// Focus direction values consts
+const (
+	BothFocusDirection    = "both"
+	IngressFocusDirection = "ingress"
+	EgressFocusDirection  = "egress"
+	DefaultFocusDirection = BothFocusDirection
+)

@@ -48,6 +48,7 @@ type ConnlistAnalyzer struct {
 	stopOnError      bool
 	errors           []ConnlistError
 	focusWorkload    string
+	focusDirection   string
 	exposureAnalysis bool
 	exposureResult   []ExposedPeer
 	explain          bool
@@ -132,6 +133,12 @@ func WithFocusWorkload(workload string) ConnlistAnalyzerOption {
 	}
 }
 
+func WithFocusDirection(direction string) ConnlistAnalyzerOption {
+	return func(p *ConnlistAnalyzer) {
+		p.focusDirection = direction
+	}
+}
+
 // WithExposureAnalysis is a functional option which directs ConnlistAnalyzer to perform exposure analysis
 func WithExposureAnalysis() ConnlistAnalyzerOption {
 	return func(c *ConnlistAnalyzer) {
@@ -179,7 +186,22 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	if ca.explain && ca.outputFormat != output.DefaultFormat {
 		ca.logger.Warnf(alerts.WarnIncompatibleFormat(ca.outputFormat))
 	}
+	if ca.focusWorkload == "" && ca.focusDirection != "" {
+		ca.logger.Warnf(alerts.WarnIgnoredFocusDirection)
+	}
+	if ca.focusWorkload != "" && ca.focusDirection == "" {
+		// assign default
+		ca.focusDirection = pkgcommon.DefaultFocusDirection
+	}
 	return ca
+}
+
+func ValidateFocusDirectionValue(focusDirection string) error {
+	if focusDirection != "" && focusDirection != pkgcommon.BothFocusDirection && focusDirection != pkgcommon.IngressFocusDirection &&
+		focusDirection != pkgcommon.EgressFocusDirection {
+		return errors.New(netpolerrors.FocusDirectionNotSupported(focusDirection))
+	}
+	return nil
 }
 
 // Errors returns a slice of ConnlistError with all warnings and errors encountered during processing.
@@ -423,8 +445,13 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, d
 	if ca.exposureAnalysis && !ca.includePairWithRepresentativePeer(pe, src, dst) {
 		return false
 	}
-
-	// no focus-workload or at least one of src/dst should be the focus workload
+	if ca.focusDirection == pkgcommon.IngressFocusDirection && !ca.isPeerFocusWorkload(dst) {
+		return false
+	}
+	if ca.focusDirection == pkgcommon.EgressFocusDirection && !ca.isPeerFocusWorkload(src) {
+		return false
+	}
+	// no focus-workload or at least one of src/dst should be the focus workload (and focus direction is both)
 	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
 }
 
@@ -536,6 +563,10 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 
 	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
 
+	// validate focus-direction
+	if err := ValidateFocusDirectionValue(ca.focusDirection); err != nil {
+		return nil, nil, err
+	}
 	// if ca.focusWorkload is not empty, check if it exists in the peers before proceeding
 	existFocusWorkload, warningMsg := ca.existsFocusWorkload(excludeIngressAnalysis)
 	if ca.focusWorkload != "" && !existFocusWorkload {

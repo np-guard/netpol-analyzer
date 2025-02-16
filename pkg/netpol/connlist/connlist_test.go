@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
@@ -82,7 +83,7 @@ func TestConnListFromDir(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
-				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format, tt.exposureAnalysis)
+				pTest := prepareTest(tt.testDirName, tt.focusWorkload, tt.focusDirection, format, tt.exposureAnalysis)
 				res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
@@ -100,7 +101,7 @@ func TestConnListFromResourceInfos(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
-				pTest := prepareTest(tt.testDirName, tt.focusWorkload, format, tt.exposureAnalysis)
+				pTest := prepareTest(tt.testDirName, tt.focusWorkload, tt.focusDirection, format, tt.exposureAnalysis)
 				infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
 				// require.Empty(t, errs, testInfo) - TODO: add info about expected errors
 				// from each test here (these errors do not stop the analysis or affect the output)
@@ -384,7 +385,7 @@ func testFatalErr(t *testing.T,
 
 func getAnalysisResFromAPI(apiName, dirName, focusWorkload string) (
 	analyzer *ConnlistAnalyzer, connsRes []Peer2PeerConnection, peersRes []Peer, err error) {
-	pTest := prepareTest(dirName, focusWorkload, output.DefaultFormat, false)
+	pTest := prepareTest(dirName, focusWorkload, "", output.DefaultFormat, false)
 	switch apiName {
 	case ResourceInfosFunc:
 		infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
@@ -599,6 +600,7 @@ func TestLoggerWarnings(t *testing.T) {
 	cases := []struct {
 		name                        string
 		dirName                     string
+		focusDirection              string
 		expectedWarningsStrContains []string
 	}{
 		{
@@ -630,11 +632,17 @@ func TestLoggerWarnings(t *testing.T) {
 			dirName:                     "anp_test_named_ports_multiple_peers",
 			expectedWarningsStrContains: []string{alerts.WarnNamedPortIgnoredForIP},
 		},
+		{
+			name:                        "using_focus_direction_without_focus_workload",
+			dirName:                     "anp_test_named_ports_multiple_peers",
+			focusDirection:              common.BothFocusDirection,
+			expectedWarningsStrContains: []string{alerts.WarnIgnoredFocusDirection},
+		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tLogger := testutils.NewTestLogger()
-			_, _, err := getConnlistFromDirPathRes([]ConnlistAnalyzerOption{WithLogger(tLogger)}, tt.dirName)
+			_, _, err := getConnlistFromDirPathRes([]ConnlistAnalyzerOption{WithLogger(tLogger), WithFocusDirection(tt.focusDirection)}, tt.dirName)
 			require.Nil(t, err, "test: %q", tt.name)
 			logMsges := tLogger.GetLoggerMessages()
 			for _, warn := range tt.expectedWarningsStrContains {
@@ -711,13 +719,15 @@ type preparedTest struct {
 	analyzer               *ConnlistAnalyzer
 }
 
-func prepareTest(dirName, focusWorkload, format string, exposureFlag bool) preparedTest {
+func prepareTest(dirName, focusWorkload, focusDirection, format string, exposureFlag bool) preparedTest {
 	res := preparedTest{}
-	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, format, exposureFlag)
+	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, focusDirection,
+		format, exposureFlag)
 	res.testInfo = fmt.Sprintf("test: %q, output format: %q", res.testName, format)
-	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload))
+	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload), WithFocusDirection(focusDirection))
 	if exposureFlag {
-		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload), WithExposureAnalysis())
+		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload), WithFocusDirection(focusDirection),
+			WithExposureAnalysis())
 	}
 	res.analyzer = cAnalyzer
 	res.dirPath = testutils.GetTestDirPath(dirName)
@@ -754,7 +764,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			preparedTest := prepareTest(tt.dirName, "", tt.format, tt.exposureFlag)
+			preparedTest := prepareTest(tt.dirName, "", "", tt.format, tt.exposureFlag)
 			connsRes, peersRes, err := preparedTest.analyzer.ConnlistFromDirPath(preparedTest.dirPath)
 
 			require.Nil(t, err, tt.name)
@@ -768,7 +778,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error())
 
 			// re-run the test with new analyzer (to clear the analyzer.errors array )
-			preparedTest = prepareTest(tt.dirName, "", tt.format, tt.exposureFlag)
+			preparedTest = prepareTest(tt.dirName, "", "", tt.format, tt.exposureFlag)
 			infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{preparedTest.dirPath}, true, false)
 			connsRes2, peersRes2, err2 := preparedTest.analyzer.ConnlistFromResourceInfos(infos)
 
@@ -788,6 +798,7 @@ var goodPathTests = []struct {
 	testDirName      string
 	outputFormats    []string
 	focusWorkload    string
+	focusDirection   string
 	exposureAnalysis bool
 }{
 	{
@@ -978,6 +989,24 @@ var goodPathTests = []struct {
 		outputFormats: []string{output.TextFormat},
 	},
 	{
+		testDirName:    "acs-security-demos-added-workloads",
+		focusWorkload:  "backend/recommendation",
+		focusDirection: common.IngressFocusDirection,
+		outputFormats:  []string{output.TextFormat},
+	},
+	{
+		testDirName:    "acs-security-demos-added-workloads",
+		focusWorkload:  "backend/recommendation",
+		focusDirection: common.EgressFocusDirection,
+		outputFormats:  []string{output.TextFormat},
+	},
+	{
+		testDirName:    "acs-security-demos-added-workloads",
+		focusWorkload:  "backend/recommendation",
+		focusDirection: common.BothFocusDirection,
+		outputFormats:  []string{output.TextFormat},
+	},
+	{
 		testDirName:   "acs-security-demos-added-workloads",
 		focusWorkload: "asset-cache",
 		outputFormats: []string{output.TextFormat},
@@ -1003,6 +1032,22 @@ var goodPathTests = []struct {
 		// test with focus-workload that appears in exposure-analysis result
 		focusWorkload: "frontend/webapp",
 		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:      "acs-security-demos",
+		exposureAnalysis: true,
+		// test with focus-workload that appears in exposure-analysis result
+		focusWorkload:  "frontend/webapp",
+		focusDirection: common.IngressFocusDirection,
+		outputFormats:  ValidFormats,
+	},
+	{
+		testDirName:      "acs-security-demos",
+		exposureAnalysis: true,
+		// test with focus-workload that appears in exposure-analysis result
+		focusWorkload:  "frontend/webapp",
+		focusDirection: common.EgressFocusDirection,
+		outputFormats:  ValidFormats,
 	},
 	{
 		testDirName:      "acs-security-demos",
