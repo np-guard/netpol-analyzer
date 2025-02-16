@@ -189,15 +189,11 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	if ca.focusWorkload == "" && ca.focusDirection != "" {
 		ca.logger.Warnf(alerts.WarnIgnoredFocusDirection)
 	}
-	if ca.focusWorkload != "" && ca.focusDirection == "" {
-		// assign default
-		ca.focusDirection = pkgcommon.DefaultFocusDirection
-	}
 	return ca
 }
 
 func ValidateFocusDirectionValue(focusDirection string) error {
-	if focusDirection != "" && focusDirection != pkgcommon.BothFocusDirection && focusDirection != pkgcommon.IngressFocusDirection &&
+	if focusDirection != "" && focusDirection != pkgcommon.IngressFocusDirection &&
 		focusDirection != pkgcommon.EgressFocusDirection {
 		return errors.New(netpolerrors.FocusDirectionNotSupported(focusDirection))
 	}

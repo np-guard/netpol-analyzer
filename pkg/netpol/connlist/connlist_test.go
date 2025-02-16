@@ -635,7 +635,7 @@ func TestLoggerWarnings(t *testing.T) {
 		{
 			name:                        "using_focus_direction_without_focus_workload",
 			dirName:                     "anp_test_named_ports_multiple_peers",
-			focusDirection:              common.BothFocusDirection,
+			focusDirection:              common.IngressFocusDirection,
 			expectedWarningsStrContains: []string{alerts.WarnIgnoredFocusDirection},
 		},
 	}
@@ -998,12 +998,6 @@ var goodPathTests = []struct {
 		testDirName:    "acs-security-demos-added-workloads",
 		focusWorkload:  "backend/recommendation",
 		focusDirection: common.EgressFocusDirection,
-		outputFormats:  []string{output.TextFormat},
-	},
-	{
-		testDirName:    "acs-security-demos-added-workloads",
-		focusWorkload:  "backend/recommendation",
-		focusDirection: common.BothFocusDirection,
 		outputFormats:  []string{output.TextFormat},
 	},
 	{

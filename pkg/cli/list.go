@@ -139,7 +139,7 @@ defined`,
 	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "",
 		"Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)")
 	c.Flags().StringVarP(&focusDirection, "focus-direction", "", "",
-		"Focus connections of specified workload on one direction, applies only when focusworkload is used" {ingress/egress}
+		"Focus connections of specified workload on one direction, applies only when focusworkload is used {ingress/egress}")
 	c.Flags().BoolVarP(&exposureAnalysis, "exposure", "", false, "Enhance the analysis of permitted connectivity with exposure analysis")
 	c.Flags().BoolVarP(&explain, "explain", "", false, "Enhance the analysis of permitted connectivity with explainability information")
 	// output format - default txt
