@@ -171,5 +171,5 @@ func NPWithSameNameError(npName string) string {
 }
 
 func FocusDirectionNotSupported(focusDirection string) string {
-	return focusDirection + " focus direction is not supported."
+	return "invalid focus-direction value: " + focusDirection
 }
