@@ -191,7 +191,7 @@ func TestCommandsFailExecute(t *testing.T) {
 				"emailservice",
 				"--focus-direction",
 				"xgress"},
-			expectedErrorContains: netpolerrors.FocusDirectionNotSupported("xgress"),
+			expectedErrorContains: netpolerrors.FocusDirectionOptions,
 		},
 		{
 			name: "test_using_q_and_v_verbosity_flags_together_should_return_an_error_of_illegal_use_of_quiet_and_verbose_flags",

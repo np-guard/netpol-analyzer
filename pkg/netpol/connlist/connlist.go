@@ -541,6 +541,11 @@ func (ca *ConnlistAnalyzer) getPeersForConnsComputation(pe *eval.PolicyEngine) (
 // if the exposure-analysis option is on, also computes and updates the exposure-analysis results
 func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingressanalyzer.IngressAnalyzer) ([]Peer2PeerConnection,
 	[]Peer, error) {
+	// validate focus-direction
+	if err := validateFocusDirectionValue(ca.focusDirection); err != nil {
+		return nil, nil, err
+	}
+
 	connsRes := make([]Peer2PeerConnection, 0)
 	if !pe.HasPodPeers() {
 		return connsRes, []Peer{}, nil
@@ -559,10 +564,6 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 
 	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
 
-	// validate focus-direction
-	if err := validateFocusDirectionValue(ca.focusDirection); err != nil {
-		return nil, nil, err
-	}
 	// if ca.focusWorkload is not empty, check if it exists in the peers before proceeding
 	existFocusWorkload, warningMsg := ca.existsFocusWorkload(excludeIngressAnalysis)
 	if ca.focusWorkload != "" && !existFocusWorkload {

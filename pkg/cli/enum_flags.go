@@ -29,7 +29,7 @@ func (e *focusDirection) Set(v string) error {
 		*e = focusDirection(v)
 		return nil
 	default:
-		return errors.New(netpolerrors.FocusDirectionNotSupported(v))
+		return errors.New(netpolerrors.FocusDirectionOptions)
 	}
 }
 
