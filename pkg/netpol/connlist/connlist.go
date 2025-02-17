@@ -192,7 +192,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	return ca
 }
 
-func ValidateFocusDirectionValue(focusDirection string) error {
+func validateFocusDirectionValue(focusDirection string) error {
 	if focusDirection != "" && focusDirection != pkgcommon.IngressFocusDirection &&
 		focusDirection != pkgcommon.EgressFocusDirection {
 		return errors.New(netpolerrors.FocusDirectionNotSupported(focusDirection))
@@ -560,7 +560,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
 
 	// validate focus-direction
-	if err := ValidateFocusDirectionValue(ca.focusDirection); err != nil {
+	if err := validateFocusDirectionValue(ca.focusDirection); err != nil {
 		return nil, nil, err
 	}
 	// if ca.focusWorkload is not empty, check if it exists in the peers before proceeding
