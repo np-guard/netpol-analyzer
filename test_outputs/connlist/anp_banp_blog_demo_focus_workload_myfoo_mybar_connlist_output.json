@@ -1,0 +1,42 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255",
+    "dst": "bar/mybar[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bar/mybar[Pod]",
+    "dst": "0.0.0.0-255.255.255.255",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bar/mybar[Pod]",
+    "dst": "baz/mybaz[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bar/mybar[Pod]",
+    "dst": "monitoring/mymonitoring[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "foo/myfoo[Pod]",
+    "dst": "0.0.0.0-255.255.255.255",
+    "conn": "All Connections"
+  },
+  {
+    "src": "foo/myfoo[Pod]",
+    "dst": "baz/mybaz[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "foo/myfoo[Pod]",
+    "dst": "monitoring/mymonitoring[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "monitoring/mymonitoring[Pod]",
+    "dst": "foo/myfoo[Pod]",
+    "conn": "All Connections"
+  }
+]

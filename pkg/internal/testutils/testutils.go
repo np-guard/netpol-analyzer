@@ -29,7 +29,7 @@ const (
 	explainExpectedOutputFilePartialName         = "explain_output."
 	explainExposureExpectedOutputFilePartialName = "explain_exposure_output."
 	exposureExpectedOutputFilePartialName        = "exposure_output."
-	underscore                                   = "_"
+	Underscore                                   = "_"
 	dotSign                                      = "."
 	formatStr                                    = "_format_"
 	focusWlAnnotation                            = "_focus_workload_"
@@ -48,9 +48,9 @@ func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusDirection, format s
 	exposureFlag bool) (testName, expectedOutputFileName string) {
 	namePrefix := dirName
 	if focusWorkload != "" {
-		namePrefix += focusWlAnnotation + strings.Replace(focusWorkload, "/", underscore, 1)
+		namePrefix += focusWlAnnotation + strings.ReplaceAll(focusWorkload, "/", Underscore)
 		if focusDirection != "" {
-			namePrefix += underscore + focusDirection
+			namePrefix += Underscore + focusDirection
 		}
 	}
 	testName = namePrefix + formatStr + format
@@ -58,7 +58,7 @@ func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusDirection, format s
 	if exposureFlag {
 		outputPartialName = exposureExpectedOutputFilePartialName
 	}
-	expectedOutputFileName = namePrefix + underscore + outputPartialName + format
+	expectedOutputFileName = namePrefix + Underscore + outputPartialName + format
 	return testName, expectedOutputFileName
 }
 
@@ -66,9 +66,9 @@ func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusDirection, format s
 func ExplainTestNameByTestArgs(dirName, focusWorkload, focusDirection string, exposure bool) (testName, expectedOutputFileName string) {
 	namePrefix := dirName
 	if focusWorkload != "" {
-		namePrefix += focusWlAnnotation + strings.Replace(focusWorkload, "/", underscore, 1)
+		namePrefix += focusWlAnnotation + strings.ReplaceAll(focusWorkload, "/", Underscore)
 		if focusDirection != "" {
-			namePrefix += underscore + focusDirection
+			namePrefix += Underscore + focusDirection
 		}
 	}
 	testName = namePrefix
@@ -76,7 +76,7 @@ func ExplainTestNameByTestArgs(dirName, focusWorkload, focusDirection string, ex
 	if exposure {
 		outputPartialName = explainExposureExpectedOutputFilePartialName
 	}
-	expectedOutputFileName = namePrefix + underscore + outputPartialName + output.TextFormat
+	expectedOutputFileName = namePrefix + Underscore + outputPartialName + output.TextFormat
 	return testName, expectedOutputFileName
 }
 
