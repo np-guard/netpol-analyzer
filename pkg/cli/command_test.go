@@ -15,6 +15,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 
 	ioutput "github.com/np-guard/netpol-analyzer/pkg/internal/output"
@@ -57,10 +58,13 @@ func buildAndExecuteCommand(args []string) (string, error) {
 }
 
 // append the optional args of a command if the values are not empty
-func addCmdOptionalArgs(format, outputFile, focusWorkload string, exposure bool) []string {
+func addCmdOptionalArgs(format, outputFile, focusWorkload, focusDirection string, exposure bool) []string {
 	res := []string{}
 	if focusWorkload != "" {
 		res = append(res, "--focusworkload", focusWorkload)
+	}
+	if focusDirection != "" {
+		res = append(res, "--focus-direction", focusDirection)
 	}
 	if format != "" {
 		res = append(res, "--output", format)
@@ -84,10 +88,10 @@ func determineFileSuffix(format string) string {
 }
 
 // gets the test name and name of expected output file for a list command from its args
-func getListCmdTestNameAndExpectedOutputFile(dirName, focusWorkload, format string, exposureFlag bool) (testName,
+func getListCmdTestNameAndExpectedOutputFile(dirName, focusWorkload, focusDirection, format string, exposureFlag bool) (testName,
 	expectedOutputFileName string) {
 	fileSuffix := determineFileSuffix(format)
-	return testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, fileSuffix, exposureFlag)
+	return testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, focusDirection, fileSuffix, exposureFlag)
 }
 
 func testInfo(testName string) string {
@@ -178,6 +182,18 @@ func TestCommandsFailExecute(t *testing.T) {
 			expectedErrorContains: netpolerrors.FormatNotSupportedErrStr("png"),
 		},
 		{
+			name: "list_command_with_unsupported_focus_direction_should_return_error",
+			args: []string{
+				"list",
+				"--dirpath",
+				testutils.GetTestDirPath("onlineboutique"),
+				"--focusworkload",
+				"emailservice",
+				"--focus-direction",
+				"xgress"},
+			expectedErrorContains: netpolerrors.FocusDirectionOptions,
+		},
+		{
 			name: "test_using_q_and_v_verbosity_flags_together_should_return_an_error_of_illegal_use_of_quiet_and_verbose_flags",
 			args: []string{
 				"list",
@@ -216,11 +232,12 @@ func TestCommandsFailExecute(t *testing.T) {
 // TestListCommandOutput tests the output of legal list command
 func TestListCommandOutput(t *testing.T) {
 	cases := []struct {
-		dirName       string
-		focusWorkload string
-		format        string
-		outputFile    string
-		exposureFlag  bool
+		dirName        string
+		focusWorkload  string
+		focusDirection string
+		format         string
+		outputFile     string
+		exposureFlag   bool
 	}{
 		// when focusWorkload is empty, output should be the connlist of the dir
 		// when format is empty - output should be in defaultFormat (txt)
@@ -235,6 +252,11 @@ func TestListCommandOutput(t *testing.T) {
 		{
 			dirName:       "onlineboutique_workloads",
 			focusWorkload: "default/emailservice",
+		},
+		{
+			dirName:        "onlineboutique_workloads",
+			focusWorkload:  "default/checkoutservice",
+			focusDirection: common.EgressFocusDirection,
 		},
 		{
 			dirName:       "acs-security-demos",
@@ -275,10 +297,11 @@ func TestListCommandOutput(t *testing.T) {
 		},
 	}
 	for _, tt := range cases {
-		testName, expectedOutputFileName := getListCmdTestNameAndExpectedOutputFile(tt.dirName, tt.focusWorkload, tt.format, tt.exposureFlag)
+		testName, expectedOutputFileName := getListCmdTestNameAndExpectedOutputFile(tt.dirName, tt.focusWorkload, tt.focusDirection,
+			tt.format, tt.exposureFlag)
 		t.Run(testName, func(t *testing.T) {
 			args := []string{"list", "--dirpath", testutils.GetTestDirPath(tt.dirName)}
-			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, tt.focusWorkload, tt.exposureFlag)...)
+			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, tt.focusWorkload, tt.focusDirection, tt.exposureFlag)...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
 			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), currentPkg)
@@ -330,7 +353,7 @@ func TestDiffCommandOutput(t *testing.T) {
 		t.Run(testName, func(t *testing.T) {
 			args := []string{"diff", "--dir1", testutils.GetTestDirPath(tt.dir1), "--dir2",
 				testutils.GetTestDirPath(tt.dir2)}
-			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, "", false)...)
+			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, "", "", false)...)
 			actualOut, err := buildAndExecuteCommand(args)
 			require.Nil(t, err, "test: %q", testName)
 			testutils.CheckActualVsExpectedOutputMatch(t, expectedOutputFileName, actualOut, testInfo(testName), currentPkg)

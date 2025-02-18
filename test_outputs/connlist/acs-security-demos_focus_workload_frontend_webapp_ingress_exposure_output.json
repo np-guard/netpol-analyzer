@@ -1,0 +1,19 @@
+{
+  "connlist_results": [
+    {
+      "src": "{ingress-controller}",
+      "dst": "frontend/webapp[Deployment]",
+      "conn": "TCP 8080"
+    }
+  ],
+  "exposure_results": {
+    "egress_exposure": null,
+    "ingress_exposure": [
+      {
+        "src": "entire-cluster",
+        "dst": "frontend/webapp[Deployment]",
+        "conn": "TCP 8080"
+      }
+    ]
+  }
+}

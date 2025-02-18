@@ -30,6 +30,7 @@ const (
 	// example raising this warning: tests/anp_test_named_ports_multiple_peers
 
 	K8sClusterDoesNotSupportNetworkPolicyAPI = "cluster does not support admin network policies"
+	WarnIgnoredFocusDirection                = "focus-direction may be used only with focusworkload flag, will be ignored"
 )
 
 var (

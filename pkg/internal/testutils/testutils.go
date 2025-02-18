@@ -44,10 +44,14 @@ func GetTestDirPath(dirName string) string {
 }
 
 // ConnlistTestNameByTestArgs returns connlist test name and test's expected output file from some tests args
-func ConnlistTestNameByTestArgs(dirName, focusWorkload, format string, exposureFlag bool) (testName, expectedOutputFileName string) {
+func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusDirection, format string,
+	exposureFlag bool) (testName, expectedOutputFileName string) {
 	namePrefix := dirName
 	if focusWorkload != "" {
 		namePrefix += focusWlAnnotation + strings.Replace(focusWorkload, "/", underscore, 1)
+		if focusDirection != "" {
+			namePrefix += underscore + focusDirection
+		}
 	}
 	testName = namePrefix + formatStr + format
 	outputPartialName := connlistExpectedOutputFilePartialName
@@ -59,10 +63,13 @@ func ConnlistTestNameByTestArgs(dirName, focusWorkload, format string, exposureF
 }
 
 // ExplainTestNameByTestArgs returns explain test name and test's expected output file from some tests args
-func ExplainTestNameByTestArgs(dirName, focusWorkload string, exposure bool) (testName, expectedOutputFileName string) {
+func ExplainTestNameByTestArgs(dirName, focusWorkload, focusDirection string, exposure bool) (testName, expectedOutputFileName string) {
 	namePrefix := dirName
 	if focusWorkload != "" {
 		namePrefix += focusWlAnnotation + strings.Replace(focusWorkload, "/", underscore, 1)
+		if focusDirection != "" {
+			namePrefix += underscore + focusDirection
+		}
 	}
 	testName = namePrefix
 	outputPartialName := explainExpectedOutputFilePartialName

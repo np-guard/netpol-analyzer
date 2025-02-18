@@ -1,0 +1,1 @@
+backend/recommendation[Deployment] => backend/catalog[Deployment] : TCP 8080
