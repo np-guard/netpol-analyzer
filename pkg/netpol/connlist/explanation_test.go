@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 
@@ -22,7 +23,7 @@ func TestExplainFromDir(t *testing.T) {
 	for _, tt := range explainTests {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
-			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkload, tt.exposure)
+			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkload, tt.focusDirection, tt.exposure)
 			res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 			require.Nil(t, err, pTest.testInfo)
 			out, err := pTest.analyzer.ConnectionsListToString(res)
@@ -33,14 +34,15 @@ func TestExplainFromDir(t *testing.T) {
 	}
 }
 
-func prepareExplainTest(dirName, focusWorkload string, exposure bool) preparedTest {
+func prepareExplainTest(dirName, focusWorkload, focusDirection string, exposure bool) preparedTest {
 	res := preparedTest{}
-	res.testName, res.expectedOutputFileName = testutils.ExplainTestNameByTestArgs(dirName, focusWorkload, exposure)
+	res.testName, res.expectedOutputFileName = testutils.ExplainTestNameByTestArgs(dirName, focusWorkload, focusDirection, exposure)
 	res.testInfo = fmt.Sprintf("test: %q", res.testName)
-	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkload(focusWorkload), WithExplanation())
+	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkload(focusWorkload),
+		WithFocusDirection(focusDirection), WithExplanation())
 	if exposure {
-		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkload(focusWorkload), WithExplanation(),
-			WithExposureAnalysis())
+		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkload(focusWorkload),
+			WithFocusDirection(focusDirection), WithExplanation(), WithExposureAnalysis())
 	}
 	res.analyzer = cAnalyzer
 	res.dirPath = testutils.GetTestDirPath(dirName)
@@ -48,9 +50,10 @@ func prepareExplainTest(dirName, focusWorkload string, exposure bool) preparedTe
 }
 
 var explainTests = []struct {
-	testDirName   string
-	focusWorkload string
-	exposure      bool
+	testDirName    string
+	focusWorkload  string
+	focusDirection string
+	exposure       bool
 }{
 	{
 		testDirName: "acs-security-demos",
@@ -60,6 +63,11 @@ var explainTests = []struct {
 	},
 	{
 		testDirName: "anp_banp_blog_demo",
+	},
+	{
+		testDirName:    "anp_banp_blog_demo",
+		focusWorkload:  "myfoo",
+		focusDirection: common.IngressFocusDirection,
 	},
 	{
 		testDirName: "anp_banp_blog_demo_2",
@@ -136,6 +144,12 @@ var explainTests = []struct {
 		testDirName:   "exposure_matched_and_unmatched_rules_test",
 		exposure:      true,
 		focusWorkload: "hello-world/workload-a",
+	},
+	{
+		testDirName:    "exposure_matched_and_unmatched_rules_test",
+		exposure:       true,
+		focusWorkload:  "hello-world/workload-a",
+		focusDirection: common.IngressFocusDirection,
 	},
 	{
 		testDirName: "exposure_multiple_unmatched_rules_test",

@@ -1,0 +1,41 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255 => foo/myfoo[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] foo/allow-monitoring // Ingress (foo/myfoo[Pod] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between bar/mybar[Pod] => foo/myfoo[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] foo/allow-monitoring // Ingress (foo/myfoo[Pod] is selected by the policy, but bar/mybar[Pod] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between baz/mybaz[Pod] => foo/myfoo[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			[NP] foo/allow-monitoring // Ingress (foo/myfoo[Pod] is selected by the policy, but baz/mybaz[Pod] is not selected by any Ingress rule)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
+
+Allowed connections:
+	Allowed TCP, UDP, SCTP due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
+			[ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring (Pass)
+			[NP] foo/allow-monitoring // Ingress rule #1
+

@@ -1,0 +1,12 @@
+digraph {
+	subgraph "cluster_frontend" {
+		color="black"
+		fontcolor="black"
+		"frontend/webapp[Deployment]" [label="webapp[Deployment]" color="blue" fontcolor="blue"]
+		label="frontend"
+	}
+	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
+	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
+	"entire-cluster" -> "frontend/webapp[Deployment]" [label="TCP 8080" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
+	"{ingress-controller}" -> "frontend/webapp[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=1]
+}
