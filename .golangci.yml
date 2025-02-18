@@ -5,7 +5,8 @@ linters-settings:
     lines: 100
     statements: 50
   gci:
-    prefix: github.com/np-guard
+    sections:
+      - prefix(github.com/np-guard) # Custom section: groups all imports with the specified Prefix.
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -30,18 +31,23 @@ linters-settings:
     local-prefixes: github.com/np-guard
   mnd:
       # don't include the "operation" and "assign"
-      checks: argument,case,condition,return
-      ignored-numbers: 0,1,2,3
-      ignored-functions: strings.SplitN
-
-  govet:
-    shadow: true
+      checks: 
+        - argument
+        - case
+        - condition
+        - return
+      ignored-numbers: 
+        - '0'
+        - '1'
+        - '2'
+        - '3'
+      ignored-functions: 
+        - strings.SplitN
   lll:
     line-length: 140
   misspell:
     locale: US
   nolintlint:
-    allow-leading-space: true # don't require machine-readable nolint directives (i.e. with no leading space)
     allow-unused: false # report any unused nolint directives
     require-explanation: false # don't require an explanation for nolint directives
     require-specific: false # don't require nolint directives to be specific about which linter is being skipped
@@ -114,7 +120,7 @@ linters:
     - staticcheck
     - stylecheck
     - tagliatelle
-    - tenv
+    - usetesting
     - testableexamples
     - typecheck
     - unconvert
