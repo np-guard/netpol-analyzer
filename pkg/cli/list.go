@@ -30,7 +30,7 @@ var (
 
 // getRequiredOutputFormatString returns the description of required format(s) of the command
 func getRequiredOutputFormatString(validFormats string) string {
-	return fmt.Sprintf("Required output format (%s)", validFormats)
+	return fmt.Sprintf("Required output format; must be one of %s", validFormats)
 }
 
 func runListCommand() error {

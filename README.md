@@ -67,7 +67,7 @@ Flags:
       --focusworkload string      Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)
       --focus-direction string    Focus connections of specified workload on one direction, applies only when focusworkload is used; must be one of ingress,egress
   -h, --help                      help for list
-  -o, --output string             Required output format (txt,json,dot,csv,md) (default "txt")
+  -o, --output string             Required output format; must be one of txt,json,dot,csv,md (default "txt")
 
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
@@ -90,11 +90,11 @@ Examples:
   k8snetpolicy diff --dir1 ./resources_dir/ --dir2 ./other_resources_dir/
 
 Flags:
-      --dir1  string  First resources dir path
-      --dir2  string  Second resources dir path to be compared with the first dir path
-  -f, --file string            Write output to specified file
-  -o, --output string Required output format (txt, csv, md, dot) (default "txt")  
-  -h, --help   help for diff
+      --dir1    string  First resources dir path
+      --dir2    string  Second resources dir path to be compared with the first dir path
+  -f, --file    string  Write output to specified file
+  -o, --output  string  Required output format; must be one of txt,csv,md,dot (default "txt")  
+  -h, --help            help for diff
 
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster
@@ -161,7 +161,7 @@ Additional details about the connectivity diff command and its output is specifi
 
 ## Build the project
 
-Make sure you have golang 1.21+ on your platform
+Make sure you have golang 1.23+ on your platform
 
 ```commandline
 git clone git@github.com:np-guard/netpol-analyzer.git
