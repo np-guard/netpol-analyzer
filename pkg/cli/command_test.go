@@ -295,6 +295,10 @@ func TestListCommandOutput(t *testing.T) {
 			dirName:      "acs-security-demos",
 			exposureFlag: true,
 		},
+		{
+			dirName:       "anp_banp_blog_demo",
+			focusWorkload: "myfoo,mybar",
+		},
 	}
 	for _, tt := range cases {
 		testName, expectedOutputFileName := getListCmdTestNameAndExpectedOutputFile(tt.dirName, tt.focusWorkload, tt.focusDirection,
