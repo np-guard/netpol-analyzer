@@ -84,7 +84,7 @@ func TestConnListFromDir(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
-				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeer, tt.focusDirection, format, tt.exposureAnalysis)
+				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, format, tt.exposureAnalysis)
 				res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
@@ -102,7 +102,7 @@ func TestConnListFromResourceInfos(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
-				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeer, tt.focusDirection, format, tt.exposureAnalysis)
+				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, format, tt.exposureAnalysis)
 				infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
 				// require.Empty(t, errs, testInfo) - TODO: add info about expected errors
 				// from each test here (these errors do not stop the analysis or affect the output)
@@ -386,7 +386,7 @@ func testFatalErr(t *testing.T,
 
 func getAnalysisResFromAPI(apiName, dirName string, focusWorkloads []string) (
 	analyzer *ConnlistAnalyzer, connsRes []Peer2PeerConnection, peersRes []Peer, err error) {
-	pTest := prepareTest(dirName, focusWorkloads, "", "", output.DefaultFormat, false)
+	pTest := prepareTest(dirName, focusWorkloads, nil, "", output.DefaultFormat, false)
 	switch apiName {
 	case ResourceInfosFunc:
 		infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
@@ -616,7 +616,7 @@ func TestLoggerWarnings(t *testing.T) {
 		dirName                     string
 		focusDirection              string
 		focusworkloads              []string
-		focusWorkloadPeer           string
+		focusWorkloadPeers          []string
 		exposure                    bool
 		expectedWarningsStrContains []string
 	}{
@@ -658,14 +658,14 @@ func TestLoggerWarnings(t *testing.T) {
 		{
 			name:                        "using_focus_workload_peer_without_focus_workload",
 			dirName:                     "anp_test_named_ports_multiple_peers",
-			focusWorkloadPeer:           "ns1/pod1",
+			focusWorkloadPeers:          []string{"ns1/pod1"},
 			expectedWarningsStrContains: []string{alerts.WarnIgnoredWithoutFocusWorkload},
 		},
 		{
 			name:                        "using_exposure_with_focus_workload_peer_and_focus_workload",
 			dirName:                     "anp_test_named_ports_multiple_peers",
 			focusworkloads:              []string{"ns3/pod1"},
-			focusWorkloadPeer:           "ns1/pod1",
+			focusWorkloadPeers:          []string{"ns1/pod1"},
 			exposure:                    true,
 			expectedWarningsStrContains: []string{alerts.WarnIgnoredExposure},
 		},
@@ -674,7 +674,7 @@ func TestLoggerWarnings(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tLogger := testutils.NewTestLogger()
 			opts := []ConnlistAnalyzerOption{WithLogger(tLogger), WithFocusDirection(tt.focusDirection),
-				WithFocusWorkloadPeer(tt.focusWorkloadPeer), WithFocusWorkloadList(tt.focusworkloads)}
+				WithFocusWorkloadPeerList(tt.focusWorkloadPeers), WithFocusWorkloadList(tt.focusworkloads)}
 			if tt.exposure {
 				opts = append(opts, WithExposureAnalysis())
 			}
@@ -755,19 +755,19 @@ type preparedTest struct {
 	analyzer               *ConnlistAnalyzer
 }
 
-func prepareTest(dirName string, focusWorkloads []string, focusWorkloadPeer, focusDirection, format string,
+func prepareTest(dirName string, focusWorkloads, focusWorkloadPeers []string, focusDirection, format string,
 	exposureFlag bool) preparedTest {
 	res := preparedTest{}
 	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestArgs(dirName,
-		strings.Join(focusWorkloads, testutils.Underscore), focusWorkloadPeer, focusDirection, format, exposureFlag)
+		strings.Join(focusWorkloads, testutils.Underscore),
+		strings.Join(focusWorkloadPeers, testutils.Underscore), focusDirection, format, exposureFlag)
 	res.testInfo = fmt.Sprintf("test: %q, output format: %q", res.testName, format)
-	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkloadList(focusWorkloads), WithFocusDirection(focusDirection),
-		WithFocusWorkloadPeer(focusWorkloadPeer))
+	opts := []ConnlistAnalyzerOption{WithOutputFormat(format), WithFocusWorkloadList(focusWorkloads), WithFocusDirection(focusDirection),
+		WithFocusWorkloadPeerList(focusWorkloadPeers)}
 	if exposureFlag {
-		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkloadList(focusWorkloads), WithFocusDirection(focusDirection),
-			WithFocusWorkloadPeer(focusWorkloadPeer), WithExposureAnalysis())
+		opts = append(opts, WithExposureAnalysis())
 	}
-	res.analyzer = cAnalyzer
+	res.analyzer = NewConnlistAnalyzer(opts...)
 	res.dirPath = testutils.GetTestDirPath(dirName)
 	return res
 }
@@ -802,7 +802,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			preparedTest := prepareTest(tt.dirName, []string{}, "", "", tt.format, tt.exposureFlag)
+			preparedTest := prepareTest(tt.dirName, nil, nil, "", tt.format, tt.exposureFlag)
 			connsRes, peersRes, err := preparedTest.analyzer.ConnlistFromDirPath(preparedTest.dirPath)
 
 			require.Nil(t, err, tt.name)
@@ -816,7 +816,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error())
 
 			// re-run the test with new analyzer (to clear the analyzer.errors array )
-			preparedTest = prepareTest(tt.dirName, []string{}, "", "", tt.format, tt.exposureFlag)
+			preparedTest = prepareTest(tt.dirName, nil, nil, "", tt.format, tt.exposureFlag)
 			infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{preparedTest.dirPath}, true, false)
 			connsRes2, peersRes2, err2 := preparedTest.analyzer.ConnlistFromResourceInfos(infos)
 
@@ -833,12 +833,12 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 }
 
 var goodPathTests = []struct {
-	testDirName       string
-	outputFormats     []string
-	focusWorkloads    []string
-	focusWorkloadPeer string
-	focusDirection    string
-	exposureAnalysis  bool
+	testDirName        string
+	outputFormats      []string
+	focusWorkloads     []string
+	focusWorkloadPeers []string
+	focusDirection     string
+	exposureAnalysis   bool
 }{
 	{
 		testDirName:   "ipblockstest",
@@ -1856,17 +1856,24 @@ var goodPathTests = []struct {
 		outputFormats:    ValidFormats,
 	},
 	{
-		testDirName:       "acs-security-demos",
-		focusWorkloads:    []string{"backend/checkout", "frontend/webapp"},
-		focusWorkloadPeer: "backend/recommendation",
-		outputFormats:     ValidFormats,
+		testDirName:        "acs-security-demos",
+		focusWorkloads:     []string{"backend/checkout", "frontend/webapp"},
+		focusWorkloadPeers: []string{"backend/recommendation"},
+		outputFormats:      ValidFormats,
 	},
 	{
-		testDirName:       "acs-security-demos",
-		focusWorkloads:    []string{"checkout"},
-		focusWorkloadPeer: "webapp",
-		focusDirection:    common.IngressFocusDirection,
-		outputFormats:     ValidFormats,
+		testDirName:        "acs-security-demos",
+		focusWorkloads:     []string{"checkout"},
+		focusWorkloadPeers: []string{"webapp"},
+		focusDirection:     common.IngressFocusDirection,
+		outputFormats:      ValidFormats,
+	},
+	{
+		testDirName:        "acs-security-demos",
+		focusWorkloads:     []string{"checkout", "reports"},
+		focusWorkloadPeers: []string{"recommendation", "catalog"},
+		focusDirection:     common.EgressFocusDirection,
+		outputFormats:      ValidFormats,
 	},
 }
 

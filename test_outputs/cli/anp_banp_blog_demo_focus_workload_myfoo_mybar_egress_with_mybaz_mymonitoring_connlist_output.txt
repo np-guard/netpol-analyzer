@@ -1,0 +1,4 @@
+bar/mybar[Pod] => baz/mybaz[Pod] : All Connections
+bar/mybar[Pod] => monitoring/mymonitoring[Pod] : All Connections
+foo/myfoo[Pod] => baz/mybaz[Pod] : All Connections
+foo/myfoo[Pod] => monitoring/mymonitoring[Pod] : All Connections

@@ -95,8 +95,9 @@ func determineFileSuffix(format string) string {
 func getListCmdTestNameAndExpectedOutputFile(dirName, focusWorkload, focusWorkloadPeer, focusDirection, format string,
 	exposureFlag bool) (testName, expectedOutputFileName string) {
 	fileSuffix := determineFileSuffix(format)
-	return testutils.ConnlistTestNameByTestArgs(dirName, strings.ReplaceAll(focusWorkload, testutils.CommaSign, testutils.Underscore),
-		focusWorkloadPeer, focusDirection, fileSuffix, exposureFlag)
+	focusWls := strings.ReplaceAll(focusWorkload, testutils.CommaSign, testutils.Underscore)
+	focusWlPeers := strings.ReplaceAll(focusWorkloadPeer, testutils.CommaSign, testutils.Underscore)
+	return testutils.ConnlistTestNameByTestArgs(dirName, focusWls, focusWlPeers, focusDirection, fileSuffix, exposureFlag)
 }
 
 func testInfo(testName string) string {
@@ -309,6 +310,12 @@ func TestListCommandOutput(t *testing.T) {
 			dirName:           "anp_banp_blog_demo",
 			focusWorkload:     "myfoo,mybar",
 			focusWorkloadPeer: "mybaz",
+		},
+		{
+			dirName:           "anp_banp_blog_demo",
+			focusWorkload:     "myfoo,mybar",
+			focusWorkloadPeer: "mybaz,mymonitoring",
+			focusDirection:    common.EgressFocusDirection,
 		},
 	}
 	for _, tt := range cases {

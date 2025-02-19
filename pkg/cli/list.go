@@ -21,7 +21,7 @@ import (
 
 var (
 	focusWorkload     []string
-	focusWorkloadPeer string
+	focusWorkloadPeer []string
 	focusDir          focusDirection
 	exposureAnalysis  bool
 	explain           bool
@@ -79,7 +79,7 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 	res := []connlist.ConnlistAnalyzerOption{
 		connlist.WithLogger(l),
 		connlist.WithFocusWorkloadList(focusWorkload),
-		connlist.WithFocusWorkloadPeer(focusWorkloadPeer),
+		connlist.WithFocusWorkloadPeerList(focusWorkloadPeer),
 		connlist.WithFocusDirection(focusDir.String()),
 		connlist.WithOutputFormat(output),
 	}
@@ -143,9 +143,9 @@ defined`,
 	c.Flags().StringSliceVarP(&focusWorkload, "focusworkload", "", []string{},
 		"Focus connections of specified workload(s) in the output, supports comma-separated names"+
 			" (workload name format: <workload-name> or <workload-namespace/workload-name>)")
-	c.Flags().StringVarP(&focusWorkloadPeer, "focusworkload-peer", "", "",
-		"Focus connections of specified workload(s) with this peer, applies only when focusworkload is used;"+
-			" (workload-peer name format: <workload-name> or <workload-namespace/workload-name>)")
+	c.Flags().StringSliceVarP(&focusWorkloadPeer, "focusworkload-peer", "", []string{},
+		"Focus connections of specified workload(s) with this peer(s), applies only when focusworkload is used;"+
+			" supports comma-separated names (focusworkload-peer name format is same as focusworkload)")
 	c.Flags().VarP(&focusDir, "focus-direction", "",
 		"Focus connections of specified workload(s) on one direction, applies only when focusworkload is used; must be one of ingress,egress")
 	c.Flags().BoolVarP(&exposureAnalysis, "exposure", "", false, "Enhance the analysis of permitted connectivity with exposure analysis")

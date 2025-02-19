@@ -65,7 +65,7 @@ Flags:
       --exposure                      Enhance the analysis of permitted connectivity with exposure analysis
   -f, --file string                   Write output to specified file
       --focusworkload       string    Focus connections of specified workload(s) in the output, supports comma-separated names (workload name format: <workload-name> or <workload-namespace/workload-name>)
-      --focusworkload-peer  string    Focus connections of specified workload(s) with this peer, applies only when focusworkload is used; (workload-peer name format: <workload-name> or <workload-namespace/workload-name>)
+      --focusworkload-peer  string    Focus connections of specified workload(s) with this peer(s), applies only when focusworkload is used; supports comma-separated names (focusworkload-peer name format is same as focusworkload)
       --focus-direction     string    Focus connections of specified workload(s) on one direction, applies only when focusworkload is used; must be one of ingress,egress
   -h, --help                          help for list
   -o, --output string                 Required output format; must be one of txt,json,dot,csv,md (default "txt")

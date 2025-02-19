@@ -1,0 +1,17 @@
+[
+  {
+    "src": "backend/checkout[Deployment]",
+    "dst": "backend/recommendation[Deployment]",
+    "conn": "TCP 8080"
+  },
+  {
+    "src": "backend/reports[Deployment]",
+    "dst": "backend/catalog[Deployment]",
+    "conn": "TCP 8080"
+  },
+  {
+    "src": "backend/reports[Deployment]",
+    "dst": "backend/recommendation[Deployment]",
+    "conn": "TCP 8080"
+  }
+]
