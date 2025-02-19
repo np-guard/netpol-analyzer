@@ -483,7 +483,7 @@ func getPeerNsNameFormat(peer Peer) string {
 }
 
 // isPeerFocusWorkload returns true if focusWorkload flag is not used (each peer is included),
-// or if the peer's name in the focus-workload list
+// or if the peer's name is in the focus-workload list
 func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer Peer) bool {
 	if len(ca.focusWorkloads) == 0 {
 		return true
