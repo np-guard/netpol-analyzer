@@ -61,13 +61,13 @@ Examples:
   k8snetpolicy list -k ./kube/config
 
 Flags:
-      --explain                   Enhance the analysis of permitted connectivity with explainability information 
-      --exposure                  Enhance the analysis of permitted connectivity with exposure analysis
-  -f, --file string               Write output to specified file
-      --focusworkload string      Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)
-      --focus-direction string    Focus connections of specified workload on one direction, applies only when focusworkload is used; must be one of ingress,egress
-  -h, --help                      help for list
-  -o, --output string             Required output format; must be one of txt,json,dot,csv,md (default "txt")
+      --explain                       Enhance the analysis of permitted connectivity with explainability information 
+      --exposure                      Enhance the analysis of permitted connectivity with exposure analysis
+  -f, --file string                   Write output to specified file
+      --focusworkload   string        Focus connections of specified workload(s) in the output, supports comma-separated names (workload name format: <workload-name> or <workload-namespace/workload-name>)
+      --focus-direction string        Focus connections of specified workload on one direction, applies only when focusworkload is used; must be one of ingress,egress
+  -h, --help                          help for list
+  -o, --output string                 Required output format; must be one of txt,json,dot,csv,md (default "txt")
 
 Global Flags:
   -c, --context string      Kubernetes context to use when evaluating connections in a live cluster

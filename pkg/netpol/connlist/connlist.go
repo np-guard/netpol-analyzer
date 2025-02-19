@@ -47,7 +47,7 @@ type ConnlistAnalyzer struct {
 	logger           logger.Logger
 	stopOnError      bool
 	errors           []ConnlistError
-	focusWorkload    string
+	focusWorkloads   []string
 	focusDirection   string
 	exposureAnalysis bool
 	exposureResult   []ExposedPeer
@@ -127,9 +127,16 @@ func WithStopOnError() ConnlistAnalyzerOption {
 	}
 }
 
+func WithFocusWorkloadList(workloads []string) ConnlistAnalyzerOption {
+	return func(p *ConnlistAnalyzer) {
+		p.focusWorkloads = workloads
+	}
+}
+
+// Deprecated
 func WithFocusWorkload(workload string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
-		p.focusWorkload = workload
+		p.focusWorkloads = []string{workload}
 	}
 }
 
@@ -186,8 +193,8 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	if ca.explain && ca.outputFormat != output.DefaultFormat {
 		ca.logger.Warnf(alerts.WarnIncompatibleFormat(ca.outputFormat))
 	}
-	if ca.focusWorkload == "" && ca.focusDirection != "" {
-		ca.logger.Warnf(alerts.WarnIgnoredFocusDirection)
+	if len(ca.focusWorkloads) == 0 && ca.focusDirection != "" {
+		ca.logWarning(alerts.WarnIgnoredFocusDirection)
 	}
 	return ca
 }
@@ -475,10 +482,18 @@ func getPeerNsNameFormat(peer Peer) string {
 	return types.NamespacedName{Namespace: peer.Namespace(), Name: peer.Name()}.String()
 }
 
-// isPeerFocusWorkload returns true if focus-workload flag is not used (each peer is included),
-// or if the focus-workload is equal to peer's name
+// isPeerFocusWorkload returns true if focusWorkload flag is not used (each peer is included),
+// or if the peer's name is in the focus-workload list
 func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer Peer) bool {
-	return ca.focusWorkload == "" || peer.Name() == ca.focusWorkload || getPeerNsNameFormat(peer) == ca.focusWorkload
+	if len(ca.focusWorkloads) == 0 {
+		return true
+	}
+	for _, focusWl := range ca.focusWorkloads {
+		if peer.Name() == focusWl || getPeerNsNameFormat(peer) == focusWl {
+			return true
+		}
+	}
+	return false
 }
 
 func convertEvalPeersToConnlistPeer(peers []eval.Peer) []Peer {
@@ -564,11 +579,19 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 
 	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
 
-	// if ca.focusWorkload is not empty, check if it exists in the peers before proceeding
-	existFocusWorkload, warningMsg := ca.existsFocusWorkload(excludeIngressAnalysis)
-	if ca.focusWorkload != "" && !existFocusWorkload {
-		ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
-		ca.logWarning(warningMsg)
+	// if ca.focusWorkloads is not empty, for each focus-workload: check if it exists in the peers before proceeding
+	cnt := 0 // count number of the focus-workloads which exist
+	for _, focusWl := range ca.focusWorkloads {
+		existFocusWorkload, warningMsg := ca.existsFocusWorkload(focusWl, excludeIngressAnalysis)
+		if !existFocusWorkload {
+			cnt++
+			ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
+			ca.logWarning(warningMsg)
+		}
+	}
+	// if all focus-workloads do not exist: nothing to do (empty connlist); return
+	if cnt != 0 && cnt == len(ca.focusWorkloads) {
+		ca.logWarning(netpolerrors.EmptyConnListErrStr)
 		return nil, nil, nil
 	}
 
@@ -602,7 +625,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	}
 	connsRes = append(connsRes, ingressAllowedConns...)
 
-	if ca.focusWorkload == "" && len(peersAllowedConns) == 0 {
+	if len(ca.focusWorkloads) == 0 && len(peersAllowedConns) == 0 {
 		ca.logWarning(netpolerrors.NoAllowedConnsWarning)
 	}
 
@@ -612,22 +635,23 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 // existsFocusWorkload checks if the provided focus workload is ingress-controller
 // or if it exists in the peers list from the parsed resources
 // if not returns a suitable warning message
-func (ca *ConnlistAnalyzer) existsFocusWorkload(excludeIngressAnalysis bool) (existFocusWorkload bool, warning string) {
-	if ca.focusWorkload == common.IngressPodName {
+func (ca *ConnlistAnalyzer) existsFocusWorkload(focusWorkload string, excludeIngressAnalysis bool) (existFocusWorkload bool,
+	warning string) {
+	if focusWorkload == common.IngressPodName {
 		if excludeIngressAnalysis { // if the ingress-analyzer is empty,
 			// then no routes/k8s-ingress objects -> ingress-controller pod will not be added
-			return false, netpolerrors.NoIngressSourcesErrStr + netpolerrors.EmptyConnListErrStr
+			return false, netpolerrors.NoIngressSourcesErrStr
 		}
 		return true, ""
 	}
 
-	// check if the focus-workload is in the peers
+	// check if the given focus-workload is in the peers
 	for _, peer := range ca.peersList {
-		if ca.isPeerFocusWorkload(peer) {
+		if peer.Name() == focusWorkload || getPeerNsNameFormat(peer) == focusWorkload {
 			return true, ""
 		}
 	}
-	return false, netpolerrors.WorkloadDoesNotExistErrStr(ca.focusWorkload)
+	return false, netpolerrors.WorkloadDoesNotExistErrStr(focusWorkload)
 }
 
 // getConnectionsBetweenPeers returns connections list from PolicyEngine object
@@ -787,7 +811,8 @@ func (ca *ConnlistAnalyzer) updatePeersGeneralExposureData(pe *eval.PolicyEngine
 	// (e.g. only one peer with one netpol exposing the peer to entire cluster, no netpols)
 	var err error
 	// 1. only on first time : add general exposure data for the src peer (on egress)
-	if ca.shouldAddPeerGeneralExposureData(pe, src, egressSet) {
+	if ca.shouldAddPeerGeneralExposureData(pe, src, egressSet) && (ca.focusDirection == "" ||
+		ca.focusDirection == pkgcommon.EgressFocusDirection) {
 		err = exMaps.addPeerGeneralExposure(pe, src, false)
 		if err != nil {
 			return err
@@ -795,7 +820,8 @@ func (ca *ConnlistAnalyzer) updatePeersGeneralExposureData(pe *eval.PolicyEngine
 	}
 	egressSet[src] = true
 	// 2. only on first time : add general exposure data for the dst peer (on ingress)
-	if ca.shouldAddPeerGeneralExposureData(pe, dst, ingressSet) {
+	if ca.shouldAddPeerGeneralExposureData(pe, dst, ingressSet) && (ca.focusDirection == "" ||
+		ca.focusDirection == pkgcommon.IngressFocusDirection) {
 		err = exMaps.addPeerGeneralExposure(pe, dst, true)
 	}
 	ingressSet[dst] = true

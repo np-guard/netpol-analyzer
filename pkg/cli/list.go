@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	focusWorkload    string
+	focusWorkload    []string
 	focusDir         focusDirection
 	exposureAnalysis bool
 	explain          bool
@@ -77,7 +77,7 @@ func writeBufToFile(filepath string, buf []byte) error {
 func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOption {
 	res := []connlist.ConnlistAnalyzerOption{
 		connlist.WithLogger(l),
-		connlist.WithFocusWorkload(focusWorkload),
+		connlist.WithFocusWorkloadList(focusWorkload),
 		connlist.WithFocusDirection(focusDir.String()),
 		connlist.WithOutputFormat(output),
 	}
@@ -138,8 +138,9 @@ defined`,
 
 	// define any flags and configuration settings.
 	// Use PersistentFlags() for flags inherited by subcommands or Flags() for local flags.
-	c.Flags().StringVarP(&focusWorkload, "focusworkload", "", "",
-		"Focus connections of specified workload in the output (<workload-name> or <workload-namespace/workload-name>)")
+	c.Flags().StringSliceVarP(&focusWorkload, "focusworkload", "", []string{},
+		"Focus connections of specified workload(s) in the output, supports comma-separated names"+
+			" (workload name format: <workload-name> or <workload-namespace/workload-name>)")
 	c.Flags().VarP(&focusDir, "focus-direction", "",
 		"Focus connections of specified workload on one direction, applies only when focusworkload is used; must be one of ingress,egress")
 	c.Flags().BoolVarP(&exposureAnalysis, "exposure", "", false, "Enhance the analysis of permitted connectivity with exposure analysis")

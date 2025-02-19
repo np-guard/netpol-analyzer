@@ -7,6 +7,7 @@ package connlist
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/common"
@@ -23,7 +24,7 @@ func TestExplainFromDir(t *testing.T) {
 	for _, tt := range explainTests {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
-			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkload, tt.focusDirection, tt.exposure)
+			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkloads, tt.focusDirection, tt.exposure)
 			res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 			require.Nil(t, err, pTest.testInfo)
 			out, err := pTest.analyzer.ConnectionsListToString(res)
@@ -34,14 +35,15 @@ func TestExplainFromDir(t *testing.T) {
 	}
 }
 
-func prepareExplainTest(dirName, focusWorkload, focusDirection string, exposure bool) preparedTest {
+func prepareExplainTest(dirName string, focusWorkloads []string, focusDirection string, exposure bool) preparedTest {
 	res := preparedTest{}
-	res.testName, res.expectedOutputFileName = testutils.ExplainTestNameByTestArgs(dirName, focusWorkload, focusDirection, exposure)
+	res.testName, res.expectedOutputFileName = testutils.ExplainTestNameByTestArgs(dirName,
+		strings.Join(focusWorkloads, testutils.Underscore), focusDirection, exposure)
 	res.testInfo = fmt.Sprintf("test: %q", res.testName)
-	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkload(focusWorkload),
+	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkloadList(focusWorkloads),
 		WithFocusDirection(focusDirection), WithExplanation())
 	if exposure {
-		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkload(focusWorkload),
+		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkloadList(focusWorkloads),
 			WithFocusDirection(focusDirection), WithExplanation(), WithExposureAnalysis())
 	}
 	res.analyzer = cAnalyzer
@@ -51,7 +53,7 @@ func prepareExplainTest(dirName, focusWorkload, focusDirection string, exposure 
 
 var explainTests = []struct {
 	testDirName    string
-	focusWorkload  string
+	focusWorkloads []string
 	focusDirection string
 	exposure       bool
 }{
@@ -66,7 +68,7 @@ var explainTests = []struct {
 	},
 	{
 		testDirName:    "anp_banp_blog_demo",
-		focusWorkload:  "myfoo",
+		focusWorkloads: []string{"myfoo"},
 		focusDirection: common.IngressFocusDirection,
 	},
 	{
@@ -141,14 +143,14 @@ var explainTests = []struct {
 		exposure:    true,
 	},
 	{
-		testDirName:   "exposure_matched_and_unmatched_rules_test",
-		exposure:      true,
-		focusWorkload: "hello-world/workload-a",
+		testDirName:    "exposure_matched_and_unmatched_rules_test",
+		exposure:       true,
+		focusWorkloads: []string{"hello-world/workload-a"},
 	},
 	{
 		testDirName:    "exposure_matched_and_unmatched_rules_test",
 		exposure:       true,
-		focusWorkload:  "hello-world/workload-a",
+		focusWorkloads: []string{"hello-world/workload-a"},
 		focusDirection: common.IngressFocusDirection,
 	},
 	{
@@ -226,5 +228,16 @@ var explainTests = []struct {
 	{
 		testDirName: "exposure_test_with_anp_16",
 		exposure:    true,
+	},
+	// tests with multiple focus-workloads
+	{
+		testDirName:    "exposure_matched_and_unmatched_rules_test",
+		exposure:       true,
+		focusWorkloads: []string{"hello-world/workload-a", "workload-b"},
+		focusDirection: common.IngressFocusDirection,
+	},
+	{
+		testDirName:    "anp_banp_blog_demo",
+		focusWorkloads: []string{"mymonitoring", "mybaz"},
 	},
 }

@@ -95,7 +95,7 @@ func NotSupportedPodResourcesErrorStr(ownerRefName string) string {
 
 // WorkloadDoesNotExistErrStr returns error string of missing workload for connlist with focus-workload
 func WorkloadDoesNotExistErrStr(workload string) string {
-	return "Workload " + workload + " does not exist in the input resources." + EmptyConnListErrStr
+	return "Workload " + workload + " does not exist in the input resources."
 }
 
 // FormatNotSupportedErrStr returns error string of a not supported format for connlist or diff results

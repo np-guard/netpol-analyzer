@@ -9,6 +9,7 @@ package connlist
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/common"
@@ -83,7 +84,7 @@ func TestConnListFromDir(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
-				pTest := prepareTest(tt.testDirName, tt.focusWorkload, tt.focusDirection, format, tt.exposureAnalysis)
+				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusDirection, format, tt.exposureAnalysis)
 				res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
@@ -101,7 +102,7 @@ func TestConnListFromResourceInfos(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
-				pTest := prepareTest(tt.testDirName, tt.focusWorkload, tt.focusDirection, format, tt.exposureAnalysis)
+				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusDirection, format, tt.exposureAnalysis)
 				infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
 				// require.Empty(t, errs, testInfo) - TODO: add info about expected errors
 				// from each test here (these errors do not stop the analysis or affect the output)
@@ -363,7 +364,7 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiToTest := range connlistTestedAPIS {
-				analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(apiToTest, tt.dirName, "")
+				analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(apiToTest, tt.dirName, []string{})
 				testFatalErr(t, connsRes, peersRes, err, tt.name, tt.errorStrContains, analyzer)
 			}
 		})
@@ -383,9 +384,9 @@ func testFatalErr(t *testing.T,
 	testutils.CheckErrorContainment(t, testName, errStr, analyzer.errors[0].Error().Error())
 }
 
-func getAnalysisResFromAPI(apiName, dirName, focusWorkload string) (
+func getAnalysisResFromAPI(apiName, dirName string, focusWorkloads []string) (
 	analyzer *ConnlistAnalyzer, connsRes []Peer2PeerConnection, peersRes []Peer, err error) {
-	pTest := prepareTest(dirName, focusWorkload, "", output.DefaultFormat, false)
+	pTest := prepareTest(dirName, focusWorkloads, "", output.DefaultFormat, false)
 	switch apiName {
 	case ResourceInfosFunc:
 		infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
@@ -409,7 +410,7 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 		dirName             string
 		firstErrStrContains string
 		emptyRes            bool
-		focusWorkload       string
+		focusWorkloads      []string
 		/*expectedErrNumWithoutStopOnErr int
 		expectedErrNumWithStopOnErr    int*/
 	}{
@@ -450,16 +451,30 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 		{
 			name:                "input_dir_with_focusworkload_that_does_not_exist_should_get_warning",
 			dirName:             "onlineboutique_workloads",
-			focusWorkload:       "abcd",
+			focusWorkloads:      []string{"abcd"},
 			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("abcd"),
 			emptyRes:            true,
 		},
 		{
 			name:                "input_dir_with_focusworkload_ns_and_name_that_does_not_exist_should_get_warning",
 			dirName:             "onlineboutique_workloads",
-			focusWorkload:       "default/abcd",
+			focusWorkloads:      []string{"default/abcd"},
 			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("default/abcd"),
 			emptyRes:            true,
+		},
+		{
+			name:                "input_dir_with_focusworkload_from_list_that_does_not_exist_should_get_warning",
+			dirName:             "anp_banp_blog_demo",
+			focusWorkloads:      []string{"myfoo", "abcd"},
+			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("abcd"),
+			emptyRes:            false, // only one focus-workload does not exist
+		},
+		{
+			name:                "input_dir_with_multiple_focusworkloads_that_do_not_exist_should_get_warnings",
+			dirName:             "anp_banp_blog_demo",
+			focusWorkloads:      []string{"myfriend", "abcd"},
+			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("myfriend"),
+			emptyRes:            true, // all focus-workloads do not exist - empty connlist
 		},
 
 		/*{
@@ -484,7 +499,7 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 			t.Parallel()
 
 			for _, apiToTest := range connlistTestedAPIS {
-				analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(apiToTest, tt.dirName, tt.focusWorkload)
+				analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(apiToTest, tt.dirName, tt.focusWorkloads)
 				require.Nil(t, err, tt.name)
 				if tt.emptyRes {
 					require.Empty(t, connsRes, tt.name)
@@ -548,7 +563,7 @@ func TestFatalErrorsConnlistFromDirPathOnly(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, "")
+			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, []string{})
 			testFatalErr(t, connsRes, peersRes, err, tt.name, tt.errorStrContains, analyzer)
 		})
 	}
@@ -561,7 +576,6 @@ func TestErrorsAndWarningsConnlistFromDirPathOnly(t *testing.T) {
 		dirName          string
 		errorStrContains string
 		emptyRes         bool
-		focusWorkload    string
 	}{
 		{
 			name:             "irrelevant_JSON_file_unable_to_decode",
@@ -580,7 +594,7 @@ func TestErrorsAndWarningsConnlistFromDirPathOnly(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, tt.focusWorkload)
+			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, []string{})
 			require.Nil(t, err, tt.name)
 			if tt.emptyRes {
 				require.Empty(t, connsRes, tt.name)
@@ -706,7 +720,7 @@ func getConnlistFromDirPathRes(opts []ConnlistAnalyzerOption, dirName string) (*
 func appendFocusWorkloadOptIfRequired(focusWorkload string) []ConnlistAnalyzerOption {
 	analyzerOptions := []ConnlistAnalyzerOption{}
 	if focusWorkload != "" {
-		analyzerOptions = append(analyzerOptions, WithFocusWorkload(focusWorkload))
+		analyzerOptions = append(analyzerOptions, WithFocusWorkloadList([]string{focusWorkload}))
 	}
 	return analyzerOptions
 }
@@ -719,14 +733,14 @@ type preparedTest struct {
 	analyzer               *ConnlistAnalyzer
 }
 
-func prepareTest(dirName, focusWorkload, focusDirection, format string, exposureFlag bool) preparedTest {
+func prepareTest(dirName string, focusWorkloads []string, focusDirection, format string, exposureFlag bool) preparedTest {
 	res := preparedTest{}
-	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestArgs(dirName, focusWorkload, focusDirection,
-		format, exposureFlag)
+	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestArgs(dirName,
+		strings.Join(focusWorkloads, testutils.Underscore), focusDirection, format, exposureFlag)
 	res.testInfo = fmt.Sprintf("test: %q, output format: %q", res.testName, format)
-	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload), WithFocusDirection(focusDirection))
+	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkloadList(focusWorkloads), WithFocusDirection(focusDirection))
 	if exposureFlag {
-		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkload(focusWorkload), WithFocusDirection(focusDirection),
+		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(format), WithFocusWorkloadList(focusWorkloads), WithFocusDirection(focusDirection),
 			WithExposureAnalysis())
 	}
 	res.analyzer = cAnalyzer
@@ -764,7 +778,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			preparedTest := prepareTest(tt.dirName, "", "", tt.format, tt.exposureFlag)
+			preparedTest := prepareTest(tt.dirName, []string{}, "", tt.format, tt.exposureFlag)
 			connsRes, peersRes, err := preparedTest.analyzer.ConnlistFromDirPath(preparedTest.dirPath)
 
 			require.Nil(t, err, tt.name)
@@ -778,7 +792,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error())
 
 			// re-run the test with new analyzer (to clear the analyzer.errors array )
-			preparedTest = prepareTest(tt.dirName, "", "", tt.format, tt.exposureFlag)
+			preparedTest = prepareTest(tt.dirName, []string{}, "", tt.format, tt.exposureFlag)
 			infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{preparedTest.dirPath}, true, false)
 			connsRes2, peersRes2, err2 := preparedTest.analyzer.ConnlistFromResourceInfos(infos)
 
@@ -797,7 +811,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 var goodPathTests = []struct {
 	testDirName      string
 	outputFormats    []string
-	focusWorkload    string
+	focusWorkloads   []string
 	focusDirection   string
 	exposureAnalysis bool
 }{
@@ -974,46 +988,46 @@ var goodPathTests = []struct {
 		outputFormats: []string{output.TextFormat},
 	},
 	{
-		testDirName:   "onlineboutique_workloads",
-		focusWorkload: "emailservice",
-		outputFormats: []string{output.TextFormat},
+		testDirName:    "onlineboutique_workloads",
+		focusWorkloads: []string{"emailservice"},
+		outputFormats:  []string{output.TextFormat},
 	},
 	{
-		testDirName:   "k8s_ingress_test",
-		focusWorkload: "details-v1-79f774bdb9",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "acs-security-demos-added-workloads",
-		focusWorkload: "backend/recommendation",
-		outputFormats: []string{output.TextFormat},
+		testDirName:    "k8s_ingress_test",
+		focusWorkloads: []string{"details-v1-79f774bdb9"},
+		outputFormats:  []string{output.TextFormat},
 	},
 	{
 		testDirName:    "acs-security-demos-added-workloads",
-		focusWorkload:  "backend/recommendation",
+		focusWorkloads: []string{"backend/recommendation"},
+		outputFormats:  []string{output.TextFormat},
+	},
+	{
+		testDirName:    "acs-security-demos-added-workloads",
+		focusWorkloads: []string{"backend/recommendation"},
 		focusDirection: common.IngressFocusDirection,
 		outputFormats:  []string{output.TextFormat},
 	},
 	{
 		testDirName:    "acs-security-demos-added-workloads",
-		focusWorkload:  "backend/recommendation",
+		focusWorkloads: []string{"backend/recommendation"},
 		focusDirection: common.EgressFocusDirection,
 		outputFormats:  []string{output.TextFormat},
 	},
 	{
-		testDirName:   "acs-security-demos-added-workloads",
-		focusWorkload: "asset-cache",
-		outputFormats: []string{output.TextFormat},
+		testDirName:    "acs-security-demos-added-workloads",
+		focusWorkloads: []string{"asset-cache"},
+		outputFormats:  []string{output.TextFormat},
 	},
 	{
-		testDirName:   "acs-security-demos-added-workloads",
-		focusWorkload: "frontend/asset-cache",
-		outputFormats: []string{output.TextFormat},
+		testDirName:    "acs-security-demos-added-workloads",
+		focusWorkloads: []string{"frontend/asset-cache"},
+		outputFormats:  []string{output.TextFormat},
 	},
 	{
-		testDirName:   "acs-security-demos-added-workloads",
-		focusWorkload: "ingress-controller",
-		outputFormats: []string{output.TextFormat},
+		testDirName:    "acs-security-demos-added-workloads",
+		focusWorkloads: []string{"ingress-controller"},
+		outputFormats:  []string{output.TextFormat},
 	},
 	{
 		testDirName:      "acs-security-demos",
@@ -1024,14 +1038,14 @@ var goodPathTests = []struct {
 		testDirName:      "acs-security-demos",
 		exposureAnalysis: true,
 		// test with focus-workload that appears in exposure-analysis result
-		focusWorkload: "frontend/webapp",
-		outputFormats: ValidFormats,
+		focusWorkloads: []string{"frontend/webapp"},
+		outputFormats:  ValidFormats,
 	},
 	{
 		testDirName:      "acs-security-demos",
 		exposureAnalysis: true,
 		// test with focus-workload that appears in exposure-analysis result
-		focusWorkload:  "frontend/webapp",
+		focusWorkloads: []string{"frontend/webapp"},
 		focusDirection: common.IngressFocusDirection,
 		outputFormats:  ValidFormats,
 	},
@@ -1039,7 +1053,7 @@ var goodPathTests = []struct {
 		testDirName:      "acs-security-demos",
 		exposureAnalysis: true,
 		// test with focus-workload that appears in exposure-analysis result
-		focusWorkload:  "frontend/webapp",
+		focusWorkloads: []string{"frontend/webapp"},
 		focusDirection: common.EgressFocusDirection,
 		outputFormats:  ValidFormats,
 	},
@@ -1047,8 +1061,8 @@ var goodPathTests = []struct {
 		testDirName:      "acs-security-demos",
 		exposureAnalysis: true,
 		// test with focus-workload that does not appear in exposure-analysis result
-		focusWorkload: "backend/catalog",
-		outputFormats: ValidFormats,
+		focusWorkloads: []string{"backend/catalog"},
+		outputFormats:  ValidFormats,
 	},
 	{
 		testDirName:      "exposure_allow_all_test",
@@ -1078,7 +1092,7 @@ var goodPathTests = []struct {
 	{
 		testDirName:      "exposure_matched_and_unmatched_rules_test",
 		exposureAnalysis: true,
-		focusWorkload:    "hello-world/workload-a",
+		focusWorkloads:   []string{"hello-world/workload-a"},
 		outputFormats:    ValidFormats,
 	},
 	{
@@ -1169,7 +1183,7 @@ var goodPathTests = []struct {
 	{
 		testDirName:      "onlineboutique_workloads",
 		exposureAnalysis: true,
-		focusWorkload:    "default/loadgenerator",
+		focusWorkloads:   []string{"default/loadgenerator"},
 		outputFormats:    ValidFormats,
 	},
 	{
@@ -1180,13 +1194,13 @@ var goodPathTests = []struct {
 	{
 		testDirName:      "k8s_ingress_test_new",
 		exposureAnalysis: true,
-		focusWorkload:    "details-v1-79f774bdb9",
+		focusWorkloads:   []string{"details-v1-79f774bdb9"},
 		outputFormats:    ValidFormats,
 	},
 	{
 		testDirName:      "k8s_ingress_test",
 		exposureAnalysis: true,
-		focusWorkload:    "ratings-v1-b6994bb9",
+		focusWorkloads:   []string{"ratings-v1-b6994bb9"},
 		outputFormats:    ValidFormats,
 	},
 	{
@@ -1796,6 +1810,25 @@ var goodPathTests = []struct {
 		testDirName:      "exposure_test_with_anp_16",
 		outputFormats:    ValidFormats,
 		exposureAnalysis: true,
+	},
+	// tests with multiple workloads
+	{
+		testDirName:    "anp_banp_blog_demo",
+		focusWorkloads: []string{"myfoo", "mybar"},
+		outputFormats:  ValidFormats,
+	},
+	{
+		testDirName:      "acs-security-demos",
+		exposureAnalysis: true,
+		focusWorkloads:   []string{"backend/checkout", "frontend/webapp"},
+		outputFormats:    ValidFormats,
+	},
+	{
+		testDirName:      "acs-security-demos",
+		exposureAnalysis: true,
+		focusWorkloads:   []string{"backend/checkout", "frontend/webapp"},
+		focusDirection:   common.EgressFocusDirection,
+		outputFormats:    ValidFormats,
 	},
 }
 

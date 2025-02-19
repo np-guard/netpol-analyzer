@@ -1,0 +1,65 @@
+{
+  "connlist_results": [
+    {
+      "src": "backend/checkout[Deployment]",
+      "dst": "backend/notification[Deployment]",
+      "conn": "TCP 8080"
+    },
+    {
+      "src": "backend/checkout[Deployment]",
+      "dst": "backend/recommendation[Deployment]",
+      "conn": "TCP 8080"
+    },
+    {
+      "src": "backend/checkout[Deployment]",
+      "dst": "payments/gateway[Deployment]",
+      "conn": "TCP 8080"
+    },
+    {
+      "src": "frontend/webapp[Deployment]",
+      "dst": "backend/checkout[Deployment]",
+      "conn": "TCP 8080"
+    },
+    {
+      "src": "frontend/webapp[Deployment]",
+      "dst": "backend/recommendation[Deployment]",
+      "conn": "TCP 8080"
+    },
+    {
+      "src": "frontend/webapp[Deployment]",
+      "dst": "backend/reports[Deployment]",
+      "conn": "TCP 8080"
+    },
+    {
+      "src": "frontend/webapp[Deployment]",
+      "dst": "backend/shipping[Deployment]",
+      "conn": "TCP 8080"
+    },
+    {
+      "src": "{ingress-controller}",
+      "dst": "frontend/webapp[Deployment]",
+      "conn": "TCP 8080"
+    }
+  ],
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "backend/checkout[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "UDP 5353"
+      },
+      {
+        "src": "frontend/webapp[Deployment]",
+        "dst": "entire-cluster",
+        "conn": "UDP 5353"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "entire-cluster",
+        "dst": "frontend/webapp[Deployment]",
+        "conn": "TCP 8080"
+      }
+    ]
+  }
+}
