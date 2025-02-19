@@ -44,18 +44,25 @@ import (
 // A ConnlistAnalyzer provides API to recursively scan a directory for Kubernetes resources including network policies,
 // and get the list of permitted connectivity between the workloads of the K8s application managed in this directory.
 type ConnlistAnalyzer struct {
-	logger           logger.Logger
-	stopOnError      bool
-	errors           []ConnlistError
-	focusWorkloads   []string
-	focusDirection   string
-	exposureAnalysis bool
-	exposureResult   []ExposedPeer
-	explain          bool
-	outputFormat     string
-	muteErrsAndWarns bool
-	peersList        []Peer // internally used peersList used in dot formatting; in case of focusWorkload option contains only relevant peers
+	logger            logger.Logger
+	stopOnError       bool
+	errors            []ConnlistError
+	focusWorkloads    []string
+	focusWorkloadPeer string
+	focusDirection    string
+	exposureAnalysis  bool
+	exposureResult    []ExposedPeer
+	explain           bool
+	outputFormat      string
+	muteErrsAndWarns  bool
+	peersList         []Peer // internally used peersList used in dot formatting; in case of focusWorkload option contains only relevant peers
+	ignoreExposure    bool   // internally used; indicates if exposure flag is used while it has no effect (to be ignored)
 }
+
+// some notes on flags combinations :
+// - `focus-direction` is effective only with `focusworkload` (workloads list); otherwise ignored
+// - `focusworkload-peer` is effective only with `focusworkload`; otherwise ignored
+// - `exposure` is not relevant if both focusworkload-peer` and `focusworkload` are used; in this case `exposure` is ignored
 
 // The new interface
 // ConnlistFromResourceInfos returns the allowed-connections list from input slice of resource.Info objects,
@@ -146,6 +153,12 @@ func WithFocusDirection(direction string) ConnlistAnalyzerOption {
 	}
 }
 
+func WithFocusWorkloadPeer(workloadPeer string) ConnlistAnalyzerOption {
+	return func(p *ConnlistAnalyzer) {
+		p.focusWorkloadPeer = workloadPeer
+	}
+}
+
 // WithExposureAnalysis is a functional option which directs ConnlistAnalyzer to perform exposure analysis
 func WithExposureAnalysis() ConnlistAnalyzerOption {
 	return func(c *ConnlistAnalyzer) {
@@ -194,7 +207,14 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 		ca.logger.Warnf(alerts.WarnIncompatibleFormat(ca.outputFormat))
 	}
 	if len(ca.focusWorkloads) == 0 && ca.focusDirection != "" {
-		ca.logWarning(alerts.WarnIgnoredFocusDirection)
+		ca.logWarning(alerts.FocusDirectionFlag + alerts.WarnIgnoredWithoutFocusWorkload)
+	}
+	if len(ca.focusWorkloads) == 0 && ca.focusWorkloadPeer != "" {
+		ca.logWarning(alerts.FocusWorkloadPeerFlag + alerts.WarnIgnoredWithoutFocusWorkload)
+	}
+	if len(ca.focusWorkloads) > 0 && ca.focusWorkloadPeer != "" && ca.exposureAnalysis {
+		ca.ignoreExposure = true
+		ca.logWarning(alerts.WarnIgnoredExposure)
 	}
 	return ca
 }
@@ -347,7 +367,7 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
 	}
-	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis, ca.explain)
+	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, (ca.exposureAnalysis && !ca.ignoreExposure), ca.explain)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
@@ -454,8 +474,10 @@ func (ca *ConnlistAnalyzer) includePairOfWorkloads(pe *eval.PolicyEngine, src, d
 	if ca.focusDirection == pkgcommon.EgressFocusDirection && !ca.isPeerFocusWorkload(src) {
 		return false
 	}
-	// no focus-workload or at least one of src/dst should be the focus workload (and focus direction is both)
-	return ca.isPeerFocusWorkload(src) || ca.isPeerFocusWorkload(dst)
+	// no focus-workload or at least one of src/dst should be the focus workload,
+	// Note that if ca.focusWorkloadPeer is not empty, it must match the other peer.
+	// Note that if ca.focusDirection is defined; it is applied only to the focus-workloads (the check already done)
+	return (ca.isPeerFocusWorkload(src) && ca.isPeerFocusWorkloadPeer(dst)) || (ca.isPeerFocusWorkload(dst) && ca.isPeerFocusWorkloadPeer(src))
 }
 
 func (ca *ConnlistAnalyzer) includePairWithRepresentativePeer(pe *eval.PolicyEngine, src, dst Peer) bool {
@@ -494,6 +516,14 @@ func (ca *ConnlistAnalyzer) isPeerFocusWorkload(peer Peer) bool {
 		}
 	}
 	return false
+}
+
+// isPeerFocusWorkloadPeer returns true if focusworkload-peer flag is not used (each peer matches),
+// or if the input peer's name is equal to the focusworkload-peer (ca.focusWorkloadPeer)
+// or if there are no focus-workloads (then the focusworkload-peer is ignored)
+func (ca *ConnlistAnalyzer) isPeerFocusWorkloadPeer(peer Peer) bool {
+	return ca.focusWorkloadPeer == "" || peer.Name() == ca.focusWorkloadPeer || getPeerNsNameFormat(peer) == ca.focusWorkloadPeer ||
+		len(ca.focusWorkloads) == 0
 }
 
 func convertEvalPeersToConnlistPeer(peers []eval.Peer) []Peer {
@@ -544,7 +574,7 @@ func (ca *ConnlistAnalyzer) getPeersForConnsComputation(pe *eval.PolicyEngine) (
 	// update the ca.peersList from workload peers list (used for updating dot outputs with all workloads from manifests)
 	ca.peersList = make([]Peer, 0, len(peerList))
 	for _, p := range peerList {
-		if ca.isPeerFocusWorkload(p) {
+		if ca.isPeerFocusWorkload(p) || (ca.focusWorkloadPeer != "" && ca.isPeerFocusWorkloadPeer(p)) {
 			ca.peersList = append(ca.peersList, p)
 		}
 	}
@@ -578,20 +608,8 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	}
 
 	excludeIngressAnalysis := (ia == nil || ia.IsEmpty())
-
-	// if ca.focusWorkloads is not empty, for each focus-workload: check if it exists in the peers before proceeding
-	cnt := 0 // count number of the focus-workloads which exist
-	for _, focusWl := range ca.focusWorkloads {
-		existFocusWorkload, warningMsg := ca.existsFocusWorkload(focusWl, excludeIngressAnalysis)
-		if !existFocusWorkload {
-			cnt++
-			ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
-			ca.logWarning(warningMsg)
-		}
-	}
-	// if all focus-workloads do not exist: nothing to do (empty connlist); return
-	if cnt != 0 && cnt == len(ca.focusWorkloads) {
-		ca.logWarning(netpolerrors.EmptyConnListErrStr)
+	// check if a connlist may be produced for input ca.focusWorkloads and ca.focusWorkloadPeer (existence if given)
+	if !ca.checkFocusWorkloadsExistence(excludeIngressAnalysis) {
 		return nil, nil, nil
 	}
 
@@ -630,6 +648,42 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	}
 
 	return connsRes, peers, nil
+}
+
+// checkFocusWorkloadsExistence check existence of focusworkloads based on the used flags
+// if focusworkload flag is used checks for the existence of the given workloads
+// if also focuswokload-peer flag is used checks if it exists
+// returns false if:
+// - all the focus-workloads do not exist (not possible to produce a connlist)
+// - any of the peers in focus-workloads list exists but the ca.focusWorkloadPeer does not, i.e. no conns to filter between given inputs
+func (ca *ConnlistAnalyzer) checkFocusWorkloadsExistence(excludeIngressAnalysis bool) bool {
+	if len(ca.focusWorkloads) == 0 {
+		return true // no focus-workloads means no need to filter the connlist, return true to proceed in connlist generating
+	}
+	// if ca.focusWorkloads is not empty, for each focus-workload: check if it exists in the peers before proceeding
+	cnt := 0 // count number of the focus-workloads which exist
+	for _, focusWl := range ca.focusWorkloads {
+		existFocusWorkload, warningMsg := ca.existsFocusWorkload(focusWl, excludeIngressAnalysis)
+		if !existFocusWorkload {
+			cnt++
+			ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
+			ca.logWarning(warningMsg)
+		}
+	}
+	// if all focus-workloads do not exist: nothing to do (empty connlist); return
+	if cnt != 0 && cnt == len(ca.focusWorkloads) {
+		ca.logWarning(netpolerrors.EmptyConnListErrStr)
+		return false
+	}
+	// if there are focus-wrkloads, check also if ca.focusWorkloadPeer is not empty and that it exists before proceeding
+	existsFocusWorkloadPeer, warningMsg := ca.existsFocusWorkload(ca.focusWorkloadPeer, excludeIngressAnalysis)
+	if ca.focusWorkloadPeer != "" && !existsFocusWorkloadPeer {
+		ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
+		ca.logWarning(warningMsg)
+		// if the focus-workloadPeer does not exist; no relevant connections with focus-workloads to display
+		return false
+	}
+	return true
 }
 
 // existsFocusWorkload checks if the provided focus workload is ingress-controller
@@ -830,11 +884,12 @@ func (ca *ConnlistAnalyzer) updatePeersGeneralExposureData(pe *eval.PolicyEngine
 
 // shouldAddPeerGeneralExposureData returns whether should add given peer's general
 // exposure data to the exposure results.
-// returns true if :
+// returns true if all of the following are true:
 // - the peer is not IP type
 // - the peer is not representative peer
-// - focus-workload flag is not used or the peer is the focus-workload
+// - focus-workload flag is not used or the peer is a focus-workload
 // - it is first time the peer is visited
+// - exposure should not be ignored (would be ignored if both ca.focusWorkloads and ca.focusWorkloadPeer are not empty)
 func (ca *ConnlistAnalyzer) shouldAddPeerGeneralExposureData(pe *eval.PolicyEngine, peer Peer, xgressSet map[Peer]bool) bool {
-	return !peer.IsPeerIPType() && !pe.IsRepresentativePeer(peer) && !xgressSet[peer] && ca.isPeerFocusWorkload(peer)
+	return !peer.IsPeerIPType() && !pe.IsRepresentativePeer(peer) && !xgressSet[peer] && ca.isPeerFocusWorkload(peer) && !ca.ignoreExposure
 }

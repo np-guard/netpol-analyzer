@@ -7,6 +7,8 @@
         "banp",
         "Clientset",
         "connlist",
+        "focusworkload",
+        "focusworkloads",
         "netpol",
         "netpols",
         "SCTP",

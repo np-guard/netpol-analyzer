@@ -24,7 +24,7 @@ func TestExplainFromDir(t *testing.T) {
 	for _, tt := range explainTests {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
-			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkloads, tt.focusDirection, tt.exposure)
+			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeer, tt.focusDirection, tt.exposure)
 			res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 			require.Nil(t, err, pTest.testInfo)
 			out, err := pTest.analyzer.ConnectionsListToString(res)
@@ -35,16 +35,16 @@ func TestExplainFromDir(t *testing.T) {
 	}
 }
 
-func prepareExplainTest(dirName string, focusWorkloads []string, focusDirection string, exposure bool) preparedTest {
+func prepareExplainTest(dirName string, focusWorkloads []string, focusWorkloadPeer, focusDirection string, exposure bool) preparedTest {
 	res := preparedTest{}
 	res.testName, res.expectedOutputFileName = testutils.ExplainTestNameByTestArgs(dirName,
-		strings.Join(focusWorkloads, testutils.Underscore), focusDirection, exposure)
+		strings.Join(focusWorkloads, testutils.Underscore), focusWorkloadPeer, focusDirection, exposure)
 	res.testInfo = fmt.Sprintf("test: %q", res.testName)
 	cAnalyzer := NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkloadList(focusWorkloads),
-		WithFocusDirection(focusDirection), WithExplanation())
+		WithFocusWorkloadPeer(focusWorkloadPeer), WithFocusDirection(focusDirection), WithExplanation())
 	if exposure {
 		cAnalyzer = NewConnlistAnalyzer(WithOutputFormat(output.TextFormat), WithFocusWorkloadList(focusWorkloads),
-			WithFocusDirection(focusDirection), WithExplanation(), WithExposureAnalysis())
+			WithFocusWorkloadPeer(focusWorkloadPeer), WithFocusDirection(focusDirection), WithExplanation(), WithExposureAnalysis())
 	}
 	res.analyzer = cAnalyzer
 	res.dirPath = testutils.GetTestDirPath(dirName)
@@ -52,10 +52,11 @@ func prepareExplainTest(dirName string, focusWorkloads []string, focusDirection 
 }
 
 var explainTests = []struct {
-	testDirName    string
-	focusWorkloads []string
-	focusDirection string
-	exposure       bool
+	testDirName       string
+	focusWorkloads    []string
+	focusDirection    string
+	focusWorkloadPeer string
+	exposure          bool
 }{
 	{
 		testDirName: "acs-security-demos",
@@ -239,5 +240,10 @@ var explainTests = []struct {
 	{
 		testDirName:    "anp_banp_blog_demo",
 		focusWorkloads: []string{"mymonitoring", "mybaz"},
+	},
+	{
+		testDirName:       "anp_banp_blog_demo",
+		focusWorkloads:    []string{"mymonitoring"},
+		focusWorkloadPeer: "myfoo",
 	},
 }

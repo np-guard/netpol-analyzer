@@ -30,10 +30,11 @@ const (
 	// example raising this warning: tests/anp_test_named_ports_multiple_peers
 
 	K8sClusterDoesNotSupportNetworkPolicyAPI = "cluster does not support admin network policies"
-	WarnIgnoredFocusDirection                = "focus-direction may be used only with focusworkload flag, will be ignored"
-)
-
-var (
+	FocusDirectionFlag                       = "focus-direction"
+	FocusWorkloadPeerFlag                    = "focusworkload-peer"
+	WarnIgnoredWithoutFocusWorkload          = " may be used only with focusworkload flag, will be ignored"
+	WarnIgnoredExposure                      = "exposure analysis is not relevant when both focusworkload and focusworkload-peer" +
+		" are used; exposure flag will be ignored"
 	WarnUnsupportedIPv6Address = "IPv6 addresses are not supported" // example raising this warning:
 	// tests/anp_and_banp_using_networks_with_ipv6_test
 	WarnUnsupportedNodesField = "Nodes field of an AdminNetworkPolicyEgressPeer is not supported" // example raising this

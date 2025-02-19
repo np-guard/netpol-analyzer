@@ -1,0 +1,12 @@
+[
+  {
+    "src": "backend/checkout[Deployment]",
+    "dst": "backend/recommendation[Deployment]",
+    "conn": "TCP 8080"
+  },
+  {
+    "src": "frontend/webapp[Deployment]",
+    "dst": "backend/recommendation[Deployment]",
+    "conn": "TCP 8080"
+  }
+]

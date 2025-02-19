@@ -31,8 +31,10 @@ const (
 	exposureExpectedOutputFilePartialName        = "exposure_output."
 	Underscore                                   = "_"
 	dotSign                                      = "."
+	CommaSign                                    = ","
 	formatStr                                    = "_format_"
 	focusWlAnnotation                            = "_focus_workload_"
+	withStr                                      = "_with_"
 )
 
 var testsDirPath = filepath.Join(projectpath.Root, "tests")
@@ -44,13 +46,16 @@ func GetTestDirPath(dirName string) string {
 }
 
 // ConnlistTestNameByTestArgs returns connlist test name and test's expected output file from some tests args
-func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusDirection, format string,
+func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focusDirection, format string,
 	exposureFlag bool) (testName, expectedOutputFileName string) {
 	namePrefix := dirName
 	if focusWorkload != "" {
 		namePrefix += focusWlAnnotation + strings.ReplaceAll(focusWorkload, "/", Underscore)
 		if focusDirection != "" {
 			namePrefix += Underscore + focusDirection
+		}
+		if focusWorkloadPeer != "" {
+			namePrefix += withStr + strings.ReplaceAll(focusWorkloadPeer, "/", Underscore)
 		}
 	}
 	testName = namePrefix + formatStr + format
@@ -63,12 +68,16 @@ func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusDirection, format s
 }
 
 // ExplainTestNameByTestArgs returns explain test name and test's expected output file from some tests args
-func ExplainTestNameByTestArgs(dirName, focusWorkload, focusDirection string, exposure bool) (testName, expectedOutputFileName string) {
+func ExplainTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focusDirection string, exposure bool) (testName,
+	expectedOutputFileName string) {
 	namePrefix := dirName
 	if focusWorkload != "" {
 		namePrefix += focusWlAnnotation + strings.ReplaceAll(focusWorkload, "/", Underscore)
 		if focusDirection != "" {
 			namePrefix += Underscore + focusDirection
+		}
+		if focusWorkloadPeer != "" {
+			namePrefix += withStr + strings.ReplaceAll(focusWorkloadPeer, "/", Underscore)
 		}
 	}
 	testName = namePrefix
