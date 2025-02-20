@@ -364,7 +364,7 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiToTest := range connlistTestedAPIS {
-				analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(apiToTest, tt.dirName, []string{})
+				analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(apiToTest, tt.dirName, nil, nil, "")
 				testFatalErr(t, connsRes, peersRes, err, tt.name, tt.errorStrContains, analyzer)
 			}
 		})
@@ -384,9 +384,9 @@ func testFatalErr(t *testing.T,
 	testutils.CheckErrorContainment(t, testName, errStr, analyzer.errors[0].Error().Error())
 }
 
-func getAnalysisResFromAPI(apiName, dirName string, focusWorkloads []string) (
+func getAnalysisResFromAPI(apiName, dirName string, focusWorkloads, focusWorkloadPeers []string, focusDirection string) (
 	analyzer *ConnlistAnalyzer, connsRes []Peer2PeerConnection, peersRes []Peer, err error) {
-	pTest := prepareTest(dirName, focusWorkloads, nil, "", output.DefaultFormat, false)
+	pTest := prepareTest(dirName, focusWorkloads, focusWorkloadPeers, focusDirection, output.DefaultFormat, false)
 	switch apiName {
 	case ResourceInfosFunc:
 		infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
@@ -411,6 +411,8 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 		firstErrStrContains string
 		emptyRes            bool
 		focusWorkloads      []string
+		focusWorkloadPeers  []string
+		focusDirection      string
 		/*expectedErrNumWithoutStopOnErr int
 		expectedErrNumWithStopOnErr    int*/
 	}{
@@ -476,6 +478,23 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("myfriend"),
 			emptyRes:            true, // all focus-workloads do not exist - empty connlist
 		},
+		{
+			name:                "input_dir_with_multiple_focusworkloads-peers_that_do_not_exist_should_get_warnings",
+			dirName:             "anp_banp_blog_demo",
+			focusWorkloads:      []string{"myfoo"},
+			focusWorkloadPeers:  []string{"myfo", "mike"},
+			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("myfo"),
+			emptyRes:            true, // all focus-workloads peers do not exist - empty connlist
+		},
+		{
+			name:                "input_dir_with_multiple_focusworkloads-peers_that_some_exist_should_get_warning_and_connlist_not_empty",
+			dirName:             "anp_banp_blog_demo",
+			focusWorkloads:      []string{"myfoo"},
+			focusWorkloadPeers:  []string{"mybaz", "mike"},
+			focusDirection:      common.EgressFocusDirection,
+			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("mike"),
+			emptyRes:            false, // some focus-workload-peers exist
+		},
 
 		/*{
 			// this error issued by builder
@@ -499,7 +518,7 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 			t.Parallel()
 
 			for _, apiToTest := range connlistTestedAPIS {
-				analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(apiToTest, tt.dirName, tt.focusWorkloads)
+				analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(apiToTest, tt.dirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection)
 				require.Nil(t, err, tt.name)
 				if tt.emptyRes {
 					require.Empty(t, connsRes, tt.name)
@@ -563,7 +582,7 @@ func TestFatalErrorsConnlistFromDirPathOnly(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, []string{})
+			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, nil, nil, "")
 			testFatalErr(t, connsRes, peersRes, err, tt.name, tt.errorStrContains, analyzer)
 		})
 	}
@@ -594,7 +613,7 @@ func TestErrorsAndWarningsConnlistFromDirPathOnly(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, []string{})
+			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, nil, nil, "")
 			require.Nil(t, err, tt.name)
 			if tt.emptyRes {
 				require.Empty(t, connsRes, tt.name)

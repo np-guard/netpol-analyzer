@@ -32,7 +32,7 @@ const (
 	ConversionToUnstructuredErr              = "failed conversion from resource.Info to unstructured.Unstructured"
 
 	// connlist errors
-	EmptyConnListErrStr    = " Connectivity map report will be empty."
+	EmptyConnListErrStr    = "Connectivity map report will be empty."
 	NoIngressSourcesErrStr = "The ingress-controller workload was not added to the analysis, since Ingress/Route resources were not found."
 	NoAllowedConnsWarning  = "Connectivity analysis found no allowed connectivity between pairs from the configured workloads or" +
 		" external IP-blocks"
