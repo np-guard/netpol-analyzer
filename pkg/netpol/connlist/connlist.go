@@ -626,15 +626,20 @@ func (ca *ConnlistAnalyzer) getPeersForConnsComputation(pe *eval.PolicyEngine) (
 	return srcPeers, dstPeers, peers, nil
 }
 
+// flagsValidation validates input enum flags values
+func (ca *ConnlistAnalyzer) flagsValidation() error {
+	if err := ca.validateFocusDirectionValue(); err != nil {
+		return err
+	}
+	return ca.validateExplainOnlyValue()
+}
+
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
 // if the exposure-analysis option is on, also computes and updates the exposure-analysis results
 func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingressanalyzer.IngressAnalyzer) ([]Peer2PeerConnection,
 	[]Peer, error) {
-	// validate focus-direction and explain-only values
-	if err := ca.validateFocusDirectionValue(); err != nil {
-		return nil, nil, err
-	}
-	if err := ca.validateExplainOnlyValue(); err != nil {
+	// validate input flags values
+	if err := ca.flagsValidation(); err != nil {
 		return nil, nil, err
 	}
 
