@@ -56,7 +56,6 @@ type ConnlistAnalyzer struct {
 	outputFormat       string
 	muteErrsAndWarns   bool
 	peersList          []Peer // internally used peersList used in dot formatting; in case of focusWorkload option contains only relevant peers
-	ignoreExposure     bool   // internally used; indicates if exposure flag is used while it has no effect (to be ignored)
 }
 
 // some notes on flags combinations :
@@ -213,7 +212,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 		ca.logWarning(alerts.FocusWorkloadPeerFlag + alerts.WarnIgnoredWithoutFocusWorkload)
 	}
 	if len(ca.focusWorkloads) > 0 && len(ca.focusWorkloadPeers) > 0 && ca.exposureAnalysis {
-		ca.ignoreExposure = true
+		ca.exposureAnalysis = false
 		ca.logWarning(alerts.WarnIgnoredExposure)
 	}
 	return ca
@@ -367,7 +366,7 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
 	}
-	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, (ca.exposureAnalysis && !ca.ignoreExposure), ca.explain)
+	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis, ca.explain)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
@@ -888,8 +887,6 @@ func (ca *ConnlistAnalyzer) updatePeersGeneralExposureData(pe *eval.PolicyEngine
 // - the peer is not representative peer
 // - focus-workload flag is not used or the peer is a focus-workload
 // - it is first time the peer is visited
-// - exposure should not be ignored (would be ignored if both ca.focusWorkloads and ca.focusWorkloadPeer are not empty)
 func (ca *ConnlistAnalyzer) shouldAddPeerGeneralExposureData(pe *eval.PolicyEngine, peer Peer, xgressSet map[Peer]bool) bool {
-	return !peer.IsPeerIPType() && !pe.IsRepresentativePeer(peer) && !xgressSet[peer] && isPeerFocusWorkload(peer, ca.focusWorkloads) &&
-		!ca.ignoreExposure
+	return !peer.IsPeerIPType() && !pe.IsRepresentativePeer(peer) && !xgressSet[peer] && isPeerFocusWorkload(peer, ca.focusWorkloads)
 }
