@@ -68,7 +68,7 @@ func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focus
 }
 
 // ExplainTestNameByTestArgs returns explain test name and test's expected output file from some tests args
-func ExplainTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focusDirection string, exposure bool) (testName,
+func ExplainTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focusDirection, explainOnly string, exposure bool) (testName,
 	expectedOutputFileName string) {
 	namePrefix := dirName
 	if focusWorkload != "" {
@@ -79,6 +79,9 @@ func ExplainTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focusD
 		if focusWorkloadPeer != "" {
 			namePrefix += withStr + strings.ReplaceAll(focusWorkloadPeer, "/", Underscore)
 		}
+	}
+	if explainOnly != "" {
+		namePrefix += Underscore + explainOnly
 	}
 	testName = namePrefix
 	outputPartialName := explainExpectedOutputFilePartialName

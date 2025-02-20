@@ -32,11 +32,15 @@ const (
 	K8sClusterDoesNotSupportNetworkPolicyAPI = "cluster does not support admin network policies"
 	FocusDirectionFlag                       = "focus-direction"
 	FocusWorkloadPeerFlag                    = "focusworkload-peer"
+	WarnIgnoredWithoutExplain                = "explain-only may be used only with explain flag, will be ignored"
 	WarnIgnoredWithoutFocusWorkload          = " may be used only with focusworkload flag, will be ignored"
-	WarnIgnoredExposure                      = "exposure analysis is not relevant when both focusworkload and focusworkload-peer" +
-		" are used; exposure flag will be ignored"
-	WarnUnsupportedIPv6Address = "IPv6 addresses are not supported" // example raising this warning:
+	WarnUnsupportedIPv6Address               = "IPv6 addresses are not supported" // example raising this warning:
 	// tests/anp_and_banp_using_networks_with_ipv6_test
 	WarnUnsupportedNodesField = "Nodes field of an AdminNetworkPolicyEgressPeer is not supported" // example raising this
 	// warning: tests/anp_and_banp_using_networks_and_nodes_test
 )
+
+func WarnIgnoredExposure(flag1, flag2 string) string {
+	return "exposure analysis is not relevant when both " + flag1 + " and " + flag2 +
+		" are used; exposure flag will be ignored"
+}

@@ -53,15 +53,49 @@ type ConnlistAnalyzer struct {
 	exposureAnalysis   bool
 	exposureResult     []ExposedPeer
 	explain            bool
+	explainOnly        string
 	outputFormat       string
 	muteErrsAndWarns   bool
 	peersList          []Peer // internally used peersList used in dot formatting; in case of focusWorkload option contains only relevant peers
 }
 
+const (
+	focusworkloadStr     = "focusworkload"
+	focusWorkloadPeerStr = "focusworkload-peer"
+	explainStr           = "explain"
+	explainOnlyStr       = "explain-only"
+)
+
 // some notes on flags combinations :
 // - `focus-direction` is effective only with `focusworkload` (workloads list); otherwise ignored
 // - `focusworkload-peer` is effective only with `focusworkload`; otherwise ignored
 // - `exposure` is not relevant if both focusworkload-peer` and `focusworkload` are used; in this case `exposure` is ignored
+// - `explain-only` is effective only with `explain`; otherwise ignored
+// - `exposure` is not relevant if both `explain` and `explain-only` are used; in this case `exposure` is ignored
+// - `explain` is effective only with output format `output` txt
+func (ca *ConnlistAnalyzer) warnIncompatibleFlagsUsage() {
+	if ca.explain && ca.outputFormat != output.DefaultFormat {
+		ca.logger.Warnf(alerts.WarnIncompatibleFormat(ca.outputFormat))
+	}
+	if len(ca.focusWorkloads) == 0 && ca.focusDirection != "" {
+		ca.logWarning(alerts.FocusDirectionFlag + alerts.WarnIgnoredWithoutFocusWorkload)
+	}
+	if len(ca.focusWorkloads) == 0 && len(ca.focusWorkloadPeers) != 0 {
+		ca.logWarning(alerts.FocusWorkloadPeerFlag + alerts.WarnIgnoredWithoutFocusWorkload)
+	}
+	if len(ca.focusWorkloads) > 0 && len(ca.focusWorkloadPeers) > 0 && ca.exposureAnalysis {
+		ca.exposureAnalysis = false
+		ca.logWarning(alerts.WarnIgnoredExposure(focusworkloadStr, focusWorkloadPeerStr))
+	}
+	if !ca.explain && ca.explainOnly != "" {
+		ca.explainOnly = ""
+		ca.logWarning(alerts.WarnIgnoredWithoutExplain)
+	}
+	if ca.explain && ca.explainOnly != "" && ca.exposureAnalysis {
+		ca.exposureAnalysis = false
+		ca.logWarning(alerts.WarnIgnoredExposure(explainStr, explainOnlyStr))
+	}
+}
 
 // The new interface
 // ConnlistFromResourceInfos returns the allowed-connections list from input slice of resource.Info objects,
@@ -133,6 +167,7 @@ func WithStopOnError() ConnlistAnalyzerOption {
 	}
 }
 
+// WithFocusWorkloadList is a functional option which directs ConnlistAnalyzer to focus connections of specified workloads in the output
 func WithFocusWorkloadList(workloads []string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
 		p.focusWorkloads = workloads
@@ -146,12 +181,15 @@ func WithFocusWorkload(workload string) ConnlistAnalyzerOption {
 	}
 }
 
+// WithFocusDirection is a functional option which directs ConnlistAnalyzer to focus connections of specified workloads on one direction
 func WithFocusDirection(direction string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
 		p.focusDirection = direction
 	}
 }
 
+// WithFocusWorkloadPeerList is a functional option which directs ConnlistAnalyzer to focus connections of specified workloads
+// with given peers
 func WithFocusWorkloadPeerList(workloadPeers []string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
 		p.focusWorkloadPeers = workloadPeers
@@ -170,6 +208,13 @@ func WithExposureAnalysis() ConnlistAnalyzerOption {
 func WithExplanation() ConnlistAnalyzerOption {
 	return func(c *ConnlistAnalyzer) {
 		c.explain = true
+	}
+}
+
+// WithExplainOnly is a functional option which directs ConnlistAnalyzer to filter explain output to show only allowed or denied connections
+func WithExplainOnly(explainOnly string) ConnlistAnalyzerOption {
+	return func(c *ConnlistAnalyzer) {
+		c.explainOnly = explainOnly
 	}
 }
 
@@ -202,26 +247,22 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	for _, o := range options {
 		o(ca)
 	}
-	if ca.explain && ca.outputFormat != output.DefaultFormat {
-		ca.logger.Warnf(alerts.WarnIncompatibleFormat(ca.outputFormat))
-	}
-	if len(ca.focusWorkloads) == 0 && ca.focusDirection != "" {
-		ca.logWarning(alerts.FocusDirectionFlag + alerts.WarnIgnoredWithoutFocusWorkload)
-	}
-	if len(ca.focusWorkloads) == 0 && len(ca.focusWorkloadPeers) != 0 {
-		ca.logWarning(alerts.FocusWorkloadPeerFlag + alerts.WarnIgnoredWithoutFocusWorkload)
-	}
-	if len(ca.focusWorkloads) > 0 && len(ca.focusWorkloadPeers) > 0 && ca.exposureAnalysis {
-		ca.exposureAnalysis = false
-		ca.logWarning(alerts.WarnIgnoredExposure)
-	}
+	ca.warnIncompatibleFlagsUsage()
 	return ca
 }
 
-func validateFocusDirectionValue(focusDirection string) error {
-	if focusDirection != "" && focusDirection != pkgcommon.IngressFocusDirection &&
-		focusDirection != pkgcommon.EgressFocusDirection {
-		return errors.New(netpolerrors.FocusDirectionNotSupported(focusDirection))
+func (ca *ConnlistAnalyzer) validateFocusDirectionValue() error {
+	if ca.focusDirection != "" && ca.focusDirection != pkgcommon.IngressFocusDirection &&
+		ca.focusDirection != pkgcommon.EgressFocusDirection {
+		return errors.New(netpolerrors.FocusDirectionNotSupported(ca.focusDirection))
+	}
+	return nil
+}
+
+func (ca *ConnlistAnalyzer) validateExplainOnlyValue() error {
+	if ca.explainOnly != "" && ca.explainOnly != pkgcommon.ExplainOnlyAllow &&
+		ca.explainOnly != pkgcommon.ExplainOnlyDeny {
+		return errors.New(netpolerrors.ExplainOnlyNotSupported(ca.explainOnly))
 	}
 	return nil
 }
@@ -585,12 +626,20 @@ func (ca *ConnlistAnalyzer) getPeersForConnsComputation(pe *eval.PolicyEngine) (
 	return srcPeers, dstPeers, peers, nil
 }
 
+// flagsValidation validates input enum flags values
+func (ca *ConnlistAnalyzer) flagsValidation() error {
+	if err := ca.validateFocusDirectionValue(); err != nil {
+		return err
+	}
+	return ca.validateExplainOnlyValue()
+}
+
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
 // if the exposure-analysis option is on, also computes and updates the exposure-analysis results
 func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingressanalyzer.IngressAnalyzer) ([]Peer2PeerConnection,
 	[]Peer, error) {
-	// validate focus-direction
-	if err := validateFocusDirectionValue(ca.focusDirection); err != nil {
+	// validate input flags values
+	if err := ca.flagsValidation(); err != nil {
 		return nil, nil, err
 	}
 
@@ -708,6 +757,8 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(focusWorkload string, excludeIng
 
 // getConnectionsBetweenPeers returns connections list from PolicyEngine object
 // and exposures-map containing the exposed peers data if the exposure-analysis is on , else empty map
+//
+//gocyclo:ignore
 func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, srcPeers, dstPeers []Peer) ([]Peer2PeerConnection,
 	*exposureMaps, error) {
 	connsRes := make([]Peer2PeerConnection, 0)
@@ -736,14 +787,19 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, sr
 					return nil, nil, err
 				}
 			}
-			// skip empty connections when running without explainability,
+			// skip empty connections when running without explainability or with explain-only allow mode
 			// unless one of the peers is representative
 			// if one of the peers is representative, we keep this empty exposure connection to check later if it is
 			// an exception to an entire-cluster exposure.
 			// e.g if the pod is exposed to entire-cluster but not exposed to this representative-peer (because of a deny rule),
 			// we need to include this "No connection" in the exposure-output.
 			// see example : "tests/exposure_test_with_anp_9"
-			if !ca.explain && allowedConnections.IsEmpty() && !(pe.IsRepresentativePeer(srcPeer) || pe.IsRepresentativePeer(dstPeer)) {
+			if allowedConnections.IsEmpty() && !(pe.IsRepresentativePeer(srcPeer) || pe.IsRepresentativePeer(dstPeer)) &&
+				(!ca.explain || ca.explainOnly == pkgcommon.ExplainOnlyAllow) {
+				continue
+			}
+			// skip non-empty connections when running on explain-only deny mode (i.e `--explain` and `--explain-only` deny are used)
+			if !allowedConnections.IsEmpty() && ca.explainOnly == pkgcommon.ExplainOnlyDeny {
 				continue
 			}
 			p2pConnection, err := ca.getP2PConnOrUpdateExposureConn(pe, allowedConnections, srcPeer, dstPeer, exposureMaps)
