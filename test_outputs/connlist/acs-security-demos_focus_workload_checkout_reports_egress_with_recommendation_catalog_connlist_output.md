@@ -1,0 +1,5 @@
+| src | dst | conn |
+|-----|-----|------|
+| backend/checkout[Deployment] | backend/recommendation[Deployment] | TCP 8080 |
+| backend/reports[Deployment] | backend/catalog[Deployment] | TCP 8080 |
+| backend/reports[Deployment] | backend/recommendation[Deployment] | TCP 8080 |

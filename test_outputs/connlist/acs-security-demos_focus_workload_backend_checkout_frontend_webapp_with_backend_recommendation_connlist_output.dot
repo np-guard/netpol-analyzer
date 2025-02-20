@@ -1,0 +1,17 @@
+digraph {
+	subgraph "cluster_backend" {
+		color="black"
+		fontcolor="black"
+		"backend/checkout[Deployment]" [label="checkout[Deployment]" color="blue" fontcolor="blue"]
+		"backend/recommendation[Deployment]" [label="recommendation[Deployment]" color="blue" fontcolor="blue"]
+		label="backend"
+	}
+	subgraph "cluster_frontend" {
+		color="black"
+		fontcolor="black"
+		"frontend/webapp[Deployment]" [label="webapp[Deployment]" color="blue" fontcolor="blue"]
+		label="frontend"
+	}
+	"backend/checkout[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"frontend/webapp[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=1]
+}

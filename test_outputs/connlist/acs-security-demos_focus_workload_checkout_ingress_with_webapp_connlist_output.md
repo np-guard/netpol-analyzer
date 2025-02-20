@@ -1,0 +1,3 @@
+| src | dst | conn |
+|-----|-----|------|
+| frontend/webapp[Deployment] | backend/checkout[Deployment] | TCP 8080 |

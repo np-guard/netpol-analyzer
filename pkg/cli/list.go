@@ -20,12 +20,13 @@ import (
 )
 
 var (
-	focusWorkload    []string
-	focusDir         focusDirection
-	exposureAnalysis bool
-	explain          bool
-	output           string // output format
-	outFile          string // output file
+	focusWorkload     []string
+	focusWorkloadPeer []string
+	focusDir          focusDirection
+	exposureAnalysis  bool
+	explain           bool
+	output            string // output format
+	outFile           string // output file
 )
 
 // getRequiredOutputFormatString returns the description of required format(s) of the command
@@ -78,6 +79,7 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 	res := []connlist.ConnlistAnalyzerOption{
 		connlist.WithLogger(l),
 		connlist.WithFocusWorkloadList(focusWorkload),
+		connlist.WithFocusWorkloadPeerList(focusWorkloadPeer),
 		connlist.WithFocusDirection(focusDir.String()),
 		connlist.WithOutputFormat(output),
 	}
@@ -141,8 +143,11 @@ defined`,
 	c.Flags().StringSliceVarP(&focusWorkload, "focusworkload", "", []string{},
 		"Focus connections of specified workload(s) in the output, supports comma-separated names"+
 			" (workload name format: <workload-name> or <workload-namespace/workload-name>)")
+	c.Flags().StringSliceVarP(&focusWorkloadPeer, "focusworkload-peer", "", []string{},
+		"Focus connections of specified workload(s) with this peer(s), applies only when focusworkload is used;"+
+			" supports comma-separated names (focusworkload-peer name format is same as focusworkload)")
 	c.Flags().VarP(&focusDir, "focus-direction", "",
-		"Focus connections of specified workload on one direction, applies only when focusworkload is used; must be one of ingress,egress")
+		"Focus connections of specified workload(s) on one direction, applies only when focusworkload is used; must be one of ingress,egress")
 	c.Flags().BoolVarP(&exposureAnalysis, "exposure", "", false, "Enhance the analysis of permitted connectivity with exposure analysis")
 	c.Flags().BoolVarP(&explain, "explain", "", false, "Enhance the analysis of permitted connectivity with explainability information")
 	// output format - default txt

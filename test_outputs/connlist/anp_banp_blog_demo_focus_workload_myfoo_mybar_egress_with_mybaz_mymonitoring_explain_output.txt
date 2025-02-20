@@ -1,0 +1,8 @@
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
+bar/mybar[Pod] => baz/mybaz[Pod]
+bar/mybar[Pod] => monitoring/mymonitoring[Pod]
+foo/myfoo[Pod] => baz/mybaz[Pod]
+foo/myfoo[Pod] => monitoring/mymonitoring[Pod]

@@ -1,0 +1,7 @@
+[
+  {
+    "src": "frontend/webapp[Deployment]",
+    "dst": "backend/checkout[Deployment]",
+    "conn": "TCP 8080"
+  }
+]
