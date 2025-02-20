@@ -678,7 +678,7 @@ func (ca *ConnlistAnalyzer) checkFocusWorkloadsExistence(focusWlsList []string, 
 		}
 	}
 	// if all focus-workloads do not exist: nothing to do (empty connlist); return
-	if cnt != 0 && cnt == len(ca.focusWorkloads) {
+	if cnt != 0 && cnt == len(focusWlsList) {
 		ca.logWarning(netpolerrors.EmptyConnListErrStr)
 		return false
 	}
