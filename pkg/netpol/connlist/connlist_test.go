@@ -518,7 +518,8 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 			t.Parallel()
 
 			for _, apiToTest := range connlistTestedAPIS {
-				analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(apiToTest, tt.dirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection)
+				analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(apiToTest, tt.dirName, tt.focusWorkloads,
+					tt.focusWorkloadPeers, tt.focusDirection)
 				require.Nil(t, err, tt.name)
 				if tt.emptyRes {
 					require.Empty(t, connsRes, tt.name)
