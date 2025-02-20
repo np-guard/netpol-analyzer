@@ -200,6 +200,17 @@ func TestCommandsFailExecute(t *testing.T) {
 			expectedErrorContains: netpolerrors.FocusDirectionOptions,
 		},
 		{
+			name: "list_command_with_unsupported_explain_only_should_return_error",
+			args: []string{
+				"list",
+				"--dirpath",
+				testutils.GetTestDirPath("onlineboutique"),
+				"--explain",
+				"--explain-only",
+				"xgress"},
+			expectedErrorContains: netpolerrors.ExplainOnlyOptions,
+		},
+		{
 			name: "test_using_q_and_v_verbosity_flags_together_should_return_an_error_of_illegal_use_of_quiet_and_verbose_flags",
 			args: []string{
 				"list",

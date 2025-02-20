@@ -170,8 +170,16 @@ func NPWithSameNameError(npName string) string {
 	return fmt.Sprintf("NetworkPolicy %q already exists. %s", npName, uniquenessRequest)
 }
 
-const FocusDirectionOptions = "must be one of ingress,egress"
+const (
+	FocusDirectionOptions = "must be one of " + common.IngressFocusDirection + "," + common.EgressFocusDirection
+	ExplainOnlyOptions    = "must be one of " + common.ExplainOnlyAllow + "," + common.ExplainOnlyDeny
+	semiColon             = "; "
+)
 
 func FocusDirectionNotSupported(focusDirection string) string {
-	return "invalid focus-direction value: " + focusDirection + "; " + FocusDirectionOptions
+	return "invalid focus direction value: " + focusDirection + semiColon + FocusDirectionOptions
+}
+
+func ExplainOnlyNotSupported(explainOnly string) string {
+	return "invalid explain only value: " + explainOnly + semiColon + ExplainOnlyOptions
 }

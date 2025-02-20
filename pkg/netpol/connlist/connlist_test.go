@@ -638,6 +638,8 @@ func TestLoggerWarnings(t *testing.T) {
 		focusworkloads              []string
 		focusWorkloadPeers          []string
 		exposure                    bool
+		explain                     bool
+		explainOnly                 string
 		expectedWarningsStrContains []string
 	}{
 		{
@@ -687,16 +689,34 @@ func TestLoggerWarnings(t *testing.T) {
 			focusworkloads:              []string{"ns3/pod1"},
 			focusWorkloadPeers:          []string{"ns1/pod1"},
 			exposure:                    true,
-			expectedWarningsStrContains: []string{alerts.WarnIgnoredExposure},
+			expectedWarningsStrContains: []string{alerts.WarnIgnoredExposure(focusworkloadStr, focusWorkloadPeerStr)},
+		},
+		{
+			name:                        "using_explain_only_without_explain",
+			dirName:                     "anp_test_named_ports_multiple_peers",
+			explainOnly:                 common.ExplainOnlyAllow,
+			expectedWarningsStrContains: []string{alerts.WarnIgnoredWithoutExplain},
+		},
+		{
+			name:                        "using_exposure_with_explain_and_explain_only",
+			dirName:                     "anp_test_named_ports_multiple_peers",
+			explain:                     true,
+			explainOnly:                 common.ExplainOnlyDeny,
+			exposure:                    true,
+			expectedWarningsStrContains: []string{alerts.WarnIgnoredExposure(explainStr, explainOnlyStr)},
 		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tLogger := testutils.NewTestLogger()
 			opts := []ConnlistAnalyzerOption{WithLogger(tLogger), WithFocusDirection(tt.focusDirection),
-				WithFocusWorkloadPeerList(tt.focusWorkloadPeers), WithFocusWorkloadList(tt.focusworkloads)}
+				WithFocusWorkloadPeerList(tt.focusWorkloadPeers), WithFocusWorkloadList(tt.focusworkloads),
+				WithExplainOnly(tt.explainOnly)}
 			if tt.exposure {
 				opts = append(opts, WithExposureAnalysis())
+			}
+			if tt.explain {
+				opts = append(opts, WithExplanation())
 			}
 			_, _, err := getConnlistFromDirPathRes(opts, tt.dirName)
 			require.Nil(t, err, "test: %q", tt.name)

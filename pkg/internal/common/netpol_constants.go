@@ -19,4 +19,6 @@ const (
 const (
 	IngressFocusDirection = "ingress"
 	EgressFocusDirection  = "egress"
+	ExplainOnlyAllow      = "allow"
+	ExplainOnlyDeny       = "deny"
 )

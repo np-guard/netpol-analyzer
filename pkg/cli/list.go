@@ -25,6 +25,7 @@ var (
 	focusDir          focusDirection
 	exposureAnalysis  bool
 	explain           bool
+	explainOn         explainOnly
 	output            string // output format
 	outFile           string // output file
 )
@@ -81,6 +82,7 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 		connlist.WithFocusWorkloadList(focusWorkload),
 		connlist.WithFocusWorkloadPeerList(focusWorkloadPeer),
 		connlist.WithFocusDirection(focusDir.String()),
+		connlist.WithExplainOnly(explainOn.String()),
 		connlist.WithOutputFormat(output),
 	}
 
@@ -98,6 +100,7 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 
 func resetInArgs() {
 	focusDir.Reset()
+	explainOn.Reset()
 }
 
 // newCommandList returns a cobra command with the appropriate configuration and flags to run list command
@@ -150,6 +153,8 @@ defined`,
 		"Focus connections of specified workload(s) on one direction, applies only when focusworkload is used; must be one of ingress,egress")
 	c.Flags().BoolVarP(&exposureAnalysis, "exposure", "", false, "Enhance the analysis of permitted connectivity with exposure analysis")
 	c.Flags().BoolVarP(&explain, "explain", "", false, "Enhance the analysis of permitted connectivity with explainability information")
+	c.Flags().VarP(&explainOn, "explain-only", "",
+		"Filter explain output to show only allowed or denied connections, applies only when explain is used; must be one of allow,deny")
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
 	c.Flags().StringVarP(&output, "output", "o", outconsts.DefaultFormat, getRequiredOutputFormatString(supportedFormats))
