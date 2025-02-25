@@ -589,3 +589,12 @@ func ExplanationFromConnProperties(allProtocolsAndPorts bool, commonImplyingRule
 	}
 	return allowedConnClasses.string(true) + deniedConnClasses.string(false)
 }
+
+func IsProtocolValid(protocol string) bool {
+	for _, validProtocol := range allProtocols {
+		if strings.EqualFold(protocol, string(validProtocol)) {
+			return true
+		}
+	}
+	return false
+}

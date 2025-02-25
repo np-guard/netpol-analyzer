@@ -1,0 +1,37 @@
+{
+  "connlist_results": [
+    {
+      "src": "gryffindor/harry-potter[StatefulSet]",
+      "dst": "0.0.0.0-255.255.255.255"
+    },
+    {
+      "src": "gryffindor/harry-potter[StatefulSet]",
+      "dst": "hufflepuff/cedric-diggory[StatefulSet]"
+    },
+    {
+      "src": "gryffindor/harry-potter[StatefulSet]",
+      "dst": "slytherin/draco-malfoy[StatefulSet]"
+    }
+  ],
+  "exposure_results": {
+    "egress_exposure": [
+      {
+        "src": "gryffindor/harry-potter[StatefulSet]",
+        "dst": "0.0.0.0-255.255.255.255"
+      },
+      {
+        "src": "gryffindor/harry-potter[StatefulSet]",
+        "dst": "entire-cluster"
+      },
+      {
+        "src": "gryffindor/harry-potter[StatefulSet]",
+        "dst": "hufflepuff/[all pods]"
+      },
+      {
+        "src": "gryffindor/harry-potter[StatefulSet]",
+        "dst": "slytherin/[all pods]"
+      }
+    ],
+    "ingress_exposure": []
+  }
+}

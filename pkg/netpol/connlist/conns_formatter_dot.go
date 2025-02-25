@@ -60,7 +60,8 @@ func getPeerLine(peer Peer) (string, bool) {
 // returns a dot string form of connections from list of Peer2PeerConnection objects
 // and from exposure-analysis results if exists
 // explain input is ignored since not supported with this format
-func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool) (string, error) {
+func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
+	focusConn *common.ConnectionSet) (string, error) {
 	// 1. declaration of maps and slices to be used for forming the graph lines
 	nsPeers := make(map[string][]string)     // map from namespace to its peers (grouping peers by namespaces)
 	nsRepPeers := make(map[string][]string)  // map from representative namespace to its representative peers
@@ -68,11 +69,11 @@ func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []Exp
 	edgeLines := make([]string, 0)           // list of edges lines (connections of connlist + exposure)
 	peersVisited := make(map[string]bool, 0) // acts as a set
 	// 2. add connlist results to the graph lines
-	connsEdges, connsExternalPeers := d.addConnlistOutputData(conns, nsPeers, peersVisited)
+	connsEdges, connsExternalPeers := d.addConnlistOutputData(conns, nsPeers, peersVisited, focusConn)
 	edgeLines = append(edgeLines, connsEdges...)
 	externalPeersLines = append(externalPeersLines, connsExternalPeers...)
 	// 3. add exposure-analysis results to the graph lines
-	entireClusterLine, exposureEdges := addExposureOutputData(exposureConns, peersVisited, nsPeers, nsRepPeers)
+	entireClusterLine, exposureEdges := addExposureOutputData(exposureConns, peersVisited, nsPeers, nsRepPeers, focusConn)
 	externalPeersLines = append(externalPeersLines, entireClusterLine...)
 	edgeLines = append(edgeLines, exposureEdges...)
 	// 4. sort graph lines
@@ -90,11 +91,14 @@ func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []Exp
 
 // addConnlistOutputData updates namespace peers groups and returns edge lines and external peers lines from connlist results
 func (d *formatDOT) addConnlistOutputData(conns []Peer2PeerConnection, nsPeers map[string][]string,
-	peersVisited map[string]bool) (eLines, externalPeersLines []string) {
+	peersVisited map[string]bool, focusConn *common.ConnectionSet) (eLines, externalPeersLines []string) {
 	edgeLines := make([]string, len(conns))
 	for index := range conns {
 		c := conns[index]
 		connStr := common.ConnStrFromConnProperties(c.AllProtocolsAndPorts(), c.ProtocolsAndPorts())
+		if focusConn != nil {
+			connStr = focusConn.String()
+		}
 		edgeLines[index] = dotformatting.GetEdgeLine(c.Src().String(), c.Dst().String(), connStr, connlistEdgeColor, edgeFontColor)
 		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Src(), nsPeers, peersVisited)...)
 		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Dst(), nsPeers, peersVisited)...)
@@ -125,7 +129,7 @@ func addConnlistPeerLine(peer Peer, nsPeers map[string][]string, peersVisited ma
 // addExposureOutputData gets the exposure-analysis results, updates the namespaces peers groups lines for both real exposed peers and
 // representative peers and returns the exposure edges and entire cluster line (as external peer line)
 func addExposureOutputData(exposureConns []ExposedPeer, peersVisited map[string]bool,
-	nsPeers, nsRepPeers map[string][]string) (entireClusterLine, exposureEdges []string) {
+	nsPeers, nsRepPeers map[string][]string, focusConn *common.ConnectionSet) (entireClusterLine, exposureEdges []string) {
 	representativeVisited := make(map[string]bool, 0) // acts as a set
 	for _, ep := range exposureConns {
 		if !peersVisited[ep.ExposedPeer().String()] { // an exposed peer is a real peer from the manifests,
@@ -134,10 +138,10 @@ func addExposureOutputData(exposureConns []ExposedPeer, peersVisited map[string]
 			dotformatting.AddPeerToNsGroup(ep.ExposedPeer().Namespace(), exposedPeerLine, nsPeers)
 		}
 		ingressExpEdges := getXgressExposureEdges(ep.ExposedPeer().String(), ep.IngressExposure(), ep.IsProtectedByIngressNetpols(),
-			true, representativeVisited, nsPeers, nsRepPeers)
+			true, representativeVisited, nsPeers, nsRepPeers, focusConn)
 		exposureEdges = append(exposureEdges, ingressExpEdges...)
 		egressExpEdges := getXgressExposureEdges(ep.ExposedPeer().String(), ep.EgressExposure(), ep.IsProtectedByEgressNetpols(),
-			false, representativeVisited, nsPeers, nsRepPeers)
+			false, representativeVisited, nsPeers, nsRepPeers, focusConn)
 		exposureEdges = append(exposureEdges, egressExpEdges...)
 	}
 	// if the entire-cluster marked as visited add its line too (this ensures the entire-cluster is added only once to the graph)
@@ -149,16 +153,24 @@ func addExposureOutputData(exposureConns []ExposedPeer, peersVisited map[string]
 
 // getXgressExposureEdges returns the edges' lines of the exposure data in the given direction ingress/egress
 func getXgressExposureEdges(exposedPeerStr string, xgressExpData []XgressExposureData, isProtected, isIngress bool,
-	representativeVisited map[string]bool, nsPeers, nsRepPeers map[string][]string) (xgressEdges []string) {
+	representativeVisited map[string]bool, nsPeers, nsRepPeers map[string][]string, focusConn *common.ConnectionSet) (xgressEdges []string) {
 	if !isProtected { // a connection to entire cluster is enabled, (connection to all ips is already in the graph)
 		representativeVisited[entireCluster] = true
-		xgressEdges = append(xgressEdges, getExposureEdgeLine(exposedPeerStr, entireCluster, isIngress, common.MakeConnectionSet(true)))
+		edgeConn := common.MakeConnectionSet(true)
+		if focusConn != nil {
+			edgeConn = focusConn
+		}
+		xgressEdges = append(xgressEdges, getExposureEdgeLine(exposedPeerStr, entireCluster, isIngress, edgeConn))
 	} else { // protected, having exposure details
 		for _, data := range xgressExpData {
 			if data.IsExposedToEntireCluster() {
 				representativeVisited[entireCluster] = true
+				edgeConn := data.PotentialConnectivity().(*common.ConnectionSet)
+				if focusConn != nil {
+					edgeConn = focusConn
+				}
 				xgressEdges = append(xgressEdges, getExposureEdgeLine(exposedPeerStr, entireCluster, isIngress,
-					data.PotentialConnectivity().(*common.ConnectionSet)))
+					edgeConn))
 				continue // if a data contains exposure to entire cluster it does not specify labels
 			}
 			nsRepLabel := getRepresentativeNamespaceString(data.NamespaceLabels(), false)
@@ -174,8 +186,12 @@ func getXgressExposureEdges(exposedPeerStr string, xgressExpData []XgressExposur
 					dotformatting.AddPeerToNsGroup(nsRepLabel, peerLine, nsRepPeers)
 				}
 			}
+			edgeConn := data.PotentialConnectivity().(*common.ConnectionSet)
+			if focusConn != nil {
+				edgeConn = focusConn
+			}
 			xgressEdges = append(xgressEdges, getExposureEdgeLine(exposedPeerStr, repPeersStr, isIngress,
-				data.PotentialConnectivity().(*common.ConnectionSet)))
+				edgeConn))
 		}
 	}
 	return xgressEdges

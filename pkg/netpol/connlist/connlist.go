@@ -16,6 +16,8 @@ package connlist
 import (
 	"context"
 	"errors"
+	"strconv"
+	"strings"
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,6 +41,7 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 // A ConnlistAnalyzer provides API to recursively scan a directory for Kubernetes resources including network policies,
@@ -54,9 +57,12 @@ type ConnlistAnalyzer struct {
 	exposureResult     []ExposedPeer
 	explain            bool
 	explainOnly        string
+	focusConnection    string
 	outputFormat       string
 	muteErrsAndWarns   bool
-	peersList          []Peer // internally used peersList used in dot formatting; in case of focusWorkload option contains only relevant peers
+	peersList          []Peer // internally used peersList used in dot formatting;
+	// in case of focusWorkload option contains only relevant peers
+	focusConnSet *common.ConnectionSet // internally used to filter conns list results with specific connection
 }
 
 const (
@@ -188,6 +194,12 @@ func WithFocusDirection(direction string) ConnlistAnalyzerOption {
 	}
 }
 
+func WithFocusConnection(focusConn string) ConnlistAnalyzerOption {
+	return func(p *ConnlistAnalyzer) {
+		p.focusConnection = focusConn
+	}
+}
+
 // WithFocusWorkloadPeerList is a functional option which directs ConnlistAnalyzer to focus connections of specified workloads
 // with given peers
 func WithFocusWorkloadPeerList(workloadPeers []string) ConnlistAnalyzerOption {
@@ -264,6 +276,39 @@ func (ca *ConnlistAnalyzer) validateExplainOnlyValue() error {
 		ca.explainOnly != pkgcommon.ExplainOnlyDeny {
 		return errors.New(netpolerrors.ExplainOnlyNotSupported(ca.explainOnly))
 	}
+	return nil
+}
+
+const focusConnDelimiter = "-"
+
+// makeFocusConnectionSet stores in ca.focusConnSet a connection set from parsed ca.focusConnection string
+func (ca *ConnlistAnalyzer) makeFocusConnectionSet(protocol string, portNum int) {
+	ca.focusConnSet = common.MakeConnectionSet(false)
+	focusPort := common.MakePortSet(false)
+	focusPort.AddPort(intstr.FromInt(portNum), common.ImplyingRulesType{})
+	ca.focusConnSet.AddConnection(v1.Protocol(strings.ToUpper(protocol)), focusPort)
+}
+
+// validateFocusConnFormatAndValue validates focus connection format is <protocol-port> with valid protocol and port values
+// and if valid : make connections with the protocol and port
+func (ca *ConnlistAnalyzer) validateFocusConnFormatAndValue() error {
+	if ca.focusConnection == "" {
+		return nil
+	}
+	connArr := strings.Split(ca.focusConnection, focusConnDelimiter)
+	if len(connArr) != 2 {
+		return errors.New(netpolerrors.InvalidFocusConnFormat(ca.focusConnection))
+	}
+	protocol := connArr[0]
+	if !common.IsProtocolValid(protocol) {
+		return errors.New(netpolerrors.InvalidFocusConnProtocol(ca.focusConnection, protocol))
+	}
+	portNum, err := strconv.Atoi(connArr[1])
+	if err != nil || (int64(portNum) < common.MinPort || int64(portNum) > common.MaxPort) {
+		return errors.New(netpolerrors.InvalidFocusConnPortNumber(ca.focusConnection, connArr[1]))
+	}
+	// valid - make connection set with the protocol and port to be used internally for conns filtering
+	ca.makeFocusConnectionSet(protocol, portNum)
 	return nil
 }
 
@@ -407,7 +452,7 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
 	}
-	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis, ca.explain)
+	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis, ca.explain, ca.focusConnSet)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
@@ -626,12 +671,15 @@ func (ca *ConnlistAnalyzer) getPeersForConnsComputation(pe *eval.PolicyEngine) (
 	return srcPeers, dstPeers, peers, nil
 }
 
-// flagsValidation validates input enum flags values
+// flagsValidation validates input flags values or format
 func (ca *ConnlistAnalyzer) flagsValidation() error {
 	if err := ca.validateFocusDirectionValue(); err != nil {
 		return err
 	}
-	return ca.validateExplainOnlyValue()
+	if err := ca.validateExplainOnlyValue(); err != nil {
+		return err
+	}
+	return ca.validateFocusConnFormatAndValue()
 }
 
 // getConnectionsList returns connections list from PolicyEngine and ingressAnalyzer objects
@@ -800,6 +848,12 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, sr
 			}
 			// skip non-empty connections when running on explain-only deny mode (i.e `--explain` and `--explain-only` deny are used)
 			if !allowedConnections.IsEmpty() && ca.explainOnly == pkgcommon.ExplainOnlyDeny {
+				continue
+			}
+			// - if focus conns is not empty and not explain mode, skip the connections if not contained in the allowed conns
+			// - Note that: in explain mode: we don't skip since allowed-conns contains also explanation data on the denied data (focus-conn);
+			// will be filtered while writing the output
+			if !ca.explain && ca.focusConnection != "" && !ca.focusConnSet.ContainedIn(allowedConnections) {
 				continue
 			}
 			p2pConnection, err := ca.getP2PConnOrUpdateExposureConn(pe, allowedConnections, srcPeer, dstPeer, exposureMaps)
