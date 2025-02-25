@@ -21,8 +21,9 @@ type formatText struct {
 
 // writeOutput returns a textual string format of connections from list of Peer2PeerConnection objects,
 // and exposure analysis results if exist
-func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool) (string, error) {
-	res := t.writeConnlistOutput(conns, exposureFlag, explain)
+func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
+	focusConnStr string) (string, error) {
+	res := t.writeConnlistOutput(conns, exposureFlag, explain, focusConnStr)
 	if !exposureFlag {
 		return res, nil
 	}
@@ -30,12 +31,12 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 	if res != "" && res != newLineChar {
 		res += newLineChar
 	}
-	res += t.writeExposureOutput(exposureConns)
+	res += t.writeExposureOutput(exposureConns, focusConnStr)
 	return res, nil
 }
 
 // writeConnlistOutput writes the section of the connlist result of the output
-func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool) string {
+func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string) string {
 	connLines := make([]singleConnFields, 0, len(conns))
 	defaultConnLines := make([]singleConnFields, 0, len(conns))
 	t.ipMaps = createIPMaps(saveIPConns)
@@ -52,15 +53,18 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 		}
 	}
 	result := ""
+	sortedConnLines := sortConnFields(connLines, true)
+	sortedDefaultConnLines := sortConnFields(defaultConnLines, true)
 	if explain {
-		sortConnFields(connLines, true)
-		sortConnFields(defaultConnLines, true)
-		result = writeSingleTypeLinesExplanationOutput(connLines, specificConnHeader, false) +
-			writeSingleTypeLinesExplanationOutput(defaultConnLines, systemDefaultPairsHeader, true)
-	} else {
-		sortConnFields(connLines, true)
-		for _, p2pConn := range connLines {
-			result += p2pConn.string() + newLineChar
+		result = writeSingleTypeLinesExplanationOutput(sortedConnLines, specificConnHeader, false) +
+			writeSingleTypeLinesExplanationOutput(sortedDefaultConnLines, systemDefaultPairsHeader, true)
+	} else { // not explain (regular connlist)
+		if focusConnStr == "" { // write all conns  (src => dst: conn)
+			for _, p2pConn := range sortedConnLines {
+				result += p2pConn.string() + newLineChar
+			}
+		} else { // conns are already filtered by focus conn - print only (src => dst)
+			result = writeFocusConnTxtOutput(sortedConnLines, focusConnStr)
 		}
 	}
 	return result
@@ -98,25 +102,32 @@ const (
 	nodePairSeparationLine   = separationLine80 + separationLine80 + common.NewLine
 	systemDefaultPairsHeader = common.AllConnsStr + common.SpaceSeparator + common.ExplSystemDefault
 	specificConnHeader       = "Specific connections and their reasons"
+	onStr                    = " On "
 )
 
 // writeExposureOutput writes the section of the exposure-analysis result
-func (t *formatText) writeExposureOutput(exposureResults []ExposedPeer) string {
+func (t *formatText) writeExposureOutput(exposureResults []ExposedPeer, focusConnStr string) string {
 	// getting the max peer String length (to be used for writing fixed indented lines)
 	maxPeerStrLen := getMaxPeerStringLength(exposureResults)
 	// results lines
 	ingressExpLines, egressExpLines, unprotectedLines := getExposureConnsAsSortedSingleConnFieldsArray(exposureResults, t.ipMaps)
 	sort.Strings(unprotectedLines)
 	// writing results of exposure for all peers
-	res := exposureAnalysisHeader + newLineChar
-	res += writeExposureSubSection(writeStrings(egressExpLines, false, maxPeerStrLen), egressExposureHeader+newLineChar)
+	res := exposureAnalysisHeader
+	if focusConnStr != "" {
+		res += onStr + focusConnStr
+	}
+	res += colon + newLineChar
+	res += writeExposureSubSection(writeStrings(egressExpLines, false, maxPeerStrLen, focusConnStr), egressExposureHeader+newLineChar)
 	ingressHead := ingressExposureHeader + newLineChar
 	if len(egressExpLines) > 0 {
 		// add empty line between the sections if both are not empty
 		ingressHead = newLineChar + ingressHead
 	}
-	res += writeExposureSubSection(writeStrings(ingressExpLines, true, maxPeerStrLen), ingressHead)
-	res += writeExposureSubSection(unprotectedLines, unprotectedHeader)
+	res += writeExposureSubSection(writeStrings(ingressExpLines, true, maxPeerStrLen, focusConnStr), ingressHead)
+	if focusConnStr == "" { // no need to add unprotected lines if results are for a focus conn
+		res += writeExposureSubSection(unprotectedLines, unprotectedHeader)
+	}
 	return res
 }
 
@@ -129,19 +140,45 @@ func getMaxPeerStringLength(exposedPeers []ExposedPeer) (maxPeerStrLen int) {
 }
 
 // writeStrings writes the exposure conns as string lines list matching txt output format
-func writeStrings(xgressData []singleConnFields, isIngress bool, maxStrLen int) []string {
+func writeStrings(xgressData []singleConnFields, isIngress bool, maxStrLen int, focusConnStr string) []string {
 	res := make([]string, len(xgressData))
 	for i := range xgressData {
-		res[i] = xgressData[i].exposureString(isIngress, maxStrLen)
+		res[i] = xgressData[i].exposureString(isIngress, maxStrLen, focusConnStr)
 	}
 	return res
 }
 
+const (
+	egressDir  = "=>"
+	ingressDir = "<="
+)
+
 // exposureString writes the current singleConnFields in the format of exposure result line
-func (c singleConnFields) exposureString(isIngress bool, maxStrLen int) string {
+func (c singleConnFields) exposureString(isIngress bool, maxStrLen int, focusConnStr string) string {
 	formatStr := fmt.Sprintf("%%-%ds \t%%s \t%%s : %%s", maxStrLen)
-	if isIngress {
-		return fmt.Sprintf(formatStr, c.Dst, "<=", c.Src, c.ConnString)
+	if focusConnStr != "" { // don't print conn if the results are focused on specific connection
+		formatStr = fmt.Sprintf("%%-%ds \t%%s \t%%s", maxStrLen)
 	}
-	return fmt.Sprintf(formatStr, c.Src, "=>", c.Dst, c.ConnString)
+	if isIngress {
+		if focusConnStr != "" {
+			return fmt.Sprintf(formatStr, c.Dst, ingressDir, c.Src)
+		}
+		return fmt.Sprintf(formatStr, c.Dst, ingressDir, c.Src, c.ConnString)
+	} // egress
+	if focusConnStr != "" {
+		return fmt.Sprintf(formatStr, c.Src, egressDir, c.Dst)
+	}
+	return fmt.Sprintf(formatStr, c.Src, egressDir, c.Dst, c.ConnString)
+}
+
+const (
+	colon = ":"
+)
+
+func writeFocusConnTxtOutput(sortedConnLines []singleConnFields, focusConnStr string) string {
+	result := "Permitted connections on " + focusConnStr + colon + newLineChar
+	for _, conn := range sortedConnLines {
+		result += conn.nodePairString() + newLineChar
+	}
+	return result
 }

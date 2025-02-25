@@ -46,7 +46,7 @@ func GetTestDirPath(dirName string) string {
 }
 
 // ConnlistTestNameByTestArgs returns connlist test name and test's expected output file from some tests args
-func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focusDirection, format string,
+func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focusDirection, focusConn, format string,
 	exposureFlag bool) (testName, expectedOutputFileName string) {
 	namePrefix := dirName
 	if focusWorkload != "" {
@@ -57,6 +57,9 @@ func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focus
 		if focusWorkloadPeer != "" {
 			namePrefix += withStr + strings.ReplaceAll(focusWorkloadPeer, "/", Underscore)
 		}
+	}
+	if focusConn != "" {
+		namePrefix += Underscore + focusConn
 	}
 	testName = namePrefix + formatStr + format
 	outputPartialName := connlistExpectedOutputFilePartialName

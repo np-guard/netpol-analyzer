@@ -26,6 +26,7 @@ var (
 	exposureAnalysis       bool
 	explain                bool
 	explainOnlyAllowOrDeny explainOnly
+	focusConnection        string
 	output                 string // output format
 	outFile                string // output file
 )
@@ -84,6 +85,7 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 		connlist.WithFocusDirection(focusDir.String()),
 		connlist.WithExplainOnly(explainOnlyAllowOrDeny.String()),
 		connlist.WithOutputFormat(output),
+		connlist.WithFocusConnection(focusConnection),
 	}
 
 	if stopOnFirstError {
@@ -155,6 +157,8 @@ defined`,
 	c.Flags().BoolVarP(&explain, "explain", "", false, "Enhance the analysis of permitted connectivity with explainability information")
 	c.Flags().VarP(&explainOnlyAllowOrDeny, "explain-only", "",
 		"Filter explain output to show only allowed or denied connections, applies only when explain is used; must be one of allow,deny")
+	c.Flags().StringVarP(&focusConnection, "focus-conn", "", "",
+		"Filter output to show results for a specific connection (connection format <protocolName-portNumber>)")
 	// output format - default txt
 	supportedFormats := strings.Join(connlist.ValidFormats, ",")
 	c.Flags().StringVarP(&output, "output", "o", outconsts.DefaultFormat, getRequiredOutputFormatString(supportedFormats))
