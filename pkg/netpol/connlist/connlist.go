@@ -906,7 +906,15 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 			ca.warnBlockedIngress(peerStr, peerAndConn.IngressObjects)
 			continue
 		}
-		p2pConnection := createConnectionObject(peerAndConn.ConnSet, ingressControllerPod, peerAndConn.Peer)
+		allowedConn := peerAndConn.ConnSet
+		if ca.focusConnSet != nil {
+			if ca.focusConnSet.ContainedIn(allowedConn) {
+				allowedConn = ca.focusConnSet // if focus-conn is used, only the focus connection is meaningful
+			} else {
+				continue
+			}
+		}
+		p2pConnection := createConnectionObject(allowedConn, ingressControllerPod, peerAndConn.Peer)
 		res = append(res, p2pConnection)
 	}
 	return res, nil
