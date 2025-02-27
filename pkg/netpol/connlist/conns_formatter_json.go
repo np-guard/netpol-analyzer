@@ -27,10 +27,21 @@ type exposureFields struct {
 	IngressExposure []singleConnFields `json:"ingress_exposure"`
 }
 
+type jsonFocusConnFields struct {
+	ConnlistResults []singleSrcDstFields    `json:"connlist_conn_focus_results"`
+	ExposureResults exposureFocusConnFields `json:"exposure_conn_focus_results"`
+}
+
+type exposureFocusConnFields struct {
+	EgressExposure  []singleSrcDstFields `json:"egress_exposure"`
+	IngressExposure []singleSrcDstFields `json:"ingress_exposure"`
+}
+
 // writeOutput returns a json string form of connections from list of Peer2PeerConnection objects
 // and exposure analysis results from list ExposedPeer if exists
 // explain input is ignored since not supported with this format
-func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool) (string, error) {
+func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
+	focusConnStr string) (string, error) {
 	j.ipMaps = createIPMaps(exposureFlag)
 	// output variables
 	var jsonConns []byte
@@ -40,19 +51,59 @@ func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 	if exposureFlag {
 		// get an array of sorted exposure items
 		ingressExposureItems, egressExposureItems, _ := getExposureConnsAsSortedSingleConnFieldsArray(exposureConns, j.ipMaps)
-		jsonOut := jsonFields{
-			ConnlistResults: sortedConnItems,
-			ExposureResults: exposureFields{
-				EgressExposure:  egressExposureItems,
-				IngressExposure: ingressExposureItems,
-			},
+		if focusConnStr == "" {
+			jsonOut := writeAllConnsJSONFields(sortedConnItems, ingressExposureItems, egressExposureItems)
+			jsonConns, err = json.MarshalIndent(jsonOut, "", indent)
+		} else {
+			jsonFocusConnOut := writeFocusConnsJSONFields(sortedConnItems, ingressExposureItems, egressExposureItems)
+			jsonConns, err = json.MarshalIndent(jsonFocusConnOut, "", indent)
 		}
-		jsonConns, err = json.MarshalIndent(jsonOut, "", indent)
 	} else { // no exposure
-		jsonConns, err = json.MarshalIndent(sortedConnItems, "", indent)
+		if focusConnStr == "" {
+			jsonConns, err = json.MarshalIndent(sortedConnItems, "", indent)
+		} else {
+			jsonConns, err = json.MarshalIndent(getListWithoutConnData(sortedConnItems), "", indent)
+		}
 	}
 	if err != nil {
 		return "", err
 	}
 	return string(jsonConns), nil
+}
+
+func writeAllConnsJSONFields(sortedConnItems, ingressExposureItems, egressExposureItems []singleConnFields) jsonFields {
+	return jsonFields{
+		ConnlistResults: sortedConnItems,
+		ExposureResults: exposureFields{
+			EgressExposure:  egressExposureItems,
+			IngressExposure: ingressExposureItems,
+		},
+	}
+}
+
+func writeFocusConnsJSONFields(sortedConnItems, ingressExposureItems, egressExposureItems []singleConnFields) jsonFocusConnFields {
+	sortedConnItemsWithoutConnData := getListWithoutConnData(sortedConnItems)
+	ingressExposureItemsWithoutConnData := getListWithoutConnData(ingressExposureItems)
+	egressExposureItemsWithoutConnData := getListWithoutConnData(egressExposureItems)
+
+	return jsonFocusConnFields{
+		ConnlistResults: sortedConnItemsWithoutConnData,
+		ExposureResults: exposureFocusConnFields{
+			EgressExposure:  egressExposureItemsWithoutConnData,
+			IngressExposure: ingressExposureItemsWithoutConnData,
+		},
+	}
+}
+
+type singleSrcDstFields struct {
+	Src string `json:"src"`
+	Dst string `json:"dst"`
+}
+
+func getListWithoutConnData(items []singleConnFields) []singleSrcDstFields {
+	res := make([]singleSrcDstFields, len(items))
+	for i := range items {
+		res[i] = singleSrcDstFields{Src: items[i].Src, Dst: items[i].Dst}
+	}
+	return res
 }

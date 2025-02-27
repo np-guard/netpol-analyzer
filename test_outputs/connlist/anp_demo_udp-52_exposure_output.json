@@ -1,0 +1,98 @@
+{
+  "connlist_conn_focus_results": [
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "hufflepuff/cedric-diggory[StatefulSet]"
+    },
+    {
+      "src": "0.0.0.0-255.255.255.255",
+      "dst": "slytherin/draco-malfoy[StatefulSet]"
+    },
+    {
+      "src": "gryffindor/harry-potter[StatefulSet]",
+      "dst": "0.0.0.0-255.255.255.255"
+    },
+    {
+      "src": "gryffindor/harry-potter[StatefulSet]",
+      "dst": "ravenclaw/luna-lovegood[StatefulSet]"
+    },
+    {
+      "src": "gryffindor/harry-potter[StatefulSet]",
+      "dst": "slytherin/draco-malfoy[StatefulSet]"
+    },
+    {
+      "src": "hufflepuff/cedric-diggory[StatefulSet]",
+      "dst": "0.0.0.0-255.255.255.255"
+    },
+    {
+      "src": "slytherin/draco-malfoy[StatefulSet]",
+      "dst": "0.0.0.0-255.255.255.255"
+    },
+    {
+      "src": "slytherin/draco-malfoy[StatefulSet]",
+      "dst": "gryffindor/harry-potter[StatefulSet]"
+    },
+    {
+      "src": "slytherin/draco-malfoy[StatefulSet]",
+      "dst": "hufflepuff/cedric-diggory[StatefulSet]"
+    }
+  ],
+  "exposure_conn_focus_results": {
+    "egress_exposure": [
+      {
+        "src": "gryffindor/harry-potter[StatefulSet]",
+        "dst": "0.0.0.0-255.255.255.255"
+      },
+      {
+        "src": "gryffindor/harry-potter[StatefulSet]",
+        "dst": "entire-cluster"
+      },
+      {
+        "src": "hufflepuff/cedric-diggory[StatefulSet]",
+        "dst": "0.0.0.0-255.255.255.255"
+      },
+      {
+        "src": "hufflepuff/cedric-diggory[StatefulSet]",
+        "dst": "entire-cluster"
+      },
+      {
+        "src": "slytherin/draco-malfoy[StatefulSet]",
+        "dst": "0.0.0.0-255.255.255.255"
+      },
+      {
+        "src": "slytherin/draco-malfoy[StatefulSet]",
+        "dst": "entire-cluster"
+      }
+    ],
+    "ingress_exposure": [
+      {
+        "src": "[namespace with {conformance-house=slytherin}]/[all pods]",
+        "dst": "gryffindor/harry-potter[StatefulSet]"
+      },
+      {
+        "src": "ravenclaw/[all pods]",
+        "dst": "gryffindor/harry-potter[StatefulSet]"
+      },
+      {
+        "src": "0.0.0.0-255.255.255.255",
+        "dst": "hufflepuff/cedric-diggory[StatefulSet]"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "hufflepuff/cedric-diggory[StatefulSet]"
+      },
+      {
+        "src": "[namespace with {conformance-house=gryffindor}]/[all pods]",
+        "dst": "ravenclaw/luna-lovegood[StatefulSet]"
+      },
+      {
+        "src": "0.0.0.0-255.255.255.255",
+        "dst": "slytherin/draco-malfoy[StatefulSet]"
+      },
+      {
+        "src": "entire-cluster",
+        "dst": "slytherin/draco-malfoy[StatefulSet]"
+      }
+    ]
+  }
+}

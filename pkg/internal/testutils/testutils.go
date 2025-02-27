@@ -46,7 +46,7 @@ func GetTestDirPath(dirName string) string {
 }
 
 // ConnlistTestNameByTestArgs returns connlist test name and test's expected output file from some tests args
-func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focusDirection, format string,
+func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focusDirection, focusConn, format string,
 	exposureFlag bool) (testName, expectedOutputFileName string) {
 	namePrefix := dirName
 	if focusWorkload != "" {
@@ -58,6 +58,9 @@ func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focus
 			namePrefix += withStr + strings.ReplaceAll(focusWorkloadPeer, "/", Underscore)
 		}
 	}
+	if focusConn != "" {
+		namePrefix += Underscore + focusConn
+	}
 	testName = namePrefix + formatStr + format
 	outputPartialName := connlistExpectedOutputFilePartialName
 	if exposureFlag {
@@ -68,8 +71,8 @@ func ConnlistTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focus
 }
 
 // ExplainTestNameByTestArgs returns explain test name and test's expected output file from some tests args
-func ExplainTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focusDirection, explainOnly string, exposure bool) (testName,
-	expectedOutputFileName string) {
+func ExplainTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focusDirection, focusConn,
+	explainOnly string, exposure bool) (testName, expectedOutputFileName string) {
 	namePrefix := dirName
 	if focusWorkload != "" {
 		namePrefix += focusWlAnnotation + strings.ReplaceAll(focusWorkload, "/", Underscore)
@@ -79,6 +82,9 @@ func ExplainTestNameByTestArgs(dirName, focusWorkload, focusWorkloadPeer, focusD
 		if focusWorkloadPeer != "" {
 			namePrefix += withStr + strings.ReplaceAll(focusWorkloadPeer, "/", Underscore)
 		}
+	}
+	if focusConn != "" {
+		namePrefix += Underscore + focusConn
 	}
 	if explainOnly != "" {
 		namePrefix += Underscore + explainOnly

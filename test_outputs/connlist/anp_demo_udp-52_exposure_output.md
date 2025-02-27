@@ -1,0 +1,32 @@
+| src | dst |
+|-----|-----|
+| 0.0.0.0-255.255.255.255 | hufflepuff/cedric-diggory[StatefulSet] |
+| 0.0.0.0-255.255.255.255 | slytherin/draco-malfoy[StatefulSet] |
+| gryffindor/harry-potter[StatefulSet] | 0.0.0.0-255.255.255.255 |
+| gryffindor/harry-potter[StatefulSet] | ravenclaw/luna-lovegood[StatefulSet] |
+| gryffindor/harry-potter[StatefulSet] | slytherin/draco-malfoy[StatefulSet] |
+| hufflepuff/cedric-diggory[StatefulSet] | 0.0.0.0-255.255.255.255 |
+| slytherin/draco-malfoy[StatefulSet] | 0.0.0.0-255.255.255.255 |
+| slytherin/draco-malfoy[StatefulSet] | gryffindor/harry-potter[StatefulSet] |
+| slytherin/draco-malfoy[StatefulSet] | hufflepuff/cedric-diggory[StatefulSet] |
+## Exposure Analysis Result On UDP 52:
+### Egress Exposure:
+| src | dst |
+|-----|-----|
+| gryffindor/harry-potter[StatefulSet] | 0.0.0.0-255.255.255.255 |
+| gryffindor/harry-potter[StatefulSet] | entire-cluster |
+| hufflepuff/cedric-diggory[StatefulSet] | 0.0.0.0-255.255.255.255 |
+| hufflepuff/cedric-diggory[StatefulSet] | entire-cluster |
+| slytherin/draco-malfoy[StatefulSet] | 0.0.0.0-255.255.255.255 |
+| slytherin/draco-malfoy[StatefulSet] | entire-cluster |
+
+### Ingress Exposure:
+| dst | src |
+|-----|-----|
+| gryffindor/harry-potter[StatefulSet] | [namespace with {conformance-house=slytherin}]/[all pods] |
+| gryffindor/harry-potter[StatefulSet] | ravenclaw/[all pods] |
+| hufflepuff/cedric-diggory[StatefulSet] | 0.0.0.0-255.255.255.255 |
+| hufflepuff/cedric-diggory[StatefulSet] | entire-cluster |
+| ravenclaw/luna-lovegood[StatefulSet] | [namespace with {conformance-house=gryffindor}]/[all pods] |
+| slytherin/draco-malfoy[StatefulSet] | 0.0.0.0-255.255.255.255 |
+| slytherin/draco-malfoy[StatefulSet] | entire-cluster |

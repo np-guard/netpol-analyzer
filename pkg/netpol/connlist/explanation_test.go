@@ -24,7 +24,8 @@ func TestExplainFromDir(t *testing.T) {
 	for _, tt := range explainTests {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
-			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, tt.explainOnly, tt.exposure)
+			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection,
+				tt.focusConn, tt.explainOnly, tt.exposure)
 			res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 			require.Nil(t, err, pTest.testInfo)
 			out, err := pTest.analyzer.ConnectionsListToString(res)
@@ -35,15 +36,16 @@ func TestExplainFromDir(t *testing.T) {
 	}
 }
 
-func prepareExplainTest(dirName string, focusWorkloads, focusWorkloadPeers []string, focusDirection,
+func prepareExplainTest(dirName string, focusWorkloads, focusWorkloadPeers []string, focusDirection, focusConn,
 	explainOnly string, exposure bool) preparedTest {
 	res := preparedTest{}
 	res.testName, res.expectedOutputFileName = testutils.ExplainTestNameByTestArgs(dirName,
 		strings.Join(focusWorkloads, testutils.Underscore), strings.Join(focusWorkloadPeers, testutils.Underscore), focusDirection,
-		explainOnly, exposure)
+		focusConn, explainOnly, exposure)
 	res.testInfo = fmt.Sprintf("test: %q", res.testName)
 	opts := []ConnlistAnalyzerOption{WithOutputFormat(output.TextFormat), WithFocusWorkloadList(focusWorkloads),
-		WithFocusWorkloadPeerList(focusWorkloadPeers), WithFocusDirection(focusDirection), WithExplanation(), WithExplainOnly(explainOnly)}
+		WithFocusWorkloadPeerList(focusWorkloadPeers), WithFocusDirection(focusDirection), WithExplanation(), WithExplainOnly(explainOnly),
+		WithFocusConnection(focusConn)}
 	if exposure {
 		opts = append(opts, WithExposureAnalysis())
 	}
@@ -56,6 +58,7 @@ var explainTests = []struct {
 	testDirName        string
 	focusWorkloads     []string
 	focusDirection     string
+	focusConn          string
 	focusWorkloadPeers []string
 	exposure           bool
 	explainOnly        string
@@ -270,5 +273,23 @@ var explainTests = []struct {
 		focusWorkloadPeers: []string{"myfoo"},
 		explainOnly:        common.ExplainOnlyAllow,
 		focusDirection:     common.EgressFocusDirection,
+	},
+	{
+		testDirName: "acs-security-demos",
+		focusConn:   "udp-5353",
+		explainOnly: common.ExplainOnlyDeny,
+	},
+	{
+		testDirName:        "anp_banp_blog_demo",
+		focusWorkloads:     []string{"mymonitoring"},
+		focusWorkloadPeers: []string{"myfoo"},
+		explainOnly:        common.ExplainOnlyAllow,
+		focusDirection:     common.EgressFocusDirection,
+		focusConn:          "tcp-80",
+	},
+	{
+		testDirName: "acs-security-demos",
+		focusConn:   "tcp-8080",
+		exposure:    true,
 	},
 }
