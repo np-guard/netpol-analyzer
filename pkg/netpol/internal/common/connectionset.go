@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package common
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"sort"
@@ -17,6 +18,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 
 	"github.com/np-guard/models/pkg/interval"
+
+	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 )
 
 // ConnectionSet represents a set of allowed connections between two peers on a k8s env
@@ -598,4 +601,67 @@ func IsProtocolValid(protocol string) bool {
 		}
 	}
 	return false
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+// GetFocusConnSetWithExplainabilityFromAllowedConnSet :
+// gets allowedConns and focus-conn (with only one protocol-port) and returns a new connectionSet with the focus-conn: protocol and port
+// and  matching explainability data from the allowedConns set.
+// if allowed-conns is allow-all or empty: updates the result's protocol-port explanation with the allowed-conns' CommonImplyingRules;
+// otherwise, finds the focus-conn protocol-port in the allowedConns.AllowedProtocols and copy its explanation-data.
+// returns also if the protocol-port is allowed/denied in allowedConns
+func GetFocusConnSetWithExplainabilityFromAllowedConnSet(allowedConns, focusConn *ConnectionSet) (*ConnectionSet, bool, error) {
+	// note that focus-conn is protocol-portNum format; so focusConn must contain one AllowedProtocol with a
+	// "Ports" field (representing the port-number)
+	if len(focusConn.AllowedProtocols) != 1 { // should not get here
+		return nil, false, errors.New(netpolerrors.InvalidFocusConnSet)
+	}
+	var focusProtocol v1.Protocol
+	// get the protocol of focus-conn
+	for p := range focusConn.AllowedProtocols {
+		focusProtocol = p
+		break // only one
+	}
+	focusPort := focusConn.AllowedProtocols[focusProtocol].Ports // contains ports field of the focus-protocol, divided to augmented intervals
+	focusPortInSetInterval := focusPort.getInSetInterval()       // get the focus-port (the one input port)
+	if focusPortInSetInterval.IsEmpty() {                        // should not get here
+		return nil, false, errors.New(netpolerrors.InvalidFocusConnSet)
+	}
+	// create new connSet with the focus protocol&port + relevant explanation from allowedConns and if the focus protocol-port should
+	// be allowed or denied in the new connectionSet
+
+	// if the allowed conns is allow all, means also focus-conn is allowed; update with the allow-all explanation
+	if allowedConns.AllowAll {
+		// get the explanation of allow-all to the focus-conn protcol-port and return
+		resultConnSet := createFocusConnSetWithExplanation(focusProtocol, focusPortInSetInterval, true, allowedConns.CommonImplyingRules)
+		return resultConnSet, true, nil
+	}
+	// if allowed-conns is empty (without any protocol-port) means the focus-conn is denied too,
+	// i.e. the result contains a hole with explanation
+	if len(allowedConns.AllowedProtocols) == 0 {
+		// create a portSet with a hole in the the focus-conn protocol-port  with explanation of the denied-all and return
+		resultConnSet := createFocusConnSetWithExplanation(focusProtocol, focusPortInSetInterval, false, allowedConns.CommonImplyingRules)
+		return resultConnSet, false, nil
+	}
+	// if allowed-conns has protocols and ports, find the focus protocol and port and get its data
+	origPortIntervals := allowedConns.AllowedProtocols[focusProtocol].Ports.intervalSet
+	for _, augInt := range origPortIntervals {
+		if focusPortInSetInterval.IsSubset(augInt.interval) {
+			resultConnSet := createFocusConnSetWithExplanation(focusProtocol, focusPortInSetInterval, augInt.inSet, augInt.implyingRules)
+			return resultConnSet, augInt.inSet, nil
+		}
+	}
+	return nil, false, nil
+}
+
+func createFocusConnSetWithExplanation(focusProtocol v1.Protocol, focusInPort interval.Interval, inSet bool,
+	explanation ImplyingRulesType) *ConnectionSet {
+	portWithExp := NewAugmentedCanonicalSetWithRules(focusInPort.Start(), focusInPort.End(), inSet,
+		explanation)
+	resultPortSet := MakePortSet(false)
+	resultPortSet.Ports = portWithExp
+	resultConnSet := MakeConnectionSet(false)
+	resultConnSet.AddConnection(focusProtocol, resultPortSet)
+	return resultConnSet
 }

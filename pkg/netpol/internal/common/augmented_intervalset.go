@@ -811,3 +811,13 @@ func (c *AugmentedCanonicalSet) SetExplResult(isIngress bool) {
 		c.intervalSet[ind].implyingRules.SetResult(v.inSet, isIngress)
 	}
 }
+
+// getInSetInterval - used internally; returns the InSet interval of the current AugmentedCanonicalSet
+func (c *AugmentedCanonicalSet) getInSetInterval() interval.Interval {
+	for _, augInterval := range c.intervalSet {
+		if augInterval.inSet {
+			return augInterval.interval
+		}
+	}
+	return interval.New(0, -1) // empty interval
+}

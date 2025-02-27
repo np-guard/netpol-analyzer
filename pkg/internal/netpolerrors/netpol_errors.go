@@ -184,7 +184,10 @@ func ExplainOnlyNotSupported(explainOnly string) string {
 	return "invalid explain only value: " + explainOnly + semiColon + ExplainOnlyOptions
 }
 
-const invalidFocusConn = "invalid focus connection value: "
+const (
+	invalidFocusConn    = "invalid focus connection value: "
+	InvalidFocusConnSet = "invalid focus connection set - may contain only one protocol-port"
+)
 
 func InvalidFocusConnFormat(focusConn string) string {
 	return invalidFocusConn + focusConn + "; must be <protocol-port> format"

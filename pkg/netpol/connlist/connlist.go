@@ -851,7 +851,7 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, sr
 				continue
 			}
 			// skip non-empty connections when running on explain-only deny mode (i.e `--explain` and `--explain-only` deny are used)
-			if !allowedConnections.IsEmpty() && ca.explainOnly == pkgcommon.ExplainOnlyDeny {
+			if !allowedConnections.IsEmpty() && ca.explainOnly == pkgcommon.ExplainOnlyDeny && ca.focusConnSet == nil {
 				continue
 			}
 			// - if focus conns is not empty and not explain mode, skip the connections if focus conn is not contained in the allowed conns
@@ -860,8 +860,14 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, sr
 				continue
 			}
 			connlistAllowedConnections := allowedConnections
-			if ca.focusConnSet != nil {
-				connlistAllowedConnections = ca.focusConnSet
+			if ca.focusConnSet != nil { // only focus connection data is meaningful in this case
+				connlistAllowedConnections, err = ca.getFocusConnSetWithDataFromAllowedConns(allowedConnections)
+				if err != nil {
+					return nil, nil, err
+				}
+			}
+			if connlistAllowedConnections == nil { // focus conn data is not relevant for the analysis
+				continue
 			}
 			p2pConnection, err := ca.getP2PConnOrUpdateExposureConn(pe, connlistAllowedConnections, srcPeer, dstPeer, exposureMaps)
 			if err != nil {
@@ -908,9 +914,12 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		}
 		allowedConn := peerAndConn.ConnSet
 		if ca.focusConnSet != nil {
-			if ca.focusConnSet.ContainedIn(allowedConn) {
-				allowedConn = ca.focusConnSet // if focus-conn is used, only the focus connection is meaningful
-			} else {
+			allowedConn, err = ca.getFocusConnSetWithDataFromAllowedConns(peerAndConn.ConnSet) // if focus-conn is used,
+			//  only the focus connection is meaningful
+			if err != nil {
+				return nil, err
+			}
+			if allowedConn == nil || (!ca.explain && !ca.focusConnSet.ContainedIn(peerAndConn.ConnSet)) {
 				continue
 			}
 		}
@@ -1014,4 +1023,25 @@ func (ca *ConnlistAnalyzer) updatePeersGeneralExposureData(pe *eval.PolicyEngine
 // - it is first time the peer is visited
 func (ca *ConnlistAnalyzer) shouldAddPeerGeneralExposureData(pe *eval.PolicyEngine, peer Peer, xgressSet map[Peer]bool) bool {
 	return !peer.IsPeerIPType() && !pe.IsRepresentativePeer(peer) && !xgressSet[peer] && isPeerFocusWorkload(peer, ca.focusWorkloads)
+}
+
+// getFocusConnSetWithDataFromAllowedConns returns connection set with all relevant data of the focus-connection from allowed-connections
+// if ca.explain is off, then returns ca.focusConnSet (already checked that it is contained in allowedConns);
+// otherwise, returns a connectionSet with same protocol-port of the focus connection-set and relevant explanation data from allowedConns;
+// note that: this function is called only if `ca.focusConnection (focus-conn)` is not empty
+// this func considers also explain-only flag if used
+func (ca *ConnlistAnalyzer) getFocusConnSetWithDataFromAllowedConns(allowedConns *common.ConnectionSet) (fc *common.ConnectionSet,
+	err error) {
+	if !ca.explain {
+		return ca.focusConnSet, nil
+	}
+	// else : explain is on
+	focusConnSetWithExp, allowedFlag, err := common.GetFocusConnSetWithExplainabilityFromAllowedConnSet(allowedConns, ca.focusConnSet)
+	if ca.explainOnly == pkgcommon.ExplainOnlyAllow && !allowedFlag {
+		return nil, nil // the focus conn is denied - nothing to display
+	}
+	if ca.explainOnly == pkgcommon.ExplainOnlyDeny && allowedFlag {
+		return nil, nil // focus conn is allowed - nothing to display
+	}
+	return focusConnSetWithExp, err
 }
