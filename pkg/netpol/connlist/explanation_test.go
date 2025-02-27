@@ -287,4 +287,9 @@ var explainTests = []struct {
 		focusDirection:     common.EgressFocusDirection,
 		focusConn:          "tcp-80",
 	},
+	{
+		testDirName: "acs-security-demos",
+		focusConn:   "tcp-8080",
+		exposure:    true,
+	},
 }

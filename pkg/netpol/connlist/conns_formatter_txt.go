@@ -48,7 +48,8 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 			connLines = append(connLines, p2pConn)
 		}
 		// if we have exposure analysis results, also check if src/dst is an IP and store the connection
-		if saveIPConns {
+		// save if there is a connection
+		if saveIPConns && p2pConn.ConnString != "" {
 			t.ipMaps.saveConnsWithIPs(conns[i], explain)
 		}
 	}
