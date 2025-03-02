@@ -7,6 +7,7 @@
         "banp",
         "Clientset",
         "connlist",
+        "Explainability",
         "focusworkload",
         "focusworkloads",
         "netpol",

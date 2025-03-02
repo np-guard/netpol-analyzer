@@ -68,6 +68,7 @@ Flags:
       --focusworkload-peer  string    Focus connections of specified workload(s) with this peer(s), applies only when focusworkload is used; supports comma-separated names (focusworkload-peer name format is same as focusworkload)
       --focus-direction     string    Focus connections of specified workload(s) on one direction, applies only when focusworkload is used; must be one of ingress,egress
       --explain-only        string    Filter explain output to show only allowed or denied connections, applies only when explain is used; must be one of allow,deny
+      --focus-conn          string    Filter output to show results for a specific connection (connection format <protocolName-portNumber>)
   -h, --help                          help for list
   -o, --output string                 Required output format; must be one of txt,json,dot,csv,md (default "txt")
 

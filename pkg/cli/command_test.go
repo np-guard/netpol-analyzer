@@ -97,7 +97,7 @@ func getListCmdTestNameAndExpectedOutputFile(dirName, focusWorkload, focusWorklo
 	fileSuffix := determineFileSuffix(format)
 	focusWls := strings.ReplaceAll(focusWorkload, testutils.CommaSign, testutils.Underscore)
 	focusWlPeers := strings.ReplaceAll(focusWorkloadPeer, testutils.CommaSign, testutils.Underscore)
-	return testutils.ConnlistTestNameByTestArgs(dirName, focusWls, focusWlPeers, focusDirection, fileSuffix, exposureFlag)
+	return testutils.ConnlistTestNameByTestArgs(dirName, focusWls, focusWlPeers, focusDirection, "", fileSuffix, exposureFlag)
 }
 
 func testInfo(testName string) string {
@@ -209,6 +209,26 @@ func TestCommandsFailExecute(t *testing.T) {
 				"--explain-only",
 				"xgress"},
 			expectedErrorContains: netpolerrors.ExplainOnlyOptions,
+		},
+		{
+			name: "list_command_with_invalid_focus_connection_format_return_error",
+			args: []string{
+				"list",
+				"--dirpath",
+				testutils.GetTestDirPath("onlineboutique"),
+				"--focus-conn",
+				"udp90"},
+			expectedErrorContains: netpolerrors.InvalidFocusConnFormat("udp90"),
+		},
+		{
+			name: "list_command_with_invalid_focus_connection_protocol_return_error",
+			args: []string{
+				"list",
+				"--dirpath",
+				testutils.GetTestDirPath("onlineboutique"),
+				"--focus-conn",
+				"ucp-90"},
+			expectedErrorContains: netpolerrors.InvalidFocusConnProtocol("ucp-90", "ucp"),
 		},
 		{
 			name: "test_using_q_and_v_verbosity_flags_together_should_return_an_error_of_illegal_use_of_quiet_and_verbose_flags",

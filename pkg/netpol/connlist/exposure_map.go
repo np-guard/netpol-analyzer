@@ -40,13 +40,14 @@ func (ex *exposureMaps) appendPeerXgressExposureData(peer Peer, expData *xgressE
 // if not protected (no policies selecting it) initialize its data in the relevant map (with unprotected flag)
 // if protected (selected by at least one policy) check and add entire cluster exposure on the ingress/egress direction (if exists).
 // the unprotected or entire cluster is always first entry of the peer on its relevant map
-func (ex *exposureMaps) addPeerGeneralExposure(pe *eval.PolicyEngine, peer Peer, isIngress bool) (err error) {
+func (ex *exposureMaps) addPeerGeneralExposure(pe *eval.PolicyEngine, peer Peer, isIngress bool,
+	focusConn *common.ConnectionSet) (err error) {
 	added, err := ex.addPeerUnprotectedData(pe, peer, isIngress)
 	if err != nil {
 		return err
 	}
 	if !added { // protected peer : check and add entire cluster conns
-		err = ex.addPeerXgressEntireClusterExp(pe, peer, isIngress)
+		err = ex.addPeerXgressEntireClusterExp(pe, peer, isIngress, focusConn)
 	}
 	return err
 }
@@ -69,13 +70,23 @@ func (ex *exposureMaps) addPeerUnprotectedData(pe *eval.PolicyEngine, peer Peer,
 // addPeerXgressEntireClusterExp checks and adds (if exists) ingress/egress entire cluster exposure for the given peer
 // on the given direction;
 // each entry in the relevant map may has at-most one connection with entire-cluster (which is added by this func)
-func (ex *exposureMaps) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer Peer, isIngress bool) error {
+func (ex *exposureMaps) addPeerXgressEntireClusterExp(pe *eval.PolicyEngine, peer Peer, isIngress bool,
+	focusConn *common.ConnectionSet) error {
 	conn, err := pe.GetPeerXgressEntireClusterConn(peer, isIngress)
 	if err != nil {
 		return err
 	}
 	if conn.IsEmpty() {
 		return nil
+	}
+	// if focus-conn is enabled : if it is contained in the entire-cluster conn, update the general data with it;
+	// else - return nil: the peer is not exposed to entire-cluster on the focus-conn
+	if focusConn != nil {
+		if focusConn.ContainedIn(conn) {
+			conn = focusConn // we are interested only in the focus conn
+		} else {
+			return nil
+		}
 	}
 	// exposed to entire cluster - first entry of the peer
 	ex.addNewEntry(peer, true, isIngress)
@@ -102,7 +113,7 @@ func (ex *exposureMaps) addNewEntry(peer Peer, isProtected, isIngress bool) {
 // the connection data is inferred from an allowed connection between a real workload peer and a representative peer that was generated
 // from a netpol rule
 func (ex *exposureMaps) addConnToExposureMap(pe *eval.PolicyEngine, allowedConnections common.Connection, src, dst Peer,
-	isIngress bool) error {
+	isIngress bool, focusConn *common.ConnectionSet) error {
 	peer := src               // real peer
 	representativePeer := dst // inferred from netpol rule
 	if isIngress {
@@ -127,7 +138,7 @@ func (ex *exposureMaps) addConnToExposureMap(pe *eval.PolicyEngine, allowedConne
 	// if allowed connection between src and dst is not equal to the connection with entire cluster, we need to add this connection
 	// as an entry in the exposure map
 	// more details in the documentation and body  of func `connectionEqualsEntireClusterConn`
-	equals, isExposed, err := connectionEqualsEntireClusterConn(pe, peer, allowedConnSet, isIngress)
+	equals, isExposed, err := connectionEqualsEntireClusterConn(pe, peer, allowedConnSet, focusConn, isIngress)
 	if err != nil {
 		return err
 	}
@@ -172,7 +183,7 @@ func (ex *exposureMaps) addConnToExposureMap(pe *eval.PolicyEngine, allowedConne
 // * if the peer is not exposed to entire cluster on the given direction: return false, false
 // * if the peer is exposed to entire cluster on given direction: return whether the given conn equals
 // the entire cluster exposed conn (which is the max exposure conn) and true as isExposed (peer is exposed to entire cluster)
-func connectionEqualsEntireClusterConn(pe *eval.PolicyEngine, peer Peer, conns *common.ConnectionSet,
+func connectionEqualsEntireClusterConn(pe *eval.PolicyEngine, peer Peer, conns, focusConn *common.ConnectionSet,
 	isIngress bool) (equals, isExposed bool, err error) {
 	generalConn, err := pe.GetPeerXgressEntireClusterConn(peer, isIngress)
 	if err != nil {
@@ -181,6 +192,11 @@ func connectionEqualsEntireClusterConn(pe *eval.PolicyEngine, peer Peer, conns *
 	if generalConn.IsEmpty() {
 		// not exposed to entire cluster on this direction
 		return false, false, nil
+	}
+	// if focus conn is enabled - check if it is contained in the generalConn - then assign it to GeneralConn
+	// (other conns are not meaningful in this case)
+	if focusConn != nil && focusConn.ContainedIn(generalConn) {
+		generalConn = focusConn // only this conn interests us
 	}
 	// The conns to a rep. peer should be equal to the entire-cluster's conns, in-order to not be added as
 	// a separate entry in the exposure-map.

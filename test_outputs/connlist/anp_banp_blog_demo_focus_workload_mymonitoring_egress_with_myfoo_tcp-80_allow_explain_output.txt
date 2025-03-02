@@ -1,0 +1,14 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
+
+Allowed connections:
+	Allowed TCP:[80] due to the following policies // rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
+			[ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring (Pass)
+			[NP] foo/allow-monitoring // Ingress rule #1
+
