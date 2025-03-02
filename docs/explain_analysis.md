@@ -200,7 +200,7 @@ Running  as `k8snetpolicy list --dirpath tests/anp_banp_blog_demo/ --explain`
 Connections between 0.0.0.0-255.255.255.255 => foo/myfoo[Pod]:
 
 Denied list:
-        Denied TCP, UDP, SCTP due to the following policies // rules:
+        Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
                         [NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
@@ -209,7 +209,7 @@ Denied list:
 Connections between bar/mybar[Pod] => foo/myfoo[Pod]:
 
 Denied list:
-        Denied TCP, UDP, SCTP due to the following policies // rules:
+        Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
                         [NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
@@ -218,7 +218,7 @@ Denied list:
 Connections between baz/mybaz[Pod] => bar/mybar[Pod]:
 
 Denied list:
-        Denied TCP, UDP, SCTP due to the following policies // rules:
+        Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
                         [BANP] default // Ingress rule deny-ingress-from-all-namespaces (Deny)
@@ -227,7 +227,7 @@ Denied list:
 Connections between baz/mybaz[Pod] => foo/myfoo[Pod]:
 
 Denied list:
-        Denied TCP, UDP, SCTP due to the following policies // rules:
+        Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
                         [NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
@@ -236,7 +236,7 @@ Denied list:
 Connections between foo/myfoo[Pod] => bar/mybar[Pod]:
 
 Denied list:
-        Denied TCP, UDP, SCTP due to the following policies // rules:
+        Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
                         [BANP] default // Ingress rule deny-ingress-from-all-namespaces (Deny)
@@ -245,7 +245,7 @@ Denied list:
 Connections between monitoring/mymonitoring[Pod] => bar/mybar[Pod]:
 
 Denied list:
-        Denied TCP, UDP, SCTP due to the following policies // rules:
+        Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
                         [ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring (Pass)
@@ -255,7 +255,7 @@ Denied list:
 Connections between monitoring/mymonitoring[Pod] => baz/mybaz[Pod]:
 
 Allowed list:
-        Allowed TCP, UDP, SCTP due to the following policies // rules:
+        Allowed TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Allowed)
                         [ANP] allow-monitoring // Ingress rule allow-ingress-from-monitoring (Allow)
@@ -264,7 +264,7 @@ Allowed list:
 Connections between monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
 
 Allowed list:
-        Allowed TCP, UDP, SCTP due to the following policies // rules:
+        Allowed TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Allowed)
                         [ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring (Pass)

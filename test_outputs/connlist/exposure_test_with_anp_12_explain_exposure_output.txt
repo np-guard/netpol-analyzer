@@ -8,7 +8,7 @@ Connections between hello-world/workload-a[Deployment] => hello-world/workload-b
 Allowed connections:
 	Allowed TCP:[1-9089,9091-65535], UDP, SCTP due to the system default (Allow all)
 
-	Allowed TCP:[9090] due to the following policies // rules:
+	Allowed TCP:[9090] due to the following policies and rules:
 		Egress (Allowed)
 			[ANP] exposure-example-12 // Egress rule allow-tcp9090-to-all-pods-in-existing-ns (Allow)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -19,7 +19,7 @@ Connections between hello-world/workload-b[Deployment] => hello-world/workload-a
 Allowed connections:
 	Allowed TCP:[1-9089,9091-65535], UDP, SCTP due to the system default (Allow all)
 
-	Allowed TCP:[9090] due to the following policies // rules:
+	Allowed TCP:[9090] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[ANP] exposure-example-12 // Ingress rule allow-tcp9090-from-pods-in-existing-namespace (Allow)

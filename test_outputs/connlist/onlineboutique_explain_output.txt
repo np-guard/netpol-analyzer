@@ -6,7 +6,7 @@
 Connections between 0.0.0.0-255.255.255.255 => default/adservice-77d5cd745d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/adservice-netpol // Ingress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -15,7 +15,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/cartservice-74f56fd4b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/cartservice-netpol // Ingress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -24,7 +24,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/checkoutservice-69c8ff664b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/checkoutservice-netpol // Ingress (default/checkoutservice-69c8ff664b[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -33,7 +33,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/currencyservice-77654bbbdd[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/currencyservice-netpol // Ingress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -42,7 +42,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/emailservice-54c7c5d9d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/emailservice-netpol // Ingress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -51,7 +51,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/frontend-99684f7f8[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/frontend-netpol // Ingress (default/frontend-99684f7f8[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -60,7 +60,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/loadgenerator-555fbdc87d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/loadgenerator-netpol // Ingress (default/loadgenerator-555fbdc87d[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined)
@@ -69,7 +69,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/paymentservice-netpol // Ingress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -78,7 +78,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/productcatalogservice-68765d49b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/productcatalogservice-netpol // Ingress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -87,7 +87,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/recommendationservice-5f8c456796[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/recommendationservice-netpol // Ingress (default/recommendationservice-5f8c456796[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -96,7 +96,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/shippingservice-5bd985c46d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/shippingservice-netpol // Ingress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -105,7 +105,7 @@ Denied connections:
 Connections between default/adservice-77d5cd745d[ReplicaSet] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -114,7 +114,7 @@ Denied connections:
 Connections between default/adservice-77d5cd745d[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but default/cartservice-74f56fd4b[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -124,7 +124,7 @@ Denied connections:
 Connections between default/adservice-77d5cd745d[ReplicaSet] => default/checkoutservice-69c8ff664b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but default/checkoutservice-69c8ff664b[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -134,7 +134,7 @@ Denied connections:
 Connections between default/adservice-77d5cd745d[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but default/currencyservice-77654bbbdd[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -144,7 +144,7 @@ Denied connections:
 Connections between default/adservice-77d5cd745d[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but default/emailservice-54c7c5d9d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -154,7 +154,7 @@ Denied connections:
 Connections between default/adservice-77d5cd745d[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but default/frontend-99684f7f8[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -164,7 +164,7 @@ Denied connections:
 Connections between default/adservice-77d5cd745d[ReplicaSet] => default/loadgenerator-555fbdc87d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but default/loadgenerator-555fbdc87d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -174,7 +174,7 @@ Denied connections:
 Connections between default/adservice-77d5cd745d[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but default/paymentservice-bbcbdc6b6[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -184,7 +184,7 @@ Denied connections:
 Connections between default/adservice-77d5cd745d[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but default/productcatalogservice-68765d49b6[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -194,7 +194,7 @@ Denied connections:
 Connections between default/adservice-77d5cd745d[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but default/recommendationservice-5f8c456796[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -204,7 +204,7 @@ Denied connections:
 Connections between default/adservice-77d5cd745d[ReplicaSet] => default/redis-cart-78746d49dc[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -213,7 +213,7 @@ Denied connections:
 Connections between default/adservice-77d5cd745d[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but default/shippingservice-5bd985c46d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -223,7 +223,7 @@ Denied connections:
 Connections between default/cartservice-74f56fd4b[ReplicaSet] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -232,7 +232,7 @@ Denied connections:
 Connections between default/cartservice-74f56fd4b[ReplicaSet] => default/adservice-77d5cd745d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but default/adservice-77d5cd745d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -242,7 +242,7 @@ Denied connections:
 Connections between default/cartservice-74f56fd4b[ReplicaSet] => default/checkoutservice-69c8ff664b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but default/checkoutservice-69c8ff664b[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -252,7 +252,7 @@ Denied connections:
 Connections between default/cartservice-74f56fd4b[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but default/currencyservice-77654bbbdd[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -262,7 +262,7 @@ Denied connections:
 Connections between default/cartservice-74f56fd4b[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but default/emailservice-54c7c5d9d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -272,7 +272,7 @@ Denied connections:
 Connections between default/cartservice-74f56fd4b[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but default/frontend-99684f7f8[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -282,7 +282,7 @@ Denied connections:
 Connections between default/cartservice-74f56fd4b[ReplicaSet] => default/loadgenerator-555fbdc87d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but default/loadgenerator-555fbdc87d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -292,7 +292,7 @@ Denied connections:
 Connections between default/cartservice-74f56fd4b[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but default/paymentservice-bbcbdc6b6[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -302,7 +302,7 @@ Denied connections:
 Connections between default/cartservice-74f56fd4b[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but default/productcatalogservice-68765d49b6[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -312,7 +312,7 @@ Denied connections:
 Connections between default/cartservice-74f56fd4b[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but default/recommendationservice-5f8c456796[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -322,7 +322,7 @@ Denied connections:
 Connections between default/cartservice-74f56fd4b[ReplicaSet] => default/redis-cart-78746d49dc[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -331,7 +331,7 @@ Denied connections:
 Connections between default/cartservice-74f56fd4b[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but default/shippingservice-5bd985c46d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -341,7 +341,7 @@ Denied connections:
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress (default/checkoutservice-69c8ff664b[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -350,7 +350,7 @@ Denied connections:
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/adservice-77d5cd745d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress (default/checkoutservice-69c8ff664b[ReplicaSet] is selected by the policy, but default/adservice-77d5cd745d[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -360,14 +360,14 @@ Denied connections:
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[7070] due to the following policies // rules:
+	Allowed TCP:[7070] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/checkoutservice-netpol // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/cartservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-7069,7071-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-7069,7071-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress rule #1 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -377,14 +377,14 @@ Denied connections:
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[7000] due to the following policies // rules:
+	Allowed TCP:[7000] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/checkoutservice-netpol // Egress rule #2
 		Ingress (Allowed)
 			[NP] default/currencyservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-6999,7001-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-6999,7001-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress rule #2 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -394,14 +394,14 @@ Denied connections:
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[8080] due to the following policies // rules:
+	Allowed TCP:[8080] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/checkoutservice-netpol // Egress rule #3
 		Ingress (Allowed)
 			[NP] default/emailservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress rule #3 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -411,7 +411,7 @@ Denied connections:
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress (default/checkoutservice-69c8ff664b[ReplicaSet] is selected by the policy, but default/frontend-99684f7f8[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -421,7 +421,7 @@ Denied connections:
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/loadgenerator-555fbdc87d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress (default/checkoutservice-69c8ff664b[ReplicaSet] is selected by the policy, but default/loadgenerator-555fbdc87d[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -431,14 +431,14 @@ Denied connections:
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[50051] due to the following policies // rules:
+	Allowed TCP:[50051] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/checkoutservice-netpol // Egress rule #4
 		Ingress (Allowed)
 			[NP] default/paymentservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress rule #4 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -448,14 +448,14 @@ Denied connections:
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[3550] due to the following policies // rules:
+	Allowed TCP:[3550] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/checkoutservice-netpol // Egress rule #5
 		Ingress (Allowed)
 			[NP] default/productcatalogservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress rule #5 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -465,7 +465,7 @@ Denied connections:
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress (default/checkoutservice-69c8ff664b[ReplicaSet] is selected by the policy, but default/recommendationservice-5f8c456796[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -475,7 +475,7 @@ Denied connections:
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/redis-cart-78746d49dc[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress (default/checkoutservice-69c8ff664b[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -484,14 +484,14 @@ Denied connections:
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[50051] due to the following policies // rules:
+	Allowed TCP:[50051] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/checkoutservice-netpol // Egress rule #6
 		Ingress (Allowed)
 			[NP] default/shippingservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress rule #6 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -501,7 +501,7 @@ Denied connections:
 Connections between default/currencyservice-77654bbbdd[ReplicaSet] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -510,7 +510,7 @@ Denied connections:
 Connections between default/currencyservice-77654bbbdd[ReplicaSet] => default/adservice-77d5cd745d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but default/adservice-77d5cd745d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -520,7 +520,7 @@ Denied connections:
 Connections between default/currencyservice-77654bbbdd[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but default/cartservice-74f56fd4b[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -530,7 +530,7 @@ Denied connections:
 Connections between default/currencyservice-77654bbbdd[ReplicaSet] => default/checkoutservice-69c8ff664b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but default/checkoutservice-69c8ff664b[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -540,7 +540,7 @@ Denied connections:
 Connections between default/currencyservice-77654bbbdd[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but default/emailservice-54c7c5d9d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -550,7 +550,7 @@ Denied connections:
 Connections between default/currencyservice-77654bbbdd[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but default/frontend-99684f7f8[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -560,7 +560,7 @@ Denied connections:
 Connections between default/currencyservice-77654bbbdd[ReplicaSet] => default/loadgenerator-555fbdc87d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but default/loadgenerator-555fbdc87d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -570,7 +570,7 @@ Denied connections:
 Connections between default/currencyservice-77654bbbdd[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but default/paymentservice-bbcbdc6b6[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -580,7 +580,7 @@ Denied connections:
 Connections between default/currencyservice-77654bbbdd[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but default/productcatalogservice-68765d49b6[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -590,7 +590,7 @@ Denied connections:
 Connections between default/currencyservice-77654bbbdd[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but default/recommendationservice-5f8c456796[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -600,7 +600,7 @@ Denied connections:
 Connections between default/currencyservice-77654bbbdd[ReplicaSet] => default/redis-cart-78746d49dc[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -609,7 +609,7 @@ Denied connections:
 Connections between default/currencyservice-77654bbbdd[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but default/shippingservice-5bd985c46d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -619,7 +619,7 @@ Denied connections:
 Connections between default/emailservice-54c7c5d9d[ReplicaSet] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -628,7 +628,7 @@ Denied connections:
 Connections between default/emailservice-54c7c5d9d[ReplicaSet] => default/adservice-77d5cd745d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but default/adservice-77d5cd745d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -638,7 +638,7 @@ Denied connections:
 Connections between default/emailservice-54c7c5d9d[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but default/cartservice-74f56fd4b[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -648,7 +648,7 @@ Denied connections:
 Connections between default/emailservice-54c7c5d9d[ReplicaSet] => default/checkoutservice-69c8ff664b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but default/checkoutservice-69c8ff664b[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -658,7 +658,7 @@ Denied connections:
 Connections between default/emailservice-54c7c5d9d[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but default/currencyservice-77654bbbdd[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -668,7 +668,7 @@ Denied connections:
 Connections between default/emailservice-54c7c5d9d[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but default/frontend-99684f7f8[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -678,7 +678,7 @@ Denied connections:
 Connections between default/emailservice-54c7c5d9d[ReplicaSet] => default/loadgenerator-555fbdc87d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but default/loadgenerator-555fbdc87d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -688,7 +688,7 @@ Denied connections:
 Connections between default/emailservice-54c7c5d9d[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but default/paymentservice-bbcbdc6b6[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -698,7 +698,7 @@ Denied connections:
 Connections between default/emailservice-54c7c5d9d[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but default/productcatalogservice-68765d49b6[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -708,7 +708,7 @@ Denied connections:
 Connections between default/emailservice-54c7c5d9d[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but default/recommendationservice-5f8c456796[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -718,7 +718,7 @@ Denied connections:
 Connections between default/emailservice-54c7c5d9d[ReplicaSet] => default/redis-cart-78746d49dc[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -727,7 +727,7 @@ Denied connections:
 Connections between default/emailservice-54c7c5d9d[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but default/shippingservice-5bd985c46d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -737,7 +737,7 @@ Denied connections:
 Connections between default/frontend-99684f7f8[ReplicaSet] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress (default/frontend-99684f7f8[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -746,14 +746,14 @@ Denied connections:
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/adservice-77d5cd745d[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[9555] due to the following policies // rules:
+	Allowed TCP:[9555] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/adservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-9554,9556-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-9554,9556-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #1 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -763,14 +763,14 @@ Denied connections:
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[7070] due to the following policies // rules:
+	Allowed TCP:[7070] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #2
 		Ingress (Allowed)
 			[NP] default/cartservice-netpol // Ingress rule #2
 
 Denied connections:
-	Denied TCP:[1-7069,7071-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-7069,7071-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #2 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -780,14 +780,14 @@ Denied connections:
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/checkoutservice-69c8ff664b[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[5050] due to the following policies // rules:
+	Allowed TCP:[5050] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #3
 		Ingress (Allowed)
 			[NP] default/checkoutservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-5049,5051-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-5049,5051-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #3 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -797,14 +797,14 @@ Denied connections:
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[7000] due to the following policies // rules:
+	Allowed TCP:[7000] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #4
 		Ingress (Allowed)
 			[NP] default/currencyservice-netpol // Ingress rule #2
 
 Denied connections:
-	Denied TCP:[1-6999,7001-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-6999,7001-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #4 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -814,7 +814,7 @@ Denied connections:
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress (default/frontend-99684f7f8[ReplicaSet] is selected by the policy, but default/emailservice-54c7c5d9d[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -824,7 +824,7 @@ Denied connections:
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/loadgenerator-555fbdc87d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress (default/frontend-99684f7f8[ReplicaSet] is selected by the policy, but default/loadgenerator-555fbdc87d[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -834,7 +834,7 @@ Denied connections:
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress (default/frontend-99684f7f8[ReplicaSet] is selected by the policy, but default/paymentservice-bbcbdc6b6[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -844,14 +844,14 @@ Denied connections:
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[3550] due to the following policies // rules:
+	Allowed TCP:[3550] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #5
 		Ingress (Allowed)
 			[NP] default/productcatalogservice-netpol // Ingress rule #2
 
 Denied connections:
-	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #5 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -861,14 +861,14 @@ Denied connections:
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[8080] due to the following policies // rules:
+	Allowed TCP:[8080] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #6
 		Ingress (Allowed)
 			[NP] default/recommendationservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #6 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -878,7 +878,7 @@ Denied connections:
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/redis-cart-78746d49dc[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress (default/frontend-99684f7f8[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -887,14 +887,14 @@ Denied connections:
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[50051] due to the following policies // rules:
+	Allowed TCP:[50051] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #7
 		Ingress (Allowed)
 			[NP] default/shippingservice-netpol // Ingress rule #2
 
 Denied connections:
-	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #7 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -904,7 +904,7 @@ Denied connections:
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator-555fbdc87d[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -913,7 +913,7 @@ Denied connections:
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => default/adservice-77d5cd745d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator-555fbdc87d[ReplicaSet] is selected by the policy, but default/adservice-77d5cd745d[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -923,7 +923,7 @@ Denied connections:
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator-555fbdc87d[ReplicaSet] is selected by the policy, but default/cartservice-74f56fd4b[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -933,7 +933,7 @@ Denied connections:
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => default/checkoutservice-69c8ff664b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator-555fbdc87d[ReplicaSet] is selected by the policy, but default/checkoutservice-69c8ff664b[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -943,7 +943,7 @@ Denied connections:
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator-555fbdc87d[ReplicaSet] is selected by the policy, but default/currencyservice-77654bbbdd[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -953,7 +953,7 @@ Denied connections:
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator-555fbdc87d[ReplicaSet] is selected by the policy, but default/emailservice-54c7c5d9d[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -963,14 +963,14 @@ Denied connections:
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[8080] due to the following policies // rules:
+	Allowed TCP:[8080] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/loadgenerator-netpol // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/frontend-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress rule #1 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -980,7 +980,7 @@ Denied connections:
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator-555fbdc87d[ReplicaSet] is selected by the policy, but default/paymentservice-bbcbdc6b6[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -990,7 +990,7 @@ Denied connections:
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator-555fbdc87d[ReplicaSet] is selected by the policy, but default/productcatalogservice-68765d49b6[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1000,7 +1000,7 @@ Denied connections:
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator-555fbdc87d[ReplicaSet] is selected by the policy, but default/recommendationservice-5f8c456796[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1010,7 +1010,7 @@ Denied connections:
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => default/redis-cart-78746d49dc[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator-555fbdc87d[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1019,7 +1019,7 @@ Denied connections:
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator-555fbdc87d[ReplicaSet] is selected by the policy, but default/shippingservice-5bd985c46d[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1029,7 +1029,7 @@ Denied connections:
 Connections between default/paymentservice-bbcbdc6b6[ReplicaSet] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1038,7 +1038,7 @@ Denied connections:
 Connections between default/paymentservice-bbcbdc6b6[ReplicaSet] => default/adservice-77d5cd745d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but default/adservice-77d5cd745d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1048,7 +1048,7 @@ Denied connections:
 Connections between default/paymentservice-bbcbdc6b6[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but default/cartservice-74f56fd4b[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1058,7 +1058,7 @@ Denied connections:
 Connections between default/paymentservice-bbcbdc6b6[ReplicaSet] => default/checkoutservice-69c8ff664b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but default/checkoutservice-69c8ff664b[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1068,7 +1068,7 @@ Denied connections:
 Connections between default/paymentservice-bbcbdc6b6[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but default/currencyservice-77654bbbdd[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1078,7 +1078,7 @@ Denied connections:
 Connections between default/paymentservice-bbcbdc6b6[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but default/emailservice-54c7c5d9d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1088,7 +1088,7 @@ Denied connections:
 Connections between default/paymentservice-bbcbdc6b6[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but default/frontend-99684f7f8[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1098,7 +1098,7 @@ Denied connections:
 Connections between default/paymentservice-bbcbdc6b6[ReplicaSet] => default/loadgenerator-555fbdc87d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but default/loadgenerator-555fbdc87d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1108,7 +1108,7 @@ Denied connections:
 Connections between default/paymentservice-bbcbdc6b6[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but default/productcatalogservice-68765d49b6[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1118,7 +1118,7 @@ Denied connections:
 Connections between default/paymentservice-bbcbdc6b6[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but default/recommendationservice-5f8c456796[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1128,7 +1128,7 @@ Denied connections:
 Connections between default/paymentservice-bbcbdc6b6[ReplicaSet] => default/redis-cart-78746d49dc[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1137,7 +1137,7 @@ Denied connections:
 Connections between default/paymentservice-bbcbdc6b6[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but default/shippingservice-5bd985c46d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1147,7 +1147,7 @@ Denied connections:
 Connections between default/productcatalogservice-68765d49b6[ReplicaSet] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1156,7 +1156,7 @@ Denied connections:
 Connections between default/productcatalogservice-68765d49b6[ReplicaSet] => default/adservice-77d5cd745d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but default/adservice-77d5cd745d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1166,7 +1166,7 @@ Denied connections:
 Connections between default/productcatalogservice-68765d49b6[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but default/cartservice-74f56fd4b[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1176,7 +1176,7 @@ Denied connections:
 Connections between default/productcatalogservice-68765d49b6[ReplicaSet] => default/checkoutservice-69c8ff664b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but default/checkoutservice-69c8ff664b[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1186,7 +1186,7 @@ Denied connections:
 Connections between default/productcatalogservice-68765d49b6[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but default/currencyservice-77654bbbdd[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1196,7 +1196,7 @@ Denied connections:
 Connections between default/productcatalogservice-68765d49b6[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but default/emailservice-54c7c5d9d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1206,7 +1206,7 @@ Denied connections:
 Connections between default/productcatalogservice-68765d49b6[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but default/frontend-99684f7f8[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1216,7 +1216,7 @@ Denied connections:
 Connections between default/productcatalogservice-68765d49b6[ReplicaSet] => default/loadgenerator-555fbdc87d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but default/loadgenerator-555fbdc87d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1226,7 +1226,7 @@ Denied connections:
 Connections between default/productcatalogservice-68765d49b6[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but default/paymentservice-bbcbdc6b6[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1236,7 +1236,7 @@ Denied connections:
 Connections between default/productcatalogservice-68765d49b6[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but default/recommendationservice-5f8c456796[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1246,7 +1246,7 @@ Denied connections:
 Connections between default/productcatalogservice-68765d49b6[ReplicaSet] => default/redis-cart-78746d49dc[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1255,7 +1255,7 @@ Denied connections:
 Connections between default/productcatalogservice-68765d49b6[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but default/shippingservice-5bd985c46d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1265,7 +1265,7 @@ Denied connections:
 Connections between default/recommendationservice-5f8c456796[ReplicaSet] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice-5f8c456796[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1274,7 +1274,7 @@ Denied connections:
 Connections between default/recommendationservice-5f8c456796[ReplicaSet] => default/adservice-77d5cd745d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice-5f8c456796[ReplicaSet] is selected by the policy, but default/adservice-77d5cd745d[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1284,7 +1284,7 @@ Denied connections:
 Connections between default/recommendationservice-5f8c456796[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice-5f8c456796[ReplicaSet] is selected by the policy, but default/cartservice-74f56fd4b[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1294,7 +1294,7 @@ Denied connections:
 Connections between default/recommendationservice-5f8c456796[ReplicaSet] => default/checkoutservice-69c8ff664b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice-5f8c456796[ReplicaSet] is selected by the policy, but default/checkoutservice-69c8ff664b[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1304,7 +1304,7 @@ Denied connections:
 Connections between default/recommendationservice-5f8c456796[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice-5f8c456796[ReplicaSet] is selected by the policy, but default/currencyservice-77654bbbdd[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1314,7 +1314,7 @@ Denied connections:
 Connections between default/recommendationservice-5f8c456796[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice-5f8c456796[ReplicaSet] is selected by the policy, but default/emailservice-54c7c5d9d[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1324,7 +1324,7 @@ Denied connections:
 Connections between default/recommendationservice-5f8c456796[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice-5f8c456796[ReplicaSet] is selected by the policy, but default/frontend-99684f7f8[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1334,7 +1334,7 @@ Denied connections:
 Connections between default/recommendationservice-5f8c456796[ReplicaSet] => default/loadgenerator-555fbdc87d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice-5f8c456796[ReplicaSet] is selected by the policy, but default/loadgenerator-555fbdc87d[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1344,7 +1344,7 @@ Denied connections:
 Connections between default/recommendationservice-5f8c456796[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice-5f8c456796[ReplicaSet] is selected by the policy, but default/paymentservice-bbcbdc6b6[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1354,14 +1354,14 @@ Denied connections:
 Connections between default/recommendationservice-5f8c456796[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
 
 Allowed connections:
-	Allowed TCP:[3550] due to the following policies // rules:
+	Allowed TCP:[3550] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/recommendationservice-netpol // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/productcatalogservice-netpol // Ingress rule #3
 
 Denied connections:
-	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress rule #1 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -1371,7 +1371,7 @@ Denied connections:
 Connections between default/recommendationservice-5f8c456796[ReplicaSet] => default/redis-cart-78746d49dc[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice-5f8c456796[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1380,7 +1380,7 @@ Denied connections:
 Connections between default/recommendationservice-5f8c456796[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice-5f8c456796[ReplicaSet] is selected by the policy, but default/shippingservice-5bd985c46d[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1390,7 +1390,7 @@ Denied connections:
 Connections between default/redis-cart-78746d49dc[ReplicaSet] => default/adservice-77d5cd745d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/adservice-netpol // Ingress (default/adservice-77d5cd745d[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Ingress rule)
@@ -1399,7 +1399,7 @@ Denied connections:
 Connections between default/redis-cart-78746d49dc[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/cartservice-netpol // Ingress (default/cartservice-74f56fd4b[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Ingress rule)
@@ -1408,7 +1408,7 @@ Denied connections:
 Connections between default/redis-cart-78746d49dc[ReplicaSet] => default/checkoutservice-69c8ff664b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/checkoutservice-netpol // Ingress (default/checkoutservice-69c8ff664b[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Ingress rule)
@@ -1417,7 +1417,7 @@ Denied connections:
 Connections between default/redis-cart-78746d49dc[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/currencyservice-netpol // Ingress (default/currencyservice-77654bbbdd[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Ingress rule)
@@ -1426,7 +1426,7 @@ Denied connections:
 Connections between default/redis-cart-78746d49dc[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/emailservice-netpol // Ingress (default/emailservice-54c7c5d9d[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Ingress rule)
@@ -1435,7 +1435,7 @@ Denied connections:
 Connections between default/redis-cart-78746d49dc[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/frontend-netpol // Ingress (default/frontend-99684f7f8[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Ingress rule)
@@ -1444,7 +1444,7 @@ Denied connections:
 Connections between default/redis-cart-78746d49dc[ReplicaSet] => default/loadgenerator-555fbdc87d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/loadgenerator-netpol // Ingress (default/loadgenerator-555fbdc87d[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Ingress rule - no rules defined)
@@ -1453,7 +1453,7 @@ Denied connections:
 Connections between default/redis-cart-78746d49dc[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/paymentservice-netpol // Ingress (default/paymentservice-bbcbdc6b6[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Ingress rule)
@@ -1462,7 +1462,7 @@ Denied connections:
 Connections between default/redis-cart-78746d49dc[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/productcatalogservice-netpol // Ingress (default/productcatalogservice-68765d49b6[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Ingress rule)
@@ -1471,7 +1471,7 @@ Denied connections:
 Connections between default/redis-cart-78746d49dc[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/recommendationservice-netpol // Ingress (default/recommendationservice-5f8c456796[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Ingress rule)
@@ -1480,7 +1480,7 @@ Denied connections:
 Connections between default/redis-cart-78746d49dc[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/shippingservice-netpol // Ingress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Ingress rule)
@@ -1489,7 +1489,7 @@ Denied connections:
 Connections between default/shippingservice-5bd985c46d[ReplicaSet] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1498,7 +1498,7 @@ Denied connections:
 Connections between default/shippingservice-5bd985c46d[ReplicaSet] => default/adservice-77d5cd745d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but default/adservice-77d5cd745d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1508,7 +1508,7 @@ Denied connections:
 Connections between default/shippingservice-5bd985c46d[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but default/cartservice-74f56fd4b[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1518,7 +1518,7 @@ Denied connections:
 Connections between default/shippingservice-5bd985c46d[ReplicaSet] => default/checkoutservice-69c8ff664b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but default/checkoutservice-69c8ff664b[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1528,7 +1528,7 @@ Denied connections:
 Connections between default/shippingservice-5bd985c46d[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but default/currencyservice-77654bbbdd[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1538,7 +1538,7 @@ Denied connections:
 Connections between default/shippingservice-5bd985c46d[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but default/emailservice-54c7c5d9d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1548,7 +1548,7 @@ Denied connections:
 Connections between default/shippingservice-5bd985c46d[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but default/frontend-99684f7f8[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1558,7 +1558,7 @@ Denied connections:
 Connections between default/shippingservice-5bd985c46d[ReplicaSet] => default/loadgenerator-555fbdc87d[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but default/loadgenerator-555fbdc87d[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1568,7 +1568,7 @@ Denied connections:
 Connections between default/shippingservice-5bd985c46d[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but default/paymentservice-bbcbdc6b6[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1578,7 +1578,7 @@ Denied connections:
 Connections between default/shippingservice-5bd985c46d[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but default/productcatalogservice-68765d49b6[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1588,7 +1588,7 @@ Denied connections:
 Connections between default/shippingservice-5bd985c46d[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but default/recommendationservice-5f8c456796[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1598,7 +1598,7 @@ Denied connections:
 Connections between default/shippingservice-5bd985c46d[ReplicaSet] => default/redis-cart-78746d49dc[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice-5bd985c46d[ReplicaSet] is selected by the policy, but default/redis-cart-78746d49dc[ReplicaSet] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)

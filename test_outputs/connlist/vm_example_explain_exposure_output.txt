@@ -6,7 +6,7 @@
 Connections between 0.0.0.0-255.255.255.255 => default/new-vm-1[Pod]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NP list:
@@ -22,7 +22,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/new-vm-2[Pod]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NP list:
@@ -38,7 +38,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/new-vm-3[Pod]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NP list:
@@ -54,7 +54,7 @@ Denied connections:
 Connections between default/new-vm-1[Pod] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NP list:
 				- [NP] default/default-deny // Egress (default/new-vm-1[Pod] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
@@ -70,14 +70,14 @@ Denied connections:
 Connections between default/new-vm-1[Pod] => default/new-vm-2[Pod]:
 
 Allowed connections:
-	Allowed TCP:[80] due to the following policies // rules:
+	Allowed TCP:[80] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/policy2 // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/policy3 // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NP list:
 				- [NP] default/default-deny // Egress (default/new-vm-1[Pod] is selected by the policy, but default/new-vm-2[Pod] is not selected by any Egress rule - no rules defined)
@@ -101,13 +101,13 @@ Denied connections:
 Connections between default/new-vm-1[Pod] => default/new-vm-3[Pod]:
 
 Allowed connections:
-	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the following policies // rules:
+	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/policy0 // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/policy1 // Ingress rule #1
 
-	Allowed TCP:[80] due to the following policies // rules:
+	Allowed TCP:[80] due to the following policies and rules:
 		Egress (Allowed)
 			NP list:
 				- [NP] default/policy0 // Egress rule #1
@@ -123,7 +123,7 @@ Allowed connections:
 Connections between default/new-vm-2[Pod] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NP list:
 				- [NP] default/default-deny // Egress (default/new-vm-2[Pod] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
@@ -139,14 +139,14 @@ Denied connections:
 Connections between default/new-vm-2[Pod] => default/new-vm-1[Pod]:
 
 Allowed connections:
-	Allowed TCP:[80] due to the following policies // rules:
+	Allowed TCP:[80] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/policy2 // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/policy3 // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NP list:
 				- [NP] default/default-deny // Egress (default/new-vm-2[Pod] is selected by the policy, but default/new-vm-1[Pod] is not selected by any Egress rule - no rules defined)
@@ -170,14 +170,14 @@ Denied connections:
 Connections between default/new-vm-2[Pod] => default/new-vm-3[Pod]:
 
 Allowed connections:
-	Allowed TCP:[80] due to the following policies // rules:
+	Allowed TCP:[80] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/policy2 // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/policy3 // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NP list:
 				- [NP] default/default-deny // Egress (default/new-vm-2[Pod] is selected by the policy, but default/new-vm-3[Pod] is not selected by any Egress rule - no rules defined)
@@ -201,7 +201,7 @@ Denied connections:
 Connections between default/new-vm-3[Pod] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NP list:
 				- [NP] default/default-deny // Egress (default/new-vm-3[Pod] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
@@ -217,13 +217,13 @@ Denied connections:
 Connections between default/new-vm-3[Pod] => default/new-vm-1[Pod]:
 
 Allowed connections:
-	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the following policies // rules:
+	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/policy0 // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/policy1 // Ingress rule #1
 
-	Allowed TCP:[80] due to the following policies // rules:
+	Allowed TCP:[80] due to the following policies and rules:
 		Egress (Allowed)
 			NP list:
 				- [NP] default/policy0 // Egress rule #1
@@ -239,14 +239,14 @@ Allowed connections:
 Connections between default/new-vm-3[Pod] => default/new-vm-2[Pod]:
 
 Allowed connections:
-	Allowed TCP:[80] due to the following policies // rules:
+	Allowed TCP:[80] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/policy2 // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/policy3 // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NP list:
 				- [NP] default/default-deny // Egress (default/new-vm-3[Pod] is selected by the policy, but default/new-vm-2[Pod] is not selected by any Egress rule - no rules defined)

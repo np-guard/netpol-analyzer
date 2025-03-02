@@ -6,7 +6,7 @@
 Connections between 0.0.0.0-255.255.255.255 => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -15,7 +15,7 @@ Denied connections:
 Connections between default/cog-agents-analyzer[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but default/cog-agents-analyzer[DaemonSet] is not selected by any Ingress rule)
@@ -24,7 +24,7 @@ Denied connections:
 Connections between default/cog-agents[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but default/cog-agents[DaemonSet] is not selected by any Ingress rule)
@@ -33,7 +33,7 @@ Denied connections:
 Connections between default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but default/cog-local-analyzer-7d77fb55cc[ReplicaSet] is not selected by any Ingress rule)
@@ -42,7 +42,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -51,7 +51,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => default/cog-agents-analyzer[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but default/cog-agents-analyzer[DaemonSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -60,7 +60,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => default/cog-agents[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but default/cog-agents[DaemonSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -69,7 +69,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but default/cog-local-analyzer-7d77fb55cc[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -78,7 +78,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but demo/cog-agents-account-command[DaemonSet] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -88,7 +88,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => demo/cog-agents-bank-ui[DaemonSet]:
 
 Allowed connections:
-	Allowed TCP, UDP, SCTP due to the following policies // rules:
+	Allowed TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed)
 			[NP] demo/query-to-ui // Egress rule #1
 		Ingress (Allowed) due to the system default (Allow all)
@@ -97,7 +97,7 @@ Allowed connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -106,7 +106,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -115,7 +115,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -124,7 +124,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -133,7 +133,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -142,7 +142,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/calico-node-frontend[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/calico-node-frontend[DaemonSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -151,7 +151,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/calico-node[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/calico-node[DaemonSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -160,7 +160,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/file-plugin-7bfb8b69bf[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/file-plugin-7bfb8b69bf[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -169,7 +169,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/heapster-7df8cb8c66[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/heapster-7df8cb8c66[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -178,7 +178,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/keepalived-watcher-not-frontend[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/keepalived-watcher-not-frontend[DaemonSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -187,7 +187,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/keepalived-watcher[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/keepalived-watcher[DaemonSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -196,7 +196,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/kube-fluentd-frontend[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/kube-fluentd-frontend[DaemonSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -205,7 +205,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/kube-fluentd[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/kube-fluentd[DaemonSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -214,7 +214,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/storage-watcher-8494b4b8bb[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/storage-watcher-8494b4b8bb[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -223,7 +223,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/tiller-deploy-5c45c9966b[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -232,7 +232,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => kube-system/vpn-858f6d9777[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but kube-system/vpn-858f6d9777[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -241,7 +241,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => vendor-system/barbar-app[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but vendor-system/barbar-app[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -250,7 +250,7 @@ Denied connections:
 Connections between demo/cog-agents-account-query[DaemonSet] => vendor-system/foofoo-app[ReplicaSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] demo/query-to-ui // Egress (demo/cog-agents-account-query[DaemonSet] is selected by the policy, but vendor-system/foofoo-app[ReplicaSet] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -259,13 +259,13 @@ Denied connections:
 Connections between demo/cog-agents-bank-ui[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Allowed connections:
-	Allowed TCP:[8080,9090], UDP:[8080] due to the following policies // rules:
+	Allowed TCP:[8080,9090], UDP:[8080] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] demo/ui-to-command // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-8079,8081-9089,9091-65535], UDP:[1-8079,8081-65535], SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-9089,9091-65535], UDP:[1-8079,8081-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress rule #1 (protocols/ports not referenced)
@@ -274,7 +274,7 @@ Denied connections:
 Connections between kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] is not selected by any Ingress rule)
@@ -283,7 +283,7 @@ Denied connections:
 Connections between kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet] is not selected by any Ingress rule)
@@ -292,7 +292,7 @@ Denied connections:
 Connections between kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46[ReplicaSet] is not selected by any Ingress rule)
@@ -301,7 +301,7 @@ Denied connections:
 Connections between kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf[ReplicaSet] is not selected by any Ingress rule)
@@ -310,7 +310,7 @@ Denied connections:
 Connections between kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f[ReplicaSet] is not selected by any Ingress rule)
@@ -319,7 +319,7 @@ Denied connections:
 Connections between kube-system/calico-node-frontend[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/calico-node-frontend[DaemonSet] is not selected by any Ingress rule)
@@ -328,7 +328,7 @@ Denied connections:
 Connections between kube-system/calico-node[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/calico-node[DaemonSet] is not selected by any Ingress rule)
@@ -337,7 +337,7 @@ Denied connections:
 Connections between kube-system/file-plugin-7bfb8b69bf[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/file-plugin-7bfb8b69bf[ReplicaSet] is not selected by any Ingress rule)
@@ -346,7 +346,7 @@ Denied connections:
 Connections between kube-system/heapster-7df8cb8c66[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/heapster-7df8cb8c66[ReplicaSet] is not selected by any Ingress rule)
@@ -355,7 +355,7 @@ Denied connections:
 Connections between kube-system/keepalived-watcher-not-frontend[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/keepalived-watcher-not-frontend[DaemonSet] is not selected by any Ingress rule)
@@ -364,7 +364,7 @@ Denied connections:
 Connections between kube-system/keepalived-watcher[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/keepalived-watcher[DaemonSet] is not selected by any Ingress rule)
@@ -373,7 +373,7 @@ Denied connections:
 Connections between kube-system/kube-fluentd-frontend[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/kube-fluentd-frontend[DaemonSet] is not selected by any Ingress rule)
@@ -382,7 +382,7 @@ Denied connections:
 Connections between kube-system/kube-fluentd[DaemonSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/kube-fluentd[DaemonSet] is not selected by any Ingress rule)
@@ -391,7 +391,7 @@ Denied connections:
 Connections between kube-system/storage-watcher-8494b4b8bb[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/storage-watcher-8494b4b8bb[ReplicaSet] is not selected by any Ingress rule)
@@ -400,7 +400,7 @@ Denied connections:
 Connections between kube-system/tiller-deploy-5c45c9966b[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/tiller-deploy-5c45c9966b[ReplicaSet] is not selected by any Ingress rule)
@@ -409,7 +409,7 @@ Denied connections:
 Connections between kube-system/vpn-858f6d9777[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but kube-system/vpn-858f6d9777[ReplicaSet] is not selected by any Ingress rule)
@@ -418,7 +418,7 @@ Denied connections:
 Connections between vendor-system/barbar-app[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but vendor-system/barbar-app[ReplicaSet] is not selected by any Ingress rule)
@@ -427,7 +427,7 @@ Denied connections:
 Connections between vendor-system/foofoo-app[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] demo/ui-to-command // Ingress (demo/cog-agents-account-command[DaemonSet] is selected by the policy, but vendor-system/foofoo-app[ReplicaSet] is not selected by any Ingress rule)

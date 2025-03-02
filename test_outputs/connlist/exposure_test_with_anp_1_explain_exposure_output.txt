@@ -6,7 +6,7 @@
 Connections between 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] hello-world/deny-all-app-a // Ingress (hello-world/workload-a[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined)
@@ -15,7 +15,7 @@ Denied connections:
 Connections between hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] hello-world/deny-all-app-a // Egress (hello-world/workload-a[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -24,7 +24,7 @@ Denied connections:
 Connections between hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] hello-world/deny-all-app-a // Egress (hello-world/workload-a[Deployment] is selected by the policy, but hello-world/workload-b[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -33,7 +33,7 @@ Denied connections:
 Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] hello-world/deny-all-app-a // Ingress (hello-world/workload-a[Deployment] is selected by the policy, but hello-world/workload-b[Deployment] is not selected by any Ingress rule - no rules defined)

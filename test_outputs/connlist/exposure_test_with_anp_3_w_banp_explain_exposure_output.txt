@@ -9,7 +9,7 @@ Allowed connections:
 	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the system default (Allow all)
 
 Denied connections:
-	Denied TCP:[80] due to the following policies // rules:
+	Denied TCP:[80] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[BANP] default // Ingress rule deny-tcp-80-from-all-namespaces (Deny)
@@ -21,7 +21,7 @@ Allowed connections:
 	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the system default (Allow all)
 
 Denied connections:
-	Denied TCP:[80] due to the following policies // rules:
+	Denied TCP:[80] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[BANP] default // Ingress rule deny-tcp-80-from-all-namespaces (Deny)
