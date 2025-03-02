@@ -61,7 +61,8 @@ func createIPMaps(initMapsFlag bool) (ipMaps ipMaps) {
 
 // connsFormatter implements output formatting in the required output format
 type connsFormatter interface {
-	writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool, explain bool) (string, error)
+	writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool, explain bool,
+		focusConnStr string) (string, error)
 }
 
 // singleConnFields represents a single connection object
@@ -98,7 +99,7 @@ func formSingleP2PConn(conn Peer2PeerConnection, explain bool) singleConnFields 
 // commonly (to be) used for exposure analysis output formatters
 const (
 	entireCluster          = "entire-cluster"
-	exposureAnalysisHeader = "Exposure Analysis Result:"
+	exposureAnalysisHeader = "Exposure Analysis Result"
 	egressExposureHeader   = "Egress Exposure:"
 	ingressExposureHeader  = "Ingress Exposure:"
 	stringInBrackets       = "[%s]"

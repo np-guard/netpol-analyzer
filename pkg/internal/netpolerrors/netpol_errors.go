@@ -183,3 +183,20 @@ func FocusDirectionNotSupported(focusDirection string) string {
 func ExplainOnlyNotSupported(explainOnly string) string {
 	return "invalid explain only value: " + explainOnly + semiColon + ExplainOnlyOptions
 }
+
+const (
+	invalidFocusConn    = "invalid focus connection value: "
+	InvalidFocusConnSet = "invalid focus connection set - may contain only one protocol-port"
+)
+
+func InvalidFocusConnFormat(focusConn string) string {
+	return invalidFocusConn + focusConn + "; must be <protocol-port> format"
+}
+
+func InvalidFocusConnProtocol(focusConn, protocol string) string {
+	return invalidFocusConn + focusConn + "; unknown protocol: " + protocol
+}
+
+func InvalidFocusConnPortNumber(focusConn, port string) string {
+	return invalidFocusConn + focusConn + "; invalid port number: " + port
+}
