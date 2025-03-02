@@ -6,7 +6,7 @@
 Connections between 0.0.0.0-255.255.255.255 => default/adservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/adservice-netpol // Ingress (default/adservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -15,7 +15,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/cartservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/cartservice-netpol // Ingress (default/cartservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -24,7 +24,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/checkoutservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/checkoutservice-netpol // Ingress (default/checkoutservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -33,7 +33,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/currencyservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/currencyservice-netpol // Ingress (default/currencyservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -42,7 +42,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/emailservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/emailservice-netpol // Ingress (default/emailservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -51,7 +51,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/frontend[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/frontend-netpol // Ingress (default/frontend[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -60,7 +60,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/loadgenerator[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/loadgenerator-netpol // Ingress (default/loadgenerator[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined)
@@ -69,7 +69,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/paymentservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/paymentservice-netpol // Ingress (default/paymentservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -78,7 +78,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/productcatalogservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/productcatalogservice-netpol // Ingress (default/productcatalogservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -87,7 +87,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/recommendationservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/recommendationservice-netpol // Ingress (default/recommendationservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -96,7 +96,7 @@ Denied connections:
 Connections between 0.0.0.0-255.255.255.255 => default/shippingservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/shippingservice-netpol // Ingress (default/shippingservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
@@ -105,7 +105,7 @@ Denied connections:
 Connections between default/adservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -114,7 +114,7 @@ Denied connections:
 Connections between default/adservice[Deployment] => default/cartservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice[Deployment] is selected by the policy, but default/cartservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -124,7 +124,7 @@ Denied connections:
 Connections between default/adservice[Deployment] => default/checkoutservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice[Deployment] is selected by the policy, but default/checkoutservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -134,7 +134,7 @@ Denied connections:
 Connections between default/adservice[Deployment] => default/currencyservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice[Deployment] is selected by the policy, but default/currencyservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -144,7 +144,7 @@ Denied connections:
 Connections between default/adservice[Deployment] => default/emailservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice[Deployment] is selected by the policy, but default/emailservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -154,13 +154,13 @@ Denied connections:
 Connections between default/adservice[Deployment] => default/frontend[Deployment]:
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
 			[NP] default/frontend-netpol // Ingress rule #1 (protocols/ports not referenced)
 
-	Denied TCP:[8080] due to the following policies // rules:
+	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed)
@@ -170,7 +170,7 @@ Denied connections:
 Connections between default/adservice[Deployment] => default/loadgenerator[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice[Deployment] is selected by the policy, but default/loadgenerator[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -180,7 +180,7 @@ Denied connections:
 Connections between default/adservice[Deployment] => default/paymentservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice[Deployment] is selected by the policy, but default/paymentservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -190,7 +190,7 @@ Denied connections:
 Connections between default/adservice[Deployment] => default/productcatalogservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice[Deployment] is selected by the policy, but default/productcatalogservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -200,7 +200,7 @@ Denied connections:
 Connections between default/adservice[Deployment] => default/recommendationservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice[Deployment] is selected by the policy, but default/recommendationservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -210,7 +210,7 @@ Denied connections:
 Connections between default/adservice[Deployment] => default/redis-cart[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -219,7 +219,7 @@ Denied connections:
 Connections between default/adservice[Deployment] => default/shippingservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/adservice-netpol // Egress (default/adservice[Deployment] is selected by the policy, but default/shippingservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -229,7 +229,7 @@ Denied connections:
 Connections between default/cartservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -238,7 +238,7 @@ Denied connections:
 Connections between default/cartservice[Deployment] => default/adservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice[Deployment] is selected by the policy, but default/adservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -248,7 +248,7 @@ Denied connections:
 Connections between default/cartservice[Deployment] => default/checkoutservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice[Deployment] is selected by the policy, but default/checkoutservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -258,7 +258,7 @@ Denied connections:
 Connections between default/cartservice[Deployment] => default/currencyservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice[Deployment] is selected by the policy, but default/currencyservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -268,7 +268,7 @@ Denied connections:
 Connections between default/cartservice[Deployment] => default/emailservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice[Deployment] is selected by the policy, but default/emailservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -278,13 +278,13 @@ Denied connections:
 Connections between default/cartservice[Deployment] => default/frontend[Deployment]:
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
 			[NP] default/frontend-netpol // Ingress rule #1 (protocols/ports not referenced)
 
-	Denied TCP:[8080] due to the following policies // rules:
+	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed)
@@ -294,7 +294,7 @@ Denied connections:
 Connections between default/cartservice[Deployment] => default/loadgenerator[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice[Deployment] is selected by the policy, but default/loadgenerator[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -304,7 +304,7 @@ Denied connections:
 Connections between default/cartservice[Deployment] => default/paymentservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice[Deployment] is selected by the policy, but default/paymentservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -314,7 +314,7 @@ Denied connections:
 Connections between default/cartservice[Deployment] => default/productcatalogservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice[Deployment] is selected by the policy, but default/productcatalogservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -324,7 +324,7 @@ Denied connections:
 Connections between default/cartservice[Deployment] => default/recommendationservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice[Deployment] is selected by the policy, but default/recommendationservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -334,7 +334,7 @@ Denied connections:
 Connections between default/cartservice[Deployment] => default/redis-cart[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -343,7 +343,7 @@ Denied connections:
 Connections between default/cartservice[Deployment] => default/shippingservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/cartservice-netpol // Egress (default/cartservice[Deployment] is selected by the policy, but default/shippingservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -353,7 +353,7 @@ Denied connections:
 Connections between default/checkoutservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress (default/checkoutservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -362,7 +362,7 @@ Denied connections:
 Connections between default/checkoutservice[Deployment] => default/adservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress (default/checkoutservice[Deployment] is selected by the policy, but default/adservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -372,14 +372,14 @@ Denied connections:
 Connections between default/checkoutservice[Deployment] => default/cartservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[7070] due to the following policies // rules:
+	Allowed TCP:[7070] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/checkoutservice-netpol // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/cartservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-7069,7071-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-7069,7071-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress rule #1 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -389,14 +389,14 @@ Denied connections:
 Connections between default/checkoutservice[Deployment] => default/currencyservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[7000] due to the following policies // rules:
+	Allowed TCP:[7000] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/checkoutservice-netpol // Egress rule #2
 		Ingress (Allowed)
 			[NP] default/currencyservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-6999,7001-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-6999,7001-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress rule #2 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -406,14 +406,14 @@ Denied connections:
 Connections between default/checkoutservice[Deployment] => default/emailservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[8080] due to the following policies // rules:
+	Allowed TCP:[8080] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/checkoutservice-netpol // Egress rule #3
 		Ingress (Allowed)
 			[NP] default/emailservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress rule #3 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -423,13 +423,13 @@ Denied connections:
 Connections between default/checkoutservice[Deployment] => default/frontend[Deployment]:
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress (default/checkoutservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
 			[NP] default/frontend-netpol // Ingress rule #1 (protocols/ports not referenced)
 
-	Denied TCP:[8080] due to the following policies // rules:
+	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress (default/checkoutservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule)
 		Ingress (Allowed)
@@ -439,7 +439,7 @@ Denied connections:
 Connections between default/checkoutservice[Deployment] => default/loadgenerator[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress (default/checkoutservice[Deployment] is selected by the policy, but default/loadgenerator[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -449,14 +449,14 @@ Denied connections:
 Connections between default/checkoutservice[Deployment] => default/paymentservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[50051] due to the following policies // rules:
+	Allowed TCP:[50051] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/checkoutservice-netpol // Egress rule #4
 		Ingress (Allowed)
 			[NP] default/paymentservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress rule #4 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -466,14 +466,14 @@ Denied connections:
 Connections between default/checkoutservice[Deployment] => default/productcatalogservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[3550] due to the following policies // rules:
+	Allowed TCP:[3550] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/checkoutservice-netpol // Egress rule #5
 		Ingress (Allowed)
 			[NP] default/productcatalogservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress rule #5 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -483,7 +483,7 @@ Denied connections:
 Connections between default/checkoutservice[Deployment] => default/recommendationservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress (default/checkoutservice[Deployment] is selected by the policy, but default/recommendationservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -493,7 +493,7 @@ Denied connections:
 Connections between default/checkoutservice[Deployment] => default/redis-cart[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress (default/checkoutservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -502,14 +502,14 @@ Denied connections:
 Connections between default/checkoutservice[Deployment] => default/shippingservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[50051] due to the following policies // rules:
+	Allowed TCP:[50051] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/checkoutservice-netpol // Egress rule #6
 		Ingress (Allowed)
 			[NP] default/shippingservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/checkoutservice-netpol // Egress rule #6 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -519,7 +519,7 @@ Denied connections:
 Connections between default/currencyservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -528,7 +528,7 @@ Denied connections:
 Connections between default/currencyservice[Deployment] => default/adservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice[Deployment] is selected by the policy, but default/adservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -538,7 +538,7 @@ Denied connections:
 Connections between default/currencyservice[Deployment] => default/cartservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice[Deployment] is selected by the policy, but default/cartservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -548,7 +548,7 @@ Denied connections:
 Connections between default/currencyservice[Deployment] => default/checkoutservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice[Deployment] is selected by the policy, but default/checkoutservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -558,7 +558,7 @@ Denied connections:
 Connections between default/currencyservice[Deployment] => default/emailservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice[Deployment] is selected by the policy, but default/emailservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -568,13 +568,13 @@ Denied connections:
 Connections between default/currencyservice[Deployment] => default/frontend[Deployment]:
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
 			[NP] default/frontend-netpol // Ingress rule #1 (protocols/ports not referenced)
 
-	Denied TCP:[8080] due to the following policies // rules:
+	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed)
@@ -584,7 +584,7 @@ Denied connections:
 Connections between default/currencyservice[Deployment] => default/loadgenerator[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice[Deployment] is selected by the policy, but default/loadgenerator[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -594,7 +594,7 @@ Denied connections:
 Connections between default/currencyservice[Deployment] => default/paymentservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice[Deployment] is selected by the policy, but default/paymentservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -604,7 +604,7 @@ Denied connections:
 Connections between default/currencyservice[Deployment] => default/productcatalogservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice[Deployment] is selected by the policy, but default/productcatalogservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -614,7 +614,7 @@ Denied connections:
 Connections between default/currencyservice[Deployment] => default/recommendationservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice[Deployment] is selected by the policy, but default/recommendationservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -624,7 +624,7 @@ Denied connections:
 Connections between default/currencyservice[Deployment] => default/redis-cart[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -633,7 +633,7 @@ Denied connections:
 Connections between default/currencyservice[Deployment] => default/shippingservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/currencyservice-netpol // Egress (default/currencyservice[Deployment] is selected by the policy, but default/shippingservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -643,7 +643,7 @@ Denied connections:
 Connections between default/emailservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -652,7 +652,7 @@ Denied connections:
 Connections between default/emailservice[Deployment] => default/adservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice[Deployment] is selected by the policy, but default/adservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -662,7 +662,7 @@ Denied connections:
 Connections between default/emailservice[Deployment] => default/cartservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice[Deployment] is selected by the policy, but default/cartservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -672,7 +672,7 @@ Denied connections:
 Connections between default/emailservice[Deployment] => default/checkoutservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice[Deployment] is selected by the policy, but default/checkoutservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -682,7 +682,7 @@ Denied connections:
 Connections between default/emailservice[Deployment] => default/currencyservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice[Deployment] is selected by the policy, but default/currencyservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -692,13 +692,13 @@ Denied connections:
 Connections between default/emailservice[Deployment] => default/frontend[Deployment]:
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
 			[NP] default/frontend-netpol // Ingress rule #1 (protocols/ports not referenced)
 
-	Denied TCP:[8080] due to the following policies // rules:
+	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed)
@@ -708,7 +708,7 @@ Denied connections:
 Connections between default/emailservice[Deployment] => default/loadgenerator[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice[Deployment] is selected by the policy, but default/loadgenerator[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -718,7 +718,7 @@ Denied connections:
 Connections between default/emailservice[Deployment] => default/paymentservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice[Deployment] is selected by the policy, but default/paymentservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -728,7 +728,7 @@ Denied connections:
 Connections between default/emailservice[Deployment] => default/productcatalogservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice[Deployment] is selected by the policy, but default/productcatalogservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -738,7 +738,7 @@ Denied connections:
 Connections between default/emailservice[Deployment] => default/recommendationservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice[Deployment] is selected by the policy, but default/recommendationservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -748,7 +748,7 @@ Denied connections:
 Connections between default/emailservice[Deployment] => default/redis-cart[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -757,7 +757,7 @@ Denied connections:
 Connections between default/emailservice[Deployment] => default/shippingservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/emailservice-netpol // Egress (default/emailservice[Deployment] is selected by the policy, but default/shippingservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -767,7 +767,7 @@ Denied connections:
 Connections between default/frontend[Deployment] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress (default/frontend[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -776,14 +776,14 @@ Denied connections:
 Connections between default/frontend[Deployment] => default/adservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[9555] due to the following policies // rules:
+	Allowed TCP:[9555] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/adservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-9554,9556-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-9554,9556-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #1 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -793,14 +793,14 @@ Denied connections:
 Connections between default/frontend[Deployment] => default/cartservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[7070] due to the following policies // rules:
+	Allowed TCP:[7070] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #2
 		Ingress (Allowed)
 			[NP] default/cartservice-netpol // Ingress rule #2
 
 Denied connections:
-	Denied TCP:[1-7069,7071-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-7069,7071-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #2 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -810,14 +810,14 @@ Denied connections:
 Connections between default/frontend[Deployment] => default/checkoutservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[5050] due to the following policies // rules:
+	Allowed TCP:[5050] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #3
 		Ingress (Allowed)
 			[NP] default/checkoutservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-5049,5051-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-5049,5051-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #3 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -827,14 +827,14 @@ Denied connections:
 Connections between default/frontend[Deployment] => default/currencyservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[7000] due to the following policies // rules:
+	Allowed TCP:[7000] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #4
 		Ingress (Allowed)
 			[NP] default/currencyservice-netpol // Ingress rule #2
 
 Denied connections:
-	Denied TCP:[1-6999,7001-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-6999,7001-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #4 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -844,7 +844,7 @@ Denied connections:
 Connections between default/frontend[Deployment] => default/emailservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress (default/frontend[Deployment] is selected by the policy, but default/emailservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -854,7 +854,7 @@ Denied connections:
 Connections between default/frontend[Deployment] => default/loadgenerator[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress (default/frontend[Deployment] is selected by the policy, but default/loadgenerator[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -864,7 +864,7 @@ Denied connections:
 Connections between default/frontend[Deployment] => default/paymentservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress (default/frontend[Deployment] is selected by the policy, but default/paymentservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -874,14 +874,14 @@ Denied connections:
 Connections between default/frontend[Deployment] => default/productcatalogservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[3550] due to the following policies // rules:
+	Allowed TCP:[3550] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #5
 		Ingress (Allowed)
 			[NP] default/productcatalogservice-netpol // Ingress rule #2
 
 Denied connections:
-	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #5 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -891,14 +891,14 @@ Denied connections:
 Connections between default/frontend[Deployment] => default/recommendationservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[8080] due to the following policies // rules:
+	Allowed TCP:[8080] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #6
 		Ingress (Allowed)
 			[NP] default/recommendationservice-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #6 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -908,7 +908,7 @@ Denied connections:
 Connections between default/frontend[Deployment] => default/redis-cart[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress (default/frontend[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -917,14 +917,14 @@ Denied connections:
 Connections between default/frontend[Deployment] => default/shippingservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[50051] due to the following policies // rules:
+	Allowed TCP:[50051] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/frontend-netpol // Egress rule #7
 		Ingress (Allowed)
 			[NP] default/shippingservice-netpol // Ingress rule #2
 
 Denied connections:
-	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/frontend-netpol // Egress rule #7 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -934,7 +934,7 @@ Denied connections:
 Connections between default/loadgenerator[Deployment] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -943,7 +943,7 @@ Denied connections:
 Connections between default/loadgenerator[Deployment] => default/adservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator[Deployment] is selected by the policy, but default/adservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -953,7 +953,7 @@ Denied connections:
 Connections between default/loadgenerator[Deployment] => default/cartservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator[Deployment] is selected by the policy, but default/cartservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -963,7 +963,7 @@ Denied connections:
 Connections between default/loadgenerator[Deployment] => default/checkoutservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator[Deployment] is selected by the policy, but default/checkoutservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -973,7 +973,7 @@ Denied connections:
 Connections between default/loadgenerator[Deployment] => default/currencyservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator[Deployment] is selected by the policy, but default/currencyservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -983,7 +983,7 @@ Denied connections:
 Connections between default/loadgenerator[Deployment] => default/emailservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator[Deployment] is selected by the policy, but default/emailservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -993,14 +993,14 @@ Denied connections:
 Connections between default/loadgenerator[Deployment] => default/frontend[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[8080] due to the following policies // rules:
+	Allowed TCP:[8080] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/loadgenerator-netpol // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/frontend-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress rule #1 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -1010,7 +1010,7 @@ Denied connections:
 Connections between default/loadgenerator[Deployment] => default/paymentservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator[Deployment] is selected by the policy, but default/paymentservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1020,7 +1020,7 @@ Denied connections:
 Connections between default/loadgenerator[Deployment] => default/productcatalogservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator[Deployment] is selected by the policy, but default/productcatalogservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1030,7 +1030,7 @@ Denied connections:
 Connections between default/loadgenerator[Deployment] => default/recommendationservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator[Deployment] is selected by the policy, but default/recommendationservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1040,7 +1040,7 @@ Denied connections:
 Connections between default/loadgenerator[Deployment] => default/redis-cart[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1049,7 +1049,7 @@ Denied connections:
 Connections between default/loadgenerator[Deployment] => default/shippingservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/loadgenerator-netpol // Egress (default/loadgenerator[Deployment] is selected by the policy, but default/shippingservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1059,7 +1059,7 @@ Denied connections:
 Connections between default/paymentservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1068,7 +1068,7 @@ Denied connections:
 Connections between default/paymentservice[Deployment] => default/adservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice[Deployment] is selected by the policy, but default/adservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1078,7 +1078,7 @@ Denied connections:
 Connections between default/paymentservice[Deployment] => default/cartservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice[Deployment] is selected by the policy, but default/cartservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1088,7 +1088,7 @@ Denied connections:
 Connections between default/paymentservice[Deployment] => default/checkoutservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice[Deployment] is selected by the policy, but default/checkoutservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1098,7 +1098,7 @@ Denied connections:
 Connections between default/paymentservice[Deployment] => default/currencyservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice[Deployment] is selected by the policy, but default/currencyservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1108,7 +1108,7 @@ Denied connections:
 Connections between default/paymentservice[Deployment] => default/emailservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice[Deployment] is selected by the policy, but default/emailservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1118,13 +1118,13 @@ Denied connections:
 Connections between default/paymentservice[Deployment] => default/frontend[Deployment]:
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
 			[NP] default/frontend-netpol // Ingress rule #1 (protocols/ports not referenced)
 
-	Denied TCP:[8080] due to the following policies // rules:
+	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed)
@@ -1134,7 +1134,7 @@ Denied connections:
 Connections between default/paymentservice[Deployment] => default/loadgenerator[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice[Deployment] is selected by the policy, but default/loadgenerator[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1144,7 +1144,7 @@ Denied connections:
 Connections between default/paymentservice[Deployment] => default/productcatalogservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice[Deployment] is selected by the policy, but default/productcatalogservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1154,7 +1154,7 @@ Denied connections:
 Connections between default/paymentservice[Deployment] => default/recommendationservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice[Deployment] is selected by the policy, but default/recommendationservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1164,7 +1164,7 @@ Denied connections:
 Connections between default/paymentservice[Deployment] => default/redis-cart[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1173,7 +1173,7 @@ Denied connections:
 Connections between default/paymentservice[Deployment] => default/shippingservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/paymentservice-netpol // Egress (default/paymentservice[Deployment] is selected by the policy, but default/shippingservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1183,7 +1183,7 @@ Denied connections:
 Connections between default/productcatalogservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1192,7 +1192,7 @@ Denied connections:
 Connections between default/productcatalogservice[Deployment] => default/adservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice[Deployment] is selected by the policy, but default/adservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1202,7 +1202,7 @@ Denied connections:
 Connections between default/productcatalogservice[Deployment] => default/cartservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice[Deployment] is selected by the policy, but default/cartservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1212,7 +1212,7 @@ Denied connections:
 Connections between default/productcatalogservice[Deployment] => default/checkoutservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice[Deployment] is selected by the policy, but default/checkoutservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1222,7 +1222,7 @@ Denied connections:
 Connections between default/productcatalogservice[Deployment] => default/currencyservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice[Deployment] is selected by the policy, but default/currencyservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1232,7 +1232,7 @@ Denied connections:
 Connections between default/productcatalogservice[Deployment] => default/emailservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice[Deployment] is selected by the policy, but default/emailservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1242,13 +1242,13 @@ Denied connections:
 Connections between default/productcatalogservice[Deployment] => default/frontend[Deployment]:
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
 			[NP] default/frontend-netpol // Ingress rule #1 (protocols/ports not referenced)
 
-	Denied TCP:[8080] due to the following policies // rules:
+	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed)
@@ -1258,7 +1258,7 @@ Denied connections:
 Connections between default/productcatalogservice[Deployment] => default/loadgenerator[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice[Deployment] is selected by the policy, but default/loadgenerator[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1268,7 +1268,7 @@ Denied connections:
 Connections between default/productcatalogservice[Deployment] => default/paymentservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice[Deployment] is selected by the policy, but default/paymentservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1278,7 +1278,7 @@ Denied connections:
 Connections between default/productcatalogservice[Deployment] => default/recommendationservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice[Deployment] is selected by the policy, but default/recommendationservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1288,7 +1288,7 @@ Denied connections:
 Connections between default/productcatalogservice[Deployment] => default/redis-cart[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1297,7 +1297,7 @@ Denied connections:
 Connections between default/productcatalogservice[Deployment] => default/shippingservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/productcatalogservice-netpol // Egress (default/productcatalogservice[Deployment] is selected by the policy, but default/shippingservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1307,7 +1307,7 @@ Denied connections:
 Connections between default/recommendationservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1316,7 +1316,7 @@ Denied connections:
 Connections between default/recommendationservice[Deployment] => default/adservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice[Deployment] is selected by the policy, but default/adservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1326,7 +1326,7 @@ Denied connections:
 Connections between default/recommendationservice[Deployment] => default/cartservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice[Deployment] is selected by the policy, but default/cartservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1336,7 +1336,7 @@ Denied connections:
 Connections between default/recommendationservice[Deployment] => default/checkoutservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice[Deployment] is selected by the policy, but default/checkoutservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1346,7 +1346,7 @@ Denied connections:
 Connections between default/recommendationservice[Deployment] => default/currencyservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice[Deployment] is selected by the policy, but default/currencyservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1356,7 +1356,7 @@ Denied connections:
 Connections between default/recommendationservice[Deployment] => default/emailservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice[Deployment] is selected by the policy, but default/emailservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1366,13 +1366,13 @@ Denied connections:
 Connections between default/recommendationservice[Deployment] => default/frontend[Deployment]:
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
 			[NP] default/frontend-netpol // Ingress rule #1 (protocols/ports not referenced)
 
-	Denied TCP:[8080] due to the following policies // rules:
+	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule)
 		Ingress (Allowed)
@@ -1382,7 +1382,7 @@ Denied connections:
 Connections between default/recommendationservice[Deployment] => default/loadgenerator[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice[Deployment] is selected by the policy, but default/loadgenerator[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1392,7 +1392,7 @@ Denied connections:
 Connections between default/recommendationservice[Deployment] => default/paymentservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice[Deployment] is selected by the policy, but default/paymentservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1402,14 +1402,14 @@ Denied connections:
 Connections between default/recommendationservice[Deployment] => default/productcatalogservice[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[3550] due to the following policies // rules:
+	Allowed TCP:[3550] due to the following policies and rules:
 		Egress (Allowed)
 			[NP] default/recommendationservice-netpol // Egress rule #1
 		Ingress (Allowed)
 			[NP] default/productcatalogservice-netpol // Ingress rule #3
 
 Denied connections:
-	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress rule #1 (protocols/ports not referenced)
 		Ingress (Denied)
@@ -1419,7 +1419,7 @@ Denied connections:
 Connections between default/recommendationservice[Deployment] => default/redis-cart[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Egress rule)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1428,7 +1428,7 @@ Denied connections:
 Connections between default/recommendationservice[Deployment] => default/shippingservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/recommendationservice-netpol // Egress (default/recommendationservice[Deployment] is selected by the policy, but default/shippingservice[Deployment] is not selected by any Egress rule)
 		Ingress (Denied)
@@ -1438,7 +1438,7 @@ Denied connections:
 Connections between default/redis-cart[Deployment] => default/adservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/adservice-netpol // Ingress (default/adservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Ingress rule)
@@ -1447,7 +1447,7 @@ Denied connections:
 Connections between default/redis-cart[Deployment] => default/cartservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/cartservice-netpol // Ingress (default/cartservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Ingress rule)
@@ -1456,7 +1456,7 @@ Denied connections:
 Connections between default/redis-cart[Deployment] => default/checkoutservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/checkoutservice-netpol // Ingress (default/checkoutservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Ingress rule)
@@ -1465,7 +1465,7 @@ Denied connections:
 Connections between default/redis-cart[Deployment] => default/currencyservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/currencyservice-netpol // Ingress (default/currencyservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Ingress rule)
@@ -1474,7 +1474,7 @@ Denied connections:
 Connections between default/redis-cart[Deployment] => default/emailservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/emailservice-netpol // Ingress (default/emailservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Ingress rule)
@@ -1483,13 +1483,13 @@ Denied connections:
 Connections between default/redis-cart[Deployment] => default/frontend[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[8080] due to the following policies // rules:
+	Allowed TCP:[8080] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[NP] default/frontend-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/frontend-netpol // Ingress rule #1 (protocols/ports not referenced)
@@ -1498,7 +1498,7 @@ Denied connections:
 Connections between default/redis-cart[Deployment] => default/loadgenerator[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/loadgenerator-netpol // Ingress (default/loadgenerator[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Ingress rule - no rules defined)
@@ -1507,7 +1507,7 @@ Denied connections:
 Connections between default/redis-cart[Deployment] => default/paymentservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/paymentservice-netpol // Ingress (default/paymentservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Ingress rule)
@@ -1516,7 +1516,7 @@ Denied connections:
 Connections between default/redis-cart[Deployment] => default/productcatalogservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/productcatalogservice-netpol // Ingress (default/productcatalogservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Ingress rule)
@@ -1525,7 +1525,7 @@ Denied connections:
 Connections between default/redis-cart[Deployment] => default/recommendationservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/recommendationservice-netpol // Ingress (default/recommendationservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Ingress rule)
@@ -1534,7 +1534,7 @@ Denied connections:
 Connections between default/redis-cart[Deployment] => default/shippingservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[NP] default/shippingservice-netpol // Ingress (default/shippingservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Ingress rule)
@@ -1543,7 +1543,7 @@ Denied connections:
 Connections between default/shippingservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1552,7 +1552,7 @@ Denied connections:
 Connections between default/shippingservice[Deployment] => default/adservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice[Deployment] is selected by the policy, but default/adservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1562,7 +1562,7 @@ Denied connections:
 Connections between default/shippingservice[Deployment] => default/cartservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice[Deployment] is selected by the policy, but default/cartservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1572,7 +1572,7 @@ Denied connections:
 Connections between default/shippingservice[Deployment] => default/checkoutservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice[Deployment] is selected by the policy, but default/checkoutservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1582,7 +1582,7 @@ Denied connections:
 Connections between default/shippingservice[Deployment] => default/currencyservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice[Deployment] is selected by the policy, but default/currencyservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1592,7 +1592,7 @@ Denied connections:
 Connections between default/shippingservice[Deployment] => default/emailservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice[Deployment] is selected by the policy, but default/emailservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1602,13 +1602,13 @@ Denied connections:
 Connections between default/shippingservice[Deployment] => default/frontend[Deployment]:
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
 			[NP] default/frontend-netpol // Ingress rule #1 (protocols/ports not referenced)
 
-	Denied TCP:[8080] due to the following policies // rules:
+	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice[Deployment] is selected by the policy, but default/frontend[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed)
@@ -1618,7 +1618,7 @@ Denied connections:
 Connections between default/shippingservice[Deployment] => default/loadgenerator[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice[Deployment] is selected by the policy, but default/loadgenerator[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1628,7 +1628,7 @@ Denied connections:
 Connections between default/shippingservice[Deployment] => default/paymentservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice[Deployment] is selected by the policy, but default/paymentservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1638,7 +1638,7 @@ Denied connections:
 Connections between default/shippingservice[Deployment] => default/productcatalogservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice[Deployment] is selected by the policy, but default/productcatalogservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1648,7 +1648,7 @@ Denied connections:
 Connections between default/shippingservice[Deployment] => default/recommendationservice[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice[Deployment] is selected by the policy, but default/recommendationservice[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Denied)
@@ -1658,7 +1658,7 @@ Denied connections:
 Connections between default/shippingservice[Deployment] => default/redis-cart[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[NP] default/shippingservice-netpol // Egress (default/shippingservice[Deployment] is selected by the policy, but default/redis-cart[Deployment] is not selected by any Egress rule - no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1667,14 +1667,14 @@ Denied connections:
 Connections between {ingress-controller} => default/frontend[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[8080] due to the following policies // rules:
+	Allowed TCP:[8080] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[Ingress] default/onlineboutique-ingress // service frontend-external
 			[NP] default/frontend-netpol // Ingress rule #1
 
 Denied connections:
-	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[Ingress] default/onlineboutique-ingress // service frontend-external (protocols/ports not referenced)

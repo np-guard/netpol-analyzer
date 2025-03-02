@@ -6,13 +6,13 @@
 Connections between hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[9090] due to the following policies // rules:
+	Allowed TCP:[9090] due to the following policies and rules:
 		Egress (Allowed)
 			[ANP] exposure-example-15 // Egress rule allow-tcp9090-to-all-pods-in-same-ns (Allow)
 		Ingress (Allowed) due to the system default (Allow all)
 
 Denied connections:
-	Denied TCP:[1-9089,9091-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-9089,9091-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[ANP] exposure-example-15-b // Egress rule deny-all-to-all-pods-in-same-ns (Deny)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -21,13 +21,13 @@ Denied connections:
 Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
 
 Allowed connections:
-	Allowed TCP:[9090] due to the following policies // rules:
+	Allowed TCP:[9090] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[ANP] exposure-example-15 // Ingress rule allow-tcp9090-from-pods-in-same-namespace (Allow)
 
 Denied connections:
-	Denied TCP:[1-9089,9091-65535], UDP, SCTP due to the following policies // rules:
+	Denied TCP:[1-9089,9091-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[ANP] exposure-example-15-b // Ingress rule deny-all-from-pods-in-same-namespace (Deny)

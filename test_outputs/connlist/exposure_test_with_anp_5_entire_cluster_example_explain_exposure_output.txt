@@ -9,7 +9,7 @@ Allowed connections:
 	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the system default (Allow all)
 
 Denied connections:
-	Denied TCP:[80] due to the following policies // rules:
+	Denied TCP:[80] due to the following policies and rules:
 		Egress (Denied)
 			[ANP] exposure-deny-with-entire-cluster-example // Egress rule deny-tcp80-egress-to-entire-cluster (Deny)
 		Ingress (Denied)
@@ -22,7 +22,7 @@ Allowed connections:
 	Allowed TCP:[1-79,81-65535], UDP, SCTP due to the system default (Allow all)
 
 Denied connections:
-	Denied TCP:[80] due to the following policies // rules:
+	Denied TCP:[80] due to the following policies and rules:
 		Egress (Denied)
 			[ANP] exposure-deny-with-entire-cluster-example // Egress rule deny-tcp80-egress-to-entire-cluster (Deny)
 		Ingress (Denied)

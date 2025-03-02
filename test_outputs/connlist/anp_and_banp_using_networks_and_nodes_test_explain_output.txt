@@ -6,7 +6,7 @@
 Connections between ns1/pod1[Deployment] => 104.154.164.160-104.154.164.160:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[ANP] egress-peer-1 // Egress rule deny-egress (Deny)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -15,7 +15,7 @@ Denied connections:
 Connections between ns1/pod1[Deployment] => 104.154.164.170-104.154.164.170:
 
 Allowed connections:
-	Allowed TCP, UDP, SCTP due to the following policies // rules:
+	Allowed TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed)
 			[ANP] egress-peer-1 // Egress rule allow-egress (Allow)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -24,7 +24,7 @@ Allowed connections:
 Connections between ns1/pod1[Deployment] => ns2/pod1[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			[ANP] egress-peer-1 // Egress rule deny-egress (Deny)
 		Ingress (Allowed) due to the system default (Allow all)
@@ -33,7 +33,7 @@ Denied connections:
 Connections between ns1/pod1[Deployment] => ns3/pod1[Deployment]:
 
 Allowed connections:
-	Allowed TCP, UDP, SCTP due to the following policies // rules:
+	Allowed TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed)
 			[ANP] egress-peer-1 // Egress rule allow-egress (Allow)
 		Ingress (Allowed) due to the system default (Allow all)

@@ -6,7 +6,7 @@
 Connections between hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
 
 Allowed connections:
-	Allowed TCP, UDP, SCTP due to the following policies // rules:
+	Allowed TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[ANP] exposure-pass-example // Ingress rule pass-all-internal-ingress (Pass)
@@ -16,7 +16,7 @@ Allowed connections:
 Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
 
 Denied connections:
-	Denied TCP, UDP, SCTP due to the following policies // rules:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			[ANP] exposure-pass-example // Ingress rule pass-all-internal-ingress (Pass)
