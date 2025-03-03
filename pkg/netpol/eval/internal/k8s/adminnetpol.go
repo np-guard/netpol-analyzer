@@ -433,11 +433,9 @@ func updatePolicyConns(rulePorts *[]apisv1a.AdminNetworkPolicyPort, ruleName str
 //gocyclo:ignore
 func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string,
 	isBANPrule bool, dst Peer, isIngress bool) (*common.ConnectionSet, error) {
-	var ruleKind string
+	ruleKind := common.ANPRuleKind
 	if isBANPrule {
-		ruleKind = "BANP"
-	} else {
-		ruleKind = "ANP"
+		ruleKind = common.BANPRuleKind
 	}
 	if ports == nil { // If Ports is not set then the rule does not filter traffic via port.
 		return common.MakeConnectionSetWithRule(true, ruleKind, ruleName, isIngress), nil

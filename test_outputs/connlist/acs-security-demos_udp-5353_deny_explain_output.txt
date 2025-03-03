@@ -9,7 +9,7 @@ Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 
@@ -21,7 +21,7 @@ Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 
@@ -33,7 +33,7 @@ Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
@@ -45,7 +45,7 @@ Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
@@ -57,7 +57,7 @@ Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
@@ -69,7 +69,7 @@ Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
@@ -81,7 +81,7 @@ Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 
@@ -93,7 +93,7 @@ Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
@@ -105,7 +105,7 @@ Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
@@ -117,7 +117,7 @@ Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
@@ -129,7 +129,7 @@ Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
@@ -140,7 +140,7 @@ Connections between backend/catalog[Deployment] => 0.0.0.0-255.255.255.255:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
@@ -152,12 +152,12 @@ Connections between backend/catalog[Deployment] => backend/checkout[Deployment]:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -168,12 +168,12 @@ Connections between backend/catalog[Deployment] => backend/notification[Deployme
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
@@ -184,12 +184,12 @@ Connections between backend/catalog[Deployment] => backend/recommendation[Deploy
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
@@ -200,12 +200,12 @@ Connections between backend/catalog[Deployment] => backend/reports[Deployment]:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
@@ -216,12 +216,12 @@ Connections between backend/catalog[Deployment] => backend/shipping[Deployment]:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
@@ -232,12 +232,12 @@ Connections between backend/catalog[Deployment] => frontend/asset-cache[Deployme
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1 (protocols/ports not referenced)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -248,12 +248,12 @@ Connections between backend/catalog[Deployment] => frontend/webapp[Deployment]:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -264,12 +264,12 @@ Connections between backend/catalog[Deployment] => payments/gateway[Deployment]:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
@@ -280,12 +280,12 @@ Connections between backend/catalog[Deployment] => payments/mastercard-processor
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
@@ -296,12 +296,12 @@ Connections between backend/catalog[Deployment] => payments/visa-processor[Deplo
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
@@ -312,7 +312,7 @@ Connections between backend/checkout[Deployment] => 0.0.0.0-255.255.255.255:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
@@ -326,7 +326,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/checkout-netpol // Egress rule #4
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -339,7 +339,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/checkout-netpol // Egress rule #4
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -352,7 +352,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/checkout-netpol // Egress rule #4
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -365,7 +365,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/checkout-netpol // Egress rule #4
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule
 
@@ -378,7 +378,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/checkout-netpol // Egress rule #4
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule
 
@@ -391,7 +391,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/checkout-netpol // Egress rule #4
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1 (protocols/ports not referenced)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -404,7 +404,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/checkout-netpol // Egress rule #4
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -417,7 +417,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/checkout-netpol // Egress rule #4
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -430,7 +430,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/checkout-netpol // Egress rule #4
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule
 
@@ -443,7 +443,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/checkout-netpol // Egress rule #4
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule
 
@@ -454,7 +454,7 @@ Connections between backend/notification[Deployment] => 0.0.0.0-255.255.255.255:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
@@ -466,12 +466,12 @@ Connections between backend/notification[Deployment] => backend/catalog[Deployme
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -482,12 +482,12 @@ Connections between backend/notification[Deployment] => backend/checkout[Deploym
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -498,12 +498,12 @@ Connections between backend/notification[Deployment] => backend/recommendation[D
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 
@@ -514,12 +514,12 @@ Connections between backend/notification[Deployment] => backend/reports[Deployme
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 
@@ -530,12 +530,12 @@ Connections between backend/notification[Deployment] => backend/shipping[Deploym
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 
@@ -546,12 +546,12 @@ Connections between backend/notification[Deployment] => frontend/asset-cache[Dep
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1 (protocols/ports not referenced)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -562,12 +562,12 @@ Connections between backend/notification[Deployment] => frontend/webapp[Deployme
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -578,12 +578,12 @@ Connections between backend/notification[Deployment] => payments/gateway[Deploym
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 
@@ -594,12 +594,12 @@ Connections between backend/notification[Deployment] => payments/mastercard-proc
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 
@@ -610,12 +610,12 @@ Connections between backend/notification[Deployment] => payments/visa-processor[
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 
@@ -626,7 +626,7 @@ Connections between backend/recommendation[Deployment] => 0.0.0.0-255.255.255.25
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
 
@@ -640,7 +640,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/recommendation-netpol // Egress rule #2
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol // Ingress rule #1 (protocols/ports not referenced)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -653,7 +653,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/recommendation-netpol // Egress rule #2
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -666,7 +666,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/recommendation-netpol // Egress rule #2
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
 
@@ -679,7 +679,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/recommendation-netpol // Egress rule #2
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
 
@@ -692,7 +692,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/recommendation-netpol // Egress rule #2
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
 
@@ -705,7 +705,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/recommendation-netpol // Egress rule #2
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1 (protocols/ports not referenced)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -718,7 +718,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/recommendation-netpol // Egress rule #2
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -731,7 +731,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/recommendation-netpol // Egress rule #2
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
 
@@ -744,7 +744,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/recommendation-netpol // Egress rule #2
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
 
@@ -757,7 +757,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/recommendation-netpol // Egress rule #2
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
 
@@ -768,7 +768,7 @@ Connections between backend/reports[Deployment] => 0.0.0.0-255.255.255.255:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
 
@@ -782,7 +782,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/reports-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol // Ingress rule #2 (protocols/ports not referenced)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -795,7 +795,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/reports-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -808,7 +808,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/reports-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule
 
@@ -821,7 +821,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/reports-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol // Ingress rule #2 (protocols/ports not referenced)
 
@@ -834,7 +834,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/reports-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule
 
@@ -847,7 +847,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/reports-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1 (protocols/ports not referenced)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -860,7 +860,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/reports-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -873,7 +873,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/reports-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule
 
@@ -886,7 +886,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/reports-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule
 
@@ -899,7 +899,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy backend/reports-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule
 
@@ -910,7 +910,7 @@ Connections between backend/shipping[Deployment] => 0.0.0.0-255.255.255.255:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
@@ -922,12 +922,12 @@ Connections between backend/shipping[Deployment] => backend/catalog[Deployment]:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -938,12 +938,12 @@ Connections between backend/shipping[Deployment] => backend/checkout[Deployment]
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -954,12 +954,12 @@ Connections between backend/shipping[Deployment] => backend/notification[Deploym
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 
@@ -970,12 +970,12 @@ Connections between backend/shipping[Deployment] => backend/recommendation[Deplo
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 
@@ -986,12 +986,12 @@ Connections between backend/shipping[Deployment] => backend/reports[Deployment]:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 
@@ -1002,12 +1002,12 @@ Connections between backend/shipping[Deployment] => frontend/asset-cache[Deploym
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1 (protocols/ports not referenced)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1018,12 +1018,12 @@ Connections between backend/shipping[Deployment] => frontend/webapp[Deployment]:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -1034,12 +1034,12 @@ Connections between backend/shipping[Deployment] => payments/gateway[Deployment]
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 
@@ -1050,12 +1050,12 @@ Connections between backend/shipping[Deployment] => payments/mastercard-processo
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 
@@ -1066,12 +1066,12 @@ Connections between backend/shipping[Deployment] => payments/visa-processor[Depl
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 
@@ -1082,7 +1082,7 @@ Connections between frontend/asset-cache[Deployment] => 0.0.0.0-255.255.255.255:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
@@ -1094,12 +1094,12 @@ Connections between frontend/asset-cache[Deployment] => backend/catalog[Deployme
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1110,12 +1110,12 @@ Connections between frontend/asset-cache[Deployment] => backend/checkout[Deploym
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1126,12 +1126,12 @@ Connections between frontend/asset-cache[Deployment] => backend/notification[Dep
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
@@ -1142,12 +1142,12 @@ Connections between frontend/asset-cache[Deployment] => backend/recommendation[D
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
@@ -1158,12 +1158,12 @@ Connections between frontend/asset-cache[Deployment] => backend/reports[Deployme
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
@@ -1174,12 +1174,12 @@ Connections between frontend/asset-cache[Deployment] => backend/shipping[Deploym
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
@@ -1190,12 +1190,12 @@ Connections between frontend/asset-cache[Deployment] => frontend/webapp[Deployme
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -1206,12 +1206,12 @@ Connections between frontend/asset-cache[Deployment] => payments/gateway[Deploym
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
@@ -1222,12 +1222,12 @@ Connections between frontend/asset-cache[Deployment] => payments/mastercard-proc
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
@@ -1238,12 +1238,12 @@ Connections between frontend/asset-cache[Deployment] => payments/visa-processor[
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
@@ -1254,7 +1254,7 @@ Connections between frontend/webapp[Deployment] => 0.0.0.0-255.255.255.255:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
 
@@ -1268,7 +1268,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Egress rule #5
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1281,7 +1281,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Egress rule #5
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/checkout-netpol // Ingress rule #1 (protocols/ports not referenced)
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1294,7 +1294,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Egress rule #5
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule
 
@@ -1307,7 +1307,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Egress rule #5
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol // Ingress rule #3 (protocols/ports not referenced)
 
@@ -1320,7 +1320,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Egress rule #5
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -1333,7 +1333,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Egress rule #5
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -1346,7 +1346,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Egress rule #5
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1 (protocols/ports not referenced)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1359,7 +1359,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Egress rule #5
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule
 
@@ -1372,7 +1372,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Egress rule #5
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule
 
@@ -1385,7 +1385,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Egress rule #5
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule
 
@@ -1396,7 +1396,7 @@ Connections between payments/gateway[Deployment] => 0.0.0.0-255.255.255.255:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
 
@@ -1410,7 +1410,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy payments/gateway-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1423,7 +1423,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy payments/gateway-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1436,7 +1436,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy payments/gateway-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule
 
@@ -1449,7 +1449,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy payments/gateway-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule
 
@@ -1462,7 +1462,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy payments/gateway-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule
 
@@ -1475,7 +1475,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy payments/gateway-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule
 
@@ -1488,7 +1488,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy payments/gateway-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1 (protocols/ports not referenced)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1501,7 +1501,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy payments/gateway-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -1514,7 +1514,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy payments/gateway-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -1527,7 +1527,7 @@ Denied connections:
 		Egress (Allowed)
 			NetworkPolicy payments/gateway-netpol // Egress rule #3
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -1538,7 +1538,7 @@ Connections between payments/mastercard-processor[Deployment] => 0.0.0.0-255.255
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
@@ -1550,12 +1550,12 @@ Connections between payments/mastercard-processor[Deployment] => backend/catalog
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1566,12 +1566,12 @@ Connections between payments/mastercard-processor[Deployment] => backend/checkou
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1582,12 +1582,12 @@ Connections between payments/mastercard-processor[Deployment] => backend/notific
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 
@@ -1598,12 +1598,12 @@ Connections between payments/mastercard-processor[Deployment] => backend/recomme
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 
@@ -1614,12 +1614,12 @@ Connections between payments/mastercard-processor[Deployment] => backend/reports
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 
@@ -1630,12 +1630,12 @@ Connections between payments/mastercard-processor[Deployment] => backend/shippin
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 
@@ -1646,12 +1646,12 @@ Connections between payments/mastercard-processor[Deployment] => frontend/asset-
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1 (protocols/ports not referenced)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1662,12 +1662,12 @@ Connections between payments/mastercard-processor[Deployment] => frontend/webapp
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -1678,12 +1678,12 @@ Connections between payments/mastercard-processor[Deployment] => payments/gatewa
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 
@@ -1694,12 +1694,12 @@ Connections between payments/mastercard-processor[Deployment] => payments/visa-p
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 
@@ -1710,7 +1710,7 @@ Connections between payments/visa-processor[Deployment] => 0.0.0.0-255.255.255.2
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
@@ -1722,12 +1722,12 @@ Connections between payments/visa-processor[Deployment] => backend/catalog[Deplo
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1738,12 +1738,12 @@ Connections between payments/visa-processor[Deployment] => backend/checkout[Depl
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1754,12 +1754,12 @@ Connections between payments/visa-processor[Deployment] => backend/notification[
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 
@@ -1770,12 +1770,12 @@ Connections between payments/visa-processor[Deployment] => backend/recommendatio
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 
@@ -1786,12 +1786,12 @@ Connections between payments/visa-processor[Deployment] => backend/reports[Deplo
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 
@@ -1802,12 +1802,12 @@ Connections between payments/visa-processor[Deployment] => backend/shipping[Depl
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 
@@ -1818,12 +1818,12 @@ Connections between payments/visa-processor[Deployment] => frontend/asset-cache[
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1 (protocols/ports not referenced)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 
@@ -1834,12 +1834,12 @@ Connections between payments/visa-processor[Deployment] => frontend/webapp[Deplo
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Ingress rule #1 (protocols/ports not referenced)
 
@@ -1850,12 +1850,12 @@ Connections between payments/visa-processor[Deployment] => payments/gateway[Depl
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 
@@ -1866,12 +1866,12 @@ Connections between payments/visa-processor[Deployment] => payments/mastercard-p
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 
@@ -1883,7 +1883,7 @@ Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1 (protocols/ports not referenced)
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but {ingress-controller} is not selected by any Ingress rule (no rules defined)
 
@@ -1896,7 +1896,7 @@ Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NP list:
+			NetworkPolicy list:
 				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but {ingress-controller} is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Ingress rule #1 (protocols/ports not referenced)
 

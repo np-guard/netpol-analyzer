@@ -153,11 +153,11 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 	if len(rulePorts) == 0 {
 		// If this field is empty or missing, this rule matches all ports
 		// (traffic not restricted by port)
-		return common.MakeConnectionSetWithRule(true, NPRuleKind, np.ruleName(ruleIdx, isIngress), isIngress), nil
+		return common.MakeConnectionSetWithRule(true, common.NPRuleKind, np.ruleName(ruleIdx, isIngress), isIngress), nil
 	}
 	ruleName := np.ruleName(ruleIdx, isIngress)
 	// all protocols are affected by the rule
-	res := common.MakeConnectionSetWithRule(false, NPRuleKind, common.ExplNotReferencedProtocolsOrPorts(ruleName), isIngress)
+	res := common.MakeConnectionSetWithRule(false, common.NPRuleKind, common.ExplNotReferencedProtocolsOrPorts(ruleName), isIngress)
 	for i := range rulePorts {
 		protocol := v1.ProtocolTCP
 		if rulePorts[i].Protocol != nil {
@@ -165,9 +165,9 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 		}
 		// the whole port range is affected by the rule (not only ports mentioned in the rule)
 		ports := common.MakeEmptyPortSetWithImplyingRules(
-			common.MakeImplyingRulesWithRule(NPRuleKind, common.ExplNotReferencedProtocolsOrPorts(ruleName), isIngress))
+			common.MakeImplyingRulesWithRule(common.NPRuleKind, common.ExplNotReferencedProtocolsOrPorts(ruleName), isIngress))
 		if rulePorts[i].Port == nil {
-			ports = common.MakeAllPortSetWithImplyingRules(common.MakeImplyingRulesWithRule(NPRuleKind, ruleName, isIngress))
+			ports = common.MakeAllPortSetWithImplyingRules(common.MakeImplyingRulesWithRule(common.NPRuleKind, ruleName, isIngress))
 		} else {
 			startPort, endPort, portName, err := np.getPortsRange(rulePorts[i], dst)
 			if err != nil {
@@ -191,7 +191,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 					// 4- in order to get a connection from any pod to an ip dst (will not get here, as named ports are not defined for ip-blocks)
 					if dst == nil || isPeerRepresentative(dst) { // (1 & 2)
 						// adding portName string to the portSet
-						ports.AddPort(intstr.FromString(portName), common.MakeImplyingRulesWithRule(NPRuleKind, ruleName, isIngress))
+						ports.AddPort(intstr.FromString(portName), common.MakeImplyingRulesWithRule(common.NPRuleKind, ruleName, isIngress))
 					} else { // dst is a real pod (3)
 						// add a warning that the "named port" of the rule is ignored, since it has no match in the pod config.
 						np.saveNetpolWarning(np.netpolWarning(alerts.WarnUnmatchedNamedPort(portName, dst.String())))
@@ -201,7 +201,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 				}
 			} else {
 				// if !isEmptyPortRange(startPort, endPort) (the other valid result)
-				ports.AddPortRange(startPort, endPort, true, NPRuleKind, ruleName, isIngress)
+				ports.AddPortRange(startPort, endPort, true, common.NPRuleKind, ruleName, isIngress)
 			}
 		}
 		res.AddConnection(protocol, ports)
@@ -209,7 +209,7 @@ func (np *NetworkPolicy) ruleConnections(rulePorts []netv1.NetworkPolicyPort, ds
 	if res.IsEmpty() {
 		// no connections found --> "named ports" of the rule had no match in the pod config
 		// remove empty protocols if any
-		res = common.MakeConnectionSetWithRule(false, NPRuleKind, common.ExplNoMatchOfNamedPortsToDst(ruleName), isIngress)
+		res = common.MakeConnectionSetWithRule(false, common.NPRuleKind, common.ExplNoMatchOfNamedPortsToDst(ruleName), isIngress)
 	}
 	return res, nil
 }
@@ -379,7 +379,6 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 const (
 	CapturedButNotSelectedExpl = "selects %s, but %s is not selected by any %s rule"
 	NoXgressRulesExpl          = CapturedButNotSelectedExpl + " (no rules defined)"
-	NPRuleKind                 = "NP"
 )
 
 func constPeerString(peer Peer) string {
@@ -413,7 +412,7 @@ func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*
 		policyPeer = dst
 	}
 	if numOfRules == 0 {
-		res.AddCommonImplyingRule(NPRuleKind, np.nameWithDirectionAndExpl(isIngress, NoXgressRulesExpl, policyPeer, peerToSelect),
+		res.AddCommonImplyingRule(common.NPRuleKind, np.nameWithDirectionAndExpl(isIngress, NoXgressRulesExpl, policyPeer, peerToSelect),
 			isIngress)
 		return res, nil
 	}
@@ -438,7 +437,7 @@ func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*
 		}
 	}
 	if !peerSelectedByAnyRule {
-		res.AddCommonImplyingRule(NPRuleKind, np.nameWithDirectionAndExpl(isIngress, CapturedButNotSelectedExpl, policyPeer, peerToSelect),
+		res.AddCommonImplyingRule(common.NPRuleKind, np.nameWithDirectionAndExpl(isIngress, CapturedButNotSelectedExpl, policyPeer, peerToSelect),
 			isIngress)
 	}
 	return res, nil

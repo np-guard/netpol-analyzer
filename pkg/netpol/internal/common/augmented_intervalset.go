@@ -49,17 +49,26 @@ type ImplyingRulesType struct {
 	Egress  ImplyingXgressRulesType
 }
 
+// consts used to group rules by layer kind
+const (
+	NPRuleKind      = "NetworkPolicy"
+	ANPRuleKind     = "AdminNetworkPolicy"
+	BANPRuleKind    = "BaselineAdminNetworkPolicy"
+	IngressRuleKind = "Ingress"
+	RouteRuleKind   = "Route"
+)
+
 func ruleKindToLayer(kind string) LayerType {
 	switch kind {
-	case "ANP":
+	case ANPRuleKind:
 		return ANPLayer
-	case "NP":
+	case NPRuleKind:
 		return NPLayer
-	case "Ingress":
+	case IngressRuleKind:
 		return NPLayer
-	case "Route":
+	case RouteRuleKind:
 		return NPLayer
-	case "BANP":
+	case BANPRuleKind:
 		return BANPLayer
 	case "":
 		return DefaultLayer
