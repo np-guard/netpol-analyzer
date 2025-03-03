@@ -36,7 +36,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-255.255.255.255 => default/reviews-v2-7bf8c9648f[ReplicaSet]:
@@ -45,7 +45,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-255.255.255.255 => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -54,7 +54,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/details-v1-79f774bdb9[ReplicaSet] => 0.0.0.0-255.255.255.255:
@@ -62,7 +62,7 @@ Connections between default/details-v1-79f774bdb9[ReplicaSet] => 0.0.0.0-255.255
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ Connections between default/details-v1-79f774bdb9[ReplicaSet] => default/product
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but default/productpage-v1-6b746f74dc[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but default/productpage-v1-6b746f74dc[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
 			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Ingress rule
 
@@ -81,7 +81,7 @@ Connections between default/details-v1-79f774bdb9[ReplicaSet] => default/ratings
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but default/ratings-v1-b6994bb9[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but default/ratings-v1-b6994bb9[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
 			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Ingress rule
 
@@ -91,9 +91,9 @@ Connections between default/details-v1-79f774bdb9[ReplicaSet] => default/reviews
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but default/reviews-v1-545db77b95[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but default/reviews-v1-545db77b95[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/details-v1-79f774bdb9[ReplicaSet] => default/reviews-v2-7bf8c9648f[ReplicaSet]:
@@ -101,9 +101,9 @@ Connections between default/details-v1-79f774bdb9[ReplicaSet] => default/reviews
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but default/reviews-v2-7bf8c9648f[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but default/reviews-v2-7bf8c9648f[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/details-v1-79f774bdb9[ReplicaSet] => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -111,9 +111,9 @@ Connections between default/details-v1-79f774bdb9[ReplicaSet] => default/reviews
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but default/reviews-v3-84779c7bbc[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but default/reviews-v3-84779c7bbc[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/details-v1-79f774bdb9[ReplicaSet] => default/unicorn[Deployment]:
@@ -121,7 +121,7 @@ Connections between default/details-v1-79f774bdb9[ReplicaSet] => default/unicorn
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but default/unicorn[Deployment] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/details-netpol selects default/details-v1-79f774bdb9[ReplicaSet], but default/unicorn[Deployment] is not selected by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ Connections between default/productpage-v1-6b746f74dc[ReplicaSet] => 0.0.0.0-255
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -139,13 +139,13 @@ Connections between default/productpage-v1-6b746f74dc[ReplicaSet] => default/det
 Denied connections:
 	Denied TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
 			NetworkPolicy default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 	Denied TCP:[9080] due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Allowed)
 			NetworkPolicy default/details-netpol // Ingress rule #1
 
@@ -155,7 +155,7 @@ Connections between default/productpage-v1-6b746f74dc[ReplicaSet] => default/rat
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/ratings-v1-b6994bb9[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/ratings-v1-b6994bb9[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
 			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/productpage-v1-6b746f74dc[ReplicaSet] is not selected by any Ingress rule
 
@@ -165,9 +165,9 @@ Connections between default/productpage-v1-6b746f74dc[ReplicaSet] => default/rev
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/reviews-v1-545db77b95[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/reviews-v1-545db77b95[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/productpage-v1-6b746f74dc[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/productpage-v1-6b746f74dc[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/productpage-v1-6b746f74dc[ReplicaSet] => default/reviews-v2-7bf8c9648f[ReplicaSet]:
@@ -175,9 +175,9 @@ Connections between default/productpage-v1-6b746f74dc[ReplicaSet] => default/rev
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/reviews-v2-7bf8c9648f[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/reviews-v2-7bf8c9648f[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/productpage-v1-6b746f74dc[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/productpage-v1-6b746f74dc[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/productpage-v1-6b746f74dc[ReplicaSet] => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -185,9 +185,9 @@ Connections between default/productpage-v1-6b746f74dc[ReplicaSet] => default/rev
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/reviews-v3-84779c7bbc[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/reviews-v3-84779c7bbc[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/productpage-v1-6b746f74dc[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/productpage-v1-6b746f74dc[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/productpage-v1-6b746f74dc[ReplicaSet] => default/unicorn[Deployment]:
@@ -195,7 +195,7 @@ Connections between default/productpage-v1-6b746f74dc[ReplicaSet] => default/uni
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/unicorn[Deployment] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/unicorn[Deployment] is not selected by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -204,7 +204,7 @@ Connections between default/ratings-v1-b6994bb9[ReplicaSet] => 0.0.0.0-255.255.2
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -213,13 +213,13 @@ Connections between default/ratings-v1-b6994bb9[ReplicaSet] => default/details-v
 Denied connections:
 	Denied TCP:[1-9079,9081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
 			NetworkPolicy default/details-netpol // Ingress rule #1 (protocols/ports not referenced)
 
 	Denied TCP:[9080] due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/details-v1-79f774bdb9[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Allowed)
 			NetworkPolicy default/details-netpol // Ingress rule #1
 
@@ -229,7 +229,7 @@ Connections between default/ratings-v1-b6994bb9[ReplicaSet] => default/productpa
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/productpage-v1-6b746f74dc[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/productpage-v1-6b746f74dc[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
 			NetworkPolicy default/productpage-netpol selects default/productpage-v1-6b746f74dc[ReplicaSet], but default/ratings-v1-b6994bb9[ReplicaSet] is not selected by any Ingress rule
 
@@ -239,9 +239,9 @@ Connections between default/ratings-v1-b6994bb9[ReplicaSet] => default/reviews-v
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/reviews-v1-545db77b95[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/reviews-v1-545db77b95[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/ratings-v1-b6994bb9[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/ratings-v1-b6994bb9[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/ratings-v1-b6994bb9[ReplicaSet] => default/reviews-v2-7bf8c9648f[ReplicaSet]:
@@ -249,9 +249,9 @@ Connections between default/ratings-v1-b6994bb9[ReplicaSet] => default/reviews-v
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/reviews-v2-7bf8c9648f[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/reviews-v2-7bf8c9648f[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/ratings-v1-b6994bb9[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/ratings-v1-b6994bb9[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/ratings-v1-b6994bb9[ReplicaSet] => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -259,9 +259,9 @@ Connections between default/ratings-v1-b6994bb9[ReplicaSet] => default/reviews-v
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/reviews-v3-84779c7bbc[ReplicaSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/reviews-v3-84779c7bbc[ReplicaSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/ratings-v1-b6994bb9[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/ratings-v1-b6994bb9[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/ratings-v1-b6994bb9[ReplicaSet] => default/unicorn[Deployment]:
@@ -269,7 +269,7 @@ Connections between default/ratings-v1-b6994bb9[ReplicaSet] => default/unicorn[D
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/unicorn[Deployment] is not selected by any Egress rule - no rules defined
+			NetworkPolicy default/ratings-netpol selects default/ratings-v1-b6994bb9[ReplicaSet], but default/unicorn[Deployment] is not selected by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -339,7 +339,7 @@ Denied connections:
 		Egress (Denied)
 			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/reviews-v2-7bf8c9648f[ReplicaSet] is not selected by any Egress rule
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/reviews-v1-545db77b95[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/reviews-v1-545db77b95[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/reviews-v1-545db77b95[ReplicaSet] => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -349,7 +349,7 @@ Denied connections:
 		Egress (Denied)
 			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/reviews-v3-84779c7bbc[ReplicaSet] is not selected by any Egress rule
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/reviews-v1-545db77b95[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/reviews-v1-545db77b95[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/reviews-v1-545db77b95[ReplicaSet] => default/unicorn[Deployment]:
@@ -427,7 +427,7 @@ Denied connections:
 		Egress (Denied)
 			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/reviews-v1-545db77b95[ReplicaSet] is not selected by any Egress rule
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/reviews-v2-7bf8c9648f[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/reviews-v2-7bf8c9648f[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/reviews-v2-7bf8c9648f[ReplicaSet] => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -437,7 +437,7 @@ Denied connections:
 		Egress (Denied)
 			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/reviews-v3-84779c7bbc[ReplicaSet] is not selected by any Egress rule
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/reviews-v2-7bf8c9648f[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/reviews-v2-7bf8c9648f[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/reviews-v2-7bf8c9648f[ReplicaSet] => default/unicorn[Deployment]:
@@ -515,7 +515,7 @@ Denied connections:
 		Egress (Denied)
 			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/reviews-v1-545db77b95[ReplicaSet] is not selected by any Egress rule
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/reviews-v3-84779c7bbc[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/reviews-v3-84779c7bbc[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/reviews-v3-84779c7bbc[ReplicaSet] => default/reviews-v2-7bf8c9648f[ReplicaSet]:
@@ -525,7 +525,7 @@ Denied connections:
 		Egress (Denied)
 			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/reviews-v2-7bf8c9648f[ReplicaSet] is not selected by any Egress rule
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/reviews-v3-84779c7bbc[ReplicaSet] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/reviews-v3-84779c7bbc[ReplicaSet] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/reviews-v3-84779c7bbc[ReplicaSet] => default/unicorn[Deployment]:
@@ -576,7 +576,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/unicorn[Deployment] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v1-545db77b95[ReplicaSet], but default/unicorn[Deployment] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/unicorn[Deployment] => default/reviews-v2-7bf8c9648f[ReplicaSet]:
@@ -585,7 +585,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/unicorn[Deployment] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v2-7bf8c9648f[ReplicaSet], but default/unicorn[Deployment] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/unicorn[Deployment] => default/reviews-v3-84779c7bbc[ReplicaSet]:
@@ -594,7 +594,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/unicorn[Deployment] is not selected by any Ingress rule - no rules defined
+			NetworkPolicy default/reviews-netpol selects default/reviews-v3-84779c7bbc[ReplicaSet], but default/unicorn[Deployment] is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between {ingress-controller} => default/details-v1-79f774bdb9[ReplicaSet]:

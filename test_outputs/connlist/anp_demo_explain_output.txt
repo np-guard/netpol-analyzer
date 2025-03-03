@@ -109,7 +109,7 @@ Connections between ravenclaw/luna-lovegood[StatefulSet] => 0.0.0.0-255.255.255.
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy ravenclaw/allow-some-ingress-from-to-ravenclaw selects ravenclaw/luna-lovegood[StatefulSet], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+			NetworkPolicy ravenclaw/allow-some-ingress-from-to-ravenclaw selects ravenclaw/luna-lovegood[StatefulSet], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ Connections between ravenclaw/luna-lovegood[StatefulSet] => gryffindor/harry-pot
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy ravenclaw/allow-some-ingress-from-to-ravenclaw selects ravenclaw/luna-lovegood[StatefulSet], but gryffindor/harry-potter[StatefulSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy ravenclaw/allow-some-ingress-from-to-ravenclaw selects ravenclaw/luna-lovegood[StatefulSet], but gryffindor/harry-potter[StatefulSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Allowed)
 			[ANP] gress-rules-gryffindor // Ingress rule allow-from-ravenclaw-everything (Allow)
 
@@ -128,7 +128,7 @@ Connections between ravenclaw/luna-lovegood[StatefulSet] => hufflepuff/cedric-di
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy ravenclaw/allow-some-ingress-from-to-ravenclaw selects ravenclaw/luna-lovegood[StatefulSet], but hufflepuff/cedric-diggory[StatefulSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy ravenclaw/allow-some-ingress-from-to-ravenclaw selects ravenclaw/luna-lovegood[StatefulSet], but hufflepuff/cedric-diggory[StatefulSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ Connections between ravenclaw/luna-lovegood[StatefulSet] => slytherin/draco-malf
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy ravenclaw/allow-some-ingress-from-to-ravenclaw selects ravenclaw/luna-lovegood[StatefulSet], but slytherin/draco-malfoy[StatefulSet] is not selected by any Egress rule - no rules defined
+			NetworkPolicy ravenclaw/allow-some-ingress-from-to-ravenclaw selects ravenclaw/luna-lovegood[StatefulSet], but slytherin/draco-malfoy[StatefulSet] is not selected by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------

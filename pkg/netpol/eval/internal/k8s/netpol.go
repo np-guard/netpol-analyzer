@@ -378,7 +378,7 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 
 const (
 	CapturedButNotSelectedExpl = "selects %s, but %s is not selected by any %s rule"
-	NoXgressRulesExpl          = CapturedButNotSelectedExpl + " - no rules defined"
+	NoXgressRulesExpl          = CapturedButNotSelectedExpl + " (no rules defined)"
 	NPRuleKind                 = "NP"
 )
 

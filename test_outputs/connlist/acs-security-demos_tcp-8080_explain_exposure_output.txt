@@ -11,7 +11,7 @@ Denied connections:
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ Denied connections:
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
 
@@ -46,7 +46,7 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
 
@@ -58,7 +58,7 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
 
@@ -70,7 +70,7 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
 
@@ -83,7 +83,7 @@ Denied connections:
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
 
@@ -106,7 +106,7 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
 
@@ -118,7 +118,7 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
 
@@ -130,7 +130,7 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
 
@@ -141,8 +141,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -153,13 +153,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -169,12 +169,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
 
@@ -185,12 +185,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
 
@@ -201,12 +201,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
 
@@ -217,12 +217,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
 
@@ -233,8 +233,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed)
 			NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1
@@ -246,8 +246,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Ingress rule #1
@@ -259,12 +259,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
 
@@ -275,12 +275,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
 
@@ -291,12 +291,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/catalog[Deployment] is not selected by any Ingress rule
 
 
@@ -308,7 +308,7 @@ Denied connections:
 		Egress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -320,12 +320,12 @@ Denied connections:
 		Egress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol // Egress rule #4 (protocols/ports not referenced)
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -356,11 +356,11 @@ Denied connections:
 		Egress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol // Egress rule #4 (protocols/ports not referenced)
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule
 
 
@@ -372,11 +372,11 @@ Denied connections:
 		Egress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol // Egress rule #4 (protocols/ports not referenced)
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule
 
 
@@ -388,7 +388,7 @@ Denied connections:
 		Egress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol // Egress rule #4 (protocols/ports not referenced)
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed)
 			NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1
@@ -401,7 +401,7 @@ Denied connections:
 		Egress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol // Egress rule #4 (protocols/ports not referenced)
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Ingress rule #1
@@ -424,11 +424,11 @@ Denied connections:
 		Egress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol // Egress rule #4 (protocols/ports not referenced)
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule
 
 
@@ -440,11 +440,11 @@ Denied connections:
 		Egress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol // Egress rule #4 (protocols/ports not referenced)
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/checkout[Deployment] is not selected by any Ingress rule
 
 
@@ -455,8 +455,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -467,13 +467,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -483,13 +483,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -499,12 +499,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 
 
@@ -515,12 +515,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 
 
@@ -531,12 +531,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 
 
@@ -547,8 +547,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed)
 			NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1
@@ -560,8 +560,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Ingress rule #1
@@ -573,12 +573,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 
 
@@ -589,12 +589,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 
 
@@ -605,12 +605,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/notification[Deployment] is not selected by any Ingress rule
 
 
@@ -621,7 +621,7 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
 
 		Ingress (Allowed) due to the system default (Allow all)
@@ -643,13 +643,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol // Egress rule #2 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -659,12 +659,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol // Egress rule #2 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
 
 
@@ -675,12 +675,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol // Egress rule #2 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
 
 
@@ -691,12 +691,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol // Egress rule #2 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
 
 
@@ -707,7 +707,7 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol // Egress rule #2 (protocols/ports not referenced)
 
 		Ingress (Allowed)
@@ -720,7 +720,7 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol // Egress rule #2 (protocols/ports not referenced)
 
 		Ingress (Allowed)
@@ -733,12 +733,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol // Egress rule #2 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
 
 
@@ -749,12 +749,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol // Egress rule #2 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
 
 
@@ -765,12 +765,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol // Egress rule #2 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Ingress rule
 
 
@@ -781,7 +781,7 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
 
 		Ingress (Allowed) due to the system default (Allow all)
@@ -803,13 +803,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -819,12 +819,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule
 
 
@@ -845,12 +845,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule
 
 
@@ -861,7 +861,7 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Allowed)
@@ -874,7 +874,7 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Allowed)
@@ -887,12 +887,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule
 
 
@@ -903,12 +903,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule
 
 
@@ -919,12 +919,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/reports[Deployment] is not selected by any Ingress rule
 
 
@@ -935,8 +935,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -947,13 +947,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -963,13 +963,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -979,12 +979,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 
 
@@ -995,12 +995,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 
 
@@ -1011,12 +1011,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 
 
@@ -1027,8 +1027,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed)
 			NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1
@@ -1040,8 +1040,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Ingress rule #1
@@ -1053,12 +1053,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 
 
@@ -1069,12 +1069,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 
 
@@ -1085,12 +1085,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/shipping[Deployment] is not selected by any Ingress rule
 
 
@@ -1101,8 +1101,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -1113,13 +1113,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1129,13 +1129,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1145,12 +1145,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
 
@@ -1161,12 +1161,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
 
@@ -1177,12 +1177,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
 
@@ -1193,12 +1193,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
 
@@ -1209,8 +1209,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Ingress rule #1
@@ -1222,12 +1222,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
 
@@ -1238,12 +1238,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
 
@@ -1254,12 +1254,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/asset-cache-netpol selects frontend/asset-cache[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/asset-cache[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Ingress rule
 
 
@@ -1270,7 +1270,7 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
 
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1282,13 +1282,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Egress rule #5 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1308,12 +1308,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Egress rule #5 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule
 
 
@@ -1354,7 +1354,7 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Egress rule #5 (protocols/ports not referenced)
 
 		Ingress (Allowed)
@@ -1367,12 +1367,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Egress rule #5 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule
 
 
@@ -1383,12 +1383,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Egress rule #5 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule
 
 
@@ -1399,12 +1399,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy frontend/default-deny-in-namespace-frontend selects frontend/webapp[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy frontend/webapp-netpol // Egress rule #5 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Ingress rule
 
 
@@ -1415,7 +1415,7 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
 
 		Ingress (Allowed) due to the system default (Allow all)
@@ -1427,13 +1427,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1443,13 +1443,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1459,12 +1459,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule
 
 
@@ -1475,12 +1475,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule
 
 
@@ -1491,12 +1491,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule
 
 
@@ -1507,12 +1507,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/gateway[Deployment] is not selected by any Ingress rule
 
 
@@ -1523,7 +1523,7 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Allowed)
@@ -1536,7 +1536,7 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol // Egress rule #3 (protocols/ports not referenced)
 
 		Ingress (Allowed)
@@ -1569,8 +1569,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -1581,13 +1581,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1597,13 +1597,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1613,12 +1613,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 
 
@@ -1629,12 +1629,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 
 
@@ -1645,12 +1645,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 
 
@@ -1661,12 +1661,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 
 
@@ -1677,8 +1677,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed)
 			NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1
@@ -1690,8 +1690,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Ingress rule #1
@@ -1703,12 +1703,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 
 
@@ -1719,12 +1719,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but payments/visa-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Ingress rule
 
 
@@ -1735,8 +1735,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -1747,13 +1747,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/catalog[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/catalog-netpol selects backend/catalog[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/catalog[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1763,13 +1763,13 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/checkout[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
 				- NetworkPolicy backend/checkout-netpol selects backend/checkout[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/checkout[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1779,12 +1779,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/notification[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/notification[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/notification[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/notification-netpol selects backend/notification[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 
 
@@ -1795,12 +1795,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/recommendation[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/recommendation[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/recommendation-netpol selects backend/recommendation[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 
 
@@ -1811,12 +1811,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/reports[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/reports[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/reports[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/reports-netpol selects backend/reports[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 
 
@@ -1827,12 +1827,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but backend/shipping[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy backend/default-deny-in-namespace-backend selects backend/shipping[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy backend/shipping-netpol selects backend/shipping[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 
 
@@ -1843,8 +1843,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but frontend/asset-cache[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed)
 			NetworkPolicy frontend/asset-cache-netpol // Ingress rule #1
@@ -1856,8 +1856,8 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but frontend/webapp[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Allowed)
 			NetworkPolicy frontend/webapp-netpol // Ingress rule #1
@@ -1869,12 +1869,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but payments/gateway[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/gateway[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/gateway-netpol selects payments/gateway[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 
 
@@ -1885,12 +1885,12 @@ Denied connections:
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
-				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/visa-processor[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
+				- NetworkPolicy payments/visa-processor-netpol selects payments/visa-processor[Deployment], but payments/mastercard-processor[Deployment] is not selected by any Egress rule (no rules defined)
 
 		Ingress (Denied)
 			NP list:
-				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule - no rules defined
+				- NetworkPolicy payments/default-deny-in-namespace-payments selects payments/mastercard-processor[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule (no rules defined)
 				- NetworkPolicy payments/mastercard-processor-netpol selects payments/mastercard-processor[Deployment], but payments/visa-processor[Deployment] is not selected by any Ingress rule
 
 
