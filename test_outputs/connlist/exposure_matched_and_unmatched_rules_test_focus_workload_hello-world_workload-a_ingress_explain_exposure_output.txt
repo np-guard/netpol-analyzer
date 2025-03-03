@@ -9,7 +9,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			[NP] hello-world/combined-ingress-rules // Ingress (hello-world/workload-a[Deployment] is selected by the policy, but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule)
+			NetworkPolicy hello-world/combined-ingress-rules selects hello-world/workload-a[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
@@ -18,7 +18,7 @@ Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			[NP] hello-world/combined-ingress-rules // Ingress rule #1
+			NetworkPolicy hello-world/combined-ingress-rules // Ingress rule #1
 
 
 Exposure Analysis Result:

@@ -377,9 +377,8 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 }
 
 const (
-	CapturedButNotSelectedTxt  = "%s is selected by the policy, but %s is not selected by any %s rule"
-	CapturedButNotSelectedExpl = "(" + CapturedButNotSelectedTxt + ")"
-	NoXgressRulesExpl          = "(" + CapturedButNotSelectedTxt + " - no rules defined)"
+	CapturedButNotSelectedExpl = "selects %s, but %s is not selected by any %s rule"
+	NoXgressRulesExpl          = CapturedButNotSelectedExpl + " (no rules defined)"
 	NPRuleKind                 = "NP"
 )
 
@@ -398,7 +397,7 @@ func (np *NetworkPolicy) nameWithDirectionAndExpl(isIngress bool, expl string, p
 	if isIngress {
 		xgress = "Ingress"
 	}
-	return fmt.Sprintf("%s // %s "+expl, np.FullName(), xgress, policyPeerStr, rulePeerStr, xgress)
+	return fmt.Sprintf("%s "+expl, np.FullName(), policyPeerStr, rulePeerStr, xgress)
 }
 
 // GetXgressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer (for Ingress)
@@ -446,11 +445,11 @@ func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*
 }
 
 func (np *NetworkPolicy) netpolWarning(description string) string {
-	return fmt.Sprintf("network policy %q: %s", np.FullName(), description)
+	return fmt.Sprintf("%s: %s", np.FullName(), description)
 }
 
 func (np *NetworkPolicy) netpolErr(title, description string) error {
-	return fmt.Errorf("network policy %s %s: %s", np.FullName(), title, description)
+	return fmt.Errorf("%s %s: %s", np.FullName(), title, description)
 }
 
 func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*netset.IPBlock, error) {
@@ -552,7 +551,7 @@ func (np *NetworkPolicy) Selects(p *Pod, direction netv1.PolicyType) (bool, erro
 }
 
 func (np *NetworkPolicy) FullName() string {
-	return "[NP] " + types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String()
+	return "NetworkPolicy " + types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String()
 }
 
 func (np *NetworkPolicy) ruleName(ruleIdx int, isIngress bool) string {
