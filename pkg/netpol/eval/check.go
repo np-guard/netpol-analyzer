@@ -9,7 +9,6 @@ package eval
 import (
 	"errors"
 	"net"
-	"sort"
 	"strings"
 
 	netv1 "k8s.io/api/networking/v1"
@@ -104,11 +103,6 @@ func (pe *PolicyEngine) getPoliciesSelectingPod(peer k8s.Peer, direction netv1.P
 	}
 	if pe.exposureAnalysisFlag && len(res) > 0 {
 		p.UpdatePodXgressProtectedFlag(direction == netv1.PolicyTypeIngress)
-	}
-	if pe.explain && len(res) > 0 {
-		sort.Slice(res, func(i, j int) bool {
-			return res[i].FullName() < res[j].FullName()
-		})
 	}
 	return res, nil
 }
