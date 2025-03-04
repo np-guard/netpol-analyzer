@@ -37,5 +37,5 @@ Allowed connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring (Pass)
-			NetworkPolicy foo/allow-monitoring // Ingress rule #1
+			NetworkPolicy foo/allow-monitoring allows connection by Ingress rule #1
 

@@ -34,14 +34,6 @@ type ConnectionSet struct {
 	CommonImplyingRules ImplyingRulesType        // used for explainability, when AllowedProtocols is empty (i.e., all allowed or all denied)
 }
 
-func ExplNoMatchOfNamedPortsToDst(ruleName string) string {
-	return fmt.Sprintf("%s (named ports of the rule have no match in the configuration of the dst peer)", ruleName)
-}
-
-func ExplNotReferencedProtocolsOrPorts(ruleName string) string {
-	return fmt.Sprintf("%s (protocols/ports not referenced)", ruleName)
-}
-
 var allProtocols = []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP, v1.ProtocolSCTP}
 
 // MakeConnectionSet returns a pointer to ConnectionSet object with all connections or no connections

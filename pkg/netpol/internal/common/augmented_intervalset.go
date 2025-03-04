@@ -135,13 +135,15 @@ const (
 	ExplAllowAll          = " (Allow all)"
 	SystemDefaultString   = "the system default"
 	SystemDefaultRule     = SystemDefaultString + ExplAllowAll
-	IPDefaultString       = SystemDefaultString // currently the same as system default; change for different explanation for IP default
-	IPDefaultRule         = IPDefaultString + ExplAllowAll
-	ExplSystemDefault     = ExplString + SystemDefaultRule
-	PodToItselfRule       = "pod to itself " + ExplAllowAll
-	allowResultStr        = "Allowed"
-	denyResultStr         = "Denied"
-	connectionsStr        = " connections"
+	IPDefaultString       = SystemDefaultString // currently the same as system default;
+	// change for different explanation for IP default
+	IPDefaultRule                     = IPDefaultString + ExplAllowAll
+	ExplSystemDefault                 = ExplString + SystemDefaultRule
+	PodToItselfRule                   = "pod to itself " + ExplAllowAll
+	allowResultStr                    = "Allowed"
+	denyResultStr                     = "Denied"
+	connectionsStr                    = " connections"
+	ExplNotReferencedProtocolsOrPorts = "but the protocols and ports do not match"
 )
 
 func (rules *ImplyingXgressRulesType) onlyDefaultRule() bool {

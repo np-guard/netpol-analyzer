@@ -94,7 +94,7 @@ Allowed connections:
 	Allowed TCP:[1-1233,1235-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy foo/allow-monitoring // Ingress rule #1
+			NetworkPolicy foo/allow-monitoring allows connection by Ingress rule #1
 
 	Allowed TCP:[1234] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
@@ -105,7 +105,7 @@ Allowed connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			[ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring-on-TCP8080 (Pass)
-			NetworkPolicy foo/allow-monitoring // Ingress rule #1
+			NetworkPolicy foo/allow-monitoring allows connection by Ingress rule #1
 
 
 #########################################################
