@@ -90,7 +90,7 @@ Connections between demo/cog-agents-account-query[DaemonSet] => demo/cog-agents-
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy demo/query-to-ui // Egress rule #1
+			NetworkPolicy demo/query-to-ui allows connection by Egress rule #1
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -262,13 +262,13 @@ Allowed connections:
 	Allowed TCP:[8080,9090], UDP:[8080] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy demo/ui-to-command // Ingress rule #1
+			NetworkPolicy demo/ui-to-command allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP:[1-8079,8081-9089,9091-65535], UDP:[1-8079,8081-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy demo/ui-to-command // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy demo/ui-to-command selects demo/cog-agents-account-command[DaemonSet], and Ingress rule #1 selects demo/cog-agents-bank-ui[DaemonSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77[ReplicaSet] => demo/cog-agents-account-command[DaemonSet]:

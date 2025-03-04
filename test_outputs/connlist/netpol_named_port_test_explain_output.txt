@@ -18,7 +18,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy helloworld/enable-ingress-from-named-port // Ingress rule #1 (named ports of the rule have no match in the configuration of the dst peer)
+			NetworkPolicy helloworld/enable-ingress-from-named-port selects helloworld/pod-a[Deployment], and Ingress rule #1 selects helloworld/new-pod[Deployment], but named ports of the rule have no match in the configuration of the destination peer
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between helloworld/pod-a[Deployment] => 0.0.0.0-255.255.255.255:

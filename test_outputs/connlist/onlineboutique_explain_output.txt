@@ -362,16 +362,16 @@ Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/ca
 Allowed connections:
 	Allowed TCP:[7070] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/checkoutservice-netpol // Egress rule #1
+			NetworkPolicy default/checkoutservice-netpol allows connection by Egress rule #1
 		Ingress (Allowed)
-			NetworkPolicy default/cartservice-netpol // Ingress rule #1
+			NetworkPolicy default/cartservice-netpol allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP:[1-7069,7071-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/checkoutservice-netpol // Egress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/checkoutservice-netpol selects default/checkoutservice-69c8ff664b[ReplicaSet], and Egress rule #1 selects default/cartservice-74f56fd4b[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/cartservice-netpol // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/cartservice-netpol selects default/cartservice-74f56fd4b[ReplicaSet], and Ingress rule #1 selects default/checkoutservice-69c8ff664b[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
@@ -379,16 +379,16 @@ Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/cu
 Allowed connections:
 	Allowed TCP:[7000] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/checkoutservice-netpol // Egress rule #2
+			NetworkPolicy default/checkoutservice-netpol allows connection by Egress rule #2
 		Ingress (Allowed)
-			NetworkPolicy default/currencyservice-netpol // Ingress rule #1
+			NetworkPolicy default/currencyservice-netpol allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP:[1-6999,7001-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/checkoutservice-netpol // Egress rule #2 (protocols/ports not referenced)
+			NetworkPolicy default/checkoutservice-netpol selects default/checkoutservice-69c8ff664b[ReplicaSet], and Egress rule #2 selects default/currencyservice-77654bbbdd[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/currencyservice-netpol // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/currencyservice-netpol selects default/currencyservice-77654bbbdd[ReplicaSet], and Ingress rule #1 selects default/checkoutservice-69c8ff664b[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
@@ -396,16 +396,16 @@ Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/em
 Allowed connections:
 	Allowed TCP:[8080] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/checkoutservice-netpol // Egress rule #3
+			NetworkPolicy default/checkoutservice-netpol allows connection by Egress rule #3
 		Ingress (Allowed)
-			NetworkPolicy default/emailservice-netpol // Ingress rule #1
+			NetworkPolicy default/emailservice-netpol allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/checkoutservice-netpol // Egress rule #3 (protocols/ports not referenced)
+			NetworkPolicy default/checkoutservice-netpol selects default/checkoutservice-69c8ff664b[ReplicaSet], and Egress rule #3 selects default/emailservice-54c7c5d9d[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/emailservice-netpol // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/emailservice-netpol selects default/emailservice-54c7c5d9d[ReplicaSet], and Ingress rule #1 selects default/checkoutservice-69c8ff664b[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet]:
@@ -433,16 +433,16 @@ Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/pa
 Allowed connections:
 	Allowed TCP:[50051] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/checkoutservice-netpol // Egress rule #4
+			NetworkPolicy default/checkoutservice-netpol allows connection by Egress rule #4
 		Ingress (Allowed)
-			NetworkPolicy default/paymentservice-netpol // Ingress rule #1
+			NetworkPolicy default/paymentservice-netpol allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/checkoutservice-netpol // Egress rule #4 (protocols/ports not referenced)
+			NetworkPolicy default/checkoutservice-netpol selects default/checkoutservice-69c8ff664b[ReplicaSet], and Egress rule #4 selects default/paymentservice-bbcbdc6b6[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/paymentservice-netpol // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/paymentservice-netpol selects default/paymentservice-bbcbdc6b6[ReplicaSet], and Ingress rule #1 selects default/checkoutservice-69c8ff664b[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet]:
@@ -450,16 +450,16 @@ Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/pr
 Allowed connections:
 	Allowed TCP:[3550] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/checkoutservice-netpol // Egress rule #5
+			NetworkPolicy default/checkoutservice-netpol allows connection by Egress rule #5
 		Ingress (Allowed)
-			NetworkPolicy default/productcatalogservice-netpol // Ingress rule #1
+			NetworkPolicy default/productcatalogservice-netpol allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/checkoutservice-netpol // Egress rule #5 (protocols/ports not referenced)
+			NetworkPolicy default/checkoutservice-netpol selects default/checkoutservice-69c8ff664b[ReplicaSet], and Egress rule #5 selects default/productcatalogservice-68765d49b6[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/productcatalogservice-netpol // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/productcatalogservice-netpol selects default/productcatalogservice-68765d49b6[ReplicaSet], and Ingress rule #1 selects default/checkoutservice-69c8ff664b[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
@@ -486,16 +486,16 @@ Connections between default/checkoutservice-69c8ff664b[ReplicaSet] => default/sh
 Allowed connections:
 	Allowed TCP:[50051] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/checkoutservice-netpol // Egress rule #6
+			NetworkPolicy default/checkoutservice-netpol allows connection by Egress rule #6
 		Ingress (Allowed)
-			NetworkPolicy default/shippingservice-netpol // Ingress rule #1
+			NetworkPolicy default/shippingservice-netpol allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/checkoutservice-netpol // Egress rule #6 (protocols/ports not referenced)
+			NetworkPolicy default/checkoutservice-netpol selects default/checkoutservice-69c8ff664b[ReplicaSet], and Egress rule #6 selects default/shippingservice-5bd985c46d[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/shippingservice-netpol // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/shippingservice-netpol selects default/shippingservice-5bd985c46d[ReplicaSet], and Ingress rule #1 selects default/checkoutservice-69c8ff664b[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/currencyservice-77654bbbdd[ReplicaSet] => 0.0.0.0-255.255.255.255:
@@ -748,16 +748,16 @@ Connections between default/frontend-99684f7f8[ReplicaSet] => default/adservice-
 Allowed connections:
 	Allowed TCP:[9555] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/frontend-netpol // Egress rule #1
+			NetworkPolicy default/frontend-netpol allows connection by Egress rule #1
 		Ingress (Allowed)
-			NetworkPolicy default/adservice-netpol // Ingress rule #1
+			NetworkPolicy default/adservice-netpol allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP:[1-9554,9556-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/frontend-netpol // Egress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/frontend-netpol selects default/frontend-99684f7f8[ReplicaSet], and Egress rule #1 selects default/adservice-77d5cd745d[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/adservice-netpol // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/adservice-netpol selects default/adservice-77d5cd745d[ReplicaSet], and Ingress rule #1 selects default/frontend-99684f7f8[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet]:
@@ -765,16 +765,16 @@ Connections between default/frontend-99684f7f8[ReplicaSet] => default/cartservic
 Allowed connections:
 	Allowed TCP:[7070] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/frontend-netpol // Egress rule #2
+			NetworkPolicy default/frontend-netpol allows connection by Egress rule #2
 		Ingress (Allowed)
-			NetworkPolicy default/cartservice-netpol // Ingress rule #2
+			NetworkPolicy default/cartservice-netpol allows connection by Ingress rule #2
 
 Denied connections:
 	Denied TCP:[1-7069,7071-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/frontend-netpol // Egress rule #2 (protocols/ports not referenced)
+			NetworkPolicy default/frontend-netpol selects default/frontend-99684f7f8[ReplicaSet], and Egress rule #2 selects default/cartservice-74f56fd4b[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/cartservice-netpol // Ingress rule #2 (protocols/ports not referenced)
+			NetworkPolicy default/cartservice-netpol selects default/cartservice-74f56fd4b[ReplicaSet], and Ingress rule #2 selects default/frontend-99684f7f8[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/checkoutservice-69c8ff664b[ReplicaSet]:
@@ -782,16 +782,16 @@ Connections between default/frontend-99684f7f8[ReplicaSet] => default/checkoutse
 Allowed connections:
 	Allowed TCP:[5050] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/frontend-netpol // Egress rule #3
+			NetworkPolicy default/frontend-netpol allows connection by Egress rule #3
 		Ingress (Allowed)
-			NetworkPolicy default/checkoutservice-netpol // Ingress rule #1
+			NetworkPolicy default/checkoutservice-netpol allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP:[1-5049,5051-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/frontend-netpol // Egress rule #3 (protocols/ports not referenced)
+			NetworkPolicy default/frontend-netpol selects default/frontend-99684f7f8[ReplicaSet], and Egress rule #3 selects default/checkoutservice-69c8ff664b[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/checkoutservice-netpol // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/checkoutservice-netpol selects default/checkoutservice-69c8ff664b[ReplicaSet], and Ingress rule #1 selects default/frontend-99684f7f8[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet]:
@@ -799,16 +799,16 @@ Connections between default/frontend-99684f7f8[ReplicaSet] => default/currencyse
 Allowed connections:
 	Allowed TCP:[7000] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/frontend-netpol // Egress rule #4
+			NetworkPolicy default/frontend-netpol allows connection by Egress rule #4
 		Ingress (Allowed)
-			NetworkPolicy default/currencyservice-netpol // Ingress rule #2
+			NetworkPolicy default/currencyservice-netpol allows connection by Ingress rule #2
 
 Denied connections:
 	Denied TCP:[1-6999,7001-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/frontend-netpol // Egress rule #4 (protocols/ports not referenced)
+			NetworkPolicy default/frontend-netpol selects default/frontend-99684f7f8[ReplicaSet], and Egress rule #4 selects default/currencyservice-77654bbbdd[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/currencyservice-netpol // Ingress rule #2 (protocols/ports not referenced)
+			NetworkPolicy default/currencyservice-netpol selects default/currencyservice-77654bbbdd[ReplicaSet], and Ingress rule #2 selects default/frontend-99684f7f8[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet]:
@@ -846,16 +846,16 @@ Connections between default/frontend-99684f7f8[ReplicaSet] => default/productcat
 Allowed connections:
 	Allowed TCP:[3550] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/frontend-netpol // Egress rule #5
+			NetworkPolicy default/frontend-netpol allows connection by Egress rule #5
 		Ingress (Allowed)
-			NetworkPolicy default/productcatalogservice-netpol // Ingress rule #2
+			NetworkPolicy default/productcatalogservice-netpol allows connection by Ingress rule #2
 
 Denied connections:
 	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/frontend-netpol // Egress rule #5 (protocols/ports not referenced)
+			NetworkPolicy default/frontend-netpol selects default/frontend-99684f7f8[ReplicaSet], and Egress rule #5 selects default/productcatalogservice-68765d49b6[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/productcatalogservice-netpol // Ingress rule #2 (protocols/ports not referenced)
+			NetworkPolicy default/productcatalogservice-netpol selects default/productcatalogservice-68765d49b6[ReplicaSet], and Ingress rule #2 selects default/frontend-99684f7f8[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/recommendationservice-5f8c456796[ReplicaSet]:
@@ -863,16 +863,16 @@ Connections between default/frontend-99684f7f8[ReplicaSet] => default/recommenda
 Allowed connections:
 	Allowed TCP:[8080] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/frontend-netpol // Egress rule #6
+			NetworkPolicy default/frontend-netpol allows connection by Egress rule #6
 		Ingress (Allowed)
-			NetworkPolicy default/recommendationservice-netpol // Ingress rule #1
+			NetworkPolicy default/recommendationservice-netpol allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/frontend-netpol // Egress rule #6 (protocols/ports not referenced)
+			NetworkPolicy default/frontend-netpol selects default/frontend-99684f7f8[ReplicaSet], and Egress rule #6 selects default/recommendationservice-5f8c456796[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/recommendationservice-netpol // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/recommendationservice-netpol selects default/recommendationservice-5f8c456796[ReplicaSet], and Ingress rule #1 selects default/frontend-99684f7f8[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/frontend-99684f7f8[ReplicaSet] => default/redis-cart-78746d49dc[ReplicaSet]:
@@ -889,16 +889,16 @@ Connections between default/frontend-99684f7f8[ReplicaSet] => default/shippingse
 Allowed connections:
 	Allowed TCP:[50051] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/frontend-netpol // Egress rule #7
+			NetworkPolicy default/frontend-netpol allows connection by Egress rule #7
 		Ingress (Allowed)
-			NetworkPolicy default/shippingservice-netpol // Ingress rule #2
+			NetworkPolicy default/shippingservice-netpol allows connection by Ingress rule #2
 
 Denied connections:
 	Denied TCP:[1-50050,50052-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/frontend-netpol // Egress rule #7 (protocols/ports not referenced)
+			NetworkPolicy default/frontend-netpol selects default/frontend-99684f7f8[ReplicaSet], and Egress rule #7 selects default/shippingservice-5bd985c46d[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/shippingservice-netpol // Ingress rule #2 (protocols/ports not referenced)
+			NetworkPolicy default/shippingservice-netpol selects default/shippingservice-5bd985c46d[ReplicaSet], and Ingress rule #2 selects default/frontend-99684f7f8[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => 0.0.0.0-255.255.255.255:
@@ -965,16 +965,16 @@ Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => default/fron
 Allowed connections:
 	Allowed TCP:[8080] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/loadgenerator-netpol // Egress rule #1
+			NetworkPolicy default/loadgenerator-netpol allows connection by Egress rule #1
 		Ingress (Allowed)
-			NetworkPolicy default/frontend-netpol // Ingress rule #1
+			NetworkPolicy default/frontend-netpol allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/loadgenerator-netpol // Egress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/loadgenerator-netpol selects default/loadgenerator-555fbdc87d[ReplicaSet], and Egress rule #1 selects default/frontend-99684f7f8[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/frontend-netpol // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/frontend-netpol selects default/frontend-99684f7f8[ReplicaSet], and Ingress rule #1 selects default/loadgenerator-555fbdc87d[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/loadgenerator-555fbdc87d[ReplicaSet] => default/paymentservice-bbcbdc6b6[ReplicaSet]:
@@ -1356,16 +1356,16 @@ Connections between default/recommendationservice-5f8c456796[ReplicaSet] => defa
 Allowed connections:
 	Allowed TCP:[3550] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy default/recommendationservice-netpol // Egress rule #1
+			NetworkPolicy default/recommendationservice-netpol allows connection by Egress rule #1
 		Ingress (Allowed)
-			NetworkPolicy default/productcatalogservice-netpol // Ingress rule #3
+			NetworkPolicy default/productcatalogservice-netpol allows connection by Ingress rule #3
 
 Denied connections:
 	Denied TCP:[1-3549,3551-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy default/recommendationservice-netpol // Egress rule #1 (protocols/ports not referenced)
+			NetworkPolicy default/recommendationservice-netpol selects default/recommendationservice-5f8c456796[ReplicaSet], and Egress rule #1 selects default/productcatalogservice-68765d49b6[ReplicaSet], but the protocols and ports do not match
 		Ingress (Denied)
-			NetworkPolicy default/productcatalogservice-netpol // Ingress rule #3 (protocols/ports not referenced)
+			NetworkPolicy default/productcatalogservice-netpol selects default/productcatalogservice-68765d49b6[ReplicaSet], and Ingress rule #3 selects default/recommendationservice-5f8c456796[ReplicaSet], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/recommendationservice-5f8c456796[ReplicaSet] => default/redis-cart-78746d49dc[ReplicaSet]:

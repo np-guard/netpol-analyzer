@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package ingressanalyzer
 
 import (
-	"fmt"
 	"strconv"
 
 	ocroutev1 "github.com/openshift/api/route/v1"
@@ -349,9 +348,8 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns, ingObjStr s
 		if !ok {
 			ia.logWarning("Ignoring target service " + svc.serviceName + " : service not found")
 		}
-		ruleName := fmt.Sprintf("[%s] %s // service %s", ingType, ingObjStr, svc.serviceName)
 		for _, peer := range peersAndPorts.peers {
-			currIngressPeerConn, err := ia.getIngressPeerConnection(peer, peersAndPorts.ports, svc.servicePort, ingType, ruleName)
+			currIngressPeerConn, err := ia.getIngressPeerConnection(peer, peersAndPorts.ports, svc.servicePort, ingType, ingObjStr, svc.serviceName)
 			if err != nil {
 				return nil, err
 			}
@@ -367,14 +365,17 @@ func (ia *IngressAnalyzer) getIngressObjectTargetedPeersAndPorts(ns, ingObjStr s
 
 // getIngressPeerConnection returns the ingress connection to a peer based on the required port specified in the ingress objects
 func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServicePorts []corev1.ServicePort,
-	requiredPort intstr.IntOrString, ruleKind, ruleName string) (*common.ConnectionSet, error) {
+	requiredPort intstr.IntOrString, ingType, ingObjStr, svcName string) (*common.ConnectionSet, error) {
 	peerTCPConn := eval.GetPeerExposedTCPConnections(peer)
 	// get the peer port/s which may be accessed by the service required port
 	// (if the required port is not specified, all service ports are allowed)
 	peerPortsToFind := getPeerAccessPort(actualServicePorts, requiredPort)
 	// compute the connection to the peer with the required port/s
 	// all protocols are affected by Ingress (though only TCP may be specified; the rest are not allowed by Ingress)
-	res := common.MakeConnectionSetWithRule(false, ruleKind, common.ExplNotReferencedProtocolsOrPorts(ruleName), true)
+	explPrefix := ingType + " " + ingObjStr
+	noMatchPortExpl := explPrefix + " allows ingress to service " + svcName + ", " + common.ExplNotReferencedProtocolsOrPorts
+	allowedExpl := explPrefix + " allows ingress connection through service " + svcName
+	res := common.MakeConnectionSetWithRule(false, ingType, noMatchPortExpl, true)
 	for _, peerPortToFind := range peerPortsToFind {
 		portNum := peerPortToFind.IntValue()
 		if peerPortToFind.StrVal != "" { // if the port we are searching for is namedPort
@@ -392,8 +393,8 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 		if peerTCPConn.Contains(strconv.Itoa(portNum), string(corev1.ProtocolTCP)) {
 			// the whole port range is affected by Ingress (not only ports mentioned by Ingress/Route resource)
 			permittedPort := common.MakeEmptyPortSetWithImplyingRules(
-				common.MakeImplyingRulesWithRule(ruleKind, common.ExplNotReferencedProtocolsOrPorts(ruleName), true))
-			permittedPort.AddPort(intstr.FromInt(portNum), common.MakeImplyingRulesWithRule(ruleKind, ruleName, true))
+				common.MakeImplyingRulesWithRule(ingType, noMatchPortExpl, true))
+			permittedPort.AddPort(intstr.FromInt(portNum), common.MakeImplyingRulesWithRule(ingType, allowedExpl, true))
 			res.AddConnection(corev1.ProtocolTCP, permittedPort)
 		}
 	}

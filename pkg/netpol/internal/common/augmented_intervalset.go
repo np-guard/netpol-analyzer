@@ -49,17 +49,26 @@ type ImplyingRulesType struct {
 	Egress  ImplyingXgressRulesType
 }
 
+// consts used to group rules by layer kind
+const (
+	NPRuleKind      = "NetworkPolicy"
+	ANPRuleKind     = "AdminNetworkPolicy"
+	BANPRuleKind    = "BaselineAdminNetworkPolicy"
+	IngressRuleKind = "Ingress"
+	RouteRuleKind   = "Route"
+)
+
 func ruleKindToLayer(kind string) LayerType {
 	switch kind {
-	case "ANP":
+	case ANPRuleKind:
 		return ANPLayer
-	case "NP":
+	case NPRuleKind:
 		return NPLayer
-	case "Ingress":
+	case IngressRuleKind:
 		return NPLayer
-	case "Route":
+	case RouteRuleKind:
 		return NPLayer
-	case "BANP":
+	case BANPRuleKind:
 		return BANPLayer
 	case "":
 		return DefaultLayer
@@ -126,13 +135,15 @@ const (
 	ExplAllowAll          = " (Allow all)"
 	SystemDefaultString   = "the system default"
 	SystemDefaultRule     = SystemDefaultString + ExplAllowAll
-	IPDefaultString       = SystemDefaultString // currently the same as system default; change for different explanation for IP default
-	IPDefaultRule         = IPDefaultString + ExplAllowAll
-	ExplSystemDefault     = ExplString + SystemDefaultRule
-	PodToItselfRule       = "pod to itself " + ExplAllowAll
-	allowResultStr        = "Allowed"
-	denyResultStr         = "Denied"
-	connectionsStr        = " connections"
+	IPDefaultString       = SystemDefaultString // currently the same as system default;
+	// change for different explanation for IP default
+	IPDefaultRule                     = IPDefaultString + ExplAllowAll
+	ExplSystemDefault                 = ExplString + SystemDefaultRule
+	PodToItselfRule                   = "pod to itself " + ExplAllowAll
+	allowResultStr                    = "Allowed"
+	denyResultStr                     = "Denied"
+	connectionsStr                    = " connections"
+	ExplNotReferencedProtocolsOrPorts = "but the protocols and ports do not match"
 )
 
 func (rules *ImplyingXgressRulesType) onlyDefaultRule() bool {

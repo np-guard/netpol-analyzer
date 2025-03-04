@@ -27,20 +27,20 @@ Allowed connections:
 	Allowed TCP:[80] due to the following policies and rules:
 		Egress (Allowed)
 			[ANP] exposure-pass-with-entire-cluster-example // Egress rule pass-tcp80-egress-to-entire-cluster (Pass)
-			NetworkPolicy hello-world/allow-app-a // Egress rule #1
+			NetworkPolicy hello-world/allow-app-a allows connection by Egress rule #1
 		Ingress (Allowed)
 			[ANP] exposure-pass-with-entire-cluster-example // Ingress rule pass-tcp80-ingress-from-entire-cluster (Pass)
 			the system default (Allow all)
 
 	Allowed TCP:[9090] due to the following policies and rules:
 		Egress (Allowed)
-			NetworkPolicy hello-world/allow-app-a // Egress rule #1
+			NetworkPolicy hello-world/allow-app-a allows connection by Egress rule #1
 		Ingress (Allowed) due to the system default (Allow all)
 
 Denied connections:
 	Denied TCP:[1-79,81-9089,9091-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy hello-world/allow-app-a // Egress rule #1 (protocols/ports not referenced)
+			NetworkPolicy hello-world/allow-app-a selects hello-world/workload-a[Deployment], and Egress rule #1 selects hello-world/workload-b[Deployment], but the protocols and ports do not match
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -50,13 +50,13 @@ Allowed connections:
 	Allowed TCP:[9090] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy hello-world/allow-app-a // Ingress rule #1
+			NetworkPolicy hello-world/allow-app-a allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP:[1-79,81-9089,9091-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy hello-world/allow-app-a // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy hello-world/allow-app-a selects hello-world/workload-a[Deployment], and Ingress rule #1 selects hello-world/workload-b[Deployment], but the protocols and ports do not match
 
 	Denied TCP:[80] due to the following policies and rules:
 		Egress (Allowed)
@@ -64,7 +64,7 @@ Denied connections:
 			the system default (Allow all)
 		Ingress (Denied)
 			[ANP] exposure-pass-with-entire-cluster-example // Ingress rule pass-tcp80-ingress-from-entire-cluster (Pass)
-			NetworkPolicy hello-world/allow-app-a // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy hello-world/allow-app-a selects hello-world/workload-a[Deployment], and Ingress rule #1 selects hello-world/workload-b[Deployment], but the protocols and ports do not match
 
 
 #########################################################

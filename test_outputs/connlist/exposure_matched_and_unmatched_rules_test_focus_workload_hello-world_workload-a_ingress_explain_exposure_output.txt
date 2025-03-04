@@ -18,7 +18,7 @@ Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy hello-world/combined-ingress-rules // Ingress rule #1
+			NetworkPolicy hello-world/combined-ingress-rules allows connection by Ingress rule #1
 
 
 Exposure Analysis Result:

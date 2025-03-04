@@ -9,13 +9,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/calico-node-tier[DaemonSet], and Ingress rule #1 selects 0.0.0.0-9.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-9.255.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
@@ -24,13 +24,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet], and Ingress rule #1 selects 0.0.0.0-9.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-9.255.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
@@ -39,13 +39,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-keepalived-watcher[DaemonSet], and Ingress rule #1 selects 0.0.0.0-9.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-9.255.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
@@ -54,13 +54,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-kube-fluentd-with-tier[DaemonSet], and Ingress rule #1 selects 0.0.0.0-9.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-9.255.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
@@ -69,13 +69,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet], and Ingress rule #1 selects 0.0.0.0-9.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-9.255.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
@@ -84,13 +84,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/tiller-deploy-5c45c9966b[ReplicaSet], and Ingress rule #1 selects 0.0.0.0-9.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-9.255.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
@@ -99,13 +99,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/vpn-858f6d9777[ReplicaSet], and Ingress rule #1 selects 0.0.0.0-9.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 10.0.0.0-10.255.255.255 => kube-system/calico-node-tier[DaemonSet]:
@@ -177,13 +177,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/calico-node-tier[DaemonSet], and Ingress rule #1 selects 11.0.0.0-172.20.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 11.0.0.0-172.20.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
@@ -192,13 +192,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet], and Ingress rule #1 selects 11.0.0.0-172.20.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 11.0.0.0-172.20.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
@@ -207,13 +207,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-keepalived-watcher[DaemonSet], and Ingress rule #1 selects 11.0.0.0-172.20.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 11.0.0.0-172.20.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
@@ -222,13 +222,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-kube-fluentd-with-tier[DaemonSet], and Ingress rule #1 selects 11.0.0.0-172.20.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 11.0.0.0-172.20.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
@@ -237,13 +237,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet], and Ingress rule #1 selects 11.0.0.0-172.20.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 11.0.0.0-172.20.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
@@ -252,13 +252,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/tiller-deploy-5c45c9966b[ReplicaSet], and Ingress rule #1 selects 11.0.0.0-172.20.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 11.0.0.0-172.20.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
@@ -267,13 +267,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/vpn-858f6d9777[ReplicaSet], and Ingress rule #1 selects 11.0.0.0-172.20.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.21.0.0-172.21.255.255 => kube-system/calico-node-tier[DaemonSet]:
@@ -345,13 +345,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/calico-node-tier[DaemonSet], and Ingress rule #1 selects 172.22.0.0-172.29.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.22.0.0-172.29.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
@@ -360,13 +360,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet], and Ingress rule #1 selects 172.22.0.0-172.29.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.22.0.0-172.29.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
@@ -375,13 +375,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-keepalived-watcher[DaemonSet], and Ingress rule #1 selects 172.22.0.0-172.29.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.22.0.0-172.29.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
@@ -390,13 +390,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-kube-fluentd-with-tier[DaemonSet], and Ingress rule #1 selects 172.22.0.0-172.29.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.22.0.0-172.29.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
@@ -405,13 +405,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet], and Ingress rule #1 selects 172.22.0.0-172.29.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.22.0.0-172.29.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
@@ -420,13 +420,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/tiller-deploy-5c45c9966b[ReplicaSet], and Ingress rule #1 selects 172.22.0.0-172.29.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.22.0.0-172.29.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
@@ -435,13 +435,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/vpn-858f6d9777[ReplicaSet], and Ingress rule #1 selects 172.22.0.0-172.29.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.30.0.0-172.30.255.255 => kube-system/calico-node-tier[DaemonSet]:
@@ -513,13 +513,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/calico-node-tier[DaemonSet], and Ingress rule #1 selects 172.31.0.0-255.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.31.0.0-255.255.255.255 => kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet]:
@@ -528,13 +528,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-file-plugin-7bfb8b69bf[ReplicaSet], and Ingress rule #1 selects 172.31.0.0-255.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.31.0.0-255.255.255.255 => kube-system/ibm-keepalived-watcher[DaemonSet]:
@@ -543,13 +543,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-keepalived-watcher[DaemonSet], and Ingress rule #1 selects 172.31.0.0-255.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.31.0.0-255.255.255.255 => kube-system/ibm-kube-fluentd-with-tier[DaemonSet]:
@@ -558,13 +558,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-kube-fluentd-with-tier[DaemonSet], and Ingress rule #1 selects 172.31.0.0-255.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.31.0.0-255.255.255.255 => kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet]:
@@ -573,13 +573,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/ibm-storage-watcher-8494b4b8bb[ReplicaSet], and Ingress rule #1 selects 172.31.0.0-255.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.31.0.0-255.255.255.255 => kube-system/tiller-deploy-5c45c9966b[ReplicaSet]:
@@ -588,13 +588,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/tiller-deploy-5c45c9966b[ReplicaSet], and Ingress rule #1 selects 172.31.0.0-255.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 172.31.0.0-255.255.255.255 => kube-system/vpn-858f6d9777[ReplicaSet]:
@@ -603,13 +603,13 @@ Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier allows connection by Ingress rule #1
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier // Ingress rule #1 (protocols/ports not referenced)
+			NetworkPolicy kube-system/enable-from-ipblock-to-isolated-by-tier selects kube-system/vpn-858f6d9777[ReplicaSet], and Ingress rule #1 selects 172.31.0.0-255.255.255.255, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between default/cognetive-agents-agent[DaemonSet] => kube-system/calico-node-tier[DaemonSet]:
