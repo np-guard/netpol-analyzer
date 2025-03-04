@@ -12,7 +12,7 @@ Denied connections:
 	Denied TCP:[80] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			[BANP] default // Ingress rule deny-tcp-80-from-all-namespaces (Deny)
+			BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-tcp-80-from-all-namespaces
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
@@ -24,7 +24,7 @@ Denied connections:
 	Denied TCP:[80] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			[BANP] default // Ingress rule deny-tcp-80-from-all-namespaces (Deny)
+			BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-tcp-80-from-all-namespaces
 
 
 #########################################################

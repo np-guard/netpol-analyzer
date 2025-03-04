@@ -8,13 +8,13 @@ Connections between network-policy-conformance-hufflepuff/cedric-diggory[Statefu
 Allowed connections:
 	Allowed UDP:[53] due to the following policies and rules:
 		Egress (Allowed)
-			[ANP] egress-udp // Egress rule allow-to-gryffindor-at-port-53 (Allow)
+			AdminNetworkPolicy egress-udp allows connections by Egress rule allow-to-gryffindor-at-port-53
 		Ingress (Allowed) due to the system default (Allow all)
 
 Denied connections:
 	Denied TCP, UDP:[1-52,54-65535], SCTP due to the following policies and rules:
 		Egress (Denied)
-			[ANP] egress-udp // Egress rule deny-to-gryffindor-everything-else (Deny)
+			AdminNetworkPolicy egress-udp denies connections by Egress rule deny-to-gryffindor-everything-else
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ Connections between network-policy-conformance-hufflepuff/cedric-diggory[Statefu
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed)
-			[ANP] egress-udp // Egress rule allow-to-ravenclaw-everything (Allow)
+			AdminNetworkPolicy egress-udp allows connections by Egress rule allow-to-ravenclaw-everything
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ Allowed connections:
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
-			[ANP] egress-udp // Egress rule deny-to-slytherin-at-port-5353 (Deny)
+			AdminNetworkPolicy egress-udp denies connections by Egress rule deny-to-slytherin-at-port-5353
 		Ingress (Allowed) due to the system default (Allow all)
 
 

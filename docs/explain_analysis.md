@@ -199,76 +199,76 @@ Running  as `k8snetpolicy list --dirpath tests/anp_banp_blog_demo/ --explain`
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-255.255.255.255 => foo/myfoo[Pod]:
 
-Denied list:
+Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        [NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
+                        NetworkPolicy foo/allow-monitoring selects foo/myfoo[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between bar/mybar[Pod] => foo/myfoo[Pod]:
 
-Denied list:
+Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        [NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
+                        NetworkPolicy foo/allow-monitoring selects foo/myfoo[Pod], but bar/mybar[Pod] is not selected by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between baz/mybaz[Pod] => bar/mybar[Pod]:
 
-Denied list:
+Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        [BANP] default // Ingress rule deny-ingress-from-all-namespaces (Deny)
+                        BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between baz/mybaz[Pod] => foo/myfoo[Pod]:
 
-Denied list:
+Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        [NP] foo/allow-monitoring // Ingress (captured but not selected by any Ingress rule)
+                        NetworkPolicy foo/allow-monitoring selects foo/myfoo[Pod], but baz/mybaz[Pod] is not selected by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between foo/myfoo[Pod] => bar/mybar[Pod]:
 
-Denied list:
+Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        [BANP] default // Ingress rule deny-ingress-from-all-namespaces (Deny)
+                        BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => bar/mybar[Pod]:
 
-Denied list:
+Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        [ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring (Pass)
-                        [BANP] default // Ingress rule deny-ingress-from-all-namespaces (Deny)
+                        AdminNetworkPolicy pass-monitoring passes connections by Ingress rule pass-ingress-from-monitoring
+                        BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => baz/mybaz[Pod]:
 
-Allowed list:
+Allowed connections:
         Allowed TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Allowed)
-                        [ANP] allow-monitoring // Ingress rule allow-ingress-from-monitoring (Allow)
+                        AdminNetworkPolicy allow-monitoring allows connections by Ingress rule allow-ingress-from-monitoring
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
 
-Allowed list:
+Allowed connections:
         Allowed TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Allowed)
-                        [ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring (Pass)
-                        [NP] foo/allow-monitoring // Ingress rule #1
+                        AdminNetworkPolicy pass-monitoring passes connections by Ingress rule pass-ingress-from-monitoring
+                        NetworkPolicy foo/allow-monitoring allows connection by Ingress rule #1
 
 
 #########################################################
