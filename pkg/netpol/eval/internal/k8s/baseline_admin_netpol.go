@@ -85,8 +85,8 @@ func (banp *BaselineAdminNetworkPolicy) savePolicyWarnings(ruleName string) {
 	}
 }
 
-func (banp *BaselineAdminNetworkPolicy) fullName() string {
-	return "[BANP] " + banp.Name
+func (banp *BaselineAdminNetworkPolicy) fullName() string { // used for explanation goals
+	return common.BANPRuleKind + " " + banp.Name
 }
 
 // GetEgressPolicyConns returns the connections from the egress rules selecting the dst in spec of the baselineAdminNetworkPolicy
@@ -97,7 +97,7 @@ func (banp *BaselineAdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyC
 		rulePorts := rule.Ports
 		ruleWarnings = []string{} // clear ruleWarnings (for each rule) to be update while looping rule peers in next call
 		err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts,
-			ruleFullName(banp.fullName(), rule.Name, string(rule.Action), false),
+			ruleExplanationStr(banp.fullName(), rule.Name, string(rule.Action), false),
 			dst, res, string(rule.Action), true)
 		banp.savePolicyWarnings(rule.Name)
 		if err != nil {
@@ -115,7 +115,7 @@ func (banp *BaselineAdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*P
 		rulePorts := rule.Ports
 		ruleWarnings = []string{} // clear ruleWarnings (for each rule) to be update while looping rule peers in next call
 		err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts,
-			ruleFullName(banp.fullName(), rule.Name, string(rule.Action), true),
+			ruleExplanationStr(banp.fullName(), rule.Name, string(rule.Action), true),
 			src, dst, res, string(rule.Action), true)
 		banp.savePolicyWarnings(rule.Name)
 		if err != nil {

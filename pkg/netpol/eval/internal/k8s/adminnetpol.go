@@ -102,7 +102,7 @@ func (anp *AdminNetworkPolicy) GetIngressPolicyConns(src, dst Peer) (*PolicyConn
 		ruleWarnings = []string{} // clear the ruleWarnings (for each rule)
 		// following func also updates the warnings var
 		err := updateConnsIfIngressRuleSelectsPeer(rulePeers, rulePorts,
-			ruleFullName(anp.fullName(), rule.Name, string(rule.Action), true),
+			ruleExplanationStr(anp.fullName(), rule.Name, string(rule.Action), true),
 			src, dst, res, string(rule.Action), false)
 		anp.savePolicyWarnings(rule.Name)
 		if err != nil {
@@ -120,7 +120,7 @@ func (anp *AdminNetworkPolicy) GetEgressPolicyConns(dst Peer) (*PolicyConnection
 		rulePorts := rule.Ports
 		ruleWarnings = []string{} // clear ruleWarnings (for each rule), so it is updated by following call
 		err := updateConnsIfEgressRuleSelectsPeer(rulePeers, rulePorts,
-			ruleFullName(anp.fullName(), rule.Name, string(rule.Action), false),
+			ruleExplanationStr(anp.fullName(), rule.Name, string(rule.Action), false),
 			dst, res, string(rule.Action), false)
 		anp.savePolicyWarnings(rule.Name)
 		if err != nil {
@@ -663,16 +663,23 @@ func isIPv6Cidr(cidr apisv1a.CIDR) (bool, error) {
 	return ipNet.IP.To4() == nil, nil
 }
 
-func (anp *AdminNetworkPolicy) fullName() string {
-	return "[ANP] " + anp.Name
+func (anp *AdminNetworkPolicy) fullName() string { // used for explanation goals
+	return common.ANPRuleKind + " " + anp.Name
 }
 
-func ruleFullName(policyName, ruleName, action string, isIngress bool) string {
-	xgress := egressName
-	if isIngress {
-		xgress = ingressName
+func actionOp(action string) string { // used for explanation goals
+	switch action {
+	case string(apisv1a.AdminNetworkPolicyRuleActionAllow):
+		return "allows"
+	case string(apisv1a.BaselineAdminNetworkPolicyRuleActionDeny):
+		return "denies"
+	default:
+		return "passes"
 	}
-	return fmt.Sprintf("%s // %s rule %s (%s)", policyName, xgress, ruleName, action)
+}
+
+func ruleExplanationStr(policyName, ruleName, action string, isIngress bool) string {
+	return fmt.Sprintf("%s %s connections by %s rule %s", policyName, actionOp(action), directionName(isIngress), ruleName)
 }
 
 // rulePeersReferencedNetworks returns a list of IPBlocks representing the CIDRs referenced by the given rulePeers' Networks field.

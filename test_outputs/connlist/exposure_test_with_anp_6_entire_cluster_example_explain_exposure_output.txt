@@ -26,10 +26,10 @@ Connections between hello-world/workload-a[Deployment] => hello-world/workload-b
 Allowed connections:
 	Allowed TCP:[80] due to the following policies and rules:
 		Egress (Allowed)
-			[ANP] exposure-pass-with-entire-cluster-example // Egress rule pass-tcp80-egress-to-entire-cluster (Pass)
+			AdminNetworkPolicy exposure-pass-with-entire-cluster-example passes connections by Egress rule pass-tcp80-egress-to-entire-cluster
 			NetworkPolicy hello-world/allow-app-a allows connection by Egress rule #1
 		Ingress (Allowed)
-			[ANP] exposure-pass-with-entire-cluster-example // Ingress rule pass-tcp80-ingress-from-entire-cluster (Pass)
+			AdminNetworkPolicy exposure-pass-with-entire-cluster-example passes connections by Ingress rule pass-tcp80-ingress-from-entire-cluster
 			the system default (Allow all)
 
 	Allowed TCP:[9090] due to the following policies and rules:
@@ -60,10 +60,10 @@ Denied connections:
 
 	Denied TCP:[80] due to the following policies and rules:
 		Egress (Allowed)
-			[ANP] exposure-pass-with-entire-cluster-example // Egress rule pass-tcp80-egress-to-entire-cluster (Pass)
+			AdminNetworkPolicy exposure-pass-with-entire-cluster-example passes connections by Egress rule pass-tcp80-egress-to-entire-cluster
 			the system default (Allow all)
 		Ingress (Denied)
-			[ANP] exposure-pass-with-entire-cluster-example // Ingress rule pass-tcp80-ingress-from-entire-cluster (Pass)
+			AdminNetworkPolicy exposure-pass-with-entire-cluster-example passes connections by Ingress rule pass-tcp80-ingress-from-entire-cluster
 			NetworkPolicy hello-world/allow-app-a selects hello-world/workload-a[Deployment], and Ingress rule #1 selects hello-world/workload-b[Deployment], but the protocols and ports do not match
 
 
