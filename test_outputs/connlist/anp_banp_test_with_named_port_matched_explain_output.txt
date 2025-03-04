@@ -8,8 +8,8 @@ Connections between network-policy-conformance-gryffindor/harry-potter[StatefulS
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			[ANP] pass-example // Egress rule pass-all-egress-to-slytherin (Pass)
-			[BANP] default // Egress rule deny-all-egress-to-slytherin (Deny)
+			AdminNetworkPolicy pass-example passes connections by Egress rule pass-all-egress-to-slytherin
+			BaselineAdminNetworkPolicy default denies connections by Egress rule deny-all-egress-to-slytherin
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -19,14 +19,14 @@ Allowed connections:
 	Allowed TCP:[80] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			[ANP] pass-example // Ingress rule allow-ingress-from-slytherin-on-named-port (Allow)
+			AdminNetworkPolicy pass-example allows connections by Ingress rule allow-ingress-from-slytherin-on-named-port
 
 Denied connections:
 	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			[ANP] pass-example // Ingress rule pass-all-ingress-from-slytherin (Pass)
-			[BANP] default // Ingress rule deny-all-ingress-from-slytherin (Deny)
+			AdminNetworkPolicy pass-example passes connections by Ingress rule pass-all-ingress-from-slytherin
+			BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-all-ingress-from-slytherin
 
 
 #########################################################

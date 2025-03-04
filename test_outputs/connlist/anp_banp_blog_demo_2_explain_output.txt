@@ -30,7 +30,7 @@ Denied connections:
 	Denied TCP:[1-9000] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			[BANP] default // Ingress rule deny-ingress-from-all-namespaces-on-TCP1-9000 (Deny)
+			BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces-on-TCP1-9000
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between baz/mybaz[Pod] => foo/myfoo[Pod]:
@@ -51,7 +51,7 @@ Denied connections:
 	Denied TCP:[1-9000] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			[BANP] default // Ingress rule deny-ingress-from-all-namespaces-on-TCP1-9000 (Deny)
+			BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces-on-TCP1-9000
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => bar/mybar[Pod]:
@@ -60,7 +60,7 @@ Allowed connections:
 	Allowed TCP:[1234] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			[ANP] allow-monitoring // Ingress rule allow-ingress-from-monitoring-on-TCP1234 (Allow)
+			AdminNetworkPolicy allow-monitoring allows connections by Ingress rule allow-ingress-from-monitoring-on-TCP1234
 
 	Allowed TCP:[9001-65535], UDP, SCTP due to the system default (Allow all)
 
@@ -68,13 +68,13 @@ Denied connections:
 	Denied TCP:[1-1233,1235-8079,8081-9000] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			[BANP] default // Ingress rule deny-ingress-from-all-namespaces-on-TCP1-9000 (Deny)
+			BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces-on-TCP1-9000
 
 	Denied TCP:[8080] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			[ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring-on-TCP8080 (Pass)
-			[BANP] default // Ingress rule deny-ingress-from-all-namespaces-on-TCP1-9000 (Deny)
+			AdminNetworkPolicy pass-monitoring passes connections by Ingress rule pass-ingress-from-monitoring-on-TCP8080
+			BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces-on-TCP1-9000
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => baz/mybaz[Pod]:
@@ -85,7 +85,7 @@ Allowed connections:
 	Allowed TCP:[1234] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			[ANP] allow-monitoring // Ingress rule allow-ingress-from-monitoring-on-TCP1234 (Allow)
+			AdminNetworkPolicy allow-monitoring allows connections by Ingress rule allow-ingress-from-monitoring-on-TCP1234
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
@@ -99,12 +99,12 @@ Allowed connections:
 	Allowed TCP:[1234] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			[ANP] allow-monitoring // Ingress rule allow-ingress-from-monitoring-on-TCP1234 (Allow)
+			AdminNetworkPolicy allow-monitoring allows connections by Ingress rule allow-ingress-from-monitoring-on-TCP1234
 
 	Allowed TCP:[8080] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			[ANP] pass-monitoring // Ingress rule pass-ingress-from-monitoring-on-TCP8080 (Pass)
+			AdminNetworkPolicy pass-monitoring passes connections by Ingress rule pass-ingress-from-monitoring-on-TCP8080
 			NetworkPolicy foo/allow-monitoring allows connection by Ingress rule #1
 
 
