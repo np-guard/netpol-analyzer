@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package ingressanalyzer
 
 import (
+	"fmt"
 	"strconv"
 
 	ocroutev1 "github.com/openshift/api/route/v1"
@@ -372,9 +373,9 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 	peerPortsToFind := getPeerAccessPort(actualServicePorts, requiredPort)
 	// compute the connection to the peer with the required port/s
 	// all protocols are affected by Ingress (though only TCP may be specified; the rest are not allowed by Ingress)
-	explPrefix := ingType + " " + ingObjStr
+	explPrefix := fmt.Sprintf("%s '%s'", ingType, ingObjStr)
 	noMatchPortExpl := explPrefix + " allows ingress to service " + svcName + ", " + common.ExplNotReferencedProtocolsOrPorts
-	allowedExpl := explPrefix + " allows ingress connection through service " + svcName
+	allowedExpl := explPrefix + " allows ingress connections through service " + svcName
 	res := common.MakeConnectionSetWithRule(false, ingType, noMatchPortExpl, true)
 	for _, peerPortToFind := range peerPortsToFind {
 		portNum := peerPortToFind.IntValue()

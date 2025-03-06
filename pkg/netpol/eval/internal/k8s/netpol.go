@@ -418,7 +418,7 @@ func (np *NetworkPolicy) capturedPeersButUnmatchedNamedPortExpl(ruleName, policy
 }
 
 func (np *NetworkPolicy) allowedByRuleExpl(ruleName string) string {
-	return fmt.Sprintf("%s allows connection by %s", np.FullName(), ruleName)
+	return fmt.Sprintf("%s allows connections by %s", np.FullName(), ruleName)
 }
 
 // GetXgressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer (for Ingress)
@@ -575,7 +575,7 @@ func (np *NetworkPolicy) Selects(p *Pod, direction netv1.PolicyType) (bool, erro
 }
 
 func (np *NetworkPolicy) FullName() string {
-	return "NetworkPolicy " + types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String()
+	return fmt.Sprintf("NetworkPolicy '%s'", types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String())
 }
 
 func (np *NetworkPolicy) ruleName(ruleIdx int, isIngress bool) string {

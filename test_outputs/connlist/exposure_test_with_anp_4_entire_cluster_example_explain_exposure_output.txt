@@ -9,7 +9,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy hello-world/deny-all-app-a selects hello-world/workload-a[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
+			NetworkPolicy 'hello-world/deny-all-app-a' selects hello-world/workload-a[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255:
@@ -17,7 +17,7 @@ Connections between hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.25
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy hello-world/deny-all-app-a selects hello-world/workload-a[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
+			NetworkPolicy 'hello-world/deny-all-app-a' selects hello-world/workload-a[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -26,9 +26,9 @@ Connections between hello-world/workload-a[Deployment] => hello-world/workload-b
 Allowed connections:
 	Allowed TCP:[80] due to the following policies and rules:
 		Egress (Allowed)
-			AdminNetworkPolicy exposure-allow-with-entire-cluster-example allows connections by Egress rule allow-tcp80-egress-to-entire-cluster
+			AdminNetworkPolicy 'exposure-allow-with-entire-cluster-example' allows connections by Egress rule allow-tcp80-egress-to-entire-cluster
 		Ingress (Allowed)
-			AdminNetworkPolicy exposure-allow-with-entire-cluster-example allows connections by Ingress rule allow-tcp80-ingress-from-entire-cluster
+			AdminNetworkPolicy 'exposure-allow-with-entire-cluster-example' allows connections by Ingress rule allow-tcp80-ingress-from-entire-cluster
 
 Denied connections:
 	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
@@ -40,9 +40,9 @@ Connections between hello-world/workload-b[Deployment] => hello-world/workload-a
 Allowed connections:
 	Allowed TCP:[80] due to the following policies and rules:
 		Egress (Allowed)
-			AdminNetworkPolicy exposure-allow-with-entire-cluster-example allows connections by Egress rule allow-tcp80-egress-to-entire-cluster
+			AdminNetworkPolicy 'exposure-allow-with-entire-cluster-example' allows connections by Egress rule allow-tcp80-egress-to-entire-cluster
 		Ingress (Allowed)
-			AdminNetworkPolicy exposure-allow-with-entire-cluster-example allows connections by Ingress rule allow-tcp80-ingress-from-entire-cluster
+			AdminNetworkPolicy 'exposure-allow-with-entire-cluster-example' allows connections by Ingress rule allow-tcp80-ingress-from-entire-cluster
 
 Denied connections:
 	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:

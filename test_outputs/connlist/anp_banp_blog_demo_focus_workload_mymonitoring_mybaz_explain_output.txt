@@ -18,7 +18,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy foo/allow-monitoring selects foo/myfoo[Pod], but baz/mybaz[Pod] is not selected by any Ingress rule
+			NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but baz/mybaz[Pod] is not selected by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => bar/mybar[Pod]:
@@ -27,7 +27,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			AdminNetworkPolicy pass-monitoring passes connections by Ingress rule pass-ingress-from-monitoring
+			AdminNetworkPolicy 'pass-monitoring' passes connections by Ingress rule pass-ingress-from-monitoring
 			BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			AdminNetworkPolicy allow-monitoring allows connections by Ingress rule allow-ingress-from-monitoring
+			AdminNetworkPolicy 'allow-monitoring' allows connections by Ingress rule allow-ingress-from-monitoring
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
@@ -46,8 +46,8 @@ Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			AdminNetworkPolicy pass-monitoring passes connections by Ingress rule pass-ingress-from-monitoring
-			NetworkPolicy foo/allow-monitoring allows connection by Ingress rule #1
+			AdminNetworkPolicy 'pass-monitoring' passes connections by Ingress rule pass-ingress-from-monitoring
+			NetworkPolicy 'foo/allow-monitoring' allows connections by Ingress rule #1
 
 
 #########################################################

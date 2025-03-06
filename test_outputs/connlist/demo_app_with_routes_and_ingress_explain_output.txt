@@ -9,15 +9,15 @@ Allowed connections:
 	Allowed TCP:[8000] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			Ingress helloworld/hello-world allows ingress connection through service hello-world
-			Route helloworld/hello-world allows ingress connection through service hello-world
+			Ingress 'helloworld/hello-world' allows ingress connections through service hello-world
+			Route 'helloworld/hello-world' allows ingress connections through service hello-world
 
 Denied connections:
 	Denied TCP:[1-7999,8001-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			Ingress helloworld/hello-world allows ingress to service hello-world, but the protocols and ports do not match
-			Route helloworld/hello-world allows ingress to service hello-world, but the protocols and ports do not match
+			Ingress 'helloworld/hello-world' allows ingress to service hello-world, but the protocols and ports do not match
+			Route 'helloworld/hello-world' allows ingress to service hello-world, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between {ingress-controller} => ingressworld/ingress-world[Deployment]:
@@ -26,13 +26,13 @@ Allowed connections:
 	Allowed TCP:[8090] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			Ingress ingressworld/ingress-world allows ingress connection through service ingress-world
+			Ingress 'ingressworld/ingress-world' allows ingress connections through service ingress-world
 
 Denied connections:
 	Denied TCP:[1-8089,8091-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			Ingress ingressworld/ingress-world allows ingress to service ingress-world, but the protocols and ports do not match
+			Ingress 'ingressworld/ingress-world' allows ingress to service ingress-world, but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between {ingress-controller} => routeworld/route-world[Deployment]:
@@ -41,13 +41,13 @@ Allowed connections:
 	Allowed TCP:[8060] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			Route routeworld/route-world allows ingress connection through service route-world
+			Route 'routeworld/route-world' allows ingress connections through service route-world
 
 Denied connections:
 	Denied TCP:[1-8059,8061-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			Route routeworld/route-world allows ingress to service route-world, but the protocols and ports do not match
+			Route 'routeworld/route-world' allows ingress to service route-world, but the protocols and ports do not match
 
 
 #########################################################

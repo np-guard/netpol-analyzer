@@ -9,7 +9,7 @@ Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			AdminNetworkPolicy exposure-pass-example passes connections by Ingress rule pass-all-internal-ingress
+			AdminNetworkPolicy 'exposure-pass-example' passes connections by Ingress rule pass-all-internal-ingress
 			the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			AdminNetworkPolicy exposure-pass-example passes connections by Ingress rule pass-all-internal-ingress
+			AdminNetworkPolicy 'exposure-pass-example' passes connections by Ingress rule pass-all-internal-ingress
 			BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-all-internal-connections
 
 

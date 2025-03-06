@@ -9,7 +9,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy hello-world/exposure-to-unknown-peers selects hello-world/workload-b[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
+			NetworkPolicy 'hello-world/exposure-to-unknown-peers' selects hello-world/workload-b[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-a[Deployment] => hello-world/workload-b[Deployment]:
@@ -18,7 +18,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy hello-world/exposure-to-unknown-peers selects hello-world/workload-b[Deployment], but hello-world/workload-a[Deployment] is not selected by any Ingress rule
+			NetworkPolicy 'hello-world/exposure-to-unknown-peers' selects hello-world/workload-b[Deployment], but hello-world/workload-a[Deployment] is not selected by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-b[Deployment] => 0.0.0.0-255.255.255.255:
@@ -26,7 +26,7 @@ Connections between hello-world/workload-b[Deployment] => 0.0.0.0-255.255.255.25
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy hello-world/exposure-to-unknown-peers selects hello-world/workload-b[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
+			NetworkPolicy 'hello-world/exposure-to-unknown-peers' selects hello-world/workload-b[Deployment], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ Connections between hello-world/workload-b[Deployment] => hello-world/workload-a
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy hello-world/exposure-to-unknown-peers selects hello-world/workload-b[Deployment], but hello-world/workload-a[Deployment] is not selected by any Egress rule
+			NetworkPolicy 'hello-world/exposure-to-unknown-peers' selects hello-world/workload-b[Deployment], but hello-world/workload-a[Deployment] is not selected by any Egress rule
 		Ingress (Allowed) due to the system default (Allow all)
 
 
