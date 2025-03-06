@@ -86,7 +86,7 @@ func (banp *BaselineAdminNetworkPolicy) savePolicyWarnings(ruleName string) {
 }
 
 func (banp *BaselineAdminNetworkPolicy) fullName() string { // used for explanation goals
-	return common.BANPRuleKind + " " + banp.Name
+	return fmt.Sprintf("%s '%s'", common.BANPRuleKind, banp.Name)
 }
 
 // GetEgressPolicyConns returns the connections from the egress rules selecting the dst in spec of the baselineAdminNetworkPolicy
