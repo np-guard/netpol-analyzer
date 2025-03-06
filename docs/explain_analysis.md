@@ -221,7 +221,7 @@ Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces
+                        BaselineAdminNetworkPolicy 'default' denies connections by Ingress rule deny-ingress-from-all-namespaces
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between baz/mybaz[Pod] => foo/myfoo[Pod]:
@@ -239,7 +239,7 @@ Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces
+                        BaselineAdminNetworkPolicy 'default' denies connections by Ingress rule deny-ingress-from-all-namespaces
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => bar/mybar[Pod]:
@@ -249,7 +249,7 @@ Denied connections:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
                         AdminNetworkPolicy 'pass-monitoring' passes connections by Ingress rule pass-ingress-from-monitoring
-                        BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces
+                        BaselineAdminNetworkPolicy 'default' denies connections by Ingress rule deny-ingress-from-all-namespaces
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => baz/mybaz[Pod]:
