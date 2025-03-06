@@ -20,7 +20,7 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			AdminNetworkPolicy 'exposure-pass-example' passes connections by Ingress rule pass-all-internal-ingress
-			BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-all-internal-connections
+			BaselineAdminNetworkPolicy 'default' denies connections by Ingress rule deny-all-internal-connections
 
 
 #########################################################

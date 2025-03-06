@@ -9,7 +9,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			AdminNetworkPolicy 'pass-example' passes connections by Egress rule pass-all-egress-to-slytherin
-			BaselineAdminNetworkPolicy default denies connections by Egress rule deny-all-egress-to-slytherin
+			BaselineAdminNetworkPolicy 'default' denies connections by Egress rule deny-all-egress-to-slytherin
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			AdminNetworkPolicy 'pass-example' passes connections by Ingress rule pass-all-ingress-from-slytherin
-			BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-all-ingress-from-slytherin
+			BaselineAdminNetworkPolicy 'default' denies connections by Ingress rule deny-all-ingress-from-slytherin
 
 
 #########################################################

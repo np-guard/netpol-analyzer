@@ -101,7 +101,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-all-ingress-from-hufflepuff
+			BaselineAdminNetworkPolicy 'default' denies connections by Ingress rule deny-all-ingress-from-hufflepuff
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ravenclaw/luna-lovegood[StatefulSet] => 0.0.0.0-255.255.255.255:
