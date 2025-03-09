@@ -203,7 +203,7 @@ Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        NetworkPolicy foo/allow-monitoring selects foo/myfoo[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
+                        NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between bar/mybar[Pod] => foo/myfoo[Pod]:
@@ -212,7 +212,7 @@ Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        NetworkPolicy foo/allow-monitoring selects foo/myfoo[Pod], but bar/mybar[Pod] is not selected by any Ingress rule
+                        NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but bar/mybar[Pod] is not selected by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between baz/mybaz[Pod] => bar/mybar[Pod]:
@@ -221,7 +221,7 @@ Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces
+                        BaselineAdminNetworkPolicy 'default' denies connections by Ingress rule deny-ingress-from-all-namespaces
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between baz/mybaz[Pod] => foo/myfoo[Pod]:
@@ -230,7 +230,7 @@ Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        NetworkPolicy foo/allow-monitoring selects foo/myfoo[Pod], but baz/mybaz[Pod] is not selected by any Ingress rule
+                        NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but baz/mybaz[Pod] is not selected by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between foo/myfoo[Pod] => bar/mybar[Pod]:
@@ -239,7 +239,7 @@ Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces
+                        BaselineAdminNetworkPolicy 'default' denies connections by Ingress rule deny-ingress-from-all-namespaces
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => bar/mybar[Pod]:
@@ -248,8 +248,8 @@ Denied connections:
         Denied TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Denied)
-                        AdminNetworkPolicy pass-monitoring passes connections by Ingress rule pass-ingress-from-monitoring
-                        BaselineAdminNetworkPolicy default denies connections by Ingress rule deny-ingress-from-all-namespaces
+                        AdminNetworkPolicy 'pass-monitoring' passes connections by Ingress rule pass-ingress-from-monitoring
+                        BaselineAdminNetworkPolicy 'default' denies connections by Ingress rule deny-ingress-from-all-namespaces
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => baz/mybaz[Pod]:
@@ -258,7 +258,7 @@ Allowed connections:
         Allowed TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Allowed)
-                        AdminNetworkPolicy allow-monitoring allows connections by Ingress rule allow-ingress-from-monitoring
+                        AdminNetworkPolicy 'allow-monitoring' allows connections by Ingress rule allow-ingress-from-monitoring
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
@@ -267,8 +267,8 @@ Allowed connections:
         Allowed TCP, UDP, SCTP due to the following policies and rules:
                 Egress (Allowed) due to the system default (Allow all)
                 Ingress (Allowed)
-                        AdminNetworkPolicy pass-monitoring passes connections by Ingress rule pass-ingress-from-monitoring
-                        NetworkPolicy foo/allow-monitoring allows connection by Ingress rule #1
+                        AdminNetworkPolicy 'pass-monitoring' passes connections by Ingress rule pass-ingress-from-monitoring
+                        NetworkPolicy 'foo/allow-monitoring' allows connections by Ingress rule #1
 
 
 #########################################################

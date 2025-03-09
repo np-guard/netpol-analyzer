@@ -8,13 +8,13 @@ Connections between hello-world/workload-a[Deployment] => hello-world/workload-b
 Allowed connections:
 	Allowed TCP:[9090] due to the following policies and rules:
 		Egress (Allowed)
-			AdminNetworkPolicy exposure-example-15 allows connections by Egress rule allow-tcp9090-to-all-pods-in-same-ns
+			AdminNetworkPolicy 'exposure-example-15' allows connections by Egress rule allow-tcp9090-to-all-pods-in-same-ns
 		Ingress (Allowed) due to the system default (Allow all)
 
 Denied connections:
 	Denied TCP:[1-9089,9091-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			AdminNetworkPolicy exposure-example-15-b denies connections by Egress rule deny-all-to-all-pods-in-same-ns
+			AdminNetworkPolicy 'exposure-example-15-b' denies connections by Egress rule deny-all-to-all-pods-in-same-ns
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -24,13 +24,13 @@ Allowed connections:
 	Allowed TCP:[9090] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			AdminNetworkPolicy exposure-example-15 allows connections by Ingress rule allow-tcp9090-from-pods-in-same-namespace
+			AdminNetworkPolicy 'exposure-example-15' allows connections by Ingress rule allow-tcp9090-from-pods-in-same-namespace
 
 Denied connections:
 	Denied TCP:[1-9089,9091-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			AdminNetworkPolicy exposure-example-15-b denies connections by Ingress rule deny-all-from-pods-in-same-namespace
+			AdminNetworkPolicy 'exposure-example-15-b' denies connections by Ingress rule deny-all-from-pods-in-same-namespace
 
 
 #########################################################

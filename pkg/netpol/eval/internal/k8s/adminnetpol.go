@@ -664,7 +664,7 @@ func isIPv6Cidr(cidr apisv1a.CIDR) (bool, error) {
 }
 
 func (anp *AdminNetworkPolicy) fullName() string { // used for explanation goals
-	return common.ANPRuleKind + " " + anp.Name
+	return fmt.Sprintf("%s '%s'", common.ANPRuleKind, anp.Name)
 }
 
 func actionOp(action string) string { // used for explanation goals

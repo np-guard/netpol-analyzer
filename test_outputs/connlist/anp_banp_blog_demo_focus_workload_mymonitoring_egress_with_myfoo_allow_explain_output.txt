@@ -9,6 +9,6 @@ Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
-			AdminNetworkPolicy pass-monitoring passes connections by Ingress rule pass-ingress-from-monitoring
-			NetworkPolicy foo/allow-monitoring allows connection by Ingress rule #1
+			AdminNetworkPolicy 'pass-monitoring' passes connections by Ingress rule pass-ingress-from-monitoring
+			NetworkPolicy 'foo/allow-monitoring' allows connections by Ingress rule #1
 

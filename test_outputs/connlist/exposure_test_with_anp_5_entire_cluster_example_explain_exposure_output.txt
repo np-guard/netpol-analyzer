@@ -11,9 +11,9 @@ Allowed connections:
 Denied connections:
 	Denied TCP:[80] due to the following policies and rules:
 		Egress (Denied)
-			AdminNetworkPolicy exposure-deny-with-entire-cluster-example denies connections by Egress rule deny-tcp80-egress-to-entire-cluster
+			AdminNetworkPolicy 'exposure-deny-with-entire-cluster-example' denies connections by Egress rule deny-tcp80-egress-to-entire-cluster
 		Ingress (Denied)
-			AdminNetworkPolicy exposure-deny-with-entire-cluster-example denies connections by Ingress rule deny-tcp80-ingress-from-entire-cluster
+			AdminNetworkPolicy 'exposure-deny-with-entire-cluster-example' denies connections by Ingress rule deny-tcp80-ingress-from-entire-cluster
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:
@@ -24,9 +24,9 @@ Allowed connections:
 Denied connections:
 	Denied TCP:[80] due to the following policies and rules:
 		Egress (Denied)
-			AdminNetworkPolicy exposure-deny-with-entire-cluster-example denies connections by Egress rule deny-tcp80-egress-to-entire-cluster
+			AdminNetworkPolicy 'exposure-deny-with-entire-cluster-example' denies connections by Egress rule deny-tcp80-egress-to-entire-cluster
 		Ingress (Denied)
-			AdminNetworkPolicy exposure-deny-with-entire-cluster-example denies connections by Ingress rule deny-tcp80-ingress-from-entire-cluster
+			AdminNetworkPolicy 'exposure-deny-with-entire-cluster-example' denies connections by Ingress rule deny-tcp80-ingress-from-entire-cluster
 
 
 #########################################################
