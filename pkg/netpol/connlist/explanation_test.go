@@ -55,13 +55,14 @@ func prepareExplainTest(dirName string, focusWorkloads, focusWorkloadPeers []str
 }
 
 var explainTests = []struct {
-	testDirName        string
-	focusWorkloads     []string
-	focusDirection     string
-	focusConn          string
-	focusWorkloadPeers []string
-	exposure           bool
-	explainOnly        string
+	testDirName            string
+	focusWorkloads         []string
+	focusDirection         string
+	focusConn              string
+	focusWorkloadPeers     []string
+	exposure               bool
+	explainOnly            string
+	supportedOnLiveCluster bool
 }{
 	{
 		testDirName: "acs-security-demos",
@@ -70,12 +71,14 @@ var explainTests = []struct {
 		testDirName: "anp_and_banp_using_networks_and_nodes_test",
 	},
 	{
-		testDirName: "anp_banp_blog_demo",
+		testDirName:            "anp_banp_blog_demo",
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:    "anp_banp_blog_demo",
-		focusWorkloads: []string{"myfoo"},
-		focusDirection: common.IngressFocusDirection,
+		testDirName:            "anp_banp_blog_demo",
+		focusWorkloads:         []string{"myfoo"},
+		focusDirection:         common.IngressFocusDirection,
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName: "anp_banp_blog_demo_2",
@@ -96,7 +99,8 @@ var explainTests = []struct {
 		testDirName: "demo_app_with_routes_and_ingress",
 	},
 	{
-		testDirName: "ipblockstest",
+		testDirName:            "ipblockstest",
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName: "k8s_ingress_test_new",
@@ -105,7 +109,8 @@ var explainTests = []struct {
 		testDirName: "multiple_ingress_objects_with_different_ports_new",
 	},
 	{
-		testDirName: "multiple_topology_resources_2",
+		testDirName:            "multiple_topology_resources_2",
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName: "netpol_named_port_test",
@@ -114,7 +119,8 @@ var explainTests = []struct {
 		testDirName: "new_online_boutique",
 	},
 	{
-		testDirName: "onlineboutique",
+		testDirName:            "onlineboutique",
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName: "onlineboutique_workloads_with_ingress",
@@ -243,36 +249,42 @@ var explainTests = []struct {
 		focusDirection: common.IngressFocusDirection,
 	},
 	{
-		testDirName:    "anp_banp_blog_demo",
-		focusWorkloads: []string{"mymonitoring", "mybaz"},
+		testDirName:            "anp_banp_blog_demo",
+		focusWorkloads:         []string{"mymonitoring", "mybaz"},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:        "anp_banp_blog_demo",
-		focusWorkloads:     []string{"mymonitoring"},
-		focusWorkloadPeers: []string{"myfoo"},
+		testDirName:            "anp_banp_blog_demo",
+		focusWorkloads:         []string{"mymonitoring"},
+		focusWorkloadPeers:     []string{"myfoo"},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:        "anp_banp_blog_demo",
-		focusWorkloads:     []string{"myfoo", "mybar"},
-		focusWorkloadPeers: []string{"mybaz", "mymonitoring"},
-		focusDirection:     common.EgressFocusDirection,
+		testDirName:            "anp_banp_blog_demo",
+		focusWorkloads:         []string{"myfoo", "mybar"},
+		focusWorkloadPeers:     []string{"mybaz", "mymonitoring"},
+		focusDirection:         common.EgressFocusDirection,
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName: "anp_banp_blog_demo",
-		explainOnly: common.ExplainOnlyDeny,
+		testDirName:            "anp_banp_blog_demo",
+		explainOnly:            common.ExplainOnlyDeny,
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:        "anp_banp_blog_demo",
-		focusWorkloads:     []string{"mymonitoring"},
-		focusWorkloadPeers: []string{"myfoo"},
-		explainOnly:        common.ExplainOnlyAllow,
+		testDirName:            "anp_banp_blog_demo",
+		focusWorkloads:         []string{"mymonitoring"},
+		focusWorkloadPeers:     []string{"myfoo"},
+		explainOnly:            common.ExplainOnlyAllow,
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:        "anp_banp_blog_demo",
-		focusWorkloads:     []string{"mymonitoring"},
-		focusWorkloadPeers: []string{"myfoo"},
-		explainOnly:        common.ExplainOnlyAllow,
-		focusDirection:     common.EgressFocusDirection,
+		testDirName:            "anp_banp_blog_demo",
+		focusWorkloads:         []string{"mymonitoring"},
+		focusWorkloadPeers:     []string{"myfoo"},
+		explainOnly:            common.ExplainOnlyAllow,
+		focusDirection:         common.EgressFocusDirection,
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName: "acs-security-demos",
@@ -280,12 +292,13 @@ var explainTests = []struct {
 		explainOnly: common.ExplainOnlyDeny,
 	},
 	{
-		testDirName:        "anp_banp_blog_demo",
-		focusWorkloads:     []string{"mymonitoring"},
-		focusWorkloadPeers: []string{"myfoo"},
-		explainOnly:        common.ExplainOnlyAllow,
-		focusDirection:     common.EgressFocusDirection,
-		focusConn:          "tcp-80",
+		testDirName:            "anp_banp_blog_demo",
+		focusWorkloads:         []string{"mymonitoring"},
+		focusWorkloadPeers:     []string{"myfoo"},
+		explainOnly:            common.ExplainOnlyAllow,
+		focusDirection:         common.EgressFocusDirection,
+		focusConn:              "tcp-80",
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName: "acs-security-demos",

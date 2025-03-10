@@ -25,12 +25,12 @@ const (
 	// tests/anp_and_banp_using_networks_with_ipv6_test
 	WarnUnsupportedNodesField = "Nodes field of an AdminNetworkPolicyEgressPeer is not supported" // example raising this
 	// warning: tests/anp_and_banp_using_networks_and_nodes_test
-
 	// connlist warnings
 	EmptyConnListErrStr    = "Connectivity map report will be empty."
 	NoIngressSourcesErrStr = "The ingress-controller workload was not added to the analysis, since Ingress/Route resources were not found."
 	NoAllowedConnsWarning  = "Connectivity analysis found no allowed connectivity between pairs from the configured workloads or" +
 		" external IP-blocks"
+	WarnIgnoredExposureOnLiveCluster = "exposure analysis is not supported on live-cluster; exposure flag will be ignored"
 )
 
 func WarnIgnoredExposure(flag1, flag2 string) string {

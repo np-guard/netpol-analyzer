@@ -274,7 +274,7 @@ func (pe *PolicyEngine) sortAdminNetpolsByPriority() error {
 }
 
 // UpdatePolicyEngineWithK8sPolicyAPIObjects inserts to the policy-engine all (baseline)admin network policies
-func (pe *PolicyEngine) UpdatePolicyEngineWithK8sPolicyAPIObjects(clientset *policyapi.Clientset) error {
+func (pe *PolicyEngine) UpdatePolicyEngineWithK8sPolicyAPIObjects(clientset policyapi.Interface) error {
 	ctx, cancel := context.WithTimeout(context.Background(), pkgcommon.CtxTimeoutSeconds*time.Second)
 	defer cancel()
 	// get all admin-network-policies
