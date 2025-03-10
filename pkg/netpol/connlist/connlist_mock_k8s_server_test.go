@@ -43,22 +43,41 @@ func TestConnlistOnMockK8sServer(t *testing.T) {
 			for _, format := range tt.outputFormats {
 				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, tt.focusConn,
 					format, tt.exposureAnalysis)
-				infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
-				objects, _ := parser.ResourceInfoListToK8sObjectsList(infos, logger.NewDefaultLogger(), true)
-
-				k8sClientset, policyAPIClientset, err := buildFakeClientsets(objects)
-				require.Nil(t, err, pTest.testInfo)
-
-				// run connlist API funcs for connectivity analysis on live cluster
-				res, _, err := pTest.analyzer.ConnlistFromK8sClusterWithPolicyAPI(k8sClientset, policyAPIClientset)
-				require.Nil(t, err, pTest.testInfo)
-				out, err := pTest.analyzer.ConnectionsListToString(res)
-				require.Nil(t, err, pTest.testInfo)
-				testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, out,
-					pTest.testInfo, currentPkg)
+				runTest(t, pTest)
 			}
 		})
 	}
+}
+
+func TestConnlistWithExplanationOnMockK8sServer(t *testing.T) {
+	t.Parallel()
+	for _, tt := range explainTests {
+		if !tt.supportedOnLiveCluster {
+			continue
+		}
+		t.Run(tt.testDirName, func(t *testing.T) {
+			t.Parallel()
+			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, tt.focusConn,
+				tt.explainOnly, tt.exposure)
+			runTest(t, pTest)
+		})
+	}
+}
+
+func runTest(t *testing.T, pTest preparedTest) {
+	infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
+	objects, _ := parser.ResourceInfoListToK8sObjectsList(infos, logger.NewDefaultLogger(), true)
+
+	k8sClientset, policyAPIClientset, err := buildFakeClientsets(objects)
+	require.Nil(t, err, pTest.testInfo)
+
+	// run connlist API funcs for connectivity analysis on live cluster
+	res, _, err := pTest.analyzer.ConnlistFromK8sClusterWithPolicyAPI(k8sClientset, policyAPIClientset)
+	require.Nil(t, err, pTest.testInfo)
+	out, err := pTest.analyzer.ConnectionsListToString(res)
+	require.Nil(t, err, pTest.testInfo)
+	testutils.CheckActualVsExpectedOutputMatch(t, pTest.expectedOutputFileName, out,
+		pTest.testInfo, currentPkg)
 }
 
 func buildFakeClientsets(objects []parser.K8sObject) (k8sClientset *fake.Clientset, policyAPIClientset *policyapifake.Clientset,
