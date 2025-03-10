@@ -20,8 +20,6 @@ import (
 
 	"github.com/np-guard/models/pkg/netset"
 
-	pkgcommmon "github.com/np-guard/netpol-analyzer/pkg/internal/common"
-	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -135,7 +133,7 @@ func (anp *AdminNetworkPolicy) HasValidPriority() bool {
 	// note: k8s defines "1000" as the maximum numeric value for priority
 	// but openshift currently only support priority values between 0 and 99
 	// current implementation satisfies k8s requirement
-	return anp.Spec.Priority >= pkgcommmon.MinANPPriority && anp.Spec.Priority <= pkgcommmon.MaxANPPriority
+	return anp.Spec.Priority >= common.MinANPPriority && anp.Spec.Priority <= common.MaxANPPriority
 }
 
 // CheckEgressConnAllowed checks if the input conn is allowed/passed/denied or not captured on egress by current admin-network-policy
@@ -243,7 +241,7 @@ func selectorsMatch(ruleSelector, peerSelector *metav1.LabelSelector, peerLabels
 	} // else for real peer just check if the selector matches the peer's labels
 	selector, err := metav1.LabelSelectorAsSelector(ruleSelector)
 	if err != nil {
-		return false, fmt.Errorf("%s", netpolerrors.SelectorErrTitle+" : "+err.Error())
+		return false, fmt.Errorf("%s", alerts.SelectorErrTitle+" : "+err.Error())
 	}
 	return selector.Matches(labels.Set(peerLabels)), nil
 }
@@ -285,7 +283,7 @@ func doesNetworksFieldMatchPeer(networks []apisv1a.CIDR, peer Peer) (bool, error
 		}
 		ipb, err := netset.IPBlockFromCidr(string(cidr))
 		if err != nil {
-			return false, errors.New(netpolerrors.InvalidCIDRAddr)
+			return false, errors.New(alerts.InvalidCIDRAddr)
 		}
 		if peer.GetPeerIPBlock().IsSubset(ipb) {
 			return true, nil
@@ -304,7 +302,7 @@ func egressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, dst
 		// Validate: Exactly one of the `AdminNetworkPolicyEgressPeer`'s selector pointers must be
 		// set for a given peer.
 		if !validateEgressRuleFields(rulePeers[i]) {
-			return false, errors.New(netpolerrors.OneFieldSetRulePeerErr)
+			return false, errors.New(alerts.OneFieldSetRulePeerErr)
 		}
 		if rulePeers[i].Nodes != nil { // not supported field
 			ruleWarnings = append(ruleWarnings, alerts.WarnUnsupportedNodesField)
@@ -363,7 +361,7 @@ func ingressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, s
 		// 1.Validate:
 		// Exactly one of the selector pointers must be set for a given peer.
 		if (rulePeers[i].Namespaces == nil) == (rulePeers[i].Pods == nil) {
-			return false, errors.New(netpolerrors.OneFieldSetRulePeerErr)
+			return false, errors.New(alerts.OneFieldSetRulePeerErr)
 		}
 		fieldMatch, err := ruleFieldsSelectsPeer(rulePeers[i].Namespaces, rulePeers[i].Pods, nil, src)
 		if err != nil {
@@ -382,7 +380,7 @@ func updateConnsIfEgressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyEg
 	rulePorts *[]apisv1a.AdminNetworkPolicyPort, ruleName string, dst Peer, policyConns *PolicyConnections,
 	action string, isBANPrule bool) error {
 	if len(rulePeers) == 0 {
-		return errors.New(netpolerrors.ANPEgressRulePeersErr)
+		return errors.New(alerts.ANPEgressRulePeersErr)
 	}
 	peerSelected, err := egressRuleSelectsPeer(rulePeers, dst)
 	if err != nil {
@@ -401,7 +399,7 @@ func updateConnsIfIngressRuleSelectsPeer(rulePeers []apisv1a.AdminNetworkPolicyI
 	rulePorts *[]apisv1a.AdminNetworkPolicyPort, ruleName string, src, dst Peer, policyConns *PolicyConnections,
 	action string, isBANPrule bool) error {
 	if len(rulePeers) == 0 {
-		return errors.New(netpolerrors.ANPIngressRulePeersErr)
+		return errors.New(alerts.ANPIngressRulePeersErr)
 	}
 	peerSelected, err := ingressRuleSelectsPeer(rulePeers, src)
 	if err != nil {
@@ -443,7 +441,7 @@ func ruleConnections(ports *[]apisv1a.AdminNetworkPolicyPort, ruleName string,
 	res := common.MakeConnectionSet(false)
 	for _, anpPort := range *ports {
 		if !onlyOnePortFieldsSet(anpPort) {
-			return nil, errors.New(netpolerrors.ANPPortsError)
+			return nil, errors.New(alerts.ANPPortsError)
 		}
 		protocol := v1.ProtocolTCP
 		portSet := common.MakePortSet(false)
@@ -515,7 +513,7 @@ func subjectSelectsPeer(anpSubject apisv1a.AdminNetworkPolicySubject, p Peer, er
 	if (anpSubject.Namespaces == nil) == (anpSubject.Pods == nil) {
 		// (Baseline)AdminNetworkPolicySubject should contain exactly one field
 		// (https://github.com/kubernetes-sigs/network-policy-api/blob/v0.1.5/apis/v1alpha1/shared_types.go#L27))
-		return false, errors.New(errTitle + netpolerrors.OneFieldSetSubjectErr)
+		return false, errors.New(errTitle + alerts.OneFieldSetSubjectErr)
 	}
 	if anpSubject.Namespaces != nil {
 		return doesNamespaceSelectorMatchesPeer(anpSubject.Namespaces, p)
@@ -540,7 +538,7 @@ func anpPortContains(rulePorts *[]apisv1a.AdminNetworkPolicyPort, protocol, port
 	}
 	for _, anpPort := range *rulePorts {
 		if !onlyOnePortFieldsSet(anpPort) {
-			return false, errors.New(fmt.Sprintf("Error in Ports : %v", anpPort) + netpolerrors.ANPPortsError)
+			return false, errors.New(fmt.Sprintf("Error in Ports : %v", anpPort) + alerts.ANPPortsError)
 		}
 		switch { // only one case fits
 		case anpPort.PortNumber != nil:
@@ -581,7 +579,7 @@ func anpPortContains(rulePorts *[]apisv1a.AdminNetworkPolicyPort, protocol, port
 func checkIfEgressRuleContainsConn(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, rulePorts *[]apisv1a.AdminNetworkPolicyPort, dst Peer,
 	action, protocol, port string, isBANPrule bool) (res ANPRulesResult, err error) {
 	if len(rulePeers) == 0 {
-		return NotCaptured, errors.New(netpolerrors.ANPEgressRulePeersErr)
+		return NotCaptured, errors.New(alerts.ANPEgressRulePeersErr)
 	}
 	peerSelected, err := egressRuleSelectsPeer(rulePeers, dst)
 	if err != nil {
@@ -605,7 +603,7 @@ func checkIfEgressRuleContainsConn(rulePeers []apisv1a.AdminNetworkPolicyEgressP
 func checkIfIngressRuleContainsConn(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, rulePorts *[]apisv1a.AdminNetworkPolicyPort,
 	src, dst Peer, action, protocol, port string, isBANPrule bool) (res ANPRulesResult, err error) {
 	if len(rulePeers) == 0 {
-		return NotCaptured, errors.New(netpolerrors.ANPIngressRulePeersErr)
+		return NotCaptured, errors.New(alerts.ANPIngressRulePeersErr)
 	}
 	peerSelected, err := ingressRuleSelectsPeer(rulePeers, src)
 	if err != nil {
@@ -641,7 +639,7 @@ func determineConnResByAction(action string, isBANPrule bool) (res ANPRulesResul
 	switch action {
 	case string(apisv1a.AdminNetworkPolicyRuleActionPass):
 		if isBANPrule {
-			return NotCaptured, errors.New(netpolerrors.UnknownRuleActionErr)
+			return NotCaptured, errors.New(alerts.UnknownRuleActionErr)
 		}
 		return Pass, nil
 	case string(apisv1a.AdminNetworkPolicyRuleActionAllow):
@@ -649,7 +647,7 @@ func determineConnResByAction(action string, isBANPrule bool) (res ANPRulesResul
 	case string(apisv1a.AdminNetworkPolicyRuleActionDeny):
 		return Deny, nil
 	default:
-		return NotCaptured, errors.New(netpolerrors.UnknownRuleActionErr)
+		return NotCaptured, errors.New(alerts.UnknownRuleActionErr)
 	}
 }
 

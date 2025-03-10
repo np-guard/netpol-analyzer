@@ -266,7 +266,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 func (ca *ConnlistAnalyzer) validateFocusDirectionValue() error {
 	if ca.focusDirection != "" && ca.focusDirection != pkgcommon.IngressFocusDirection &&
 		ca.focusDirection != pkgcommon.EgressFocusDirection {
-		return errors.New(netpolerrors.FocusDirectionNotSupported(ca.focusDirection))
+		return errors.New(alerts.FocusDirectionNotSupported(ca.focusDirection))
 	}
 	return nil
 }
@@ -274,7 +274,7 @@ func (ca *ConnlistAnalyzer) validateFocusDirectionValue() error {
 func (ca *ConnlistAnalyzer) validateExplainOnlyValue() error {
 	if ca.explainOnly != "" && ca.explainOnly != pkgcommon.ExplainOnlyAllow &&
 		ca.explainOnly != pkgcommon.ExplainOnlyDeny {
-		return errors.New(netpolerrors.ExplainOnlyNotSupported(ca.explainOnly))
+		return errors.New(alerts.ExplainOnlyNotSupported(ca.explainOnly))
 	}
 	return nil
 }
@@ -297,15 +297,15 @@ func (ca *ConnlistAnalyzer) validateFocusConnFormatAndValue() error {
 	}
 	connArr := strings.Split(ca.focusConnection, focusConnDelimiter)
 	if len(connArr) != 2 {
-		return errors.New(netpolerrors.InvalidFocusConnFormat(ca.focusConnection))
+		return errors.New(alerts.InvalidFocusConnFormat(ca.focusConnection))
 	}
 	protocol := connArr[0]
 	if !common.IsProtocolValid(protocol) {
-		return errors.New(netpolerrors.InvalidFocusConnProtocol(ca.focusConnection, protocol))
+		return errors.New(alerts.InvalidFocusConnProtocol(ca.focusConnection, protocol))
 	}
 	portNum, err := strconv.Atoi(connArr[1])
 	if err != nil || (int64(portNum) < common.MinPort || int64(portNum) > common.MaxPort) {
-		return errors.New(netpolerrors.InvalidFocusConnPortNumber(ca.focusConnection, connArr[1]))
+		return errors.New(alerts.InvalidFocusConnPortNumber(ca.focusConnection, connArr[1]))
 	}
 	// valid - make connection set with the protocol and port to be used internally for conns filtering
 	ca.makeFocusConnectionSet(protocol, portNum)
@@ -756,7 +756,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	connsRes = append(connsRes, ingressAllowedConns...)
 
 	if len(ca.focusWorkloads) == 0 && len(peersAllowedConns) == 0 {
-		ca.logWarning(netpolerrors.NoAllowedConnsWarning)
+		ca.logWarning(alerts.NoAllowedConnsWarning)
 	}
 
 	return connsRes, peers, nil
@@ -780,7 +780,7 @@ func (ca *ConnlistAnalyzer) checkFocusWorkloadsExistence(focusWlsList []string, 
 	}
 	// if all focus-workloads do not exist: nothing to do (empty connlist); return
 	if cnt != 0 && cnt == len(focusWlsList) {
-		ca.logWarning(netpolerrors.EmptyConnListErrStr)
+		ca.logWarning(alerts.EmptyConnListErrStr)
 		return false
 	}
 	return true
@@ -794,7 +794,7 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(focusWorkload string, excludeIng
 	if focusWorkload == common.IngressPodName {
 		if excludeIngressAnalysis { // if the ingress-analyzer is empty,
 			// then no routes/k8s-ingress objects -> ingress-controller pod will not be added
-			return false, netpolerrors.NoIngressSourcesErrStr
+			return false, alerts.NoIngressSourcesErrStr
 		}
 		return true, ""
 	}
@@ -805,7 +805,7 @@ func (ca *ConnlistAnalyzer) existsFocusWorkload(focusWorkload string, excludeIng
 			return true, ""
 		}
 	}
-	return false, netpolerrors.WorkloadDoesNotExistErrStr(focusWorkload)
+	return false, alerts.WorkloadDoesNotExistErrStr(focusWorkload)
 }
 
 // getConnectionsBetweenPeers returns connections list from PolicyEngine object
@@ -940,7 +940,7 @@ func (ca *ConnlistAnalyzer) warnBlockedIngress(peerStr string, ingressObjects ma
 		objKind = "Route"
 		objName = ingressObjects[parser.Route][0]
 	}
-	warningMsg := netpolerrors.BlockedIngressWarning(objKind, objName, peerStr)
+	warningMsg := alerts.BlockedIngressWarning(objKind, objName, peerStr)
 	ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
 	ca.logWarning(warningMsg)
 }

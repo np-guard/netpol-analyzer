@@ -10,7 +10,7 @@ import (
 
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -58,13 +58,13 @@ func (pc *PolicyConnections) UpdateWithRuleConns(ruleConns *common.ConnectionSet
 		pc.DeniedConns.Union(ruleConns, false)
 	case string(apisv1a.AdminNetworkPolicyRuleActionPass):
 		if banpRules {
-			return fmt.Errorf(netpolerrors.UnknownRuleActionErr)
+			return fmt.Errorf(alerts.UnknownRuleActionErr)
 		}
 		ruleConns.Subtract(pc.AllowedConns)
 		ruleConns.Subtract(pc.DeniedConns)
 		pc.PassConns.Union(ruleConns, false)
 	default:
-		return fmt.Errorf(netpolerrors.UnknownRuleActionErr)
+		return fmt.Errorf(alerts.UnknownRuleActionErr)
 	}
 	return nil
 }

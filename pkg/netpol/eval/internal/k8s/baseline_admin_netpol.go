@@ -14,8 +14,8 @@ import (
 
 	"github.com/np-guard/models/pkg/netset"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -175,7 +175,7 @@ func allowedByBANPRules(res ANPRulesResult) (allowedOrDenied bool, err error) {
 	case Deny:
 		return false, nil
 	}
-	return false, errors.New(netpolerrors.UnknownRuleActionErr) // will not get here
+	return false, errors.New(alerts.UnknownRuleActionErr) // will not get here
 }
 
 // GetReferencedIPBlocks returns a list of IPBlocks referenced by the BaselineAdminNetworkPolicy's Egress rules.

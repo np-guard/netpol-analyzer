@@ -218,7 +218,7 @@ func TestCommandsFailExecute(t *testing.T) {
 				testutils.GetTestDirPath("onlineboutique"),
 				"--focus-conn",
 				"udp90"},
-			expectedErrorContains: netpolerrors.InvalidFocusConnFormat("udp90"),
+			expectedErrorContains: netpolerrors.InvalidFocusConn,
 		},
 		{
 			name: "list_command_with_invalid_focus_connection_protocol_return_error",
@@ -228,7 +228,7 @@ func TestCommandsFailExecute(t *testing.T) {
 				testutils.GetTestDirPath("onlineboutique"),
 				"--focus-conn",
 				"ucp-90"},
-			expectedErrorContains: netpolerrors.InvalidFocusConnProtocol("ucp-90", "ucp"),
+			expectedErrorContains: netpolerrors.InvalidFocusConn,
 		},
 		{
 			name: "test_using_q_and_v_verbosity_flags_together_should_return_an_error_of_illegal_use_of_quiet_and_verbose_flags",

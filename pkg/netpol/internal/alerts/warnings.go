@@ -11,19 +11,6 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 )
 
-func WarnIncompatibleFormat(format string) string {
-	return fmt.Sprintf("explainability is available only with %s format."+
-		" A connlist without explainability will be printed for the input format %s", output.DefaultFormat, format)
-}
-
-func WarnUnmatchedNamedPort(namedPort, peerStr string) string {
-	return fmt.Sprintf("%s %q has no match in the configuration of the destination peer %q",
-		WarnPrefixPortName, namedPort, peerStr)
-	// examples this warning is raised:
-	// - tests/netpol_named_port_test
-	// - tests/anp_banp_test_with_named_port_unmatched
-}
-
 const (
 	WarnPrefixPortName        = "port name: "
 	WarnNamedPortIgnoredForIP = "named port is not defined for IP addresses; skipped"
@@ -38,10 +25,35 @@ const (
 	// tests/anp_and_banp_using_networks_with_ipv6_test
 	WarnUnsupportedNodesField = "Nodes field of an AdminNetworkPolicyEgressPeer is not supported" // example raising this
 	// warning: tests/anp_and_banp_using_networks_and_nodes_test
+	// connlist warnings
+	EmptyConnListErrStr    = "Connectivity map report will be empty."
+	NoIngressSourcesErrStr = "The ingress-controller workload was not added to the analysis, since Ingress/Route resources were not found."
+	NoAllowedConnsWarning  = "Connectivity analysis found no allowed connectivity between pairs from the configured workloads or" +
+		" external IP-blocks"
 	WarnIgnoredExposureOnLiveCluster = "exposure analysis is not supported on live-cluster; exposure flag will be ignored"
 )
 
 func WarnIgnoredExposure(flag1, flag2 string) string {
 	return "exposure analysis is not relevant when both " + flag1 + " and " + flag2 +
 		" are used; exposure flag will be ignored"
+}
+
+// BlockedIngressWarning returns warning string of a blocked ingress on peer
+func BlockedIngressWarning(objKind, objName, peerStr string) string {
+	return objKind + " resource " + objName + " specified workload " + peerStr + " as a backend, but network policies are blocking " +
+		"ingress connections from an arbitrary in-cluster source to this workload. " +
+		"Connectivity map will not include a possibly allowed connection between the ingress controller and this workload."
+}
+
+func WarnIncompatibleFormat(format string) string {
+	return fmt.Sprintf("explainability is available only with %s format."+
+		" A connlist without explainability will be printed for the input format %s", output.DefaultFormat, format)
+}
+
+func WarnUnmatchedNamedPort(namedPort, peerStr string) string {
+	return fmt.Sprintf("%s %q has no match in the configuration of the destination peer %q",
+		WarnPrefixPortName, namedPort, peerStr)
+	// examples this warning is raised:
+	// - tests/netpol_named_port_test
+	// - tests/anp_banp_test_with_named_port_unmatched
 }

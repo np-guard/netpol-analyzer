@@ -11,8 +11,8 @@ import (
 
 	netv1 "k8s.io/api/networking/v1"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 )
 
 // this file contains methods for checking wether specific connection between two peers is allowed or not;
@@ -165,7 +165,7 @@ func isAllowedByANPCapturedRes(anpRes k8s.ANPRulesResult) (res, passOrNonCapture
 	case k8s.Deny: // result is false (conn is not allowed), no need to pass to next policy layer
 		return false, false, nil
 	}
-	return false, false, errors.New(netpolerrors.UnknownRuleActionErr) // will not get here
+	return false, false, errors.New(alerts.UnknownRuleActionErr) // will not get here
 }
 
 // allowedXgressConnectionByNetpols returns true if the given connection from src to dst on given direction(ingress/egress)
