@@ -372,7 +372,8 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sClusterWithPolicyAPI(clientset kubern
 	policyAPIClientset policyapi.Interface) ([]Peer2PeerConnection, []Peer, error) {
 	pe, err := eval.NewPolicyEngineWithOptionsList(eval.WithExplanation(ca.explain), eval.WithLogger(ca.logger))
 	if ca.exposureAnalysis {
-		pe, err = eval.NewPolicyEngineWithOptionsList(eval.WithExposureAnalysis(), eval.WithExplanation(ca.explain), eval.WithLogger(ca.logger))
+		ca.logWarning(alerts.WarnIgnoredExposureOnLiveCluster)
+		ca.exposureAnalysis = false
 	}
 	if err != nil {
 		return nil, nil, err

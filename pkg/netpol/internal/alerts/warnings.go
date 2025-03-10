@@ -38,6 +38,7 @@ const (
 	// tests/anp_and_banp_using_networks_with_ipv6_test
 	WarnUnsupportedNodesField = "Nodes field of an AdminNetworkPolicyEgressPeer is not supported" // example raising this
 	// warning: tests/anp_and_banp_using_networks_and_nodes_test
+	WarnIgnoredExposureOnLiveCluster = "exposure analysis is not supported on live-cluster; exposure flag will be ignored"
 )
 
 func WarnIgnoredExposure(flag1, flag2 string) string {
