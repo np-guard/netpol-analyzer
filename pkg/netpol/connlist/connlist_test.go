@@ -875,37 +875,42 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 }
 
 var goodPathTests = []struct {
-	testDirName        string
-	outputFormats      []string
-	focusWorkloads     []string
-	focusWorkloadPeers []string
-	focusDirection     string
-	focusConn          string
-	exposureAnalysis   bool
+	testDirName            string
+	outputFormats          []string
+	focusWorkloads         []string
+	focusWorkloadPeers     []string
+	focusDirection         string
+	focusConn              string
+	exposureAnalysis       bool
+	supportedOnLiveCluster bool
 }{
 	{
-		testDirName:   "ipblockstest",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "ipblockstest",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "onlineboutique",
-		outputFormats: []string{output.JSONFormat, output.MDFormat, output.TextFormat},
+		testDirName:            "onlineboutique",
+		outputFormats:          []string{output.JSONFormat, output.MDFormat, output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName:   "onlineboutique_workloads",
 		outputFormats: []string{output.CSVFormat, output.DOTFormat, output.TextFormat},
 	},
 	{
-		testDirName:   "minikube_resources",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "minikube_resources",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName:   "online_boutique_workloads_no_ns",
 		outputFormats: []string{output.TextFormat},
 	},
 	{
-		testDirName:   "core_pods_without_host_ip",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "core_pods_without_host_ip",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName:   "acs_security_frontend_demos",
@@ -940,24 +945,28 @@ var goodPathTests = []struct {
 		outputFormats: []string{output.TextFormat},
 	},
 	{
-		testDirName:   "test_with_named_ports",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "test_with_named_ports",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "test_with_named_ports_changed_netpol",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "test_with_named_ports_changed_netpol",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName:   "netpol-analysis-example-minimal",
 		outputFormats: ValidFormats,
 	},
 	{
-		testDirName:   "with_end_port_example",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "with_end_port_example",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "with_end_port_example_new",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "with_end_port_example_new",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName:   "new_online_boutique",
@@ -968,92 +977,113 @@ var goodPathTests = []struct {
 		outputFormats: []string{output.TextFormat},
 	},
 	{
-		testDirName:   "multiple_topology_resources_1",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "multiple_topology_resources_1",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "multiple_topology_resources_2",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "multiple_topology_resources_2",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "multiple_topology_resources_3",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "multiple_topology_resources_3",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "multiple_topology_resources_4",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "multiple_topology_resources_4",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName:   "minimal_test_in_ns",
 		outputFormats: []string{output.TextFormat},
 	},
 	{
-		testDirName:   "semanticDiff-same-topologies-old1",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "semanticDiff-same-topologies-old1",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "semanticDiff-same-topologies-old2",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "semanticDiff-same-topologies-old2",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "semanticDiff-same-topologies-old3",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "semanticDiff-same-topologies-old3",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "semanticDiff-same-topologies-new1",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "semanticDiff-same-topologies-new1",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "semanticDiff-same-topologies-new1a",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "semanticDiff-same-topologies-new1a",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "semanticDiff-same-topologies-new2",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "semanticDiff-same-topologies-new2",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "semanticDiff-same-topologies-new3",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "semanticDiff-same-topologies-new3",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "semanticDiff-orig-topologies-no-policy",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "semanticDiff-orig-topologies-no-policy",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "semanticDiff-orig-topologies-policy-a",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "semanticDiff-orig-topologies-policy-a",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "semanticDiff-different-topologies-policy-a",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "semanticDiff-different-topologies-policy-a",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "semanticDiff-different-topologies-policy-b",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "semanticDiff-different-topologies-policy-b",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "ipblockstest_2",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "ipblockstest_2",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "ipblockstest_3",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "ipblockstest_3",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "ipblockstest_4",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "ipblockstest_4",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "semanticDiff-different-topologies-policy-a-with-ipblock",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "semanticDiff-different-topologies-policy-a-with-ipblock",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "semanticDiff-different-topologies-policy-b-with-ipblock",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "semanticDiff-different-topologies-policy-b-with-ipblock",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
-		testDirName:   "test_with_named_ports_changed_netpol_2",
-		outputFormats: []string{output.TextFormat},
+		testDirName:            "test_with_named_ports_changed_netpol_2",
+		outputFormats:          []string{output.TextFormat},
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName:    "onlineboutique_workloads",
@@ -1698,8 +1728,9 @@ var goodPathTests = []struct {
 		outputFormats: ValidFormats,
 	},
 	{
-		testDirName:   "anp_banp_blog_demo",
-		outputFormats: ValidFormats,
+		testDirName:            "anp_banp_blog_demo",
+		outputFormats:          ValidFormats,
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName:   "anp_and_banp_using_networks_test",
@@ -1881,9 +1912,10 @@ var goodPathTests = []struct {
 	},
 	// tests with multiple workloads
 	{
-		testDirName:    "anp_banp_blog_demo",
-		focusWorkloads: []string{"myfoo", "mybar"},
-		outputFormats:  ValidFormats,
+		testDirName:            "anp_banp_blog_demo",
+		focusWorkloads:         []string{"myfoo", "mybar"},
+		outputFormats:          ValidFormats,
+		supportedOnLiveCluster: true,
 	},
 	{
 		testDirName:      "acs-security-demos",
@@ -1936,6 +1968,20 @@ var goodPathTests = []struct {
 		exposureAnalysis: true,
 		focusWorkloads:   []string{"harry-potter"},
 		focusDirection:   common.EgressFocusDirection,
+	},
+	{
+		testDirName:            "anp_banp_blog_demo",
+		focusConn:              "udp-52",
+		outputFormats:          []string{output.DefaultFormat},
+		supportedOnLiveCluster: true,
+	},
+	{
+		testDirName:            "anp_banp_blog_demo",
+		focusWorkloads:         []string{"mybar"},
+		focusWorkloadPeers:     []string{"mybaz"},
+		focusDirection:         common.EgressFocusDirection,
+		outputFormats:          []string{output.DefaultFormat},
+		supportedOnLiveCluster: true,
 	},
 }
 

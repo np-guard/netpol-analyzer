@@ -17,7 +17,6 @@ import (
 
 	policyapifake "sigs.k8s.io/network-policy-api/pkg/client/clientset/versioned/fake"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
 	"github.com/np-guard/netpol-analyzer/pkg/internal/testutils"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/fsscanner"
@@ -34,8 +33,13 @@ import (
 )
 
 func TestConnlistOnMockK8sServer(t *testing.T) {
-	for _, tt := range liveClusterTestingPaths {
+	t.Parallel()
+	for _, tt := range goodPathTests {
+		if !tt.supportedOnLiveCluster {
+			continue
+		}
 		t.Run(tt.testDirName, func(t *testing.T) {
+			t.Parallel()
 			for _, format := range tt.outputFormats {
 				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, tt.focusConn,
 					format, tt.exposureAnalysis)
@@ -145,140 +149,4 @@ func registerScheme(sch *runtime.Scheme) error {
 		return err
 	}
 	return metav1.AddMetaToScheme(sch)
-}
-
-var liveClusterTestingPaths = []struct {
-	testDirName        string
-	outputFormats      []string
-	focusWorkloads     []string
-	focusWorkloadPeers []string
-	focusDirection     string
-	focusConn          string
-	exposureAnalysis   bool
-}{
-	{
-		testDirName:   "ipblockstest",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "onlineboutique",
-		outputFormats: []string{output.JSONFormat, output.MDFormat, output.TextFormat},
-	},
-	{
-		testDirName:   "minikube_resources",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "core_pods_without_host_ip",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "test_with_named_ports",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "test_with_named_ports_changed_netpol",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "with_end_port_example",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "with_end_port_example_new",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "multiple_topology_resources_1",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "multiple_topology_resources_2",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "multiple_topology_resources_3",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "multiple_topology_resources_4",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "semanticDiff-same-topologies-old1",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "semanticDiff-same-topologies-old2",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "semanticDiff-same-topologies-old3",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "semanticDiff-same-topologies-new1",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "semanticDiff-same-topologies-new1a",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "semanticDiff-same-topologies-new2",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "semanticDiff-same-topologies-new3",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "semanticDiff-orig-topologies-no-policy",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "semanticDiff-orig-topologies-policy-a",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "semanticDiff-different-topologies-policy-a",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "semanticDiff-different-topologies-policy-b",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "ipblockstest_2",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "ipblockstest_3",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "ipblockstest_4",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "semanticDiff-different-topologies-policy-a-with-ipblock",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "semanticDiff-different-topologies-policy-b-with-ipblock",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "test_with_named_ports_changed_netpol_2",
-		outputFormats: []string{output.TextFormat},
-	},
-	{
-		testDirName:   "anp_banp_blog_demo",
-		outputFormats: ValidFormats,
-	},
-	{
-		testDirName:    "anp_banp_blog_demo",
-		focusWorkloads: []string{"myfoo", "mybar"},
-		outputFormats:  ValidFormats,
-	},
 }

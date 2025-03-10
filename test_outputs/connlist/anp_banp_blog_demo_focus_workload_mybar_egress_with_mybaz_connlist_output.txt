@@ -1,0 +1,1 @@
+bar/mybar[Pod] => baz/mybaz[Pod] : All Connections

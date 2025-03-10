@@ -1,0 +1,15 @@
+Permitted connections on UDP 52:
+0.0.0.0-255.255.255.255 => bar/mybar[Pod]
+0.0.0.0-255.255.255.255 => baz/mybaz[Pod]
+0.0.0.0-255.255.255.255 => monitoring/mymonitoring[Pod]
+bar/mybar[Pod] => 0.0.0.0-255.255.255.255
+bar/mybar[Pod] => baz/mybaz[Pod]
+bar/mybar[Pod] => monitoring/mymonitoring[Pod]
+baz/mybaz[Pod] => 0.0.0.0-255.255.255.255
+baz/mybaz[Pod] => monitoring/mymonitoring[Pod]
+foo/myfoo[Pod] => 0.0.0.0-255.255.255.255
+foo/myfoo[Pod] => baz/mybaz[Pod]
+foo/myfoo[Pod] => monitoring/mymonitoring[Pod]
+monitoring/mymonitoring[Pod] => 0.0.0.0-255.255.255.255
+monitoring/mymonitoring[Pod] => baz/mybaz[Pod]
+monitoring/mymonitoring[Pod] => foo/myfoo[Pod]
