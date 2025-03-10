@@ -136,32 +136,32 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		{
 			name:             "Input_dir_has_netpol_with_invalid_cidr_should_return_fatal_error_of_invalid_CIDR_address",
 			dirName:          filepath.Join("bad_netpols", "subdir1"),
-			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.CidrErrTitle, netpolerrors.InvalidCIDRAddr),
+			errorStrContains: netpolerrors.ConcatErrors(alerts.CidrErrTitle, alerts.InvalidCIDRAddr),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_bad_label_key_should_return_fatal_selector_error",
 			dirName:          filepath.Join("bad_netpols", "subdir2"),
-			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.SelectorErrTitle, netpolerrors.InvalidKeyVal),
+			errorStrContains: netpolerrors.ConcatErrors(alerts.SelectorErrTitle, alerts.InvalidKeyVal),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_bad_label_value_should_return_fatal_selector_error",
 			dirName:          filepath.Join("bad_netpols", "subdir7"),
-			errorStrContains: (netpolerrors.SelectorErrTitle),
+			errorStrContains: (alerts.SelectorErrTitle),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_invalid_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
 			dirName:          filepath.Join("bad_netpols", "subdir3"),
-			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.RulePeerErrTitle, netpolerrors.CombinedRulePeerErrStr),
+			errorStrContains: netpolerrors.ConcatErrors(alerts.RulePeerErrTitle, alerts.CombinedRulePeerErrStr),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_empty_rule_peer_should_return_fatal_rule_NetworkPolicyPeer_error",
 			dirName:          filepath.Join("bad_netpols", "subdir4"),
-			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.RulePeerErrTitle, netpolerrors.EmptyRulePeerErrStr),
+			errorStrContains: netpolerrors.ConcatErrors(alerts.RulePeerErrTitle, alerts.EmptyRulePeerErrStr),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_named_port_on_ipblock_peer_should_return_fatal_named_port_error",
 			dirName:          filepath.Join("bad_netpols", "subdir6"),
-			errorStrContains: netpolerrors.ConcatErrors(netpolerrors.NamedPortErrTitle, netpolerrors.ConvertNamedPortErrStr),
+			errorStrContains: netpolerrors.ConcatErrors(alerts.NamedPortErrTitle, alerts.ConvertNamedPortErrStr),
 		},
 		/*// input dir does not exist
 		{
@@ -173,12 +173,12 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		{
 			name:             "Input_dir_has_illegal_podlist_pods_with_same_owner_ref_name_has_different_labels_should_return_fatal_error",
 			dirName:          "semanticDiff-same-topologies-illegal-podlist",
-			errorStrContains: netpolerrors.NotSupportedPodResourcesErrorStr("demo/cog-agents"),
+			errorStrContains: alerts.NotSupportedPodResourcesErrorStr("demo/cog-agents"),
 		},
 		{
 			name:             "Input_dir_has_two_netpols_with_same_name_in_a_namespace_should_return_fatal_error_of_existing_object",
 			dirName:          "np_bad_path_test_1",
-			errorStrContains: netpolerrors.NPWithSameNameError("default/backend-netpol"),
+			errorStrContains: alerts.NPWithSameNameError("default/backend-netpol"),
 		},
 		{
 			name:             "Input_dir_has_netpol_with_illegal_port_should_return_fatal_error",
@@ -194,77 +194,77 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		{
 			name:             "Input_dir_has_two_admin_netpols_with_same_priority_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_1",
-			errorStrContains: netpolerrors.PriorityErrExplain,
+			errorStrContains: alerts.PriorityErrExplain,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_invalid_priority_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_2",
-			errorStrContains: netpolerrors.PriorityValueErr("invalid-priority", 1001),
+			errorStrContains: alerts.PriorityValueErr("invalid-priority", 1001),
 		},
 		{
 			name:             "Input_dir_has_two_admin_netpols_with_same_name_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_3",
-			errorStrContains: netpolerrors.ANPsWithSameNameErr("same-name"),
+			errorStrContains: alerts.ANPsWithSameNameErr("same-name"),
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_empty_subject_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_4",
-			errorStrContains: netpolerrors.OneFieldSetSubjectErr,
+			errorStrContains: alerts.OneFieldSetSubjectErr,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_invalid_subject_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_5",
-			errorStrContains: netpolerrors.OneFieldSetSubjectErr,
+			errorStrContains: alerts.OneFieldSetSubjectErr,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_an_empty_egress_rule_peer_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_6",
-			errorStrContains: netpolerrors.ANPEgressRulePeersErr,
+			errorStrContains: alerts.ANPEgressRulePeersErr,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_egress_rule_peer_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_7",
-			errorStrContains: netpolerrors.OneFieldSetRulePeerErr,
+			errorStrContains: alerts.OneFieldSetRulePeerErr,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_egress_rule_port_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_8",
-			errorStrContains: netpolerrors.ANPPortsError,
+			errorStrContains: alerts.ANPPortsError,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_egress_rule_action_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_9",
-			errorStrContains: netpolerrors.UnknownRuleActionErr,
+			errorStrContains: alerts.UnknownRuleActionErr,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_missing_egress_rule_peer_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_10",
-			errorStrContains: netpolerrors.ANPEgressRulePeersErr,
+			errorStrContains: alerts.ANPEgressRulePeersErr,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_missing_egress_rule_action_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_12",
-			errorStrContains: netpolerrors.UnknownRuleActionErr,
+			errorStrContains: alerts.UnknownRuleActionErr,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_missing_ingress_rule_peer_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_14",
-			errorStrContains: netpolerrors.ANPIngressRulePeersErr,
+			errorStrContains: alerts.ANPIngressRulePeersErr,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_an_empty_ingress_rule_peer_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_15",
-			errorStrContains: netpolerrors.ANPIngressRulePeersErr,
+			errorStrContains: alerts.ANPIngressRulePeersErr,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_ingress_rule_peer_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_16",
-			errorStrContains: netpolerrors.OneFieldSetRulePeerErr,
+			errorStrContains: alerts.OneFieldSetRulePeerErr,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_ingress_rule_port_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_17",
-			errorStrContains: netpolerrors.ANPPortsError,
+			errorStrContains: alerts.ANPPortsError,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_an_illegal_rule_port_range_should_return_fatal_error",
@@ -274,92 +274,92 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_ingress_rule_action_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_18",
-			errorStrContains: netpolerrors.UnknownRuleActionErr,
+			errorStrContains: alerts.UnknownRuleActionErr,
 		},
 		{
 			name:             "Input_dir_has_an_admin_netpol_with_an_invalid_egress_cidr_peer_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_19",
-			errorStrContains: netpolerrors.InvalidCIDRAddr,
+			errorStrContains: alerts.InvalidCIDRAddr,
 		},
 		{
 			name:             "Input_dir_has_admin_netpols_one_with_invalid_priority_should_return_fatal_error",
 			dirName:          "anp_bad_path_test_20",
-			errorStrContains: netpolerrors.PriorityValueErr("invalid-priority", 1001),
+			errorStrContains: alerts.PriorityValueErr("invalid-priority", 1001),
 		},
 		{
 			name:             "Input_dir_has_more_than_one_baseline_admin_netpol_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_1",
-			errorStrContains: netpolerrors.BANPAlreadyExists,
+			errorStrContains: alerts.BANPAlreadyExists,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_name_not_default_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_2",
-			errorStrContains: netpolerrors.BANPNameAssertion,
+			errorStrContains: alerts.BANPNameAssertion,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_empty_subject_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_3",
-			errorStrContains: netpolerrors.OneFieldSetSubjectErr,
+			errorStrContains: alerts.OneFieldSetSubjectErr,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_invalid_subject_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_4",
-			errorStrContains: netpolerrors.OneFieldSetSubjectErr,
+			errorStrContains: alerts.OneFieldSetSubjectErr,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_an_empty_egress_rule_peer_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_5",
-			errorStrContains: netpolerrors.ANPEgressRulePeersErr,
+			errorStrContains: alerts.ANPEgressRulePeersErr,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_missing_egress_rule_peer_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_6",
-			errorStrContains: netpolerrors.ANPEgressRulePeersErr,
+			errorStrContains: alerts.ANPEgressRulePeersErr,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_egress_rule_peer_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_7",
-			errorStrContains: netpolerrors.OneFieldSetRulePeerErr,
+			errorStrContains: alerts.OneFieldSetRulePeerErr,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_egress_rule_action_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_8",
-			errorStrContains: netpolerrors.UnknownRuleActionErr,
+			errorStrContains: alerts.UnknownRuleActionErr,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_egress_rule_port_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_9",
-			errorStrContains: netpolerrors.ANPPortsError,
+			errorStrContains: alerts.ANPPortsError,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_missing_ingress_rule_peer_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_10",
-			errorStrContains: netpolerrors.ANPIngressRulePeersErr,
+			errorStrContains: alerts.ANPIngressRulePeersErr,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_an_empty_ingress_rule_peer_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_11",
-			errorStrContains: netpolerrors.ANPIngressRulePeersErr,
+			errorStrContains: alerts.ANPIngressRulePeersErr,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_ingress_rule_peer_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_12",
-			errorStrContains: netpolerrors.OneFieldSetRulePeerErr,
+			errorStrContains: alerts.OneFieldSetRulePeerErr,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_ingress_rule_port_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_13",
-			errorStrContains: netpolerrors.ANPPortsError,
+			errorStrContains: alerts.ANPPortsError,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_ingress_rule_action_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_14",
-			errorStrContains: netpolerrors.UnknownRuleActionErr,
+			errorStrContains: alerts.UnknownRuleActionErr,
 		},
 		{
 			name:             "Input_dir_has_baseline_admin_netpol_with_an_invalid_egress_cidr_peer_should_return_fatal_error",
 			dirName:          "banp_bad_path_test_15",
-			errorStrContains: netpolerrors.InvalidCIDRAddr,
+			errorStrContains: alerts.InvalidCIDRAddr,
 		},
 	}
 	for _, tt := range cases {
@@ -443,41 +443,41 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 		{
 			name:                "malformed_yaml_unrecognized_type_int32",
 			dirName:             "malformed_pod_example",
-			firstErrStrContains: netpolerrors.UnrecognizedValType, // netpolerrors.MalformedYamlDocErrorStr
+			firstErrStrContains: alerts.UnrecognizedValType, // netpolerrors.MalformedYamlDocErrorStr
 			emptyRes:            true,
 		},
 		{
 			name:                "malformed_yaml_cannot_restore_slice_from_map",
 			dirName:             "malformed-pod-example-2",
-			firstErrStrContains: netpolerrors.SliceFromMapErr, // netpolerrors.MalformedYamlDocErrorStr
+			firstErrStrContains: alerts.SliceFromMapErr, // netpolerrors.MalformedYamlDocErrorStr
 			emptyRes:            false,
 		},
 		{
 			name:                "input_dir_with_focusworkload_that_does_not_exist_should_get_warning",
 			dirName:             "onlineboutique_workloads",
 			focusWorkloads:      []string{"abcd"},
-			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("abcd"),
+			firstErrStrContains: alerts.WorkloadDoesNotExistErrStr("abcd"),
 			emptyRes:            true,
 		},
 		{
 			name:                "input_dir_with_focusworkload_ns_and_name_that_does_not_exist_should_get_warning",
 			dirName:             "onlineboutique_workloads",
 			focusWorkloads:      []string{"default/abcd"},
-			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("default/abcd"),
+			firstErrStrContains: alerts.WorkloadDoesNotExistErrStr("default/abcd"),
 			emptyRes:            true,
 		},
 		{
 			name:                "input_dir_with_focusworkload_from_list_that_does_not_exist_should_get_warning",
 			dirName:             "anp_banp_blog_demo",
 			focusWorkloads:      []string{"myfoo", "abcd"},
-			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("abcd"),
+			firstErrStrContains: alerts.WorkloadDoesNotExistErrStr("abcd"),
 			emptyRes:            false, // only one focus-workload does not exist
 		},
 		{
 			name:                "input_dir_with_multiple_focusworkloads_that_do_not_exist_should_get_warnings",
 			dirName:             "anp_banp_blog_demo",
 			focusWorkloads:      []string{"myfriend", "abcd"},
-			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("myfriend"),
+			firstErrStrContains: alerts.WorkloadDoesNotExistErrStr("myfriend"),
 			emptyRes:            true, // all focus-workloads do not exist - empty connlist
 		},
 		{
@@ -485,7 +485,7 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 			dirName:             "anp_banp_blog_demo",
 			focusWorkloads:      []string{"myfoo"},
 			focusWorkloadPeers:  []string{"myfo", "mike"},
-			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("myfo"),
+			firstErrStrContains: alerts.WorkloadDoesNotExistErrStr("myfo"),
 			emptyRes:            true, // all focus-workloads peers do not exist - empty connlist
 		},
 		{
@@ -494,7 +494,7 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 			focusWorkloads:      []string{"myfoo"},
 			focusWorkloadPeers:  []string{"mybaz", "mike"},
 			focusDirection:      common.EgressFocusDirection,
-			firstErrStrContains: netpolerrors.WorkloadDoesNotExistErrStr("mike"),
+			firstErrStrContains: alerts.WorkloadDoesNotExistErrStr("mike"),
 			emptyRes:            false, // some focus-workload-peers exist
 		},
 
@@ -569,17 +569,17 @@ func TestFatalErrorsConnlistFromDirPathOnly(t *testing.T) {
 		{
 			name:             "dir_does_not_exist_err",
 			dirName:          "ttt",
-			errorStrContains: netpolerrors.PathNotExistErr, // netpolerrors.ErrGettingResInfoFromDir
+			errorStrContains: alerts.PathNotExistErr, // netpolerrors.ErrGettingResInfoFromDir
 		},
 		{
 			name:             "empty_dir_with_no_yamls_or_json_files",
 			dirName:          filepath.Join("bad_yamls", "subdir2"),
-			errorStrContains: netpolerrors.UnknownFileExtensionErr, // netpolerrors.ErrGettingResInfoFromDir
+			errorStrContains: alerts.UnknownFileExtensionErr, // netpolerrors.ErrGettingResInfoFromDir
 		},
 		{
 			name:             "bad_JSON_missing_kind", // this err is fatal here only because dir has no other resources
 			dirName:          "malformed-pod-example-4",
-			errorStrContains: netpolerrors.MissingObjectErr, // kind is missing in pod json, netpolerrors.ErrGettingResInfoFromDir
+			errorStrContains: alerts.MissingObjectErr, // kind is missing in pod json, netpolerrors.ErrGettingResInfoFromDir
 		},
 	}
 	for _, tt := range cases {
@@ -602,7 +602,7 @@ func TestErrorsAndWarningsConnlistFromDirPathOnly(t *testing.T) {
 		{
 			name:             "irrelevant_JSON_file_unable_to_decode",
 			dirName:          "onlineboutique",
-			errorStrContains: netpolerrors.UnmarshalErr, // netpolerrors.FailedReadingFileErrorStr
+			errorStrContains: alerts.UnmarshalErr, // netpolerrors.FailedReadingFileErrorStr
 			emptyRes:         false,
 		},
 		{
