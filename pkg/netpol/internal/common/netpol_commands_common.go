@@ -8,6 +8,12 @@ package common
 
 // The Kubernetes API server sets this label on all namespaces
 const K8sNsNameLabelKey = "kubernetes.io/metadata.name"
+const (
+	// according to this: https://network-policy-api.sigs.k8s.io/api-overview/#adminnetworkpolicy-priorities
+	// The Priority field in the ANP spec is defined as an integer value within the range 0 to 1000
+	MinANPPriority = 0
+	MaxANPPriority = 1000
+)
 
 // NetpolError holds information about a single error/warning that occurred during running
 // connectivity analysis command (list or diff)

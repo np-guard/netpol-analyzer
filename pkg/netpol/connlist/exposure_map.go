@@ -10,8 +10,8 @@ import (
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -132,7 +132,7 @@ func (ex *exposureMaps) addConnToExposureMap(pe *eval.PolicyEngine, allowedConne
 	// protected peer and this connection is between a representative peer and the real peer
 	allowedConnSet, ok := allowedConnections.(*common.ConnectionSet)
 	if !ok { // should not get here
-		return errors.New(netpolerrors.ConversionToConnectionSetErr)
+		return errors.New(alerts.ConversionToConnectionSetErr)
 	}
 	// check if the peer is exposed to entire-cluster and if connection equals the entire cluster connection;
 	// if allowed connection between src and dst is not equal to the connection with entire cluster, we need to add this connection

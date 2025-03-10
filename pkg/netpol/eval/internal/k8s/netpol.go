@@ -21,7 +21,6 @@ import (
 
 	"github.com/np-guard/models/pkg/netset"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -82,7 +81,7 @@ func (np *NetworkPolicy) getPortsRange(rulePort netv1.NetworkPolicyPort, dst Pee
 	portName string, err error) {
 	if rulePort.Port.Type == intstr.String { // rule.Port is namedPort
 		if rulePort.EndPort != nil { // endPort field may not be defined with named port
-			return start, end, "", np.netpolErr(netpolerrors.NamedPortErrTitle, alerts.EndPortWithNamedPortErrStr)
+			return start, end, "", np.netpolErr(alerts.NamedPortErrTitle, alerts.EndPortWithNamedPortErrStr)
 		}
 		ruleProtocol := getProtocolStr(rulePort.Protocol)
 		portName = rulePort.Port.StrVal
@@ -92,7 +91,7 @@ func (np *NetworkPolicy) getPortsRange(rulePort netv1.NetworkPolicyPort, dst Pee
 		}
 		if dst.PeerType() != PodType {
 			// namedPort is not defined for IP-blocks
-			return start, end, "", np.netpolErr(netpolerrors.NamedPortErrTitle, netpolerrors.ConvertNamedPortErrStr)
+			return start, end, "", np.netpolErr(alerts.NamedPortErrTitle, alerts.ConvertNamedPortErrStr)
 		}
 		podProtocol, podPortNum := dst.GetPeerPod().ConvertPodNamedPort(portName)
 		if podProtocol == "" && podPortNum == common.NoPort {
@@ -278,11 +277,11 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 	}
 	for i := range rulePeers {
 		if rulePeers[i].PodSelector == nil && rulePeers[i].NamespaceSelector == nil && rulePeers[i].IPBlock == nil {
-			return false, np.netpolErr(netpolerrors.RulePeerErrTitle, netpolerrors.EmptyRulePeerErrStr)
+			return false, np.netpolErr(alerts.RulePeerErrTitle, alerts.EmptyRulePeerErrStr)
 		}
 		if rulePeers[i].PodSelector != nil || rulePeers[i].NamespaceSelector != nil {
 			if rulePeers[i].IPBlock != nil {
-				return false, np.netpolErr(netpolerrors.RulePeerErrTitle, netpolerrors.CombinedRulePeerErrStr)
+				return false, np.netpolErr(alerts.RulePeerErrTitle, alerts.CombinedRulePeerErrStr)
 			}
 			if peer.PeerType() == IPBlockType {
 				continue // assuming that peer of type IP cannot be selected by pod selector
@@ -479,11 +478,11 @@ func (np *NetworkPolicy) netpolErr(title, description string) error {
 func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*netset.IPBlock, error) {
 	ipb, err := netset.IPBlockFromCidr(cidr)
 	if err != nil {
-		return nil, np.netpolErr(netpolerrors.CidrErrTitle, err.Error())
+		return nil, np.netpolErr(alerts.CidrErrTitle, err.Error())
 	}
 	ipb, err = ipb.ExceptCidrs(except...)
 	if err != nil {
-		return nil, np.netpolErr(netpolerrors.CidrErrTitle, err.Error())
+		return nil, np.netpolErr(alerts.CidrErrTitle, err.Error())
 	}
 	return ipb, nil
 }
@@ -491,7 +490,7 @@ func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*netset.
 func (np *NetworkPolicy) parseNetpolLabelSelector(selector *metav1.LabelSelector) (labels.Selector, error) {
 	selectorRes, err := metav1.LabelSelectorAsSelector(selector)
 	if err != nil {
-		return nil, np.netpolErr(netpolerrors.SelectorErrTitle, err.Error())
+		return nil, np.netpolErr(alerts.SelectorErrTitle, err.Error())
 	}
 	return selectorRes, nil
 }

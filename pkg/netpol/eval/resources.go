@@ -28,7 +28,6 @@ import (
 	"github.com/np-guard/models/pkg/netset"
 
 	pkgcommon "github.com/np-guard/netpol-analyzer/pkg/internal/common"
-	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
@@ -252,21 +251,21 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 func (pe *PolicyEngine) sortAdminNetpolsByPriority() error {
 	var err error
 	if len(pe.sortedAdminNetpols) == 1 && !pe.sortedAdminNetpols[0].HasValidPriority() {
-		return errors.New(netpolerrors.PriorityValueErr(pe.sortedAdminNetpols[0].Name, pe.sortedAdminNetpols[0].Spec.Priority))
+		return errors.New(alerts.PriorityValueErr(pe.sortedAdminNetpols[0].Name, pe.sortedAdminNetpols[0].Spec.Priority))
 	}
 	sort.Slice(pe.sortedAdminNetpols, func(i, j int) bool {
 		// outcome is non-deterministic if there are two AdminNetworkPolicies at the same priority
 		if pe.sortedAdminNetpols[i].Spec.Priority == pe.sortedAdminNetpols[j].Spec.Priority {
-			err = errors.New(netpolerrors.SamePriorityErr(pe.sortedAdminNetpols[i].Name, pe.sortedAdminNetpols[j].Name))
+			err = errors.New(alerts.SamePriorityErr(pe.sortedAdminNetpols[i].Name, pe.sortedAdminNetpols[j].Name))
 			return false
 		}
 		// priority values range is defined
 		if !pe.sortedAdminNetpols[i].HasValidPriority() {
-			err = errors.New(netpolerrors.PriorityValueErr(pe.sortedAdminNetpols[i].Name, pe.sortedAdminNetpols[i].Spec.Priority))
+			err = errors.New(alerts.PriorityValueErr(pe.sortedAdminNetpols[i].Name, pe.sortedAdminNetpols[i].Spec.Priority))
 			return false
 		}
 		if !pe.sortedAdminNetpols[j].HasValidPriority() {
-			err = errors.New(netpolerrors.PriorityValueErr(pe.sortedAdminNetpols[j].Name, pe.sortedAdminNetpols[j].Spec.Priority))
+			err = errors.New(alerts.PriorityValueErr(pe.sortedAdminNetpols[j].Name, pe.sortedAdminNetpols[j].Spec.Priority))
 			return false
 		}
 		return pe.sortedAdminNetpols[i].Spec.Priority < pe.sortedAdminNetpols[j].Spec.Priority
@@ -480,7 +479,7 @@ func generateLabelsDiffError(firstPod, newPod *k8s.Pod, key, firstVal, newVal st
 	ownerName := types.NamespacedName{Namespace: firstPod.Namespace, Name: firstPod.Owner.Name}.String()
 	newPodStr := types.NamespacedName{Namespace: newPod.Namespace, Name: newPod.Name}.String()
 	firstPodStr := types.NamespacedName{Namespace: firstPod.Namespace, Name: firstPod.Name}.String()
-	errMsgPart1 := netpolerrors.NotSupportedPodResourcesErrorStr(ownerName)
+	errMsgPart1 := alerts.NotSupportedPodResourcesErrorStr(ownerName)
 	errMsgPart2 := ""
 	keyMissingErr := " Pod %s has label %s=%s, and Pod %s does not have label %s."
 	differentValuesErr := " Pod %s has label %s=%s, and Pod %s has label %s=%s."
@@ -567,7 +566,7 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		EgressPolicyClusterWideExposure:  k8s.NewPolicyConnections(),
 	}
 	if _, ok := pe.netpolsMap[netpolNamespace][np.Name]; ok {
-		return errors.New(netpolerrors.NPWithSameNameError(types.NamespacedName{Namespace: netpolNamespace, Name: np.Name}.String()))
+		return errors.New(alerts.NPWithSameNameError(types.NamespacedName{Namespace: netpolNamespace, Name: np.Name}.String()))
 	}
 	pe.netpolsMap[netpolNamespace][np.Name] = newNetpol
 
@@ -590,7 +589,7 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 
 func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy) error {
 	if pe.adminNetpolsMap[anp.Name] {
-		return errors.New(netpolerrors.ANPsWithSameNameErr(anp.Name))
+		return errors.New(alerts.ANPsWithSameNameErr(anp.Name))
 	}
 	newAnp := &k8s.AdminNetworkPolicy{
 		AdminNetworkPolicy:               anp,
@@ -616,12 +615,12 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 
 func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineAdminNetworkPolicy) error {
 	if pe.baselineAdminNetpol != nil { // @todo : should this be a warning? the last banp the one considered
-		return errors.New(netpolerrors.BANPAlreadyExists)
+		return errors.New(alerts.BANPAlreadyExists)
 	}
 	if banp.Name != "default" { // "You must use default as the name when creating a BaselineAdminNetworkPolicy object."
 		// see https://www.redhat.com/en/blog/using-adminnetworkpolicy-api-to-secure-openshift-cluster-networking
 		// or this: https://pkg.go.dev/sigs.k8s.io/network-policy-api@v0.1.5/apis/v1alpha1#BaselineAdminNetworkPolicy
-		return errors.New(netpolerrors.BANPNameAssertion)
+		return errors.New(alerts.BANPNameAssertion)
 	}
 	newBanp := &k8s.BaselineAdminNetworkPolicy{
 		BaselineAdminNetworkPolicy:       banp,
@@ -926,7 +925,7 @@ func (pe *PolicyEngine) AddPodByNameAndNamespace(name, ns string) (Peer, error) 
 // this func is used only with exposure-analysis
 func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.SingleRuleSelectors) error {
 	if objSelectors == nil { // should not get here
-		return errors.New(netpolerrors.NilRepresentativePodSelectorsErr)
+		return errors.New(alerts.NilRepresentativePodSelectorsErr)
 	}
 	nsLabelSelector := objSelectors.NsSelector
 	if nsLabelSelector == nil {

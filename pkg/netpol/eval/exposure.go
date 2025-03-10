@@ -11,8 +11,8 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 
-	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -121,7 +121,7 @@ func (pe *PolicyEngine) removeRepresentativePeersMatchingLabels(realPodLabels, r
 func isPeerAWorkloadPeer(p Peer) (*k8s.WorkloadPeer, error) {
 	peer, ok := p.(*k8s.WorkloadPeer)
 	if !ok { // should not get here
-		return nil, errors.New(netpolerrors.NotPeerErrStr(p.String()))
+		return nil, errors.New(alerts.NotPeerErrStr(p.String()))
 	}
 	return peer, nil
 }
@@ -169,7 +169,7 @@ func (pe *PolicyEngine) GetPeerLabels(p Peer) (podLabels, nsLabels v1.LabelSelec
 		return v1.LabelSelector{}, v1.LabelSelector{}, err
 	}
 	if peer.Kind() != k8s.RepresentativePeerKind { // should not get here
-		return v1.LabelSelector{}, v1.LabelSelector{}, errors.New(netpolerrors.NotRepresentativePeerErrStr(p.String()))
+		return v1.LabelSelector{}, v1.LabelSelector{}, errors.New(alerts.NotRepresentativePeerErrStr(p.String()))
 	}
 	podLabels = v1.LabelSelector{}
 	if peer.Pod.RepresentativePodLabelSelector != nil {

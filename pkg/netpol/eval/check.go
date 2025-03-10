@@ -19,6 +19,7 @@ import (
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -37,7 +38,7 @@ func (pe *PolicyEngine) convertPeerToPodPeer(peer Peer) (*k8s.PodPeer, error) {
 		podObj = currentPeer.Pod
 		podNamespace, err = pe.getPeerNamespaceObject(podObj)
 	default: // should not get here
-		return nil, errors.New(netpolerrors.InvalidPeerErrStr(peer.String()))
+		return nil, errors.New(alerts.InvalidPeerErrStr(peer.String()))
 	}
 	if err != nil {
 		return nil, err
@@ -58,7 +59,7 @@ func (pe *PolicyEngine) getPeerNamespaceObject(podObj *k8s.Pod) (*k8s.Namespace,
 	// else , should have the namespace of the pod in policy-engine
 	namespaceObj, ok := pe.namespacesMap[podObj.Namespace]
 	if !ok {
-		return nil, errors.New(netpolerrors.MissingNamespaceErrStr(podObj.Namespace, podObj.Name))
+		return nil, errors.New(alerts.MissingNamespaceErrStr(podObj.Namespace, podObj.Name))
 	}
 	return namespaceObj, nil
 }
@@ -158,14 +159,14 @@ func (pe *PolicyEngine) getPeer(p string) (k8s.Peer, error) {
 			}
 			nsObj, ok := pe.namespacesMap[namespaceStr]
 			if !ok {
-				return nil, errors.New(netpolerrors.NotFoundNamespace)
+				return nil, errors.New(alerts.NotFoundNamespace)
 			}
 			res.NamespaceObject = nsObj
 			return res, nil
 		}
 		return nil, errors.New(netpolerrors.NotFoundPeerErrStr(p))
 	}
-	return nil, errors.New(netpolerrors.InvalidPeerErrStr(p))
+	return nil, errors.New(alerts.InvalidPeerErrStr(p))
 }
 
 // GetPeerExposedTCPConnections returns the tcp connection (ports) exposed by a workload/pod peer
@@ -233,7 +234,7 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 		}
 		return pe.allAllowedConnectionsBetweenPeers(srcPodPeer, dstPodPeer)
 	}
-	return nil, errors.New(netpolerrors.BothSrcAndDstIPsErrStr(srcPeer.String(), dstPeer.String()))
+	return nil, errors.New(alerts.BothSrcAndDstIPsErrStr(srcPeer.String(), dstPeer.String()))
 }
 
 // allAllowedConnectionsBetweenPeers: returns the allowed connections from srcPeer to dstPeer
