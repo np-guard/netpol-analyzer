@@ -1,0 +1,119 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255 => foo/myfoo[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between bar/mybar[Pod] => foo/myfoo[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but bar/mybar[Pod] is not selected by any Ingress rule
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between baz/mybaz[Pod] => bar/mybar[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			BaselineAdminNetworkPolicy 'default' denies connections by Ingress rule deny-ingress-from-all-namespaces
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between baz/mybaz[Pod] => foo/myfoo[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but baz/mybaz[Pod] is not selected by any Ingress rule
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between foo/myfoo[Pod] => bar/mybar[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			BaselineAdminNetworkPolicy 'default' denies connections by Ingress rule deny-ingress-from-all-namespaces
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between monitoring/mymonitoring[Pod] => bar/mybar[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			AdminNetworkPolicy 'pass-monitoring' passes connections by Ingress rule pass-ingress-from-monitoring
+			BaselineAdminNetworkPolicy 'default' denies connections by Ingress rule deny-ingress-from-all-namespaces
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between monitoring/mymonitoring[Pod] => baz/mybaz[Pod]:
+
+Allowed connections:
+	Allowed TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
+			AdminNetworkPolicy 'allow-monitoring' allows connections by Ingress rule allow-ingress-from-monitoring
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
+
+Allowed connections:
+	Allowed TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
+			AdminNetworkPolicy 'pass-monitoring' passes connections by Ingress rule pass-ingress-from-monitoring
+			NetworkPolicy 'foo/allow-monitoring' allows connections by Ingress rule #1
+
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
+0.0.0.0-255.255.255.255 => bar/mybar[Pod]
+0.0.0.0-255.255.255.255 => baz/mybaz[Pod]
+0.0.0.0-255.255.255.255 => monitoring/mymonitoring[Pod]
+bar/mybar[Pod] => 0.0.0.0-255.255.255.255
+bar/mybar[Pod] => baz/mybaz[Pod]
+bar/mybar[Pod] => monitoring/mymonitoring[Pod]
+baz/mybaz[Pod] => 0.0.0.0-255.255.255.255
+baz/mybaz[Pod] => monitoring/mymonitoring[Pod]
+foo/myfoo[Pod] => 0.0.0.0-255.255.255.255
+foo/myfoo[Pod] => baz/mybaz[Pod]
+foo/myfoo[Pod] => monitoring/mymonitoring[Pod]
+monitoring/mymonitoring[Pod] => 0.0.0.0-255.255.255.255
+
+Exposure Analysis Result:
+Egress Exposure:
+bar/mybar[Pod]               	=> 	0.0.0.0-255.255.255.255 : All Connections
+bar/mybar[Pod]               	=> 	entire-cluster : All Connections
+baz/mybaz[Pod]               	=> 	0.0.0.0-255.255.255.255 : All Connections
+baz/mybaz[Pod]               	=> 	entire-cluster : All Connections
+foo/myfoo[Pod]               	=> 	0.0.0.0-255.255.255.255 : All Connections
+foo/myfoo[Pod]               	=> 	entire-cluster : All Connections
+monitoring/mymonitoring[Pod] 	=> 	0.0.0.0-255.255.255.255 : All Connections
+monitoring/mymonitoring[Pod] 	=> 	entire-cluster : All Connections
+
+Ingress Exposure:
+bar/mybar[Pod]               	<= 	0.0.0.0-255.255.255.255 : All Connections
+baz/mybaz[Pod]               	<= 	0.0.0.0-255.255.255.255 : All Connections
+baz/mybaz[Pod]               	<= 	entire-cluster : All Connections
+foo/myfoo[Pod]               	<= 	monitoring/[all pods] : All Connections
+monitoring/mymonitoring[Pod] 	<= 	0.0.0.0-255.255.255.255 : All Connections
+monitoring/mymonitoring[Pod] 	<= 	entire-cluster : All Connections
+
+Workloads not protected by network policies:
+bar/mybar[Pod] is not protected on Egress
+baz/mybaz[Pod] is not protected on Egress
+foo/myfoo[Pod] is not protected on Egress
+monitoring/mymonitoring[Pod] is not protected on Egress

@@ -76,6 +76,11 @@ var explainTests = []struct {
 	},
 	{
 		testDirName:            "anp_banp_blog_demo",
+		exposure:               true,
+		supportedOnLiveCluster: true,
+	},
+	{
+		testDirName:            "anp_banp_blog_demo",
 		focusWorkloads:         []string{"myfoo"},
 		focusDirection:         common.IngressFocusDirection,
 		supportedOnLiveCluster: true,
@@ -120,6 +125,11 @@ var explainTests = []struct {
 	},
 	{
 		testDirName:            "onlineboutique",
+		supportedOnLiveCluster: true,
+	},
+	{
+		testDirName:            "onlineboutique",
+		exposure:               true,
 		supportedOnLiveCluster: true,
 	},
 	{
