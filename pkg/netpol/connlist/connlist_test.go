@@ -895,6 +895,12 @@ var goodPathTests = []struct {
 		supportedOnLiveCluster: true,
 	},
 	{
+		testDirName:            "onlineboutique",
+		outputFormats:          []string{output.MDFormat, output.TextFormat},
+		exposureAnalysis:       true,
+		supportedOnLiveCluster: true,
+	},
+	{
 		testDirName:   "onlineboutique_workloads",
 		outputFormats: []string{output.CSVFormat, output.DOTFormat, output.TextFormat},
 	},
@@ -1980,6 +1986,20 @@ var goodPathTests = []struct {
 		focusWorkloads:         []string{"mybar"},
 		focusWorkloadPeers:     []string{"mybaz"},
 		focusDirection:         common.EgressFocusDirection,
+		outputFormats:          []string{output.DefaultFormat},
+		supportedOnLiveCluster: true,
+	},
+	{
+		testDirName:            "anp_banp_blog_demo",
+		exposureAnalysis:       true,
+		outputFormats:          []string{output.DefaultFormat},
+		supportedOnLiveCluster: true,
+	},
+	{
+		testDirName:            "anp_banp_blog_demo",
+		focusWorkloads:         []string{"mybar"},
+		focusDirection:         common.EgressFocusDirection,
+		exposureAnalysis:       true,
 		outputFormats:          []string{output.DefaultFormat},
 		supportedOnLiveCluster: true,
 	},

@@ -372,28 +372,42 @@ func (ca *ConnlistAnalyzer) ConnlistFromK8sClusterWithPolicyAPI(clientset kubern
 	policyAPIClientset policyapi.Interface) ([]Peer2PeerConnection, []Peer, error) {
 	pe, err := eval.NewPolicyEngineWithOptionsList(eval.WithExplanation(ca.explain), eval.WithLogger(ca.logger))
 	if ca.exposureAnalysis {
-		ca.logWarning(alerts.WarnIgnoredExposureOnLiveCluster)
-		ca.exposureAnalysis = false
+		pe, err = eval.NewPolicyEngineWithOptionsList(eval.WithExplanation(ca.explain), eval.WithLogger(ca.logger), eval.WithExposureAnalysis())
 	}
 	if err != nil {
 		return nil, nil, err
 	}
-	// insert namespaces, pods and network-policies from k8s clientset
-	err = updatePolicyEngineWithK8sBasicObjects(pe, clientset)
+	// adding objects to policy-engine will be in the order : Namespaces, policies (NetworkPolicy, AdminNetworkPolicy
+	// and BaselineAdminNetworkPolicy) then Pods
+	// this order is necessary when exposure-analysis is on.
+
+	// 1. insert namespaces from k8s clientset
+	err = updatePolicyEngineWithNamespaces(pe, clientset)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// insert admin policies from k8s policy-api clientset
+	// 2. insert network-policies from  k8s clientset and admin policies from k8s policy-api clientset
+	err = updatePolicyEngineWithNetworkPolicies(pe, clientset)
+	if err != nil {
+		return nil, nil, err
+	}
 	err = pe.UpdatePolicyEngineWithK8sPolicyAPIObjects(policyAPIClientset)
 	if err != nil {
 		return nil, nil, err
 	}
+
+	// 3. insert pods from k8s clientset
+	err = updatePolicyEngineWithPods(pe, clientset)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	return ca.getConnectionsList(pe, nil)
 }
 
-// updatePolicyEngineWithK8sBasicObjects inserts to the policy engine all k8s pods, namespaces and network-policies
-func updatePolicyEngineWithK8sBasicObjects(pe *eval.PolicyEngine, clientset kubernetes.Interface) error {
+// updatePolicyEngineWithNamespaces inserts to the policy engine all k8s namespaces
+func updatePolicyEngineWithNamespaces(pe *eval.PolicyEngine, clientset kubernetes.Interface) error {
 	ctx, cancel := context.WithTimeout(context.Background(), pkgcommon.CtxTimeoutSeconds*time.Second)
 	defer cancel()
 	// get all namespaces
@@ -407,7 +421,13 @@ func updatePolicyEngineWithK8sBasicObjects(pe *eval.PolicyEngine, clientset kube
 			return err
 		}
 	}
+	return nil
+}
 
+// updatePolicyEngineWithNetworkPolicies inserts to the policy engine all k8s network-policies
+func updatePolicyEngineWithNetworkPolicies(pe *eval.PolicyEngine, clientset kubernetes.Interface) error {
+	ctx, cancel := context.WithTimeout(context.Background(), pkgcommon.CtxTimeoutSeconds*time.Second)
+	defer cancel()
 	// get all netpols
 	npList, apiErr := clientset.NetworkingV1().NetworkPolicies(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	if apiErr != nil {
@@ -418,7 +438,13 @@ func updatePolicyEngineWithK8sBasicObjects(pe *eval.PolicyEngine, clientset kube
 			return err
 		}
 	}
+	return nil
+}
 
+// updatePolicyEngineWithPods inserts to the policy engine all k8s pods
+func updatePolicyEngineWithPods(pe *eval.PolicyEngine, clientset kubernetes.Interface) error {
+	ctx, cancel := context.WithTimeout(context.Background(), pkgcommon.CtxTimeoutSeconds*time.Second)
+	defer cancel()
 	// get all pods
 	podList, apiErr := clientset.CoreV1().Pods(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	if apiErr != nil {
@@ -437,8 +463,21 @@ func updatePolicyEngineWithK8sBasicObjects(pe *eval.PolicyEngine, clientset kube
 func (ca *ConnlistAnalyzer) ConnlistFromK8sCluster(clientset *kubernetes.Clientset) ([]Peer2PeerConnection, []Peer, error) {
 	pe := eval.NewPolicyEngineWithOptions(ca.exposureAnalysis)
 
-	// insert namespaces, pods and network-policies from k8s clientset
-	err := updatePolicyEngineWithK8sBasicObjects(pe, clientset)
+	// insert namespaces, network-policies and pods from k8s clientset
+	// 1. insert namespaces from k8s clientset
+	err := updatePolicyEngineWithNamespaces(pe, clientset)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// 2. insert network-policies from  k8s clientset
+	err = updatePolicyEngineWithNetworkPolicies(pe, clientset)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// 3. insert pods from k8s clientset
+	err = updatePolicyEngineWithPods(pe, clientset)
 	if err != nil {
 		return nil, nil, err
 	}
