@@ -18,7 +18,7 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but baz/mybaz[Pod] is not selected by any Ingress rule
+			NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but baz/mybaz[Pod] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between monitoring/mymonitoring[Pod] => bar/mybar[Pod]:

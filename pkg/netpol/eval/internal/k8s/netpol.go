@@ -381,7 +381,7 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 }
 
 const (
-	capturedButNotSelectedExpl   = "selects %s, but %s is not selected by any %s rule"
+	capturedButNotSelectedExpl   = "selects %s, but %s is not allowed by any %s rule"
 	noMatchExplFormat            = "%s selects %s, and %s selects %s, %s"
 	noXgressRulesExpl            = capturedButNotSelectedExpl + " (no rules defined)"
 	explNoMatchOfNamedPortsToDst = "but named ports of the rule have no match in the configuration of the destination peer"
