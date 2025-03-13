@@ -10,12 +10,12 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
-				- NetworkPolicy 'default/policy1' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy14' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy18' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy3' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy6' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'default/policy1' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy14' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy18' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy3' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy6' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -26,12 +26,12 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
-				- NetworkPolicy 'default/policy14' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy16' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy18' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy3' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy6' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'default/policy14' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy16' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy18' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy3' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy6' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -42,12 +42,12 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule (no rules defined)
-				- NetworkPolicy 'default/policy1' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy14' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy18' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy3' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy6' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Ingress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'default/policy1' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy14' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy18' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy3' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy6' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -57,12 +57,12 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
-				- NetworkPolicy 'default/policy0' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
-				- NetworkPolicy 'default/policy11' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
-				- NetworkPolicy 'default/policy13' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
-				- NetworkPolicy 'default/policy2' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
-				- NetworkPolicy 'default/policy5' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'default/policy0' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy11' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy13' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy2' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy5' selects default/new-vm-1[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -80,21 +80,21 @@ Denied connections:
 	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not selected by any Egress rule (no rules defined)
-				- NetworkPolicy 'default/policy0' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not selected by any Egress rule
-				- NetworkPolicy 'default/policy11' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not selected by any Egress rule
-				- NetworkPolicy 'default/policy13' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not selected by any Egress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'default/policy0' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy11' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy13' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not allowed by any Egress rule
 				- NetworkPolicy 'default/policy2' selects default/new-vm-1[Pod], and Egress rule #1 selects default/new-vm-2[Pod], but the protocols and ports do not match
-				- NetworkPolicy 'default/policy5' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not selected by any Egress rule
+				- NetworkPolicy 'default/policy5' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not allowed by any Egress rule
 
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not selected by any Ingress rule (no rules defined)
-				- NetworkPolicy 'default/policy14' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy16' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy18' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not selected by any Ingress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'default/policy14' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy16' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy18' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not allowed by any Ingress rule
 				- NetworkPolicy 'default/policy3' selects default/new-vm-2[Pod], and Ingress rule #1 selects default/new-vm-1[Pod], but the protocols and ports do not match
-				- NetworkPolicy 'default/policy6' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not selected by any Ingress rule
+				- NetworkPolicy 'default/policy6' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -126,12 +126,12 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
-				- NetworkPolicy 'default/policy11' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
-				- NetworkPolicy 'default/policy13' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
-				- NetworkPolicy 'default/policy2' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
-				- NetworkPolicy 'default/policy5' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
-				- NetworkPolicy 'default/policy9' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'default/policy11' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy13' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy2' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy5' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy9' selects default/new-vm-2[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -149,21 +149,21 @@ Denied connections:
 	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not selected by any Egress rule (no rules defined)
-				- NetworkPolicy 'default/policy11' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not selected by any Egress rule
-				- NetworkPolicy 'default/policy13' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not selected by any Egress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'default/policy11' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy13' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not allowed by any Egress rule
 				- NetworkPolicy 'default/policy2' selects default/new-vm-2[Pod], and Egress rule #1 selects default/new-vm-1[Pod], but the protocols and ports do not match
-				- NetworkPolicy 'default/policy5' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not selected by any Egress rule
-				- NetworkPolicy 'default/policy9' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not selected by any Egress rule
+				- NetworkPolicy 'default/policy5' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy9' selects default/new-vm-2[Pod], but default/new-vm-1[Pod] is not allowed by any Egress rule
 
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not selected by any Ingress rule (no rules defined)
-				- NetworkPolicy 'default/policy1' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy14' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy18' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not selected by any Ingress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'default/policy1' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy14' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy18' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not allowed by any Ingress rule
 				- NetworkPolicy 'default/policy3' selects default/new-vm-1[Pod], and Ingress rule #1 selects default/new-vm-2[Pod], but the protocols and ports do not match
-				- NetworkPolicy 'default/policy6' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not selected by any Ingress rule
+				- NetworkPolicy 'default/policy6' selects default/new-vm-1[Pod], but default/new-vm-2[Pod] is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -180,21 +180,21 @@ Denied connections:
 	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not selected by any Egress rule (no rules defined)
-				- NetworkPolicy 'default/policy11' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not selected by any Egress rule
-				- NetworkPolicy 'default/policy13' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not selected by any Egress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'default/policy11' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy13' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not allowed by any Egress rule
 				- NetworkPolicy 'default/policy2' selects default/new-vm-2[Pod], and Egress rule #1 selects default/new-vm-3[Pod], but the protocols and ports do not match
-				- NetworkPolicy 'default/policy5' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not selected by any Egress rule
-				- NetworkPolicy 'default/policy9' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not selected by any Egress rule
+				- NetworkPolicy 'default/policy5' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy9' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not allowed by any Egress rule
 
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not selected by any Ingress rule (no rules defined)
-				- NetworkPolicy 'default/policy1' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy14' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy18' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not selected by any Ingress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'default/policy1' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy14' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy18' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not allowed by any Ingress rule
 				- NetworkPolicy 'default/policy3' selects default/new-vm-3[Pod], and Ingress rule #1 selects default/new-vm-2[Pod], but the protocols and ports do not match
-				- NetworkPolicy 'default/policy6' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not selected by any Ingress rule
+				- NetworkPolicy 'default/policy6' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -204,12 +204,12 @@ Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule (no rules defined)
-				- NetworkPolicy 'default/policy0' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
-				- NetworkPolicy 'default/policy11' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
-				- NetworkPolicy 'default/policy13' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
-				- NetworkPolicy 'default/policy2' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
-				- NetworkPolicy 'default/policy5' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not selected by any Egress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'default/policy0' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy11' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy13' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy2' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy5' selects default/new-vm-3[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -249,21 +249,21 @@ Denied connections:
 	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not selected by any Egress rule (no rules defined)
-				- NetworkPolicy 'default/policy0' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not selected by any Egress rule
-				- NetworkPolicy 'default/policy11' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not selected by any Egress rule
-				- NetworkPolicy 'default/policy13' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not selected by any Egress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'default/policy0' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy11' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not allowed by any Egress rule
+				- NetworkPolicy 'default/policy13' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not allowed by any Egress rule
 				- NetworkPolicy 'default/policy2' selects default/new-vm-3[Pod], and Egress rule #1 selects default/new-vm-2[Pod], but the protocols and ports do not match
-				- NetworkPolicy 'default/policy5' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not selected by any Egress rule
+				- NetworkPolicy 'default/policy5' selects default/new-vm-3[Pod], but default/new-vm-2[Pod] is not allowed by any Egress rule
 
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'default/default-deny' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not selected by any Ingress rule (no rules defined)
-				- NetworkPolicy 'default/policy14' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy16' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not selected by any Ingress rule
-				- NetworkPolicy 'default/policy18' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not selected by any Ingress rule
+				- NetworkPolicy 'default/default-deny' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'default/policy14' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy16' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not allowed by any Ingress rule
+				- NetworkPolicy 'default/policy18' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not allowed by any Ingress rule
 				- NetworkPolicy 'default/policy3' selects default/new-vm-2[Pod], and Ingress rule #1 selects default/new-vm-3[Pod], but the protocols and ports do not match
-				- NetworkPolicy 'default/policy6' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not selected by any Ingress rule
+				- NetworkPolicy 'default/policy6' selects default/new-vm-2[Pod], but default/new-vm-3[Pod] is not allowed by any Ingress rule
 
 
 
