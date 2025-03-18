@@ -1,0 +1,31 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: new-example
+spec:
+  priority: 10
+  subject:
+    pods: # subject selecting pods with labels not in the gap
+      podSelector:
+        matchLabels:
+          security: internal
+  ingress:
+  - name: "allow-tcp-80-from-pod3" 
+    action: "Allow"
+    from:
+    - pods:
+        podSelector:
+          matchLabels:
+            app: pod3
+    ports:
+    - portNumber:
+        port: 80
+        protocol: TCP
+  - name: "deny-others" 
+    action: "Deny"
+    from:
+    - pods:
+        podSelector:
+          matchLabels:
+            app: pod3
+---

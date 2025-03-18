@@ -1,0 +1,18 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: BaselineAdminNetworkPolicy
+metadata:
+  name: default
+spec:
+  subject:
+    pods:
+      podSelector:
+        matchLabels:
+          app: pod3
+  egress:
+  - name: "deny-everything" 
+    action: "Deny"
+    to:
+    - pods:
+        podSelector:
+          matchLabels:
+            security: internal
