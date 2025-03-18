@@ -2003,6 +2003,24 @@ var goodPathTests = []struct {
 		outputFormats:          []string{output.DefaultFormat},
 		supportedOnLiveCluster: true,
 	},
+	{
+		// in following example we have 2 pods which belong to same owner;
+		// the pods have different labels;
+		// however, since there are no policies in the input resources
+		// a connectivity report is generated (the labels diff does not affect the analysis)
+		testDirName:            "example_pods_w_same_owner_and_labels_gap_no_policy",
+		outputFormats:          []string{output.DefaultFormat},
+		supportedOnLiveCluster: true,
+	},
+	{
+		// in following example we have 2 pods which belong to same owner; the pods have different labels;
+		// however, since the policy rule selector (which selects those pods) uses a label-selector which is same in both pods
+		// i.e. not from the gap:
+		// a connectivity report is generated (the labels diff does not affect the analysis)
+		testDirName:            "example_pods_w_same_owner_and_labels_gap_with_policy_selector_not_in_gap",
+		outputFormats:          []string{output.DefaultFormat},
+		supportedOnLiveCluster: true,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {
