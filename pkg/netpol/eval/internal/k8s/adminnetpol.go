@@ -929,8 +929,8 @@ func podsFieldContainsDiffLabel(podsField *apisv1a.NamespacedPod, ownerNs *Names
 		return "", ""
 	}
 	// ns selector matches owner namespace, check if podSelector contains gap labels
-	if key := selectorContainsGapLabel(&podsField.PodSelector, diffLabels); key != "" {
-		return key, podsField.PodSelector.String()
+	if key, selectorStr := selectorContainsGapLabel(&podsField.PodSelector, diffLabels); key != "" {
+		return key, selectorStr
 	}
 	return "", ""
 }

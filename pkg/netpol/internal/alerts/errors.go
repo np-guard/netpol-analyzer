@@ -64,8 +64,8 @@ func IllegalPortRangeError(start, end int64) string {
 // NotSupportedPodResourcesErrorStr returns error string of not supported pods with same ownerRef but different labels
 // which are selected by a policy
 func NotSupportedPodResourcesErrorStr(ownerRefName string) string {
-	return "Input resources are not supported for connectivity analysis. Found Pods of the same owner " +
-		ownerRefName + " but with different set of labels. And found a policy containing selectors from the different labels set."
+	return "Found Pods of the same owner workload `" + ownerRefName +
+		"` and with differences in their labels, while a network policy contains selectors impacted by this gap.\n"
 }
 
 // InvalidPeerErrStr returns error string of an invalid peer

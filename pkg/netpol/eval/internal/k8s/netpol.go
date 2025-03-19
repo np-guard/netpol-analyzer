@@ -597,8 +597,8 @@ func (np *NetworkPolicy) LogWarnings(l logger.Logger) {
 func (np *NetworkPolicy) ContainsLabels(ownerNs *Namespace, diffLabels map[string][]string) (key, selectorStr string) {
 	//  if the policy is in the owner's Ns: first check the policy's Spec.PodSelector
 	if np.Namespace == ownerNs.Name {
-		if key := selectorContainsGapLabel(&np.Spec.PodSelector, diffLabels); key != "" {
-			return key, np.Spec.PodSelector.String()
+		if key, selectorStr := selectorContainsGapLabel(&np.Spec.PodSelector, diffLabels); key != "" {
+			return key, selectorStr
 		}
 	}
 
@@ -617,13 +617,13 @@ func (np *NetworkPolicy) ContainsLabels(ownerNs *Namespace, diffLabels map[strin
 	return "", ""
 }
 
-func selectorContainsGapLabel(selector *metav1.LabelSelector, diffLabels map[string][]string) string {
+func selectorContainsGapLabel(selector *metav1.LabelSelector, diffLabels map[string][]string) (key, selectorStr string) {
 	if len(selector.MatchLabels) > 0 {
 		for key := range diffLabels {
 			if _, ok := selector.MatchLabels[key]; ok {
 				// a label key from the gap is used in the policy - return to raise an error if one value is from the list
 				if selector.MatchLabels[key] == diffLabels[key][0] || selector.MatchLabels[key] == diffLabels[key][1] {
-					return key
+					return key, "{" + key + ":" + selector.MatchLabels[key] + "}"
 				}
 			}
 		}
@@ -647,12 +647,12 @@ func selectorContainsGapLabel(selector *metav1.LabelSelector, diffLabels map[str
 				}
 				// disable if contains only one
 				if containsFirstVal || containsSecondVal {
-					return selector.MatchExpressions[i].Key
+					return selector.MatchExpressions[i].Key, strings.ReplaceAll(selector.MatchExpressions[i].String(), "&LabelSelectorRequirement", "")
 				}
 			}
 		}
 	}
-	return ""
+	return "", ""
 }
 
 func (np *NetworkPolicy) egressRulesContainGapLabel(ownerNs *Namespace, diffLabels map[string][]string) (key, selector string) {
@@ -690,8 +690,8 @@ func xgressRulePeerContainsGapLabel(rules []netv1.NetworkPolicyPeer, ownerNs *Na
 			continue
 		}
 		// ns selector matches owner namespace, check if podSelector contains gap labels
-		if key := selectorContainsGapLabel(rules[i].PodSelector, diffLabels); key != "" {
-			return key, rules[i].PodSelector.String()
+		if key, selectorStr := selectorContainsGapLabel(rules[i].PodSelector, diffLabels); key != "" {
+			return key, selectorStr
 		}
 	}
 	return "", ""

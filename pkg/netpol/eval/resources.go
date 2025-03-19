@@ -506,9 +506,9 @@ func generateLabelsDiffError(firstPod, newPod *k8s.Pod, gapData *labelsDiffData)
 	firstPodStr := types.NamespacedName{Namespace: firstPod.Namespace, Name: firstPod.Name}.String()
 	errMsgPart1 := alerts.NotSupportedPodResourcesErrorStr(ownerName)
 	errMsgPart2 := ""
-	keyMissingErr := " Pod %s has label %s=%s, and Pod %s does not have label %s."
-	differentValuesErr := " Pod %s has label %s=%s, and Pod %s has label %s=%s."
-	policyValuesErr := fmt.Sprintf(" While %s contains selector %s", gapData.policyStr, gapData.policySelectorStr)
+	keyMissingErr := "Pod %q has label `%s=%s`, and Pod %q does not have label `%s`."
+	differentValuesErr := "Pod %q has label `%s=%s`, and Pod %q has label `%s=%s`."
+	policyValuesErr := fmt.Sprintf(" While %s contains selector `%s`", gapData.policyStr, gapData.policySelectorStr)
 	switch {
 	case gapData.firstVal == "":
 		errMsgPart2 = fmt.Sprintf(keyMissingErr, newPodStr, gapData.key, gapData.secondVal, firstPodStr, gapData.key)
@@ -564,7 +564,7 @@ func (pe *PolicyEngine) checkIfDifferentLabelsUsedByPolicy(ownerNs string,
 		for _, np := range pe.netpolsMap[ns] {
 			if key, selectorStr := np.ContainsLabels(pe.namespacesMap[ownerNs], differentLabels); key != "" {
 				return &labelsDiffData{key: key, firstVal: differentLabels[key][0], secondVal: differentLabels[key][1],
-					policyStr:         "NetworkPolicy: " + types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String(),
+					policyStr:         fmt.Sprintf("NetworkPolicy: %q", types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String()),
 					policySelectorStr: selectorStr}
 			}
 		}
@@ -573,7 +573,7 @@ func (pe *PolicyEngine) checkIfDifferentLabelsUsedByPolicy(ownerNs string,
 	for _, anp := range pe.sortedAdminNetpols {
 		if key, selectorStr := anp.ContainsLabels(pe.namespacesMap[ownerNs], differentLabels); key != "" {
 			return &labelsDiffData{key: key, firstVal: differentLabels[key][0], secondVal: differentLabels[key][1],
-				policyStr:         "AdminNetworkPolicy: " + anp.Name,
+				policyStr:         fmt.Sprintf("AdminNetworkPolicy: %q", anp.Name),
 				policySelectorStr: selectorStr}
 		}
 	}
@@ -581,7 +581,7 @@ func (pe *PolicyEngine) checkIfDifferentLabelsUsedByPolicy(ownerNs string,
 	if pe.baselineAdminNetpol != nil {
 		if key, selectorStr := pe.baselineAdminNetpol.ContainsLabels(pe.namespacesMap[ownerNs], differentLabels); key != "" {
 			return &labelsDiffData{key: key, firstVal: differentLabels[key][0], secondVal: differentLabels[key][1],
-				policyStr:         "BaselineAdminNetworkPolicy: " + pe.baselineAdminNetpol.Name,
+				policyStr:         fmt.Sprintf("BaselineAdminNetworkPolicy: %q", pe.baselineAdminNetpol.Name),
 				policySelectorStr: selectorStr}
 		}
 	}
