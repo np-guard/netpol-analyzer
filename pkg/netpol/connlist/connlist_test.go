@@ -171,9 +171,19 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		},*/
 		// pods list issue - pods with same owner but different labels
 		{
-			name:             "Input_dir_has_illegal_podlist_pods_with_same_owner_ref_name_has_different_labels_should_return_fatal_error",
+			name:             "Input_dir_has_pods_with_same_owner_name_w_different_labels_selected_by_policy_should_return_fatal_error",
 			dirName:          "semanticDiff-same-topologies-illegal-podlist",
 			errorStrContains: alerts.NotSupportedPodResourcesErrorStr("demo/cog-agents"),
+		},
+		{
+			name:             "Input_dir_has_pods_with_same_owner_name_w_different_labels_selected_by_policy_should_return_fatal_error2",
+			dirName:          "example_pods_w_same_owner_and_labels_gap_with_bad_match_expression",
+			errorStrContains: alerts.NotSupportedPodResourcesErrorStr("default/internal-security"),
+		},
+		{
+			name:             "Input_dir_has_pods_with_same_owner_name_w_different_labels_selected_by_policy_should_return_fatal_error3",
+			dirName:          "example_w_err_pods_w_same_owner_and_labels_gap_anp",
+			errorStrContains: alerts.NotSupportedPodResourcesErrorStr("default/internal-security"),
 		},
 		{
 			name:             "Input_dir_has_two_netpols_with_same_name_in_a_namespace_should_return_fatal_error_of_existing_object",
@@ -2000,6 +2010,58 @@ var goodPathTests = []struct {
 		focusWorkloads:         []string{"mybar"},
 		focusDirection:         common.EgressFocusDirection,
 		exposureAnalysis:       true,
+		outputFormats:          []string{output.DefaultFormat},
+		supportedOnLiveCluster: true,
+	},
+	{
+		// in following example we have 2 pods which belong to same owner;
+		// the pods have different labels;
+		// however, since there are no policies in the input resources
+		// a connectivity report is generated (the labels diff does not affect the analysis)
+		testDirName:            "example_pods_w_same_owner_and_labels_gap_no_policy",
+		outputFormats:          []string{output.DefaultFormat},
+		supportedOnLiveCluster: true,
+	},
+	{
+		// in following example we have 2 pods which belong to same owner; the pods have different labels;
+		// however, since the policy rule selector (which selects those pods) uses a label-selector which is same in both pods
+		// i.e. not from the gap:
+		// a connectivity report is generated (the labels diff does not affect the analysis)
+		testDirName:            "example_pods_w_same_owner_and_labels_gap_with_policy_selector_not_in_gap",
+		outputFormats:          []string{output.DefaultFormat},
+		supportedOnLiveCluster: true,
+	},
+	{
+		// in following example we have 2 pods which belong to same owner; the pods have different labels;
+		// however, since the admin-policy subject (which selects those pods) uses a label-selector which is same in both pods
+		// i.e. not from the gap:
+		// a connectivity report is generated (the labels diff does not affect the analysis)
+		testDirName:            "example_pods_w_same_owner_and_labels_gap_anp_good",
+		outputFormats:          []string{output.DefaultFormat},
+		supportedOnLiveCluster: true,
+	},
+	{
+		// in following example we have 2 pods which belong to same owner; the pods have different labels;
+		// however, since the policy (which selects those pods) uses a matchExpression with exists opertaor (no matter what the value is)
+		// a connectivity report is generated (the labels diff does not affect the analysis)
+		testDirName:            "example_pods_w_same_owner_and_labels_gap_with_good_match_expression",
+		outputFormats:          []string{output.DefaultFormat},
+		supportedOnLiveCluster: true,
+	},
+	{
+		// in following example we have 2 pods which belong to same owner; the pods have different labels;
+		// however, since the baseline-admin-policy (which selects those pods) uses a label-selector which is same in both pods
+		// a connectivity report is generated (the labels diff does not affect the analysis)
+		testDirName:            "example_pods_w_same_owner_and_labels_gap_banp_good",
+		outputFormats:          []string{output.DefaultFormat},
+		supportedOnLiveCluster: true,
+	},
+	{
+		// in following example we have 2 pods which belong to same owner; the pods have different labels;
+		// however, since the policy (which selects those pods) uses a matchExpression with in opertaor
+		// and both gap-values
+		// a connectivity report is generated (the labels diff does not affect the analysis)
+		testDirName:            "example_pods_w_same_owner_and_labels_gap_with_good_match_expression2",
 		outputFormats:          []string{output.DefaultFormat},
 		supportedOnLiveCluster: true,
 	},

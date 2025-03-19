@@ -865,3 +865,102 @@ func updateAdminNetworkPolicyExposureClusterWideConns(rulePorts *[]apisv1a.Admin
 	return xgressPolicyClusterWideExposure.UpdateWithRuleConns(ruleConns, ruleAction, false)
 	// note that : the last parameter sent to UpdateWithRuleConns is false, since the pre-process func assumes rules are legal
 }
+
+//////////////////////////////////////////////// ////////////////////////////////////////////////
+// funcs to check if any policy-selector selects a label from the gap of two pods referencing same owner.
+
+// ContainsLabels given input map from key to values list (each key has 2 values);
+// returns first captured key from the map that the policy selectors (Subject or ruleSelectors) uses with at least one of those values
+//
+// i.e. returns non-empty key if:
+// - there is a labelSelector with matchLabels: {<key>: <val_in_gap>} (contains a key:val from the input map)
+// - there is a selector with matchExpression with values list (operator not Exist/ DoesNotExist) that contains only one of the gap-values
+//
+//nolint:dupl // AdminNetworkPolicy and BaselineAdminNetworkPolicy are not same object - this func will be removed on enhancement
+func (anp *AdminNetworkPolicy) ContainsLabels(ownerNs *Namespace, diffLabels map[string][]string) (key, selectorStr string) {
+	// first check the policy's Subject
+	// if the subject contains only namespaces field; i.e it selects all pods in the namespace	- no problem
+	if anp.Spec.Subject.Namespaces == nil && anp.Spec.Subject.Pods != nil {
+		if key, selectorStr := podsFieldContainsDiffLabel(anp.Spec.Subject.Pods, ownerNs, diffLabels); key != "" {
+			return key, selectorStr
+		}
+	}
+
+	//  loop egress rules selectors
+	if anp.adminPolicyAffectsDirection(false) {
+		if key, egressSel := anp.egressRulesContainGapLabel(ownerNs, diffLabels); key != "" {
+			return key, egressSel
+		}
+	}
+	// loop ingress rules selectors
+	if anp.adminPolicyAffectsDirection(true) {
+		if key, ingressSel := anp.ingressRulesContainGapLabel(ownerNs, diffLabels); key != "" {
+			return key, ingressSel
+		}
+	}
+	return "", ""
+}
+
+func (anp *AdminNetworkPolicy) egressRulesContainGapLabel(ownerNs *Namespace, diffLabels map[string][]string) (key, selector string) {
+	for _, rule := range anp.Spec.Egress {
+		rulePeers := rule.To
+		if key, selector = egressRulePeerContainsGapLabel(rulePeers, ownerNs, diffLabels); key != "" {
+			return key, selector
+		}
+	}
+	return "", ""
+}
+
+func (anp *AdminNetworkPolicy) ingressRulesContainGapLabel(ownerNs *Namespace, diffLabels map[string][]string) (key, selector string) {
+	for _, rule := range anp.Spec.Ingress {
+		rulePeers := rule.From
+		if key, selector = ingressRulePeerContainsGapLabel(rulePeers, ownerNs, diffLabels); key != "" {
+			return key, selector
+		}
+	}
+	return "", ""
+}
+
+func podsFieldContainsDiffLabel(podsField *apisv1a.NamespacedPod, ownerNs *Namespace, diffLabels map[string][]string) (key,
+	selector string) {
+	// check first the namespaceSelector
+	nsSelector, _ := metav1.LabelSelectorAsSelector(&podsField.NamespaceSelector) // assuming correctness,
+	if !nsSelector.Matches(labels.Set(ownerNs.Labels)) {                          // ns selector does not select the owner's ns
+		return "", ""
+	}
+	// ns selector matches owner namespace, check if podSelector contains gap labels
+	if key, selectorStr := selectorContainsGapLabel(&podsField.PodSelector, diffLabels); key != "" {
+		return key, selectorStr
+	}
+	return "", ""
+}
+
+func egressRulePeerContainsGapLabel(rulePeers []apisv1a.AdminNetworkPolicyEgressPeer, ownerNs *Namespace,
+	diffLabels map[string][]string) (key, selector string) {
+	for _, rule := range rulePeers {
+		// if rule contains namespaces - continue : no problem
+		if rule.Namespaces != nil {
+			continue
+		}
+		// pods field is used - check if matches ownerNs and contains pod-selectors from the gap
+		if key, selector := podsFieldContainsDiffLabel(rule.Pods, ownerNs, diffLabels); key != "" {
+			return key, selector
+		}
+	}
+	return "", ""
+}
+
+func ingressRulePeerContainsGapLabel(rulePeers []apisv1a.AdminNetworkPolicyIngressPeer, ownerNs *Namespace,
+	diffLabels map[string][]string) (key, selector string) {
+	for _, rule := range rulePeers {
+		// if rule contains namespaces - continue : no problems
+		if rule.Namespaces != nil {
+			continue
+		}
+		// pods field is used - check if matches ownerNs and contains pod-selectors from the gap
+		if key, selector := podsFieldContainsDiffLabel(rule.Pods, ownerNs, diffLabels); key != "" {
+			return key, selector
+		}
+	}
+	return "", ""
+}

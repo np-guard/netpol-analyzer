@@ -453,7 +453,9 @@ func (pe *PolicyEngine) insertNamespace(ns *corev1.Namespace) error {
 	return nil
 }
 
-// checkConsistentLabelsForPodsOfSameOwner returns error if there are pod resources with same ownerReferences name but different labels
+// checkConsistentLabelsForPodsOfSameOwner returns error if:
+// there are pod resources with same ownerReferences name but different labels (labels gap) and there is a policy selector or
+// policy-rule selector which selects the pods with a label from the gap
 func (pe *PolicyEngine) checkConsistentLabelsForPodsOfSameOwner(newPod *k8s.Pod) error {
 	if newPod.Owner.Name == "" { // the new pod does not have owner references
 		return nil
@@ -466,54 +468,124 @@ func (pe *PolicyEngine) checkConsistentLabelsForPodsOfSameOwner(newPod *k8s.Pod)
 		pe.podOwnersToRepresentativePodMap[newPod.Namespace][newPod.Owner.Name] = newPod
 		return nil
 	}
-	// compare the owner first pod's labels with new pod's Labels
-	if key, firstVal, newVal := diffBetweenPodsLabels(firstPod, newPod); key != "" {
-		return generateLabelsDiffError(firstPod, newPod, key, firstVal, newVal) // err
+
+	// if there are no policies in the policy-engine then labels diffs do not affect connectivity results - return
+	if !pe.hasPolicies() {
+		return nil
+	}
+	// @todo: as enhancement may compare selectors with gap-labels on the flow of computing the allowed-conns,
+	// then generating the error would be moved
+
+	// compare the owner first pod's labels with new pod's Labels;
+	// if there is a diff between labels which may affect the connectivity results (labels from the gap used by policies);
+	// then return an error with first captured different label's values
+	if gapData := pe.diffBetweenPodsLabelsAffectConnectivity(firstPod, newPod); gapData.key != "" {
+		return generateLabelsDiffError(firstPod, newPod, gapData) // err
 	}
 	return nil
 }
 
+func (pe *PolicyEngine) hasPolicies() bool {
+	return len(pe.netpolsMap) > 0 || len(pe.sortedAdminNetpols) > 0 || pe.baselineAdminNetpol != nil
+}
+
+// labelsDiffData contains data of the first captured label from the gap-labels which is selected by a policy
+type labelsDiffData struct {
+	key               string
+	firstVal          string
+	secondVal         string
+	policyStr         string
+	policySelectorStr string
+}
+
 // helper: generateLabelsDiffError generates the error message of the gap between two pods' labels
-func generateLabelsDiffError(firstPod, newPod *k8s.Pod, key, firstVal, newVal string) error {
+func generateLabelsDiffError(firstPod, newPod *k8s.Pod, gapData *labelsDiffData) error {
 	// helping vars declarations to avoid duplicates
 	ownerName := types.NamespacedName{Namespace: firstPod.Namespace, Name: firstPod.Owner.Name}.String()
 	newPodStr := types.NamespacedName{Namespace: newPod.Namespace, Name: newPod.Name}.String()
 	firstPodStr := types.NamespacedName{Namespace: firstPod.Namespace, Name: firstPod.Name}.String()
 	errMsgPart1 := alerts.NotSupportedPodResourcesErrorStr(ownerName)
 	errMsgPart2 := ""
-	keyMissingErr := " Pod %s has label %s=%s, and Pod %s does not have label %s."
-	differentValuesErr := " Pod %s has label %s=%s, and Pod %s has label %s=%s."
+	keyMissingErr := "Pod %q has label `%s=%s`, and Pod %q does not have label `%s`,"
+	differentValuesErr := "Pod %q has label `%s=%s`, and Pod %q has label `%s=%s`,"
+	policyValuesErr := fmt.Sprintf(" while %s contains selector `%s`", gapData.policyStr, gapData.policySelectorStr)
 	switch {
-	case firstVal == "":
-		errMsgPart2 = fmt.Sprintf(keyMissingErr, newPodStr, key, newVal, firstPodStr, key)
-	case newVal == "":
-		errMsgPart2 = fmt.Sprintf(keyMissingErr, firstPodStr, key, firstVal, newPodStr, key)
+	case gapData.firstVal == "":
+		errMsgPart2 = fmt.Sprintf(keyMissingErr, newPodStr, gapData.key, gapData.secondVal, firstPodStr, gapData.key)
+	case gapData.secondVal == "":
+		errMsgPart2 = fmt.Sprintf(keyMissingErr, firstPodStr, gapData.key, gapData.firstVal, newPodStr, gapData.key)
 	default: // both values are not empty
-		errMsgPart2 = fmt.Sprintf(differentValuesErr, newPodStr, key, newVal, firstPodStr, key, firstVal)
+		errMsgPart2 = fmt.Sprintf(differentValuesErr, newPodStr, gapData.key, gapData.secondVal, firstPodStr, gapData.key, gapData.firstVal)
 	}
-	return errors.New(errMsgPart1 + errMsgPart2)
+	return errors.New(errMsgPart1 + errMsgPart2 + policyValuesErr)
 }
 
 // helper: given two pods of same owner, if there are diffs between the pods' labels maps returns first captured diff components,
-// i.e. the different label's key and the different values / empty val if the key is missing in one pod's labels;
-// if there is no diff, returns empty key (with empty values)
-func diffBetweenPodsLabels(firstPod, newPod *k8s.Pod) (key, firstVal, newVal string) {
+// i.e. the different label's key and the different values / empty val if the key is missing in one pod's labels
+// with the strings of policy and selector which uses that label;
+// if there is no diff/ diff labels are not selected by any policy-selector, returns empty key (with empty values)
+func (pe *PolicyEngine) diffBetweenPodsLabelsAffectConnectivity(firstPod, newPod *k8s.Pod) (gapData *labelsDiffData) {
 	// try to find diffs by looping new pod's labels first
+	differentLabels := map[string][]string{} // map from key to its values in the two pods
 	for key, value := range newPod.Labels {
-		if _, ok := firstPod.Labels[key]; !ok {
-			return key, "", value
+		if _, ok := firstPod.Labels[key]; !ok { // newPod has a key which does not exist in the firstPod
+			differentLabels[key] = []string{"", value}
 		}
-		if firstPod.Labels[key] != value {
-			return key, firstPod.Labels[key], value
+		if firstPod.Labels[key] != value { // the values of the label key are not equal
+			differentLabels[key] = []string{firstPod.Labels[key], value}
 		}
 	}
 	// check if first pod's labels contains keys which are not in the new pod's labels
 	for key, val := range firstPod.Labels {
 		if _, ok := newPod.Labels[key]; !ok {
-			return key, val, ""
+			differentLabels[key] = []string{val, ""}
 		}
 	}
-	return "", "", ""
+	// following func is called only in case there are policies in the policy engine and there is a pod-owner with pods with labels gap
+	// however, it is possible to implement this in another way,
+	// @todo - in order to enhance performance; instead of checking if the policies use the different labels here, add "differentLabels" map
+	// (with more data on the owner and pods) as a policy-engine attribute.
+	// and while looping policies for computing allowed conns between peers, do this check (pass the pe.differentLabels to those funcs)
+	if len(differentLabels) > 0 {
+		return pe.checkIfDifferentLabelsUsedByPolicy(firstPod.Namespace, differentLabels)
+	}
+	return &labelsDiffData{}
+}
+
+// checkIfDifferentLabelsUsedByPolicy loops the policies and checks if any of the policies' selectors contains
+// a key label from the input differentLabels map
+// if a policy selector contains such <key:val> label or a match expression that may cause an ambiguity on selecting the
+// correct pods (where the pods has same owner but labels with same key and different values)
+// the connectivity analysis is not supported for input resources.
+func (pe *PolicyEngine) checkIfDifferentLabelsUsedByPolicy(ownerNs string,
+	differentLabels map[string][]string) (gapData *labelsDiffData) {
+	// check if different labels are selected by the policies and may affect the analysis results
+	for ns := range pe.netpolsMap {
+		for _, np := range pe.netpolsMap[ns] {
+			if key, selectorStr := np.ContainsLabels(pe.namespacesMap[ownerNs], differentLabels); key != "" {
+				return &labelsDiffData{key: key, firstVal: differentLabels[key][0], secondVal: differentLabels[key][1],
+					policyStr:         fmt.Sprintf("NetworkPolicy: %q", types.NamespacedName{Name: np.Name, Namespace: np.Namespace}.String()),
+					policySelectorStr: selectorStr}
+			}
+		}
+	}
+	// check on admin-netpols
+	for _, anp := range pe.sortedAdminNetpols {
+		if key, selectorStr := anp.ContainsLabels(pe.namespacesMap[ownerNs], differentLabels); key != "" {
+			return &labelsDiffData{key: key, firstVal: differentLabels[key][0], secondVal: differentLabels[key][1],
+				policyStr:         fmt.Sprintf("AdminNetworkPolicy: %q", anp.Name),
+				policySelectorStr: selectorStr}
+		}
+	}
+	// check the baselineAdminNetpol
+	if pe.baselineAdminNetpol != nil {
+		if key, selectorStr := pe.baselineAdminNetpol.ContainsLabels(pe.namespacesMap[ownerNs], differentLabels); key != "" {
+			return &labelsDiffData{key: key, firstVal: differentLabels[key][0], secondVal: differentLabels[key][1],
+				policyStr:         fmt.Sprintf("BaselineAdminNetworkPolicy: %q", pe.baselineAdminNetpol.Name),
+				policySelectorStr: selectorStr}
+		}
+	}
+	return &labelsDiffData{}
 }
 
 func (pe *PolicyEngine) insertWorkload(rs interface{}, kind string) error {

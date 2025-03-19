@@ -256,3 +256,60 @@ func (banp *BaselineAdminNetworkPolicy) scanEgressRules() ([]SingleRuleSelectors
 	}
 	return rulesSelectors, nil
 }
+
+//////////////////////////////////////////////// ////////////////////////////////////////////////
+// funcs to check if any policy-selector selects a label from the gap of two pods referencing same owner.
+
+// ContainsLabels given input map from key to values list (each key has 2 values);
+// returns first captured key from the map that the policy selectors (Subject or ruleSelectors) uses with at least one of those values
+//
+// i.e. returns non-empty key if:
+// - there is a labelSelector with matchLabels: {<key>: <val_in_gap>} (contains a key:val from the input map)
+// - there is a selector with matchExpression with values list (operator not Exist/ DoesNotExist) that contains only one of the gap-values
+//
+//nolint:dupl // AdminNetworkPolicy and BaselineAdminNetworkPolicy are not same object - this func will be removed on enhancement
+func (banp *BaselineAdminNetworkPolicy) ContainsLabels(ownerNs *Namespace, diffLabels map[string][]string) (key, selectorStr string) {
+	// first check the policy's Subject
+	// if the subject contains only namespaces field; i.e it selects all pods in the namespace	- no problem
+	if banp.Spec.Subject.Namespaces == nil && banp.Spec.Subject.Pods != nil {
+		if key, selectorStr := podsFieldContainsDiffLabel(banp.Spec.Subject.Pods, ownerNs, diffLabels); key != "" {
+			return key, selectorStr
+		}
+	}
+
+	//  loop egress rules selectors
+	if banp.baselineAdminPolicyAffectsDirection(false) {
+		if key, egressSel := banp.egressRulesContainGapLabel(ownerNs, diffLabels); key != "" {
+			return key, egressSel
+		}
+	}
+	// loop ingress rules selectors
+	if banp.baselineAdminPolicyAffectsDirection(true) {
+		if key, ingressSel := banp.ingressRulesContainGapLabel(ownerNs, diffLabels); key != "" {
+			return key, ingressSel
+		}
+	}
+	return "", ""
+}
+
+func (banp *BaselineAdminNetworkPolicy) egressRulesContainGapLabel(ownerNs *Namespace, diffLabels map[string][]string) (key,
+	selector string) {
+	for _, rule := range banp.Spec.Egress {
+		rulePeers := rule.To
+		if key, selector = egressRulePeerContainsGapLabel(rulePeers, ownerNs, diffLabels); key != "" {
+			return key, selector
+		}
+	}
+	return "", ""
+}
+
+func (banp *BaselineAdminNetworkPolicy) ingressRulesContainGapLabel(ownerNs *Namespace, diffLabels map[string][]string) (key,
+	selector string) {
+	for _, rule := range banp.Spec.Ingress {
+		rulePeers := rule.From
+		if key, selector = ingressRulePeerContainsGapLabel(rulePeers, ownerNs, diffLabels); key != "" {
+			return key, selector
+		}
+	}
+	return "", ""
+}

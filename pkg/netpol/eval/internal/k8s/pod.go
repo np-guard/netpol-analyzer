@@ -128,7 +128,7 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 
 	for refIndex := range p.ObjectMeta.OwnerReferences {
 		ownerRef := p.ObjectMeta.OwnerReferences[refIndex]
-		if *ownerRef.Controller {
+		if ownerRef.Controller != nil && *ownerRef.Controller {
 			if addOwner := addPodOwner(&ownerRef, pr); addOwner {
 				pr.Owner.Variant = variantFromLabelsMap(p.Labels)
 			}

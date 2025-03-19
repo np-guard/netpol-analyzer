@@ -585,6 +585,118 @@ func (np *NetworkPolicy) LogWarnings(l logger.Logger) {
 	np.warnings.LogPolicyWarnings(l)
 }
 
+//////////////////////////////////////////////// ////////////////////////////////////////////////
+// funcs to check if any policy-selector selects a label from the gap of two pods referencing same owner.
+
+// ContainsLabels given input map from key to values list (each key has 2 values);
+// returns first captured key from the map that the policy selectors (PodSelector or ruleSelectors) uses with at least one of those values
+//
+// i.e. returns non-empty key if:
+// - there is a labelSelector with matchLabels: {<key>: <val_in_gap>} (contains a key:val from the input map)
+// - there is a selector with matchExpression with values list (operator not Exist/ DoesNotExist) that contains only one of the gap-values
+func (np *NetworkPolicy) ContainsLabels(ownerNs *Namespace, diffLabels map[string][]string) (key, selectorStr string) {
+	//  if the policy is in the owner's Ns: first check the policy's Spec.PodSelector
+	if np.Namespace == ownerNs.Name {
+		if key, selectorStr := selectorContainsGapLabel(&np.Spec.PodSelector, diffLabels); key != "" {
+			return key, selectorStr
+		}
+	}
+
+	//  loop egress rules selectors
+	if np.policyAffectsDirection(netv1.PolicyTypeEgress) {
+		if key, egressSel := np.egressRulesContainGapLabel(ownerNs, diffLabels); key != "" {
+			return key, egressSel
+		}
+	}
+	// loop ingress rules selectors
+	if np.policyAffectsDirection(netv1.PolicyTypeIngress) {
+		if key, ingressSel := np.ingressRulesContainGapLabel(ownerNs, diffLabels); key != "" {
+			return key, ingressSel
+		}
+	}
+	return "", ""
+}
+
+func selectorContainsGapLabel(selector *metav1.LabelSelector, diffLabels map[string][]string) (key, selectorStr string) {
+	if len(selector.MatchLabels) > 0 {
+		for key := range diffLabels {
+			if _, ok := selector.MatchLabels[key]; ok {
+				// a label key from the gap is used in the policy - return to raise an error if one value is from the list
+				if selector.MatchLabels[key] == diffLabels[key][0] || selector.MatchLabels[key] == diffLabels[key][1] {
+					return key, "{" + key + ":" + selector.MatchLabels[key] + "}"
+				}
+			}
+		}
+	}
+	if len(selector.MatchExpressions) > 0 {
+		// using a key from a gap is ok only if the operator is Exist or DoesNotExist;
+		// otherwise the values of the key may match only some of the owner's pods values and
+		//  then the connectivity results may be ambiguous
+		for i := range selector.MatchExpressions {
+			if selector.MatchExpressions[i].Operator == metav1.LabelSelectorOpExists ||
+				selector.MatchExpressions[i].Operator == metav1.LabelSelectorOpDoesNotExist {
+				continue
+			} // else the matchExpression has values list, if it contains any of the values in the gap-list return the key
+			if _, ok := diffLabels[selector.MatchExpressions[i].Key]; ok {
+				exprValuesStr := strings.Join(selector.MatchExpressions[i].Values, ",")
+				containsFirstVal := strings.Contains(exprValuesStr, diffLabels[selector.MatchExpressions[i].Key][0])
+				containsSecondVal := strings.Contains(exprValuesStr, diffLabels[selector.MatchExpressions[i].Key][1])
+				// enable analysis if values list contain both gap-vals
+				if containsFirstVal && containsSecondVal {
+					continue
+				}
+				// disable if contains only one
+				if containsFirstVal || containsSecondVal {
+					return selector.MatchExpressions[i].Key, strings.ReplaceAll(selector.MatchExpressions[i].String(), "&LabelSelectorRequirement", "")
+				}
+			}
+		}
+	}
+	return "", ""
+}
+
+func (np *NetworkPolicy) egressRulesContainGapLabel(ownerNs *Namespace, diffLabels map[string][]string) (key, selector string) {
+	for _, rule := range np.Spec.Egress {
+		rulePeers := rule.To
+		if key, selector = xgressRulePeerContainsGapLabel(rulePeers, ownerNs, diffLabels); key != "" {
+			return key, selector
+		}
+	}
+	return "", ""
+}
+
+func (np *NetworkPolicy) ingressRulesContainGapLabel(ownerNs *Namespace, diffLabels map[string][]string) (key, selector string) {
+	for _, rule := range np.Spec.Ingress {
+		rulePeers := rule.From
+		if key, selector = xgressRulePeerContainsGapLabel(rulePeers, ownerNs, diffLabels); key != "" {
+			return key, selector
+		}
+	}
+	return "", ""
+}
+
+func xgressRulePeerContainsGapLabel(rules []netv1.NetworkPolicyPeer, ownerNs *Namespace,
+	diffLabels map[string][]string) (key, selector string) {
+	if len(rules) == 0 {
+		return "", ""
+	}
+	for i := range rules {
+		if rules[i].IPBlock != nil {
+			continue
+		}
+		nsSelector, _ := metav1.LabelSelectorAsSelector(rules[i].NamespaceSelector) // assuming correctness,
+		if rules[i].NamespaceSelector != nil && !nsSelector.Matches(labels.Set(ownerNs.Labels)) {
+			// ns selector does not select the owner's ns
+			continue
+		}
+		// ns selector matches owner namespace, check if podSelector contains gap labels
+		if key, selectorStr := selectorContainsGapLabel(rules[i].PodSelector, diffLabels); key != "" {
+			return key, selectorStr
+		}
+	}
+	return "", ""
+}
+
 // /////////////////////////////////////////////////////////////////////////////////////////////
 // pre-processing computations - currently performed for exposure-analysis goals only;
 // all pre-process funcs assume policies' rules are legal (rules correctness check occurs later)

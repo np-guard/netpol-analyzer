@@ -1,0 +1,24 @@
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: new-example-with-err
+spec:
+  priority: 10
+  subject:
+    pods: # subject selecting pods with gap-labels
+      podSelector:
+        matchLabels:
+          app: command-selector
+  ingress:
+  - name: "pass-tcp-80-from-ns2" 
+    action: "Pass"
+    from:
+    - pods:
+        podSelector:
+          matchLabels:
+            app: pod3
+    ports:
+    - portNumber:
+        port: 80
+        protocol: TCP
+---
