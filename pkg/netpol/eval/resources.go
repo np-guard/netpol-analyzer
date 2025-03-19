@@ -506,9 +506,9 @@ func generateLabelsDiffError(firstPod, newPod *k8s.Pod, gapData *labelsDiffData)
 	firstPodStr := types.NamespacedName{Namespace: firstPod.Namespace, Name: firstPod.Name}.String()
 	errMsgPart1 := alerts.NotSupportedPodResourcesErrorStr(ownerName)
 	errMsgPart2 := ""
-	keyMissingErr := "Pod %q has label `%s=%s`, and Pod %q does not have label `%s`."
-	differentValuesErr := "Pod %q has label `%s=%s`, and Pod %q has label `%s=%s`."
-	policyValuesErr := fmt.Sprintf(" While %s contains selector `%s`", gapData.policyStr, gapData.policySelectorStr)
+	keyMissingErr := "Pod %q has label `%s=%s`, and Pod %q does not have label `%s`,"
+	differentValuesErr := "Pod %q has label `%s=%s`, and Pod %q has label `%s=%s`,"
+	policyValuesErr := fmt.Sprintf(" while %s contains selector `%s`", gapData.policyStr, gapData.policySelectorStr)
 	switch {
 	case gapData.firstVal == "":
 		errMsgPart2 = fmt.Sprintf(keyMissingErr, newPodStr, gapData.key, gapData.secondVal, firstPodStr, gapData.key)
