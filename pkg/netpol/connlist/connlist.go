@@ -81,7 +81,7 @@ const (
 // - `explain` is effective only with output format `output` txt
 func (ca *ConnlistAnalyzer) warnIncompatibleFlagsUsage() {
 	if ca.explain && ca.outputFormat != output.DefaultFormat {
-		ca.logger.Warnf(alerts.WarnIncompatibleFormat(ca.outputFormat))
+		ca.logWarning(alerts.WarnIncompatibleFormat(ca.outputFormat))
 	}
 	if len(ca.focusWorkloads) == 0 && ca.focusDirection != "" {
 		ca.logWarning(alerts.FocusDirectionFlag + alerts.WarnIgnoredWithoutFocusWorkload)
@@ -813,7 +813,6 @@ func (ca *ConnlistAnalyzer) checkFocusWorkloadsExistence(focusWlsList []string, 
 		existFocusWorkload, warningMsg := ca.existsFocusWorkload(focusWl, excludeIngressAnalysis)
 		if !existFocusWorkload {
 			cnt++
-			ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
 			ca.logWarning(warningMsg)
 		}
 	}
@@ -980,7 +979,6 @@ func (ca *ConnlistAnalyzer) warnBlockedIngress(peerStr string, ingressObjects ma
 		objName = ingressObjects[parser.Route][0]
 	}
 	warningMsg := alerts.BlockedIngressWarning(objKind, objName, peerStr)
-	ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warningMsg)))
 	ca.logWarning(warningMsg)
 }
 
@@ -988,6 +986,8 @@ func (ca *ConnlistAnalyzer) logWarning(msg string) {
 	if !ca.muteErrsAndWarns {
 		ca.logger.Warnf(msg)
 	}
+	// appending the warning to the ca.errors (used by ca api func Errors())
+	ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(msg)))
 }
 
 // getP2PConnOrUpdateExposureConn if the given connection is between two peers from the parsed resources,
