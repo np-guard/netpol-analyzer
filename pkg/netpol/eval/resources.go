@@ -1056,19 +1056,21 @@ func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.Sin
 // calling this func once after all computations are done, ensures that :
 // - all relevant warnings from looping policy rules are raised
 // - each single warning is printed only once to the logger
-func (pe *PolicyEngine) LogPoliciesWarnings() {
+// - all warns are returned also as []string
+func (pe *PolicyEngine) LogPoliciesWarnings() (warns []string) {
 	// log warnings from k8s NetworkPolicy objects
 	for _, nsMap := range pe.netpolsMap {
 		for _, policy := range nsMap {
-			policy.LogWarnings(pe.logger)
+			warns = append(warns, policy.LogWarnings(pe.logger)...)
 		}
 	}
 	// log warnings from AdminNetworkPolicy objects
 	for _, anp := range pe.sortedAdminNetpols {
-		anp.LogWarnings(pe.logger)
+		warns = append(warns, anp.LogWarnings(pe.logger)...)
 	}
 	// log warnings from the BaselineAdminNetworkPolicy
 	if pe.baselineAdminNetpol != nil {
-		pe.baselineAdminNetpol.LogWarnings(pe.logger)
+		warns = append(warns, pe.baselineAdminNetpol.LogWarnings(pe.logger)...)
 	}
+	return warns
 }
