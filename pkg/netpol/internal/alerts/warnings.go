@@ -46,8 +46,8 @@ func BlockedIngressWarning(objKind, objName, peerStr string) string {
 }
 
 func WarnIncompatibleFormat(format string) string {
-	return fmt.Sprintf("explainability is available only with %s format."+
-		" A connlist without explainability will be printed for the input format %s", output.DefaultFormat, format)
+	return fmt.Sprintf("explain flag is supported only with %s output format;"+
+		" ignoring this flag for the required output format %s", output.DefaultFormat, format)
 }
 
 func WarnUnmatchedNamedPort(namedPort, peerStr string) string {
