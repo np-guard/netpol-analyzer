@@ -190,8 +190,8 @@ func (anp *AdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error
 	return res, nil
 }
 
-func (anp *AdminNetworkPolicy) LogWarnings(l logger.Logger) {
-	anp.warnings.LogPolicyWarnings(l)
+func (anp *AdminNetworkPolicy) LogWarnings(l logger.Logger) []string {
+	return anp.warnings.LogPolicyWarnings(l)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

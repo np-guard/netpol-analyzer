@@ -18,8 +18,14 @@ func (w Warnings) AddWarning(warning string) {
 }
 
 // LogPolicyWarnings logs current warnings into the given logger
-func (w Warnings) LogPolicyWarnings(l logger.Logger) {
+// and returns the warnings for connlist API propagation goals
+func (w Warnings) LogPolicyWarnings(l logger.Logger) []string {
+	res := make([]string, len(w))
+	i := 0
 	for warning := range w {
 		l.Warnf(warning)
+		res[i] = warning
+		i++
 	}
+	return res
 }

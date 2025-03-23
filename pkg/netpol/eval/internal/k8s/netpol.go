@@ -581,8 +581,8 @@ func (np *NetworkPolicy) ruleName(ruleIdx int, isIngress bool) string {
 	return fmt.Sprintf("%s rule #%d", directionName(isIngress), ruleIdx+1)
 }
 
-func (np *NetworkPolicy) LogWarnings(l logger.Logger) {
-	np.warnings.LogPolicyWarnings(l)
+func (np *NetworkPolicy) LogWarnings(l logger.Logger) []string {
+	return np.warnings.LogPolicyWarnings(l)
 }
 
 //////////////////////////////////////////////// ////////////////////////////////////////////////

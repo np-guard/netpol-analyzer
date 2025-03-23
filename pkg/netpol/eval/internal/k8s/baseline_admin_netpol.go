@@ -192,8 +192,8 @@ func (banp *BaselineAdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlo
 	return res, nil
 }
 
-func (banp *BaselineAdminNetworkPolicy) LogWarnings(l logger.Logger) {
-	banp.warnings.LogPolicyWarnings(l)
+func (banp *BaselineAdminNetworkPolicy) LogWarnings(l logger.Logger) []string {
+	return banp.warnings.LogPolicyWarnings(l)
 }
 
 // /////////////////////////////////////////////////////////////
