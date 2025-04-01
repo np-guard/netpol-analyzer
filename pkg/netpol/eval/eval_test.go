@@ -1043,8 +1043,8 @@ func addNewPod(namespace, name string, labels map[string]string) (*v1.Pod, error
 	if err != nil {
 		return nil, err
 	}
-	podObj.ObjectMeta.Name = name
-	podObj.ObjectMeta.Namespace = namespace
+	podObj.Name = name
+	podObj.Namespace = namespace
 	podObj.Labels = labels
 	return podObj, nil
 }

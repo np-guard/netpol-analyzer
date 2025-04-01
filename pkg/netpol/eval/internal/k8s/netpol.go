@@ -291,7 +291,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			peerMatchesNamespaceSelector := false
 			var err error
 			if rulePeers[i].NamespaceSelector == nil {
-				peerMatchesNamespaceSelector = (np.ObjectMeta.Namespace == peer.GetPeerPod().Namespace)
+				peerMatchesNamespaceSelector = (np.Namespace == peer.GetPeerPod().Namespace)
 			} else { // namespaceSelector is not nil
 				peerMatchesNamespaceSelector, err = doesNamespaceSelectorMatchesPeer(rulePeers[i].NamespaceSelector, peer)
 				if err != nil {

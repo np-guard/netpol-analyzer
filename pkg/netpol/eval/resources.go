@@ -623,10 +623,10 @@ func (pe *PolicyEngine) insertPod(pod *corev1.Pod) error {
 }
 
 func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
-	netpolNamespace := np.ObjectMeta.Namespace
+	netpolNamespace := np.Namespace
 	if netpolNamespace == "" {
 		netpolNamespace = metav1.NamespaceDefault
-		np.ObjectMeta.Namespace = netpolNamespace
+		np.Namespace = netpolNamespace
 	}
 	if _, ok := pe.netpolsMap[netpolNamespace]; !ok {
 		pe.netpolsMap[netpolNamespace] = make(map[string]*k8s.NetworkPolicy)

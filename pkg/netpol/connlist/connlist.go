@@ -889,7 +889,7 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, sr
 			// e.g if the pod is exposed to entire-cluster but not exposed to this representative-peer (because of a deny rule),
 			// we need to include this "No connection" in the exposure-output.
 			// see example : "tests/exposure_test_with_anp_9"
-			if allowedConnections.IsEmpty() && !(pe.IsRepresentativePeer(srcPeer) || pe.IsRepresentativePeer(dstPeer)) &&
+			if allowedConnections.IsEmpty() && !pe.IsRepresentativePeer(srcPeer) && !pe.IsRepresentativePeer(dstPeer) &&
 				(!ca.explain || ca.explainOnly == pkgcommon.ExplainOnlyAllow) {
 				continue
 			}

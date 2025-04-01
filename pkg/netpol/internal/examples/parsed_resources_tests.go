@@ -29,10 +29,10 @@ var (
 
 func newDefaultPod(namespace, name string, ports []int32, protocols []v1.Protocol) *v1.Pod {
 	podObj := v1.Pod{}
-	podObj.TypeMeta.APIVersion = "v1"
-	podObj.TypeMeta.Kind = podKind
-	podObj.ObjectMeta.Name = name
-	podObj.ObjectMeta.Namespace = namespace
+	podObj.APIVersion = "v1"
+	podObj.Kind = podKind
+	podObj.Name = name
+	podObj.Namespace = namespace
 	podObj.Status.HostIP = parser.IPv4LoopbackAddr
 	podObj.Status.PodIPs = []v1.PodIP{{IP: parser.IPv4LoopbackAddr}}
 	podObj.Labels = map[string]string{"pod": name}
