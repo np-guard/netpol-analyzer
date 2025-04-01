@@ -222,7 +222,7 @@ func (ia *IngressAnalyzer) getK8sIngressServices(ing *netv1.Ingress) []serviceIn
 	}
 	// add service names from the Ingress rules
 	for _, rule := range ing.Spec.Rules {
-		for _, path := range rule.IngressRuleValue.HTTP.Paths {
+		for _, path := range rule.HTTP.Paths {
 			if path.Backend.Service == nil {
 				ia.logWarning(parser.Ingress + whiteSpace + ingressStr + colon + ruleBackendWarning)
 			} else {
@@ -405,7 +405,7 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 // getPeerAccessPort returns the peer's port to be exposed based on the service's port.targetPort value
 func getPeerAccessPort(actualServicePorts []corev1.ServicePort, requiredPort intstr.IntOrString) []intstr.IntOrString {
 	res := make([]intstr.IntOrString, 0)
-	requiredPortEmpty := false // if the required port is empty , then all service's target ports will be used (required)
+	var requiredPortEmpty bool // if the required port is empty , then all service's target ports will be used (required)
 	if requiredPort.IntVal == 0 && requiredPort.StrVal == "" {
 		requiredPortEmpty = true
 	}
@@ -414,7 +414,7 @@ func getPeerAccessPort(actualServicePorts []corev1.ServicePort, requiredPort int
 	for _, svcPort := range actualServicePorts {
 		var svcPodAccessPort intstr.IntOrString
 		// extracting the pod access port from the service port
-		if !(svcPort.TargetPort.IntVal == 0 && svcPort.TargetPort.StrVal == "") {
+		if svcPort.TargetPort.IntVal != 0 || svcPort.TargetPort.StrVal != "" {
 			// servicePort.TargetPort is Number or name of the port to access on the pods targeted by the service.
 			svcPodAccessPort = svcPort.TargetPort
 		} else {

@@ -504,10 +504,10 @@ func (c *connsPair) updateNewOrLostFields(isFirst bool, peersSet map[string]bool
 		src, dst = c.secondConn.Src(), c.secondConn.Dst()
 	}
 	// update src/dst status based on the peersSet , ignore ips/ingress-controller pod
-	if !(src.IsPeerIPType() || isIngressControllerPeer(src)) && !peersSet[src.String()] {
+	if (!src.IsPeerIPType() && !isIngressControllerPeer(src)) && !peersSet[src.String()] {
 		c.newOrLostSrc = true
 	}
-	if !(dst.IsPeerIPType() || isIngressControllerPeer(dst)) && !peersSet[dst.String()] {
+	if (!dst.IsPeerIPType() && !isIngressControllerPeer(dst)) && !peersSet[dst.String()] {
 		c.newOrLostDst = true
 	}
 }
