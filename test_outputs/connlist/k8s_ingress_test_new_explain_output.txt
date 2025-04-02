@@ -3,66 +3,66 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => default/details-v1-79f774bdb9[ReplicaSet]:
+Connections between 0.0.0.0-255.255.255.255[External] => default/details-v1-79f774bdb9[ReplicaSet]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/details-netpol' selects default/details-v1-79f774bdb9[ReplicaSet], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+			NetworkPolicy 'default/details-netpol' selects default/details-v1-79f774bdb9[ReplicaSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => default/productpage-v1-6b746f74dc[ReplicaSet]:
+Connections between 0.0.0.0-255.255.255.255[External] => default/productpage-v1-6b746f74dc[ReplicaSet]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/productpage-netpol' selects default/productpage-v1-6b746f74dc[ReplicaSet], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+			NetworkPolicy 'default/productpage-netpol' selects default/productpage-v1-6b746f74dc[ReplicaSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => default/ratings-v1-b6994bb9[ReplicaSet]:
+Connections between 0.0.0.0-255.255.255.255[External] => default/ratings-v1-b6994bb9[ReplicaSet]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/ratings-netpol' selects default/ratings-v1-b6994bb9[ReplicaSet], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+			NetworkPolicy 'default/ratings-netpol' selects default/ratings-v1-b6994bb9[ReplicaSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => default/reviews-v1-545db77b95[ReplicaSet]:
+Connections between 0.0.0.0-255.255.255.255[External] => default/reviews-v1-545db77b95[ReplicaSet]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/reviews-netpol' selects default/reviews-v1-545db77b95[ReplicaSet], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
+			NetworkPolicy 'default/reviews-netpol' selects default/reviews-v1-545db77b95[ReplicaSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => default/reviews-v2-7bf8c9648f[ReplicaSet]:
+Connections between 0.0.0.0-255.255.255.255[External] => default/reviews-v2-7bf8c9648f[ReplicaSet]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/reviews-netpol' selects default/reviews-v2-7bf8c9648f[ReplicaSet], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
+			NetworkPolicy 'default/reviews-netpol' selects default/reviews-v2-7bf8c9648f[ReplicaSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => default/reviews-v3-84779c7bbc[ReplicaSet]:
+Connections between 0.0.0.0-255.255.255.255[External] => default/reviews-v3-84779c7bbc[ReplicaSet]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/reviews-netpol' selects default/reviews-v3-84779c7bbc[ReplicaSet], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
+			NetworkPolicy 'default/reviews-netpol' selects default/reviews-v3-84779c7bbc[ReplicaSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/details-v1-79f774bdb9[ReplicaSet] => 0.0.0.0-255.255.255.255:
+Connections between default/details-v1-79f774bdb9[ReplicaSet] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy 'default/details-netpol' selects default/details-v1-79f774bdb9[ReplicaSet], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+			NetworkPolicy 'default/details-netpol' selects default/details-v1-79f774bdb9[ReplicaSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -125,12 +125,12 @@ Denied connections:
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/productpage-v1-6b746f74dc[ReplicaSet] => 0.0.0.0-255.255.255.255:
+Connections between default/productpage-v1-6b746f74dc[ReplicaSet] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy 'default/productpage-netpol' selects default/productpage-v1-6b746f74dc[ReplicaSet], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+			NetworkPolicy 'default/productpage-netpol' selects default/productpage-v1-6b746f74dc[ReplicaSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -199,12 +199,12 @@ Denied connections:
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/ratings-v1-b6994bb9[ReplicaSet] => 0.0.0.0-255.255.255.255:
+Connections between default/ratings-v1-b6994bb9[ReplicaSet] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy 'default/ratings-netpol' selects default/ratings-v1-b6994bb9[ReplicaSet], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+			NetworkPolicy 'default/ratings-netpol' selects default/ratings-v1-b6994bb9[ReplicaSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -273,12 +273,12 @@ Denied connections:
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/reviews-v1-545db77b95[ReplicaSet] => 0.0.0.0-255.255.255.255:
+Connections between default/reviews-v1-545db77b95[ReplicaSet] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy 'default/reviews-netpol' selects default/reviews-v1-545db77b95[ReplicaSet], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+			NetworkPolicy 'default/reviews-netpol' selects default/reviews-v1-545db77b95[ReplicaSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -361,12 +361,12 @@ Denied connections:
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/reviews-v2-7bf8c9648f[ReplicaSet] => 0.0.0.0-255.255.255.255:
+Connections between default/reviews-v2-7bf8c9648f[ReplicaSet] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy 'default/reviews-netpol' selects default/reviews-v2-7bf8c9648f[ReplicaSet], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+			NetworkPolicy 'default/reviews-netpol' selects default/reviews-v2-7bf8c9648f[ReplicaSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -449,12 +449,12 @@ Denied connections:
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/reviews-v3-84779c7bbc[ReplicaSet] => 0.0.0.0-255.255.255.255:
+Connections between default/reviews-v3-84779c7bbc[ReplicaSet] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy 'default/reviews-netpol' selects default/reviews-v3-84779c7bbc[ReplicaSet], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+			NetworkPolicy 'default/reviews-netpol' selects default/reviews-v3-84779c7bbc[ReplicaSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -632,5 +632,5 @@ Denied connections:
 #########################################################
 # All Connections due to the system default (Allow all) #
 #########################################################
-0.0.0.0-255.255.255.255 => default/unicorn[Deployment]
-default/unicorn[Deployment] => 0.0.0.0-255.255.255.255
+0.0.0.0-255.255.255.255[External] => default/unicorn[Deployment]
+default/unicorn[Deployment] => 0.0.0.0-255.255.255.255[External]

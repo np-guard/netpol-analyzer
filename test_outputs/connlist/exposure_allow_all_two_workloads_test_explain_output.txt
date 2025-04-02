@@ -3,7 +3,7 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => hello-world/workload-a[Deployment]:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -12,7 +12,7 @@ Allowed connections:
 			NetworkPolicy 'hello-world/allow-ingress-and-egress-in-entire-cluster' allows connections by Ingress rule #1
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => hello-world/workload-b[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => hello-world/workload-b[Deployment]:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -21,7 +21,7 @@ Allowed connections:
 			NetworkPolicy 'hello-world/allow-ingress-and-egress-in-entire-cluster' allows connections by Ingress rule #1
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -40,7 +40,7 @@ Allowed connections:
 			NetworkPolicy 'hello-world/allow-ingress-and-egress-in-entire-cluster' allows connections by Ingress rule #1
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between hello-world/workload-b[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between hello-world/workload-b[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:

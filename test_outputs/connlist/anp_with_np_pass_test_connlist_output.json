@@ -1,12 +1,12 @@
 [
   {
-    "src": "0.0.0.0-255.255.255.255",
+    "src": "0.0.0.0-255.255.255.255[External]",
     "dst": "ns2/pod1[Deployment]",
     "conn": "All Connections"
   },
   {
     "src": "ns2/pod1[Deployment]",
-    "dst": "0.0.0.0-255.255.255.255",
+    "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   },
   {

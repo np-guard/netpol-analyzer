@@ -3,7 +3,7 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between ns1/pod1[Deployment] => 104.154.164.160-104.154.164.160:
+Connections between ns1/pod1[Deployment] => 104.154.164.160-104.154.164.160[External]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
@@ -12,7 +12,7 @@ Denied connections:
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between ns1/pod1[Deployment] => 104.154.164.170-104.154.164.170:
+Connections between ns1/pod1[Deployment] => 104.154.164.170-104.154.164.170[External]:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -42,23 +42,23 @@ Allowed connections:
 #########################################################
 # All Connections due to the system default (Allow all) #
 #########################################################
-0.0.0.0-255.255.255.255 => ns1/pod1[Deployment]
-0.0.0.0-255.255.255.255 => ns2/pod1[Deployment]
-0.0.0.0-255.255.255.255 => ns3/pod1[Deployment]
-ns1/pod1[Deployment] => 0.0.0.0-104.154.164.159
-ns1/pod1[Deployment] => 104.154.164.161-104.154.164.169
-ns1/pod1[Deployment] => 104.154.164.171-255.255.255.255
-ns2/pod1[Deployment] => 0.0.0.0-104.154.164.159
-ns2/pod1[Deployment] => 104.154.164.160-104.154.164.160
-ns2/pod1[Deployment] => 104.154.164.161-104.154.164.169
-ns2/pod1[Deployment] => 104.154.164.170-104.154.164.170
-ns2/pod1[Deployment] => 104.154.164.171-255.255.255.255
+0.0.0.0-255.255.255.255[External] => ns1/pod1[Deployment]
+0.0.0.0-255.255.255.255[External] => ns2/pod1[Deployment]
+0.0.0.0-255.255.255.255[External] => ns3/pod1[Deployment]
+ns1/pod1[Deployment] => 0.0.0.0-104.154.164.159[External]
+ns1/pod1[Deployment] => 104.154.164.161-104.154.164.169[External]
+ns1/pod1[Deployment] => 104.154.164.171-255.255.255.255[External]
+ns2/pod1[Deployment] => 0.0.0.0-104.154.164.159[External]
+ns2/pod1[Deployment] => 104.154.164.160-104.154.164.160[External]
+ns2/pod1[Deployment] => 104.154.164.161-104.154.164.169[External]
+ns2/pod1[Deployment] => 104.154.164.170-104.154.164.170[External]
+ns2/pod1[Deployment] => 104.154.164.171-255.255.255.255[External]
 ns2/pod1[Deployment] => ns1/pod1[Deployment]
 ns2/pod1[Deployment] => ns3/pod1[Deployment]
-ns3/pod1[Deployment] => 0.0.0.0-104.154.164.159
-ns3/pod1[Deployment] => 104.154.164.160-104.154.164.160
-ns3/pod1[Deployment] => 104.154.164.161-104.154.164.169
-ns3/pod1[Deployment] => 104.154.164.170-104.154.164.170
-ns3/pod1[Deployment] => 104.154.164.171-255.255.255.255
+ns3/pod1[Deployment] => 0.0.0.0-104.154.164.159[External]
+ns3/pod1[Deployment] => 104.154.164.160-104.154.164.160[External]
+ns3/pod1[Deployment] => 104.154.164.161-104.154.164.169[External]
+ns3/pod1[Deployment] => 104.154.164.170-104.154.164.170[External]
+ns3/pod1[Deployment] => 104.154.164.171-255.255.255.255[External]
 ns3/pod1[Deployment] => ns1/pod1[Deployment]
 ns3/pod1[Deployment] => ns2/pod1[Deployment]
