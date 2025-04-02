@@ -1,2 +1,2 @@
-0.0.0.0-255.255.255.255 => default/internal-security[Pod] : All Connections
-default/internal-security[Pod] => 0.0.0.0-255.255.255.255 : All Connections
+0.0.0.0-255.255.255.255[External] => default/internal-security[Pod] : All Connections
+default/internal-security[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections

@@ -1,2 +1,2 @@
-0.0.0.0-255.255.255.255 => helloworld/new-pod[Deployment] : All Connections
-helloworld/new-pod[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+0.0.0.0-255.255.255.255[External] => helloworld/new-pod[Deployment] : All Connections
+helloworld/new-pod[Deployment] => 0.0.0.0-255.255.255.255[External] : All Connections

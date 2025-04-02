@@ -1,12 +1,12 @@
 [
   {
-    "src": "0.0.0.0-255.255.255.255",
+    "src": "0.0.0.0-255.255.255.255[External]",
     "dst": "ingressworld/ingress-world-multiple-ports[Deployment]",
     "conn": "All Connections"
   },
   {
     "src": "ingressworld/ingress-world-multiple-ports[Deployment]",
-    "dst": "0.0.0.0-255.255.255.255",
+    "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   },
   {

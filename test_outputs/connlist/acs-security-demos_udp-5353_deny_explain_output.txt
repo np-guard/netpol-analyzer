@@ -3,146 +3,146 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => backend/catalog[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => backend/catalog[Deployment]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'backend/catalog-netpol' selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
-				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'backend/catalog-netpol' selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => backend/checkout[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => backend/checkout[Deployment]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'backend/checkout-netpol' selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
-				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'backend/checkout-netpol' selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => backend/notification[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => backend/notification[Deployment]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
-				- NetworkPolicy 'backend/notification-netpol' selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'backend/notification-netpol' selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => backend/recommendation[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => backend/recommendation[Deployment]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
-				- NetworkPolicy 'backend/recommendation-netpol' selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'backend/recommendation-netpol' selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => backend/reports[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => backend/reports[Deployment]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
-				- NetworkPolicy 'backend/reports-netpol' selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'backend/reports-netpol' selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => backend/shipping[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => backend/shipping[Deployment]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
-				- NetworkPolicy 'backend/shipping-netpol' selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'backend/shipping-netpol' selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => frontend/asset-cache[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => frontend/asset-cache[Deployment]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'frontend/asset-cache-netpol' selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
-				- NetworkPolicy 'frontend/default-deny-in-namespace-frontend' selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'frontend/asset-cache-netpol' selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+				- NetworkPolicy 'frontend/default-deny-in-namespace-frontend' selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => frontend/webapp[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => frontend/webapp[Deployment]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'frontend/default-deny-in-namespace-frontend' selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
-				- NetworkPolicy 'frontend/webapp-netpol' selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'frontend/default-deny-in-namespace-frontend' selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'frontend/webapp-netpol' selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => payments/gateway[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => payments/gateway[Deployment]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'payments/default-deny-in-namespace-payments' selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
-				- NetworkPolicy 'payments/gateway-netpol' selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'payments/default-deny-in-namespace-payments' selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'payments/gateway-netpol' selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => payments/mastercard-processor[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => payments/mastercard-processor[Deployment]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'payments/default-deny-in-namespace-payments' selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
-				- NetworkPolicy 'payments/mastercard-processor-netpol' selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'payments/default-deny-in-namespace-payments' selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'payments/mastercard-processor-netpol' selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => payments/visa-processor[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => payments/visa-processor[Deployment]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'payments/default-deny-in-namespace-payments' selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
-				- NetworkPolicy 'payments/visa-processor-netpol' selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+				- NetworkPolicy 'payments/default-deny-in-namespace-payments' selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+				- NetworkPolicy 'payments/visa-processor-netpol' selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between backend/catalog[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between backend/catalog[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'backend/catalog-netpol' selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
-				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'backend/catalog-netpol' selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/catalog[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -307,14 +307,14 @@ Denied connections:
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between backend/checkout[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between backend/checkout[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'backend/checkout-netpol' selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
-				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'backend/checkout-netpol' selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule
+				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/checkout[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -449,14 +449,14 @@ Denied connections:
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between backend/notification[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between backend/notification[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
-				- NetworkPolicy 'backend/notification-netpol' selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'backend/notification-netpol' selects backend/notification[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -621,14 +621,14 @@ Denied connections:
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between backend/recommendation[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between backend/recommendation[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
-				- NetworkPolicy 'backend/recommendation-netpol' selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'backend/recommendation-netpol' selects backend/recommendation[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -763,14 +763,14 @@ Denied connections:
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between backend/reports[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between backend/reports[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
-				- NetworkPolicy 'backend/reports-netpol' selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'backend/reports-netpol' selects backend/reports[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -905,14 +905,14 @@ Denied connections:
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between backend/shipping[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between backend/shipping[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
-				- NetworkPolicy 'backend/shipping-netpol' selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'backend/default-deny-in-namespace-backend' selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'backend/shipping-netpol' selects backend/shipping[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -1077,14 +1077,14 @@ Denied connections:
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between frontend/asset-cache[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between frontend/asset-cache[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'frontend/asset-cache-netpol' selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
-				- NetworkPolicy 'frontend/default-deny-in-namespace-frontend' selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'frontend/asset-cache-netpol' selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'frontend/default-deny-in-namespace-frontend' selects frontend/asset-cache[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -1249,14 +1249,14 @@ Denied connections:
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between frontend/webapp[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between frontend/webapp[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'frontend/default-deny-in-namespace-frontend' selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
-				- NetworkPolicy 'frontend/webapp-netpol' selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'frontend/default-deny-in-namespace-frontend' selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'frontend/webapp-netpol' selects frontend/webapp[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -1391,14 +1391,14 @@ Denied connections:
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between payments/gateway[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between payments/gateway[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'payments/default-deny-in-namespace-payments' selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
-				- NetworkPolicy 'payments/gateway-netpol' selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule
+				- NetworkPolicy 'payments/default-deny-in-namespace-payments' selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'payments/gateway-netpol' selects payments/gateway[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -1533,14 +1533,14 @@ Denied connections:
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between payments/mastercard-processor[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between payments/mastercard-processor[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'payments/default-deny-in-namespace-payments' selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
-				- NetworkPolicy 'payments/mastercard-processor-netpol' selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'payments/default-deny-in-namespace-payments' selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'payments/mastercard-processor-netpol' selects payments/mastercard-processor[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 
@@ -1705,14 +1705,14 @@ Denied connections:
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between payments/visa-processor[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between payments/visa-processor[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied UDP:[5353] due to the following policies and rules:
 		Egress (Denied)
 			NetworkPolicy list:
-				- NetworkPolicy 'payments/default-deny-in-namespace-payments' selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
-				- NetworkPolicy 'payments/visa-processor-netpol' selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'payments/default-deny-in-namespace-payments' selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+				- NetworkPolicy 'payments/visa-processor-netpol' selects payments/visa-processor[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
 
 		Ingress (Allowed) due to the system default (Allow all)
 

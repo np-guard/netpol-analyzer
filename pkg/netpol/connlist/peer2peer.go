@@ -58,7 +58,7 @@ func RefineConnListByDisjointPeers(conns []Peer2PeerConnection, srcMap, dstMap m
 // it returns Peer2PeerConnection slice with refined ip-type peers
 func refineP2PConnByDisjointPeers(p eval.Peer, isSrc bool, conns Peer2PeerConnection, m map[string]map[string]eval.Peer) (
 	[]Peer2PeerConnection, error) {
-	replacingPeers, ok := m[p.String()]
+	replacingPeers, ok := m[p.IP()] // p is of ip-type and the refined ips in the input map are represented by the IPRanges string
 	if !ok {
 		return nil, errors.New("missing peer from input disjointPeerIPMap")
 	}
