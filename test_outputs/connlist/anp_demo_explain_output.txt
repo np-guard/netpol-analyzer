@@ -3,22 +3,22 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => gryffindor/harry-potter[StatefulSet]:
+Connections between 0.0.0.0-255.255.255.255[External] => gryffindor/harry-potter[StatefulSet]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'gryffindor/allow-some-ingress-from-to-slytherin-to-gryffindor' selects gryffindor/harry-potter[StatefulSet], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+			NetworkPolicy 'gryffindor/allow-some-ingress-from-to-slytherin-to-gryffindor' selects gryffindor/harry-potter[StatefulSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => ravenclaw/luna-lovegood[StatefulSet]:
+Connections between 0.0.0.0-255.255.255.255[External] => ravenclaw/luna-lovegood[StatefulSet]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'ravenclaw/allow-some-ingress-from-to-ravenclaw' selects ravenclaw/luna-lovegood[StatefulSet], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+			NetworkPolicy 'ravenclaw/allow-some-ingress-from-to-ravenclaw' selects ravenclaw/luna-lovegood[StatefulSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between gryffindor/harry-potter[StatefulSet] => hufflepuff/cedric-diggory[StatefulSet]:
@@ -104,12 +104,12 @@ Denied connections:
 			BaselineAdminNetworkPolicy 'default' denies connections by Ingress rule deny-all-ingress-from-hufflepuff
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between ravenclaw/luna-lovegood[StatefulSet] => 0.0.0.0-255.255.255.255:
+Connections between ravenclaw/luna-lovegood[StatefulSet] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy 'ravenclaw/allow-some-ingress-from-to-ravenclaw' selects ravenclaw/luna-lovegood[StatefulSet], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+			NetworkPolicy 'ravenclaw/allow-some-ingress-from-to-ravenclaw' selects ravenclaw/luna-lovegood[StatefulSet], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -184,8 +184,8 @@ Denied connections:
 #########################################################
 # All Connections due to the system default (Allow all) #
 #########################################################
-0.0.0.0-255.255.255.255 => hufflepuff/cedric-diggory[StatefulSet]
-0.0.0.0-255.255.255.255 => slytherin/draco-malfoy[StatefulSet]
-gryffindor/harry-potter[StatefulSet] => 0.0.0.0-255.255.255.255
-hufflepuff/cedric-diggory[StatefulSet] => 0.0.0.0-255.255.255.255
-slytherin/draco-malfoy[StatefulSet] => 0.0.0.0-255.255.255.255
+0.0.0.0-255.255.255.255[External] => hufflepuff/cedric-diggory[StatefulSet]
+0.0.0.0-255.255.255.255[External] => slytherin/draco-malfoy[StatefulSet]
+gryffindor/harry-potter[StatefulSet] => 0.0.0.0-255.255.255.255[External]
+hufflepuff/cedric-diggory[StatefulSet] => 0.0.0.0-255.255.255.255[External]
+slytherin/draco-malfoy[StatefulSet] => 0.0.0.0-255.255.255.255[External]

@@ -11,11 +11,11 @@ digraph {
 		"ns2/pod1[Deployment]" [label="pod1[Deployment]" color="blue" fontcolor="blue"]
 		label="ns2"
 	}
-	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
-	"0.0.0.0-255.255.255.255" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"0.0.0.0-255.255.255.255" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"ns1/pod1[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "ns1/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns1/pod1[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"ns1/pod1[Deployment]" -> "ns2/pod1[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"ns2/pod1[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns2/pod1[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"ns2/pod1[Deployment]" -> "ns1/pod1[Deployment]" [label="SCTP 1-65535,TCP 1-65535,UDP 1-79,81-65535" color="gold2" fontcolor="darkgreen" weight=1]
 }

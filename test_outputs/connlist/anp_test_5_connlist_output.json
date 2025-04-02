@@ -1,16 +1,16 @@
 [
   {
-    "src": "0.0.0.0-255.255.255.255",
+    "src": "0.0.0.0-255.255.255.255[External]",
     "dst": "network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]",
     "conn": "All Connections"
   },
   {
-    "src": "0.0.0.0-255.255.255.255",
+    "src": "0.0.0.0-255.255.255.255[External]",
     "dst": "network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]",
     "conn": "All Connections"
   },
   {
-    "src": "0.0.0.0-255.255.255.255",
+    "src": "0.0.0.0-255.255.255.255[External]",
     "dst": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
     "conn": "All Connections"
   },
@@ -21,7 +21,7 @@
   },
   {
     "src": "network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet]",
-    "dst": "0.0.0.0-255.255.255.255",
+    "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   },
   {
@@ -36,7 +36,7 @@
   },
   {
     "src": "network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet]",
-    "dst": "0.0.0.0-255.255.255.255",
+    "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   },
   {
@@ -51,7 +51,7 @@
   },
   {
     "src": "network-policy-conformance-slytherin/draco-malfoy[StatefulSet]",
-    "dst": "0.0.0.0-255.255.255.255",
+    "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   },
   {

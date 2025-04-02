@@ -1,7 +1,7 @@
 {
   "connlist_results": [
     {
-      "src": "0.0.0.0-255.255.255.255",
+      "src": "0.0.0.0-255.255.255.255[External]",
       "dst": "matching-ns/matching-workload[Deployment]",
       "conn": "All Connections"
     },
@@ -12,7 +12,7 @@
     },
     {
       "src": "matching-ns/matching-workload[Deployment]",
-      "dst": "0.0.0.0-255.255.255.255",
+      "dst": "0.0.0.0-255.255.255.255[External]",
       "conn": "All Connections"
     },
     {
@@ -30,7 +30,7 @@
       },
       {
         "src": "matching-ns/matching-workload[Deployment]",
-        "dst": "0.0.0.0-255.255.255.255",
+        "dst": "0.0.0.0-255.255.255.255[External]",
         "conn": "All Connections"
       },
       {
@@ -46,7 +46,7 @@
         "conn": "TCP 8000"
       },
       {
-        "src": "0.0.0.0-255.255.255.255",
+        "src": "0.0.0.0-255.255.255.255[External]",
         "dst": "matching-ns/matching-workload[Deployment]",
         "conn": "All Connections"
       },

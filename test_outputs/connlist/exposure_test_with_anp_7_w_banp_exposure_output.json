@@ -1,18 +1,18 @@
 {
   "connlist_results": [
     {
-      "src": "0.0.0.0-255.255.255.255",
+      "src": "0.0.0.0-255.255.255.255[External]",
       "dst": "hello-world/workload-a[Deployment]",
       "conn": "All Connections"
     },
     {
-      "src": "0.0.0.0-255.255.255.255",
+      "src": "0.0.0.0-255.255.255.255[External]",
       "dst": "hello-world/workload-b[Deployment]",
       "conn": "All Connections"
     },
     {
       "src": "hello-world/workload-a[Deployment]",
-      "dst": "0.0.0.0-255.255.255.255",
+      "dst": "0.0.0.0-255.255.255.255[External]",
       "conn": "All Connections"
     },
     {
@@ -22,7 +22,7 @@
     },
     {
       "src": "hello-world/workload-b[Deployment]",
-      "dst": "0.0.0.0-255.255.255.255",
+      "dst": "0.0.0.0-255.255.255.255[External]",
       "conn": "All Connections"
     }
   ],
@@ -30,7 +30,7 @@
     "egress_exposure": [
       {
         "src": "hello-world/workload-a[Deployment]",
-        "dst": "0.0.0.0-255.255.255.255",
+        "dst": "0.0.0.0-255.255.255.255[External]",
         "conn": "All Connections"
       },
       {
@@ -40,7 +40,7 @@
       },
       {
         "src": "hello-world/workload-b[Deployment]",
-        "dst": "0.0.0.0-255.255.255.255",
+        "dst": "0.0.0.0-255.255.255.255[External]",
         "conn": "All Connections"
       },
       {
@@ -51,12 +51,12 @@
     ],
     "ingress_exposure": [
       {
-        "src": "0.0.0.0-255.255.255.255",
+        "src": "0.0.0.0-255.255.255.255[External]",
         "dst": "hello-world/workload-a[Deployment]",
         "conn": "All Connections"
       },
       {
-        "src": "0.0.0.0-255.255.255.255",
+        "src": "0.0.0.0-255.255.255.255[External]",
         "dst": "hello-world/workload-b[Deployment]",
         "conn": "All Connections"
       },
