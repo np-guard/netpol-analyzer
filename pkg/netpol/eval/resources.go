@@ -13,6 +13,9 @@ import (
 	"sort"
 	"time"
 
+	"github.com/np-guard/models/pkg/netset"
+
+	udnv1 "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/userdefinednetwork/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -24,8 +27,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 	policyapi "sigs.k8s.io/network-policy-api/pkg/client/clientset/versioned"
-
-	"github.com/np-guard/models/pkg/netset"
 
 	pkgcommon "github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
@@ -142,6 +143,18 @@ func NewPolicyEngineWithOptionsList(opts ...PolicyEngineOption) (pe *PolicyEngin
 	}
 	// if objects list is not empty insert objects by kind and considering exposure-analysis flag
 	if len(pe.objectsList) > 0 {
+		// first get namespaces from input resources and insert them to the policy-engine, this is essential to
+		// be done before inserting other objects in case of:
+		// 1. there are primary UserDefinedNetwork objects.
+		// In order to insert (and not ignore) an udn object;
+		// its namespace must be available with specific label to define a new isolated pods network.
+		// 2. exposure-analysis is on, so when inserting workloads, we'll be able to check correctly
+		// if a generated representative peer should be removed, i.e. its labels and namespace
+		// correspond to a real pod.
+		err = pe.insertNamespacesFromResources()
+		if err != nil {
+			return pe, err
+		}
 		if pe.exposureAnalysisFlag {
 			err = pe.addObjectsForExposureAnalysis()
 		} else {
@@ -152,8 +165,9 @@ func NewPolicyEngineWithOptionsList(opts ...PolicyEngineOption) (pe *PolicyEngin
 }
 
 // addObjectsForExposureAnalysis adds pe's k8s objects: first adds policies (NetworkPolicy, AdminNetworkPolicy
-// and BaselineAdminNetworkPolicy objects) and namespaces and then other objects.
-// for exposure analysis we need to insert first policies and namespaces so:
+// and BaselineAdminNetworkPolicy objects).
+// note that namespaces were already added to the policy-engine
+// for exposure analysis policies and namespaces must be inserted before other objects since:
 // 1. policies: so a representative peer for each policy rule is added
 // 2. namespaces: so when inserting workloads, we'll be able to check correctly if a generated representative peer
 // should be removed, i.e. its labels and namespace correspond to a real pod.
@@ -164,10 +178,10 @@ func (pe *PolicyEngine) addObjectsForExposureAnalysis() error {
 	if !pe.exposureAnalysisFlag { // should not be true ever
 		return nil
 	}
-	policiesAndNamespaces, otherObjects := splitPoliciesAndNamespacesAndOtherObjects(pe.objectsList)
+	policies, otherObjects := splitPoliciesAndOtherObjects(pe.objectsList)
 	// note: in the first call addObjectsByKind with policy objects, will add
 	// the representative peers
-	err := pe.addObjectsByKind(policiesAndNamespaces)
+	err := pe.addObjectsByKind(policies)
 	if err != nil {
 		return err
 	}
@@ -177,23 +191,34 @@ func (pe *PolicyEngine) addObjectsForExposureAnalysis() error {
 	return err
 }
 
-func splitPoliciesAndNamespacesAndOtherObjects(objects []parser.K8sObject) (policiesAndNs, others []parser.K8sObject) {
+func splitPoliciesAndOtherObjects(objects []parser.K8sObject) (policies, others []parser.K8sObject) {
 	for i := range objects {
 		obj := objects[i]
 		switch obj.Kind {
 		case parser.NetworkPolicy:
-			policiesAndNs = append(policiesAndNs, obj)
+			policies = append(policies, obj)
 		case parser.AdminNetworkPolicy:
-			policiesAndNs = append(policiesAndNs, obj)
+			policies = append(policies, obj)
 		case parser.BaselineAdminNetworkPolicy:
-			policiesAndNs = append(policiesAndNs, obj)
-		case parser.Namespace:
-			policiesAndNs = append(policiesAndNs, obj)
+			policies = append(policies, obj)
 		default:
 			others = append(others, obj)
 		}
 	}
-	return policiesAndNs, others
+	return policies, others
+}
+
+func (pe *PolicyEngine) insertNamespacesFromResources() (err error) {
+	for i := range pe.objectsList {
+		obj := pe.objectsList[i]
+		if obj.Kind == parser.Namespace {
+			err = pe.InsertObject(obj.Namespace)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // addObjectsByKind adds different k8s objects from parsed resources to the policy engine
@@ -204,8 +229,8 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 	for i := range objects {
 		obj := objects[i]
 		switch obj.Kind {
-		case parser.Namespace:
-			err = pe.InsertObject(obj.Namespace)
+		case parser.Namespace: // already in the policy-engine
+			continue
 		case parser.NetworkPolicy:
 			err = pe.InsertObject(obj.NetworkPolicy)
 		case parser.Pod:
@@ -228,6 +253,8 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 			err = pe.InsertObject(obj.AdminNetworkPolicy)
 		case parser.BaselineAdminNetworkPolicy:
 			err = pe.InsertObject(obj.BaselineAdminNetworkPolicy)
+		case parser.UserDefinedNetwork:
+			err = pe.InsertObject(obj.UserDefinedNetwork)
 		case parser.Service, parser.Route, parser.Ingress:
 			continue
 		default:
@@ -408,6 +435,8 @@ func (pe *PolicyEngine) InsertObject(rtObj runtime.Object) error {
 		return pe.insertAdminNetworkPolicy(obj)
 	case *apisv1a.BaselineAdminNetworkPolicy:
 		return pe.insertBaselineAdminNetworkPolicy(obj)
+	case *udnv1.UserDefinedNetwork:
+		return pe.insertUserDefinedNetwork(obj)
 	}
 	return nil
 }
@@ -713,6 +742,10 @@ func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineA
 		err = pe.generateRepresentativePeers(rulesSelectors, "", true)
 	}
 	return err
+}
+
+func (pe *PolicyEngine) insertUserDefinedNetwork(udn *udnv1.UserDefinedNetwork) error {
+	return nil
 }
 
 func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
