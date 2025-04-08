@@ -1,0 +1,6 @@
+| src | dst | conn |
+|-----|-----|------|
+| 0.0.0.0-255.255.255.255[External] | blue/webserver[Pod] | All Connections |
+| 0.0.0.0-255.255.255.255[External] | green/webserver[Pod] | All Connections |
+| blue/webserver[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections |
+| green/webserver[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections |

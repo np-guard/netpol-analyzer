@@ -774,7 +774,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	// log warnings that were raised by the policies during computing the allowed conns between all peers
 	// note that this ensures any warning is printed only once + all relevant warnings are raised.
 	// the decision if to print the warnings to the logger is determined by the logger's verbosity - handled by the logger
-	policiesWarns := pe.LogPoliciesWarnings()
+	policiesWarns := pe.LogPolicyEngineWarnings()
 	// policiesWarns already printed to the logger, add them also to the ca.Errors API system
 	for _, warn := range policiesWarns {
 		ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warn)))

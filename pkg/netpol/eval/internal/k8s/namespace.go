@@ -16,7 +16,7 @@ import (
 type Namespace struct {
 	Name       string
 	Labels     map[string]string
-	primaryUDN *udn
+	PrimaryUDN *UserDefinedNetwork
 }
 
 // @todo need a Namespace collection type along with convenience methods?

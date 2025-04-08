@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/np-guard/models/pkg/netset"
@@ -151,7 +152,7 @@ func NewPolicyEngineWithOptionsList(opts ...PolicyEngineOption) (pe *PolicyEngin
 		// 2. exposure-analysis is on, so when inserting workloads, we'll be able to check correctly
 		// if a generated representative peer should be removed, i.e. its labels and namespace
 		// correspond to a real pod.
-		err = pe.insertNamespacesFromResources()
+		err = pe.InsertNamespacesFromResources(pe.objectsList)
 		if err != nil {
 			return pe, err
 		}
@@ -208,9 +209,9 @@ func splitPoliciesAndOtherObjects(objects []parser.K8sObject) (policies, others 
 	return policies, others
 }
 
-func (pe *PolicyEngine) insertNamespacesFromResources() (err error) {
-	for i := range pe.objectsList {
-		obj := pe.objectsList[i]
+func (pe *PolicyEngine) InsertNamespacesFromResources(objects []parser.K8sObject) (err error) {
+	for i := range objects {
+		obj := objects[i]
 		if obj.Kind == parser.Namespace {
 			err = pe.InsertObject(obj.Namespace)
 			if err != nil {
@@ -714,11 +715,16 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 	return err
 }
 
+const (
+	defaultName       = "default"
+	openshiftNsPrefix = "openshift-"
+)
+
 func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineAdminNetworkPolicy) error {
 	if pe.baselineAdminNetpol != nil { // @todo : should this be a warning? the last banp the one considered
 		return errors.New(alerts.BANPAlreadyExists)
 	}
-	if banp.Name != "default" { // "You must use default as the name when creating a BaselineAdminNetworkPolicy object."
+	if banp.Name != defaultName { // "You must use default as the name when creating a BaselineAdminNetworkPolicy object."
 		// see https://www.redhat.com/en/blog/using-adminnetworkpolicy-api-to-secure-openshift-cluster-networking
 		// or this: https://pkg.go.dev/sigs.k8s.io/network-policy-api@v0.1.5/apis/v1alpha1#BaselineAdminNetworkPolicy
 		return errors.New(alerts.BANPNameAssertion)
@@ -744,7 +750,44 @@ func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineA
 	return err
 }
 
+// insertUserDefinedNetwork if all conditions of a primary user-defined-network namespace are ok;
+// assigns the input udn to its Namespace
 func (pe *PolicyEngine) insertUserDefinedNetwork(udn *udnv1.UserDefinedNetwork) error {
+	if udn.Name == defaultName {
+		// Name of UserDefinedNetwork resource should not be default
+		return errors.New(alerts.UDNNameAssertion(types.NamespacedName{Namespace: udn.Namespace, Name: udn.Name}.String()))
+	}
+	newUDN := &k8s.UserDefinedNetwork{
+		UserDefinedNetwork: udn,
+	}
+	// check UDN validity
+	if valid, errMsg := newUDN.CheckFieldsValidity(); !valid {
+		return errors.New(errMsg)
+	}
+	if !newUDN.IsUDNPrimary() { // ignoring udn - currently supporting only Primary UDNs
+		newUDN.Warnings.AddWarning(alerts.NotSupportedUDNRole(types.NamespacedName{Namespace: udn.Namespace, Name: udn.Name}.String()))
+		return nil
+	}
+	udnNs, ok := pe.namespacesMap[udn.Namespace]
+	if !ok { // ignoring udn - its namespace does not exist in the input resources
+		newUDN.Warnings.AddWarning(alerts.WarnMissingNamespaceOfUDN(udn.Name, udn.Namespace))
+		return nil
+	}
+	if _, ok := udnNs.Labels[common.PrimaryUDNLabel]; !ok { // ignoring udn - its namespace does not include the must label
+		newUDN.Warnings.AddWarning(alerts.WarnNamespaceDoesNotSupportUDN(udn.Name, udn.Namespace))
+		return nil
+	}
+	if udn.Namespace == metav1.NamespaceDefault || strings.HasPrefix(udn.Namespace, openshiftNsPrefix) {
+		// 1. openshift-* namespaces should not be used to set up a UserDefinedNetwork CR.
+		// 2. UserDefinedNetwork CRs should not be created in the default namespace. This can result in no isolation and, as a result,
+		//  could introduce security risks to the cluster.
+		return errors.New(alerts.ErrUDNInDefaultNs(udn.Name, udn.Namespace))
+	}
+	if udnNs.PrimaryUDN != nil {
+		// assigning UDNs to namespaces is with a limitation of only one primary UDN to a namespace
+		return errors.New(alerts.OnePrimaryUDNAssertion(udn.Namespace))
+	}
+	udnNs.PrimaryUDN = newUDN
 	return nil
 }
 
@@ -1084,13 +1127,20 @@ func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.Sin
 	return nil
 }
 
-// LogPoliciesWarnings prints to the logger all warnings raised by policy rules while computing
-// allowed connections between peers.
+// LogPolicyEngineWarnings prints to the logger all warnings raised by policy-engine objects;
+// e.g. warnings raised while inserting user-defined-network objects or
+// policies' rules warnings which were raised while computing allowed connections between peers.
 // calling this func once after all computations are done, ensures that :
 // - all relevant warnings from looping policy rules are raised
 // - each single warning is printed only once to the logger
-// - all warns are returned also as []string
-func (pe *PolicyEngine) LogPoliciesWarnings() (warns []string) {
+// - all warns are returned also as []string to be appended also to the Connlist API error system
+func (pe *PolicyEngine) LogPolicyEngineWarnings() (warns []string) {
+	// log warnings from udn objects
+	for _, ns := range pe.namespacesMap {
+		if ns.PrimaryUDN != nil {
+			warns = append(warns, ns.PrimaryUDN.LogWarnings(pe.logger)...)
+		}
+	}
 	// log warnings from k8s NetworkPolicy objects
 	for _, nsMap := range pe.netpolsMap {
 		for _, policy := range nsMap {

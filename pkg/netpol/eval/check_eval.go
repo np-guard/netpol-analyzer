@@ -50,6 +50,10 @@ func (pe *PolicyEngine) CheckIfAllowed(src, dst, protocol, port string) (bool, e
 		return res, nil
 	}
 
+	if podsFromDifferentUserDefinedNetworks(srcPeer, dstPeer) {
+		return false, nil
+	}
+
 	egressRes, err := pe.allowedXgressConnection(srcPeer, dstPeer, false, protocol, port)
 	if err != nil {
 		return false, err
@@ -58,7 +62,7 @@ func (pe *PolicyEngine) CheckIfAllowed(src, dst, protocol, port string) (bool, e
 		pe.cache.addConnectionResult(srcPeer, dstPeer, protocol, port, false)
 		// print the warnings that were raised by the policies (if there are any)
 		// note that: the decision if to print the warnings to the logger is determined by the logger's verbosity - handled by the logger
-		pe.LogPoliciesWarnings()
+		pe.LogPolicyEngineWarnings()
 		return false, nil
 	}
 	ingressRes, err := pe.allowedXgressConnection(srcPeer, dstPeer, true, protocol, port)
@@ -68,7 +72,7 @@ func (pe *PolicyEngine) CheckIfAllowed(src, dst, protocol, port string) (bool, e
 	pe.cache.addConnectionResult(srcPeer, dstPeer, protocol, port, ingressRes)
 	// print the warnings that were raised by the policies (if there are any)
 	// note that: the decision if to print the warnings to the logger is determined by the logger's verbosity - handled by the logger
-	pe.LogPoliciesWarnings()
+	pe.LogPolicyEngineWarnings()
 	return ingressRes, nil
 }
 

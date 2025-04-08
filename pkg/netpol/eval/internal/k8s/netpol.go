@@ -582,7 +582,7 @@ func (np *NetworkPolicy) ruleName(ruleIdx int, isIngress bool) string {
 }
 
 func (np *NetworkPolicy) LogWarnings(l logger.Logger) []string {
-	return np.warnings.LogPolicyWarnings(l)
+	return np.warnings.LogWarnings(l)
 }
 
 //////////////////////////////////////////////// ////////////////////////////////////////////////

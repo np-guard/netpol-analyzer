@@ -1,0 +1,22 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "blue/webserver[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "green/webserver[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "blue/webserver[Pod]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "green/webserver[Pod]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  }
+]

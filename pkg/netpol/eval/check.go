@@ -183,6 +183,30 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 	}
 }
 
+// podsFromDifferentUserDefinedNetworks returns true if the input pods belong to different isolated user defined networks
+func podsFromDifferentUserDefinedNetworks(src, dst k8s.Peer) bool {
+	// if any of the peers is an external IP return false
+	if src.PeerType() == k8s.IPBlockType || dst.PeerType() == k8s.IPBlockType {
+		return false
+	}
+	// @todo : return false if one of the pods is ingress-controller (external)
+	// return false if one pod is representative-peer
+	// @todo: support exposure with UDNs - a pod in a udn should not be exposed to other primary UDNs
+	if src.GetPeerNamespace() == nil || dst.GetPeerNamespace() == nil {
+		return false
+	}
+	// if pods are in default pod networks (namespaces without UDN) - return false
+	if src.GetPeerNamespace().PrimaryUDN == nil && dst.GetPeerNamespace().PrimaryUDN == nil {
+		return false
+	}
+	// if pods are in same user-defined network
+	if src.GetPeerNamespace().PrimaryUDN == dst.GetPeerNamespace().PrimaryUDN {
+		return false
+	}
+	// pods are in different UDNs
+	return true
+}
+
 // allAllowedConnections: returns allowed connection between input strings of src and dst
 // currently used only for testing (computations based on all policy resources (e.g. ANP, NP & BANP))
 func (pe *PolicyEngine) allAllowedConnections(src, dst string) (*common.ConnectionSet, error) {
@@ -252,6 +276,10 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 		res.AddCommonImplyingRule("", common.PodToItselfRule, true)
 		res.AddCommonImplyingRule("", common.PodToItselfRule, false)
 		return res, nil
+	}
+	// if pods are from different user-defined networks, return empty result (no conns)
+	if podsFromDifferentUserDefinedNetworks(srcK8sPeer, dstK8sPeer) {
+		return common.MakeConnectionSet(false), nil
 	}
 	// egress: get egress allowed connections between the src and dst by
 	// walking through all k8s egress policies capturing the src;
