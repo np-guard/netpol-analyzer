@@ -1,0 +1,52 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "bar/mybar[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "default/app-1[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "green[udn]/webserver-2[Pod]",
+    "conn": "TCP 9001"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "green[udn]/webserver[Pod]",
+    "conn": "TCP 9001"
+  },
+  {
+    "src": "bar/mybar[Pod]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bar/mybar[Pod]",
+    "dst": "default/app-1[Pod]",
+    "conn": "TCP 80"
+  },
+  {
+    "src": "default/app-1[Pod]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/app-1[Pod]",
+    "dst": "bar/mybar[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "green[udn]/webserver-2[Pod]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "green[udn]/webserver[Pod]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  }
+]

@@ -97,14 +97,18 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 	}
 	objectsList = parser.FilterObjectsList(objectsList, podNames)
 
-	var err error
+	// first add namespaces - so in case there are UDN objects in the resources, will be handled correctly
+	err := pe.InsertNamespacesFromResources(objectsList)
+	if err != nil {
+		return err
+	}
 	for i := range objectsList {
 		obj := objectsList[i]
 		switch obj.Kind {
 		case parser.Pod:
 			err = pe.InsertObject(obj.Pod)
-		case parser.Namespace:
-			err = pe.InsertObject(obj.Namespace)
+		case parser.Namespace: // already inserted
+			continue
 			// netpols kinds
 		case parser.NetworkPolicy:
 			err = pe.InsertObject(obj.NetworkPolicy)
@@ -112,6 +116,8 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 			err = pe.InsertObject(obj.AdminNetworkPolicy)
 		case parser.BaselineAdminNetworkPolicy:
 			err = pe.InsertObject(obj.BaselineAdminNetworkPolicy)
+		case parser.UserDefinedNetwork:
+			err = pe.InsertObject(obj.UserDefinedNetwork)
 		default:
 			continue
 		}

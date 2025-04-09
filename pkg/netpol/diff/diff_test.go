@@ -746,6 +746,19 @@ var goodPathTests = []struct {
 		secondDirName: "banp_test_core_ingress_udp_swapping_rules",
 		formats:       allFormats,
 	},
+	{
+		// description:
+		// With user-defined networks, the need for complex network policies
+		// are eliminated because isolation can be achieved by grouping workloads in different networks.
+		// in first dir we have only pods (no policies, nether UDNs); each pod in a different namespace;
+		// and by default all-conns are allowed between pods from the different namespaces.
+		// in second dir we have same pods, but defined their namespaces with primary-user-defined-networks,
+		// so the different namespaces are isolated; and the conns between pods from different
+		// namespaces are blocked (no policies in the resources)
+		firstDirName:  "only_pods_test",
+		secondDirName: "udn_test_1",
+		formats:       allFormats,
+	},
 }
 
 var commonBadPathTestsFatalErr = []struct {

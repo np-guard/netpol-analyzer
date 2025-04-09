@@ -10,6 +10,8 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/models/pkg/netset"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // PeerType is a type to indicate the type of a Peer object (Pod or IP address)
@@ -48,7 +50,8 @@ type IPBlockPeer struct {
 
 // WorkloadPeer implements eval.Peer interface
 type WorkloadPeer struct {
-	Pod *Pod
+	Pod          *Pod
+	InPrimaryUDN bool // indicates if the workload-peer is in a primary-user-defined-network; used for output writing purpose
 }
 
 const podKind = "Pod"
@@ -89,7 +92,11 @@ func (p *WorkloadPeer) String() string {
 	if p.Pod.FakePod { // ingress-controller or representative-pod
 		return "{" + p.Pod.Name + "}"
 	}
-	return types.NamespacedName{Name: p.Name(), Namespace: p.Namespace()}.String() + "[" + p.Kind() + "]"
+	nsString := p.Namespace()
+	if p.InPrimaryUDN {
+		nsString += common.UDNLabel
+	}
+	return types.NamespacedName{Name: p.Name(), Namespace: nsString}.String() + "[" + p.Kind() + "]"
 }
 
 func (p *WorkloadPeer) IP() string {

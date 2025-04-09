@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ingress-port-9001-only
+  namespace: green
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 9001
+---
+
+apiVersion: policy.networking.k8s.io/v1alpha1
+kind: AdminNetworkPolicy
+metadata:
+  name: allow-internal-egress
+spec:
+  priority: 7
+  subject:
+    pods:
+      podSelector:
+        matchLabels:
+          security: internal
+  egress:
+  - name: "allow-tcp-80-egress-from-internal"
+    action: "Allow"
+    to:
+    - namespaces: {}
+    ports:
+      - portNumber:
+          protocol: TCP
+          port: 80
+  - name: "deny-other-egress-from-internal"
+    action: "Deny"
+    to:
+    - namespaces: {}

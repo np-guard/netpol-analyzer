@@ -1,0 +1,4 @@
+| diff-type | source | destination | ref1 | ref2 | workloads-diff-info |
+|-----------|--------|-------------|------|------|---------------------|
+| removed | blue/webserver[Pod] | green/webserver[Pod] | All Connections | No Connections |  |
+| removed | green/webserver[Pod] | blue/webserver[Pod] | All Connections | No Connections |  |

@@ -193,7 +193,7 @@ func (banp *BaselineAdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlo
 }
 
 func (banp *BaselineAdminNetworkPolicy) LogWarnings(l logger.Logger) []string {
-	return banp.warnings.LogPolicyWarnings(l)
+	return banp.warnings.LogWarnings(l)
 }
 
 // /////////////////////////////////////////////////////////////

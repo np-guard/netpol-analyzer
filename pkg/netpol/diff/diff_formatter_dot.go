@@ -83,7 +83,7 @@ func (df *diffFormatDOT) getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff
 			if isExternal {
 				externalPeersLines = append(externalPeersLines, peerLine)
 			} else {
-				dotformatting.AddPeerToNsGroup(connsPair.Src().Namespace(), peerLine, nsPeers)
+				dotformatting.AddPeerToNsGroup(connsPair.Src().Namespace(), peerLine, nsPeers, false)
 			}
 		}
 		if !peersSet[dst] {
@@ -93,7 +93,7 @@ func (df *diffFormatDOT) getEdgesAndPeersLinesByCategory(connsPairs []SrcDstDiff
 			if isExternal {
 				externalPeersLines = append(externalPeersLines, peerLine)
 			} else {
-				dotformatting.AddPeerToNsGroup(connsPair.Dst().Namespace(), peerLine, nsPeers)
+				dotformatting.AddPeerToNsGroup(connsPair.Dst().Namespace(), peerLine, nsPeers, false)
 			}
 		}
 		// add connections lines

@@ -2065,6 +2065,24 @@ var goodPathTests = []struct {
 		outputFormats:          []string{output.DefaultFormat},
 		supportedOnLiveCluster: true,
 	},
+	{
+		// With user-defined networks, the need for complex network policies are eliminated because isolation
+		// can be achieved by grouping workloads in different networks.
+		testDirName:   "udn_test_1",
+		outputFormats: ValidFormats,
+	},
+	{
+		// user-defined network with network-policy in an isolated network
+		testDirName:   "udn_test_2",
+		outputFormats: ValidFormats,
+	},
+	{
+		// one user-defined network with network-policy.
+		// 2 regular pod networks (in namespaces without UDN)
+		// AdminNetworkPolicy that enables egress from pods with specific label - pods in the udn still isolated
+		testDirName:   "udn_test_3",
+		outputFormats: ValidFormats,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

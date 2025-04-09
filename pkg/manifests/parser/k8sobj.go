@@ -16,6 +16,8 @@ import (
 	ocroutev1 "github.com/openshift/api/route/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	udnv1 "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/userdefinednetwork/v1"
 )
 
 // relevant K8s resource kinds as string values
@@ -41,6 +43,8 @@ const (
 	AdminNetworkPolicyList         string = "AdminNetworkPolicyList"
 	BaselineAdminNetworkPolicy     string = "BaselineAdminNetworkPolicy"
 	BaselineAdminNetworkPolicyList string = "BaselineAdminNetworkPolicyList" // a list with max 1 object according to apis/v1alpha
+	UserDefinedNetwork             string = "UserDefinedNetwork"
+	UserDefinedNetworkList         string = "UserDefinedNetworkList"
 )
 
 // K8sObject holds a an object kind and a pointer of the relevant object
@@ -72,6 +76,9 @@ type K8sObject struct {
 	Job                   *batchv1.Job
 	CronJob               *batchv1.CronJob
 	DaemonSet             *appsv1.DaemonSet
+
+	// ovn-k8s objects
+	UserDefinedNetwork *udnv1.UserDefinedNetwork
 }
 
 //gocyclo:ignore
@@ -122,6 +129,9 @@ func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
 	case BaselineAdminNetworkPolicy:
 		k.BaselineAdminNetworkPolicy = &apisv1a.BaselineAdminNetworkPolicy{}
 		return k.BaselineAdminNetworkPolicy
+	case UserDefinedNetwork:
+		k.UserDefinedNetwork = &udnv1.UserDefinedNetwork{}
+		return k.UserDefinedNetwork
 	}
 	return nil
 }
@@ -177,6 +187,10 @@ func (k *K8sObject) initDefaultNamespace() {
 	case NetworkPolicy:
 		if k.NetworkPolicy.Namespace == "" {
 			k.NetworkPolicy.Namespace = metav1.NamespaceDefault
+		}
+	case UserDefinedNetwork:
+		if k.UserDefinedNetwork.Namespace == "" {
+			k.UserDefinedNetwork.Namespace = metav1.NamespaceDefault
 		}
 	}
 }
@@ -245,6 +259,10 @@ func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) 
 			}
 		case Ingress:
 			if _, ok := nsMap[obj.Ingress.Namespace]; ok {
+				res = append(res, obj)
+			}
+		case UserDefinedNetwork:
+			if _, ok := nsMap[obj.UserDefinedNetwork.Namespace]; ok {
 				res = append(res, obj)
 			}
 		case AdminNetworkPolicy:
