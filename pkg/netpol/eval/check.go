@@ -183,8 +183,8 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 	}
 }
 
-// podsFromDifferentUserDefinedNetworks returns true if the input pods belong to different isolated user defined networks
-func podsFromDifferentUserDefinedNetworks(src, dst k8s.Peer) bool {
+// podsFromIsolatedNetworks returns true if at least one pod belongs to an isolated user-defined-network
+func podsFromIsolatedNetworks(src, dst k8s.Peer) bool {
 	// if any of the peers is an external IP return false
 	if src.PeerType() == k8s.IPBlockType || dst.PeerType() == k8s.IPBlockType {
 		return false
@@ -203,7 +203,7 @@ func podsFromDifferentUserDefinedNetworks(src, dst k8s.Peer) bool {
 	if src.GetPeerNamespace().PrimaryUDN == dst.GetPeerNamespace().PrimaryUDN {
 		return false
 	}
-	// pods are in different UDNs
+	// at least one pod is in an isolated UDN
 	return true
 }
 
@@ -278,7 +278,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 		return res, nil
 	}
 	// if pods are from different user-defined networks, return empty result (no conns)
-	if podsFromDifferentUserDefinedNetworks(srcK8sPeer, dstK8sPeer) {
+	if podsFromIsolatedNetworks(srcK8sPeer, dstK8sPeer) {
 		return common.MakeConnectionSet(false), nil
 	}
 	// egress: get egress allowed connections between the src and dst by
