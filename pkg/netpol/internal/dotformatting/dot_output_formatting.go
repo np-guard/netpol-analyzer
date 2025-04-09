@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 // common dot output formatting constants and funcs
@@ -24,7 +26,10 @@ const (
 var EdgeLineFormat = fmt.Sprintf("\t%%q -> %%q [label=%%q color=%%q fontcolor=%%q weight=%%s%%s]")
 
 // AddPeerToNsGroup adds the peer line to the namespace list in the given map.
-func AddPeerToNsGroup(peerNs, peerLine string, mapNsToPeers map[string][]string) {
+func AddPeerToNsGroup(peerNs, peerLine string, mapNsToPeers map[string][]string, isInUDN bool) {
+	if isInUDN {
+		peerNs += common.UDNLabel
+	}
 	if _, ok := mapNsToPeers[peerNs]; !ok {
 		mapNsToPeers[peerNs] = []string{}
 	}

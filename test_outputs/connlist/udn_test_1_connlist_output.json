@@ -1,21 +1,21 @@
 [
   {
     "src": "0.0.0.0-255.255.255.255[External]",
-    "dst": "blue/webserver[Pod]",
+    "dst": "blue[udn]/webserver[Pod]",
     "conn": "All Connections"
   },
   {
     "src": "0.0.0.0-255.255.255.255[External]",
-    "dst": "green/webserver[Pod]",
+    "dst": "green[udn]/webserver[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "blue/webserver[Pod]",
+    "src": "blue[udn]/webserver[Pod]",
     "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   },
   {
-    "src": "green/webserver[Pod]",
+    "src": "green[udn]/webserver[Pod]",
     "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   }

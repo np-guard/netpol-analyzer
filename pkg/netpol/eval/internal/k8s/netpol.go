@@ -391,7 +391,8 @@ const (
 func constPeerString(peer Peer) string {
 	peerStr := peer.String()
 	if peer.PeerType() != IPBlockType {
-		peerStr = (&WorkloadPeer{peer.GetPeerPod()}).String()
+		// @todo: when updating expalinability with UDN check if this needs to be inhanced with the InPrimaryUDN flag
+		peerStr = (&WorkloadPeer{Pod: peer.GetPeerPod()}).String()
 	}
 	return peerStr
 }

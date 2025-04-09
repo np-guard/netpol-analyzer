@@ -36,3 +36,5 @@ const (
 	IngressPodName      = "ingress-controller"
 	IngressPodNamespace = "ingress-controller-ns"
 )
+
+const UDNLabel = "[udn]"

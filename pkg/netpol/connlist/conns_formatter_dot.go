@@ -42,19 +42,20 @@ type formatDOT struct {
 
 // peerNameAndColorByType returns the peer label and color to be represented in the graph, and whether the peer is
 // external to cluster's namespaces
-func peerNameAndColorByType(peer Peer) (nameLabel, color string, isExternal bool) {
+func peerNameAndColorByType(peer Peer) (nameLabel, color string, isExternal, isInUDN bool) {
 	if peer.IsPeerIPType() {
-		return peer.String(), ipColor, true
+		return peer.String(), ipColor, true, false
 	} else if peer.Name() == common.IngressPodName {
-		return peer.String(), nonIPPeerColor, true
+		return peer.String(), nonIPPeerColor, true, false
 	}
-	return dotformatting.NodeClusterPeerLabel(peer.Name(), peer.Kind()), nonIPPeerColor, false
+	return dotformatting.NodeClusterPeerLabel(peer.Name(), peer.Kind()), nonIPPeerColor, false,
+		strings.Contains(peer.String(), common.UDNLabel)
 }
 
 // getPeerLine formats a peer line for dot graph
-func getPeerLine(peer Peer) (string, bool) {
-	peerNameLabel, peerColor, isExternalPeer := peerNameAndColorByType(peer)
-	return fmt.Sprintf(peerLineFormatPrefix+peerLineClosing, peer.String(), peerNameLabel, peerColor, peerColor), isExternalPeer
+func getPeerLine(peer Peer) (peerLine string, isExternal, isInUDN bool) {
+	peerNameLabel, peerColor, isExternalPeer, peerInUDN := peerNameAndColorByType(peer)
+	return fmt.Sprintf(peerLineFormatPrefix+peerLineClosing, peer.String(), peerNameLabel, peerColor, peerColor), isExternalPeer, peerInUDN
 }
 
 // returns a dot string form of connections from list of Peer2PeerConnection objects
@@ -113,11 +114,11 @@ func addConnlistPeerLine(peer Peer, nsPeers map[string][]string, peersVisited ma
 	peerStr := peer.String()
 	if !peersVisited[peerStr] {
 		peersVisited[peerStr] = true
-		peerLine, isExternalPeer := getPeerLine(peer)
+		peerLine, isExternalPeer, isInUDN := getPeerLine(peer)
 		if isExternalPeer { // peer that does not belong to a cluster's namespace (i.e. ip/ ingress-controller)
 			externalPeerLine = []string{peerLine}
 		} else { // add to Ns group
-			dotformatting.AddPeerToNsGroup(peer.Namespace(), peerLine, nsPeers)
+			dotformatting.AddPeerToNsGroup(peer.Namespace(), peerLine, nsPeers, isInUDN)
 		}
 	}
 	return externalPeerLine
@@ -131,8 +132,8 @@ func addExposureOutputData(exposureConns []ExposedPeer, peersVisited map[string]
 	for _, ep := range exposureConns {
 		if !peersVisited[ep.ExposedPeer().String()] { // an exposed peer is a real peer from the manifests,
 			// updated in the real namespaces map
-			exposedPeerLine, _ := getPeerLine(ep.ExposedPeer())
-			dotformatting.AddPeerToNsGroup(ep.ExposedPeer().Namespace(), exposedPeerLine, nsPeers)
+			exposedPeerLine, _, isInUDN := getPeerLine(ep.ExposedPeer())
+			dotformatting.AddPeerToNsGroup(ep.ExposedPeer().Namespace(), exposedPeerLine, nsPeers, isInUDN)
 		}
 		ingressExpEdges := getXgressExposureEdges(ep.ExposedPeer().String(), ep.IngressExposure(), ep.IsProtectedByIngressNetpols(),
 			true, representativeVisited, nsPeers, nsRepPeers)
@@ -170,9 +171,10 @@ func getXgressExposureEdges(exposedPeerStr string, xgressExpData []XgressExposur
 				peerLine := getRepPeerLine(repPeersStr, repPeerLabel)
 				// ns label maybe a name of an existing namespace, so check where to add the peer
 				if _, ok := nsPeers[nsRepLabel]; ok { // in real ns
-					dotformatting.AddPeerToNsGroup(nsRepLabel, peerLine, nsPeers)
+					// @todo: add isInUDN check when supporting exposure-analysis with UDN
+					dotformatting.AddPeerToNsGroup(nsRepLabel, peerLine, nsPeers, false)
 				} else { // in a representative ns
-					dotformatting.AddPeerToNsGroup(nsRepLabel, peerLine, nsRepPeers)
+					dotformatting.AddPeerToNsGroup(nsRepLabel, peerLine, nsRepPeers, false)
 				}
 			}
 			xgressEdges = append(xgressEdges, getExposureEdgeLine(exposedPeerStr, repPeersStr, isIngress,

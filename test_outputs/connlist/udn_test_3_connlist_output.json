@@ -11,12 +11,12 @@
   },
   {
     "src": "0.0.0.0-255.255.255.255[External]",
-    "dst": "green/webserver-2[Pod]",
+    "dst": "green[udn]/webserver-2[Pod]",
     "conn": "TCP 9001"
   },
   {
     "src": "0.0.0.0-255.255.255.255[External]",
-    "dst": "green/webserver[Pod]",
+    "dst": "green[udn]/webserver[Pod]",
     "conn": "TCP 9001"
   },
   {
@@ -40,12 +40,12 @@
     "conn": "All Connections"
   },
   {
-    "src": "green/webserver-2[Pod]",
+    "src": "green[udn]/webserver-2[Pod]",
     "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   },
   {
-    "src": "green/webserver[Pod]",
+    "src": "green[udn]/webserver[Pod]",
     "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   }

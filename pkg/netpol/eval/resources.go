@@ -892,7 +892,8 @@ func (pe *PolicyEngine) createPodOwnersMap() (map[string]Peer, error) {
 		if err := pe.checkConsistentLabelsForPodsOfSameOwner(pod); err != nil {
 			return nil, err
 		}
-		workload := &k8s.WorkloadPeer{Pod: pod}
+		// since all resources are already inserted, update if the workloadPeer is in a udn (from pod's namespace data)
+		workload := &k8s.WorkloadPeer{Pod: pod, InPrimaryUDN: (pe.namespacesMap[pod.Namespace].PrimaryUDN != nil)}
 		res[workload.String()] = workload
 	}
 	return res, nil
