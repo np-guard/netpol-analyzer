@@ -116,6 +116,10 @@ func NPWithSameNameError(npName string) string {
 	return fmt.Sprintf("NetworkPolicy %q already exists. %s", npName, uniquenessRequest)
 }
 
+func NSWithSameNameError(ns string) string {
+	return fmt.Sprintf("Namespace %q already exists. %s", ns, uniquenessRequest)
+}
+
 // connlist pkg errors:
 
 // WorkloadDoesNotExistErrStr returns error string of missing workload for connlist with focus-workload

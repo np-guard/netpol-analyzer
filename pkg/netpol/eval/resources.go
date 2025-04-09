@@ -479,6 +479,10 @@ func (pe *PolicyEngine) insertNamespace(ns *corev1.Namespace) error {
 	if err != nil {
 		return err
 	}
+	if _, ok := pe.namespacesMap[nsObj.Name]; ok {
+		// namespace name must be unique in a cluster
+		return errors.New(alerts.NSWithSameNameError(nsObj.Name))
+	}
 	pe.namespacesMap[nsObj.Name] = nsObj
 	return nil
 }
