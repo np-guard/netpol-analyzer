@@ -72,22 +72,26 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 			for _, p2pConn := range sortedConnLines {
 				result += p2pConn.string() + newLineChar
 			}
-			result += writeUDNSections(connsByUDN)
+			result += writeUDNSections(connsByUDN, false)
 		} else { // conns are already filtered by focus conn - print only (src => dst)
-			result = writeFocusConnTxtOutput(sortedConnLines, focusConnStr)
+			result = writeFocusConnTxtOutput(sortedConnLines, connsByUDN, focusConnStr)
 		}
 	}
 	return result
 }
 
-func writeUDNSections(connsByUDN map[string][]singleConnFields) string {
+func writeUDNSections(connsByUDN map[string][]singleConnFields, nodePairForm bool) string {
 	res := ""
 	udnKeys := sortMapKeys(connsByUDN)
 	for _, udn := range udnKeys {
 		res += udn + colon + newLineChar
 		sortedConns := sortConnFields(connsByUDN[udn], true)
 		for i := range sortedConns {
-			res += sortedConns[i].string() + newLineChar
+			if nodePairForm {
+				res += sortedConns[i].nodePairString() + newLineChar
+			} else {
+				res += sortedConns[i].string() + newLineChar
+			}
 		}
 	}
 	return res
@@ -207,10 +211,11 @@ const (
 	colon = ":"
 )
 
-func writeFocusConnTxtOutput(sortedConnLines []singleConnFields, focusConnStr string) string {
+func writeFocusConnTxtOutput(sortedConnLines []singleConnFields, udnConns map[string][]singleConnFields, focusConnStr string) string {
 	result := "Permitted connections on " + focusConnStr + colon + newLineChar
 	for _, conn := range sortedConnLines {
 		result += conn.nodePairString() + newLineChar
 	}
+	result += writeUDNSections(udnConns, true)
 	return result
 }

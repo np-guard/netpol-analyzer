@@ -2077,6 +2077,12 @@ var goodPathTests = []struct {
 		outputFormats: ValidFormats,
 	},
 	{
+		// user-defined network with network-policy in an isolated network
+		testDirName:   "udn_test_2",
+		outputFormats: ValidFormats,
+		focusConn:     "tcp-90",
+	},
+	{
 		// one user-defined network with network-policy.
 		// 2 regular pod networks (in namespaces without UDN)
 		// AdminNetworkPolicy that enables egress from pods with specific label - pods in the udn still isolated
