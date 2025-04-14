@@ -38,11 +38,12 @@ type ipMaps struct {
 // saveConnsWithIPs gets a P2P connection; if the connection includes an IP-Peer as one of its end-points; the conn is saved in the
 // matching map of the formatText maps
 func (i *ipMaps) saveConnsWithIPs(conn Peer2PeerConnection, explain bool) {
+	p2pConn, _ := formSingleP2PConn(conn, explain)
 	if conn.Src().IsPeerIPType() && !isEmpty(conn) {
-		i.PeerToConnsFromIPs[conn.Dst().String()] = append(i.PeerToConnsFromIPs[conn.Dst().String()], formSingleP2PConn(conn, explain))
+		i.PeerToConnsFromIPs[conn.Dst().String()] = append(i.PeerToConnsFromIPs[conn.Dst().String()], p2pConn)
 	}
 	if conn.Dst().IsPeerIPType() && !isEmpty(conn) {
-		i.peerToConnsToIPs[conn.Src().String()] = append(i.peerToConnsToIPs[conn.Src().String()], formSingleP2PConn(conn, explain))
+		i.peerToConnsToIPs[conn.Src().String()] = append(i.peerToConnsToIPs[conn.Src().String()], p2pConn)
 	}
 }
 
@@ -86,14 +87,20 @@ func (c singleConnFields) stringWithExplanation() string {
 	return fmt.Sprintf("Connections between %s => %s:\n\n%s", c.Src, c.Dst, c.explanation)
 }
 
-// formSingleP2PConn returns a string representation of single connection fields as singleConnFields object
-func formSingleP2PConn(conn Peer2PeerConnection, explain bool) singleConnFields {
+// formSingleP2PConn returns a string representation of single connection fields as singleConnFields object;
+// if the connection belongs to an UDN, returns the udn name (in the mean while a conn may belong to one udn only)
+func formSingleP2PConn(conn Peer2PeerConnection, explain bool) (p2pConn singleConnFields, udn string) {
 	connStr := common.ConnStrFromConnProperties(conn.AllProtocolsAndPorts(), conn.ProtocolsAndPorts())
 	expl := ""
 	if explain {
 		expl = common.ExplanationFromConnProperties(conn.AllProtocolsAndPorts(), conn.(*connection).commonImplyingRules, conn.ProtocolsAndPorts())
 	}
-	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr, explanation: expl}
+	if strings.Contains(conn.Src().String(), common.UDNLabel) {
+		udn = conn.Src().Namespace() + common.UDNLabel
+	} else if strings.Contains(conn.Dst().String(), common.UDNLabel) {
+		udn = conn.Dst().Namespace() + common.UDNLabel
+	}
+	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr, explanation: expl}, udn
 }
 
 // commonly (to be) used for exposure analysis output formatters
@@ -211,7 +218,8 @@ func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMap
 		if !explain && isEmpty(conn) {
 			continue
 		}
-		connItems = append(connItems, formSingleP2PConn(conn, explain))
+		p2pConn, _ := formSingleP2PConn(conn, explain)
+		connItems = append(connItems, p2pConn)
 	}
 	return sortConnFields(connItems, true)
 }

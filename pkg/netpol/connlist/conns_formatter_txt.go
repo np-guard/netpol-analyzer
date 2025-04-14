@@ -37,15 +37,23 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 
 // writeConnlistOutput writes the section of the connlist result of the output
 func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string) string {
-	connLines := make([]singleConnFields, 0, len(conns))
-	defaultConnLines := make([]singleConnFields, 0, len(conns))
+	connLines := make([]singleConnFields, 0, len(conns))        // lines in the default pod networks
+	connsByUDN := make(map[string][]singleConnFields)           // map from a udn to its conns
+	defaultConnLines := make([]singleConnFields, 0, len(conns)) // used with explain
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
-		p2pConn := formSingleP2PConn(conns[i], explain)
+		p2pConn, udn := formSingleP2PConn(conns[i], explain)
 		if explain && conns[i].(*connection).onlyDefaultRule() {
 			defaultConnLines = append(defaultConnLines, p2pConn)
 		} else {
-			connLines = append(connLines, p2pConn)
+			if udn != "" { // append conn to its udn
+				if _, ok := connsByUDN[udn]; !ok {
+					connsByUDN[udn] = make([]singleConnFields, 0)
+				}
+				connsByUDN[udn] = append(connsByUDN[udn], p2pConn)
+			} else { // append to the pod-network conns
+				connLines = append(connLines, p2pConn)
+			}
 		}
 		// if we have exposure analysis results, also check if src/dst is an IP and store the connection
 		// save if there is a connection
@@ -60,15 +68,38 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 		result = writeSingleTypeLinesExplanationOutput(sortedConnLines, specificConnHeader, false) +
 			writeSingleTypeLinesExplanationOutput(sortedDefaultConnLines, systemDefaultPairsHeader, true)
 	} else { // not explain (regular connlist)
-		if focusConnStr == "" { // write all conns  (src => dst: conn)
+		if focusConnStr == "" { // write all pod network conns  (src => dst: conn)
 			for _, p2pConn := range sortedConnLines {
 				result += p2pConn.string() + newLineChar
 			}
+			result += writeUDNSections(connsByUDN)
 		} else { // conns are already filtered by focus conn - print only (src => dst)
 			result = writeFocusConnTxtOutput(sortedConnLines, focusConnStr)
 		}
 	}
 	return result
+}
+
+func writeUDNSections(connsByUDN map[string][]singleConnFields) string {
+	res := ""
+	udnKeys := sortMapKeys(connsByUDN)
+	for _, udn := range udnKeys {
+		res += udn + colon + newLineChar
+		sortedConns := sortConnFields(connsByUDN[udn], true)
+		for i := range sortedConns {
+			res += sortedConns[i].string() + newLineChar
+		}
+	}
+	return res
+}
+
+func sortMapKeys(udnMap map[string][]singleConnFields) []string {
+	keys := make([]string, 0, len(udnMap))
+	for k := range udnMap {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 func writeSingleTypeLinesExplanationOutput(lines []singleConnFields, header string, pairsOnly bool) string {
