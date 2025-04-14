@@ -64,16 +64,19 @@ func getPeerLine(peer Peer) (peerLine string, isExternal, isInUDN bool) {
 func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
 	focusConnStr string) (string, error) {
 	// 1. declaration of maps and slices to be used for forming the graph lines
-	nsPeers := make(map[string][]string)     // map from namespace to its peers (grouping peers by namespaces)
+	nsPeers := make(map[string][]string) // map from regular namespace to its peers
+	//  (grouping peers by namespaces which are not representative, neither udn-assigned)
 	nsRepPeers := make(map[string][]string)  // map from representative namespace to its representative peers
+	udnNsPeers := make(map[string][]string)  // map from udn-namespace to its peers
 	externalPeersLines := make([]string, 0)  // list of peers which are not in a cluster's namespace (will not be grouped)
 	edgeLines := make([]string, 0)           // list of edges lines (connections of connlist + exposure)
 	peersVisited := make(map[string]bool, 0) // acts as a set
 	// 2. add connlist results to the graph lines
-	connsEdges, connsExternalPeers := d.addConnlistOutputData(conns, nsPeers, peersVisited)
+	connsEdges, connsExternalPeers := d.addConnlistOutputData(conns, nsPeers, udnNsPeers, peersVisited)
 	edgeLines = append(edgeLines, connsEdges...)
 	externalPeersLines = append(externalPeersLines, connsExternalPeers...)
 	// 3. add exposure-analysis results to the graph lines
+	// @todo : add udnNsPeers when supporting exposure-analysis with UDN
 	entireClusterLine, exposureEdges := addExposureOutputData(exposureConns, peersVisited, nsPeers, nsRepPeers)
 	externalPeersLines = append(externalPeersLines, entireClusterLine...)
 	edgeLines = append(edgeLines, exposureEdges...)
@@ -82,42 +85,63 @@ func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []Exp
 	sort.Strings(externalPeersLines)
 	// 5. collect all lines by order
 	allLines := []string{dotformatting.DotHeader}
-	allLines = append(allLines, dotformatting.AddNsGroups(nsPeers, dotformatting.DefaultNsGroupColor)...)
-	allLines = append(allLines, dotformatting.AddNsGroups(nsRepPeers, representativeObjColor)...)
+	allLines = append(allLines, groupPeersByNetwork(nsPeers, nsRepPeers, udnNsPeers)...)
 	allLines = append(allLines, externalPeersLines...)
 	allLines = append(allLines, edgeLines...)
 	allLines = append(allLines, dotformatting.DotClosing)
 	return strings.Join(allLines, newLineChar), nil
 }
 
+func groupPeersByNetwork(nsPeers, nsRepPeers, udnNsPeers map[string][]string) []string {
+	lines := []string{}
+	if len(udnNsPeers) == 0 { // no UDNs - keep original group by Namespaces - without network grouping
+		lines = append(lines, dotformatting.AddNsGroups(nsPeers, dotformatting.DefaultNsGroupColor)...)
+		lines = append(lines, dotformatting.AddNsGroups(nsRepPeers, representativeObjColor)...)
+	} else {
+		// 1. if there are regular namespaces : group by pods network
+		if len(nsPeers) != 0 || len(nsRepPeers) != 0 {
+			lines = []string{"\tsubgraph \"cluster_pod_network\" {", "\tlabel=\"pod network\""} // subgraph header + its label
+			lines = append(lines, dotformatting.AddNsGroups(nsPeers, dotformatting.DefaultNsGroupColor)...)
+			lines = append(lines, dotformatting.AddNsGroups(nsRepPeers, representativeObjColor)...)
+			lines = append(lines, "\t}")
+		}
+		// 2. add UDN namespaces
+		lines = append(lines, dotformatting.AddNsGroups(udnNsPeers, dotformatting.DefaultNsGroupColor)...)
+	}
+	return lines
+}
+
 // addConnlistOutputData updates namespace peers groups and returns edge lines and external peers lines from connlist results
-func (d *formatDOT) addConnlistOutputData(conns []Peer2PeerConnection, nsPeers map[string][]string,
+func (d *formatDOT) addConnlistOutputData(conns []Peer2PeerConnection, nsPeers, udnNsPeers map[string][]string,
 	peersVisited map[string]bool) (eLines, externalPeersLines []string) {
 	edgeLines := make([]string, len(conns))
 	for index := range conns {
 		c := conns[index]
 		connStr := common.ConnStrFromConnProperties(c.AllProtocolsAndPorts(), c.ProtocolsAndPorts())
 		edgeLines[index] = dotformatting.GetEdgeLine(c.Src().String(), c.Dst().String(), connStr, connlistEdgeColor, edgeFontColor)
-		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Src(), nsPeers, peersVisited)...)
-		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Dst(), nsPeers, peersVisited)...)
+		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Src(), nsPeers, udnNsPeers, peersVisited)...)
+		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Dst(), nsPeers, udnNsPeers, peersVisited)...)
 	}
 	for _, val := range d.peersList {
 		if !val.IsPeerIPType() {
-			externalPeersLines = append(externalPeersLines, addConnlistPeerLine(val, nsPeers, peersVisited)...)
+			externalPeersLines = append(externalPeersLines, addConnlistPeerLine(val, nsPeers, udnNsPeers, peersVisited)...)
 		}
 	}
 	return edgeLines, externalPeersLines
 }
 
 // addConnlistPeerLine if the given peer is not visited yet, adds it to the relevant lines' group (namespace group/ external)
-func addConnlistPeerLine(peer Peer, nsPeers map[string][]string, peersVisited map[string]bool) (externalPeerLine []string) {
+func addConnlistPeerLine(peer Peer, nsPeers, udnNsPeers map[string][]string, peersVisited map[string]bool) (externalPeerLine []string) {
 	peerStr := peer.String()
 	if !peersVisited[peerStr] {
 		peersVisited[peerStr] = true
 		peerLine, isExternalPeer, isInUDN := getPeerLine(peer)
-		if isExternalPeer { // peer that does not belong to a cluster's namespace (i.e. ip/ ingress-controller)
+		switch {
+		case isExternalPeer: // peer that does not belong to the cluster (i.e. ip/ ingress-controller)
 			externalPeerLine = []string{peerLine}
-		} else { // add to Ns group
+		case isInUDN: // in udn - add to the UDN namespaces
+			dotformatting.AddPeerToNsGroup(peer.Namespace(), peerLine, udnNsPeers, isInUDN)
+		default: // !isExternalPeer && !isInUDN - add to nsPeers Ns group (namespaces in the pods network)
 			dotformatting.AddPeerToNsGroup(peer.Namespace(), peerLine, nsPeers, isInUDN)
 		}
 	}

@@ -1,4 +1,6 @@
 digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
 	subgraph "cluster_bar" {
 		color="black"
 		fontcolor="black"
@@ -10,6 +12,7 @@ digraph {
 		fontcolor="black"
 		"default/app-1[Pod]" [label="app-1[Pod]" color="blue" fontcolor="blue"]
 		label="default"
+	}
 	}
 	subgraph "cluster_green[udn]" {
 		color="black"
