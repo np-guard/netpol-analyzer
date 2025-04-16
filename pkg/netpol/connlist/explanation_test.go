@@ -315,4 +315,13 @@ var explainTests = []struct {
 		focusConn:   "tcp-8080",
 		exposure:    true,
 	},
+	{
+		testDirName: "udn_test_1",
+	},
+	{
+		testDirName: "udn_test_2",
+	},
+	{
+		testDirName: "udn_test_3",
+	},
 }

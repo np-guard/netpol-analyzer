@@ -133,7 +133,7 @@ func (pc *PolicyConnections) CollectAllowedConnsFromNetpols(npConns *PolicyConne
 func (pc *PolicyConnections) CollectConnsFromBANP(banpConns *PolicyConnections) {
 	// allowed and denied conns of current pc are non-overridden
 
-	// This Union with PassConn does not have effect on the resulting connectios,
+	// This Union with PassConn does not have effect on the resulting connections,
 	// but it updates implying rules, representing the effect of PassConn as well
 	// We start from PassConn, and union banpConns.DeniedConns with it,
 	// because the order of Union impacts the order of implying rules.

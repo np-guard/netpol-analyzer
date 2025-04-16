@@ -22,6 +22,7 @@ const (
 	BANPLayer
 	NPLayer
 	ANPLayer
+	UDNLayer
 )
 
 type ExplResultType int
@@ -56,6 +57,7 @@ const (
 	BANPRuleKind    = "BaselineAdminNetworkPolicy"
 	IngressRuleKind = "Ingress"
 	RouteRuleKind   = "Route"
+	UDNRuleKind     = "UDN"
 )
 
 func ruleKindToLayer(kind string) LayerType {
@@ -70,6 +72,8 @@ func ruleKindToLayer(kind string) LayerType {
 		return NPLayer
 	case BANPRuleKind:
 		return BANPLayer
+	case UDNRuleKind:
+		return UDNLayer
 	case "":
 		return DefaultLayer
 	}
@@ -126,6 +130,7 @@ func (rules *ImplyingRulesType) Copy() ImplyingRulesType {
 const (
 	ExplString            = "due to "
 	ExplWithRulesTitle    = ExplString + "the following policies and rules:"
+	ExplWithUDNTitle      = ExplString + "existence of user defined networks:"
 	IngressDirectionTitle = "\t\tIngress"
 	EgressDirectionTitle  = "\t\tEgress"
 	allowListTitle        = allowResultStr + connectionsStr
@@ -144,7 +149,23 @@ const (
 	denyResultStr                     = "Denied"
 	connectionsStr                    = " connections"
 	ExplNotReferencedProtocolsOrPorts = "but the protocols and ports do not match"
+	isolatedExpl                      = "UserDefinedNetwork '%s' isolates %s"
 )
+
+// IsolatedUDNRule returns an explanation on the isolated peer(s)
+func IsolatedUDNRule(srcStr, dstStr, srcUDN, dstUDN string) string {
+	res := ""
+	if srcUDN != "" {
+		res += fmt.Sprintf(isolatedExpl, srcUDN, srcStr)
+		if dstUDN != "" {
+			res += "; and "
+		}
+	}
+	if dstUDN != "" {
+		res += fmt.Sprintf(isolatedExpl, dstUDN, dstStr)
+	}
+	return res
+}
 
 func (rules *ImplyingXgressRulesType) onlyDefaultRule() bool {
 	return len(rules.Rules) == 1 && rules.DominantLayer == DefaultLayer
@@ -243,7 +264,12 @@ func (rules ImplyingRulesType) String() string {
 	if res == "" {
 		return NewLine
 	}
-	return SpaceSeparator + ExplWithRulesTitle + NewLine + res
+	explainTitle := ExplWithRulesTitle
+	if rules.Egress.DominantLayer == UDNLayer { // if the dominant layer in egress is UDN so it also the
+		// dominant in ingress (A common implying rule)
+		explainTitle = ExplWithUDNTitle
+	}
+	return SpaceSeparator + explainTitle + NewLine + res
 }
 
 func (rules *ImplyingXgressRulesType) Empty() bool {
