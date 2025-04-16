@@ -46,7 +46,7 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 		if explain && conns[i].(*connection).onlyDefaultRule() {
 			defaultConnLines = append(defaultConnLines, p2pConn)
 		} else {
-			if udn != "" { // append conn to its udn
+			if udn != "" && !explain { // append conn to its udn for grouping in regular connlist
 				if _, ok := connsByUDN[udn]; !ok {
 					connsByUDN[udn] = make([]singleConnFields, 0)
 				}
