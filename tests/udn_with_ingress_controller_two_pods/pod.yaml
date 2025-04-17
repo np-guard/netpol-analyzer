@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Pod
+metadata:
+  name: pod1
+  namespace: green
+  labels:
+    app: ingress-world
+spec:
+  containers:
+    - name: ingressworld
+      image: quay.io/shfa/ingress-world:latest
+      ports:
+        - containerPort: 8000  # containerport1
+        - containerPort: 8050  # containerport2
+        - containerPort: 8090  # containerport3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-world
+  namespace: green
+spec:
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+    - protocol: TCP
+      port: 8050
+      targetPort: 8050
+    - protocol: TCP
+      port: 8090
+      targetPort: 8090
+  selector:
+    app: ingress-world
+---
+apiVersion: apps/v1
+kind: Pod
+metadata:
+  name: pod2-no-ingress-match
+  namespace: green
+  labels:
+    app: ingress-world
+spec:
+  containers:
+    - name: ingressworld
+      image: quay.io/shfa/ingress-world:latest
+      ports:
+        - containerPort: 9001  # containerport1
+        - containerPort: 8050  # containerport2

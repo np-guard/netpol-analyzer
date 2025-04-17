@@ -2089,6 +2089,17 @@ var goodPathTests = []struct {
 		testDirName:   "udn_test_3",
 		outputFormats: ValidFormats,
 	},
+	{
+		// a test with UDN and Ingress-Controller; external ingress to a service in a UDN are allowed if the pod's ports match
+		testDirName:   "udn_with_ingress_controller",
+		outputFormats: ValidFormats,
+	},
+	{
+		// a test with UDN and Ingress-Controller; external ingress to a service in a UDN are allowed if the pod's ports match
+		// this test contains two pods in the UDN, one matches the Ingress and service's ports and the second not matching them
+		testDirName:   "udn_with_ingress_controller_two_pods",
+		outputFormats: ValidFormats,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

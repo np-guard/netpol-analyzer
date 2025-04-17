@@ -189,7 +189,12 @@ func podsFromIsolatedNetworks(src, dst k8s.Peer) bool {
 	if src.PeerType() == k8s.IPBlockType || dst.PeerType() == k8s.IPBlockType {
 		return false
 	}
-	// @todo : return false if one of the pods is ingress-controller (external)
+	// external ingress which is captured by Ingress/Route and Service objects in the UDN's Namespace
+	// is allowed to matching pods in the UDN.
+	// "DNS lookups for services and external entities will function as expected."
+	if src.GetPeerPod().Name == common.IngressPodName && src.GetPeerNamespace().Name == common.IngressPodNamespace {
+		return false
+	}
 	// return false if one pod is representative-peer
 	// @todo: support exposure with UDNs - a pod in a udn should not be exposed to other primary UDNs
 	if src.GetPeerNamespace() == nil || dst.GetPeerNamespace() == nil {
