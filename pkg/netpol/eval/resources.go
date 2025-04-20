@@ -786,7 +786,7 @@ func (pe *PolicyEngine) insertUserDefinedNetwork(udn *udnv1.UserDefinedNetwork) 
 		// 1. openshift-* namespaces should not be used to set up a UserDefinedNetwork CR.
 		// 2. UserDefinedNetwork CRs should not be created in the default namespace. This can result in no isolation and, as a result,
 		//  could introduce security risks to the cluster.
-		return errors.New(alerts.ErrUDNInDefaultNs(udn.Name, udn.Namespace))
+		return errors.New(alerts.UDNNamespaceAssertion(udn.Name, udn.Namespace))
 	}
 	if udnNs.PrimaryUDN != nil {
 		// assigning UDNs to namespaces is with a limitation of only one primary UDN to a namespace
