@@ -10,25 +10,15 @@ import (
 	udnv1 "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/userdefinednetwork/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/np-guard/netpol-analyzer/pkg/logger"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
-type UserDefinedNetwork struct {
-	*udnv1.UserDefinedNetwork                 //  embedding ovn-k8s UDN object
-	Warnings                  common.Warnings // set of warnings which are raised on the udn
-}
+type UserDefinedNetwork udnv1.UserDefinedNetwork // aliasing ovn-k8s UDN object
 
 // IsUDNPrimary returns true if the role of the UDN is Primary
 func (udn *UserDefinedNetwork) IsUDNPrimary() bool {
 	return (udn.Spec.Layer2 != nil && udn.Spec.Layer2.Role == udnv1.NetworkRolePrimary) ||
 		(udn.Spec.Layer3 != nil && udn.Spec.Layer3.Role == udnv1.NetworkRolePrimary)
-}
-
-// LogWarnings log and return current UDN's warnings
-func (udn *UserDefinedNetwork) LogWarnings(l logger.Logger) []string {
-	return udn.Warnings.LogWarnings(l)
 }
 
 const (

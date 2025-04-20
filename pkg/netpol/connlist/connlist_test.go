@@ -717,6 +717,21 @@ func TestLoggerWarnings(t *testing.T) {
 			exposure:                    true,
 			expectedWarningsStrContains: []string{alerts.WarnIgnoredExposure(explainStr, explainOnlyStr)},
 		},
+		{
+			name:                        "using_secondary_udn_should_warn_that_not_supported_yet",
+			dirName:                     "udn_warning_test_1",
+			expectedWarningsStrContains: []string{alerts.NotSupportedUDNRole("green/namespace-scoped")},
+		},
+		{
+			name:                        "udn_in_not_existing_namespace_should_warn_that_udn_is_ignored",
+			dirName:                     "udn_warning_test_2",
+			expectedWarningsStrContains: []string{alerts.WarnMissingNamespaceOfUDN("separate-namespace", "blue")},
+		},
+		{
+			name:                        "udn_in_ns_without_label_should_warn_that_udn_is_ignored",
+			dirName:                     "udn_warning_test_3",
+			expectedWarningsStrContains: []string{alerts.WarnNamespaceDoesNotSupportUDN("namespace-scoped", "green")},
+		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
