@@ -76,6 +76,13 @@ func (conn *ConnectionSet) RemoveDefaultRule(isIngress bool) {
 	}
 }
 
+func (conn *ConnectionSet) CleanImplyingRules() {
+	conn.CommonImplyingRules = InitImplyingRules()
+	for _, ports := range conn.AllowedProtocols {
+		ports.CleanImplyingRules()
+	}
+}
+
 // GetAllTCPConnections returns a pointer to ConnectionSet object with all TCP protocol connections
 func GetAllTCPConnections() *ConnectionSet {
 	tcpConn := MakeConnectionSet(false)
