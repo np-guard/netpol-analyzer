@@ -66,6 +66,10 @@ func (p *PortSet) RemoveDefaultRule(isIngress bool) {
 	p.Ports.RemoveDefaultRule(isIngress)
 }
 
+func (p *PortSet) CleanImplyingRules() {
+	p.Ports.CleanImplyingRules()
+}
+
 // Equal: return true if current object equals another PortSet object
 // Ports are equal if they have same allowed port-numbers and same allowed named-ports
 func (p *PortSet) Equal(other *PortSet) bool {

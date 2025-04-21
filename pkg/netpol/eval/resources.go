@@ -57,6 +57,7 @@ type (
 		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
 		// used only with exposure analysis (representative peer object is a workloadPeer with kind == "RepresentativePeer")
 		objectsList []parser.K8sObject // list of k8s objects to be inserted to the policy-engine
+		udnWarnings common.Warnings    // list of warnings from ignored UDN objects
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -115,6 +116,7 @@ func NewPolicyEngine() *PolicyEngine {
 		exposureAnalysisFlag:            false,
 		explain:                         false,
 		logger:                          logger.NewDefaultLogger(),
+		udnWarnings:                     make(common.Warnings),
 	}
 }
 
@@ -472,6 +474,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.adminNetpolsMap = make(map[string]bool)
 	pe.sortedAdminNetpols = make([]*k8s.AdminNetworkPolicy, 0)
 	pe.baselineAdminNetpol = nil
+	pe.udnWarnings = make(common.Warnings)
 }
 
 func (pe *PolicyEngine) insertNamespace(ns *corev1.Namespace) error {
@@ -761,24 +764,22 @@ func (pe *PolicyEngine) insertUserDefinedNetwork(udn *udnv1.UserDefinedNetwork) 
 		// Name of UserDefinedNetwork resource should not be default
 		return errors.New(alerts.UDNNameAssertion(types.NamespacedName{Namespace: udn.Namespace, Name: udn.Name}.String()))
 	}
-	newUDN := &k8s.UserDefinedNetwork{
-		UserDefinedNetwork: udn,
-	}
+	newUDN := (*k8s.UserDefinedNetwork)(udn)
 	// check UDN validity
 	if valid, errMsg := newUDN.CheckFieldsValidity(); !valid {
 		return errors.New(errMsg)
 	}
 	if !newUDN.IsUDNPrimary() { // ignoring udn - currently supporting only Primary UDNs
-		newUDN.Warnings.AddWarning(alerts.NotSupportedUDNRole(types.NamespacedName{Namespace: udn.Namespace, Name: udn.Name}.String()))
+		pe.udnWarnings.AddWarning(alerts.NotSupportedUDNRole(types.NamespacedName{Namespace: udn.Namespace, Name: udn.Name}.String()))
 		return nil
 	}
 	udnNs, ok := pe.namespacesMap[udn.Namespace]
 	if !ok { // ignoring udn - its namespace does not exist in the input resources
-		newUDN.Warnings.AddWarning(alerts.WarnMissingNamespaceOfUDN(udn.Name, udn.Namespace))
+		pe.udnWarnings.AddWarning(alerts.WarnMissingNamespaceOfUDN(udn.Name, udn.Namespace))
 		return nil
 	}
 	if _, ok := udnNs.Labels[common.PrimaryUDNLabel]; !ok { // ignoring udn - its namespace does not include the must label
-		newUDN.Warnings.AddWarning(alerts.WarnNamespaceDoesNotSupportUDN(udn.Name, udn.Namespace))
+		pe.udnWarnings.AddWarning(alerts.WarnNamespaceDoesNotSupportUDN(udn.Name, udn.Namespace))
 		return nil
 	}
 	if udn.Namespace == metav1.NamespaceDefault || strings.HasPrefix(udn.Namespace, openshiftNsPrefix) {
@@ -1140,12 +1141,8 @@ func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.Sin
 // - each single warning is printed only once to the logger
 // - all warns are returned also as []string to be appended also to the Connlist API error system
 func (pe *PolicyEngine) LogPolicyEngineWarnings() (warns []string) {
-	// log warnings from udn objects
-	for _, ns := range pe.namespacesMap {
-		if ns.PrimaryUDN != nil {
-			warns = append(warns, ns.PrimaryUDN.LogWarnings(pe.logger)...)
-		}
-	}
+	// log warnings of udn objects
+	warns = pe.udnWarnings.LogWarnings(pe.logger)
 	// log warnings from k8s NetworkPolicy objects
 	for _, nsMap := range pe.netpolsMap {
 		for _, policy := range nsMap {

@@ -367,9 +367,6 @@ const (
 func (rules ImplyingXgressRulesType) update(other ImplyingXgressRulesType, sameInclusion bool,
 	collectStyle CollectStyleType) ImplyingXgressRulesType {
 	result := rules.Copy()
-	if other.Empty() {
-		return result
-	}
 	if collectStyle == AlwaysCollectRules || (collectStyle == CollectSameInclusionRules && sameInclusion) {
 		result.Union(other)
 		return result
@@ -481,6 +478,12 @@ func NewAugmentedCanonicalSetWithRules(minValue, maxValue int64, isAll bool, rul
 func (c *AugmentedCanonicalSet) RemoveDefaultRule(isIngress bool) {
 	for ind := range c.intervalSet {
 		c.intervalSet[ind].implyingRules.RemoveDefaultRule(isIngress)
+	}
+}
+
+func (c *AugmentedCanonicalSet) CleanImplyingRules() {
+	for ind := range c.intervalSet {
+		c.intervalSet[ind].implyingRules = InitImplyingRules()
 	}
 }
 

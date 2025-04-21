@@ -1,0 +1,13 @@
+apiVersion: k8s.ovn.org/v1
+kind: UserDefinedNetwork
+metadata:
+  name: separate-namespace
+  namespace: blue
+spec:
+  topology: Layer2
+  layer2:
+    role: Primary
+    subnets:
+      - 192.168.0.0/16
+    ipam:
+      lifecycle: Persistent
