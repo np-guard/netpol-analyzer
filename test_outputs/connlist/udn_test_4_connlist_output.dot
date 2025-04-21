@@ -1,0 +1,37 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_bar" {
+		color="black"
+		fontcolor="black"
+		"bar/mybar[Pod]" [label="mybar[Pod]" color="blue" fontcolor="blue"]
+		label="bar"
+	}
+	subgraph "cluster_default" {
+		color="black"
+		fontcolor="black"
+		"default/app-1[Pod]" [label="app-1[Pod]" color="blue" fontcolor="blue"]
+		label="default"
+	}
+	}
+	subgraph "cluster_green[udn]" {
+		color="black"
+		fontcolor="black"
+		"green[udn]/webserver-2[Pod]" [label="webserver-2[Pod]" color="blue" fontcolor="blue"]
+		"green[udn]/webserver[Pod]" [label="webserver[Pod]" color="blue" fontcolor="blue"]
+		label="green[udn]"
+	}
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "bar/mybar[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "default/app-1[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "green[udn]/webserver-2[Pod]" [label="TCP 9001" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "green[udn]/webserver[Pod]" [label="TCP 9001" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"bar/mybar[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=1]
+	"bar/mybar[Pod]" -> "default/app-1[Pod]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/app-1[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/app-1[Pod]" -> "bar/mybar[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green[udn]/webserver-2[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green[udn]/webserver-2[Pod]" -> "green[udn]/webserver[Pod]" [label="TCP 9001" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"green[udn]/webserver[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green[udn]/webserver[Pod]" -> "green[udn]/webserver-2[Pod]" [label="TCP 9001" color="gold2" fontcolor="darkgreen" weight=1]
+}

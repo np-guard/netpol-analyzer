@@ -717,6 +717,21 @@ func TestLoggerWarnings(t *testing.T) {
 			exposure:                    true,
 			expectedWarningsStrContains: []string{alerts.WarnIgnoredExposure(explainStr, explainOnlyStr)},
 		},
+		{
+			name:                        "using_secondary_udn_should_warn_that_not_supported_yet",
+			dirName:                     "udn_warning_test_1",
+			expectedWarningsStrContains: []string{alerts.NotSupportedUDNRole("green/namespace-scoped")},
+		},
+		{
+			name:                        "udn_in_not_existing_namespace_should_warn_that_udn_is_ignored",
+			dirName:                     "udn_warning_test_2",
+			expectedWarningsStrContains: []string{alerts.WarnMissingNamespaceOfUDN("separate-namespace", "blue")},
+		},
+		{
+			name:                        "udn_in_ns_without_label_should_warn_that_udn_is_ignored",
+			dirName:                     "udn_warning_test_3",
+			expectedWarningsStrContains: []string{alerts.WarnNamespaceDoesNotSupportUDN("namespace-scoped", "green")},
+		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -2087,6 +2102,13 @@ var goodPathTests = []struct {
 		// 2 regular pod networks (in namespaces without UDN)
 		// AdminNetworkPolicy that enables egress from pods with specific label - pods in the udn still isolated
 		testDirName:   "udn_test_3",
+		outputFormats: ValidFormats,
+	},
+	{
+		// one user-defined network with network-policy.
+		// 2 namespaces in regular pod networks (without UDN)
+		// Networkpolicy in the regular pod networks that enables egress to whole world - pods in the udn still isolated
+		testDirName:   "udn_test_4",
 		outputFormats: ValidFormats,
 	},
 	{

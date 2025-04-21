@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: green
+---
+
+apiVersion: k8s.ovn.org/v1
+kind: UserDefinedNetwork
+metadata:
+  name: namespace-scoped
+  namespace: green
+spec:
+  topology: Layer2
+  layer2:
+    role: Primary
+    subnets:
+      - 203.203.0.0/16
+    ipam:
+      lifecycle: Persistent
