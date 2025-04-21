@@ -2104,6 +2104,13 @@ var goodPathTests = []struct {
 		testDirName:   "udn_test_3",
 		outputFormats: ValidFormats,
 	},
+	{
+		// one user-defined network with network-policy.
+		// 2 namespaces in regular pod networks (without UDN)
+		// Networkpolicy in the regular pod networks that enables egress to whole world - pods in the udn still isolated
+		testDirName:   "udn_test_4",
+		outputFormats: ValidFormats,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {
