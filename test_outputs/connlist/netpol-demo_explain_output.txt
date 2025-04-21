@@ -1,0 +1,210 @@
+
+##########################################
+# Specific connections and their reasons #
+##########################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255[External] => bar/mybar[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			NetworkPolicy 'bar/bar-default-deny' selects bar/mybar[Pod], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255[External] => baz/mybaz[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			NetworkPolicy 'baz/baz-default-deny' selects baz/mybaz[Pod], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255[External] => foo/myfoo[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			NetworkPolicy list:
+				- NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+				- NetworkPolicy 'foo/foo-default-deny' selects foo/myfoo[Pod], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255[External] => monitoring/mymonitoring[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			NetworkPolicy 'monitoring/monitoring-default-deny' selects monitoring/mymonitoring[Pod], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between bar/mybar[Pod] => 0.0.0.0-255.255.255.255[External]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'bar/bar-default-deny' selects bar/mybar[Pod], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between bar/mybar[Pod] => baz/mybaz[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'bar/bar-default-deny' selects bar/mybar[Pod], but baz/mybaz[Pod] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy 'baz/baz-default-deny' selects baz/mybaz[Pod], but bar/mybar[Pod] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between bar/mybar[Pod] => foo/myfoo[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'bar/bar-default-deny' selects bar/mybar[Pod], but foo/myfoo[Pod] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy list:
+				- NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but bar/mybar[Pod] is not allowed by any Ingress rule
+				- NetworkPolicy 'foo/foo-default-deny' selects foo/myfoo[Pod], but bar/mybar[Pod] is not allowed by any Ingress rule (no rules defined)
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between bar/mybar[Pod] => monitoring/mymonitoring[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'bar/bar-default-deny' selects bar/mybar[Pod], but monitoring/mymonitoring[Pod] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy 'monitoring/monitoring-default-deny' selects monitoring/mymonitoring[Pod], but bar/mybar[Pod] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between baz/mybaz[Pod] => 0.0.0.0-255.255.255.255[External]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'baz/baz-default-deny' selects baz/mybaz[Pod], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between baz/mybaz[Pod] => bar/mybar[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'baz/baz-default-deny' selects baz/mybaz[Pod], but bar/mybar[Pod] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy 'bar/bar-default-deny' selects bar/mybar[Pod], but baz/mybaz[Pod] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between baz/mybaz[Pod] => foo/myfoo[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'baz/baz-default-deny' selects baz/mybaz[Pod], but foo/myfoo[Pod] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy list:
+				- NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but baz/mybaz[Pod] is not allowed by any Ingress rule
+				- NetworkPolicy 'foo/foo-default-deny' selects foo/myfoo[Pod], but baz/mybaz[Pod] is not allowed by any Ingress rule (no rules defined)
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between baz/mybaz[Pod] => monitoring/mymonitoring[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'baz/baz-default-deny' selects baz/mybaz[Pod], but monitoring/mymonitoring[Pod] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy 'monitoring/monitoring-default-deny' selects monitoring/mymonitoring[Pod], but baz/mybaz[Pod] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between foo/myfoo[Pod] => 0.0.0.0-255.255.255.255[External]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'foo/foo-default-deny' selects foo/myfoo[Pod], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between foo/myfoo[Pod] => bar/mybar[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'foo/foo-default-deny' selects foo/myfoo[Pod], but bar/mybar[Pod] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy 'bar/bar-default-deny' selects bar/mybar[Pod], but foo/myfoo[Pod] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between foo/myfoo[Pod] => baz/mybaz[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'foo/foo-default-deny' selects foo/myfoo[Pod], but baz/mybaz[Pod] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy 'baz/baz-default-deny' selects baz/mybaz[Pod], but foo/myfoo[Pod] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between foo/myfoo[Pod] => monitoring/mymonitoring[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'foo/foo-default-deny' selects foo/myfoo[Pod], but monitoring/mymonitoring[Pod] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy 'monitoring/monitoring-default-deny' selects monitoring/mymonitoring[Pod], but foo/myfoo[Pod] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between monitoring/mymonitoring[Pod] => 0.0.0.0-255.255.255.255[External]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy list:
+				- NetworkPolicy 'monitoring/monitoring-allow-egress-to-all-namespaces' selects monitoring/mymonitoring[Pod], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule
+				- NetworkPolicy 'monitoring/monitoring-default-deny' selects monitoring/mymonitoring[Pod], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between monitoring/mymonitoring[Pod] => bar/mybar[Pod]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed)
+			NetworkPolicy 'monitoring/monitoring-allow-egress-to-all-namespaces' allows connections by Egress rule #1
+		Ingress (Denied)
+			AdminNetworkPolicy 'pass-monitoring' passes connections by Ingress rule pass-ingress-from-monitoring
+			NetworkPolicy 'bar/bar-default-deny' selects bar/mybar[Pod], but monitoring/mymonitoring[Pod] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between monitoring/mymonitoring[Pod] => baz/mybaz[Pod]:
+
+Allowed connections:
+	Allowed TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed)
+			NetworkPolicy 'monitoring/monitoring-allow-egress-to-all-namespaces' allows connections by Egress rule #1
+		Ingress (Allowed)
+			AdminNetworkPolicy 'allow-monitoring' allows connections by Ingress rule allow-ingress-from-monitoring
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between monitoring/mymonitoring[Pod] => foo/myfoo[Pod]:
+
+Allowed connections:
+	Allowed TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed)
+			NetworkPolicy 'monitoring/monitoring-allow-egress-to-all-namespaces' allows connections by Egress rule #1
+		Ingress (Allowed)
+			AdminNetworkPolicy 'pass-monitoring' passes connections by Ingress rule pass-ingress-from-monitoring
+			NetworkPolicy 'foo/allow-monitoring' allows connections by Ingress rule #1
+

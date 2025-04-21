@@ -65,6 +65,9 @@ var explainTests = []struct {
 	supportedOnLiveCluster bool
 }{
 	{
+		testDirName: "netpol-demo",
+	},
+	{
 		testDirName: "acs-security-demos",
 	},
 	{
