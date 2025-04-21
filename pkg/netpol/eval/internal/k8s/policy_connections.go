@@ -74,10 +74,17 @@ func (pc *PolicyConnections) UpdateWithRuleConns(ruleConns *common.ConnectionSet
 // from the new admin-network-policy
 func (pc *PolicyConnections) CollectANPConns(newAdminPolicyConns *PolicyConnections) {
 	// keep all connections collected from policies with a higher precedence
+
+	// Though the higher priority pass connections (pc.PassConns) should be subtracted from
+	// AllowedConns and DeniedConns of newAdminPolicyConns, those subtracts should not impact explainability.
+	// This is because the Subtract(s) below are an artifact for representing ANPs priorities,
+	// and the explainability info of PassConns should not propagate into AllowedConns and DeniedConns.
+	passConnsWithoutExpl := pc.PassConns.Copy()
+	passConnsWithoutExpl.CleanImplyingRules()
 	newAdminPolicyConns.DeniedConns.Subtract(pc.AllowedConns)
-	newAdminPolicyConns.DeniedConns.Subtract(pc.PassConns)
+	newAdminPolicyConns.DeniedConns.Subtract(passConnsWithoutExpl)
 	newAdminPolicyConns.AllowedConns.Subtract(pc.DeniedConns)
-	newAdminPolicyConns.AllowedConns.Subtract(pc.PassConns)
+	newAdminPolicyConns.AllowedConns.Subtract(passConnsWithoutExpl)
 	newAdminPolicyConns.PassConns.Subtract(pc.DeniedConns)
 	newAdminPolicyConns.PassConns.Subtract(pc.AllowedConns)
 	// add the new conns from current policy to the connections from the policies with higher precedence
