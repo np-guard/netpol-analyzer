@@ -1,37 +1,37 @@
 [
   {
     "src": "0.0.0.0-255.255.255.255[External]",
-    "dst": "green[udn]/pod1[Pod]",
+    "dst": "green[udn]/app[Pod]",
     "conn": "All Connections"
   },
   {
     "src": "0.0.0.0-255.255.255.255[External]",
-    "dst": "green[udn]/pod2-no-ingress-match[Pod]",
+    "dst": "green[udn]/db[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "green[udn]/pod1[Pod]",
+    "src": "green[udn]/app[Pod]",
     "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   },
   {
-    "src": "green[udn]/pod1[Pod]",
-    "dst": "green[udn]/pod2-no-ingress-match[Pod]",
+    "src": "green[udn]/app[Pod]",
+    "dst": "green[udn]/db[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "green[udn]/pod2-no-ingress-match[Pod]",
+    "src": "green[udn]/db[Pod]",
     "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   },
   {
-    "src": "green[udn]/pod2-no-ingress-match[Pod]",
-    "dst": "green[udn]/pod1[Pod]",
+    "src": "green[udn]/db[Pod]",
+    "dst": "green[udn]/app[Pod]",
     "conn": "All Connections"
   },
   {
     "src": "{ingress-controller}",
-    "dst": "green[udn]/pod1[Pod]",
+    "dst": "green[udn]/app[Pod]",
     "conn": "TCP 8000,8090"
   }
 ]

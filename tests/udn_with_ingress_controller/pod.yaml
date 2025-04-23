@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Pod
 metadata:
-  name: pod1
+  name: app
   namespace: green
   labels:
     app: ingress-world
@@ -17,7 +17,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ingress-world
+  name: app-service
   namespace: green
 spec:
   ports:
