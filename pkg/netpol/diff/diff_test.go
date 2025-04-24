@@ -36,6 +36,7 @@ func TestDiff(t *testing.T) {
 	t.Parallel()
 	for _, tt := range goodPathTests {
 		for _, format := range tt.formats {
+			testutils.SkipRunningSVGTestOnGithub(t, format)
 			for _, apiFunc := range diffTestedAPIS {
 				pTest := prepareTest(tt.firstDirName, tt.secondDirName, format, apiFunc, "")
 				t.Run(pTest.testName, func(t *testing.T) {
@@ -305,6 +306,7 @@ func TestDiffOutputWithArgNamesOption(t *testing.T) {
 	ref1 := "onlineboutique_workloads"
 	ref2 := "onlineboutique_workloads_changed_netpols"
 	for _, format := range ValidDiffFormats {
+		testutils.SkipRunningSVGTestOnGithub(t, format)
 		analyzer := NewDiffAnalyzer(WithOutputFormat(format), WithArgNames("old", "new"))
 		diffRes, err := analyzer.ConnDiffFromDirPaths(testutils.GetTestDirPath(ref1), testutils.GetTestDirPath(ref2))
 		require.Nil(t, err)

@@ -184,3 +184,11 @@ func generateGraphFilesIfPossible(dotFilePath string) {
 		logger.NewDefaultLogger().Warnf("failed generating %q; unexpected error: %v", graphFilePath, err)
 	}
 }
+
+// SkipRunningSVGTestOnGithub skipping running with SVG format in CI due to Graphviz dependency
+func SkipRunningSVGTestOnGithub(t *testing.T, format string) {
+	if format == output.SVGFormat && os.Getenv("CI") != "" {
+		// skipping svg test on github
+		t.Skip("skipping running with SVG format in CI due to Graphviz dependency")
+	}
+}
