@@ -46,6 +46,9 @@ const (
 
 	// severe errors constants from `orig errors` which are raised by external libraries (used in cli/command_test/ netpol/connlist_test)
 	WrongStartCharacterErr = "found character that cannot start any token"
+
+	// output related errors
+	GraphvizIsNotFound = "svg graphs can not be created since dot executable of graphviz was not found"
 )
 
 // FormatNotSupportedErrStr returns error string of a not supported format for connlist or diff results

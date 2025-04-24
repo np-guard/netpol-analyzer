@@ -94,6 +94,11 @@ digraph {
 ```
 $ dot -Tsvg test_outputs/connlist/netpol-analysis-example-minimal_connlist_output.dot -O
 ```
+or by running the command with `svg` format as following:
+```
+$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o svg -f ./connlist_example_svg.svg
+```
+
 The frames in the graph represent namespaces of the analyzed cluster.
 
 ![svg graph](./connlist_example_svg.svg)

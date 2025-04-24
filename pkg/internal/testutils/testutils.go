@@ -123,6 +123,13 @@ func CheckActualVsExpectedOutputMatch(t *testing.T, expectedOutputFileName, actu
 		}
 		return
 	}
+	// if the format is SVG - skip comparing actual vs expected and return
+	// this is used only with our testings, we don't have a test running with only SVG format
+	// dot format's files (which is the source of the svg graph) are compared
+	if strings.HasSuffix(expectedOutputFile, dotSign+output.SVGFormat) {
+		return
+	}
+	// compare actual vs expected
 	// read expected output file
 	expectedOutput, err := os.ReadFile(expectedOutputFile)
 	if err != nil {
@@ -161,25 +168,19 @@ func CheckErrorContainment(t *testing.T, testInfo, expectedErrorMsg, actualErrMs
 		testInfo, actualErrMsg, expectedErrorMsg)
 }
 
-const (
-	// the executable we need from graphviz is "dot"
-	executableNameForGraphviz = output.DOTFormat
-)
+const graphSuffix = "png"
 
-var graphsSuffixes = []string{"png", "svg"}
-
-// checks if "graphviz" executable exists, if yes runs a cmd to generates a png graph file from the dot output
+// checks if "graphviz" executable exists, if yes runs a cmd to generate a png graph file from the dot output
 func generateGraphFilesIfPossible(dotFilePath string) {
 	// check if graphviz is installed to continue
-	if _, err := exec.LookPath(executableNameForGraphviz); err != nil {
+	if !output.CheckGraphvizExist() {
 		logger.NewDefaultLogger().Warnf("dot executable of graphviz was not found. Output Graphs will not be generated")
 		return
 	}
-	for _, graphSuffix := range graphsSuffixes {
-		graphFilePath := dotFilePath + dotSign + graphSuffix
-		cmd := exec.Command("dot", dotFilePath, "-T"+graphSuffix, "-o", graphFilePath) //nolint:gosec // nosec
-		if err := cmd.Run(); err != nil {
-			logger.NewDefaultLogger().Warnf("failed generating %q; unexpected error: %v", graphFilePath, err)
-		}
+	// generate png file (this png file is generated for the dot format; however svg is a supported output format)
+	graphFilePath := dotFilePath + dotSign + graphSuffix
+	cmd := exec.Command(output.GraphvizExecutable, dotFilePath, "-T"+graphSuffix, "-o", graphFilePath)
+	if err := cmd.Run(); err != nil {
+		logger.NewDefaultLogger().Warnf("failed generating %q; unexpected error: %v", graphFilePath, err)
 	}
 }

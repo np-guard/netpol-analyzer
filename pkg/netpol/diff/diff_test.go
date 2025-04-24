@@ -21,8 +21,6 @@ import (
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 )
 
-var allFormats = []string{output.TextFormat, output.MDFormat, output.CSVFormat, output.DOTFormat}
-
 const ResourceInfosFunc = "ConnDiffFromResourceInfos"
 const DirPathFunc = "ConnDiffFromDirPaths"
 const currentPkg = "diff"
@@ -373,7 +371,7 @@ var goodPathTests = []struct {
 		// **added netpols : default/redis-cart-netpol
 		firstDirName:  "onlineboutique_workloads",
 		secondDirName: "onlineboutique_workloads_changed_netpols",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -383,14 +381,14 @@ var goodPathTests = []struct {
 		// **added workloads: default/unicorn
 		firstDirName:  "onlineboutique_workloads",
 		secondDirName: "onlineboutique_workloads_changed_netpols_and_workloads",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
 		// **added workloads: default/unicorn
 		firstDirName:  "onlineboutique_workloads",
 		secondDirName: "onlineboutique_workloads_changed_workloads",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -408,7 +406,7 @@ var goodPathTests = []struct {
 		// **added workloads: default/unicorn
 		firstDirName:  "k8s_ingress_test",
 		secondDirName: "k8s_ingress_test_new",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -419,7 +417,7 @@ var goodPathTests = []struct {
 		//			backend/shipping-netpol, frontend/webapp-netpol,
 		firstDirName:  "acs-security-demos",
 		secondDirName: "acs-security-demos-new",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -434,7 +432,7 @@ var goodPathTests = []struct {
 		// **added Route: ingressworld/route-1
 		firstDirName:  "multiple_ingress_objects_with_different_ports",
 		secondDirName: "multiple_ingress_objects_with_different_ports_new",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -454,14 +452,14 @@ var goodPathTests = []struct {
 		// **changed netpols : payments/gateway-netpol,
 		firstDirName:  "acs-security-demos",
 		secondDirName: "acs-security-demos-added-workloads",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
 		// **changed netpols : default/backend-netpol,
 		firstDirName:  "netpol-analysis-example-minimal",
 		secondDirName: "netpol-diff-example-minimal",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -469,7 +467,7 @@ var goodPathTests = []struct {
 		// **added netpol: enable-all-traffic
 		firstDirName:  "with_end_port_example",
 		secondDirName: "with_end_port_example_new",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -622,7 +620,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_6",
 		secondDirName: "anp_test_6_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -630,7 +628,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_7",
 		secondDirName: "anp_test_7_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -638,7 +636,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_8",
 		secondDirName: "anp_test_8_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -646,7 +644,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_9",
 		secondDirName: "anp_test_9_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -654,7 +652,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_10",
 		secondDirName: "anp_test_10_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -662,7 +660,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_11",
 		secondDirName: "anp_test_11_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -670,7 +668,7 @@ var goodPathTests = []struct {
 		// swapped some rules in the ANP to see different results, as rules orders must be respected
 		firstDirName:  "anp_test_12",
 		secondDirName: "anp_test_12_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -679,7 +677,7 @@ var goodPathTests = []struct {
 		// BANP : a banp was added
 		firstDirName:  "anp_test_4",
 		secondDirName: "anp_test_4_with_priority_chang_pass_to_banp",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -688,7 +686,7 @@ var goodPathTests = []struct {
 		// denies conns between slytherin and gryffindor; no further restrictions on other conns from/to gryffindor.
 		firstDirName:  "anp_np_banp_core_test",
 		secondDirName: "anp_banp_core_test",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -696,7 +694,7 @@ var goodPathTests = []struct {
 		// so results should be changed as rules order must be respected
 		firstDirName:  "banp_test_core_egress_sctp_rules",
 		secondDirName: "banp_test_core_egress_sctp_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -704,7 +702,7 @@ var goodPathTests = []struct {
 		// so results should be changed as rules order must be respected
 		firstDirName:  "banp_test_core_egress_tcp_rules",
 		secondDirName: "banp_test_core_egress_tcp_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -712,7 +710,7 @@ var goodPathTests = []struct {
 		// so results should be changed as rules order must be respected
 		firstDirName:  "banp_test_core_egress_udp_rules",
 		secondDirName: "banp_test_core_egress_udp_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -720,7 +718,7 @@ var goodPathTests = []struct {
 		// so results should be changed as rules order must be respected
 		firstDirName:  "banp_test_core_gress_rules",
 		secondDirName: "banp_test_core_gress_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -728,7 +726,7 @@ var goodPathTests = []struct {
 		// so results should be changed as rules order must be respected
 		firstDirName:  "banp_test_core_ingress_sctp_rules",
 		secondDirName: "banp_test_core_ingress_sctp_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -736,7 +734,7 @@ var goodPathTests = []struct {
 		// so results should be changed as rules order must be respected
 		firstDirName:  "banp_test_core_ingress_tcp_rules",
 		secondDirName: "banp_test_core_ingress_tcp_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 	{
 		// description:
@@ -744,7 +742,7 @@ var goodPathTests = []struct {
 		// so results should be changed as rules order must be respected
 		firstDirName:  "banp_test_core_ingress_udp_rules",
 		secondDirName: "banp_test_core_ingress_udp_swapping_rules",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 }
 
