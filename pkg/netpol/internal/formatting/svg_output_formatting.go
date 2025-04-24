@@ -19,7 +19,7 @@ const graphvizSvgArgs = "-T" + output.SVGFormat
 // GenerateSVGWithGraphviz  generate svg string of the given dot string using graphviz (already validated that graphviz is installed)
 func GenerateSVGWithGraphviz(dotOutput string) (string, error) {
 	// pipe dotOutput as in `echo 'dotOutput' | dot -Tsvg` to write svg output
-	cmd := exec.Command(output.GraphvizExecutable, graphvizSvgArgs)
+	cmd := exec.Command(output.GraphvizExecutable, graphvizSvgArgs) //nolint:gosec // nosec
 	cmd.Stdin = bytes.NewBufferString(dotOutput)
 	var out bytes.Buffer
 	var stderr bytes.Buffer

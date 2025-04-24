@@ -179,7 +179,7 @@ func generateGraphFilesIfPossible(dotFilePath string) {
 	}
 	// generate png file (this png file is generated for the dot format; however svg is a supported output format)
 	graphFilePath := dotFilePath + dotSign + graphSuffix
-	cmd := exec.Command(output.GraphvizExecutable, dotFilePath, "-T"+graphSuffix, "-o", graphFilePath)
+	cmd := exec.Command(output.GraphvizExecutable, dotFilePath, "-T"+graphSuffix, "-o", graphFilePath) //nolint:gosec // nosec
 	if err := cmd.Run(); err != nil {
 		logger.NewDefaultLogger().Warnf("failed generating %q; unexpected error: %v", graphFilePath, err)
 	}
