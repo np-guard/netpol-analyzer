@@ -1,27 +1,9 @@
 
-##########################################
-# Specific connections and their reasons #
-##########################################
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between blue[udn]/webserver[Pod] => green[udn]/webserver[Pod]:
-
-Denied connections:
-	Denied TCP, UDP, SCTP due to existence of user defined networks:
-		Egress 
-			UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]; and UserDefinedNetwork 'green' isolates green[udn]/webserver[Pod]
-		Ingress 
-			UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]; and UserDefinedNetwork 'green' isolates green[udn]/webserver[Pod]
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between green[udn]/webserver[Pod] => blue[udn]/webserver[Pod]:
-
-Denied connections:
-	Denied TCP, UDP, SCTP due to existence of user defined networks:
-		Egress 
-			UserDefinedNetwork 'green' isolates green[udn]/webserver[Pod]; and UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]
-		Ingress 
-			UserDefinedNetwork 'green' isolates green[udn]/webserver[Pod]; and UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]
-
+####################################
+# Denied cross-network connections #
+####################################
+blue[udn]/webserver[Pod] => green[udn]/webserver[Pod]
+green[udn]/webserver[Pod] => blue[udn]/webserver[Pod]
 
 #########################################################
 # All Connections due to the system default (Allow all) #

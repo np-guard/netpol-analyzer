@@ -1,7 +1,7 @@
 
-##########################################
-# Specific connections and their reasons #
-##########################################
+########################################################
+# Specific connections and their reasons in green[udn] #
+########################################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-255.255.255.255[External] => green[udn]/webserver-2[Pod]:
 
@@ -33,36 +33,6 @@ Denied connections:
 			NetworkPolicy 'green/ingress-port-9001-only' selects green[udn]/webserver[Pod], and Ingress rule #1 selects 0.0.0.0-255.255.255.255[External], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between blue[udn]/webserver[Pod] => green[udn]/webserver-2[Pod]:
-
-Denied connections:
-	Denied TCP, UDP, SCTP due to existence of user defined networks:
-		Egress 
-			UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]; and UserDefinedNetwork 'green' isolates green[udn]/webserver-2[Pod]
-		Ingress 
-			UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]; and UserDefinedNetwork 'green' isolates green[udn]/webserver-2[Pod]
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between blue[udn]/webserver[Pod] => green[udn]/webserver[Pod]:
-
-Denied connections:
-	Denied TCP, UDP, SCTP due to existence of user defined networks:
-		Egress 
-			UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]; and UserDefinedNetwork 'green' isolates green[udn]/webserver[Pod]
-		Ingress 
-			UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]; and UserDefinedNetwork 'green' isolates green[udn]/webserver[Pod]
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between green[udn]/webserver-2[Pod] => blue[udn]/webserver[Pod]:
-
-Denied connections:
-	Denied TCP, UDP, SCTP due to existence of user defined networks:
-		Egress 
-			UserDefinedNetwork 'green' isolates green[udn]/webserver-2[Pod]; and UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]
-		Ingress 
-			UserDefinedNetwork 'green' isolates green[udn]/webserver-2[Pod]; and UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between green[udn]/webserver-2[Pod] => green[udn]/webserver[Pod]:
 
 Allowed connections:
@@ -76,16 +46,6 @@ Denied connections:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
 			NetworkPolicy 'green/ingress-port-9001-only' selects green[udn]/webserver[Pod], and Ingress rule #1 selects green[udn]/webserver-2[Pod], but the protocols and ports do not match
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between green[udn]/webserver[Pod] => blue[udn]/webserver[Pod]:
-
-Denied connections:
-	Denied TCP, UDP, SCTP due to existence of user defined networks:
-		Egress 
-			UserDefinedNetwork 'green' isolates green[udn]/webserver[Pod]; and UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]
-		Ingress 
-			UserDefinedNetwork 'green' isolates green[udn]/webserver[Pod]; and UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between green[udn]/webserver[Pod] => green[udn]/webserver-2[Pod]:
@@ -102,6 +62,14 @@ Denied connections:
 		Ingress (Denied)
 			NetworkPolicy 'green/ingress-port-9001-only' selects green[udn]/webserver-2[Pod], and Ingress rule #1 selects green[udn]/webserver[Pod], but the protocols and ports do not match
 
+
+####################################
+# Denied cross-network connections #
+####################################
+blue[udn]/webserver[Pod] => green[udn]/webserver-2[Pod]
+blue[udn]/webserver[Pod] => green[udn]/webserver[Pod]
+green[udn]/webserver-2[Pod] => blue[udn]/webserver[Pod]
+green[udn]/webserver[Pod] => blue[udn]/webserver[Pod]
 
 #########################################################
 # All Connections due to the system default (Allow all) #

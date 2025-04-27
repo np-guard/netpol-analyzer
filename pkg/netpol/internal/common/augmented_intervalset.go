@@ -171,6 +171,10 @@ func (rules *ImplyingXgressRulesType) onlyDefaultRule() bool {
 	return len(rules.Rules) == 1 && rules.DominantLayer == DefaultLayer
 }
 
+func (rules *ImplyingXgressRulesType) crossNetworkDenyRule() bool {
+	return len(rules.Rules) == 1 && rules.DominantLayer == UDNLayer
+}
+
 func (rules *ImplyingXgressRulesType) getDefaultRule() string {
 	return rules.Rules[""][0] // should be SystemDefaultRule
 }
@@ -240,6 +244,10 @@ func formatRulesOfKind(ruleKind string, rules []string) string {
 
 func (rules *ImplyingRulesType) OnlyDefaultRule() bool {
 	return rules.Ingress.onlyDefaultRule() && rules.Egress.onlyDefaultRule()
+}
+
+func (rules *ImplyingRulesType) CrossNetworkDenyRule() bool {
+	return rules.Ingress.crossNetworkDenyRule() && rules.Egress.crossNetworkDenyRule()
 }
 
 func (rules *ImplyingRulesType) RemoveDefaultRule(isIngress bool) {

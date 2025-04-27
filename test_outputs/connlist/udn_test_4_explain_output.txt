@@ -3,18 +3,33 @@
 # Specific connections and their reasons in pod-network #
 #########################################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between bar/mybar[Pod] => default/app-1[Pod]:
+Connections between bar/mybar[Pod] => 0.0.0.0-255.255.255.255[External]:
 
 Allowed connections:
-	Allowed TCP:[80] due to the following policies and rules:
+	Allowed TCP:[8080] due to the following policies and rules:
 		Egress (Allowed)
-			AdminNetworkPolicy 'allow-internal-egress' allows connections by Egress rule allow-tcp-80-egress-from-internal
+			NetworkPolicy 'bar/egress-to-whole-world' allows connections by Egress rule #1
 		Ingress (Allowed) due to the system default (Allow all)
 
 Denied connections:
-	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			AdminNetworkPolicy 'allow-internal-egress' denies connections by Egress rule deny-other-egress-from-internal
+			NetworkPolicy 'bar/egress-to-whole-world' selects bar/mybar[Pod], and Egress rule #1 selects 0.0.0.0-255.255.255.255[External], but the protocols and ports do not match
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between bar/mybar[Pod] => default/app-1[Pod]:
+
+Allowed connections:
+	Allowed TCP:[8080] due to the following policies and rules:
+		Egress (Allowed)
+			NetworkPolicy 'bar/egress-to-whole-world' allows connections by Egress rule #1
+		Ingress (Allowed) due to the system default (Allow all)
+
+Denied connections:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'bar/egress-to-whole-world' selects bar/mybar[Pod], and Egress rule #1 selects default/app-1[Pod], but the protocols and ports do not match
 		Ingress (Allowed) due to the system default (Allow all)
 
 
@@ -54,46 +69,32 @@ Denied connections:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between green[udn]/webserver-2[Pod] => green[udn]/webserver[Pod]:
 
-Denied connections:
-	Denied TCP:[1-79,81-9000,9002-65535], UDP, SCTP due to the following policies and rules:
-		Egress (Denied)
-			AdminNetworkPolicy 'allow-internal-egress' denies connections by Egress rule deny-other-egress-from-internal
-		Ingress (Denied)
-			NetworkPolicy 'green/ingress-port-9001-only' selects green[udn]/webserver[Pod], and Ingress rule #1 selects green[udn]/webserver-2[Pod], but the protocols and ports do not match
-
-	Denied TCP:[80] due to the following policies and rules:
-		Egress (Allowed)
-			AdminNetworkPolicy 'allow-internal-egress' allows connections by Egress rule allow-tcp-80-egress-from-internal
-		Ingress (Denied)
-			NetworkPolicy 'green/ingress-port-9001-only' selects green[udn]/webserver[Pod], and Ingress rule #1 selects green[udn]/webserver-2[Pod], but the protocols and ports do not match
-
-	Denied TCP:[9001] due to the following policies and rules:
-		Egress (Denied)
-			AdminNetworkPolicy 'allow-internal-egress' denies connections by Egress rule deny-other-egress-from-internal
+Allowed connections:
+	Allowed TCP:[9001] due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			NetworkPolicy 'green/ingress-port-9001-only' allows connections by Ingress rule #1
+
+Denied connections:
+	Denied TCP:[1-9000,9002-65535], UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			NetworkPolicy 'green/ingress-port-9001-only' selects green[udn]/webserver[Pod], and Ingress rule #1 selects green[udn]/webserver-2[Pod], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between green[udn]/webserver[Pod] => green[udn]/webserver-2[Pod]:
 
-Denied connections:
-	Denied TCP:[1-79,81-9000,9002-65535], UDP, SCTP due to the following policies and rules:
-		Egress (Denied)
-			AdminNetworkPolicy 'allow-internal-egress' denies connections by Egress rule deny-other-egress-from-internal
-		Ingress (Denied)
-			NetworkPolicy 'green/ingress-port-9001-only' selects green[udn]/webserver-2[Pod], and Ingress rule #1 selects green[udn]/webserver[Pod], but the protocols and ports do not match
-
-	Denied TCP:[80] due to the following policies and rules:
-		Egress (Allowed)
-			AdminNetworkPolicy 'allow-internal-egress' allows connections by Egress rule allow-tcp-80-egress-from-internal
-		Ingress (Denied)
-			NetworkPolicy 'green/ingress-port-9001-only' selects green[udn]/webserver-2[Pod], and Ingress rule #1 selects green[udn]/webserver[Pod], but the protocols and ports do not match
-
-	Denied TCP:[9001] due to the following policies and rules:
-		Egress (Denied)
-			AdminNetworkPolicy 'allow-internal-egress' denies connections by Egress rule deny-other-egress-from-internal
+Allowed connections:
+	Allowed TCP:[9001] due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Allowed)
 			NetworkPolicy 'green/ingress-port-9001-only' allows connections by Ingress rule #1
+
+Denied connections:
+	Denied TCP:[1-9000,9002-65535], UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			NetworkPolicy 'green/ingress-port-9001-only' selects green[udn]/webserver-2[Pod], and Ingress rule #1 selects green[udn]/webserver[Pod], but the protocols and ports do not match
 
 
 ####################################
@@ -113,7 +114,6 @@ green[udn]/webserver[Pod] => default/app-1[Pod]
 #########################################################
 0.0.0.0-255.255.255.255[External] => bar/mybar[Pod]
 0.0.0.0-255.255.255.255[External] => default/app-1[Pod]
-bar/mybar[Pod] => 0.0.0.0-255.255.255.255[External]
 default/app-1[Pod] => 0.0.0.0-255.255.255.255[External]
 default/app-1[Pod] => bar/mybar[Pod]
 green[udn]/webserver-2[Pod] => 0.0.0.0-255.255.255.255[External]
