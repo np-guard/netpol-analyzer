@@ -8,15 +8,15 @@
  viewBox="0.00 0.00 621.00 278.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 274)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-274 617,-274 617,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_hello_world</title>
-<polygon fill="none" stroke="black" points="96,-79 96,-154 538,-154 538,-79 96,-79"/>
-<text text-anchor="middle" x="317" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
-</g>
 <g id="clust2" class="cluster">
 <title>cluster_namespace with {conformance_house=slytherin}</title>
 <polygon fill="none" stroke="#ee0000" points="8,-187 8,-262 296,-262 296,-187 8,-187"/>
 <text text-anchor="middle" x="152" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {conformance&#45;house=slytherin}</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_hello_world</title>
+<polygon fill="none" stroke="black" points="96,-79 96,-154 538,-154 538,-79 96,-79"/>
+<text text-anchor="middle" x="317" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
 <g id="node1" class="node">
@@ -43,15 +43,15 @@
 <ellipse fill="none" stroke="blue" cx="427" cy="-105" rx="102.88" ry="18"/>
 <text text-anchor="middle" x="427" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">workload&#45;b[Deployment]</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255[External] -->
+<!-- 0.0.0.0&#45;255.255.255.255 -->
 <g id="node4" class="node">
-<title>0.0.0.0&#45;255.255.255.255[External]</title>
-<ellipse fill="none" stroke="#ee0000" cx="427" cy="-18" rx="133.78" ry="18"/>
-<text text-anchor="middle" x="427" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255[External]</text>
+<title>0.0.0.0&#45;255.255.255.255</title>
+<ellipse fill="none" stroke="#ee0000" cx="427" cy="-18" rx="98.58" ry="18"/>
+<text text-anchor="middle" x="427" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255</text>
 </g>
-<!-- hello&#45;world/workload&#45;b[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
+<!-- hello&#45;world/workload&#45;b[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge5" class="edge">
-<title>hello&#45;world/workload&#45;b[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
+<title>hello&#45;world/workload&#45;b[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
 <path fill="none" stroke="#eec900" d="M425.24,-86.93C424.73,-81.23 424.25,-74.85 424,-69 423.69,-61.64 423.91,-53.69 424.34,-46.33"/>
 <polygon fill="#eec900" stroke="#eec900" points="427.85,-46.35 425.1,-36.12 420.87,-45.83 427.85,-46.35"/>
 <text text-anchor="middle" x="469.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
@@ -76,10 +76,10 @@
 <polygon fill="#ee7600" stroke="#ee7600" points="208.5,-133.34 205,-123.34 201.5,-133.34 208.5,-133.34"/>
 <text text-anchor="middle" x="227.5" y="-165.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 80</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;hello&#45;world/workload&#45;b[Deployment] -->
+<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;hello&#45;world/workload&#45;b[Deployment] -->
 <g id="edge1" class="edge">
-<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;hello&#45;world/workload&#45;b[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M494.87,-33.6C515.51,-41.41 530.14,-52.84 519,-69 514.29,-75.83 508.07,-81.32 501.07,-85.75"/>
+<title>0.0.0.0&#45;255.255.255.255&#45;&gt;hello&#45;world/workload&#45;b[Deployment]</title>
+<path fill="none" stroke="#eec900" d="M490.19,-31.93C513.2,-39.75 530.97,-51.64 519,-69 514.29,-75.83 508.07,-81.32 501.07,-85.75"/>
 <polygon fill="#eec900" stroke="#eec900" points="498.93,-82.92 491.84,-90.8 502.29,-89.07 498.93,-82.92"/>
 <text text-anchor="middle" x="567.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>

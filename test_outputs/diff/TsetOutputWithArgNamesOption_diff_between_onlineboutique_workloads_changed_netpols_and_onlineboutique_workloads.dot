@@ -16,11 +16,11 @@ digraph {
 		"default/shippingservice[Deployment]" [label="shippingservice[Deployment]" color="blue" fontcolor="blue"]
 		label="default"
 	}
-	"0.0.0.0-127.255.255.255[External]" [label="0.0.0.0-127.255.255.255[External]" color="blue" fontcolor="blue"]
-	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="blue" fontcolor="blue"]
-	"128.0.0.0-255.255.255.255[External]" [label="128.0.0.0-255.255.255.255[External]" color="blue" fontcolor="blue"]
-	"0.0.0.0-127.255.255.255[External]" -> "default/redis-cart[Deployment]" [label="All Connections" color="grey" fontcolor="grey" weight=0.5]
-	"128.0.0.0-255.255.255.255[External]" -> "default/redis-cart[Deployment]" [label="All Connections" color="red2" fontcolor="red2" weight=0.5]
+	"0.0.0.0-127.255.255.255" [label="0.0.0.0-127.255.255.255" color="blue" fontcolor="blue"]
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
+	"128.0.0.0-255.255.255.255" [label="128.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
+	"0.0.0.0-127.255.255.255" -> "default/redis-cart[Deployment]" [label="All Connections" color="grey" fontcolor="grey" weight=0.5]
+	"128.0.0.0-255.255.255.255" -> "default/redis-cart[Deployment]" [label="All Connections" color="red2" fontcolor="red2" weight=0.5]
 	"default/cartservice[Deployment]" -> "default/emailservice[Deployment]" [label="TCP 9555" color="#008000" fontcolor="#008000" weight=0.5]
 	"default/checkoutservice[Deployment]" -> "default/adservice[Deployment]" [label="TCP 9555" color="#008000" fontcolor="#008000" weight=1]
 	"default/checkoutservice[Deployment]" -> "default/cartservice[Deployment]" [label="TCP 8000 (old: TCP 7070)" color="magenta" fontcolor="magenta" weight=1]
@@ -38,7 +38,7 @@ digraph {
 	"default/frontend[Deployment]" -> "default/shippingservice[Deployment]" [label="TCP 50051" color="grey" fontcolor="grey" weight=0.5]
 	"default/loadgenerator[Deployment]" -> "default/frontend[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey" weight=1]
 	"default/recommendationservice[Deployment]" -> "default/productcatalogservice[Deployment]" [label="TCP 3550" color="grey" fontcolor="grey" weight=1]
-	"default/redis-cart[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="red2" fontcolor="red2" weight=1]
+	"default/redis-cart[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="red2" fontcolor="red2" weight=1]
 	nodesep=0.5
 	subgraph cluster_legend {
 		label="Legend"

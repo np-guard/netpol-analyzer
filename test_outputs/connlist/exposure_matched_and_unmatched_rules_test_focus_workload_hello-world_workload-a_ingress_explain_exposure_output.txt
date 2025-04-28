@@ -3,13 +3,13 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255[External] => hello-world/workload-a[Deployment]:
+Connections between 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'hello-world/combined-ingress-rules' selects hello-world/workload-a[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+			NetworkPolicy 'hello-world/combined-ingress-rules' selects hello-world/workload-a[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between hello-world/workload-b[Deployment] => hello-world/workload-a[Deployment]:

@@ -1,5 +1,5 @@
-0.0.0.0-255.255.255.255[External] => network-policy-conformance-gryffindor/harry-potter[StatefulSet] : All Connections
-0.0.0.0-255.255.255.255[External] => network-policy-conformance-slytherin/draco-malfoy[StatefulSet] : All Connections
-network-policy-conformance-gryffindor/harry-potter[StatefulSet] => 0.0.0.0-255.255.255.255[External] : All Connections
-network-policy-conformance-slytherin/draco-malfoy[StatefulSet] => 0.0.0.0-255.255.255.255[External] : All Connections
+0.0.0.0-255.255.255.255 => network-policy-conformance-gryffindor/harry-potter[StatefulSet] : All Connections
+0.0.0.0-255.255.255.255 => network-policy-conformance-slytherin/draco-malfoy[StatefulSet] : All Connections
+network-policy-conformance-gryffindor/harry-potter[StatefulSet] => 0.0.0.0-255.255.255.255 : All Connections
+network-policy-conformance-slytherin/draco-malfoy[StatefulSet] => 0.0.0.0-255.255.255.255 : All Connections
 network-policy-conformance-slytherin/draco-malfoy[StatefulSet] => network-policy-conformance-gryffindor/harry-potter[StatefulSet] : TCP 80
