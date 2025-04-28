@@ -32,15 +32,15 @@
 <polygon fill="#eec900" stroke="#eec900" points="350.36,-115.02 360.11,-110.89 349.91,-108.03 350.36,-115.02"/>
 <text text-anchor="middle" x="295.29" y="-144.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">SCTP 1&#45;65535,TCP 1&#45;79,81&#45;65535,UDP 1&#45;65535</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255[External] -->
+<!-- 0.0.0.0&#45;255.255.255.255 -->
 <g id="node3" class="node">
-<title>0.0.0.0&#45;255.255.255.255[External]</title>
-<ellipse fill="none" stroke="#ee0000" cx="137.29" cy="-18" rx="133.78" ry="18"/>
-<text text-anchor="middle" x="137.29" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255[External]</text>
+<title>0.0.0.0&#45;255.255.255.255</title>
+<ellipse fill="none" stroke="#ee0000" cx="137.29" cy="-18" rx="98.58" ry="18"/>
+<text text-anchor="middle" x="137.29" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255</text>
 </g>
-<!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
+<!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge5" class="edge">
-<title>hello&#45;world/workload&#45;a[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
+<title>hello&#45;world/workload&#45;a[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
 <path fill="none" stroke="#eec900" d="M360.75,-186.29C275.01,-181.13 161.04,-171.45 146.29,-156 118.61,-127 123.41,-76.98 129.97,-46.07"/>
 <polygon fill="#eec900" stroke="#eec900" points="133.45,-46.54 132.31,-36 126.63,-44.95 133.45,-46.54"/>
 <text text-anchor="middle" x="173.79" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
@@ -65,11 +65,11 @@
 <polygon fill="#eec900" stroke="#eec900" points="453.79,-163.8 457.29,-173.8 460.79,-163.8 453.79,-163.8"/>
 <text text-anchor="middle" x="597.29" y="-144.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">SCTP 1&#45;65535,TCP 1&#45;79,81&#45;65535,UDP 1&#45;65535</text>
 </g>
-<!-- hello&#45;world/workload&#45;b[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
+<!-- hello&#45;world/workload&#45;b[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge8" class="edge">
-<title>hello&#45;world/workload&#45;b[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
-<path fill="none" stroke="#eec900" d="M372.25,-94.81C333.86,-89.38 288.25,-81.12 248.29,-69 224.08,-61.66 198.25,-50.25 177.61,-40.19"/>
-<polygon fill="#eec900" stroke="#eec900" points="179.02,-36.98 168.51,-35.68 175.91,-43.26 179.02,-36.98"/>
+<title>hello&#45;world/workload&#45;b[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
+<path fill="none" stroke="#eec900" d="M372.25,-94.81C333.86,-89.38 288.25,-81.12 248.29,-69 223.73,-61.55 197.5,-49.92 176.71,-39.75"/>
+<polygon fill="#eec900" stroke="#eec900" points="178.08,-36.52 167.57,-35.2 174.96,-42.79 178.08,-36.52"/>
 <text text-anchor="middle" x="293.79" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- hello&#45;world/workload&#45;b[Deployment]&#45;&gt;entire&#45;cluster -->
@@ -79,17 +79,17 @@
 <polygon fill="#8b4500" stroke="#8b4500" points="661.63,-287.55 652.36,-292.69 662.81,-294.45 661.63,-287.55"/>
 <text text-anchor="middle" x="728.79" y="-188.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
+<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
 <g id="edge1" class="edge">
-<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M71.16,-33.8C47.13,-42.71 22.43,-56.82 8.29,-79 -2.23,-95.49 -3.15,-107.14 8.29,-123 46.7,-176.29 225.36,-189.02 345.4,-191.41"/>
+<title>0.0.0.0&#45;255.255.255.255&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
+<path fill="none" stroke="#eec900" d="M75.89,-32.1C50.43,-40.89 23.36,-55.36 8.29,-79 -2.23,-95.49 -3.15,-107.14 8.29,-123 46.7,-176.29 225.36,-189.02 345.4,-191.41"/>
 <polygon fill="#eec900" stroke="#eec900" points="345.69,-194.91 355.75,-191.59 345.81,-187.91 345.69,-194.91"/>
 <text text-anchor="middle" x="53.79" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;hello&#45;world/workload&#45;b[Deployment] -->
+<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;hello&#45;world/workload&#45;b[Deployment] -->
 <g id="edge2" class="edge">
-<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;hello&#45;world/workload&#45;b[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M234.05,-30.44C268.91,-35.87 308.27,-43.52 343.29,-54 368.36,-61.5 395.22,-73.09 416.56,-83.23"/>
+<title>0.0.0.0&#45;255.255.255.255&#45;&gt;hello&#45;world/workload&#45;b[Deployment]</title>
+<path fill="none" stroke="#eec900" d="M219.06,-28.2C257.3,-33.69 303.15,-41.99 343.29,-54 368.36,-61.5 395.22,-73.09 416.56,-83.23"/>
 <polygon fill="#eec900" stroke="#eec900" points="415.12,-86.42 425.65,-87.61 418.17,-80.12 415.12,-86.42"/>
 <text text-anchor="middle" x="426.79" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>

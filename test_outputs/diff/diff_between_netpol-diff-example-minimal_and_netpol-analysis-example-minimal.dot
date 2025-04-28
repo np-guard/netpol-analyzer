@@ -6,10 +6,10 @@ digraph {
 		"default/frontend[Deployment]" [label="frontend[Deployment]" color="blue" fontcolor="blue"]
 		label="default"
 	}
-	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="blue" fontcolor="blue"]
-	"0.0.0.0-255.255.255.255[External]" -> "default/backend[Deployment]" [label="TCP 9090" color="#008000" fontcolor="#008000" weight=0.5]
-	"0.0.0.0-255.255.255.255[External]" -> "default/frontend[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey" weight=0.5]
-	"default/frontend[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="UDP 53" color="grey" fontcolor="grey" weight=1]
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
+	"0.0.0.0-255.255.255.255" -> "default/backend[Deployment]" [label="TCP 9090" color="#008000" fontcolor="#008000" weight=0.5]
+	"0.0.0.0-255.255.255.255" -> "default/frontend[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey" weight=0.5]
+	"default/frontend[Deployment]" -> "0.0.0.0-255.255.255.255" [label="UDP 53" color="grey" fontcolor="grey" weight=1]
 	"default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090,UDP 53 (ref1: TCP 9090)" color="magenta" fontcolor="magenta" weight=1]
 	nodesep=0.5
 	subgraph cluster_legend {

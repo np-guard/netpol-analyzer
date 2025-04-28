@@ -13,20 +13,20 @@
 <polygon fill="none" stroke="black" points="183.59,-187 183.59,-262 421.59,-262 421.59,-187 183.59,-187"/>
 <text text-anchor="middle" x="302.59" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;hufflepuff</text>
 </g>
-<g id="clust3" class="cluster">
-<title>cluster_network_policy_conformance_ravenclaw</title>
-<polygon fill="none" stroke="black" points="437.59,-295 437.59,-370 676.59,-370 676.59,-295 437.59,-295"/>
-<text text-anchor="middle" x="557.09" y="-354.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;ravenclaw</text>
+<g id="clust1" class="cluster">
+<title>cluster_network_policy_conformance_gryffindor</title>
+<polygon fill="none" stroke="black" points="508.59,-79 508.59,-154 747.59,-154 747.59,-79 508.59,-79"/>
+<text text-anchor="middle" x="628.09" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;gryffindor</text>
 </g>
 <g id="clust4" class="cluster">
 <title>cluster_network_policy_conformance_slytherin</title>
 <polygon fill="none" stroke="black" points="464.59,-403 464.59,-478 694.59,-478 694.59,-403 464.59,-403"/>
 <text text-anchor="middle" x="579.59" y="-462.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;slytherin</text>
 </g>
-<g id="clust1" class="cluster">
-<title>cluster_network_policy_conformance_gryffindor</title>
-<polygon fill="none" stroke="black" points="508.59,-79 508.59,-154 747.59,-154 747.59,-79 508.59,-79"/>
-<text text-anchor="middle" x="628.09" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;gryffindor</text>
+<g id="clust3" class="cluster">
+<title>cluster_network_policy_conformance_ravenclaw</title>
+<polygon fill="none" stroke="black" points="437.59,-295 437.59,-370 676.59,-370 676.59,-295 437.59,-295"/>
+<text text-anchor="middle" x="557.09" y="-354.8" font-family="Times New Roman,serif" font-size="14.00">network&#45;policy&#45;conformance&#45;ravenclaw</text>
 </g>
 <!-- network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet] -->
 <g id="node1" class="node">
@@ -73,17 +73,17 @@
 <polygon fill="#eec900" stroke="#eec900" points="665.04,-411.11 656.05,-416.71 666.57,-417.94 665.04,-411.11"/>
 <text text-anchor="middle" x="705.09" y="-273.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255[External] -->
+<!-- 0.0.0.0&#45;255.255.255.255 -->
 <g id="node5" class="node">
-<title>0.0.0.0&#45;255.255.255.255[External]</title>
-<ellipse fill="none" stroke="#ee0000" cx="306.59" cy="-18" rx="133.78" ry="18"/>
-<text text-anchor="middle" x="306.59" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255[External]</text>
+<title>0.0.0.0&#45;255.255.255.255</title>
+<ellipse fill="none" stroke="#ee0000" cx="306.59" cy="-18" rx="98.58" ry="18"/>
+<text text-anchor="middle" x="306.59" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255</text>
 </g>
-<!-- network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
+<!-- network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge5" class="edge">
-<title>network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
-<path fill="none" stroke="#eec900" d="M563.93,-89.72C541.83,-83.58 515.89,-76.17 492.59,-69 472.44,-62.8 467.83,-59.88 447.59,-54 425.95,-47.72 402.25,-41.56 380.55,-36.2"/>
-<polygon fill="#eec900" stroke="#eec900" points="381.29,-32.78 370.74,-33.8 379.62,-39.58 381.29,-32.78"/>
+<title>network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
+<path fill="none" stroke="#eec900" d="M563.93,-89.72C541.83,-83.58 515.89,-76.17 492.59,-69 472.44,-62.8 467.83,-59.88 447.59,-54 424.27,-47.23 398.55,-40.61 375.54,-34.97"/>
+<polygon fill="#eec900" stroke="#eec900" points="376.06,-31.49 365.52,-32.54 374.41,-38.3 376.06,-31.49"/>
 <text text-anchor="middle" x="538.09" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- network&#45;policy&#45;conformance&#45;hufflepuff/cedric&#45;diggory[StatefulSet]&#45;&gt;network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet] -->
@@ -107,11 +107,11 @@
 <polygon fill="#eec900" stroke="#eec900" points="472.13,-425.11 482.35,-422.29 472.6,-418.13 472.13,-425.11"/>
 <text text-anchor="middle" x="280.09" y="-317.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">SCTP 1&#45;65535,TCP 1&#45;65535,UDP 1&#45;5352,5354&#45;65535</text>
 </g>
-<!-- network&#45;policy&#45;conformance&#45;hufflepuff/cedric&#45;diggory[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
+<!-- network&#45;policy&#45;conformance&#45;hufflepuff/cedric&#45;diggory[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge9" class="edge">
-<title>network&#45;policy&#45;conformance&#45;hufflepuff/cedric&#45;diggory[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
-<path fill="none" stroke="#eec900" d="M277.81,-195.23C264.98,-185 250.58,-170.69 243.59,-154 230.7,-123.26 230.46,-109.64 243.59,-79 249.77,-64.56 261.33,-51.95 272.87,-42.07"/>
-<polygon fill="#eec900" stroke="#eec900" points="275.22,-44.68 280.8,-35.67 270.82,-39.23 275.22,-44.68"/>
+<title>network&#45;policy&#45;conformance&#45;hufflepuff/cedric&#45;diggory[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
+<path fill="none" stroke="#eec900" d="M277.81,-195.23C264.98,-185 250.58,-170.69 243.59,-154 230.7,-123.26 230.46,-109.64 243.59,-79 249.82,-64.45 261.51,-51.76 273.15,-41.84"/>
+<polygon fill="#eec900" stroke="#eec900" points="275.52,-44.42 281.12,-35.43 271.13,-38.96 275.52,-44.42"/>
 <text text-anchor="middle" x="289.09" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- network&#45;policy&#45;conformance&#45;ravenclaw/luna&#45;lovegood[StatefulSet]&#45;&gt;network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet] -->
@@ -135,11 +135,11 @@
 <polygon fill="#eec900" stroke="#eec900" points="610.4,-401.88 605.67,-411.36 615.28,-406.89 610.4,-401.88"/>
 <text text-anchor="middle" x="666.09" y="-381.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- network&#45;policy&#45;conformance&#45;ravenclaw/luna&#45;lovegood[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
+<!-- network&#45;policy&#45;conformance&#45;ravenclaw/luna&#45;lovegood[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge13" class="edge">
-<title>network&#45;policy&#45;conformance&#45;ravenclaw/luna&#45;lovegood[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
-<path fill="none" stroke="#eec900" d="M496.69,-305.69C477.98,-301.54 457,-297.46 437.59,-295 423.74,-293.25 197.67,-293.48 186.59,-285 141.53,-250.55 132.99,-215.22 152.59,-162 174.37,-102.83 195.94,-94.12 244.59,-54 250.36,-49.24 256.86,-44.78 263.43,-40.74"/>
-<polygon fill="#eec900" stroke="#eec900" points="265.51,-43.57 272.37,-35.5 261.97,-37.53 265.51,-43.57"/>
+<title>network&#45;policy&#45;conformance&#45;ravenclaw/luna&#45;lovegood[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
+<path fill="none" stroke="#eec900" d="M496.69,-305.69C477.98,-301.54 457,-297.46 437.59,-295 423.74,-293.25 197.67,-293.48 186.59,-285 141.53,-250.55 132.99,-215.22 152.59,-162 174.37,-102.83 195.94,-94.12 244.59,-54 250.69,-48.97 257.61,-44.27 264.57,-40.04"/>
+<polygon fill="#eec900" stroke="#eec900" points="266.44,-43 273.33,-34.96 262.93,-36.95 266.44,-43"/>
 <text text-anchor="middle" x="198.09" y="-165.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- network&#45;policy&#45;conformance&#45;slytherin/draco&#45;malfoy[StatefulSet]&#45;&gt;network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet] -->
@@ -163,38 +163,38 @@
 <polygon fill="#eec900" stroke="#eec900" points="535.33,-349.02 538.29,-338.85 529.63,-344.95 535.33,-349.02"/>
 <text text-anchor="middle" x="570.09" y="-381.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- network&#45;policy&#45;conformance&#45;slytherin/draco&#45;malfoy[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
+<!-- network&#45;policy&#45;conformance&#45;slytherin/draco&#45;malfoy[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge17" class="edge">
-<title>network&#45;policy&#45;conformance&#45;slytherin/draco&#45;malfoy[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
-<path fill="none" stroke="#eec900" d="M655.42,-416.48C744,-400.84 878.59,-369.3 878.59,-322 878.59,-322 878.59,-322 878.59,-104 878.59,-59.88 608.89,-36.27 439.87,-25.81"/>
-<polygon fill="#eec900" stroke="#eec900" points="439.84,-22.3 429.65,-25.19 439.41,-29.29 439.84,-22.3"/>
+<title>network&#45;policy&#45;conformance&#45;slytherin/draco&#45;malfoy[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
+<path fill="none" stroke="#eec900" d="M655.42,-416.48C744,-400.84 878.59,-369.3 878.59,-322 878.59,-322 878.59,-322 878.59,-104 878.59,-57.26 575.9,-33.54 410.9,-24.08"/>
+<polygon fill="#eec900" stroke="#eec900" points="410.9,-20.58 400.72,-23.51 410.51,-27.57 410.9,-20.58"/>
 <text text-anchor="middle" x="924.09" y="-209.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet] -->
+<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet] -->
 <g id="edge1" class="edge">
-<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet]</title>
-<path fill="none" stroke="#eec900" d="M433.4,-23.9C495.44,-28.44 562.17,-37.18 587.59,-54 596.07,-59.61 602.38,-68.62 606.91,-77.45"/>
+<title>0.0.0.0&#45;255.255.255.255&#45;&gt;network&#45;policy&#45;conformance&#45;gryffindor/harry&#45;potter[StatefulSet]</title>
+<path fill="none" stroke="#eec900" d="M403.21,-21.98C472.25,-25.77 557.96,-34.4 587.59,-54 596.07,-59.61 602.38,-68.62 606.91,-77.45"/>
 <polygon fill="#eec900" stroke="#eec900" points="603.83,-79.13 611.14,-86.79 610.2,-76.24 603.83,-79.13"/>
 <text text-anchor="middle" x="647.09" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;network&#45;policy&#45;conformance&#45;hufflepuff/cedric&#45;diggory[StatefulSet] -->
+<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;network&#45;policy&#45;conformance&#45;hufflepuff/cedric&#45;diggory[StatefulSet] -->
 <g id="edge2" class="edge">
-<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;network&#45;policy&#45;conformance&#45;hufflepuff/cedric&#45;diggory[StatefulSet]</title>
-<path fill="none" stroke="#eec900" d="M318.68,-36.18C326.03,-47.7 334.72,-63.54 338.59,-79 346.67,-111.34 360.09,-128.53 338.59,-154 324.92,-170.19 305.25,-145.81 291.59,-162 286.06,-168.54 286.25,-177.24 288.64,-185.54"/>
+<title>0.0.0.0&#45;255.255.255.255&#45;&gt;network&#45;policy&#45;conformance&#45;hufflepuff/cedric&#45;diggory[StatefulSet]</title>
+<path fill="none" stroke="#eec900" d="M318.52,-35.92C325.9,-47.46 334.69,-63.42 338.59,-79 346.67,-111.34 360.09,-128.53 338.59,-154 324.92,-170.19 305.25,-145.81 291.59,-162 286.06,-168.54 286.25,-177.24 288.64,-185.54"/>
 <polygon fill="#eec900" stroke="#eec900" points="285.4,-186.87 292.24,-194.96 291.94,-184.37 285.4,-186.87"/>
 <text text-anchor="middle" x="395.09" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;network&#45;policy&#45;conformance&#45;ravenclaw/luna&#45;lovegood[StatefulSet] -->
+<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;network&#45;policy&#45;conformance&#45;ravenclaw/luna&#45;lovegood[StatefulSet] -->
 <g id="edge3" class="edge">
-<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;network&#45;policy&#45;conformance&#45;ravenclaw/luna&#45;lovegood[StatefulSet]</title>
-<path fill="none" stroke="#eec900" d="M372.54,-33.79C398.48,-42.78 426.36,-56.95 444.59,-79 497.68,-143.25 452.05,-185.7 485.59,-262 491.88,-276.31 503.75,-288.34 515.83,-297.67"/>
+<title>0.0.0.0&#45;255.255.255.255&#45;&gt;network&#45;policy&#45;conformance&#45;ravenclaw/luna&#45;lovegood[StatefulSet]</title>
+<path fill="none" stroke="#eec900" d="M367.94,-32.25C395.14,-41.13 425.28,-55.64 444.59,-79 497.68,-143.25 452.05,-185.7 485.59,-262 491.88,-276.31 503.75,-288.34 515.83,-297.67"/>
 <polygon fill="#eec900" stroke="#eec900" points="514.01,-300.67 524.17,-303.69 518.11,-295 514.01,-300.67"/>
 <text text-anchor="middle" x="517.09" y="-165.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;network&#45;policy&#45;conformance&#45;slytherin/draco&#45;malfoy[StatefulSet] -->
+<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;network&#45;policy&#45;conformance&#45;slytherin/draco&#45;malfoy[StatefulSet] -->
 <g id="edge4" class="edge">
-<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;network&#45;policy&#45;conformance&#45;slytherin/draco&#45;malfoy[StatefulSet]</title>
-<path fill="none" stroke="#eec900" d="M439.53,-20.48C600.48,-23.28 854.82,-31.27 892.59,-54 951.89,-89.69 954.89,-120.36 973.59,-187 1000.16,-281.72 975.72,-340.39 892.59,-393 860.08,-413.57 768.78,-422.1 693.12,-425.61"/>
+<title>0.0.0.0&#45;255.255.255.255&#45;&gt;network&#45;policy&#45;conformance&#45;slytherin/draco&#45;malfoy[StatefulSet]</title>
+<path fill="none" stroke="#eec900" d="M404.96,-19.94C561.03,-22.16 851.98,-29.56 892.59,-54 951.89,-89.69 954.89,-120.36 973.59,-187 1000.16,-281.72 975.72,-340.39 892.59,-393 860.08,-413.57 768.78,-422.1 693.12,-425.61"/>
 <polygon fill="#eec900" stroke="#eec900" points="692.86,-422.12 683.03,-426.06 693.17,-429.11 692.86,-422.12"/>
 <text text-anchor="middle" x="1029.09" y="-209.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>

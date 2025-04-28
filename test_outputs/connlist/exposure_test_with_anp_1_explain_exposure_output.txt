@@ -3,21 +3,21 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255[External] => hello-world/workload-a[Deployment]:
+Connections between 0.0.0.0-255.255.255.255 => hello-world/workload-a[Deployment]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'hello-world/deny-all-app-a' selects hello-world/workload-a[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+			NetworkPolicy 'hello-world/deny-all-app-a' selects hello-world/workload-a[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule (no rules defined)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255[External]:
+Connections between hello-world/workload-a[Deployment] => 0.0.0.0-255.255.255.255:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy 'hello-world/deny-all-app-a' selects hello-world/workload-a[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+			NetworkPolicy 'hello-world/deny-all-app-a' selects hello-world/workload-a[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -42,16 +42,16 @@ Denied connections:
 #########################################################
 # All Connections due to the system default (Allow all) #
 #########################################################
-0.0.0.0-255.255.255.255[External] => hello-world/workload-b[Deployment]
-hello-world/workload-b[Deployment] => 0.0.0.0-255.255.255.255[External]
+0.0.0.0-255.255.255.255 => hello-world/workload-b[Deployment]
+hello-world/workload-b[Deployment] => 0.0.0.0-255.255.255.255
 
 Exposure Analysis Result:
 Egress Exposure:
 hello-world/workload-a[Deployment] 	=> 	[namespace with {conformance-house=slytherin}]/[all pods] : TCP 80
-hello-world/workload-b[Deployment] 	=> 	0.0.0.0-255.255.255.255[External] : All Connections
+hello-world/workload-b[Deployment] 	=> 	0.0.0.0-255.255.255.255 : All Connections
 hello-world/workload-b[Deployment] 	=> 	entire-cluster : All Connections
 
 Ingress Exposure:
 hello-world/workload-a[Deployment] 	<= 	[namespace with {conformance-house=slytherin}]/[all pods] : TCP 80
-hello-world/workload-b[Deployment] 	<= 	0.0.0.0-255.255.255.255[External] : All Connections
+hello-world/workload-b[Deployment] 	<= 	0.0.0.0-255.255.255.255 : All Connections
 hello-world/workload-b[Deployment] 	<= 	entire-cluster : All Connections

@@ -1,10 +1,10 @@
-bar/mybar[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
+bar/mybar[Pod] => 0.0.0.0-255.255.255.255 : All Connections
 bar/mybar[Pod] => baz/mybaz[Pod] : All Connections
 bar/mybar[Pod] => monitoring/mymonitoring[Pod] : All Connections
 
 Exposure Analysis Result:
 Egress Exposure:
-bar/mybar[Pod] 	=> 	0.0.0.0-255.255.255.255[External] : All Connections
+bar/mybar[Pod] 	=> 	0.0.0.0-255.255.255.255 : All Connections
 bar/mybar[Pod] 	=> 	entire-cluster : All Connections
 
 Workloads not protected by network policies:

@@ -1,22 +1,22 @@
 [
   {
-    "src": "0.0.0.0-255.255.255.255[External]",
+    "src": "0.0.0.0-255.255.255.255",
     "dst": "bar/mybar[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "0.0.0.0-255.255.255.255[External]",
+    "src": "0.0.0.0-255.255.255.255",
     "dst": "baz/mybaz[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "0.0.0.0-255.255.255.255[External]",
+    "src": "0.0.0.0-255.255.255.255",
     "dst": "monitoring/mymonitoring[Pod]",
     "conn": "All Connections"
   },
   {
     "src": "bar/mybar[Pod]",
-    "dst": "0.0.0.0-255.255.255.255[External]",
+    "dst": "0.0.0.0-255.255.255.255",
     "conn": "All Connections"
   },
   {
@@ -31,7 +31,7 @@
   },
   {
     "src": "baz/mybaz[Pod]",
-    "dst": "0.0.0.0-255.255.255.255[External]",
+    "dst": "0.0.0.0-255.255.255.255",
     "conn": "All Connections"
   },
   {
@@ -41,7 +41,7 @@
   },
   {
     "src": "foo/myfoo[Pod]",
-    "dst": "0.0.0.0-255.255.255.255[External]",
+    "dst": "0.0.0.0-255.255.255.255",
     "conn": "All Connections"
   },
   {
@@ -56,7 +56,7 @@
   },
   {
     "src": "monitoring/mymonitoring[Pod]",
-    "dst": "0.0.0.0-255.255.255.255[External]",
+    "dst": "0.0.0.0-255.255.255.255",
     "conn": "All Connections"
   },
   {

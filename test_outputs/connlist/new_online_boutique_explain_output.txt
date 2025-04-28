@@ -3,97 +3,97 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255[External] => default/adservice[Deployment]:
+Connections between 0.0.0.0-255.255.255.255 => default/adservice[Deployment]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/adservice-auth' selects default/adservice[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+			NetworkPolicy 'default/adservice-auth' selects default/adservice[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255[External] => default/cartservice[Deployment]:
+Connections between 0.0.0.0-255.255.255.255 => default/cartservice[Deployment]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/cartservice' selects default/cartservice[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+			NetworkPolicy 'default/cartservice' selects default/cartservice[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255[External] => default/checkoutservice[Deployment]:
+Connections between 0.0.0.0-255.255.255.255 => default/checkoutservice[Deployment]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/checkoutservice' selects default/checkoutservice[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+			NetworkPolicy 'default/checkoutservice' selects default/checkoutservice[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255[External] => default/currencyservice[Deployment]:
+Connections between 0.0.0.0-255.255.255.255 => default/currencyservice[Deployment]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/currencyservice' selects default/currencyservice[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+			NetworkPolicy 'default/currencyservice' selects default/currencyservice[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255[External] => default/emailservice[Deployment]:
+Connections between 0.0.0.0-255.255.255.255 => default/emailservice[Deployment]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/emailservice' selects default/emailservice[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+			NetworkPolicy 'default/emailservice' selects default/emailservice[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255[External] => default/frontend[Deployment]:
+Connections between 0.0.0.0-255.255.255.255 => default/frontend[Deployment]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/frontend' selects default/frontend[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+			NetworkPolicy 'default/frontend' selects default/frontend[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255[External] => default/paymentservice[Deployment]:
+Connections between 0.0.0.0-255.255.255.255 => default/paymentservice[Deployment]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/paymentservice' selects default/paymentservice[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+			NetworkPolicy 'default/paymentservice' selects default/paymentservice[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255[External] => default/productcatalogservice[Deployment]:
+Connections between 0.0.0.0-255.255.255.255 => default/productcatalogservice[Deployment]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/productcatalogservice' selects default/productcatalogservice[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+			NetworkPolicy 'default/productcatalogservice' selects default/productcatalogservice[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255[External] => default/recommendationservice[Deployment]:
+Connections between 0.0.0.0-255.255.255.255 => default/recommendationservice[Deployment]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/recommendationservice' selects default/recommendationservice[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+			NetworkPolicy 'default/recommendationservice' selects default/recommendationservice[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255[External] => default/shippingservice[Deployment]:
+Connections between 0.0.0.0-255.255.255.255 => default/shippingservice[Deployment]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'default/shippingservice' selects default/shippingservice[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+			NetworkPolicy 'default/shippingservice' selects default/shippingservice[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/adservice[Deployment] => 0.0.0.0-255.255.255.255[External]:
+Connections between default/adservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -201,7 +201,7 @@ Denied connections:
 			NetworkPolicy 'default/shippingservice' selects default/shippingservice[Deployment], but default/adservice[Deployment] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/cartservice[Deployment] => 0.0.0.0-255.255.255.255[External]:
+Connections between default/cartservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -309,7 +309,7 @@ Denied connections:
 			NetworkPolicy 'default/shippingservice' selects default/shippingservice[Deployment], but default/cartservice[Deployment] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/checkoutservice[Deployment] => 0.0.0.0-255.255.255.255[External]:
+Connections between default/checkoutservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -459,7 +459,7 @@ Denied connections:
 			NetworkPolicy 'default/shippingservice' selects default/shippingservice[Deployment], and Ingress rule #1 selects default/checkoutservice[Deployment], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/currencyservice[Deployment] => 0.0.0.0-255.255.255.255[External]:
+Connections between default/currencyservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -567,7 +567,7 @@ Denied connections:
 			NetworkPolicy 'default/shippingservice' selects default/shippingservice[Deployment], but default/currencyservice[Deployment] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/emailservice[Deployment] => 0.0.0.0-255.255.255.255[External]:
+Connections between default/emailservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -675,7 +675,7 @@ Denied connections:
 			NetworkPolicy 'default/shippingservice' selects default/shippingservice[Deployment], but default/emailservice[Deployment] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/frontend[Deployment] => 0.0.0.0-255.255.255.255[External]:
+Connections between default/frontend[Deployment] => 0.0.0.0-255.255.255.255:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -832,7 +832,7 @@ Denied connections:
 			NetworkPolicy 'default/shippingservice' selects default/shippingservice[Deployment], and Ingress rule #1 selects default/frontend[Deployment], but the protocols and ports do not match
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/loadgenerator[Deployment] => 0.0.0.0-255.255.255.255[External]:
+Connections between default/loadgenerator[Deployment] => 0.0.0.0-255.255.255.255:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -948,7 +948,7 @@ Denied connections:
 			NetworkPolicy 'default/shippingservice' selects default/shippingservice[Deployment], but default/loadgenerator[Deployment] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/paymentservice[Deployment] => 0.0.0.0-255.255.255.255[External]:
+Connections between default/paymentservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -1056,7 +1056,7 @@ Denied connections:
 			NetworkPolicy 'default/shippingservice' selects default/shippingservice[Deployment], but default/paymentservice[Deployment] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/productcatalogservice[Deployment] => 0.0.0.0-255.255.255.255[External]:
+Connections between default/productcatalogservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -1164,7 +1164,7 @@ Denied connections:
 			NetworkPolicy 'default/shippingservice' selects default/shippingservice[Deployment], but default/productcatalogservice[Deployment] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/recommendationservice[Deployment] => 0.0.0.0-255.255.255.255[External]:
+Connections between default/recommendationservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -1279,7 +1279,7 @@ Denied connections:
 			NetworkPolicy 'default/shippingservice' selects default/shippingservice[Deployment], but default/recommendationservice[Deployment] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between default/shippingservice[Deployment] => 0.0.0.0-255.255.255.255[External]:
+Connections between default/shippingservice[Deployment] => 0.0.0.0-255.255.255.255:
 
 Allowed connections:
 	Allowed TCP, UDP, SCTP due to the following policies and rules:
@@ -1390,4 +1390,4 @@ Denied connections:
 #########################################################
 # All Connections due to the system default (Allow all) #
 #########################################################
-0.0.0.0-255.255.255.255[External] => default/loadgenerator[Deployment]
+0.0.0.0-255.255.255.255 => default/loadgenerator[Deployment]
