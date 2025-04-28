@@ -8,11 +8,6 @@
  viewBox="0.00 0.00 2005.00 534.79" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 530.79)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-530.79 2001,-530.79 2001,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_backend</title>
-<polygon fill="none" stroke="black" points="864,-8 864,-299 1494,-299 1494,-8 864,-8"/>
-<text text-anchor="middle" x="1179" y="-283.8" font-family="Times New Roman,serif" font-size="14.00">backend</text>
-</g>
 <g id="clust3" class="cluster">
 <title>cluster_payments</title>
 <polygon fill="none" stroke="black" points="8,-8 8,-191 856,-191 856,-8 8,-8"/>
@@ -23,15 +18,20 @@
 <polygon fill="none" stroke="black" points="732,-332 732,-407 1357,-407 1357,-332 732,-332"/>
 <text text-anchor="middle" x="1044.5" y="-391.8" font-family="Times New Roman,serif" font-size="14.00">frontend</text>
 </g>
+<g id="clust4" class="cluster">
+<title>cluster_zeroday</title>
+<polygon fill="none" stroke="black" points="1377,-332 1377,-407 1571,-407 1571,-332 1377,-332"/>
+<text text-anchor="middle" x="1474" y="-391.8" font-family="Times New Roman,serif" font-size="14.00">zeroday</text>
+</g>
 <g id="clust5" class="cluster">
 <title>cluster_legend</title>
 <polygon fill="none" stroke="black" points="1594,-340 1594,-518.79 1989,-518.79 1989,-340 1594,-340"/>
 <text text-anchor="middle" x="1791.5" y="-506.79" font-family="Times New Roman,serif" font-size="10.00">Legend</text>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_zeroday</title>
-<polygon fill="none" stroke="black" points="1377,-332 1377,-407 1571,-407 1571,-332 1377,-332"/>
-<text text-anchor="middle" x="1474" y="-391.8" font-family="Times New Roman,serif" font-size="14.00">zeroday</text>
+<g id="clust1" class="cluster">
+<title>cluster_backend</title>
+<polygon fill="none" stroke="black" points="864,-8 864,-299 1494,-299 1494,-8 864,-8"/>
+<text text-anchor="middle" x="1179" y="-283.8" font-family="Times New Roman,serif" font-size="14.00">backend</text>
 </g>
 <!-- backend/catalog[Deployment] -->
 <g id="node1" class="node">

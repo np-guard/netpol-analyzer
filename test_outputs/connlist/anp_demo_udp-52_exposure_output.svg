@@ -8,20 +8,25 @@
  viewBox="0.00 0.00 1129.34 386.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 382)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-382 1125.34,-382 1125.34,4 -4,4"/>
-<g id="clust3" class="cluster">
-<title>cluster_ravenclaw</title>
-<polygon fill="none" stroke="black" points="785.34,-187 785.34,-262 1113.34,-262 1113.34,-187 785.34,-187"/>
-<text text-anchor="middle" x="949.34" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">ravenclaw</text>
+<g id="clust2" class="cluster">
+<title>cluster_hufflepuff</title>
+<polygon fill="none" stroke="black" points="32.34,-79 32.34,-154 266.34,-154 266.34,-79 32.34,-79"/>
+<text text-anchor="middle" x="149.34" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">hufflepuff</text>
 </g>
 <g id="clust1" class="cluster">
 <title>cluster_gryffindor</title>
 <polygon fill="none" stroke="black" points="432.34,-79 432.34,-154 646.34,-154 646.34,-79 432.34,-79"/>
 <text text-anchor="middle" x="539.34" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">gryffindor</text>
 </g>
-<g id="clust2" class="cluster">
-<title>cluster_hufflepuff</title>
-<polygon fill="none" stroke="black" points="32.34,-79 32.34,-154 266.34,-154 266.34,-79 32.34,-79"/>
-<text text-anchor="middle" x="149.34" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">hufflepuff</text>
+<g id="clust3" class="cluster">
+<title>cluster_ravenclaw</title>
+<polygon fill="none" stroke="black" points="785.34,-187 785.34,-262 1113.34,-262 1113.34,-187 785.34,-187"/>
+<text text-anchor="middle" x="949.34" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">ravenclaw</text>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_namespace with {conformance_house=slytherin}</title>
+<polygon fill="none" stroke="#ee0000" points="415.34,-187 415.34,-262 703.34,-262 703.34,-187 415.34,-187"/>
+<text text-anchor="middle" x="559.34" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {conformance&#45;house=slytherin}</text>
 </g>
 <g id="clust5" class="cluster">
 <title>cluster_namespace with {conformance_house=gryffindor}</title>
@@ -32,11 +37,6 @@
 <title>cluster_slytherin</title>
 <polygon fill="none" stroke="black" points="181.34,-187 181.34,-262 407.34,-262 407.34,-187 181.34,-187"/>
 <text text-anchor="middle" x="294.34" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">slytherin</text>
-</g>
-<g id="clust6" class="cluster">
-<title>cluster_namespace with {conformance_house=slytherin}</title>
-<polygon fill="none" stroke="#ee0000" points="415.34,-187 415.34,-262 703.34,-262 703.34,-187 415.34,-187"/>
-<text text-anchor="middle" x="559.34" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {conformance&#45;house=slytherin}</text>
 </g>
 <!-- gryffindor/harry&#45;potter[StatefulSet] -->
 <g id="node1" class="node">
@@ -70,17 +70,17 @@
 <polygon fill="#eec900" stroke="#eec900" points="331.24,-187.8 324.01,-195.54 334.49,-194 331.24,-187.8"/>
 <text text-anchor="middle" x="419.34" y="-165.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 52</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255[External] -->
+<!-- 0.0.0.0&#45;255.255.255.255 -->
 <g id="node8" class="node">
-<title>0.0.0.0&#45;255.255.255.255[External]</title>
-<ellipse fill="none" stroke="#ee0000" cx="294.34" cy="-18" rx="133.78" ry="18"/>
-<text text-anchor="middle" x="294.34" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255[External]</text>
+<title>0.0.0.0&#45;255.255.255.255</title>
+<ellipse fill="none" stroke="#ee0000" cx="294.34" cy="-18" rx="98.58" ry="18"/>
+<text text-anchor="middle" x="294.34" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255</text>
 </g>
-<!-- gryffindor/harry&#45;potter[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
+<!-- gryffindor/harry&#45;potter[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge8" class="edge">
-<title>gryffindor/harry&#45;potter[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
-<path fill="none" stroke="#eec900" d="M495.54,-88.8C454.85,-74.69 394.07,-53.6 349.96,-38.3"/>
-<polygon fill="#eec900" stroke="#eec900" points="350.85,-34.9 340.26,-34.93 348.56,-41.51 350.85,-34.9"/>
+<title>gryffindor/harry&#45;potter[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
+<path fill="none" stroke="#eec900" d="M495.54,-88.8C454.21,-74.46 392.15,-52.93 347.89,-37.58"/>
+<polygon fill="#eec900" stroke="#eec900" points="348.77,-34.18 338.18,-34.21 346.48,-40.79 348.77,-34.18"/>
 <text text-anchor="middle" x="454.34" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 52</text>
 </g>
 <!-- entire&#45;cluster -->
@@ -102,11 +102,11 @@
 <ellipse fill="none" stroke="blue" cx="149.34" cy="-105" rx="108.58" ry="18"/>
 <text text-anchor="middle" x="149.34" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">cedric&#45;diggory[StatefulSet]</text>
 </g>
-<!-- hufflepuff/cedric&#45;diggory[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
+<!-- hufflepuff/cedric&#45;diggory[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge12" class="edge">
-<title>hufflepuff/cedric&#45;diggory[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
-<path fill="none" stroke="#eec900" d="M177.27,-87.54C193.85,-77.77 215.28,-65.16 234.34,-54 241.51,-49.8 249.17,-45.33 256.53,-41.03"/>
-<polygon fill="#eec900" stroke="#eec900" points="258.77,-43.78 265.64,-35.71 255.24,-37.73 258.77,-43.78"/>
+<title>hufflepuff/cedric&#45;diggory[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
+<path fill="none" stroke="#eec900" d="M177.27,-87.54C193.85,-77.77 215.28,-65.16 234.34,-54 241.82,-49.62 249.83,-44.94 257.48,-40.47"/>
+<polygon fill="#eec900" stroke="#eec900" points="259.37,-43.42 266.25,-35.36 255.84,-37.38 259.37,-43.42"/>
 <text text-anchor="middle" x="257.34" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 52</text>
 </g>
 <!-- hufflepuff/cedric&#45;diggory[StatefulSet]&#45;&gt;entire&#45;cluster -->
@@ -143,9 +143,9 @@
 <polygon fill="#eec900" stroke="#eec900" points="177.66,-127.05 167.85,-123.02 173.01,-132.28 177.66,-127.05"/>
 <text text-anchor="middle" x="257.34" y="-165.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 52</text>
 </g>
-<!-- slytherin/draco&#45;malfoy[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
+<!-- slytherin/draco&#45;malfoy[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
 <g id="edge14" class="edge">
-<title>slytherin/draco&#45;malfoy[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
+<title>slytherin/draco&#45;malfoy[StatefulSet]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
 <path fill="none" stroke="#eec900" d="M294.34,-194.87C294.34,-161.32 294.34,-86.71 294.34,-46.29"/>
 <polygon fill="#eec900" stroke="#eec900" points="297.84,-46.09 294.34,-36.09 290.84,-46.09 297.84,-46.09"/>
 <text text-anchor="middle" x="317.34" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 52</text>
@@ -183,17 +183,17 @@
 <polygon fill="#ee7600" stroke="#ee7600" points="542.84,-133.34 539.34,-123.34 535.84,-133.34 542.84,-133.34"/>
 <text text-anchor="middle" x="562.34" y="-165.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 52</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;hufflepuff/cedric&#45;diggory[StatefulSet] -->
+<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;hufflepuff/cedric&#45;diggory[StatefulSet] -->
 <g id="edge1" class="edge">
-<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;hufflepuff/cedric&#45;diggory[StatefulSet]</title>
-<path fill="none" stroke="#eec900" d="M198.46,-30.74C184.62,-36.03 171.61,-43.5 161.34,-54 155.46,-60.01 152.28,-68.37 150.61,-76.54"/>
+<title>0.0.0.0&#45;255.255.255.255&#45;&gt;hufflepuff/cedric&#45;diggory[StatefulSet]</title>
+<path fill="none" stroke="#eec900" d="M209.06,-27.13C191.35,-32.46 174.2,-40.86 161.34,-54 155.46,-60.01 152.28,-68.37 150.61,-76.54"/>
 <polygon fill="#eec900" stroke="#eec900" points="147.13,-76.2 149.22,-86.58 154.06,-77.16 147.13,-76.2"/>
 <text text-anchor="middle" x="184.34" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 52</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;slytherin/draco&#45;malfoy[StatefulSet] -->
+<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;slytherin/draco&#45;malfoy[StatefulSet] -->
 <g id="edge2" class="edge">
-<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;slytherin/draco&#45;malfoy[StatefulSet]</title>
-<path fill="none" stroke="#eec900" d="M314.14,-36C325.34,-46.98 338.29,-62.3 344.34,-79 355.69,-110.34 355.95,-122.75 344.34,-154 339.63,-166.69 330.76,-178.45 321.78,-188.03"/>
+<title>0.0.0.0&#45;255.255.255.255&#45;&gt;slytherin/draco&#45;malfoy[StatefulSet]</title>
+<path fill="none" stroke="#eec900" d="M313.88,-35.75C325.14,-46.74 338.25,-62.17 344.34,-79 355.69,-110.34 355.95,-122.75 344.34,-154 339.63,-166.69 330.76,-178.45 321.78,-188.03"/>
 <polygon fill="#eec900" stroke="#eec900" points="319.21,-185.65 314.64,-195.21 324.17,-190.59 319.21,-185.65"/>
 <text text-anchor="middle" x="375.34" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">UDP 52</text>
 </g>
