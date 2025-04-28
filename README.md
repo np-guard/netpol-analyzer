@@ -70,7 +70,7 @@ Flags:
       --explain-only        string    Filter explain output to show only allowed or denied connections, applies only when explain is used; must be one of allow,deny
       --focus-conn          string    Filter output to show results for a specific connection (connection format <protocolName-portNumber>)
   -h, --help                          help for list
-  -o, --output string                 Required output format; must be one of txt,json,dot,csv,md (default "txt")
+  -o, --output string                 Required output format; must be one of txt,json,dot,svg,csv,md (default "txt")
 
 Global Flags:
   -c, --context     string    Kubernetes context to use when evaluating connections in a live cluster
@@ -96,7 +96,7 @@ Flags:
       --dir1    string  First resources dir path
       --dir2    string  Second resources dir path to be compared with the first dir path
   -f, --file    string  Write output to specified file
-  -o, --output  string  Required output format; must be one of txt,csv,md,dot (default "txt")  
+  -o, --output  string  Required output format; must be one of txt,csv,md,dot,svg (default "txt")  
   -h, --help            help for diff
 
 Global Flags:

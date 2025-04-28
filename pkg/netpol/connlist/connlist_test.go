@@ -84,6 +84,7 @@ func TestConnListFromDir(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
+				testutils.SkipRunningSVGTestOnGithub(t, format)
 				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, tt.focusConn,
 					format, tt.exposureAnalysis)
 				res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
@@ -103,6 +104,7 @@ func TestConnListFromResourceInfos(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
+				testutils.SkipRunningSVGTestOnGithub(t, format)
 				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, tt.focusConn,
 					format, tt.exposureAnalysis)
 				infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
