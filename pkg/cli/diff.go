@@ -75,7 +75,7 @@ func newCommandDiff() *cobra.Command {
 			if dir1 == "" || dir2 == "" {
 				return errors.New(netpolerrors.RequiredFlagsErr)
 			}
-			if err := diff.ValidateDiffOutputFormat(outFormat); err != nil {
+			if err := outconsts.ValidateOutputFormat(outFormat, diff.ValidDiffFormats); err != nil {
 				return err
 			}
 			return nil

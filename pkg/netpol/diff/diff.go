@@ -278,7 +278,7 @@ func getPeersSliceFromSet(peersMap map[string]eval.Peer) []eval.Peer {
 }
 
 // ValidDiffFormats are the supported formats for output generation of the diff command
-var ValidDiffFormats = []string{output.TextFormat, output.CSVFormat, output.MDFormat, output.DOTFormat}
+var ValidDiffFormats = []string{output.TextFormat, output.CSVFormat, output.MDFormat, output.DOTFormat, output.SVGFormat}
 
 // ConnectivityDiffToString returns a string of connections diff from connectivityDiff object in the required output format
 func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDiff) (string, error) {
@@ -302,7 +302,7 @@ func (da *DiffAnalyzer) ConnectivityDiffToString(connectivityDiff ConnectivityDi
 
 // returns the relevant formatter for the analyzer's outputFormat
 func getFormatter(format, ref1Name, ref2Name string) (diffFormatter, error) {
-	if err := ValidateDiffOutputFormat(format); err != nil {
+	if err := output.ValidateOutputFormat(format, ValidDiffFormats); err != nil {
 		return nil, err
 	}
 	switch format {
@@ -314,19 +314,11 @@ func getFormatter(format, ref1Name, ref2Name string) (diffFormatter, error) {
 		return &diffFormatMD{ref1: ref1Name, ref2: ref2Name}, nil
 	case output.DOTFormat:
 		return &diffFormatDOT{ref1: ref1Name, ref2: ref2Name}, nil
+	case output.SVGFormat:
+		return &diffFormatSVG{ref1: ref1Name, ref2: ref2Name}, nil
 	default:
 		return &diffFormatText{ref1: ref1Name, ref2: ref2Name}, nil
 	}
-}
-
-// ValidateDiffOutputFormat validate the value of the diff output format
-func ValidateDiffOutputFormat(format string) error {
-	for _, formatName := range ValidDiffFormats {
-		if format == formatName {
-			return nil
-		}
-	}
-	return errors.New(netpolerrors.FormatNotSupportedErrStr(format))
 }
 
 ////////////////////////////////////////////
