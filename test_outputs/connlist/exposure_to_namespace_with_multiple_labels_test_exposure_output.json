@@ -2,7 +2,7 @@
   "connlist_results": [
     {
       "src": "hello-world/workload-a[Deployment]",
-      "dst": "0.0.0.0-255.255.255.255",
+      "dst": "0.0.0.0-255.255.255.255[External]",
       "conn": "All Connections"
     }
   ],
@@ -10,7 +10,7 @@
     "egress_exposure": [
       {
         "src": "hello-world/workload-a[Deployment]",
-        "dst": "0.0.0.0-255.255.255.255",
+        "dst": "0.0.0.0-255.255.255.255[External]",
         "conn": "All Connections"
       },
       {

@@ -3,13 +3,13 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255 => helloworld/pod-a[Deployment]:
+Connections between 0.0.0.0-255.255.255.255[External] => helloworld/pod-a[Deployment]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'helloworld/enable-ingress-from-named-port' selects helloworld/pod-a[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
+			NetworkPolicy 'helloworld/enable-ingress-from-named-port' selects helloworld/pod-a[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between helloworld/new-pod[Deployment] => helloworld/pod-a[Deployment]:
@@ -21,12 +21,12 @@ Denied connections:
 			NetworkPolicy 'helloworld/enable-ingress-from-named-port' selects helloworld/pod-a[Deployment], and Ingress rule #1 selects helloworld/new-pod[Deployment], but named ports of the rule have no match in the configuration of the destination peer
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between helloworld/pod-a[Deployment] => 0.0.0.0-255.255.255.255:
+Connections between helloworld/pod-a[Deployment] => 0.0.0.0-255.255.255.255[External]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Denied)
-			NetworkPolicy 'helloworld/enable-ingress-from-named-port' selects helloworld/pod-a[Deployment], but 0.0.0.0-255.255.255.255 is not allowed by any Egress rule (no rules defined)
+			NetworkPolicy 'helloworld/enable-ingress-from-named-port' selects helloworld/pod-a[Deployment], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
 		Ingress (Allowed) due to the system default (Allow all)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -42,5 +42,5 @@ Denied connections:
 #########################################################
 # All Connections due to the system default (Allow all) #
 #########################################################
-0.0.0.0-255.255.255.255 => helloworld/new-pod[Deployment]
-helloworld/new-pod[Deployment] => 0.0.0.0-255.255.255.255
+0.0.0.0-255.255.255.255[External] => helloworld/new-pod[Deployment]
+helloworld/new-pod[Deployment] => 0.0.0.0-255.255.255.255[External]

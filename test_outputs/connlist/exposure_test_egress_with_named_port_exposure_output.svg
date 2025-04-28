@@ -8,15 +8,15 @@
  viewBox="0.00 0.00 491.00 276.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 272)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-272 487,-272 487,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_hello_world</title>
-<polygon fill="none" stroke="black" points="117,-116 117,-191 335,-191 335,-116 117,-116"/>
-<text text-anchor="middle" x="226" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
-</g>
 <g id="clust2" class="cluster">
 <title>cluster_namespace with {{Key:foo.com/managed_state,Operator:In,Values:[managed],}}</title>
 <polygon fill="none" stroke="#ee0000" points="8,-8 8,-83 475,-83 475,-8 8,-8"/>
 <text text-anchor="middle" x="241.5" y="-67.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {{Key:foo.com/managed&#45;state,Operator:In,Values:[managed],}}</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_hello_world</title>
+<polygon fill="none" stroke="black" points="117,-116 117,-191 335,-191 335,-116 117,-116"/>
+<text text-anchor="middle" x="226" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
 <g id="node1" class="node">

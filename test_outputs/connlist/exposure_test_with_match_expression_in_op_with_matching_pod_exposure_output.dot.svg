@@ -42,17 +42,17 @@
 <polygon fill="#eec900" stroke="#eec900" points="239.89,-193.28 230.64,-198.45 241.09,-200.17 239.89,-193.28"/>
 <text text-anchor="middle" x="424.5" y="-165.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255 -->
+<!-- 0.0.0.0&#45;255.255.255.255[External] -->
 <g id="node4" class="node">
-<title>0.0.0.0&#45;255.255.255.255</title>
-<ellipse fill="none" stroke="#ee0000" cx="163" cy="-18" rx="98.58" ry="18"/>
-<text text-anchor="middle" x="163" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255</text>
+<title>0.0.0.0&#45;255.255.255.255[External]</title>
+<ellipse fill="none" stroke="#ee0000" cx="163" cy="-18" rx="133.78" ry="18"/>
+<text text-anchor="middle" x="163" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255[External]</text>
 </g>
-<!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- hello&#45;world/workload&#45;a[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge3" class="edge">
-<title>hello&#45;world/workload&#45;a[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
-<path fill="none" stroke="#eec900" d="M433.6,-89.77C376.6,-74.87 287.12,-51.46 226.82,-35.69"/>
-<polygon fill="#eec900" stroke="#eec900" points="227.59,-32.28 217.03,-33.13 225.82,-39.05 227.59,-32.28"/>
+<title>hello&#45;world/workload&#45;a[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
+<path fill="none" stroke="#eec900" d="M433.6,-89.77C377.97,-75.22 291.4,-52.58 231.22,-36.84"/>
+<polygon fill="#eec900" stroke="#eec900" points="231.98,-33.42 221.42,-34.28 230.21,-40.2 231.98,-33.42"/>
 <text text-anchor="middle" x="389.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- entire&#45;cluster -->
@@ -75,9 +75,9 @@
 <polygon fill="#eec900" stroke="#eec900" points="449.7,-129.63 457.21,-122.16 446.68,-123.31 449.7,-129.63"/>
 <text text-anchor="middle" x="292.5" y="-165.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- matching&#45;ns/matching&#45;workload1[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- matching&#45;ns/matching&#45;workload1[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge6" class="edge">
-<title>matching&#45;ns/matching&#45;workload1[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
+<title>matching&#45;ns/matching&#45;workload1[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
 <path fill="none" stroke="#eec900" d="M149.92,-194.73C148.57,-169.31 146.9,-120.36 151,-79 152.07,-68.17 154.21,-56.41 156.38,-46.18"/>
 <polygon fill="#eec900" stroke="#eec900" points="159.85,-46.72 158.62,-36.19 153.02,-45.19 159.85,-46.72"/>
 <text text-anchor="middle" x="196.5" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
@@ -102,10 +102,10 @@
 <polygon fill="#ee7600" stroke="#ee7600" points="501.44,-131.05 494.57,-122.99 494.91,-133.58 501.44,-131.05"/>
 <text text-anchor="middle" x="559.5" y="-165.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;matching&#45;ns/matching&#45;workload1[Deployment] -->
+<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;matching&#45;ns/matching&#45;workload1[Deployment] -->
 <g id="edge1" class="edge">
-<title>0.0.0.0&#45;255.255.255.255&#45;&gt;matching&#45;ns/matching&#45;workload1[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M198.87,-34.99C216.5,-44.91 236.05,-59.53 246,-79 261.17,-108.68 266.41,-127.65 246,-154 237.29,-165.25 227.76,-155.71 215,-162 201.16,-168.82 187.46,-178.95 176.3,-188.31"/>
+<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;matching&#45;ns/matching&#45;workload1[Deployment]</title>
+<path fill="none" stroke="#eec900" d="M199.73,-35.48C217.13,-45.39 236.21,-59.84 246,-79 261.17,-108.68 266.41,-127.65 246,-154 237.29,-165.25 227.76,-155.71 215,-162 201.16,-168.82 187.46,-178.95 176.3,-188.31"/>
 <polygon fill="#eec900" stroke="#eec900" points="173.93,-185.73 168.67,-194.93 178.51,-191.02 173.93,-185.73"/>
 <text text-anchor="middle" x="304.5" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>

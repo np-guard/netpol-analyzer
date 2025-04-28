@@ -1,5 +1,5 @@
-0.0.0.0-255.255.255.255 => default/details-v1-79f774bdb9[ReplicaSet] : All Connections
-default/details-v1-79f774bdb9[ReplicaSet] => 0.0.0.0-255.255.255.255 : All Connections
+0.0.0.0-255.255.255.255[External] => default/details-v1-79f774bdb9[ReplicaSet] : All Connections
+default/details-v1-79f774bdb9[ReplicaSet] => 0.0.0.0-255.255.255.255[External] : All Connections
 default/details-v1-79f774bdb9[ReplicaSet] => default/productpage-v1-6b746f74dc[ReplicaSet] : All Connections
 default/details-v1-79f774bdb9[ReplicaSet] => default/ratings-v1-b6994bb9[ReplicaSet] : All Connections
 default/details-v1-79f774bdb9[ReplicaSet] => default/reviews-v1-545db77b95[ReplicaSet] : All Connections

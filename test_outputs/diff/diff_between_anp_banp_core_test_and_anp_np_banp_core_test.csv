@@ -1,6 +1,6 @@
 diff-type,source,destination,ref1,ref2,workloads-diff-info
-added,0.0.0.0-255.255.255.255,network-policy-conformance-gryffindor/harry-potter[StatefulSet],No Connections,All Connections,
-added,network-policy-conformance-gryffindor/harry-potter[StatefulSet],0.0.0.0-255.255.255.255,No Connections,All Connections,
+added,0.0.0.0-255.255.255.255[External],network-policy-conformance-gryffindor/harry-potter[StatefulSet],No Connections,All Connections,
+added,network-policy-conformance-gryffindor/harry-potter[StatefulSet],0.0.0.0-255.255.255.255[External],No Connections,All Connections,
 added,network-policy-conformance-gryffindor/harry-potter[StatefulSet],network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet],No Connections,All Connections,
 added,network-policy-conformance-gryffindor/harry-potter[StatefulSet],network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet],No Connections,All Connections,
 added,network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet],network-policy-conformance-gryffindor/harry-potter[StatefulSet],No Connections,All Connections,

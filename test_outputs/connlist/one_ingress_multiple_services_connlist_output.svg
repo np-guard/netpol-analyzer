@@ -19,23 +19,23 @@
 <ellipse fill="none" stroke="blue" cx="179" cy="-105" rx="163.27" ry="18"/>
 <text text-anchor="middle" x="179" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">ingress&#45;world&#45;multiple&#45;ports[Deployment]</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255 -->
+<!-- 0.0.0.0&#45;255.255.255.255[External] -->
 <g id="node2" class="node">
-<title>0.0.0.0&#45;255.255.255.255</title>
-<ellipse fill="none" stroke="#ee0000" cx="179" cy="-18" rx="98.58" ry="18"/>
-<text text-anchor="middle" x="179" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255</text>
+<title>0.0.0.0&#45;255.255.255.255[External]</title>
+<ellipse fill="none" stroke="#ee0000" cx="179" cy="-18" rx="133.78" ry="18"/>
+<text text-anchor="middle" x="179" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255[External]</text>
 </g>
-<!-- ingressworld/ingress&#45;world&#45;multiple&#45;ports[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- ingressworld/ingress&#45;world&#45;multiple&#45;ports[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge2" class="edge">
-<title>ingressworld/ingress&#45;world&#45;multiple&#45;ports[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
+<title>ingressworld/ingress&#45;world&#45;multiple&#45;ports[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
 <path fill="none" stroke="#eec900" d="M177.24,-86.93C176.73,-81.23 176.25,-74.85 176,-69 175.69,-61.64 175.91,-53.69 176.34,-46.33"/>
 <polygon fill="#eec900" stroke="#eec900" points="179.85,-46.35 177.1,-36.12 172.87,-45.83 179.85,-46.35"/>
 <text text-anchor="middle" x="221.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;ingressworld/ingress&#45;world&#45;multiple&#45;ports[Deployment] -->
+<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;ingressworld/ingress&#45;world&#45;multiple&#45;ports[Deployment] -->
 <g id="edge1" class="edge">
-<title>0.0.0.0&#45;255.255.255.255&#45;&gt;ingressworld/ingress&#45;world&#45;multiple&#45;ports[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M242.19,-31.93C265.2,-39.75 282.97,-51.64 271,-69 267.24,-74.45 262.52,-79.05 257.21,-82.93"/>
+<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;ingressworld/ingress&#45;world&#45;multiple&#45;ports[Deployment]</title>
+<path fill="none" stroke="#eec900" d="M246.87,-33.6C267.51,-41.41 282.14,-52.84 271,-69 267.24,-74.45 262.52,-79.05 257.21,-82.93"/>
 <polygon fill="#eec900" stroke="#eec900" points="255.02,-80.17 248.42,-88.47 258.75,-86.1 255.02,-80.17"/>
 <text text-anchor="middle" x="319.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>

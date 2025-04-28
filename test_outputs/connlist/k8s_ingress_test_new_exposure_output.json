@@ -1,7 +1,7 @@
 {
   "connlist_results": [
     {
-      "src": "0.0.0.0-255.255.255.255",
+      "src": "0.0.0.0-255.255.255.255[External]",
       "dst": "default/unicorn[Deployment]",
       "conn": "All Connections"
     },
@@ -37,7 +37,7 @@
     },
     {
       "src": "default/unicorn[Deployment]",
-      "dst": "0.0.0.0-255.255.255.255",
+      "dst": "0.0.0.0-255.255.255.255[External]",
       "conn": "All Connections"
     },
     {
@@ -60,7 +60,7 @@
     "egress_exposure": [
       {
         "src": "default/unicorn[Deployment]",
-        "dst": "0.0.0.0-255.255.255.255",
+        "dst": "0.0.0.0-255.255.255.255[External]",
         "conn": "All Connections"
       },
       {
@@ -76,7 +76,7 @@
         "conn": "TCP 9080"
       },
       {
-        "src": "0.0.0.0-255.255.255.255",
+        "src": "0.0.0.0-255.255.255.255[External]",
         "dst": "default/unicorn[Deployment]",
         "conn": "All Connections"
       },
