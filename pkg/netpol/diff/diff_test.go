@@ -757,7 +757,7 @@ var goodPathTests = []struct {
 		// namespaces are blocked (no policies in the resources)
 		firstDirName:  "only_pods_test",
 		secondDirName: "udn_test_1",
-		formats:       allFormats,
+		formats:       ValidDiffFormats,
 	},
 }
 
