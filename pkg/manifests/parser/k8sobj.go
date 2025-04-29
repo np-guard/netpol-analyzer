@@ -18,6 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	udnv1 "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/userdefinednetwork/v1"
+	kubevirt "kubevirt.io/api/core/v1"
 )
 
 // relevant K8s resource kinds as string values
@@ -45,6 +46,8 @@ const (
 	BaselineAdminNetworkPolicyList string = "BaselineAdminNetworkPolicyList" // a list with max 1 object according to apis/v1alpha
 	UserDefinedNetwork             string = "UserDefinedNetwork"
 	UserDefinedNetworkList         string = "UserDefinedNetworkList"
+	VirtualMachine                 string = "VirtualMachine"
+	VirtualMachineList             string = "VirtualMachineList"
 )
 
 // K8sObject holds a an object kind and a pointer of the relevant object
@@ -79,10 +82,11 @@ type K8sObject struct {
 
 	// ovn-k8s objects
 	UserDefinedNetwork *udnv1.UserDefinedNetwork
+	VirtualMachine     *kubevirt.VirtualMachine
 }
 
 //gocyclo:ignore
-func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
+func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} { //nolint:funlen // should not break this up
 	switch kind {
 	case Deployment:
 		k.Deployment = &appsv1.Deployment{}
@@ -132,6 +136,9 @@ func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
 	case UserDefinedNetwork:
 		k.UserDefinedNetwork = &udnv1.UserDefinedNetwork{}
 		return k.UserDefinedNetwork
+	case VirtualMachine:
+		k.VirtualMachine = &kubevirt.VirtualMachine{}
+		return k.VirtualMachine
 	}
 	return nil
 }
@@ -191,6 +198,10 @@ func (k *K8sObject) initDefaultNamespace() {
 	case UserDefinedNetwork:
 		if k.UserDefinedNetwork.Namespace == "" {
 			k.UserDefinedNetwork.Namespace = metav1.NamespaceDefault
+		}
+	case VirtualMachine:
+		if k.VirtualMachine.Namespace == "" {
+			k.VirtualMachine.Namespace = metav1.NamespaceDefault
 		}
 	}
 }
@@ -263,6 +274,10 @@ func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) 
 			}
 		case UserDefinedNetwork:
 			if _, ok := nsMap[obj.UserDefinedNetwork.Namespace]; ok {
+				res = append(res, obj)
+			}
+		case VirtualMachine:
+			if _, ok := nsMap[obj.VirtualMachine.Namespace]; ok {
 				res = append(res, obj)
 			}
 		case AdminNetworkPolicy:
