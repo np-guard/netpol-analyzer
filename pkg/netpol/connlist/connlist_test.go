@@ -2113,6 +2113,32 @@ var goodPathTests = []struct {
 		testDirName:   "udn_test_4",
 		outputFormats: ValidFormats,
 	},
+	// tests involving udn(s) and virtual-machine workloads
+	{
+		testDirName:   "udn_and_vms_test_1",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "udn_and_vms_test_2",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "udn_and_vms_test_3",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "udn_and_vms_test_4",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "udn_and_vms_test_5",
+		outputFormats: ValidFormats,
+	},
+	{
+		// virtual-machine(s) test in the default namespace (without-udn)
+		testDirName:   "virtual_machines_example",
+		outputFormats: ValidFormats,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

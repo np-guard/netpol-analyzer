@@ -318,4 +318,7 @@ var explainTests = []struct {
 		focusConn:   "tcp-8080",
 		exposure:    true,
 	},
+	{
+		testDirName: "virtual_machines_example",
+	},
 }

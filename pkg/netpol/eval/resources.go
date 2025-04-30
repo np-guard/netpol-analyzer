@@ -26,6 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	kubevirt "kubevirt.io/api/core/v1"
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 	policyapi "sigs.k8s.io/network-policy-api/pkg/client/clientset/versioned"
 
@@ -253,6 +254,8 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 			err = pe.InsertObject(obj.Job)
 		case parser.CronJob:
 			err = pe.InsertObject(obj.CronJob)
+		case parser.VirtualMachine:
+			err = pe.InsertObject(obj.VirtualMachine)
 		case parser.AdminNetworkPolicy:
 			err = pe.InsertObject(obj.AdminNetworkPolicy)
 		case parser.BaselineAdminNetworkPolicy:
@@ -435,6 +438,8 @@ func (pe *PolicyEngine) InsertObject(rtObj runtime.Object) error {
 		return pe.insertWorkload(obj, parser.CronJob)
 	case *batchv1.Job:
 		return pe.insertWorkload(obj, parser.Job)
+	case *kubevirt.VirtualMachine:
+		return pe.insertWorkload(obj, parser.VirtualMachine)
 	case *apisv1a.AdminNetworkPolicy:
 		return pe.insertAdminNetworkPolicy(obj)
 	case *apisv1a.BaselineAdminNetworkPolicy:
@@ -645,10 +650,17 @@ func (pe *PolicyEngine) insertWorkload(rs interface{}, kind string) error {
 	return err
 }
 
+const virtLauncherPrefix = "virt-launcher-"
+
 func (pe *PolicyEngine) insertPod(pod *corev1.Pod) error {
 	podObj, err := k8s.PodFromCoreObject(pod)
 	if err != nil {
 		return err
+	}
+	// skip "virt-launcher" pods, as this pod is a wrapper for its attached VM/VMI and does not communicate with other pods directly
+	if strings.HasPrefix(podObj.Name, virtLauncherPrefix) {
+		pe.logger.Infof("skipping virt-launcher pod: " + podObj.Name + " as it is a launcher pod managing a VirtualMachine")
+		return nil
 	}
 	podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
 	pe.podsMap[podStr.String()] = podObj

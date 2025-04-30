@@ -228,6 +228,7 @@ var workloadKinds = map[string]bool{
 	Job:                   true,
 	CronJob:               true,
 	ReplicationController: true,
+	VirtualMachine:        true,
 }
 
 var policyKinds = map[string]bool{
