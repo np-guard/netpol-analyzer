@@ -16,8 +16,8 @@ digraph {
 		"default/shippingservice[Deployment]" [label="shippingservice[Deployment]" color="blue" fontcolor="blue"]
 		label="default"
 	}
-	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
-	"0.0.0.0-255.255.255.255" -> "default/redis-cart[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "default/redis-cart[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"default/checkoutservice[Deployment]" -> "default/cartservice[Deployment]" [label="TCP 7070" color="gold2" fontcolor="darkgreen" weight=1]
 	"default/checkoutservice[Deployment]" -> "default/currencyservice[Deployment]" [label="TCP 7000" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"default/checkoutservice[Deployment]" -> "default/emailservice[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=0.5]
@@ -33,5 +33,5 @@ digraph {
 	"default/frontend[Deployment]" -> "default/shippingservice[Deployment]" [label="TCP 50051" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"default/loadgenerator[Deployment]" -> "default/frontend[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=1]
 	"default/recommendationservice[Deployment]" -> "default/productcatalogservice[Deployment]" [label="TCP 3550" color="gold2" fontcolor="darkgreen" weight=1]
-	"default/redis-cart[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/redis-cart[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 }

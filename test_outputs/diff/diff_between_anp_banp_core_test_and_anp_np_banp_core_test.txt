@@ -1,6 +1,6 @@
 Connectivity diff:
-diff-type: added, source: 0.0.0.0-255.255.255.255, destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: No Connections, ref2: All Connections
-diff-type: added, source: network-policy-conformance-gryffindor/harry-potter[StatefulSet], destination: 0.0.0.0-255.255.255.255, ref1: No Connections, ref2: All Connections
+diff-type: added, source: 0.0.0.0-255.255.255.255[External], destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: No Connections, ref2: All Connections
+diff-type: added, source: network-policy-conformance-gryffindor/harry-potter[StatefulSet], destination: 0.0.0.0-255.255.255.255[External], ref1: No Connections, ref2: All Connections
 diff-type: added, source: network-policy-conformance-gryffindor/harry-potter[StatefulSet], destination: network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet], ref1: No Connections, ref2: All Connections
 diff-type: added, source: network-policy-conformance-gryffindor/harry-potter[StatefulSet], destination: network-policy-conformance-ravenclaw/luna-lovegood[StatefulSet], ref1: No Connections, ref2: All Connections
 diff-type: added, source: network-policy-conformance-hufflepuff/cedric-diggory[StatefulSet], destination: network-policy-conformance-gryffindor/harry-potter[StatefulSet], ref1: No Connections, ref2: All Connections

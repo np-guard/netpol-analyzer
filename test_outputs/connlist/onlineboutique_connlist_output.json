@@ -1,6 +1,6 @@
 [
   {
-    "src": "0.0.0.0-255.255.255.255",
+    "src": "0.0.0.0-255.255.255.255[External]",
     "dst": "default/redis-cart-78746d49dc[ReplicaSet]",
     "conn": "All Connections"
   },
@@ -81,7 +81,7 @@
   },
   {
     "src": "default/redis-cart-78746d49dc[ReplicaSet]",
-    "dst": "0.0.0.0-255.255.255.255",
+    "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   }
 ]

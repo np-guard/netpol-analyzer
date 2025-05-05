@@ -31,9 +31,9 @@ digraph {
 		"payments/visa-processor[Deployment]" [label="visa-processor[Deployment]" color="blue" fontcolor="blue"]
 		label="payments"
 	}
-	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="blue" fontcolor="blue"]
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
-	"0.0.0.0-255.255.255.255" -> "external/unicorn[Deployment]" [label="All Connections" color="#008000" fontcolor="#008000" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "external/unicorn[Deployment]" [label="All Connections" color="#008000" fontcolor="#008000" weight=0.5]
 	"backend/checkout[Deployment]" -> "backend/notification[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey" weight=0.5]
 	"backend/checkout[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey" weight=0.5]
 	"backend/checkout[Deployment]" -> "external/unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000" weight=0.5]
@@ -43,7 +43,7 @@ digraph {
 	"backend/reports[Deployment]" -> "backend/catalog[Deployment]" [label="TCP 9080 (ref1: TCP 8080)" color="magenta" fontcolor="magenta" weight=1]
 	"backend/reports[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey" weight=1]
 	"backend/reports[Deployment]" -> "external/unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000" weight=0.5]
-	"external/unicorn[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="#008000" fontcolor="#008000" weight=1]
+	"external/unicorn[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="#008000" fontcolor="#008000" weight=1]
 	"external/unicorn[Deployment]" -> "frontend/webapp[Deployment]" [label="TCP 8080" color="#008000" fontcolor="#008000" weight=0.5]
 	"frontend/webapp[Deployment]" -> "backend/checkout[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey" weight=1]
 	"frontend/webapp[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey" weight=1]

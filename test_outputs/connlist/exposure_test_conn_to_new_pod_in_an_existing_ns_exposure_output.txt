@@ -1,15 +1,15 @@
-0.0.0.0-255.255.255.255 => backend/backend-app[Deployment] : All Connections
-backend/backend-app[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+0.0.0.0-255.255.255.255[External] => backend/backend-app[Deployment] : All Connections
+backend/backend-app[Deployment] => 0.0.0.0-255.255.255.255[External] : All Connections
 hello-world/workload-a[Deployment] => backend/backend-app[Deployment] : All Connections
 
 Exposure Analysis Result:
 Egress Exposure:
-backend/backend-app[Deployment]    	=> 	0.0.0.0-255.255.255.255 : All Connections
+backend/backend-app[Deployment]    	=> 	0.0.0.0-255.255.255.255[External] : All Connections
 backend/backend-app[Deployment]    	=> 	entire-cluster : All Connections
 hello-world/workload-a[Deployment] 	=> 	entire-cluster : All Connections
 
 Ingress Exposure:
-backend/backend-app[Deployment]    	<= 	0.0.0.0-255.255.255.255 : All Connections
+backend/backend-app[Deployment]    	<= 	0.0.0.0-255.255.255.255[External] : All Connections
 backend/backend-app[Deployment]    	<= 	entire-cluster : All Connections
 hello-world/workload-a[Deployment] 	<= 	backend/[pod with {app=backend-new}] : TCP 8050
 
