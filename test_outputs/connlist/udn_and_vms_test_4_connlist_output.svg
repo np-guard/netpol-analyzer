@@ -13,15 +13,15 @@
 <polygon fill="none" stroke="black" points="8,-77 8,-299 214,-299 214,-77 8,-77"/>
 <text text-anchor="middle" x="111" y="-283.8" font-family="Times New Roman,serif" font-size="14.00">pod network</text>
 </g>
-<g id="clust2" class="cluster">
-<title>cluster_bar</title>
-<polygon fill="none" stroke="black" points="34,-85 34,-160 160,-160 160,-85 34,-85"/>
-<text text-anchor="middle" x="97" y="-144.8" font-family="Times New Roman,serif" font-size="14.00">bar</text>
-</g>
 <g id="clust3" class="cluster">
 <title>cluster_default</title>
 <polygon fill="none" stroke="black" points="69,-193 69,-268 191,-268 191,-193 69,-193"/>
 <text text-anchor="middle" x="130" y="-252.8" font-family="Times New Roman,serif" font-size="14.00">default</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_bar</title>
+<polygon fill="none" stroke="black" points="34,-85 34,-160 160,-160 160,-85 34,-85"/>
+<text text-anchor="middle" x="97" y="-144.8" font-family="Times New Roman,serif" font-size="14.00">bar</text>
 </g>
 <g id="clust4" class="cluster">
 <title>cluster_green[udn]</title>
