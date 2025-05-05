@@ -84,7 +84,7 @@ func writeUDNSections(connsByUDN map[string][]singleConnFields, nodePairForm boo
 	res := ""
 	udnKeys := sortMapKeys(connsByUDN)
 	for _, udn := range udnKeys {
-		res += udn + colon + newLineChar
+		res += newLineChar + udn + colon + newLineChar
 		sortedConns := sortConnFields(connsByUDN[udn], true)
 		for i := range sortedConns {
 			if nodePairForm {

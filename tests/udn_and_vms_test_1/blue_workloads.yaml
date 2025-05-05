@@ -1,0 +1,46 @@
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/vm: vm-a
+  name: vm-a
+  namespace: blue
+spec:
+  runStrategy: Always
+  template:
+    metadata:
+      name: vm-a
+      namespace: blue
+    spec:
+      domain:
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: containerdisk
+          - disk:
+              bus: virtio
+            name: cloudinitdisk
+          interfaces:
+          - name: isolated-namespace
+            binding:
+              name: l2bridge
+          rng: {}
+        resources:
+          requests:
+            memory: 2048M
+      networks:
+      - pod: {}
+        name: isolated-namespace
+      terminationGracePeriodSeconds: 0
+      volumes:
+      - containerDisk:
+          image: quay.io/kubevirt/fedora-with-test-tooling-container-disk:v1.4.0
+        name: containerdisk
+      - cloudInitNoCloud:
+          userData: |-
+            #cloud-config
+            password: fedora
+            chpasswd: { expire: False }
+        name: cloudinitdisk

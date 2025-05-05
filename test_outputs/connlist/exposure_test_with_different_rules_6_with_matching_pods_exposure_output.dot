@@ -1,34 +1,34 @@
 digraph {
-	subgraph "cluster_hello_world" {
+	subgraph "cluster_hello_world[namespace]" {
 		color="black"
 		fontcolor="black"
 		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
 		"hello-world/workload-b[Deployment]" [label="workload-b[Deployment]" color="blue" fontcolor="blue"]
-		label="hello-world"
+		label="hello-world[namespace]"
 	}
-	subgraph "cluster_matching_ns1" {
+	subgraph "cluster_matching_ns1[namespace]" {
 		color="black"
 		fontcolor="black"
 		"matching-ns1/matching-rule1[Deployment]" [label="matching-rule1[Deployment]" color="blue" fontcolor="blue"]
-		label="matching-ns1"
+		label="matching-ns1[namespace]"
 	}
-	subgraph "cluster_matching_ns2" {
+	subgraph "cluster_matching_ns2[namespace]" {
 		color="black"
 		fontcolor="black"
 		"matching-ns2/matching-rule2-and-1[Deployment]" [label="matching-rule2-and-1[Deployment]" color="blue" fontcolor="blue"]
-		label="matching-ns2"
+		label="matching-ns2[namespace]"
 	}
-	subgraph "cluster_namespace with {env=env_1,foo=managed}" {
+	subgraph "cluster_namespace with {env=env_1,foo=managed}[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}_in_namespace with {env=env-1,foo=managed}" [label="pod with {app=app-x,{Key:role,Operator:In,Values:[api],}}" color="red2" fontcolor="red2"]
-		label="namespace with {env=env-1,foo=managed}"
+		label="namespace with {env=env-1,foo=managed}[namespace]"
 	}
-	subgraph "cluster_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}" {
+	subgraph "cluster_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"pod with {app=app-x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}_in_namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}" [label="pod with {app=app-x,{Key:role,Operator:NotIn,Values:[monitoring search web],}}" color="red2" fontcolor="red2"]
-		label="namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}"
+		label="namespace with {foo=managed,{Key:app,Operator:DoesNotExist,Values:[],},{Key:env,Operator:Exists,Values:[],}}[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]

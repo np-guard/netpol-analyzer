@@ -1,10 +1,10 @@
 digraph {
-	subgraph "cluster_default" {
+	subgraph "cluster_default[namespace]" {
 		color="black"
 		fontcolor="black"
 		"default/details-v1-79f774bdb9[ReplicaSet]" [label="details-v1-79f774bdb9[ReplicaSet]" color="blue" fontcolor="blue"]
 		"default/unicorn[Deployment]" [label="unicorn[Deployment]" color="blue" fontcolor="blue"]
-		label="default"
+		label="default[namespace]"
 	}
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]

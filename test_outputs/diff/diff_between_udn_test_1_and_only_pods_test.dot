@@ -1,15 +1,15 @@
 digraph {
-	subgraph "cluster_blue" {
+	subgraph "cluster_blue[namespace]" {
 		color="black"
 		fontcolor="black"
 		"blue/webserver[Pod]" [label="webserver[Pod]" color="blue" fontcolor="blue"]
-		label="blue"
+		label="blue[namespace]"
 	}
-	subgraph "cluster_green" {
+	subgraph "cluster_green[namespace]" {
 		color="black"
 		fontcolor="black"
 		"green/webserver[Pod]" [label="webserver[Pod]" color="blue" fontcolor="blue"]
-		label="green"
+		label="green[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="blue" fontcolor="blue"]
 	"0.0.0.0-255.255.255.255[External]" -> "blue/webserver[Pod]" [label="All Connections" color="grey" fontcolor="grey" weight=0.5]

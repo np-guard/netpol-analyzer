@@ -59,6 +59,11 @@ digraph {
 ```
 $ dot -Tsvg test_outputs/diff/diff_between_netpol-diff-example-minimal_and_netpol-analysis-example-minimal.dot -O
 ```
+or by running the command with `svg` format as following:
+```
+$ ./bin/k8snetpolicy diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 tests/netpol-diff-example-minimal/ -o svg -f ./diff_example_svg.svg
+```
+
 The frames in the graph represent namespaces of the analyzed cluster.
 
 

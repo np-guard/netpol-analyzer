@@ -84,6 +84,7 @@ func TestConnListFromDir(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
+				testutils.SkipRunningSVGTestOnGithub(t, format)
 				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, tt.focusConn,
 					format, tt.exposureAnalysis)
 				res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
@@ -103,6 +104,7 @@ func TestConnListFromResourceInfos(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			for _, format := range tt.outputFormats {
+				testutils.SkipRunningSVGTestOnGithub(t, format)
 				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, tt.focusConn,
 					format, tt.exposureAnalysis)
 				infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
@@ -731,6 +733,11 @@ func TestLoggerWarnings(t *testing.T) {
 			name:                        "udn_in_ns_without_label_should_warn_that_udn_is_ignored",
 			dirName:                     "udn_warning_test_3",
 			expectedWarningsStrContains: []string{alerts.WarnNamespaceDoesNotSupportUDN("namespace-scoped", "green")},
+		},
+		{
+			name:                        "input_resources_contain_virt_launcher_pod_should_warn_that_it_is_ignored",
+			dirName:                     "udn_and_vms_test_5",
+			expectedWarningsStrContains: []string{alerts.WarnIgnoredVirtLauncherPod("foo/virt-launcher-fedora-apricot-pike-81-qr48r")},
 		},
 	}
 	for _, tt := range cases {
@@ -2120,6 +2127,32 @@ var goodPathTests = []struct {
 		// a test with UDN and Ingress-Controller; external ingress to a service in a UDN are allowed if the pod's ports match
 		// this test contains two pods in the UDN, one matches the Ingress and service's ports and the second not matching them
 		testDirName:   "udn_with_ingress_controller_two_pods",
+		outputFormats: ValidFormats,
+	},
+	// tests involving udn(s) and virtual-machine workloads
+	{
+		testDirName:   "udn_and_vms_test_1",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "udn_and_vms_test_2",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "udn_and_vms_test_3",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "udn_and_vms_test_4",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "udn_and_vms_test_5",
+		outputFormats: ValidFormats,
+	},
+	{
+		// virtual-machine(s) test in the default namespace (without-udn)
+		testDirName:   "virtual_machines_example",
 		outputFormats: ValidFormats,
 	},
 }

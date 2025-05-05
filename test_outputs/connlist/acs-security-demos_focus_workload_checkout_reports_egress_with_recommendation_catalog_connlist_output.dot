@@ -1,12 +1,12 @@
 digraph {
-	subgraph "cluster_backend" {
+	subgraph "cluster_backend[namespace]" {
 		color="black"
 		fontcolor="black"
 		"backend/catalog[Deployment]" [label="catalog[Deployment]" color="blue" fontcolor="blue"]
 		"backend/checkout[Deployment]" [label="checkout[Deployment]" color="blue" fontcolor="blue"]
 		"backend/recommendation[Deployment]" [label="recommendation[Deployment]" color="blue" fontcolor="blue"]
 		"backend/reports[Deployment]" [label="reports[Deployment]" color="blue" fontcolor="blue"]
-		label="backend"
+		label="backend[namespace]"
 	}
 	"backend/checkout[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"backend/reports[Deployment]" -> "backend/catalog[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=1]

@@ -1,0 +1,305 @@
+apiVersion: v1
+items:
+- apiVersion: kubevirt.io/v1
+  kind: VirtualMachineInstance
+  metadata:
+    annotations:
+      kubevirt.io/latest-observed-api-version: v1
+      kubevirt.io/storage-observed-api-version: v1
+      kubevirt.io/vm-generation: "1"
+      vm.kubevirt.io/flavor: small
+      vm.kubevirt.io/os: fedora
+      vm.kubevirt.io/workload: server
+    creationTimestamp: "2025-03-03T07:09:46Z"
+    finalizers:
+    - kubevirt.io/virtualMachineControllerFinalize
+    - foregroundDeleteVirtualMachine
+    generation: 3
+    labels:
+      kubevirt.io/domain: fedora-apricot-pike-81
+      kubevirt.io/size: small
+    name: fedora-apricot-pike-81
+    namespace: foo
+    ownerReferences:
+    - apiVersion: kubevirt.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: VirtualMachine
+      name: fedora-apricot-pike-81
+      uid: 321f04f7-8e93-4fc4-8e0e-4688f908c393
+    resourceVersion: "47255"
+    uid: 9ed1a772-dec8-4337-b8d9-9eef549980b2
+  spec:
+    architecture: amd64
+    domain:
+      cpu:
+        cores: 1
+        maxSockets: 4
+        model: host-model
+        sockets: 1
+        threads: 1
+      devices:
+        disks:
+        - disk:
+            bus: virtio
+          name: rootdisk
+        - disk:
+            bus: virtio
+          name: cloudinitdisk
+        interfaces:
+        - binding:
+            name: l2bridge
+          model: virtio
+          name: default
+        rng: {}
+      features:
+        acpi:
+          enabled: true
+        smm:
+          enabled: true
+      firmware:
+        bootloader:
+          efi: {}
+        uuid: f251cb56-a50f-5026-885c-3b916ed00e3a
+      machine:
+        type: pc-q35-rhel9.4.0
+      memory:
+        guest: 2Gi
+        maxGuest: 8Gi
+      resources:
+        requests:
+          memory: 2Gi
+    evictionStrategy: LiveMigrate
+    networks:
+    - name: default
+      pod: {}
+    terminationGracePeriodSeconds: 180
+    volumes:
+    - dataVolume:
+        name: fedora-apricot-pike-81
+      name: rootdisk
+    - cloudInitNoCloud:
+        userData: |-
+          #cloud-config
+          user: fedora
+          password: ttiy-hs58-8ndr
+          chpasswd: { expire: False }
+      name: cloudinitdisk
+  status:
+    activePods:
+      d6ba41c4-7c76-427f-9c3e-c7eae5c926c1: ""
+    conditions:
+    - lastProbeTime: "2025-03-03T07:09:47Z"
+      lastTransitionTime: "2025-03-03T07:09:47Z"
+      message: Guest VM is not reported as running
+      reason: GuestNotRunning
+      status: "False"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: null
+      message: Not all of the VMI's DVs are ready
+      reason: NotAllDVsReady
+      status: "False"
+      type: DataVolumesReady
+    currentCPUTopology:
+      cores: 1
+      sockets: 1
+      threads: 1
+    guestOSInfo: {}
+    launcherContainerImageVersion: registry.redhat.io/container-native-virtualization/virt-launcher-rhel9@sha256:250bbd4d6f93670a26e559869004bddf34744e86a8e7d1ef534932e7f443417d
+    memory:
+      guestAtBoot: 2Gi
+      guestCurrent: 2Gi
+      guestRequested: 2Gi
+    phase: Scheduling
+    phaseTransitionTimestamps:
+    - phase: Pending
+      phaseTransitionTimestamp: "2025-03-03T07:09:46Z"
+    - phase: Scheduling
+      phaseTransitionTimestamp: "2025-03-03T07:09:47Z"
+    qosClass: Burstable
+    runtimeUser: 107
+    virtualMachineRevisionName: revision-start-vm-321f04f7-8e93-4fc4-8e0e-4688f908c393-1
+- apiVersion: kubevirt.io/v1
+  kind: VirtualMachineInstance
+  metadata:
+    annotations:
+      kubevirt.io/latest-observed-api-version: v1
+      kubevirt.io/storage-observed-api-version: v1
+      kubevirt.io/vm-generation: "1"
+      vm.kubevirt.io/flavor: small
+      vm.kubevirt.io/os: fedora
+      vm.kubevirt.io/workload: server
+    creationTimestamp: "2025-03-03T07:04:34Z"
+    finalizers:
+    - kubevirt.io/virtualMachineControllerFinalize
+    - foregroundDeleteVirtualMachine
+    generation: 15
+    labels:
+      kubevirt.io/domain: fedora-tomato-zebra-41
+      kubevirt.io/nodeName: ci-ln-53lw7bk-72292-hvkdw-worker-b-nlrkh
+      kubevirt.io/size: small
+    name: fedora-tomato-zebra-41
+    namespace: foo
+    ownerReferences:
+    - apiVersion: kubevirt.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: VirtualMachine
+      name: fedora-tomato-zebra-41
+      uid: 389d6f54-6189-43ed-b4a0-2de113aa34f4
+    resourceVersion: "45517"
+    uid: 617b84fa-f79a-4410-b474-4a402c04390a
+  spec:
+    architecture: amd64
+    domain:
+      cpu:
+        cores: 1
+        maxSockets: 4
+        model: host-model
+        sockets: 1
+        threads: 1
+      devices:
+        disks:
+        - disk:
+            bus: virtio
+          name: rootdisk
+        - disk:
+            bus: virtio
+          name: cloudinitdisk
+        interfaces:
+        - binding:
+            name: l2bridge
+          model: virtio
+          name: default
+        rng: {}
+      features:
+        acpi:
+          enabled: true
+        smm:
+          enabled: true
+      firmware:
+        bootloader:
+          efi: {}
+        uuid: a89a7a91-63c4-57fb-a9d6-ec68a98e8255
+      machine:
+        type: pc-q35-rhel9.4.0
+      memory:
+        guest: 2Gi
+        maxGuest: 8Gi
+      resources:
+        requests:
+          memory: 2Gi
+    evictionStrategy: LiveMigrate
+    networks:
+    - name: default
+      pod: {}
+    terminationGracePeriodSeconds: 180
+    volumes:
+    - dataVolume:
+        name: fedora-tomato-zebra-41
+      name: rootdisk
+    - cloudInitNoCloud:
+        userData: |-
+          #cloud-config
+          user: fedora
+          password: 5chc-3tgx-8u27
+          chpasswd: { expire: False }
+      name: cloudinitdisk
+  status:
+    activePods:
+      9eb33bf0-168c-46ab-af2b-b79276a9285e: ci-ln-53lw7bk-72292-hvkdw-worker-b-nlrkh
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2025-03-03T07:05:56Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: null
+      message: All of the VMI's DVs are bound and not running
+      reason: AllDVsReady
+      status: "True"
+      type: DataVolumesReady
+    - lastProbeTime: null
+      lastTransitionTime: null
+      message: 'cannot migrate VMI: PVC fedora-tomato-zebra-41 is not shared, live
+        migration requires that all PVCs must be shared (using ReadWriteMany access
+        mode)'
+      reason: DisksNotLiveMigratable
+      status: "False"
+      type: LiveMigratable
+    - lastProbeTime: null
+      lastTransitionTime: null
+      status: "True"
+      type: StorageLiveMigratable
+    - lastProbeTime: "2025-03-03T07:06:20Z"
+      lastTransitionTime: null
+      status: "True"
+      type: AgentConnected
+    currentCPUTopology:
+      cores: 1
+      sockets: 1
+      threads: 1
+    guestOSInfo:
+      id: fedora
+      kernelRelease: 6.11.4-301.fc41.x86_64
+      kernelVersion: '#1 SMP PREEMPT_DYNAMIC Sun Oct 20 15:02:33 UTC 2024'
+      machine: x86_64
+      name: Fedora Linux
+      prettyName: Fedora Linux 41 (Cloud Edition)
+      version: 41 (Cloud Edition)
+      versionId: "41"
+    interfaces:
+    - infoSource: domain, guest-agent
+      interfaceName: enp1s0
+      ipAddress: 192.168.0.3
+      ipAddresses:
+      - 192.168.0.3
+      mac: 0a:58:c0:a8:00:03
+      name: default
+      podInterfaceName: ovn-udn1
+      queueCount: 1
+    launcherContainerImageVersion: registry.redhat.io/container-native-virtualization/virt-launcher-rhel9@sha256:250bbd4d6f93670a26e559869004bddf34744e86a8e7d1ef534932e7f443417d
+    machine:
+      type: pc-q35-rhel9.4.0
+    memory:
+      guestAtBoot: 2Gi
+      guestCurrent: 2Gi
+      guestRequested: 2Gi
+    migrationMethod: BlockMigration
+    migrationTransport: Unix
+    nodeName: ci-ln-53lw7bk-72292-hvkdw-worker-b-nlrkh
+    phase: Running
+    phaseTransitionTimestamps:
+    - phase: Pending
+      phaseTransitionTimestamp: "2025-03-03T07:04:34Z"
+    - phase: Scheduling
+      phaseTransitionTimestamp: "2025-03-03T07:04:34Z"
+    - phase: Scheduled
+      phaseTransitionTimestamp: "2025-03-03T07:05:56Z"
+    - phase: Running
+      phaseTransitionTimestamp: "2025-03-03T07:05:58Z"
+    qosClass: Burstable
+    runtimeUser: 107
+    selinuxContext: system_u:object_r:container_file_t:s0:c76,c987
+    virtualMachineRevisionName: revision-start-vm-389d6f54-6189-43ed-b4a0-2de113aa34f4-1
+    volumeStatus:
+    - name: cloudinitdisk
+      size: 1048576
+      target: vdb
+    - name: rootdisk
+      persistentVolumeClaimInfo:
+        accessModes:
+        - ReadWriteOnce
+        capacity:
+          storage: 30Gi
+        claimName: fedora-tomato-zebra-41
+        filesystemOverhead: "0"
+        requests:
+          storage: "32212254720"
+        volumeMode: Block
+      target: vda
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

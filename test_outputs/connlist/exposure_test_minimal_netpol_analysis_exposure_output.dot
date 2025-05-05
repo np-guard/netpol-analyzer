@@ -1,10 +1,10 @@
 digraph {
-	subgraph "cluster_default" {
+	subgraph "cluster_default[namespace]" {
 		color="black"
 		fontcolor="black"
 		"default/backend[Deployment]" [label="backend[Deployment]" color="blue" fontcolor="blue"]
 		"default/frontend[Deployment]" [label="frontend[Deployment]" color="blue" fontcolor="blue"]
-		label="default"
+		label="default[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]

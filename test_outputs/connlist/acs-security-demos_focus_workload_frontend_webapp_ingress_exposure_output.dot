@@ -1,9 +1,9 @@
 digraph {
-	subgraph "cluster_frontend" {
+	subgraph "cluster_frontend[namespace]" {
 		color="black"
 		fontcolor="black"
 		"frontend/webapp[Deployment]" [label="webapp[Deployment]" color="blue" fontcolor="blue"]
-		label="frontend"
+		label="frontend[namespace]"
 	}
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
