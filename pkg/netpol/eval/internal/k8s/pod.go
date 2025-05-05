@@ -18,6 +18,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	kubevirt "kubevirt.io/api/core/v1"
 
 	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -163,7 +164,12 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 	var workloadName string
 	var workloadNamespace string
 	var APIVersion string
+	// following Template variables are assigned based on the workload kind;
+	// if kind is VirtualMachine then only the vmTemplate will be assigned (as VirtualMachineInstanceTemplateSpec is used in its spec);
+	//  otherwise,
+	//  only the podTemplate will be assigned (PodTemplateSpec is used in the workload Spec)
 	var podTemplate corev1.PodTemplateSpec
+	var vmTemplate kubevirt.VirtualMachineInstanceTemplateSpec
 	numReplicas := 1
 	switch kind {
 	case parser.ReplicaSet:
@@ -215,7 +221,13 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		workloadNamespace = obj.Namespace
 		podTemplate = obj.Spec.Template
 		APIVersion = obj.APIVersion
-
+	case parser.VirtualMachine:
+		obj := workload.(*kubevirt.VirtualMachine)
+		replicas = 1 //
+		workloadName = obj.Name
+		workloadNamespace = obj.Namespace
+		vmTemplate = *obj.Spec.Template
+		APIVersion = obj.APIVersion
 	default:
 		return nil, fmt.Errorf("unexpected workload kind: %s", kind)
 	}
@@ -230,7 +242,7 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod := &Pod{}
 		pod.Name = fmt.Sprintf("%s-%d", workloadName, index)
 		pod.Namespace = workloadNamespace
-		pod.Labels = make(map[string]string, len(podTemplate.Labels))
+		pod.Labels = make(map[string]string, max(len(podTemplate.Labels), len(vmTemplate.ObjectMeta.Labels)))
 		pod.IPs = make([]corev1.PodIP, 0)
 		pod.Ports = make([]corev1.ContainerPort, 0, defaultPortsListSize)
 		pod.HostIP = getFakePodIP()
@@ -238,13 +250,21 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.FakePod = false
 		pod.IngressExposureData = initiatePodExposure()
 		pod.EgressExposureData = initiatePodExposure()
-		for k, v := range podTemplate.Labels {
-			pod.Labels[k] = v
+		// for all workload-kinds: pod Labels are taken from its Spec.Template
+		if kind != parser.VirtualMachine { // podTemplate is used for all other workload types
+			for k, v := range podTemplate.Labels {
+				pod.Labels[k] = v
+			}
+			for i := range podTemplate.Spec.Containers {
+				pod.Ports = append(pod.Ports, podTemplate.Spec.Containers[i].Ports...)
+			}
+			pod.Owner.Variant = variantFromLabelsMap(podTemplate.Labels)
+		} else { // for virtualMachines the vmTemplate is used
+			for k, v := range vmTemplate.ObjectMeta.Labels {
+				pod.Labels[k] = v
+			}
+			pod.Owner.Variant = variantFromLabelsMap(vmTemplate.ObjectMeta.Labels)
 		}
-		for i := range podTemplate.Spec.Containers {
-			pod.Ports = append(pod.Ports, podTemplate.Spec.Containers[i].Ports...)
-		}
-		pod.Owner.Variant = variantFromLabelsMap(podTemplate.Labels)
 		res[index-1] = pod
 	}
 	return res, nil

@@ -338,4 +338,7 @@ var explainTests = []struct {
 		testDirName: "udn_test_1",
 		focusConn:   "tcp-90",
 	},
+	{
+		testDirName: "virtual_machines_example",
+	},
 }

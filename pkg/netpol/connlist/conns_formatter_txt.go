@@ -101,7 +101,7 @@ func writeUDNSections(connsByUDN map[string][]singleConnFields, nodePairForm, ex
 			explainUDNHeader := specificConnHeader + " in " + udn
 			res += writeSingleTypeLinesExplanationOutput(sortedConns, explainUDNHeader, false)
 		} else { // not explain
-			res += udn + colon + newLineChar
+			res += newLineChar + udn + colon + newLineChar
 			for i := range sortedConns {
 				if nodePairForm { // running with focus-conn
 					res += sortedConns[i].nodePairString() + newLineChar

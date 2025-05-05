@@ -1,5 +1,5 @@
 digraph {
-	subgraph "cluster_backend" {
+	subgraph "cluster_backend[namespace]" {
 		color="black"
 		fontcolor="black"
 		"backend/checkout[Deployment]" [label="checkout[Deployment]" color="blue" fontcolor="blue"]
@@ -7,19 +7,19 @@ digraph {
 		"backend/recommendation[Deployment]" [label="recommendation[Deployment]" color="blue" fontcolor="blue"]
 		"backend/reports[Deployment]" [label="reports[Deployment]" color="blue" fontcolor="blue"]
 		"backend/shipping[Deployment]" [label="shipping[Deployment]" color="blue" fontcolor="blue"]
-		label="backend"
+		label="backend[namespace]"
 	}
-	subgraph "cluster_frontend" {
+	subgraph "cluster_frontend[namespace]" {
 		color="black"
 		fontcolor="black"
 		"frontend/webapp[Deployment]" [label="webapp[Deployment]" color="blue" fontcolor="blue"]
-		label="frontend"
+		label="frontend[namespace]"
 	}
-	subgraph "cluster_payments" {
+	subgraph "cluster_payments[namespace]" {
 		color="black"
 		fontcolor="black"
 		"payments/gateway[Deployment]" [label="gateway[Deployment]" color="blue" fontcolor="blue"]
-		label="payments"
+		label="payments[namespace]"
 	}
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]

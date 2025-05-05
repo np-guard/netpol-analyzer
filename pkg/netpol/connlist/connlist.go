@@ -60,7 +60,7 @@ type ConnlistAnalyzer struct {
 	focusConnection    string
 	outputFormat       string
 	muteErrsAndWarns   bool
-	peersList          []Peer // internally used peersList used in dot formatting;
+	peersList          []Peer // internally used peersList used in dot/svg formatting;
 	// in case of focusWorkload option contains only relevant peers
 	focusConnSet *common.ConnectionSet // internally used to focus conns list results with this specific connection
 }
@@ -151,7 +151,7 @@ func (ca *ConnlistAnalyzer) ConnlistFromDirPath(dirPath string) ([]Peer2PeerConn
 
 // ValidFormats array of possible values of output format
 var ValidFormats = []string{output.TextFormat, output.JSONFormat, output.DOTFormat,
-	output.CSVFormat, output.MDFormat}
+	output.CSVFormat, output.MDFormat, output.SVGFormat}
 
 // ConnlistAnalyzerOption is the type for specifying options for ConnlistAnalyzer,
 // using Golang's Options Pattern (https://golang.cafe/blog/golang-functional-options-pattern.html).
@@ -504,19 +504,9 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 	return out, nil
 }
 
-// validate the value of the output format
-func ValidateOutputFormat(format string) error {
-	for _, formatName := range ValidFormats {
-		if format == formatName {
-			return nil
-		}
-	}
-	return errors.New(netpolerrors.FormatNotSupportedErrStr(format))
-}
-
 // returns the relevant formatter for the analyzer's outputFormat
 func (ca *ConnlistAnalyzer) getFormatter() (connsFormatter, error) {
-	if err := ValidateOutputFormat(ca.outputFormat); err != nil {
+	if err := output.ValidateOutputFormat(ca.outputFormat, ValidFormats); err != nil {
 		return nil, err
 	}
 	switch ca.outputFormat {
@@ -530,6 +520,8 @@ func (ca *ConnlistAnalyzer) getFormatter() (connsFormatter, error) {
 		return &formatCSV{}, nil
 	case output.MDFormat:
 		return &formatMD{}, nil
+	case output.SVGFormat:
+		return &formatSVG{ca.peersList}, nil
 	default:
 		return &formatText{}, nil
 	}
@@ -708,7 +700,7 @@ func (ca *ConnlistAnalyzer) getPeersForConnsComputation(pe *eval.PolicyEngine) (
 		dstPeers = append(dstPeers, representativePeers...)
 	}
 
-	// update the ca.peersList from workload peers list (used for updating dot outputs with all workloads from manifests)
+	// update the ca.peersList from workload peers list (used for updating dot/svg outputs with all workloads from manifests)
 	ca.peersList = make([]Peer, 0, len(peerList))
 	for _, p := range peerList {
 		if isPeerFocusWorkload(p, ca.focusWorkloads) || (len(ca.focusWorkloadPeers) != 0 && ca.isPeerFocusWorkloadPeer(p)) {

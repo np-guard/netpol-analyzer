@@ -1,21 +1,21 @@
 digraph {
-	subgraph "cluster_gryffindor" {
+	subgraph "cluster_gryffindor[namespace]" {
 		color="black"
 		fontcolor="black"
 		"gryffindor/harry-potter[StatefulSet]" [label="harry-potter[StatefulSet]" color="blue" fontcolor="blue"]
-		label="gryffindor"
+		label="gryffindor[namespace]"
 	}
-	subgraph "cluster_hufflepuff" {
+	subgraph "cluster_hufflepuff[namespace]" {
 		color="black"
 		fontcolor="black"
 		"hufflepuff/cedric-diggory[StatefulSet]" [label="cedric-diggory[StatefulSet]" color="blue" fontcolor="blue"]
-		label="hufflepuff"
+		label="hufflepuff[namespace]"
 	}
-	subgraph "cluster_slytherin" {
+	subgraph "cluster_slytherin[namespace]" {
 		color="black"
 		fontcolor="black"
 		"slytherin/draco-malfoy[StatefulSet]" [label="draco-malfoy[StatefulSet]" color="blue" fontcolor="blue"]
-		label="slytherin"
+		label="slytherin[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]

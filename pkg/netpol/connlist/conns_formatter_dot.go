@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/dotformatting"
+	dotformatting "github.com/np-guard/netpol-analyzer/pkg/netpol/internal/formatting"
 )
 
 const (

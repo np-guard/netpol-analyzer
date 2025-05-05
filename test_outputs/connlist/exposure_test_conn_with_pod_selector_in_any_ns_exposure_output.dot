@@ -1,15 +1,15 @@
 digraph {
-	subgraph "cluster_hello_world" {
+	subgraph "cluster_hello_world[namespace]" {
 		color="black"
 		fontcolor="black"
 		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
-		label="hello-world"
+		label="hello-world[namespace]"
 	}
-	subgraph "cluster_all namespaces" {
+	subgraph "cluster_all namespaces[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"pod with {role=monitoring}_in_all namespaces" [label="pod with {role=monitoring}" color="red2" fontcolor="red2"]
-		label="all namespaces"
+		label="all namespaces[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
