@@ -734,6 +734,11 @@ func TestLoggerWarnings(t *testing.T) {
 			dirName:                     "udn_warning_test_3",
 			expectedWarningsStrContains: []string{alerts.WarnNamespaceDoesNotSupportUDN("namespace-scoped", "green")},
 		},
+		{
+			name:                        "input_resources_contain_virt_launcher_pod_should_warn_that_it_is_ignored",
+			dirName:                     "udn_and_vms_test_5",
+			expectedWarningsStrContains: []string{alerts.WarnIgnoredVirtLauncherPod("foo/virt-launcher-fedora-apricot-pike-81-qr48r")},
+		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {

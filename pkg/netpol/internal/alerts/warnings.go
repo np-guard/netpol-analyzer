@@ -79,3 +79,7 @@ func NotSupportedUDNRole(udn string) string {
 func IgnoredResourceKind(kind string) string {
 	return fmt.Sprintf("ignoring resources of kind %s", kind)
 }
+
+func WarnIgnoredVirtLauncherPod(podStr string) string {
+	return "skipping virt-launcher pod: " + podStr + " as it is a launcher pod managing a VirtualMachine"
+}
