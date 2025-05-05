@@ -13,15 +13,15 @@
 <polygon fill="none" stroke="black" points="8,-77 8,-299 201,-299 201,-77 8,-77"/>
 <text text-anchor="middle" x="104.5" y="-283.8" font-family="Times New Roman,serif" font-size="14.00">pod network</text>
 </g>
-<g id="clust2" class="cluster">
-<title>cluster_bar</title>
-<polygon fill="none" stroke="black" points="28,-85 28,-160 154,-160 154,-85 28,-85"/>
-<text text-anchor="middle" x="91" y="-144.8" font-family="Times New Roman,serif" font-size="14.00">bar</text>
-</g>
 <g id="clust3" class="cluster">
-<title>cluster_default</title>
-<polygon fill="none" stroke="black" points="56,-193 56,-268 178,-268 178,-193 56,-193"/>
-<text text-anchor="middle" x="117" y="-252.8" font-family="Times New Roman,serif" font-size="14.00">default</text>
+<title>cluster_default[namespace]</title>
+<polygon fill="none" stroke="black" points="54,-193 54,-268 179,-268 179,-193 54,-193"/>
+<text text-anchor="middle" x="116.5" y="-252.8" font-family="Times New Roman,serif" font-size="14.00">default[namespace]</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_bar[namespace]</title>
+<polygon fill="none" stroke="black" points="28,-85 28,-160 154,-160 154,-85 28,-85"/>
+<text text-anchor="middle" x="91" y="-144.8" font-family="Times New Roman,serif" font-size="14.00">bar[namespace]</text>
 </g>
 <g id="clust4" class="cluster">
 <title>cluster_green[udn]</title>
@@ -37,14 +37,14 @@
 <!-- default/app&#45;1[Pod] -->
 <g id="node2" class="node">
 <title>default/app&#45;1[Pod]</title>
-<ellipse fill="none" stroke="blue" cx="117" cy="-219" rx="52.79" ry="18"/>
-<text text-anchor="middle" x="117" y="-215.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">app&#45;1[Pod]</text>
+<ellipse fill="none" stroke="blue" cx="116" cy="-219" rx="52.79" ry="18"/>
+<text text-anchor="middle" x="116" y="-215.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">app&#45;1[Pod]</text>
 </g>
 <!-- bar/mybar[Pod]&#45;&gt;default/app&#45;1[Pod] -->
 <g id="edge6" class="edge">
 <title>bar/mybar[Pod]&#45;&gt;default/app&#45;1[Pod]</title>
-<path fill="none" stroke="#eec900" d="M65.47,-126.95C44.95,-140.95 21.59,-162.7 35,-183 41.66,-193.09 51.9,-200.28 62.9,-205.4"/>
-<polygon fill="#eec900" stroke="#eec900" points="61.68,-208.69 72.26,-209.24 64.34,-202.21 61.68,-208.69"/>
+<path fill="none" stroke="#eec900" d="M65.49,-126.94C44.98,-140.93 21.63,-162.67 35,-183 41.57,-193 51.68,-200.16 62.55,-205.27"/>
+<polygon fill="#eec900" stroke="#eec900" points="61.22,-208.51 71.8,-209.11 63.9,-202.05 61.22,-208.51"/>
 <text text-anchor="middle" x="57.5" y="-171.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 80</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255[External] -->
@@ -63,14 +63,14 @@
 <!-- default/app&#45;1[Pod]&#45;&gt;bar/mybar[Pod] -->
 <g id="edge8" class="edge">
 <title>default/app&#45;1[Pod]&#45;&gt;bar/mybar[Pod]</title>
-<path fill="none" stroke="#eec900" d="M112.82,-200.97C108.71,-184.2 102.37,-158.34 97.58,-138.81"/>
-<polygon fill="#eec900" stroke="#eec900" points="100.95,-137.87 95.17,-128.99 94.15,-139.53 100.95,-137.87"/>
+<path fill="none" stroke="#eec900" d="M111.98,-200.97C108.03,-184.2 101.93,-158.34 97.32,-138.81"/>
+<polygon fill="#eec900" stroke="#eec900" points="100.71,-137.92 95.01,-128.99 93.9,-139.52 100.71,-137.92"/>
 <text text-anchor="middle" x="152.5" y="-171.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- default/app&#45;1[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge7" class="edge">
 <title>default/app&#45;1[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
-<path fill="none" stroke="#eec900" d="M157.85,-207.55C173.02,-202.13 189.56,-194.22 202,-183 241.72,-147.17 231.65,-122.97 259,-77 265.47,-66.12 273.04,-54.39 279.72,-44.34"/>
+<path fill="none" stroke="#eec900" d="M157.32,-207.64C172.68,-202.23 189.41,-194.31 202,-183 241.79,-147.25 231.65,-122.97 259,-77 265.47,-66.12 273.04,-54.39 279.72,-44.34"/>
 <polygon fill="#eec900" stroke="#eec900" points="282.64,-46.27 285.3,-36.01 276.82,-42.37 282.64,-46.27"/>
 <text text-anchor="middle" x="304.5" y="-107.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
@@ -110,8 +110,8 @@
 <!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/app&#45;1[Pod] -->
 <g id="edge2" class="edge">
 <title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/app&#45;1[Pod]</title>
-<path fill="none" stroke="#eec900" d="M320.96,-35.94C333.35,-46.23 347.26,-60.54 354,-77 367.97,-111.14 376.24,-130.57 354,-160 332.89,-187.93 240.23,-203.98 177.22,-211.84"/>
-<polygon fill="#eec900" stroke="#eec900" points="176.5,-208.4 166.99,-213.07 177.34,-215.35 176.5,-208.4"/>
+<path fill="none" stroke="#eec900" d="M320.96,-35.94C333.35,-46.23 347.26,-60.54 354,-77 367.97,-111.14 376.24,-130.57 354,-160 332.78,-188.08 239.49,-204.1 176.21,-211.91"/>
+<polygon fill="#eec900" stroke="#eec900" points="175.45,-208.48 165.93,-213.14 176.28,-215.43 175.45,-208.48"/>
 <text text-anchor="middle" x="412.5" y="-107.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;green[udn]/webserver&#45;2[Pod] -->

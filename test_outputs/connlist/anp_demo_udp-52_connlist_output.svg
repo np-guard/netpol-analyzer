@@ -9,24 +9,24 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 311)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-311 638,-311 638,4 -4,4"/>
 <g id="clust1" class="cluster">
-<title>cluster_gryffindor</title>
+<title>cluster_gryffindor[namespace]</title>
 <polygon fill="none" stroke="black" points="43,-116 43,-191 257,-191 257,-116 43,-116"/>
-<text text-anchor="middle" x="150" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">gryffindor</text>
+<text text-anchor="middle" x="150" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">gryffindor[namespace]</text>
 </g>
 <g id="clust3" class="cluster">
-<title>cluster_ravenclaw</title>
+<title>cluster_ravenclaw[namespace]</title>
 <polygon fill="none" stroke="black" points="8,-8 8,-83 238,-83 238,-8 8,-8"/>
-<text text-anchor="middle" x="123" y="-67.8" font-family="Times New Roman,serif" font-size="14.00">ravenclaw</text>
+<text text-anchor="middle" x="123" y="-67.8" font-family="Times New Roman,serif" font-size="14.00">ravenclaw[namespace]</text>
 </g>
 <g id="clust2" class="cluster">
-<title>cluster_hufflepuff</title>
+<title>cluster_hufflepuff[namespace]</title>
 <polygon fill="none" stroke="black" points="265,-116 265,-191 499,-191 499,-116 265,-116"/>
-<text text-anchor="middle" x="382" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">hufflepuff</text>
+<text text-anchor="middle" x="382" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">hufflepuff[namespace]</text>
 </g>
 <g id="clust4" class="cluster">
-<title>cluster_slytherin</title>
+<title>cluster_slytherin[namespace]</title>
 <polygon fill="none" stroke="black" points="269,-224 269,-299 495,-299 495,-224 269,-224"/>
-<text text-anchor="middle" x="382" y="-283.8" font-family="Times New Roman,serif" font-size="14.00">slytherin</text>
+<text text-anchor="middle" x="382" y="-283.8" font-family="Times New Roman,serif" font-size="14.00">slytherin[namespace]</text>
 </g>
 <!-- gryffindor/harry&#45;potter[StatefulSet] -->
 <g id="node1" class="node">

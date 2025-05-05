@@ -9,33 +9,20 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 359)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-359 606.89,-359 606.89,4 -4,4"/>
 <g id="clust1" class="cluster">
-<title>cluster_hello_world</title>
-<polygon fill="none" stroke="black" points="8,-116 8,-278 327,-278 327,-116 8,-116"/>
-<text text-anchor="middle" x="167.5" y="-262.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
+<title>cluster_hello_world[namespace]</title>
+<polygon fill="none" stroke="#ee0000" points="8,-116 8,-278 327,-278 327,-116 8,-116"/>
+<text text-anchor="middle" x="167.5" y="-262.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">hello&#45;world[namespace]</text>
 </g>
 <g id="clust2" class="cluster">
-<title>cluster_new_ns</title>
+<title>cluster_new_ns[namespace]</title>
 <polygon fill="none" stroke="#ee0000" points="37,-8 37,-83 263,-83 263,-8 37,-8"/>
-<text text-anchor="middle" x="150" y="-67.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">new&#45;ns</text>
-</g>
-<!-- all pods_in_hello&#45;world -->
-<g id="node1" class="node">
-<title>all pods_in_hello&#45;world</title>
-<ellipse fill="none" stroke="#ee0000" cx="56" cy="-229" rx="39.79" ry="18"/>
-<text text-anchor="middle" x="56" y="-225.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">all pods</text>
+<text text-anchor="middle" x="150" y="-67.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">new&#45;ns[namespace]</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
-<g id="node2" class="node">
+<g id="node1" class="node">
 <title>hello&#45;world/workload&#45;a[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="123" cy="-142" rx="101.28" ry="18"/>
 <text text-anchor="middle" x="123" y="-138.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">workload&#45;a[Deployment]</text>
-</g>
-<!-- all pods_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
-<g id="edge3" class="edge">
-<title>all pods_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
-<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M68.92,-211.61C78.71,-199.19 92.33,-181.91 103.45,-167.8"/>
-<polygon fill="#ee7600" stroke="#ee7600" points="106.22,-169.94 109.66,-159.92 100.72,-165.61 106.22,-169.94"/>
-<text text-anchor="middle" x="123" y="-181.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 9090</text>
 </g>
 <!-- pod with {app=new&#45;app}_in_new&#45;ns -->
 <g id="node4" class="node">
@@ -51,7 +38,7 @@
 <text text-anchor="middle" x="158.5" y="-94.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 80</text>
 </g>
 <!-- hello&#45;world/workload&#45;b[Deployment] -->
-<g id="node3" class="node">
+<g id="node2" class="node">
 <title>hello&#45;world/workload&#45;b[Deployment]</title>
 <ellipse fill="none" stroke="blue" cx="216" cy="-229" rx="102.88" ry="18"/>
 <text text-anchor="middle" x="216" y="-225.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">workload&#45;b[Deployment]</text>
@@ -88,6 +75,19 @@
 <path fill="none" stroke="#8b4500" stroke-dasharray="5,2" d="M167.62,-244.91C136.22,-257.25 104.04,-276.68 121,-301 129.66,-313.42 143.24,-321.44 157.46,-326.62"/>
 <polygon fill="#8b4500" stroke="#8b4500" points="156.76,-330.07 167.35,-329.77 158.89,-323.4 156.76,-330.07"/>
 <text text-anchor="middle" x="166.5" y="-289.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
+</g>
+<!-- all pods_in_hello&#45;world -->
+<g id="node3" class="node">
+<title>all pods_in_hello&#45;world</title>
+<ellipse fill="none" stroke="#ee0000" cx="56" cy="-229" rx="39.79" ry="18"/>
+<text text-anchor="middle" x="56" y="-225.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">all pods</text>
+</g>
+<!-- all pods_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
+<g id="edge3" class="edge">
+<title>all pods_in_hello&#45;world&#45;&gt;hello&#45;world/workload&#45;a[Deployment]</title>
+<path fill="none" stroke="#ee7600" stroke-dasharray="5,2" d="M68.92,-211.61C78.71,-199.19 92.33,-181.91 103.45,-167.8"/>
+<polygon fill="#ee7600" stroke="#ee7600" points="106.22,-169.94 109.66,-159.92 100.72,-165.61 106.22,-169.94"/>
+<text text-anchor="middle" x="123" y="-181.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 9090</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;hello&#45;world/workload&#45;a[Deployment] -->
 <g id="edge1" class="edge">

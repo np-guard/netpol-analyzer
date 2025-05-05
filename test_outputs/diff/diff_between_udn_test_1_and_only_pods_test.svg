@@ -8,20 +8,20 @@
  viewBox="0.00 0.00 997.89 295.53" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 291.53)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-291.53 993.89,-291.53 993.89,4 -4,4"/>
-<g id="clust2" class="cluster">
-<title>cluster_green</title>
-<polygon fill="none" stroke="black" points="160.89,-204.53 160.89,-279.53 314.89,-279.53 314.89,-204.53 160.89,-204.53"/>
-<text text-anchor="middle" x="237.89" y="-264.33" font-family="Times New Roman,serif" font-size="14.00">green</text>
-</g>
-<g id="clust1" class="cluster">
-<title>cluster_blue</title>
-<polygon fill="none" stroke="black" points="43.89,-79 43.89,-154 197.89,-154 197.89,-79 43.89,-79"/>
-<text text-anchor="middle" x="120.89" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">blue</text>
-</g>
 <g id="clust3" class="cluster">
 <title>cluster_legend</title>
 <polygon fill="none" stroke="black" points="586.89,-87 586.89,-265.79 981.89,-265.79 981.89,-87 586.89,-87"/>
 <text text-anchor="middle" x="784.39" y="-253.79" font-family="Times New Roman,serif" font-size="10.00">Legend</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_green[namespace]</title>
+<polygon fill="none" stroke="black" points="160.89,-204.53 160.89,-279.53 314.89,-279.53 314.89,-204.53 160.89,-204.53"/>
+<text text-anchor="middle" x="237.89" y="-264.33" font-family="Times New Roman,serif" font-size="14.00">green[namespace]</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_blue[namespace]</title>
+<polygon fill="none" stroke="black" points="43.89,-79 43.89,-154 197.89,-154 197.89,-79 43.89,-79"/>
+<text text-anchor="middle" x="120.89" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">blue[namespace]</text>
 </g>
 <!-- blue/webserver[Pod] -->
 <g id="node1" class="node">

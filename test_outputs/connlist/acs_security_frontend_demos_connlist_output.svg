@@ -9,9 +9,9 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 95)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-95 438,-95 438,4 -4,4"/>
 <g id="clust1" class="cluster">
-<title>cluster_frontend</title>
+<title>cluster_frontend[namespace]</title>
 <polygon fill="none" stroke="black" points="8,-8 8,-83 426,-83 426,-8 8,-8"/>
-<text text-anchor="middle" x="217" y="-67.8" font-family="Times New Roman,serif" font-size="14.00">frontend</text>
+<text text-anchor="middle" x="217" y="-67.8" font-family="Times New Roman,serif" font-size="14.00">frontend[namespace]</text>
 </g>
 <!-- frontend/asset&#45;cache[Deployment] -->
 <g id="node1" class="node">

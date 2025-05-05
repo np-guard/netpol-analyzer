@@ -8,15 +8,15 @@
  viewBox="0.00 0.00 803.89 365.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 361)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-361 799.89,-361 799.89,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_hello_world</title>
-<polygon fill="none" stroke="black" points="169.89,-79 169.89,-241 787.89,-241 787.89,-79 169.89,-79"/>
-<text text-anchor="middle" x="478.89" y="-225.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
-</g>
 <g id="clust2" class="cluster">
-<title>cluster_namespace with {{Key:env,Operator:Exists,Values:[],}}</title>
-<polygon fill="none" stroke="#ee0000" points="236.89,-274 236.89,-349 565.89,-349 565.89,-274 236.89,-274"/>
-<text text-anchor="middle" x="401.39" y="-333.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {{Key:env,Operator:Exists,Values:[],}}</text>
+<title>cluster_namespace with {{Key:env,Operator:Exists,Values:[],}}[namespace]</title>
+<polygon fill="none" stroke="#ee0000" points="236.89,-274 236.89,-349 635.89,-349 635.89,-274 236.89,-274"/>
+<text text-anchor="middle" x="436.39" y="-333.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {{Key:env,Operator:Exists,Values:[],}}[namespace]</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_hello_world[namespace]</title>
+<polygon fill="none" stroke="#ee0000" points="169.89,-79 169.89,-241 787.89,-241 787.89,-79 169.89,-79"/>
+<text text-anchor="middle" x="478.89" y="-225.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">hello&#45;world[namespace]</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
 <g id="node1" class="node">

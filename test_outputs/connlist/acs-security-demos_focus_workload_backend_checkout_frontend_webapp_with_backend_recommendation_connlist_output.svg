@@ -8,15 +8,15 @@
  viewBox="0.00 0.00 484.00 186.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 182)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-182 480,-182 480,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_backend</title>
-<polygon fill="none" stroke="black" points="8,-8 8,-170 266,-170 266,-8 8,-8"/>
-<text text-anchor="middle" x="137" y="-154.8" font-family="Times New Roman,serif" font-size="14.00">backend</text>
-</g>
 <g id="clust2" class="cluster">
-<title>cluster_frontend</title>
+<title>cluster_frontend[namespace]</title>
 <polygon fill="none" stroke="black" points="274,-95 274,-170 468,-170 468,-95 274,-95"/>
-<text text-anchor="middle" x="371" y="-154.8" font-family="Times New Roman,serif" font-size="14.00">frontend</text>
+<text text-anchor="middle" x="371" y="-154.8" font-family="Times New Roman,serif" font-size="14.00">frontend[namespace]</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_backend[namespace]</title>
+<polygon fill="none" stroke="black" points="8,-8 8,-170 266,-170 266,-8 8,-8"/>
+<text text-anchor="middle" x="137" y="-154.8" font-family="Times New Roman,serif" font-size="14.00">backend[namespace]</text>
 </g>
 <!-- backend/checkout[Deployment] -->
 <g id="node1" class="node">

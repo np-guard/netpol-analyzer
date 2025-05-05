@@ -1,5 +1,5 @@
 digraph {
-	subgraph "cluster_default" {
+	subgraph "cluster_default[namespace]" {
 		color="black"
 		fontcolor="black"
 		"default/details-v1-79f774bdb9[ReplicaSet]" [label="details-v1-79f774bdb9[ReplicaSet]" color="blue" fontcolor="blue"]
@@ -9,7 +9,7 @@ digraph {
 		"default/reviews-v2-7bf8c9648f[ReplicaSet]" [label="reviews-v2-7bf8c9648f[ReplicaSet]" color="blue" fontcolor="blue"]
 		"default/reviews-v3-84779c7bbc[ReplicaSet]" [label="reviews-v3-84779c7bbc[ReplicaSet]" color="blue" fontcolor="blue"]
 		"default/unicorn[Deployment]" [label="unicorn[Deployment]" color="#008000" fontcolor="#008000"]
-		label="default"
+		label="default[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="blue" fontcolor="blue"]
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]

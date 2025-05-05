@@ -8,25 +8,25 @@
  viewBox="0.00 0.00 1371.13 386.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 382)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-382 1367.13,-382 1367.13,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_gryffindor</title>
-<polygon fill="none" stroke="black" points="419.13,-79 419.13,-154 633.13,-154 633.13,-79 419.13,-79"/>
-<text text-anchor="middle" x="526.13" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">gryffindor</text>
-</g>
 <g id="clust3" class="cluster">
-<title>cluster_ravenclaw</title>
+<title>cluster_ravenclaw[namespace]</title>
 <polygon fill="none" stroke="black" points="550.13,-187 550.13,-262 780.13,-262 780.13,-187 550.13,-187"/>
-<text text-anchor="middle" x="665.13" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">ravenclaw</text>
+<text text-anchor="middle" x="665.13" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">ravenclaw[namespace]</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_gryffindor[namespace]</title>
+<polygon fill="none" stroke="black" points="419.13,-79 419.13,-154 633.13,-154 633.13,-79 419.13,-79"/>
+<text text-anchor="middle" x="526.13" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">gryffindor[namespace]</text>
 </g>
 <g id="clust2" class="cluster">
-<title>cluster_hufflepuff</title>
+<title>cluster_hufflepuff[namespace]</title>
 <polygon fill="none" stroke="black" points="788.13,-187 788.13,-262 1022.13,-262 1022.13,-187 788.13,-187"/>
-<text text-anchor="middle" x="905.13" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">hufflepuff</text>
+<text text-anchor="middle" x="905.13" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">hufflepuff[namespace]</text>
 </g>
 <g id="clust4" class="cluster">
-<title>cluster_slytherin</title>
+<title>cluster_slytherin[namespace]</title>
 <polygon fill="none" stroke="black" points="698.13,-295 698.13,-370 924.13,-370 924.13,-295 698.13,-295"/>
-<text text-anchor="middle" x="811.13" y="-354.8" font-family="Times New Roman,serif" font-size="14.00">slytherin</text>
+<text text-anchor="middle" x="811.13" y="-354.8" font-family="Times New Roman,serif" font-size="14.00">slytherin[namespace]</text>
 </g>
 <!-- gryffindor/harry&#45;potter[StatefulSet] -->
 <g id="node1" class="node">

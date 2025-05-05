@@ -8,30 +8,30 @@
  viewBox="0.00 0.00 1740.00 578.79" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 574.79)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-574.79 1736,-574.79 1736,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_backend</title>
-<polygon fill="none" stroke="black" points="886,-8 886,-301 1516,-301 1516,-8 886,-8"/>
-<text text-anchor="middle" x="1201" y="-285.8" font-family="Times New Roman,serif" font-size="14.00">backend</text>
-</g>
-<g id="clust4" class="cluster">
-<title>cluster_payments</title>
-<polygon fill="none" stroke="black" points="8,-203 8,-432 568,-432 568,-203 8,-203"/>
-<text text-anchor="middle" x="288" y="-416.8" font-family="Times New Roman,serif" font-size="14.00">payments</text>
-</g>
 <g id="clust5" class="cluster">
 <title>cluster_legend</title>
 <polygon fill="none" stroke="black" points="1329,-342 1329,-562.79 1724,-562.79 1724,-342 1329,-342"/>
 <text text-anchor="middle" x="1526.5" y="-550.79" font-family="Times New Roman,serif" font-size="10.00">Legend</text>
 </g>
 <g id="clust2" class="cluster">
-<title>cluster_external</title>
+<title>cluster_external[namespace]</title>
 <polygon fill="none" stroke="black" points="588,-203 588,-301 780,-301 780,-203 588,-203"/>
-<text text-anchor="middle" x="684" y="-285.8" font-family="Times New Roman,serif" font-size="14.00">external</text>
+<text text-anchor="middle" x="684" y="-285.8" font-family="Times New Roman,serif" font-size="14.00">external[namespace]</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_backend[namespace]</title>
+<polygon fill="none" stroke="black" points="886,-8 886,-301 1516,-301 1516,-8 886,-8"/>
+<text text-anchor="middle" x="1201" y="-285.8" font-family="Times New Roman,serif" font-size="14.00">backend[namespace]</text>
 </g>
 <g id="clust3" class="cluster">
-<title>cluster_frontend</title>
+<title>cluster_frontend[namespace]</title>
 <polygon fill="none" stroke="black" points="870,-334 870,-432 1306,-432 1306,-334 870,-334"/>
-<text text-anchor="middle" x="1088" y="-416.8" font-family="Times New Roman,serif" font-size="14.00">frontend</text>
+<text text-anchor="middle" x="1088" y="-416.8" font-family="Times New Roman,serif" font-size="14.00">frontend[namespace]</text>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_payments[namespace]</title>
+<polygon fill="none" stroke="black" points="8,-203 8,-432 568,-432 568,-203 8,-203"/>
+<text text-anchor="middle" x="288" y="-416.8" font-family="Times New Roman,serif" font-size="14.00">payments[namespace]</text>
 </g>
 <!-- backend/catalog[Deployment] -->
 <g id="node1" class="node">

@@ -1,24 +1,29 @@
 digraph {
-	subgraph "cluster_hello_world" {
+	subgraph "cluster_hello_world[namespace]" {
 		color="black"
 		fontcolor="black"
 		"hello-world/matching-workload2[Deployment]" [label="matching-workload2[Deployment]" color="blue" fontcolor="blue"]
 		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
 		"hello-world/workload-b[Deployment]" [label="workload-b[Deployment]" color="blue" fontcolor="blue"]
-		"pod with {{Key:app,Operator:DoesNotExist,Values:[],}}_in_hello-world" [label="pod with {{Key:app,Operator:DoesNotExist,Values:[],}}" color="red2" fontcolor="red2"]
-		label="hello-world"
+		label="hello-world[namespace]"
 	}
-	subgraph "cluster_matching_ns" {
+	subgraph "cluster_matching_ns[namespace]" {
 		color="black"
 		fontcolor="black"
 		"matching-ns/matching-workload1[Deployment]" [label="matching-workload1[Deployment]" color="blue" fontcolor="blue"]
-		label="matching-ns"
+		label="matching-ns[namespace]"
 	}
-	subgraph "cluster_namespace with {{Key:env,Operator:DoesNotExist,Values:[],}}" {
+	subgraph "cluster_hello_world[namespace]" {
+		color="red2"
+		fontcolor="red2"
+		"pod with {{Key:app,Operator:DoesNotExist,Values:[],}}_in_hello-world" [label="pod with {{Key:app,Operator:DoesNotExist,Values:[],}}" color="red2" fontcolor="red2"]
+		label="hello-world[namespace]"
+	}
+	subgraph "cluster_namespace with {{Key:env,Operator:DoesNotExist,Values:[],}}[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"all pods_in_namespace with {{Key:env,Operator:DoesNotExist,Values:[],}}" [label="all pods" color="red2" fontcolor="red2"]
-		label="namespace with {{Key:env,Operator:DoesNotExist,Values:[],}}"
+		label="namespace with {{Key:env,Operator:DoesNotExist,Values:[],}}[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]

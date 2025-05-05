@@ -9,19 +9,19 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 488)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-488 1227,-488 1227,4 -4,4"/>
 <g id="clust1" class="cluster">
-<title>cluster_backend</title>
+<title>cluster_backend[namespace]</title>
 <polygon fill="none" stroke="black" points="558,-8 558,-299 1152,-299 1152,-8 558,-8"/>
-<text text-anchor="middle" x="855" y="-283.8" font-family="Times New Roman,serif" font-size="14.00">backend</text>
-</g>
-<g id="clust3" class="cluster">
-<title>cluster_payments</title>
-<polygon fill="none" stroke="black" points="8,-8 8,-191 550,-191 550,-8 8,-8"/>
-<text text-anchor="middle" x="279" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">payments</text>
+<text text-anchor="middle" x="855" y="-283.8" font-family="Times New Roman,serif" font-size="14.00">backend[namespace]</text>
 </g>
 <g id="clust2" class="cluster">
-<title>cluster_frontend</title>
+<title>cluster_frontend[namespace]</title>
 <polygon fill="none" stroke="black" points="606,-332 606,-407 1024,-407 1024,-332 606,-332"/>
-<text text-anchor="middle" x="815" y="-391.8" font-family="Times New Roman,serif" font-size="14.00">frontend</text>
+<text text-anchor="middle" x="815" y="-391.8" font-family="Times New Roman,serif" font-size="14.00">frontend[namespace]</text>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_payments[namespace]</title>
+<polygon fill="none" stroke="black" points="8,-8 8,-191 550,-191 550,-8 8,-8"/>
+<text text-anchor="middle" x="279" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">payments[namespace]</text>
 </g>
 <!-- backend/catalog[Deployment] -->
 <g id="node1" class="node">

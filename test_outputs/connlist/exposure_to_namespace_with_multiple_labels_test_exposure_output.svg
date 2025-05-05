@@ -8,15 +8,15 @@
  viewBox="0.00 0.00 455.77 278.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 274)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-274 451.77,-274 451.77,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_hello_world</title>
-<polygon fill="none" stroke="black" points="24.89,-79 24.89,-154 242.89,-154 242.89,-79 24.89,-79"/>
-<text text-anchor="middle" x="133.89" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
-</g>
 <g id="clust2" class="cluster">
-<title>cluster_namespace with {effect=NoSchedule,release=stable}</title>
-<polygon fill="none" stroke="#ee0000" points="55.89,-187 55.89,-262 367.89,-262 367.89,-187 55.89,-187"/>
-<text text-anchor="middle" x="211.89" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {effect=NoSchedule,release=stable}</text>
+<title>cluster_namespace with {effect=NoSchedule,release=stable}[namespace]</title>
+<polygon fill="none" stroke="#ee0000" points="55.89,-187 55.89,-262 438.89,-262 438.89,-187 55.89,-187"/>
+<text text-anchor="middle" x="247.39" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {effect=NoSchedule,release=stable}[namespace]</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_hello_world[namespace]</title>
+<polygon fill="none" stroke="black" points="24.89,-79 24.89,-154 242.89,-154 242.89,-79 24.89,-79"/>
+<text text-anchor="middle" x="133.89" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world[namespace]</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
 <g id="node1" class="node">

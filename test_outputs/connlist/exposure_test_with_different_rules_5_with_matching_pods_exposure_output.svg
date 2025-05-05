@@ -9,9 +9,9 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 496)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-496 1777,-496 1777,4 -4,4"/>
 <g id="clust1" class="cluster">
-<title>cluster_hello_world</title>
-<polygon fill="none" stroke="black" points="304,-79 304,-415 1654,-415 1654,-79 304,-79"/>
-<text text-anchor="middle" x="979" y="-399.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
+<title>cluster_hello_world[namespace]</title>
+<polygon fill="none" stroke="#ee0000" points="304,-79 304,-415 1654,-415 1654,-79 304,-79"/>
+<text text-anchor="middle" x="979" y="-399.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">hello&#45;world[namespace]</text>
 </g>
 <!-- hello&#45;world/matching&#45;one&#45;rule[Deployment] -->
 <g id="node1" class="node">

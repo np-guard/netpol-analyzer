@@ -8,15 +8,15 @@
  viewBox="0.00 0.00 467.89 207.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 203)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-203 463.89,-203 463.89,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_ns1</title>
-<polygon fill="none" stroke="black" points="8,-8 8,-83 182,-83 182,-8 8,-8"/>
-<text text-anchor="middle" x="95" y="-67.8" font-family="Times New Roman,serif" font-size="14.00">ns1</text>
-</g>
 <g id="clust2" class="cluster">
-<title>cluster_ns2</title>
-<polygon fill="none" stroke="black" points="8,-116 8,-191 182,-191 182,-116 8,-116"/>
-<text text-anchor="middle" x="95" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">ns2</text>
+<title>cluster_ns2[namespace]</title>
+<polygon fill="none" stroke="black" points="66,-116 66,-191 240,-191 240,-116 66,-116"/>
+<text text-anchor="middle" x="153" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">ns2[namespace]</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_ns1[namespace]</title>
+<polygon fill="none" stroke="black" points="8,-8 8,-83 182,-83 182,-8 8,-8"/>
+<text text-anchor="middle" x="95" y="-67.8" font-family="Times New Roman,serif" font-size="14.00">ns1[namespace]</text>
 </g>
 <!-- ns1/pod1[Deployment] -->
 <g id="node1" class="node">
@@ -27,15 +27,15 @@
 <!-- ns2/pod1[Deployment] -->
 <g id="node2" class="node">
 <title>ns2/pod1[Deployment]</title>
-<ellipse fill="none" stroke="blue" cx="95" cy="-142" rx="79.09" ry="18"/>
-<text text-anchor="middle" x="95" y="-138.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">pod1[Deployment]</text>
+<ellipse fill="none" stroke="blue" cx="153" cy="-142" rx="79.09" ry="18"/>
+<text text-anchor="middle" x="153" y="-138.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">pod1[Deployment]</text>
 </g>
 <!-- ns2/pod1[Deployment]&#45;&gt;ns1/pod1[Deployment] -->
 <g id="edge3" class="edge">
 <title>ns2/pod1[Deployment]&#45;&gt;ns1/pod1[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M95,-123.97C95,-107.38 95,-81.88 95,-62.43"/>
-<polygon fill="#eec900" stroke="#eec900" points="98.5,-62.34 95,-52.34 91.5,-62.34 98.5,-62.34"/>
-<text text-anchor="middle" x="142" y="-94.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 80,UDP 80</text>
+<path fill="none" stroke="#eec900" d="M116.32,-125.94C108.25,-120.84 100.71,-114.28 96,-106 88.57,-92.94 87.99,-76.21 89.42,-62.28"/>
+<polygon fill="#eec900" stroke="#eec900" points="92.9,-62.66 90.83,-52.27 85.97,-61.69 92.9,-62.66"/>
+<text text-anchor="middle" x="143" y="-94.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 80,UDP 80</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255[External] -->
 <g id="node3" class="node">
@@ -46,15 +46,15 @@
 <!-- ns2/pod1[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge2" class="edge">
 <title>ns2/pod1[Deployment]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
-<path fill="none" stroke="#eec900" d="M141.24,-127.25C157.17,-121.67 174.82,-114.5 190,-106 199.39,-100.74 199.87,-96.69 209,-91 230.56,-77.56 255.84,-65.09 277.37,-55.35"/>
-<polygon fill="#eec900" stroke="#eec900" points="278.95,-58.48 286.66,-51.21 276.1,-52.08 278.95,-58.48"/>
+<path fill="none" stroke="#eec900" d="M170.48,-124.41C183.75,-112.01 201.03,-96.31 209,-91 229.73,-77.19 254.4,-64.86 275.72,-55.3"/>
+<polygon fill="#eec900" stroke="#eec900" points="277.2,-58.48 284.95,-51.25 274.38,-52.07 277.2,-58.48"/>
 <text text-anchor="middle" x="254.5" y="-94.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;ns2/pod1[Deployment] -->
 <g id="edge1" class="edge">
 <title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;ns2/pod1[Deployment]</title>
-<path fill="none" stroke="#eec900" d="M325.57,-52.04C324.2,-68.38 319.45,-92.5 304,-106 285.6,-122.08 230.01,-130.9 180.79,-135.66"/>
-<polygon fill="#eec900" stroke="#eec900" points="180.36,-132.18 170.72,-136.58 181,-139.15 180.36,-132.18"/>
+<path fill="none" stroke="#eec900" d="M325.36,-52.14C323.81,-68.32 318.93,-92.12 304,-106 292.71,-116.5 261.27,-124.61 229.98,-130.37"/>
+<polygon fill="#eec900" stroke="#eec900" points="229.09,-126.97 219.85,-132.16 230.31,-133.87 229.09,-126.97"/>
 <text text-anchor="middle" x="360.5" y="-94.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 </g>

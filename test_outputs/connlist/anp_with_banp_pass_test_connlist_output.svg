@@ -8,15 +8,15 @@
  viewBox="0.00 0.00 620.65 278.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 274)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-274 616.65,-274 616.65,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_ns1</title>
-<polygon fill="none" stroke="black" points="40.65,-79 40.65,-154 214.65,-154 214.65,-79 40.65,-79"/>
-<text text-anchor="middle" x="127.65" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">ns1</text>
-</g>
 <g id="clust2" class="cluster">
-<title>cluster_ns2</title>
+<title>cluster_ns2[namespace]</title>
 <polygon fill="none" stroke="black" points="35.65,-187 35.65,-262 209.65,-262 209.65,-187 35.65,-187"/>
-<text text-anchor="middle" x="122.65" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">ns2</text>
+<text text-anchor="middle" x="122.65" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">ns2[namespace]</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_ns1[namespace]</title>
+<polygon fill="none" stroke="black" points="40.65,-79 40.65,-154 214.65,-154 214.65,-79 40.65,-79"/>
+<text text-anchor="middle" x="127.65" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">ns1[namespace]</text>
 </g>
 <!-- ns1/pod1[Deployment] -->
 <g id="node1" class="node">

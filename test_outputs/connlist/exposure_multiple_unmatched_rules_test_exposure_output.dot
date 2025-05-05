@@ -1,27 +1,27 @@
 digraph {
-	subgraph "cluster_hello_world" {
+	subgraph "cluster_hello_world[namespace]" {
 		color="black"
 		fontcolor="black"
 		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
-		label="hello-world"
+		label="hello-world[namespace]"
 	}
-	subgraph "cluster_namespace with {effect=NoSchedule}" {
+	subgraph "cluster_namespace with {effect=NoSchedule}[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"all pods_in_namespace with {effect=NoSchedule}" [label="all pods" color="red2" fontcolor="red2"]
-		label="namespace with {effect=NoSchedule}"
+		label="namespace with {effect=NoSchedule}[namespace]"
 	}
-	subgraph "cluster_namespace with {release=stable}" {
+	subgraph "cluster_namespace with {release=stable}[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"all pods_in_namespace with {release=stable}" [label="all pods" color="red2" fontcolor="red2"]
-		label="namespace with {release=stable}"
+		label="namespace with {release=stable}[namespace]"
 	}
-	subgraph "cluster_namespace with {{Key:foo.com/managed_state,Operator:In,Values:[managed],}}" {
+	subgraph "cluster_namespace with {{Key:foo.com/managed_state,Operator:In,Values:[managed],}}[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"all pods_in_namespace with {{Key:foo.com/managed-state,Operator:In,Values:[managed],}}" [label="all pods" color="red2" fontcolor="red2"]
-		label="namespace with {{Key:foo.com/managed-state,Operator:In,Values:[managed],}}"
+		label="namespace with {{Key:foo.com/managed-state,Operator:In,Values:[managed],}}[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]

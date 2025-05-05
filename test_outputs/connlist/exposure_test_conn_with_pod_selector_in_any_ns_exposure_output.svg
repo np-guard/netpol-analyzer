@@ -9,14 +9,14 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 274)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-274 451.77,-274 451.77,4 -4,4"/>
 <g id="clust1" class="cluster">
-<title>cluster_hello_world</title>
+<title>cluster_hello_world[namespace]</title>
 <polygon fill="none" stroke="black" points="24.89,-79 24.89,-154 242.89,-154 242.89,-79 24.89,-79"/>
-<text text-anchor="middle" x="133.89" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
+<text text-anchor="middle" x="133.89" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world[namespace]</text>
 </g>
 <g id="clust2" class="cluster">
-<title>cluster_all namespaces</title>
+<title>cluster_all namespaces[namespace]</title>
 <polygon fill="none" stroke="#ee0000" points="13.89,-187 13.89,-262 253.89,-262 253.89,-187 13.89,-187"/>
-<text text-anchor="middle" x="133.89" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">all namespaces</text>
+<text text-anchor="middle" x="133.89" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">all namespaces[namespace]</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
 <g id="node1" class="node">

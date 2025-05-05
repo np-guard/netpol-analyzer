@@ -8,20 +8,20 @@
  viewBox="0.00 0.00 941.89 207.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 203)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-203 937.89,-203 937.89,4 -4,4"/>
+<g id="clust2" class="cluster">
+<title>cluster_hufflepuff[namespace]</title>
+<polygon fill="none" stroke="black" points="8,-8 8,-83 242,-83 242,-8 8,-8"/>
+<text text-anchor="middle" x="125" y="-67.8" font-family="Times New Roman,serif" font-size="14.00">hufflepuff[namespace]</text>
+</g>
 <g id="clust1" class="cluster">
-<title>cluster_gryffindor</title>
+<title>cluster_gryffindor[namespace]</title>
 <polygon fill="none" stroke="black" points="513,-116 513,-191 727,-191 727,-116 513,-116"/>
-<text text-anchor="middle" x="620" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">gryffindor</text>
+<text text-anchor="middle" x="620" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">gryffindor[namespace]</text>
 </g>
 <g id="clust3" class="cluster">
-<title>cluster_slytherin</title>
+<title>cluster_slytherin[namespace]</title>
 <polygon fill="none" stroke="black" points="250,-8 250,-83 476,-83 476,-8 250,-8"/>
-<text text-anchor="middle" x="363" y="-67.8" font-family="Times New Roman,serif" font-size="14.00">slytherin</text>
-</g>
-<g id="clust2" class="cluster">
-<title>cluster_hufflepuff</title>
-<polygon fill="none" stroke="black" points="8,-8 8,-83 242,-83 242,-8 8,-8"/>
-<text text-anchor="middle" x="125" y="-67.8" font-family="Times New Roman,serif" font-size="14.00">hufflepuff</text>
+<text text-anchor="middle" x="363" y="-67.8" font-family="Times New Roman,serif" font-size="14.00">slytherin[namespace]</text>
 </g>
 <!-- gryffindor/harry&#45;potter[StatefulSet] -->
 <g id="node1" class="node">

@@ -1,5 +1,5 @@
 digraph {
-	subgraph "cluster_default" {
+	subgraph "cluster_default[namespace]" {
 		color="black"
 		fontcolor="black"
 		"default/adservice[Deployment]" [label="adservice[Deployment]" color="blue" fontcolor="blue"]
@@ -14,7 +14,7 @@ digraph {
 		"default/recommendationservice[Deployment]" [label="recommendationservice[Deployment]" color="blue" fontcolor="blue"]
 		"default/redis-cart[Deployment]" [label="redis-cart[Deployment]" color="blue" fontcolor="blue"]
 		"default/shippingservice[Deployment]" [label="shippingservice[Deployment]" color="blue" fontcolor="blue"]
-		label="default"
+		label="default[namespace]"
 	}
 	"0.0.0.0-127.255.255.255[External]" [label="0.0.0.0-127.255.255.255[External]" color="blue" fontcolor="blue"]
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="blue" fontcolor="blue"]

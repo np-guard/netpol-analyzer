@@ -9,9 +9,9 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 182)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-182 468,-182 468,4 -4,4"/>
 <g id="clust1" class="cluster">
-<title>cluster_backend</title>
+<title>cluster_backend[namespace]</title>
 <polygon fill="none" stroke="black" points="8,-8 8,-170 456,-170 456,-8 8,-8"/>
-<text text-anchor="middle" x="232" y="-154.8" font-family="Times New Roman,serif" font-size="14.00">backend</text>
+<text text-anchor="middle" x="232" y="-154.8" font-family="Times New Roman,serif" font-size="14.00">backend[namespace]</text>
 </g>
 <!-- backend/catalog[Deployment] -->
 <g id="node1" class="node">

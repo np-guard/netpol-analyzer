@@ -9,9 +9,9 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 269)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-269 1525.89,-269 1525.89,4 -4,4"/>
 <g id="clust1" class="cluster">
-<title>cluster_default</title>
+<title>cluster_default[namespace]</title>
 <polygon fill="none" stroke="black" points="8,-8 8,-257 1244,-257 1244,-8 8,-8"/>
-<text text-anchor="middle" x="626" y="-241.8" font-family="Times New Roman,serif" font-size="14.00">default</text>
+<text text-anchor="middle" x="626" y="-241.8" font-family="Times New Roman,serif" font-size="14.00">default[namespace]</text>
 </g>
 <!-- default/details&#45;v1&#45;79f774bdb9[ReplicaSet] -->
 <g id="node1" class="node">

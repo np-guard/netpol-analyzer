@@ -21,6 +21,7 @@ const (
 	DefaultNsGroupColor = "black"
 	LessWeight          = "0.5"
 	MoreWeight          = "1"
+	namespaceLabel      = "[namespace]"
 )
 
 var EdgeLineFormat = fmt.Sprintf("\t%%q -> %%q [label=%%q color=%%q fontcolor=%%q weight=%%s%%s]")
@@ -29,6 +30,8 @@ var EdgeLineFormat = fmt.Sprintf("\t%%q -> %%q [label=%%q color=%%q fontcolor=%%
 func AddPeerToNsGroup(peerNs, peerLine string, mapNsToPeers map[string][]string, isInUDN bool) {
 	if isInUDN {
 		peerNs += common.UDNLabel
+	} else {
+		peerNs += namespaceLabel
 	}
 	if _, ok := mapNsToPeers[peerNs]; !ok {
 		mapNsToPeers[peerNs] = []string{}

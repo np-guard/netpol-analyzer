@@ -1,10 +1,10 @@
 digraph {
-	subgraph "cluster_default" {
+	subgraph "cluster_default[namespace]" {
 		color="black"
 		fontcolor="black"
 		"default/cirrus-vm-1[VirtualMachine]" [label="cirrus-vm-1[VirtualMachine]" color="blue" fontcolor="blue"]
 		"default/fedora-vm-1[VirtualMachine]" [label="fedora-vm-1[VirtualMachine]" color="blue" fontcolor="blue"]
-		label="default"
+		label="default[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"0.0.0.0-255.255.255.255[External]" -> "default/cirrus-vm-1[VirtualMachine]" [label="TCP 9001-9090" color="gold2" fontcolor="darkgreen" weight=0.5]

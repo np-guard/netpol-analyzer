@@ -9,19 +9,19 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 343)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-343 870,-343 870,4 -4,4"/>
 <g id="clust3" class="cluster">
-<title>cluster_namespace with {{Key:env,Operator:In,Values:[env_1 env_2],}}</title>
+<title>cluster_namespace with {{Key:env,Operator:In,Values:[env_1 env_2],}}[namespace]</title>
 <polygon fill="none" stroke="#ee0000" points="302,-187 302,-262 756,-262 756,-187 302,-187"/>
-<text text-anchor="middle" x="529" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {{Key:env,Operator:In,Values:[env&#45;1 env&#45;2],}}</text>
+<text text-anchor="middle" x="529" y="-246.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">namespace with {{Key:env,Operator:In,Values:[env&#45;1 env&#45;2],}}[namespace]</text>
 </g>
 <g id="clust2" class="cluster">
-<title>cluster_matching_ns</title>
+<title>cluster_matching_ns[namespace]</title>
 <polygon fill="none" stroke="black" points="8,-187 8,-262 294,-262 294,-187 8,-187"/>
-<text text-anchor="middle" x="151" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">matching&#45;ns</text>
+<text text-anchor="middle" x="151" y="-246.8" font-family="Times New Roman,serif" font-size="14.00">matching&#45;ns[namespace]</text>
 </g>
 <g id="clust1" class="cluster">
-<title>cluster_hello_world</title>
+<title>cluster_hello_world[namespace]</title>
 <polygon fill="none" stroke="black" points="379,-79 379,-154 597,-154 597,-79 379,-79"/>
-<text text-anchor="middle" x="488" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world</text>
+<text text-anchor="middle" x="488" y="-138.8" font-family="Times New Roman,serif" font-size="14.00">hello&#45;world[namespace]</text>
 </g>
 <!-- hello&#45;world/workload&#45;a[Deployment] -->
 <g id="node1" class="node">

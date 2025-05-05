@@ -8,15 +8,15 @@
  viewBox="0.00 0.00 2297.99 803.79" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 799.79)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-799.79 2293.99,-799.79 2293.99,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_default</title>
-<polygon fill="none" stroke="black" points="17.99,-79 17.99,-676 1372.99,-676 1372.99,-79 17.99,-79"/>
-<text text-anchor="middle" x="695.49" y="-660.8" font-family="Times New Roman,serif" font-size="14.00">default</text>
-</g>
 <g id="clust2" class="cluster">
 <title>cluster_legend</title>
 <polygon fill="none" stroke="black" points="1380.99,-609 1380.99,-787.79 1775.99,-787.79 1775.99,-609 1380.99,-609"/>
 <text text-anchor="middle" x="1578.49" y="-775.79" font-family="Times New Roman,serif" font-size="10.00">Legend</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_default[namespace]</title>
+<polygon fill="none" stroke="black" points="17.99,-79 17.99,-676 1372.99,-676 1372.99,-79 17.99,-79"/>
+<text text-anchor="middle" x="695.49" y="-660.8" font-family="Times New Roman,serif" font-size="14.00">default[namespace]</text>
 </g>
 <!-- default/details&#45;v1&#45;79f774bdb9[ReplicaSet] -->
 <g id="node1" class="node">

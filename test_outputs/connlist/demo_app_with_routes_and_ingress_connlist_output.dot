@@ -1,21 +1,21 @@
 digraph {
-	subgraph "cluster_helloworld" {
+	subgraph "cluster_helloworld[namespace]" {
 		color="black"
 		fontcolor="black"
 		"helloworld/hello-world[Deployment]" [label="hello-world[Deployment]" color="blue" fontcolor="blue"]
-		label="helloworld"
+		label="helloworld[namespace]"
 	}
-	subgraph "cluster_ingressworld" {
+	subgraph "cluster_ingressworld[namespace]" {
 		color="black"
 		fontcolor="black"
 		"ingressworld/ingress-world[Deployment]" [label="ingress-world[Deployment]" color="blue" fontcolor="blue"]
-		label="ingressworld"
+		label="ingressworld[namespace]"
 	}
-	subgraph "cluster_routeworld" {
+	subgraph "cluster_routeworld[namespace]" {
 		color="black"
 		fontcolor="black"
 		"routeworld/route-world[Deployment]" [label="route-world[Deployment]" color="blue" fontcolor="blue"]
-		label="routeworld"
+		label="routeworld[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]

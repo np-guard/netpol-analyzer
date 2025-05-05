@@ -1,9 +1,9 @@
 digraph {
-	subgraph "cluster_ingressworld" {
+	subgraph "cluster_ingressworld[namespace]" {
 		color="black"
 		fontcolor="black"
 		"ingressworld/ingress-world-multiple-ports[Deployment]" [label="ingress-world-multiple-ports[Deployment]" color="blue" fontcolor="blue"]
-		label="ingressworld"
+		label="ingressworld[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="blue" fontcolor="blue"]
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]

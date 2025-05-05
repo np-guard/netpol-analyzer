@@ -8,25 +8,25 @@
  viewBox="0.00 0.00 1043.00 423.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 419)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-419 1039,-419 1039,4 -4,4"/>
-<g id="clust4" class="cluster">
-<title>cluster_green[udn]</title>
-<polygon fill="none" stroke="black" points="486,-85 486,-407 776,-407 776,-85 486,-85"/>
-<text text-anchor="middle" x="631" y="-391.8" font-family="Times New Roman,serif" font-size="14.00">green[udn]</text>
-</g>
 <g id="clust1" class="cluster">
 <title>cluster_pod_network</title>
 <polygon fill="none" stroke="black" points="8,-77 8,-299 201,-299 201,-77 8,-77"/>
 <text text-anchor="middle" x="104.5" y="-283.8" font-family="Times New Roman,serif" font-size="14.00">pod network</text>
 </g>
-<g id="clust2" class="cluster">
-<title>cluster_bar</title>
-<polygon fill="none" stroke="black" points="28,-85 28,-160 154,-160 154,-85 28,-85"/>
-<text text-anchor="middle" x="91" y="-144.8" font-family="Times New Roman,serif" font-size="14.00">bar</text>
-</g>
 <g id="clust3" class="cluster">
-<title>cluster_default</title>
-<polygon fill="none" stroke="black" points="56,-193 56,-268 178,-268 178,-193 56,-193"/>
-<text text-anchor="middle" x="117" y="-252.8" font-family="Times New Roman,serif" font-size="14.00">default</text>
+<title>cluster_default[namespace]</title>
+<polygon fill="none" stroke="black" points="54,-193 54,-268 179,-268 179,-193 54,-193"/>
+<text text-anchor="middle" x="116.5" y="-252.8" font-family="Times New Roman,serif" font-size="14.00">default[namespace]</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_bar[namespace]</title>
+<polygon fill="none" stroke="black" points="28,-85 28,-160 154,-160 154,-85 28,-85"/>
+<text text-anchor="middle" x="91" y="-144.8" font-family="Times New Roman,serif" font-size="14.00">bar[namespace]</text>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_green[udn]</title>
+<polygon fill="none" stroke="black" points="486,-85 486,-407 776,-407 776,-85 486,-85"/>
+<text text-anchor="middle" x="631" y="-391.8" font-family="Times New Roman,serif" font-size="14.00">green[udn]</text>
 </g>
 <!-- bar/mybar[Pod] -->
 <g id="node1" class="node">
@@ -37,14 +37,14 @@
 <!-- default/app&#45;1[Pod] -->
 <g id="node2" class="node">
 <title>default/app&#45;1[Pod]</title>
-<ellipse fill="none" stroke="blue" cx="117" cy="-219" rx="52.79" ry="18"/>
-<text text-anchor="middle" x="117" y="-215.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">app&#45;1[Pod]</text>
+<ellipse fill="none" stroke="blue" cx="116" cy="-219" rx="52.79" ry="18"/>
+<text text-anchor="middle" x="116" y="-215.3" font-family="Times New Roman,serif" font-size="14.00" fill="blue">app&#45;1[Pod]</text>
 </g>
 <!-- bar/mybar[Pod]&#45;&gt;default/app&#45;1[Pod] -->
 <g id="edge7" class="edge">
 <title>bar/mybar[Pod]&#45;&gt;default/app&#45;1[Pod]</title>
-<path fill="none" stroke="#eec900" d="M65.47,-126.95C44.95,-140.95 21.59,-162.7 35,-183 41.66,-193.09 51.9,-200.28 62.9,-205.4"/>
-<polygon fill="#eec900" stroke="#eec900" points="61.68,-208.69 72.26,-209.24 64.34,-202.21 61.68,-208.69"/>
+<path fill="none" stroke="#eec900" d="M65.49,-126.94C44.98,-140.93 21.63,-162.67 35,-183 41.57,-193 51.68,-200.16 62.55,-205.27"/>
+<polygon fill="#eec900" stroke="#eec900" points="61.22,-208.51 71.8,-209.11 63.9,-202.05 61.22,-208.51"/>
 <text text-anchor="middle" x="57.5" y="-171.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">TCP 80</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255[External] -->
@@ -63,14 +63,14 @@
 <!-- default/app&#45;1[Pod]&#45;&gt;bar/mybar[Pod] -->
 <g id="edge9" class="edge">
 <title>default/app&#45;1[Pod]&#45;&gt;bar/mybar[Pod]</title>
-<path fill="none" stroke="#eec900" d="M112.82,-200.97C108.71,-184.2 102.37,-158.34 97.58,-138.81"/>
-<polygon fill="#eec900" stroke="#eec900" points="100.95,-137.87 95.17,-128.99 94.15,-139.53 100.95,-137.87"/>
+<path fill="none" stroke="#eec900" d="M111.98,-200.97C108.03,-184.2 101.93,-158.34 97.32,-138.81"/>
+<polygon fill="#eec900" stroke="#eec900" points="100.71,-137.92 95.01,-128.99 93.9,-139.52 100.71,-137.92"/>
 <text text-anchor="middle" x="152.5" y="-171.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- default/app&#45;1[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge8" class="edge">
 <title>default/app&#45;1[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
-<path fill="none" stroke="#eec900" d="M157.85,-207.55C173.02,-202.13 189.56,-194.22 202,-183 241.72,-147.17 216.94,-110.05 259,-77 289.18,-53.29 328.05,-39.21 364.86,-30.86"/>
+<path fill="none" stroke="#eec900" d="M157.32,-207.64C172.68,-202.23 189.41,-194.31 202,-183 241.79,-147.25 216.94,-110.05 259,-77 289.18,-53.29 328.05,-39.21 364.86,-30.86"/>
 <polygon fill="#eec900" stroke="#eec900" points="365.63,-34.28 374.68,-28.76 364.16,-27.43 365.63,-34.28"/>
 <text text-anchor="middle" x="304.5" y="-107.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
@@ -151,8 +151,8 @@
 <!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/app&#45;1[Pod] -->
 <g id="edge2" class="edge">
 <title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/app&#45;1[Pod]</title>
-<path fill="none" stroke="#eec900" d="M446.02,-35.56C427.64,-45.47 406.04,-59.54 391,-77 364.63,-107.59 384.52,-133.55 354,-160 305.83,-201.74 232.41,-214.45 180.06,-217.84"/>
-<polygon fill="#eec900" stroke="#eec900" points="179.68,-214.35 169.89,-218.4 180.06,-221.34 179.68,-214.35"/>
+<path fill="none" stroke="#eec900" d="M446.02,-35.56C427.64,-45.47 406.04,-59.54 391,-77 364.63,-107.59 384.52,-133.55 354,-160 305.64,-201.91 231.91,-214.59 179.33,-217.92"/>
+<polygon fill="#eec900" stroke="#eec900" points="178.91,-214.44 169.12,-218.47 179.29,-221.43 178.91,-214.44"/>
 <text text-anchor="middle" x="436.5" y="-107.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;green[udn]/vm&#45;a[VirtualMachine] -->
