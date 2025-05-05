@@ -2,7 +2,7 @@
   "connlist_conn_focus_results": [
     {
       "src": "gryffindor/harry-potter[StatefulSet]",
-      "dst": "0.0.0.0-255.255.255.255[External]"
+      "dst": "0.0.0.0-255.255.255.255"
     },
     {
       "src": "gryffindor/harry-potter[StatefulSet]",
@@ -17,7 +17,7 @@
     "egress_exposure": [
       {
         "src": "gryffindor/harry-potter[StatefulSet]",
-        "dst": "0.0.0.0-255.255.255.255[External]"
+        "dst": "0.0.0.0-255.255.255.255"
       },
       {
         "src": "gryffindor/harry-potter[StatefulSet]",

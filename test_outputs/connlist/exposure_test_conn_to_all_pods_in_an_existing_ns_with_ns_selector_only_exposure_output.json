@@ -1,13 +1,13 @@
 {
   "connlist_results": [
     {
-      "src": "0.0.0.0-255.255.255.255[External]",
+      "src": "0.0.0.0-255.255.255.255",
       "dst": "backend/backend-app[Deployment]",
       "conn": "All Connections"
     },
     {
       "src": "backend/backend-app[Deployment]",
-      "dst": "0.0.0.0-255.255.255.255[External]",
+      "dst": "0.0.0.0-255.255.255.255",
       "conn": "All Connections"
     },
     {
@@ -25,7 +25,7 @@
     "egress_exposure": [
       {
         "src": "backend/backend-app[Deployment]",
-        "dst": "0.0.0.0-255.255.255.255[External]",
+        "dst": "0.0.0.0-255.255.255.255",
         "conn": "All Connections"
       },
       {
@@ -41,7 +41,7 @@
     ],
     "ingress_exposure": [
       {
-        "src": "0.0.0.0-255.255.255.255[External]",
+        "src": "0.0.0.0-255.255.255.255",
         "dst": "backend/backend-app[Deployment]",
         "conn": "All Connections"
       },

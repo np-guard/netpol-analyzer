@@ -1,4 +1,4 @@
-default/internal-security[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
+default/internal-security[Pod] => 0.0.0.0-255.255.255.255 : All Connections
 default/internal-security[Pod] => default/pod-3[Pod] : TCP 90
-default/pod-3[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
+default/pod-3[Pod] => 0.0.0.0-255.255.255.255 : All Connections
 default/pod-3[Pod] => default/internal-security[Pod] : TCP 90

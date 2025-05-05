@@ -3,13 +3,13 @@
 # Specific connections and their reasons #
 ##########################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Connections between 0.0.0.0-255.255.255.255[External] => foo/myfoo[Pod]:
+Connections between 0.0.0.0-255.255.255.255 => foo/myfoo[Pod]:
 
 Denied connections:
 	Denied TCP, UDP, SCTP due to the following policies and rules:
 		Egress (Allowed) due to the system default (Allow all)
 		Ingress (Denied)
-			NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule
+			NetworkPolicy 'foo/allow-monitoring' selects foo/myfoo[Pod], but 0.0.0.0-255.255.255.255 is not allowed by any Ingress rule
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between bar/mybar[Pod] => foo/myfoo[Pod]:
@@ -80,36 +80,36 @@ Allowed connections:
 #########################################################
 # All Connections due to the system default (Allow all) #
 #########################################################
-0.0.0.0-255.255.255.255[External] => bar/mybar[Pod]
-0.0.0.0-255.255.255.255[External] => baz/mybaz[Pod]
-0.0.0.0-255.255.255.255[External] => monitoring/mymonitoring[Pod]
-bar/mybar[Pod] => 0.0.0.0-255.255.255.255[External]
+0.0.0.0-255.255.255.255 => bar/mybar[Pod]
+0.0.0.0-255.255.255.255 => baz/mybaz[Pod]
+0.0.0.0-255.255.255.255 => monitoring/mymonitoring[Pod]
+bar/mybar[Pod] => 0.0.0.0-255.255.255.255
 bar/mybar[Pod] => baz/mybaz[Pod]
 bar/mybar[Pod] => monitoring/mymonitoring[Pod]
-baz/mybaz[Pod] => 0.0.0.0-255.255.255.255[External]
+baz/mybaz[Pod] => 0.0.0.0-255.255.255.255
 baz/mybaz[Pod] => monitoring/mymonitoring[Pod]
-foo/myfoo[Pod] => 0.0.0.0-255.255.255.255[External]
+foo/myfoo[Pod] => 0.0.0.0-255.255.255.255
 foo/myfoo[Pod] => baz/mybaz[Pod]
 foo/myfoo[Pod] => monitoring/mymonitoring[Pod]
-monitoring/mymonitoring[Pod] => 0.0.0.0-255.255.255.255[External]
+monitoring/mymonitoring[Pod] => 0.0.0.0-255.255.255.255
 
 Exposure Analysis Result:
 Egress Exposure:
-bar/mybar[Pod]               	=> 	0.0.0.0-255.255.255.255[External] : All Connections
+bar/mybar[Pod]               	=> 	0.0.0.0-255.255.255.255 : All Connections
 bar/mybar[Pod]               	=> 	entire-cluster : All Connections
-baz/mybaz[Pod]               	=> 	0.0.0.0-255.255.255.255[External] : All Connections
+baz/mybaz[Pod]               	=> 	0.0.0.0-255.255.255.255 : All Connections
 baz/mybaz[Pod]               	=> 	entire-cluster : All Connections
-foo/myfoo[Pod]               	=> 	0.0.0.0-255.255.255.255[External] : All Connections
+foo/myfoo[Pod]               	=> 	0.0.0.0-255.255.255.255 : All Connections
 foo/myfoo[Pod]               	=> 	entire-cluster : All Connections
-monitoring/mymonitoring[Pod] 	=> 	0.0.0.0-255.255.255.255[External] : All Connections
+monitoring/mymonitoring[Pod] 	=> 	0.0.0.0-255.255.255.255 : All Connections
 monitoring/mymonitoring[Pod] 	=> 	entire-cluster : All Connections
 
 Ingress Exposure:
-bar/mybar[Pod]               	<= 	0.0.0.0-255.255.255.255[External] : All Connections
-baz/mybaz[Pod]               	<= 	0.0.0.0-255.255.255.255[External] : All Connections
+bar/mybar[Pod]               	<= 	0.0.0.0-255.255.255.255 : All Connections
+baz/mybaz[Pod]               	<= 	0.0.0.0-255.255.255.255 : All Connections
 baz/mybaz[Pod]               	<= 	entire-cluster : All Connections
 foo/myfoo[Pod]               	<= 	monitoring/[all pods] : All Connections
-monitoring/mymonitoring[Pod] 	<= 	0.0.0.0-255.255.255.255[External] : All Connections
+monitoring/mymonitoring[Pod] 	<= 	0.0.0.0-255.255.255.255 : All Connections
 monitoring/mymonitoring[Pod] 	<= 	entire-cluster : All Connections
 
 Workloads not protected by network policies:

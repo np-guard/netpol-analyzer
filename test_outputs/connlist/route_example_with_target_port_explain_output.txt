@@ -29,5 +29,5 @@ Denied connections:
 #########################################################
 # All Connections due to the system default (Allow all) #
 #########################################################
-0.0.0.0-255.255.255.255[External] => routes-world/workload-with-multiple-ports[Deployment]
-routes-world/workload-with-multiple-ports[Deployment] => 0.0.0.0-255.255.255.255[External]
+0.0.0.0-255.255.255.255 => routes-world/workload-with-multiple-ports[Deployment]
+routes-world/workload-with-multiple-ports[Deployment] => 0.0.0.0-255.255.255.255

@@ -1,5 +1,5 @@
 Connectivity diff:
-diff-type: changed, source: 0.0.0.0-255.255.255.255[External], destination: kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet], ref1: TCP 10053,UDP 10053, ref2: TCP 10053-10054,UDP 10053
+diff-type: changed, source: 0.0.0.0-255.255.255.255, destination: kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet], ref1: TCP 10053,UDP 10053, ref2: TCP 10053-10054,UDP 10053
 diff-type: changed, source: default/cog-agents-analyzer[DaemonSet], destination: kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet], ref1: TCP 10053,UDP 10053, ref2: TCP 10053-10054,UDP 10053
 diff-type: changed, source: default/cog-agents[DaemonSet], destination: kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet], ref1: TCP 10053,UDP 10053, ref2: TCP 10053-10054,UDP 10053
 diff-type: changed, source: default/cog-local-analyzer-7d77fb55cc[ReplicaSet], destination: kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db[ReplicaSet], ref1: TCP 10053,UDP 10053, ref2: TCP 10053-10054,UDP 10053

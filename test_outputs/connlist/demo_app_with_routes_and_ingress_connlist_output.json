@@ -1,22 +1,22 @@
 [
   {
-    "src": "0.0.0.0-255.255.255.255[External]",
+    "src": "0.0.0.0-255.255.255.255",
     "dst": "helloworld/hello-world[Deployment]",
     "conn": "All Connections"
   },
   {
-    "src": "0.0.0.0-255.255.255.255[External]",
+    "src": "0.0.0.0-255.255.255.255",
     "dst": "ingressworld/ingress-world[Deployment]",
     "conn": "All Connections"
   },
   {
-    "src": "0.0.0.0-255.255.255.255[External]",
+    "src": "0.0.0.0-255.255.255.255",
     "dst": "routeworld/route-world[Deployment]",
     "conn": "All Connections"
   },
   {
     "src": "helloworld/hello-world[Deployment]",
-    "dst": "0.0.0.0-255.255.255.255[External]",
+    "dst": "0.0.0.0-255.255.255.255",
     "conn": "All Connections"
   },
   {
@@ -31,7 +31,7 @@
   },
   {
     "src": "ingressworld/ingress-world[Deployment]",
-    "dst": "0.0.0.0-255.255.255.255[External]",
+    "dst": "0.0.0.0-255.255.255.255",
     "conn": "All Connections"
   },
   {
@@ -46,7 +46,7 @@
   },
   {
     "src": "routeworld/route-world[Deployment]",
-    "dst": "0.0.0.0-255.255.255.255[External]",
+    "dst": "0.0.0.0-255.255.255.255",
     "conn": "All Connections"
   },
   {

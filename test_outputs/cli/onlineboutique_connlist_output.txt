@@ -1,4 +1,4 @@
-0.0.0.0-255.255.255.255[External] => default/redis-cart-78746d49dc[ReplicaSet] : All Connections
+0.0.0.0-255.255.255.255 => default/redis-cart-78746d49dc[ReplicaSet] : All Connections
 default/checkoutservice-69c8ff664b[ReplicaSet] => default/cartservice-74f56fd4b[ReplicaSet] : TCP 7070
 default/checkoutservice-69c8ff664b[ReplicaSet] => default/currencyservice-77654bbbdd[ReplicaSet] : TCP 7000
 default/checkoutservice-69c8ff664b[ReplicaSet] => default/emailservice-54c7c5d9d[ReplicaSet] : TCP 8080
@@ -14,4 +14,4 @@ default/frontend-99684f7f8[ReplicaSet] => default/recommendationservice-5f8c4567
 default/frontend-99684f7f8[ReplicaSet] => default/shippingservice-5bd985c46d[ReplicaSet] : TCP 50051
 default/loadgenerator-555fbdc87d[ReplicaSet] => default/frontend-99684f7f8[ReplicaSet] : TCP 8080
 default/recommendationservice-5f8c456796[ReplicaSet] => default/productcatalogservice-68765d49b6[ReplicaSet] : TCP 3550
-default/redis-cart-78746d49dc[ReplicaSet] => 0.0.0.0-255.255.255.255[External] : All Connections
+default/redis-cart-78746d49dc[ReplicaSet] => 0.0.0.0-255.255.255.255 : All Connections

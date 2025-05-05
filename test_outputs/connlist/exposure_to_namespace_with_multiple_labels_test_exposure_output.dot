@@ -11,9 +11,9 @@ digraph {
 		"all pods_in_namespace with {effect=NoSchedule,release=stable}" [label="all pods" color="red2" fontcolor="red2"]
 		label="namespace with {effect=NoSchedule,release=stable}"
 	}
-	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
 	"all pods_in_namespace with {effect=NoSchedule,release=stable}" -> "hello-world/workload-a[Deployment]" [label="TCP 8050" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
-	"hello-world/workload-a[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"hello-world/workload-a[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"hello-world/workload-a[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
 }
