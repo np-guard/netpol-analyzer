@@ -1,0 +1,37 @@
+apiVersion: v1
+items:
+- apiVersion: k8s.ovn.org/v1
+  kind: UserDefinedNetwork
+  metadata:
+    creationTimestamp: "2025-03-03T06:59:48Z"
+    finalizers:
+    - k8s.ovn.org/user-defined-network-protection
+    generation: 1
+    name: primary-udn
+    namespace: foo
+    resourceVersion: "41526"
+    uid: ed8bde24-b3b2-4dcf-905d-cabf31e7c001
+  spec:
+    layer2:
+      ipam:
+        lifecycle: Persistent
+      role: Primary
+      subnets:
+      - 192.168.0.1/24
+    topology: Layer2
+  status:
+    conditions:
+    - lastTransitionTime: "2025-03-03T06:59:48Z"
+      message: NetworkAttachmentDefinition has been created
+      reason: NetworkAttachmentDefinitionCreated
+      status: "True"
+      type: NetworkCreated
+    - lastTransitionTime: "2025-03-03T06:59:48Z"
+      message: Network allocation succeeded for all synced nodes.
+      reason: NetworkAllocationSucceeded
+      status: "True"
+      type: NetworkAllocationSucceeded
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

@@ -75,3 +75,7 @@ func WarnNamespaceDoesNotSupportUDN(udnName, udnNs string) string {
 func NotSupportedUDNRole(udn string) string {
 	return fmt.Sprintf(warnIgnoredUDN+" Secondary user-defined-network is not supported", udn)
 }
+
+func IgnoredResourceKind(kind string) string {
+	return fmt.Sprintf("ignoring resources of kind %s", kind)
+}

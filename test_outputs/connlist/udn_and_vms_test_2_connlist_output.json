@@ -1,0 +1,72 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "blue[udn]/vm-a[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "green[udn]/vm-a[VirtualMachine]",
+    "conn": "TCP 9001"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "green[udn]/vm-b[VirtualMachine]",
+    "conn": "TCP 9001"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "green[udn]/webserver[Pod]",
+    "conn": "TCP 9001"
+  },
+  {
+    "src": "blue[udn]/vm-a[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "green[udn]/vm-a[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "green[udn]/vm-a[VirtualMachine]",
+    "dst": "green[udn]/vm-b[VirtualMachine]",
+    "conn": "TCP 9001"
+  },
+  {
+    "src": "green[udn]/vm-a[VirtualMachine]",
+    "dst": "green[udn]/webserver[Pod]",
+    "conn": "TCP 9001"
+  },
+  {
+    "src": "green[udn]/vm-b[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "green[udn]/vm-b[VirtualMachine]",
+    "dst": "green[udn]/vm-a[VirtualMachine]",
+    "conn": "TCP 9001"
+  },
+  {
+    "src": "green[udn]/vm-b[VirtualMachine]",
+    "dst": "green[udn]/webserver[Pod]",
+    "conn": "TCP 9001"
+  },
+  {
+    "src": "green[udn]/webserver[Pod]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "green[udn]/webserver[Pod]",
+    "dst": "green[udn]/vm-a[VirtualMachine]",
+    "conn": "TCP 9001"
+  },
+  {
+    "src": "green[udn]/webserver[Pod]",
+    "dst": "green[udn]/vm-b[VirtualMachine]",
+    "conn": "TCP 9001"
+  }
+]
