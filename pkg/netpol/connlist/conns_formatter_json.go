@@ -41,13 +41,13 @@ type exposureFocusConnFields struct {
 // and exposure analysis results from list ExposedPeer if exists
 // explain input is ignored since not supported with this format
 func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
-	focusConnStr string) (string, error) {
+	focusConnStr string, primaryUdnNamespaces map[string]bool) (string, error) {
 	j.ipMaps = createIPMaps(exposureFlag)
 	// output variables
 	var jsonConns []byte
 	var err error
 	// get an array of sorted connlist items ([]singleConnFields)
-	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, j.ipMaps, exposureFlag, false)
+	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, j.ipMaps, exposureFlag, false, primaryUdnNamespaces)
 	if exposureFlag {
 		// get an array of sorted exposure items
 		ingressExposureItems, egressExposureItems, _ := getExposureConnsAsSortedSingleConnFieldsArray(exposureConns, j.ipMaps)
