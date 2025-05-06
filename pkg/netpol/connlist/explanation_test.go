@@ -341,4 +341,10 @@ var explainTests = []struct {
 	{
 		testDirName: "virtual_machines_example",
 	},
+	{
+		testDirName: "udn_and_vms_test_4",
+	},
+	{
+		testDirName: "udn_and_vms_test_5",
+	},
 }

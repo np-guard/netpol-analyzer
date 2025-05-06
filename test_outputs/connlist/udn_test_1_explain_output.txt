@@ -1,10 +1,4 @@
 
-####################################
-# Denied cross-network connections #
-####################################
-blue[udn]/webserver[Pod] => green[udn]/webserver[Pod]
-green[udn]/webserver[Pod] => blue[udn]/webserver[Pod]
-
 #########################################################
 # All Connections due to the system default (Allow all) #
 #########################################################
@@ -12,3 +6,5 @@ green[udn]/webserver[Pod] => blue[udn]/webserver[Pod]
 0.0.0.0-255.255.255.255[External] => green[udn]/webserver[Pod]
 blue[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External]
 green[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External]
+
+*** Note: Connections between any peers from separate isolated networks are denied by default and therefore not listed in this report.

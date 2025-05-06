@@ -96,18 +96,6 @@ Denied connections:
 			NetworkPolicy 'green/ingress-port-9001-only' allows connections by Ingress rule #1
 
 
-####################################
-# Denied cross-network connections #
-####################################
-bar/mybar[Pod] => green[udn]/webserver-2[Pod]
-bar/mybar[Pod] => green[udn]/webserver[Pod]
-default/app-1[Pod] => green[udn]/webserver-2[Pod]
-default/app-1[Pod] => green[udn]/webserver[Pod]
-green[udn]/webserver-2[Pod] => bar/mybar[Pod]
-green[udn]/webserver-2[Pod] => default/app-1[Pod]
-green[udn]/webserver[Pod] => bar/mybar[Pod]
-green[udn]/webserver[Pod] => default/app-1[Pod]
-
 #########################################################
 # All Connections due to the system default (Allow all) #
 #########################################################
@@ -118,3 +106,5 @@ default/app-1[Pod] => 0.0.0.0-255.255.255.255[External]
 default/app-1[Pod] => bar/mybar[Pod]
 green[udn]/webserver-2[Pod] => 0.0.0.0-255.255.255.255[External]
 green[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External]
+
+*** Note: Connections between any peers from separate isolated networks are denied by default and therefore not listed in this report.
