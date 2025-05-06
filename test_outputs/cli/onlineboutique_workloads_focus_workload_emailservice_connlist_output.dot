@@ -1,10 +1,10 @@
 digraph {
-	subgraph "cluster_default" {
+	subgraph "cluster_default[namespace]" {
 		color="black"
 		fontcolor="black"
 		"default/checkoutservice[Deployment]" [label="checkoutservice[Deployment]" color="blue" fontcolor="blue"]
 		"default/emailservice[Deployment]" [label="emailservice[Deployment]" color="blue" fontcolor="blue"]
-		label="default"
+		label="default[namespace]"
 	}
 	"default/checkoutservice[Deployment]" -> "default/emailservice[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=0.5]
 }

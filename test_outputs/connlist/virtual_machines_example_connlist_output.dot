@@ -1,0 +1,16 @@
+digraph {
+	subgraph "cluster_default[namespace]" {
+		color="black"
+		fontcolor="black"
+		"default/cirrus-vm-1[VirtualMachine]" [label="cirrus-vm-1[VirtualMachine]" color="blue" fontcolor="blue"]
+		"default/fedora-vm-1[VirtualMachine]" [label="fedora-vm-1[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="default[namespace]"
+	}
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "default/cirrus-vm-1[VirtualMachine]" [label="TCP 9001-9090" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "default/fedora-vm-1[VirtualMachine]" [label="TCP 9001-9090" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/cirrus-vm-1[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="TCP 8080-9090" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/cirrus-vm-1[VirtualMachine]" -> "default/fedora-vm-1[VirtualMachine]" [label="TCP 9001-9090" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/fedora-vm-1[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="TCP 8080-9090" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/fedora-vm-1[VirtualMachine]" -> "default/cirrus-vm-1[VirtualMachine]" [label="TCP 8099,9001-9090" color="gold2" fontcolor="darkgreen" weight=1]
+}

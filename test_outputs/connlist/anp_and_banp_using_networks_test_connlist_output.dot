@@ -1,15 +1,15 @@
 digraph {
-	subgraph "cluster_ns1" {
+	subgraph "cluster_ns1[namespace]" {
 		color="black"
 		fontcolor="black"
 		"ns1/pod1[Deployment]" [label="pod1[Deployment]" color="blue" fontcolor="blue"]
-		label="ns1"
+		label="ns1[namespace]"
 	}
-	subgraph "cluster_ns2" {
+	subgraph "cluster_ns2[namespace]" {
 		color="black"
 		fontcolor="black"
 		"ns2/pod1[Deployment]" [label="pod1[Deployment]" color="blue" fontcolor="blue"]
-		label="ns2"
+		label="ns2[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"10.0.0.0-10.255.255.255[External]" [label="10.0.0.0-10.255.255.255[External]" color="red2" fontcolor="red2"]

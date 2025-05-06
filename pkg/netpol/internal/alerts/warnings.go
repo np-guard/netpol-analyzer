@@ -75,3 +75,11 @@ func WarnNamespaceDoesNotSupportUDN(udnName, udnNs string) string {
 func NotSupportedUDNRole(udn string) string {
 	return fmt.Sprintf(warnIgnoredUDN+" Secondary user-defined-network is not supported", udn)
 }
+
+func IgnoredResourceKind(kind string) string {
+	return fmt.Sprintf("ignoring resources of kind %s", kind)
+}
+
+func WarnIgnoredVirtLauncherPod(podStr string) string {
+	return "skipping virt-launcher pod: " + podStr + " as it is a launcher pod managing a VirtualMachine"
+}

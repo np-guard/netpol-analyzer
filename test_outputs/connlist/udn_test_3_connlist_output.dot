@@ -1,17 +1,17 @@
 digraph {
 	subgraph "cluster_pod_network" {
 	label="pod network"
-	subgraph "cluster_bar" {
+	subgraph "cluster_bar[namespace]" {
 		color="black"
 		fontcolor="black"
 		"bar/mybar[Pod]" [label="mybar[Pod]" color="blue" fontcolor="blue"]
-		label="bar"
+		label="bar[namespace]"
 	}
-	subgraph "cluster_default" {
+	subgraph "cluster_default[namespace]" {
 		color="black"
 		fontcolor="black"
 		"default/app-1[Pod]" [label="app-1[Pod]" color="blue" fontcolor="blue"]
-		label="default"
+		label="default[namespace]"
 	}
 	}
 	subgraph "cluster_green[udn]" {

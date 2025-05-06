@@ -26,6 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	kubevirt "kubevirt.io/api/core/v1"
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 	policyapi "sigs.k8s.io/network-policy-api/pkg/client/clientset/versioned"
 
@@ -56,8 +57,9 @@ type (
 		explain                bool
 		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
 		// used only with exposure analysis (representative peer object is a workloadPeer with kind == "RepresentativePeer")
-		objectsList []parser.K8sObject // list of k8s objects to be inserted to the policy-engine
-		udnWarnings common.Warnings    // list of warnings from ignored UDN objects
+		objectsList        []parser.K8sObject // list of k8s objects to be inserted to the policy-engine
+		ignoredObjWarnings common.Warnings    // list of warnings from ignored objects (input objects that were parsed but
+		// could not be inserted to the policy-engine)
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -116,7 +118,7 @@ func NewPolicyEngine() *PolicyEngine {
 		exposureAnalysisFlag:            false,
 		explain:                         false,
 		logger:                          logger.NewDefaultLogger(),
-		udnWarnings:                     make(common.Warnings),
+		ignoredObjWarnings:              make(common.Warnings),
 	}
 }
 
@@ -252,6 +254,8 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 			err = pe.InsertObject(obj.Job)
 		case parser.CronJob:
 			err = pe.InsertObject(obj.CronJob)
+		case parser.VirtualMachine:
+			err = pe.InsertObject(obj.VirtualMachine)
 		case parser.AdminNetworkPolicy:
 			err = pe.InsertObject(obj.AdminNetworkPolicy)
 		case parser.BaselineAdminNetworkPolicy:
@@ -260,8 +264,8 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 			err = pe.InsertObject(obj.UserDefinedNetwork)
 		case parser.Service, parser.Route, parser.Ingress:
 			continue
-		default:
-			fmt.Printf("ignoring resource kind %s", obj.Kind)
+		default: // should not get here
+			pe.ignoredObjWarnings.AddWarning(alerts.IgnoredResourceKind(obj.Kind))
 		}
 		if err != nil {
 			return err
@@ -434,6 +438,8 @@ func (pe *PolicyEngine) InsertObject(rtObj runtime.Object) error {
 		return pe.insertWorkload(obj, parser.CronJob)
 	case *batchv1.Job:
 		return pe.insertWorkload(obj, parser.Job)
+	case *kubevirt.VirtualMachine:
+		return pe.insertWorkload(obj, parser.VirtualMachine)
 	case *apisv1a.AdminNetworkPolicy:
 		return pe.insertAdminNetworkPolicy(obj)
 	case *apisv1a.BaselineAdminNetworkPolicy:
@@ -474,7 +480,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.adminNetpolsMap = make(map[string]bool)
 	pe.sortedAdminNetpols = make([]*k8s.AdminNetworkPolicy, 0)
 	pe.baselineAdminNetpol = nil
-	pe.udnWarnings = make(common.Warnings)
+	pe.ignoredObjWarnings = make(common.Warnings)
 }
 
 func (pe *PolicyEngine) insertNamespace(ns *corev1.Namespace) error {
@@ -644,10 +650,18 @@ func (pe *PolicyEngine) insertWorkload(rs interface{}, kind string) error {
 	return err
 }
 
+const virtLauncherPrefix = "virt-launcher-"
+
 func (pe *PolicyEngine) insertPod(pod *corev1.Pod) error {
 	podObj, err := k8s.PodFromCoreObject(pod)
 	if err != nil {
 		return err
+	}
+	// skip "virt-launcher" pods, as this pod is a wrapper for its attached VM/VMI and does not communicate with other pods directly
+	if strings.HasPrefix(podObj.Name, virtLauncherPrefix) {
+		pe.ignoredObjWarnings.AddWarning(alerts.WarnIgnoredVirtLauncherPod(types.NamespacedName{Namespace: podObj.Namespace,
+			Name: podObj.Name}.String()))
+		return nil
 	}
 	podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
 	pe.podsMap[podStr.String()] = podObj
@@ -770,16 +784,16 @@ func (pe *PolicyEngine) insertUserDefinedNetwork(udn *udnv1.UserDefinedNetwork) 
 		return errors.New(errMsg)
 	}
 	if !newUDN.IsUDNPrimary() { // ignoring udn - currently supporting only Primary UDNs
-		pe.udnWarnings.AddWarning(alerts.NotSupportedUDNRole(types.NamespacedName{Namespace: udn.Namespace, Name: udn.Name}.String()))
+		pe.ignoredObjWarnings.AddWarning(alerts.NotSupportedUDNRole(types.NamespacedName{Namespace: udn.Namespace, Name: udn.Name}.String()))
 		return nil
 	}
 	udnNs, ok := pe.namespacesMap[udn.Namespace]
 	if !ok { // ignoring udn - its namespace does not exist in the input resources
-		pe.udnWarnings.AddWarning(alerts.WarnMissingNamespaceOfUDN(udn.Name, udn.Namespace))
+		pe.ignoredObjWarnings.AddWarning(alerts.WarnMissingNamespaceOfUDN(udn.Name, udn.Namespace))
 		return nil
 	}
 	if _, ok := udnNs.Labels[common.PrimaryUDNLabel]; !ok { // ignoring udn - its namespace does not include the must label
-		pe.udnWarnings.AddWarning(alerts.WarnNamespaceDoesNotSupportUDN(udn.Name, udn.Namespace))
+		pe.ignoredObjWarnings.AddWarning(alerts.WarnNamespaceDoesNotSupportUDN(udn.Name, udn.Namespace))
 		return nil
 	}
 	if udn.Namespace == metav1.NamespaceDefault || strings.HasPrefix(udn.Namespace, openshiftNsPrefix) {
@@ -1134,15 +1148,15 @@ func (pe *PolicyEngine) addRepresentativePod(podNs string, objSelectors *k8s.Sin
 }
 
 // LogPolicyEngineWarnings prints to the logger all warnings raised by policy-engine objects;
-// e.g. warnings raised while inserting user-defined-network objects or
+// e.g. warnings raised while inserting objects or
 // policies' rules warnings which were raised while computing allowed connections between peers.
 // calling this func once after all computations are done, ensures that :
 // - all relevant warnings from looping policy rules are raised
 // - each single warning is printed only once to the logger
 // - all warns are returned also as []string to be appended also to the Connlist API error system
 func (pe *PolicyEngine) LogPolicyEngineWarnings() (warns []string) {
-	// log warnings of udn objects
-	warns = pe.udnWarnings.LogWarnings(pe.logger)
+	// log warnings of parsed objects which were not inserted to the policy-engine
+	warns = pe.ignoredObjWarnings.LogWarnings(pe.logger)
 	// log warnings from k8s NetworkPolicy objects
 	for _, nsMap := range pe.netpolsMap {
 		for _, policy := range nsMap {

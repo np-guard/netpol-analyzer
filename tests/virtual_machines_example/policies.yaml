@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: domain-ingress-egress
+spec:
+  podSelector:
+    matchLabels:
+      kubevirt.io/os: linux
+      kubevirt.io/domain: default
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 9001
+          endPort: 9090
+  egress:
+    - ports:
+      - protocol: TCP
+        port: 8080
+        endPort: 9090
+---
+# additional ingress allowed between two vm-machines
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ingress-by-labels
+spec:
+  podSelector:
+    matchLabels:
+      kubevirt.io/size: small
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 8099
+      from:
+        - podSelector:
+            matchLabels:
+              kubevirt.io/size: medium
+---

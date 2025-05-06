@@ -1,5 +1,5 @@
 digraph {
-	subgraph "cluster_default" {
+	subgraph "cluster_default[namespace]" {
 		color="black"
 		fontcolor="black"
 		"default/adservice[Deployment]" [label="adservice[Deployment]" color="blue" fontcolor="blue"]
@@ -14,13 +14,13 @@ digraph {
 		"default/recommendationservice[Deployment]" [label="recommendationservice[Deployment]" color="blue" fontcolor="blue"]
 		"default/redis-cart[Deployment]" [label="redis-cart[Deployment]" color="blue" fontcolor="blue"]
 		"default/shippingservice[Deployment]" [label="shippingservice[Deployment]" color="blue" fontcolor="blue"]
-		label="default"
+		label="default[namespace]"
 	}
-	subgraph "cluster_all namespaces" {
+	subgraph "cluster_all namespaces[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"pod with {k8s-app=kube-dns}_in_all namespaces" [label="pod with {k8s-app=kube-dns}" color="red2" fontcolor="red2"]
-		label="all namespaces"
+		label="all namespaces[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]

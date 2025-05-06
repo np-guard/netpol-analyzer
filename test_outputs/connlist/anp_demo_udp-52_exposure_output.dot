@@ -1,40 +1,45 @@
 digraph {
-	subgraph "cluster_gryffindor" {
+	subgraph "cluster_gryffindor[namespace]" {
 		color="black"
 		fontcolor="black"
 		"gryffindor/harry-potter[StatefulSet]" [label="harry-potter[StatefulSet]" color="blue" fontcolor="blue"]
-		label="gryffindor"
+		label="gryffindor[namespace]"
 	}
-	subgraph "cluster_hufflepuff" {
+	subgraph "cluster_hufflepuff[namespace]" {
 		color="black"
 		fontcolor="black"
 		"hufflepuff/cedric-diggory[StatefulSet]" [label="cedric-diggory[StatefulSet]" color="blue" fontcolor="blue"]
-		label="hufflepuff"
+		label="hufflepuff[namespace]"
 	}
-	subgraph "cluster_ravenclaw" {
+	subgraph "cluster_ravenclaw[namespace]" {
 		color="black"
 		fontcolor="black"
-		"all pods_in_ravenclaw" [label="all pods" color="red2" fontcolor="red2"]
 		"ravenclaw/luna-lovegood[StatefulSet]" [label="luna-lovegood[StatefulSet]" color="blue" fontcolor="blue"]
-		label="ravenclaw"
+		label="ravenclaw[namespace]"
 	}
-	subgraph "cluster_slytherin" {
+	subgraph "cluster_slytherin[namespace]" {
 		color="black"
 		fontcolor="black"
 		"slytherin/draco-malfoy[StatefulSet]" [label="draco-malfoy[StatefulSet]" color="blue" fontcolor="blue"]
-		label="slytherin"
+		label="slytherin[namespace]"
 	}
-	subgraph "cluster_namespace with {conformance_house=gryffindor}" {
+	subgraph "cluster_namespace with {conformance_house=gryffindor}[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"all pods_in_namespace with {conformance-house=gryffindor}" [label="all pods" color="red2" fontcolor="red2"]
-		label="namespace with {conformance-house=gryffindor}"
+		label="namespace with {conformance-house=gryffindor}[namespace]"
 	}
-	subgraph "cluster_namespace with {conformance_house=slytherin}" {
+	subgraph "cluster_namespace with {conformance_house=slytherin}[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"all pods_in_namespace with {conformance-house=slytherin}" [label="all pods" color="red2" fontcolor="red2"]
-		label="namespace with {conformance-house=slytherin}"
+		label="namespace with {conformance-house=slytherin}[namespace]"
+	}
+	subgraph "cluster_ravenclaw[namespace]" {
+		color="red2"
+		fontcolor="red2"
+		"all pods_in_ravenclaw" [label="all pods" color="red2" fontcolor="red2"]
+		label="ravenclaw[namespace]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
