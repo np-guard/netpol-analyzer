@@ -659,7 +659,8 @@ func (pe *PolicyEngine) insertPod(pod *corev1.Pod) error {
 	}
 	// skip "virt-launcher" pods, as this pod is a wrapper for its attached VM/VMI and does not communicate with other pods directly
 	if strings.HasPrefix(podObj.Name, virtLauncherPrefix) {
-		pe.logger.Warnf(alerts.WarnIgnoredVirtLauncherPod(types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}.String()))
+		pe.ignoredObjWarnings.AddWarning(alerts.WarnIgnoredVirtLauncherPod(types.NamespacedName{Namespace: podObj.Namespace,
+			Name: podObj.Name}.String()))
 		return nil
 	}
 	podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
