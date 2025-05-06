@@ -1,0 +1,67 @@
+
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/vm: vm-a
+  name: vm-a
+  namespace: green
+spec:
+  runStrategy: Always
+  template:
+    metadata:
+      name: vm-a
+      namespace: green
+      labels:
+        app: ingress-world
+    spec:
+      domain:
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: containerdisk
+          - disk:
+              bus: virtio
+            name: cloudinitdisk
+          interfaces:
+          - name: isolated-namespace
+            binding:
+              name: l2bridge
+          rng: {}
+        resources:
+          requests:
+            memory: 2048M
+      networks:
+      - pod: {}
+        name: isolated-namespace
+      terminationGracePeriodSeconds: 0
+      volumes:
+      - containerDisk:
+          image: quay.io/kubevirt/fedora-with-test-tooling-container-disk:v1.4.0
+        name: containerdisk
+      - cloudInitNoCloud:
+          userData: |-
+            #cloud-config
+            password: fedora
+            chpasswd: { expire: False }
+        name: cloudinitdisk
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vm-service
+  namespace: green
+spec:
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+    - protocol: TCP
+      port: 8050
+      targetPort: 8050
+    - protocol: TCP
+      port: 8090
+      targetPort: 8090
+  selector:
+    app: ingress-world

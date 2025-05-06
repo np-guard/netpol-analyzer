@@ -2155,6 +2155,11 @@ var goodPathTests = []struct {
 		testDirName:   "virtual_machines_example",
 		outputFormats: ValidFormats,
 	},
+	{
+		// a test with UDN having a VM and Ingress-Controller; external ingress ports to a service in a UDN are allowed to the VM
+		testDirName:   "udn_with_vm_and_ingress_controller",
+		outputFormats: ValidFormats,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

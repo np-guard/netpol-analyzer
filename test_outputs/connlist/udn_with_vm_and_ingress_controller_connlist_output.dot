@@ -1,0 +1,13 @@
+digraph {
+	subgraph "cluster_green[udn]" {
+		color="black"
+		fontcolor="black"
+		"green[udn]/vm-a[VirtualMachine]" [label="vm-a[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="green[udn]"
+	}
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
+	"0.0.0.0-255.255.255.255[External]" -> "green[udn]/vm-a[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"green[udn]/vm-a[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"{ingress-controller}" -> "green[udn]/vm-a[VirtualMachine]" [label="TCP 8000,8090" color="gold2" fontcolor="darkgreen" weight=1]
+}

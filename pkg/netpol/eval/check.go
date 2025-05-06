@@ -18,6 +18,7 @@ import (
 	"github.com/np-guard/models/pkg/netset"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
+	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -175,6 +176,10 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 	case *k8s.IPBlockPeer:
 		return nil
 	case *k8s.WorkloadPeer:
+		// since virtual-machine specs does not contain Ports field(s); assuming it is exposed on all TCP conns
+		if currentPeer.Kind() == parser.VirtualMachine {
+			return common.GetAllTCPConnections()
+		}
 		return currentPeer.Pod.PodExposedTCPConnections()
 	case *k8s.PodPeer:
 		return currentPeer.Pod.PodExposedTCPConnections()
