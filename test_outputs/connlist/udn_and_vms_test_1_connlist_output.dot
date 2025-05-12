@@ -1,0 +1,31 @@
+digraph {
+	subgraph "cluster_blue[udn]" {
+		color="black"
+		fontcolor="black"
+		"blue/vm-a[VirtualMachine]" [label="vm-a[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="blue[udn]"
+	}
+	subgraph "cluster_green[udn]" {
+		color="black"
+		fontcolor="black"
+		"green/vm-a[VirtualMachine]" [label="vm-a[VirtualMachine]" color="blue" fontcolor="blue"]
+		"green/vm-b[VirtualMachine]" [label="vm-b[VirtualMachine]" color="blue" fontcolor="blue"]
+		"green/webserver[Pod]" [label="webserver[Pod]" color="blue" fontcolor="blue"]
+		label="green[udn]"
+	}
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "blue/vm-a[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "green/vm-a[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "green/vm-b[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "green/webserver[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"blue/vm-a[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/vm-a[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/vm-a[VirtualMachine]" -> "green/vm-b[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"green/vm-a[VirtualMachine]" -> "green/webserver[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"green/vm-b[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/vm-b[VirtualMachine]" -> "green/vm-a[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/vm-b[VirtualMachine]" -> "green/webserver[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"green/webserver[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/webserver[Pod]" -> "green/vm-a[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/webserver[Pod]" -> "green/vm-b[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}

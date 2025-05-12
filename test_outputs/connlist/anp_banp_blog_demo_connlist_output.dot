@@ -1,41 +1,41 @@
 digraph {
-	subgraph "cluster_bar" {
+	subgraph "cluster_bar[namespace]" {
 		color="black"
 		fontcolor="black"
 		"bar/mybar[Pod]" [label="mybar[Pod]" color="blue" fontcolor="blue"]
-		label="bar"
+		label="bar[namespace]"
 	}
-	subgraph "cluster_baz" {
+	subgraph "cluster_baz[namespace]" {
 		color="black"
 		fontcolor="black"
 		"baz/mybaz[Pod]" [label="mybaz[Pod]" color="blue" fontcolor="blue"]
-		label="baz"
+		label="baz[namespace]"
 	}
-	subgraph "cluster_foo" {
+	subgraph "cluster_foo[namespace]" {
 		color="black"
 		fontcolor="black"
 		"foo/myfoo[Pod]" [label="myfoo[Pod]" color="blue" fontcolor="blue"]
-		label="foo"
+		label="foo[namespace]"
 	}
-	subgraph "cluster_monitoring" {
+	subgraph "cluster_monitoring[namespace]" {
 		color="black"
 		fontcolor="black"
 		"monitoring/mymonitoring[Pod]" [label="mymonitoring[Pod]" color="blue" fontcolor="blue"]
-		label="monitoring"
+		label="monitoring[namespace]"
 	}
-	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
-	"0.0.0.0-255.255.255.255" -> "bar/mybar[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"0.0.0.0-255.255.255.255" -> "baz/mybaz[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"0.0.0.0-255.255.255.255" -> "monitoring/mymonitoring[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"bar/mybar[Pod]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "bar/mybar[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "baz/mybaz[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "monitoring/mymonitoring[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"bar/mybar[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"bar/mybar[Pod]" -> "baz/mybaz[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"bar/mybar[Pod]" -> "monitoring/mymonitoring[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"baz/mybaz[Pod]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"baz/mybaz[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"baz/mybaz[Pod]" -> "monitoring/mymonitoring[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"foo/myfoo[Pod]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"foo/myfoo[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"foo/myfoo[Pod]" -> "baz/mybaz[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"foo/myfoo[Pod]" -> "monitoring/mymonitoring[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"monitoring/mymonitoring[Pod]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"monitoring/mymonitoring[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"monitoring/mymonitoring[Pod]" -> "baz/mybaz[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"monitoring/mymonitoring[Pod]" -> "foo/myfoo[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 }

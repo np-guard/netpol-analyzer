@@ -1,14 +1,14 @@
-0.0.0.0-255.255.255.255 => ns2/workload-b[Deployment] : All Connections
-ns2/workload-b[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
+0.0.0.0-255.255.255.255[External] => ns2/workload-b[Deployment] : All Connections
+ns2/workload-b[Deployment] => 0.0.0.0-255.255.255.255[External] : All Connections
 ns2/workload-b[Deployment] => hello-world/workload-a[Deployment] : All Connections
 
 Exposure Analysis Result:
 Egress Exposure:
-ns2/workload-b[Deployment] 	=> 	0.0.0.0-255.255.255.255 : All Connections
+ns2/workload-b[Deployment] 	=> 	0.0.0.0-255.255.255.255[External] : All Connections
 ns2/workload-b[Deployment] 	=> 	entire-cluster : All Connections
 
 Ingress Exposure:
-ns2/workload-b[Deployment] 	<= 	0.0.0.0-255.255.255.255 : All Connections
+ns2/workload-b[Deployment] 	<= 	0.0.0.0-255.255.255.255[External] : All Connections
 ns2/workload-b[Deployment] 	<= 	entire-cluster : All Connections
 
 Workloads not protected by network policies:

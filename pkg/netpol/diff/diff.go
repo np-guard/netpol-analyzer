@@ -15,6 +15,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	v1 "k8s.io/api/core/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -246,7 +247,9 @@ func logErrOrWarning(d DiffError, l logger.Logger) {
 func getPeersNamesFromPeersList(peers []connlist.Peer) map[string]bool {
 	peersSet := make(map[string]bool, 0)
 	for _, peer := range peers {
-		peersSet[peer.String()] = true
+		// eliminating "[udn]" label from peer strings so if the udn was added/removed, peers are not considered different
+		peerStr := strings.ReplaceAll(peer.String(), common.UDNLabel, "")
+		peersSet[peerStr] = true
 	}
 	return peersSet
 }
@@ -590,9 +593,10 @@ func getDstOrSrcFromConnsPair(c *connsPair, isDst bool) eval.Peer {
 
 // getKeyFromP2PConn returns the form of `src;dst“ from Peer2PeerConnection object, to be used as key in diffMap
 func getKeyFromP2PConn(c connlist.Peer2PeerConnection) string {
-	src := c.Src()
-	dst := c.Dst()
-	return src.String() + keyElemSep + dst.String()
+	// eliminating "[udn]" label from src/dst strings so if the udn was added/removed, peers are not considered different
+	srcStr := strings.ReplaceAll(c.Src().String(), common.UDNLabel, "")
+	dstStr := strings.ReplaceAll(c.Dst().String(), common.UDNLabel, "")
+	return srcStr + keyElemSep + dstStr
 }
 
 func (m mapListConnPairs) mergeBySrcOrDstIPPeers(isDstAnIP bool, d diffMap) error {

@@ -9,9 +9,9 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 670)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-670 1763,-670 1763,4 -4,4"/>
 <g id="clust1" class="cluster">
-<title>cluster_default</title>
+<title>cluster_default[namespace]</title>
 <polygon fill="none" stroke="black" points="8,-79 8,-589 976,-589 976,-79 8,-79"/>
-<text text-anchor="middle" x="492" y="-573.8" font-family="Times New Roman,serif" font-size="14.00">default</text>
+<text text-anchor="middle" x="492" y="-573.8" font-family="Times New Roman,serif" font-size="14.00">default[namespace]</text>
 </g>
 <!-- default/details&#45;v1&#45;79f774bdb9[ReplicaSet] -->
 <g id="node1" class="node">
@@ -84,17 +84,17 @@
 <polygon fill="#eec900" stroke="#eec900" points="832.32,-374.26 821.76,-375.16 830.58,-381.04 832.32,-374.26"/>
 <text text-anchor="middle" x="826.5" y="-449.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255 -->
+<!-- 0.0.0.0&#45;255.255.255.255[External] -->
 <g id="node7" class="node">
-<title>0.0.0.0&#45;255.255.255.255</title>
-<ellipse fill="none" stroke="#ee0000" cx="1028" cy="-18" rx="98.58" ry="18"/>
-<text text-anchor="middle" x="1028" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255</text>
+<title>0.0.0.0&#45;255.255.255.255[External]</title>
+<ellipse fill="none" stroke="#ee0000" cx="1028" cy="-18" rx="133.78" ry="18"/>
+<text text-anchor="middle" x="1028" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255[External]</text>
 </g>
-<!-- default/details&#45;v1&#45;79f774bdb9[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- default/details&#45;v1&#45;79f774bdb9[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge7" class="edge">
-<title>default/details&#45;v1&#45;79f774bdb9[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
-<path fill="none" stroke="#eec900" d="M711.74,-533.98C971.98,-523.04 1533,-494.74 1533,-454 1533,-454 1533,-454 1533,-104 1533,-63.42 1276.2,-37.49 1128.85,-25.95"/>
-<polygon fill="#eec900" stroke="#eec900" points="1129.11,-22.46 1118.87,-25.18 1128.57,-29.44 1129.11,-22.46"/>
+<title>default/details&#45;v1&#45;79f774bdb9[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
+<path fill="none" stroke="#eec900" d="M711.74,-533.98C971.98,-523.04 1533,-494.74 1533,-454 1533,-454 1533,-454 1533,-104 1533,-65.62 1303.29,-40.35 1153.72,-27.96"/>
+<polygon fill="#eec900" stroke="#eec900" points="1153.79,-24.45 1143.54,-27.13 1153.22,-31.43 1153.79,-24.45"/>
 <text text-anchor="middle" x="1578.5" y="-275.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- default/productpage&#45;v1&#45;6b746f74dc[ReplicaSet]&#45;&gt;default/details&#45;v1&#45;79f774bdb9[ReplicaSet] -->
@@ -132,11 +132,11 @@
 <polygon fill="#eec900" stroke="#eec900" points="730.52,-389.28 721.2,-384.24 725.34,-393.99 730.52,-389.28"/>
 <text text-anchor="middle" x="779.5" y="-405.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- default/productpage&#45;v1&#45;6b746f74dc[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- default/productpage&#45;v1&#45;6b746f74dc[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge13" class="edge">
-<title>default/productpage&#45;v1&#45;6b746f74dc[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
-<path fill="none" stroke="#eec900" d="M466.42,-443.66C736.42,-426.69 1313,-387.99 1313,-367 1313,-367 1313,-367 1313,-104 1313,-63.31 1205,-40.51 1121.96,-28.99"/>
-<polygon fill="#eec900" stroke="#eec900" points="1122.35,-25.51 1111.97,-27.64 1121.41,-32.45 1122.35,-25.51"/>
+<title>default/productpage&#45;v1&#45;6b746f74dc[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
+<path fill="none" stroke="#eec900" d="M466.42,-443.66C736.42,-426.69 1313,-387.99 1313,-367 1313,-367 1313,-367 1313,-104 1313,-66 1218.77,-43.59 1138.67,-31.42"/>
+<polygon fill="#eec900" stroke="#eec900" points="1138.88,-27.91 1128.48,-29.91 1137.86,-34.83 1138.88,-27.91"/>
 <text text-anchor="middle" x="1358.5" y="-231.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- default/ratings&#45;v1&#45;b6994bb9[ReplicaSet]&#45;&gt;default/details&#45;v1&#45;79f774bdb9[ReplicaSet] -->
@@ -174,11 +174,11 @@
 <polygon fill="#eec900" stroke="#eec900" points="807.74,-348.29 798.28,-353.04 808.64,-355.23 807.74,-348.29"/>
 <text text-anchor="middle" x="965.5" y="-231.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- default/ratings&#45;v1&#45;b6994bb9[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- default/ratings&#45;v1&#45;b6994bb9[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge19" class="edge">
-<title>default/ratings&#45;v1&#45;b6994bb9[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
-<path fill="none" stroke="#eec900" d="M412.59,-87.06C424.37,-75.5 441.62,-61.05 460,-54 501.73,-38 768.3,-27.13 920.97,-22.13"/>
-<polygon fill="#eec900" stroke="#eec900" points="921.43,-25.62 931.31,-21.8 921.21,-18.62 921.43,-25.62"/>
+<title>default/ratings&#45;v1&#45;b6994bb9[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
+<path fill="none" stroke="#eec900" d="M412.59,-87.06C424.37,-75.5 441.62,-61.05 460,-54 498.93,-39.07 733.46,-28.61 888.72,-23.22"/>
+<polygon fill="#eec900" stroke="#eec900" points="888.96,-26.71 898.83,-22.87 888.72,-19.72 888.96,-26.71"/>
 <text text-anchor="middle" x="505.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- default/reviews&#45;v1&#45;545db77b95[ReplicaSet]&#45;&gt;default/details&#45;v1&#45;79f774bdb9[ReplicaSet] -->
@@ -216,11 +216,11 @@
 <polygon fill="#eec900" stroke="#eec900" points="736.58,-340.05 729.97,-348.33 740.3,-345.98 736.58,-340.05"/>
 <text text-anchor="middle" x="836.5" y="-275.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- default/reviews&#45;v1&#45;545db77b95[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- default/reviews&#45;v1&#45;545db77b95[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge25" class="edge">
-<title>default/reviews&#45;v1&#45;545db77b95[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
-<path fill="none" stroke="#eec900" d="M635.65,-173.9C655.12,-148.88 694.96,-102.7 740,-79 797.56,-48.71 869.12,-33.7 926.52,-26.28"/>
-<polygon fill="#eec900" stroke="#eec900" points="927.2,-29.72 936.69,-25.02 926.34,-22.77 927.2,-29.72"/>
+<title>default/reviews&#45;v1&#45;545db77b95[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
+<path fill="none" stroke="#eec900" d="M635.65,-173.9C655.12,-148.88 694.96,-102.7 740,-79 790.63,-52.35 852.1,-37.54 905.23,-29.3"/>
+<polygon fill="#eec900" stroke="#eec900" points="906.02,-32.72 915.39,-27.79 904.99,-25.8 906.02,-32.72"/>
 <text text-anchor="middle" x="785.5" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- default/reviews&#45;v2&#45;7bf8c9648f[ReplicaSet]&#45;&gt;default/details&#45;v1&#45;79f774bdb9[ReplicaSet] -->
@@ -258,9 +258,9 @@
 <polygon fill="#eec900" stroke="#eec900" points="667.7,-344.8 677.75,-348.14 671.98,-339.26 667.7,-344.8"/>
 <text text-anchor="middle" x="698.5" y="-318.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- default/reviews&#45;v2&#45;7bf8c9648f[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- default/reviews&#45;v2&#45;7bf8c9648f[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge31" class="edge">
-<title>default/reviews&#45;v2&#45;7bf8c9648f[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
+<title>default/reviews&#45;v2&#45;7bf8c9648f[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
 <path fill="none" stroke="#eec900" d="M617.11,-266.68C637.27,-264.64 658.29,-262.64 678,-261 710.28,-258.32 945.58,-265.38 969,-243 1001.97,-211.5 969.11,-185.28 980,-141 988.36,-107 1004,-69.82 1015.16,-45.55"/>
 <polygon fill="#eec900" stroke="#eec900" points="1018.42,-46.84 1019.48,-36.3 1012.08,-43.87 1018.42,-46.84"/>
 <text text-anchor="middle" x="1025.5" y="-144.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
@@ -300,52 +300,52 @@
 <polygon fill="#eec900" stroke="#eec900" points="524.33,-305.78 518.02,-297.27 517.65,-307.86 524.33,-305.78"/>
 <text text-anchor="middle" x="581.5" y="-318.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- default/reviews&#45;v3&#45;84779c7bbc[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- default/reviews&#45;v3&#45;84779c7bbc[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge37" class="edge">
-<title>default/reviews&#45;v3&#45;84779c7bbc[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
-<path fill="none" stroke="#eec900" d="M815.12,-355.52C865.87,-349.9 918.84,-341.56 941,-330 983.09,-308.03 1045.56,-197.18 1087,-174 1121.84,-154.51 1149.76,-186.93 1175,-156 1212.85,-109.63 1133.93,-63.88 1077.77,-38.74"/>
-<polygon fill="#eec900" stroke="#eec900" points="1078.84,-35.39 1068.27,-34.59 1076.03,-41.81 1078.84,-35.39"/>
+<title>default/reviews&#45;v3&#45;84779c7bbc[ReplicaSet]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
+<path fill="none" stroke="#eec900" d="M815.12,-355.52C865.87,-349.9 918.84,-341.56 941,-330 983.09,-308.03 1045.56,-197.18 1087,-174 1121.84,-154.51 1149.76,-186.93 1175,-156 1212.53,-110.01 1135.23,-64.63 1079.16,-39.37"/>
+<polygon fill="#eec900" stroke="#eec900" points="1080.24,-36.02 1069.67,-35.19 1077.41,-42.42 1080.24,-36.02"/>
 <text text-anchor="middle" x="1132.5" y="-188.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;default/details&#45;v1&#45;79f774bdb9[ReplicaSet] -->
+<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/details&#45;v1&#45;79f774bdb9[ReplicaSet] -->
 <g id="edge1" class="edge">
-<title>0.0.0.0&#45;255.255.255.255&#45;&gt;default/details&#45;v1&#45;79f774bdb9[ReplicaSet]</title>
-<path fill="none" stroke="#eec900" d="M1126.17,-20.02C1267.22,-22.32 1513.97,-29.79 1547,-54 1708.3,-172.24 1710.12,-388.28 1547,-504 1514.28,-527.21 990.83,-535.28 728.91,-537.87"/>
+<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/details&#45;v1&#45;79f774bdb9[ReplicaSet]</title>
+<path fill="none" stroke="#eec900" d="M1160.58,-20.65C1304.04,-23.57 1516.52,-31.66 1547,-54 1708.3,-172.24 1710.12,-388.28 1547,-504 1514.28,-527.21 990.83,-535.28 728.91,-537.87"/>
 <polygon fill="#eec900" stroke="#eec900" points="728.52,-534.38 718.55,-537.97 728.59,-541.38 728.52,-534.38"/>
 <text text-anchor="middle" x="1713.5" y="-275.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;default/productpage&#45;v1&#45;6b746f74dc[ReplicaSet] -->
+<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/productpage&#45;v1&#45;6b746f74dc[ReplicaSet] -->
 <g id="edge2" class="edge">
-<title>0.0.0.0&#45;255.255.255.255&#45;&gt;default/productpage&#45;v1&#45;6b746f74dc[ReplicaSet]</title>
-<path fill="none" stroke="#eec900" d="M1126.1,-20.22C1200.75,-23 1295.82,-31.12 1327,-54 1457.08,-149.43 1461.32,-327.63 1327,-417 1293.5,-439.29 643.2,-433.25 603,-435 560.29,-436.86 513.85,-439.51 471.59,-442.17"/>
+<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/productpage&#45;v1&#45;6b746f74dc[ReplicaSet]</title>
+<path fill="none" stroke="#eec900" d="M1159.27,-21.77C1226.74,-25.64 1300.29,-34.41 1327,-54 1457.08,-149.43 1461.32,-327.63 1327,-417 1293.5,-439.29 643.2,-433.25 603,-435 560.29,-436.86 513.85,-439.51 471.59,-442.17"/>
 <polygon fill="#eec900" stroke="#eec900" points="471.27,-438.69 461.52,-442.81 471.72,-445.67 471.27,-438.69"/>
 <text text-anchor="middle" x="1471.5" y="-231.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;default/ratings&#45;v1&#45;b6994bb9[ReplicaSet] -->
+<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/ratings&#45;v1&#45;b6994bb9[ReplicaSet] -->
 <g id="edge3" class="edge">
-<title>0.0.0.0&#45;255.255.255.255&#45;&gt;default/ratings&#45;v1&#45;b6994bb9[ReplicaSet]</title>
-<path fill="none" stroke="#eec900" d="M935.13,-24.16C855.26,-29.35 737.13,-38.78 635,-54 578.47,-62.43 515.17,-75.92 468.08,-86.77"/>
+<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/ratings&#45;v1&#45;b6994bb9[ReplicaSet]</title>
+<path fill="none" stroke="#eec900" d="M907.6,-26.02C829.59,-31.48 725.96,-40.44 635,-54 578.47,-62.43 515.17,-75.92 468.08,-86.77"/>
 <polygon fill="#eec900" stroke="#eec900" points="467.23,-83.37 458.28,-89.04 468.81,-90.19 467.23,-83.37"/>
 <text text-anchor="middle" x="680.5" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;default/reviews&#45;v1&#45;545db77b95[ReplicaSet] -->
+<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/reviews&#45;v1&#45;545db77b95[ReplicaSet] -->
 <g id="edge4" class="edge">
-<title>0.0.0.0&#45;255.255.255.255&#45;&gt;default/reviews&#45;v1&#45;545db77b95[ReplicaSet]</title>
-<path fill="none" stroke="#eec900" d="M979.09,-33.78C949.37,-43.98 911.41,-59.28 881,-79 857.26,-94.39 858.74,-107.61 835,-123 802.38,-144.14 790.85,-143.63 754,-156 735.47,-162.22 715.18,-168.09 696.22,-173.18"/>
+<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/reviews&#45;v1&#45;545db77b95[ReplicaSet]</title>
+<path fill="none" stroke="#eec900" d="M976.36,-34.72C947.07,-44.92 910.49,-59.88 881,-79 857.26,-94.39 858.74,-107.61 835,-123 802.38,-144.14 790.85,-143.63 754,-156 735.47,-162.22 715.18,-168.09 696.22,-173.18"/>
 <polygon fill="#eec900" stroke="#eec900" points="695.22,-169.82 686.45,-175.77 697.01,-176.59 695.22,-169.82"/>
 <text text-anchor="middle" x="926.5" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;default/reviews&#45;v2&#45;7bf8c9648f[ReplicaSet] -->
+<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/reviews&#45;v2&#45;7bf8c9648f[ReplicaSet] -->
 <g id="edge5" class="edge">
-<title>0.0.0.0&#45;255.255.255.255&#45;&gt;default/reviews&#45;v2&#45;7bf8c9648f[ReplicaSet]</title>
-<path fill="none" stroke="#eec900" d="M1042.47,-35.86C1063.54,-62.58 1097.8,-115.74 1075,-156 1067.34,-169.53 1056.36,-163.38 1045,-174 1017.71,-199.51 1029.61,-224.77 997,-243 966.01,-260.32 713.39,-258.16 678,-261 661.4,-262.33 643.88,-263.94 626.72,-265.64"/>
+<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/reviews&#45;v2&#45;7bf8c9648f[ReplicaSet]</title>
+<path fill="none" stroke="#eec900" d="M1042.82,-36.3C1063.91,-63.16 1097.67,-115.96 1075,-156 1067.34,-169.53 1056.36,-163.38 1045,-174 1017.71,-199.51 1029.61,-224.77 997,-243 966.01,-260.32 713.39,-258.16 678,-261 661.4,-262.33 643.88,-263.94 626.72,-265.64"/>
 <polygon fill="#eec900" stroke="#eec900" points="626.27,-262.17 616.66,-266.64 626.96,-269.13 626.27,-262.17"/>
 <text text-anchor="middle" x="1125.5" y="-144.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;default/reviews&#45;v3&#45;84779c7bbc[ReplicaSet] -->
+<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/reviews&#45;v3&#45;84779c7bbc[ReplicaSet] -->
 <g id="edge6" class="edge">
-<title>0.0.0.0&#45;255.255.255.255&#45;&gt;default/reviews&#45;v3&#45;84779c7bbc[ReplicaSet]</title>
-<path fill="none" stroke="#eec900" d="M1119.21,-24.96C1160.98,-29.78 1204.06,-38.45 1217,-54 1245.99,-88.85 1231.76,-113.14 1217,-156 1209.01,-179.2 1102.54,-318.25 1081,-330 1069.81,-336.1 935.45,-347.42 829.19,-355.53"/>
+<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;default/reviews&#45;v3&#45;84779c7bbc[ReplicaSet]</title>
+<path fill="none" stroke="#eec900" d="M1140.62,-27.78C1174.84,-32.94 1206.28,-41.11 1217,-54 1245.99,-88.85 1231.76,-113.14 1217,-156 1209.01,-179.2 1102.54,-318.25 1081,-330 1069.81,-336.1 935.45,-347.42 829.19,-355.53"/>
 <polygon fill="#eec900" stroke="#eec900" points="828.71,-352.06 819,-356.31 829.24,-359.04 828.71,-352.06"/>
 <text text-anchor="middle" x="1251.5" y="-188.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>

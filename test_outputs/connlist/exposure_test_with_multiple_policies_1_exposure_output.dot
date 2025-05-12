@@ -1,15 +1,15 @@
 digraph {
-	subgraph "cluster_hello_world" {
+	subgraph "cluster_hello_world[namespace]" {
 		color="black"
 		fontcolor="black"
 		"hello-world/workload-a[Deployment]" [label="workload-a[Deployment]" color="blue" fontcolor="blue"]
-		label="hello-world"
+		label="hello-world[namespace]"
 	}
-	subgraph "cluster_namespace with {{Key:env,Operator:In,Values:[env_1 env_2],},{Key:tier,Operator:Exists,Values:[],}}" {
+	subgraph "cluster_namespace with {{Key:env,Operator:In,Values:[env_1 env_2],},{Key:tier,Operator:Exists,Values:[],}}[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"all pods_in_namespace with {{Key:env,Operator:In,Values:[env-1 env-2],},{Key:tier,Operator:Exists,Values:[],}}" [label="all pods" color="red2" fontcolor="red2"]
-		label="namespace with {{Key:env,Operator:In,Values:[env-1 env-2],},{Key:tier,Operator:Exists,Values:[],}}"
+		label="namespace with {{Key:env,Operator:In,Values:[env-1 env-2],},{Key:tier,Operator:Exists,Values:[],}}[namespace]"
 	}
 	"all pods_in_namespace with {{Key:env,Operator:In,Values:[env-1 env-2],},{Key:tier,Operator:Exists,Values:[],}}" -> "hello-world/workload-a[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 }

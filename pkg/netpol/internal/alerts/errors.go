@@ -116,6 +116,10 @@ func NPWithSameNameError(npName string) string {
 	return fmt.Sprintf("NetworkPolicy %q already exists. %s", npName, uniquenessRequest)
 }
 
+func NSWithSameNameError(ns string) string {
+	return fmt.Sprintf("Namespace %q already exists. %s", ns, uniquenessRequest)
+}
+
 // connlist pkg errors:
 
 // WorkloadDoesNotExistErrStr returns error string of missing workload for connlist with focus-workload
@@ -143,4 +147,28 @@ func InvalidFocusConnFormat(focusConn string) string {
 
 func InvalidFocusConnProtocol(focusConn, protocol string) string {
 	return netpolerrors.InvalidFocusConn + focusConn + "; unknown protocol: " + protocol
+}
+
+func OnePrimaryUDNAssertion(ns string) string {
+	return "only one primary UserDefinedNetwork may be assigned to a single namespace. More than one UDN is assigned to namespace: " + ns
+}
+
+const udnPrefix = "user-defined-network: "
+
+func UDNNamespaceAssertion(udnName, namespace string) string {
+	return udnPrefix + udnName + " is assigned to namespace: " + namespace +
+		"; UserDefinedNetwork CRs should not be created in this namespace." +
+		" This can result in no isolation and, as a result, could introduce security risks to the cluster."
+}
+
+func UDNNameAssertion(udn string) string {
+	return "illegal name of user-defined-network: " + udn + "; Name of UserDefinedNetwork resource should not be default"
+}
+
+func InvalidKeyValue(udn, key, val string) string {
+	return udnPrefix + udn + "; Invalid value: " + val + " for key: " + key
+}
+
+func DisMatchLayerConfiguration(udn, topology string) string {
+	return udnPrefix + udn + "; Mismatch between topology value: " + topology + " and actual layer configuration"
 }

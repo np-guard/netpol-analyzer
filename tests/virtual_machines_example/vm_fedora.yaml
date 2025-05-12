@@ -1,0 +1,56 @@
+apiVersion: kubevirt.io/v1alpha3
+kind: VirtualMachine
+metadata:
+  name: fedora-vm-1
+  namespace: default
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        kubevirt.io/vm: fedora-vm-1
+        kubevirt.io/size: medium
+        kubevirt.io/os: linux
+        kubevirt.io/domain: default
+    spec:
+      domain:
+        cpu:
+          cores: 1
+        devices:
+          disks:
+          - name: dv-disk0
+            disk:
+              bus: virtio
+          - name: cloudinitdisk
+            disk:
+              bus: virtio
+        resources:
+          requests:
+            memory: 1024M
+      volumes:
+      - name: dv-disk0
+        dataVolume:
+          name: fedora-vm-1
+      - name: cloudinitdisk
+        cloudInitNoCloud:
+          userData: |
+            #cloud-config
+            hostname: fedora-vm-1
+            ssh_pwauth: True
+            disable_root: false
+            password: kubevirt
+            chpasswd: {expire: False}
+  dataVolumeTemplates:
+  - metadata:
+      name: fedora-vm-1
+    spec:
+      pvc:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+      source:
+        pvc:
+          name: fedora-cloud-base-32
+          namespace: default

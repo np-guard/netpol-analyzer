@@ -1,0 +1,19 @@
+digraph {
+	subgraph "cluster_blue[udn]" {
+		color="black"
+		fontcolor="black"
+		"blue/webserver[Pod]" [label="webserver[Pod]" color="blue" fontcolor="blue"]
+		label="blue[udn]"
+	}
+	subgraph "cluster_green[udn]" {
+		color="black"
+		fontcolor="black"
+		"green/webserver[Pod]" [label="webserver[Pod]" color="blue" fontcolor="blue"]
+		label="green[udn]"
+	}
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "blue/webserver[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "green/webserver[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"blue/webserver[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/webserver[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}

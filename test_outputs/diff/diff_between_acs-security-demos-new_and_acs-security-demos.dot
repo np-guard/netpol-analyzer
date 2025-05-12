@@ -1,5 +1,5 @@
 digraph {
-	subgraph "cluster_backend" {
+	subgraph "cluster_backend[namespace]" {
 		color="black"
 		fontcolor="black"
 		"backend/catalog[Deployment]" [label="catalog[Deployment]" color="blue" fontcolor="blue"]
@@ -8,32 +8,32 @@ digraph {
 		"backend/recommendation[Deployment]" [label="recommendation[Deployment]" color="blue" fontcolor="blue"]
 		"backend/reports[Deployment]" [label="reports[Deployment]" color="blue" fontcolor="blue"]
 		"backend/shipping[Deployment]" [label="shipping[Deployment]" color="blue" fontcolor="blue"]
-		label="backend"
+		label="backend[namespace]"
 	}
-	subgraph "cluster_external" {
+	subgraph "cluster_external[namespace]" {
 		color="black"
 		fontcolor="black"
 		"external/unicorn[Deployment]" [label="unicorn[Deployment]" color="#008000" fontcolor="#008000"]
-		label="external"
+		label="external[namespace]"
 	}
-	subgraph "cluster_frontend" {
+	subgraph "cluster_frontend[namespace]" {
 		color="black"
 		fontcolor="black"
 		"frontend/asset-cache[Deployment]" [label="asset-cache[Deployment]" color="blue" fontcolor="blue"]
 		"frontend/webapp[Deployment]" [label="webapp[Deployment]" color="blue" fontcolor="blue"]
-		label="frontend"
+		label="frontend[namespace]"
 	}
-	subgraph "cluster_payments" {
+	subgraph "cluster_payments[namespace]" {
 		color="black"
 		fontcolor="black"
 		"payments/gateway[Deployment]" [label="gateway[Deployment]" color="blue" fontcolor="blue"]
 		"payments/mastercard-processor[Deployment]" [label="mastercard-processor[Deployment]" color="red" fontcolor="red"]
 		"payments/visa-processor[Deployment]" [label="visa-processor[Deployment]" color="blue" fontcolor="blue"]
-		label="payments"
+		label="payments[namespace]"
 	}
-	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="blue" fontcolor="blue"]
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="blue" fontcolor="blue"]
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
-	"0.0.0.0-255.255.255.255" -> "external/unicorn[Deployment]" [label="All Connections" color="#008000" fontcolor="#008000" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "external/unicorn[Deployment]" [label="All Connections" color="#008000" fontcolor="#008000" weight=0.5]
 	"backend/checkout[Deployment]" -> "backend/notification[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey" weight=0.5]
 	"backend/checkout[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey" weight=0.5]
 	"backend/checkout[Deployment]" -> "external/unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000" weight=0.5]
@@ -43,7 +43,7 @@ digraph {
 	"backend/reports[Deployment]" -> "backend/catalog[Deployment]" [label="TCP 9080 (ref1: TCP 8080)" color="magenta" fontcolor="magenta" weight=1]
 	"backend/reports[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey" weight=1]
 	"backend/reports[Deployment]" -> "external/unicorn[Deployment]" [label="UDP 5353" color="#008000" fontcolor="#008000" weight=0.5]
-	"external/unicorn[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="#008000" fontcolor="#008000" weight=1]
+	"external/unicorn[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="#008000" fontcolor="#008000" weight=1]
 	"external/unicorn[Deployment]" -> "frontend/webapp[Deployment]" [label="TCP 8080" color="#008000" fontcolor="#008000" weight=0.5]
 	"frontend/webapp[Deployment]" -> "backend/checkout[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey" weight=1]
 	"frontend/webapp[Deployment]" -> "backend/recommendation[Deployment]" [label="TCP 8080" color="grey" fontcolor="grey" weight=1]

@@ -373,6 +373,46 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 			dirName:          "banp_bad_path_test_15",
 			errorStrContains: alerts.InvalidCIDRAddr,
 		},
+		{
+			name:             "Input_dir_has_two_namespaces_with_same_name_return_fatal_error",
+			dirName:          "bad_path_namespace_with_same_name",
+			errorStrContains: alerts.NSWithSameNameError("blue"),
+		},
+		{
+			name:             "Input_udn_contains_invalid_value_for_key_topology_return_fatal_error",
+			dirName:          "udn_bad_path_test_1",
+			errorStrContains: alerts.InvalidKeyValue("blue/separate-namespace", "topology", "Layer4"),
+		},
+		{
+			name:             "Input_udn_contains_mismatch_between_key_topology_and_actual_layer_return_fatal_error",
+			dirName:          "udn_bad_path_test_2",
+			errorStrContains: alerts.DisMatchLayerConfiguration("blue/separate-namespace", "Layer2"),
+		},
+		{
+			name:             "Input_udn_contains_invalid_value_for_key_role_return_fatal_error",
+			dirName:          "udn_bad_path_test_3",
+			errorStrContains: alerts.InvalidKeyValue("blue/separate-namespace", "role", "Admin"),
+		},
+		{
+			name:             "Input_udn_name_is_default_return_fatal_error",
+			dirName:          "udn_bad_path_test_4",
+			errorStrContains: alerts.UDNNameAssertion("blue/default"),
+		},
+		{
+			name:             "Input_udn_is_in_default_namespace_return_fatal_error",
+			dirName:          "udn_bad_path_test_5",
+			errorStrContains: alerts.UDNNamespaceAssertion("namespace-scoped", "default"),
+		},
+		{
+			name:             "Input_udn_is_in_openshift_namespace_return_fatal_error",
+			dirName:          "udn_bad_path_test_6",
+			errorStrContains: alerts.UDNNamespaceAssertion("namespace-scoped", "openshift-oc"),
+		},
+		{
+			name:             "Input_namespace_has_two_primary_UDNs_return_fatal_error",
+			dirName:          "udn_bad_path_test_7",
+			errorStrContains: alerts.OnePrimaryUDNAssertion("blue"),
+		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -718,6 +758,26 @@ func TestLoggerWarnings(t *testing.T) {
 			explainOnly:                 common.ExplainOnlyDeny,
 			exposure:                    true,
 			expectedWarningsStrContains: []string{alerts.WarnIgnoredExposure(explainStr, explainOnlyStr)},
+		},
+		{
+			name:                        "using_secondary_udn_should_warn_that_not_supported_yet",
+			dirName:                     "udn_warning_test_1",
+			expectedWarningsStrContains: []string{alerts.NotSupportedUDNRole("green/namespace-scoped")},
+		},
+		{
+			name:                        "udn_in_not_existing_namespace_should_warn_that_udn_is_ignored",
+			dirName:                     "udn_warning_test_2",
+			expectedWarningsStrContains: []string{alerts.WarnMissingNamespaceOfUDN("separate-namespace", "blue")},
+		},
+		{
+			name:                        "udn_in_ns_without_label_should_warn_that_udn_is_ignored",
+			dirName:                     "udn_warning_test_3",
+			expectedWarningsStrContains: []string{alerts.WarnNamespaceDoesNotSupportUDN("namespace-scoped", "green")},
+		},
+		{
+			name:                        "input_resources_contain_virt_launcher_pod_should_warn_that_it_is_ignored",
+			dirName:                     "udn_and_vms_test_5",
+			expectedWarningsStrContains: []string{alerts.WarnIgnoredVirtLauncherPod("foo/virt-launcher-fedora-apricot-pike-81-qr48r")},
 		},
 	}
 	for _, tt := range cases {
@@ -2066,6 +2126,79 @@ var goodPathTests = []struct {
 		testDirName:            "example_pods_w_same_owner_and_labels_gap_with_good_match_expression2",
 		outputFormats:          []string{output.DefaultFormat},
 		supportedOnLiveCluster: true,
+	},
+	{
+		// With user-defined networks, the need for complex network policies are eliminated because isolation
+		// can be achieved by grouping workloads in different networks.
+		testDirName:   "udn_test_1",
+		outputFormats: ValidFormats,
+	},
+	{
+		// user-defined network with network-policy in an isolated network
+		testDirName:   "udn_test_2",
+		outputFormats: ValidFormats,
+	},
+	{
+		// user-defined network with network-policy in an isolated network
+		testDirName:   "udn_test_2",
+		outputFormats: ValidFormats,
+		focusConn:     "tcp-90",
+	},
+	{
+		// one user-defined network with network-policy.
+		// 2 regular pod networks (in namespaces without UDN)
+		// AdminNetworkPolicy that enables egress from pods with specific label - pods in the udn still isolated
+		testDirName:   "udn_test_3",
+		outputFormats: ValidFormats,
+	},
+	{
+		// one user-defined network with network-policy.
+		// 2 namespaces in regular pod networks (without UDN)
+		// Networkpolicy in the regular pod networks that enables egress to whole world - pods in the udn still isolated
+		testDirName:   "udn_test_4",
+		outputFormats: ValidFormats,
+	},
+	{
+		// a test with UDN and Ingress-Controller; external ingress to a service in a UDN are allowed if the pod's ports match
+		testDirName:   "udn_with_ingress_controller",
+		outputFormats: ValidFormats,
+	},
+	{
+		// a test with UDN and Ingress-Controller; external ingress to a service in a UDN are allowed if the pod's ports match
+		// this test contains two pods in the UDN, one matches the Ingress and service's ports and the second not matching them
+		testDirName:   "udn_with_ingress_controller_two_pods",
+		outputFormats: ValidFormats,
+	},
+	// tests involving udn(s) and virtual-machine workloads
+	{
+		testDirName:   "udn_and_vms_test_1",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "udn_and_vms_test_2",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "udn_and_vms_test_3",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "udn_and_vms_test_4",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "udn_and_vms_test_5",
+		outputFormats: ValidFormats,
+	},
+	{
+		// virtual-machine(s) test in the default namespace (without-udn)
+		testDirName:   "virtual_machines_example",
+		outputFormats: ValidFormats,
+	},
+	{
+		// a test with UDN having a VM and Ingress-Controller; external ingress ports to a service in a UDN are allowed to the VM
+		testDirName:   "udn_with_vm_and_ingress_controller",
+		outputFormats: ValidFormats,
 	},
 }
 

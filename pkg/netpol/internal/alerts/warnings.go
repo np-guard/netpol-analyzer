@@ -8,7 +8,10 @@ package alerts
 import (
 	"fmt"
 
+	"k8s.io/apimachinery/pkg/types"
+
 	"github.com/np-guard/netpol-analyzer/pkg/internal/output"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
 const (
@@ -31,6 +34,7 @@ const (
 	NoAllowedConnsWarning  = "Connectivity analysis found no allowed connectivity between pairs from the configured workloads or" +
 		" external IP-blocks"
 	WarnIgnoredExposureOnLiveCluster = "exposure analysis is not supported on live-cluster; exposure flag will be ignored"
+	warnIgnoredUDN                   = udnPrefix + "%s is ignored."
 )
 
 func WarnIgnoredExposure(flag1, flag2 string) string {
@@ -56,4 +60,26 @@ func WarnUnmatchedNamedPort(namedPort, peerStr string) string {
 	// examples this warning is raised:
 	// - tests/netpol_named_port_test
 	// - tests/anp_banp_test_with_named_port_unmatched
+}
+
+func WarnMissingNamespaceOfUDN(udnName, udnNs string) string {
+	return fmt.Sprintf(warnIgnoredUDN+" Namespace %s does not exist in the input resources",
+		types.NamespacedName{Name: udnName, Namespace: udnNs}.String(), udnNs)
+}
+
+func WarnNamespaceDoesNotSupportUDN(udnName, udnNs string) string {
+	return fmt.Sprintf(warnIgnoredUDN+" Namespace %s does not contain %s label",
+		types.NamespacedName{Name: udnName, Namespace: udnNs}.String(), udnNs, common.PrimaryUDNLabel)
+}
+
+func NotSupportedUDNRole(udn string) string {
+	return fmt.Sprintf(warnIgnoredUDN+" Secondary user-defined-network is not supported", udn)
+}
+
+func IgnoredResourceKind(kind string) string {
+	return fmt.Sprintf("ignoring resources of kind %s", kind)
+}
+
+func WarnIgnoredVirtLauncherPod(podStr string) string {
+	return "skipping virt-launcher pod: " + podStr + " as it is a launcher pod managing a VirtualMachine"
 }

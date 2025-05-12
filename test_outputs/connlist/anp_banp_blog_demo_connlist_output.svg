@@ -8,25 +8,25 @@
  viewBox="0.00 0.00 900.81 455.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 451)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-451 896.81,-451 896.81,4 -4,4"/>
-<g id="clust2" class="cluster">
-<title>cluster_baz</title>
-<polygon fill="none" stroke="black" points="340.81,-79 340.81,-177 468.81,-177 468.81,-79 340.81,-79"/>
-<text text-anchor="middle" x="404.81" y="-161.8" font-family="Times New Roman,serif" font-size="14.00">baz</text>
+<g id="clust3" class="cluster">
+<title>cluster_foo[namespace]</title>
+<polygon fill="none" stroke="black" points="290.81,-210 290.81,-308 418.81,-308 418.81,-210 290.81,-210"/>
+<text text-anchor="middle" x="354.81" y="-292.8" font-family="Times New Roman,serif" font-size="14.00">foo[namespace]</text>
 </g>
 <g id="clust1" class="cluster">
-<title>cluster_bar</title>
+<title>cluster_bar[namespace]</title>
 <polygon fill="none" stroke="black" points="55.81,-79 55.81,-177 181.81,-177 181.81,-79 55.81,-79"/>
-<text text-anchor="middle" x="118.81" y="-161.8" font-family="Times New Roman,serif" font-size="14.00">bar</text>
+<text text-anchor="middle" x="118.81" y="-161.8" font-family="Times New Roman,serif" font-size="14.00">bar[namespace]</text>
 </g>
-<g id="clust3" class="cluster">
-<title>cluster_foo</title>
-<polygon fill="none" stroke="black" points="290.81,-210 290.81,-308 418.81,-308 418.81,-210 290.81,-210"/>
-<text text-anchor="middle" x="354.81" y="-292.8" font-family="Times New Roman,serif" font-size="14.00">foo</text>
+<g id="clust2" class="cluster">
+<title>cluster_baz[namespace]</title>
+<polygon fill="none" stroke="black" points="340.81,-79 340.81,-177 468.81,-177 468.81,-79 340.81,-79"/>
+<text text-anchor="middle" x="404.81" y="-161.8" font-family="Times New Roman,serif" font-size="14.00">baz[namespace]</text>
 </g>
 <g id="clust4" class="cluster">
-<title>cluster_monitoring</title>
+<title>cluster_monitoring[namespace]</title>
 <polygon fill="none" stroke="black" points="370.81,-341 370.81,-439 550.81,-439 550.81,-341 370.81,-341"/>
-<text text-anchor="middle" x="460.81" y="-423.8" font-family="Times New Roman,serif" font-size="14.00">monitoring</text>
+<text text-anchor="middle" x="460.81" y="-423.8" font-family="Times New Roman,serif" font-size="14.00">monitoring[namespace]</text>
 </g>
 <!-- bar/mybar[Pod] -->
 <g id="node1" class="node">
@@ -60,17 +60,17 @@
 <polygon fill="#eec900" stroke="#eec900" points="371.02,-365.19 381.31,-362.65 371.68,-358.23 371.02,-365.19"/>
 <text text-anchor="middle" x="241.31" y="-232.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255 -->
+<!-- 0.0.0.0&#45;255.255.255.255[External] -->
 <g id="node5" class="node">
-<title>0.0.0.0&#45;255.255.255.255</title>
-<ellipse fill="none" stroke="#ee0000" cx="249.81" cy="-18" rx="98.58" ry="18"/>
-<text text-anchor="middle" x="249.81" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255</text>
+<title>0.0.0.0&#45;255.255.255.255[External]</title>
+<ellipse fill="none" stroke="#ee0000" cx="249.81" cy="-18" rx="133.78" ry="18"/>
+<text text-anchor="middle" x="249.81" y="-14.3" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">0.0.0.0&#45;255.255.255.255[External]</text>
 </g>
-<!-- bar/mybar[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- bar/mybar[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge4" class="edge">
-<title>bar/mybar[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
-<path fill="none" stroke="#eec900" d="M114.39,-87C112.7,-76.43 112.64,-63.16 119.81,-54 126.65,-45.26 146.29,-38.19 168.31,-32.75"/>
-<polygon fill="#eec900" stroke="#eec900" points="169.26,-36.12 178.21,-30.44 167.67,-29.31 169.26,-36.12"/>
+<title>bar/mybar[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
+<path fill="none" stroke="#eec900" d="M114.39,-87C112.7,-76.43 112.64,-63.16 119.81,-54 125.73,-46.44 141.24,-40.12 159.58,-35.03"/>
+<polygon fill="#eec900" stroke="#eec900" points="160.59,-38.39 169.39,-32.49 158.83,-31.61 160.59,-38.39"/>
 <text text-anchor="middle" x="165.31" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- baz/mybaz[Pod]&#45;&gt;monitoring/mymonitoring[Pod] -->
@@ -80,11 +80,11 @@
 <polygon fill="#eec900" stroke="#eec900" points="510.53,-343.81 503.15,-351.41 513.66,-350.07 510.53,-343.81"/>
 <text text-anchor="middle" x="616.31" y="-232.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- baz/mybaz[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- baz/mybaz[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge7" class="edge">
-<title>baz/mybaz[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
-<path fill="none" stroke="#eec900" d="M398.43,-86.85C393.54,-75.94 385.75,-62.35 374.81,-54 362.76,-44.81 348.41,-38.03 333.8,-33.03"/>
-<polygon fill="#eec900" stroke="#eec900" points="334.78,-29.67 324.19,-29.99 332.67,-36.34 334.78,-29.67"/>
+<title>baz/mybaz[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
+<path fill="none" stroke="#eec900" d="M398.43,-86.85C393.54,-75.94 385.75,-62.35 374.81,-54 364.84,-46.4 353.3,-40.44 341.35,-35.79"/>
+<polygon fill="#eec900" stroke="#eec900" points="342.29,-32.4 331.69,-32.32 339.92,-38.99 342.29,-32.4"/>
 <text text-anchor="middle" x="432.31" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
 <!-- foo/myfoo[Pod] -->
@@ -107,9 +107,9 @@
 <polygon fill="#eec900" stroke="#eec900" points="369.83,-366.57 380.04,-363.75 370.3,-359.59 369.83,-366.57"/>
 <text text-anchor="middle" x="287.31" y="-319.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- foo/myfoo[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- foo/myfoo[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge9" class="edge">
-<title>foo/myfoo[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
+<title>foo/myfoo[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
 <path fill="none" stroke="#eec900" d="M320.56,-221.77C309.27,-217.68 296.6,-213.37 284.81,-210 264.69,-204.25 251.94,-216.29 238.81,-200 203.17,-155.79 223.22,-84.02 238.17,-45.48"/>
 <polygon fill="#eec900" stroke="#eec900" points="241.5,-46.56 242.01,-35.98 235.01,-43.94 241.5,-46.56"/>
 <text text-anchor="middle" x="271.31" y="-101.3" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
@@ -128,31 +128,31 @@
 <polygon fill="#eec900" stroke="#eec900" points="350.78,-264.63 349.54,-254.11 343.94,-263.1 350.78,-264.63"/>
 <text text-anchor="middle" x="401.31" y="-319.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- monitoring/mymonitoring[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255 -->
+<!-- monitoring/mymonitoring[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255[External] -->
 <g id="edge12" class="edge">
-<title>monitoring/mymonitoring[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255</title>
-<path fill="none" stroke="#eec900" d="M526.42,-356.16C579.76,-346.66 648.85,-330.42 665.81,-308 692.08,-273.26 684.12,-249.52 665.81,-210 620.75,-112.72 579.42,-98.35 481.81,-54 443.09,-36.41 397.37,-27.34 356.79,-22.78"/>
-<polygon fill="#eec900" stroke="#eec900" points="356.9,-19.27 346.59,-21.71 356.18,-26.23 356.9,-19.27"/>
+<title>monitoring/mymonitoring[Pod]&#45;&gt;0.0.0.0&#45;255.255.255.255[External]</title>
+<path fill="none" stroke="#eec900" d="M526.42,-356.16C579.76,-346.66 648.85,-330.42 665.81,-308 692.08,-273.26 684.12,-249.52 665.81,-210 620.75,-112.72 579.42,-98.35 481.81,-54 451.48,-40.22 416.85,-31.67 383.76,-26.42"/>
+<polygon fill="#eec900" stroke="#eec900" points="383.95,-22.91 373.55,-24.89 382.92,-29.83 383.95,-22.91"/>
 <text text-anchor="middle" x="705.31" y="-188.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;bar/mybar[Pod] -->
+<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;bar/mybar[Pod] -->
 <g id="edge1" class="edge">
-<title>0.0.0.0&#45;255.255.255.255&#45;&gt;bar/mybar[Pod]</title>
-<path fill="none" stroke="#eec900" d="M151.8,-20.37C92.54,-23.51 24.87,-32.01 5.81,-54 -13.78,-76.6 21.47,-89.41 57.64,-96.39"/>
+<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;bar/mybar[Pod]</title>
+<path fill="none" stroke="#eec900" d="M119.95,-22.57C70.17,-26.93 21.51,-35.89 5.81,-54 -13.78,-76.6 21.47,-89.41 57.64,-96.39"/>
 <polygon fill="#eec900" stroke="#eec900" points="57.36,-99.9 67.82,-98.21 58.6,-93.01 57.36,-99.9"/>
 <text text-anchor="middle" x="51.31" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;baz/mybaz[Pod] -->
+<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;baz/mybaz[Pod] -->
 <g id="edge2" class="edge">
-<title>0.0.0.0&#45;255.255.255.255&#45;&gt;baz/mybaz[Pod]</title>
+<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;baz/mybaz[Pod]</title>
 <path fill="none" stroke="#eec900" d="M257.57,-36.17C263.34,-47.09 272.21,-60.68 283.81,-69 297.3,-78.68 303.84,-74.43 319.81,-79 331.36,-82.3 343.78,-85.92 355.46,-89.35"/>
 <polygon fill="#eec900" stroke="#eec900" points="354.48,-92.71 365.06,-92.17 356.46,-85.99 354.48,-92.71"/>
 <text text-anchor="middle" x="329.31" y="-57.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>
-<!-- 0.0.0.0&#45;255.255.255.255&#45;&gt;monitoring/mymonitoring[Pod] -->
+<!-- 0.0.0.0&#45;255.255.255.255[External]&#45;&gt;monitoring/mymonitoring[Pod] -->
 <g id="edge3" class="edge">
-<title>0.0.0.0&#45;255.255.255.255&#45;&gt;monitoring/mymonitoring[Pod]</title>
-<path fill="none" stroke="#eec900" d="M346.78,-21.46C475.4,-25.43 689.86,-34.86 720.81,-54 778.44,-89.65 780.83,-119.67 798.81,-185 818.33,-255.93 782.19,-290.45 720.81,-331 693.44,-349.08 614.55,-357.9 550.79,-362.15"/>
+<title>0.0.0.0&#45;255.255.255.255[External]&#45;&gt;monitoring/mymonitoring[Pod]</title>
+<path fill="none" stroke="#eec900" d="M379.58,-22.53C508.93,-27.03 692.37,-36.41 720.81,-54 778.44,-89.65 780.83,-119.67 798.81,-185 818.33,-255.93 782.19,-290.45 720.81,-331 693.44,-349.08 614.55,-357.9 550.79,-362.15"/>
 <polygon fill="#eec900" stroke="#eec900" points="550.45,-358.66 540.7,-362.79 550.9,-365.65 550.45,-358.66"/>
 <text text-anchor="middle" x="847.31" y="-188.8" font-family="Times New Roman,serif" font-size="14.00" fill="darkgreen">All Connections</text>
 </g>

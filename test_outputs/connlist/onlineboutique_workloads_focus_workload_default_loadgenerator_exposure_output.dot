@@ -1,16 +1,16 @@
 digraph {
-	subgraph "cluster_default" {
+	subgraph "cluster_default[namespace]" {
 		color="black"
 		fontcolor="black"
 		"default/frontend[Deployment]" [label="frontend[Deployment]" color="blue" fontcolor="blue"]
 		"default/loadgenerator[Deployment]" [label="loadgenerator[Deployment]" color="blue" fontcolor="blue"]
-		label="default"
+		label="default[namespace]"
 	}
-	subgraph "cluster_all namespaces" {
+	subgraph "cluster_all namespaces[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"pod with {k8s-app=kube-dns}_in_all namespaces" [label="pod with {k8s-app=kube-dns}" color="red2" fontcolor="red2"]
-		label="all namespaces"
+		label="all namespaces[namespace]"
 	}
 	"default/loadgenerator[Deployment]" -> "default/frontend[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=1]
 	"default/loadgenerator[Deployment]" -> "pod with {k8s-app=kube-dns}_in_all namespaces" [label="UDP 53" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]

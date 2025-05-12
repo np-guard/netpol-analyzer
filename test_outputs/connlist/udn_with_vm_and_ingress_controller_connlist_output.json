@@ -1,0 +1,17 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "green[udn]/vm-a[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "green[udn]/vm-a[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "{ingress-controller}",
+    "dst": "green[udn]/vm-a[VirtualMachine]",
+    "conn": "TCP 8000,8090"
+  }
+]

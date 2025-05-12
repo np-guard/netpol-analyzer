@@ -387,8 +387,8 @@ const (
 	explNoMatchOfNamedPortsToDst = "but named ports of the rule have no match in the configuration of the destination peer"
 )
 
-// constPeerString returns pod's owner-name not the peer instance name unless it is ip-block (used for explanation)
-func constPeerString(peer Peer) string {
+// ConstPeerString returns pod's owner-name not the peer instance name unless it is ip-block (used for explanation)
+func ConstPeerString(peer Peer) string {
 	peerStr := peer.String()
 	if peer.PeerType() != IPBlockType {
 		peerStr = (&WorkloadPeer{peer.GetPeerPod()}).String()
@@ -432,8 +432,8 @@ func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*
 		peerToSelect = src
 		policyPeer = dst
 	}
-	policyPeerStr := constPeerString(policyPeer)
-	peerToSelectStr := constPeerString(peerToSelect)
+	policyPeerStr := ConstPeerString(policyPeer)
+	peerToSelectStr := ConstPeerString(peerToSelect)
 	if numOfRules == 0 {
 		res.AddCommonImplyingRule(common.NPRuleKind, np.notSelectedByRuleExpl(isIngress, noXgressRulesExpl,
 			policyPeerStr, peerToSelectStr), isIngress)
@@ -582,7 +582,7 @@ func (np *NetworkPolicy) ruleName(ruleIdx int, isIngress bool) string {
 }
 
 func (np *NetworkPolicy) LogWarnings(l logger.Logger) []string {
-	return np.warnings.LogPolicyWarnings(l)
+	return np.warnings.LogWarnings(l)
 }
 
 //////////////////////////////////////////////// ////////////////////////////////////////////////

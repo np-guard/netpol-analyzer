@@ -1,0 +1,9 @@
+| src | dst | conn |
+|-----|-----|------|
+| 0.0.0.0-255.255.255.255[External] | green[udn]/app[Pod] | All Connections |
+| 0.0.0.0-255.255.255.255[External] | green[udn]/db[Pod] | All Connections |
+| green[udn]/app[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections |
+| green[udn]/app[Pod] | green[udn]/db[Pod] | All Connections |
+| green[udn]/db[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections |
+| green[udn]/db[Pod] | green[udn]/app[Pod] | All Connections |
+| {ingress-controller} | green[udn]/app[Pod] | TCP 8000,8090 |

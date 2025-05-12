@@ -1,15 +1,15 @@
 [
   {
-    "src": "0.0.0.0-255.255.255.255",
+    "src": "0.0.0.0-255.255.255.255[External]",
     "dst": "hufflepuff/cedric-diggory[StatefulSet]"
   },
   {
-    "src": "0.0.0.0-255.255.255.255",
+    "src": "0.0.0.0-255.255.255.255[External]",
     "dst": "slytherin/draco-malfoy[StatefulSet]"
   },
   {
     "src": "gryffindor/harry-potter[StatefulSet]",
-    "dst": "0.0.0.0-255.255.255.255"
+    "dst": "0.0.0.0-255.255.255.255[External]"
   },
   {
     "src": "gryffindor/harry-potter[StatefulSet]",
@@ -21,11 +21,11 @@
   },
   {
     "src": "hufflepuff/cedric-diggory[StatefulSet]",
-    "dst": "0.0.0.0-255.255.255.255"
+    "dst": "0.0.0.0-255.255.255.255[External]"
   },
   {
     "src": "slytherin/draco-malfoy[StatefulSet]",
-    "dst": "0.0.0.0-255.255.255.255"
+    "dst": "0.0.0.0-255.255.255.255[External]"
   },
   {
     "src": "slytherin/draco-malfoy[StatefulSet]",

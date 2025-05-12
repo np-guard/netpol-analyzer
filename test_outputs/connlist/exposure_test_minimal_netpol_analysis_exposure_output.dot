@@ -1,15 +1,15 @@
 digraph {
-	subgraph "cluster_default" {
+	subgraph "cluster_default[namespace]" {
 		color="black"
 		fontcolor="black"
 		"default/backend[Deployment]" [label="backend[Deployment]" color="blue" fontcolor="blue"]
 		"default/frontend[Deployment]" [label="frontend[Deployment]" color="blue" fontcolor="blue"]
-		label="default"
+		label="default[namespace]"
 	}
-	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
-	"0.0.0.0-255.255.255.255" -> "default/frontend[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"default/frontend[Deployment]" -> "0.0.0.0-255.255.255.255" [label="UDP 53" color="gold2" fontcolor="darkgreen" weight=1]
+	"0.0.0.0-255.255.255.255[External]" -> "default/frontend[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/frontend[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="UDP 53" color="gold2" fontcolor="darkgreen" weight=1]
 	"default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090" color="gold2" fontcolor="darkgreen" weight=1]
 	"default/frontend[Deployment]" -> "entire-cluster" [label="UDP 53" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
 	"entire-cluster" -> "default/backend[Deployment]" [label="TCP 9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]

@@ -62,6 +62,8 @@ type ConnlistAnalyzer struct {
 	muteErrsAndWarns   bool
 	peersList          []Peer // internally used peersList used in dot/svg formatting;
 	// in case of focusWorkload option contains only relevant peers
+	primaryUdnNamespaces map[string]bool // set of the names of isolated by primary UDN namespaces,
+	// internally used in formatting output
 	focusConnSet *common.ConnectionSet // internally used to focus conns list results with this specific connection
 }
 
@@ -364,6 +366,7 @@ func (ca *ConnlistAnalyzer) connsListFromParsedResources(objectsList []parser.K8
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
 	}
+	ca.primaryUdnNamespaces = pe.GetPrimaryUDNNamespaces()
 	return ca.getConnectionsList(pe, ia)
 }
 
@@ -496,7 +499,7 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 	if ca.focusConnSet != nil {
 		focusConnStr = ca.focusConnSet.String()
 	}
-	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis, ca.explain, focusConnStr)
+	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis, ca.explain, focusConnStr, ca.primaryUdnNamespaces)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
@@ -556,6 +559,10 @@ func (c *connection) ProtocolsAndPorts() map[v1.Protocol][]common.PortRange {
 
 func (c *connection) onlyDefaultRule() bool {
 	return c.allConnections && len(c.protocolsAndPorts) == 0 && c.commonImplyingRules.OnlyDefaultRule()
+}
+
+func (c *connection) deniedCrossNetworksRule() bool {
+	return !c.allConnections && len(c.protocolsAndPorts) == 0 && c.commonImplyingRules.CrossNetworkDenyRule()
 }
 
 // returns a *common.ConnectionSet from Peer2PeerConnection data
@@ -766,7 +773,7 @@ func (ca *ConnlistAnalyzer) getConnectionsList(pe *eval.PolicyEngine, ia *ingres
 	// log warnings that were raised by the policies during computing the allowed conns between all peers
 	// note that this ensures any warning is printed only once + all relevant warnings are raised.
 	// the decision if to print the warnings to the logger is determined by the logger's verbosity - handled by the logger
-	policiesWarns := pe.LogPoliciesWarnings()
+	policiesWarns := pe.LogPolicyEngineWarnings()
 	// policiesWarns already printed to the logger, add them also to the ca.Errors API system
 	for _, warn := range policiesWarns {
 		ca.errors = append(ca.errors, newConnlistAnalyzerWarning(errors.New(warn)))

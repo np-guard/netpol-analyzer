@@ -1,16 +1,16 @@
 digraph {
-	subgraph "cluster_default" {
+	subgraph "cluster_default[namespace]" {
 		color="black"
 		fontcolor="black"
 		"default/backend[Deployment]" [label="backend[Deployment]" color="blue" fontcolor="blue"]
 		"default/frontend[Deployment]" [label="frontend[Deployment]" color="blue" fontcolor="blue"]
-		label="default"
+		label="default[namespace]"
 	}
-	subgraph "cluster_all namespaces" {
+	subgraph "cluster_all namespaces[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"pod with {app=frontend}_in_all namespaces" [label="pod with {app=frontend}" color="red2" fontcolor="red2"]
-		label="all namespaces"
+		label="all namespaces[namespace]"
 	}
 	"default/frontend[Deployment]" -> "default/backend[Deployment]" [label="TCP 9090" color="gold2" fontcolor="darkgreen" weight=1]
 	"pod with {app=frontend}_in_all namespaces" -> "default/backend[Deployment]" [label="TCP 9090" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]

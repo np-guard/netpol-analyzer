@@ -510,6 +510,33 @@ func TestEvalCommandOutput(t *testing.T) {
 			evalResult:           true,
 			generatePodManifests: true,
 		},
+		{
+			dir:        "udn_test_1",
+			sourceNs:   "green",
+			sourcePod:  "webserver",
+			destNs:     "blue",
+			destPod:    "webserver",
+			port:       "8080",
+			evalResult: false,
+		},
+		{
+			dir:        "udn_test_2",
+			sourceNs:   "green",
+			sourcePod:  "webserver",
+			destNs:     "green",
+			destPod:    "webserver-2",
+			port:       "8080",
+			evalResult: false,
+		},
+		{
+			dir:        "udn_test_2",
+			sourceNs:   "green",
+			sourcePod:  "webserver",
+			destNs:     "green",
+			destPod:    "webserver-2",
+			port:       "9001",
+			evalResult: true,
+		},
 	}
 	for _, tt := range cases {
 		testName := "eval_" + tt.dir + "_from_" + tt.sourcePod + "_to_" + tt.destPod

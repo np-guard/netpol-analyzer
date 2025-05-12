@@ -191,7 +191,7 @@ func (anp *AdminNetworkPolicy) GetReferencedIPBlocks() ([]*netset.IPBlock, error
 }
 
 func (anp *AdminNetworkPolicy) LogWarnings(l logger.Logger) []string {
-	return anp.warnings.LogPolicyWarnings(l)
+	return anp.warnings.LogWarnings(l)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

@@ -8,15 +8,15 @@
  viewBox="0.00 0.00 528.00 207.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 203)">
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-203 524,-203 524,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_default</title>
-<polygon fill="none" stroke="black" points="8,-8 8,-191 244,-191 244,-8 8,-8"/>
-<text text-anchor="middle" x="126" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">default</text>
-</g>
 <g id="clust2" class="cluster">
-<title>cluster_all namespaces</title>
+<title>cluster_all namespaces[namespace]</title>
 <polygon fill="none" stroke="#ee0000" points="252,-8 252,-83 512,-83 512,-8 252,-8"/>
-<text text-anchor="middle" x="382" y="-67.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">all namespaces</text>
+<text text-anchor="middle" x="382" y="-67.8" font-family="Times New Roman,serif" font-size="14.00" fill="#ee0000">all namespaces[namespace]</text>
+</g>
+<g id="clust1" class="cluster">
+<title>cluster_default[namespace]</title>
+<polygon fill="none" stroke="black" points="8,-8 8,-191 244,-191 244,-8 8,-8"/>
+<text text-anchor="middle" x="126" y="-175.8" font-family="Times New Roman,serif" font-size="14.00">default[namespace]</text>
 </g>
 <!-- default/frontend[Deployment] -->
 <g id="node1" class="node">

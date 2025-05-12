@@ -1,0 +1,18 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "blue[udn]/webserver[Pod]"
+  },
+  {
+    "src": "blue[udn]/webserver[Pod]",
+    "dst": "0.0.0.0-255.255.255.255[External]"
+  },
+  {
+    "src": "green[udn]/webserver-2[Pod]",
+    "dst": "0.0.0.0-255.255.255.255[External]"
+  },
+  {
+    "src": "green[udn]/webserver[Pod]",
+    "dst": "0.0.0.0-255.255.255.255[External]"
+  }
+]

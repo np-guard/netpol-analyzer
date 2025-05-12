@@ -18,6 +18,7 @@ import (
 	"github.com/np-guard/models/pkg/netset"
 
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
+	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval/internal/k8s"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
@@ -175,12 +176,45 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 	case *k8s.IPBlockPeer:
 		return nil
 	case *k8s.WorkloadPeer:
+		// since virtual-machine specs does not contain Ports field(s); assuming it is exposed on all TCP conns
+		if currentPeer.Kind() == parser.VirtualMachine {
+			return common.GetAllTCPConnections()
+		}
 		return currentPeer.Pod.PodExposedTCPConnections()
 	case *k8s.PodPeer:
 		return currentPeer.Pod.PodExposedTCPConnections()
 	default:
 		return nil
 	}
+}
+
+// podsFromIsolatedNetworks returns true if at least one pod belongs to an isolated user-defined-network
+func (pe *PolicyEngine) podsFromIsolatedNetworks(src, dst k8s.Peer) bool {
+	// if any of the peers is an external IP return false
+	if src.PeerType() == k8s.IPBlockType || dst.PeerType() == k8s.IPBlockType {
+		return false
+	}
+	// external ingress which is captured by Ingress/Route and Service objects in the UDN's Namespace
+	// is allowed to matching pods in the UDN.
+	// "DNS lookups for services and external entities will function as expected."
+	if src.GetPeerPod().Name == common.IngressPodName && src.GetPeerNamespace().Name == common.IngressPodNamespace {
+		return false
+	}
+	// return false if one pod is representative-peer
+	// @todo: support exposure with UDNs - a pod in a udn should not be exposed to other primary UDNs
+	if src.GetPeerNamespace() == nil || dst.GetPeerNamespace() == nil {
+		return false
+	}
+	// if pods are in default pod networks (namespaces without primary UDN) - return false
+	if !pe.primaryUDNNamespaces[src.GetPeerNamespace().Name] && !pe.primaryUDNNamespaces[dst.GetPeerNamespace().Name] {
+		return false
+	}
+	// at-least one pod is in a udn, check if pods are in same user-defined network (same namespaces)
+	if src.GetPeerNamespace() == dst.GetPeerNamespace() {
+		return false
+	}
+	// at least one pod is in an isolated UDN
+	return true
 }
 
 // allAllowedConnections: returns allowed connection between input strings of src and dst
@@ -237,6 +271,16 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 	return nil, errors.New(alerts.BothSrcAndDstIPsErrStr(srcPeer.String(), dstPeer.String()))
 }
 
+func (pe *PolicyEngine) getUDNsNames(src, dst k8s.Peer) (srcUDN, dstUDN string) {
+	if pe.primaryUDNNamespaces[src.GetPeerNamespace().Name] {
+		srcUDN = src.GetPeerNamespace().Name
+	}
+	if pe.primaryUDNNamespaces[dst.GetPeerNamespace().Name] {
+		dstUDN = dst.GetPeerNamespace().Name
+	}
+	return srcUDN, dstUDN
+}
+
 // allAllowedConnectionsBetweenPeers: returns the allowed connections from srcPeer to dstPeer
 // expecting that srcPeer and dstPeer are in level of pods (PodPeer)
 // allowed conns are computed considering all the available resources of k8s network policy api:
@@ -251,6 +295,16 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 		res = common.MakeConnectionSet(true)
 		res.AddCommonImplyingRule("", common.PodToItselfRule, true)
 		res.AddCommonImplyingRule("", common.PodToItselfRule, false)
+		return res, nil
+	}
+	// if pods are from different user-defined networks, return empty result (no conns)
+	if pe.podsFromIsolatedNetworks(srcK8sPeer, dstK8sPeer) {
+		res = common.MakeConnectionSet(false)
+		srcUDN, dstUDN := pe.getUDNsNames(srcK8sPeer, dstK8sPeer)
+		res.AddCommonImplyingRule(common.UDNRuleKind, common.IsolatedUDNRule(k8s.ConstPeerString(srcK8sPeer),
+			k8s.ConstPeerString(dstK8sPeer), srcUDN, dstUDN), true)
+		res.AddCommonImplyingRule(common.UDNRuleKind, common.IsolatedUDNRule(k8s.ConstPeerString(srcK8sPeer),
+			k8s.ConstPeerString(dstK8sPeer), srcUDN, dstUDN), false)
 		return res, nil
 	}
 	// egress: get egress allowed connections between the src and dst by

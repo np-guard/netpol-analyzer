@@ -1,5 +1,5 @@
 digraph {
-	subgraph "cluster_default" {
+	subgraph "cluster_default[namespace]" {
 		color="black"
 		fontcolor="black"
 		"default/adservice[Deployment]" [label="adservice[Deployment]" color="blue" fontcolor="blue"]
@@ -14,17 +14,17 @@ digraph {
 		"default/recommendationservice[Deployment]" [label="recommendationservice[Deployment]" color="blue" fontcolor="blue"]
 		"default/redis-cart[Deployment]" [label="redis-cart[Deployment]" color="blue" fontcolor="blue"]
 		"default/shippingservice[Deployment]" [label="shippingservice[Deployment]" color="blue" fontcolor="blue"]
-		label="default"
+		label="default[namespace]"
 	}
-	subgraph "cluster_all namespaces" {
+	subgraph "cluster_all namespaces[namespace]" {
 		color="red2"
 		fontcolor="red2"
 		"pod with {k8s-app=kube-dns}_in_all namespaces" [label="pod with {k8s-app=kube-dns}" color="red2" fontcolor="red2"]
-		label="all namespaces"
+		label="all namespaces[namespace]"
 	}
-	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"entire-cluster" [label="entire-cluster" color="red2" fontcolor="red2" shape=diamond]
-	"0.0.0.0-255.255.255.255" -> "default/redis-cart[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "default/redis-cart[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"default/checkoutservice[Deployment]" -> "default/cartservice[Deployment]" [label="TCP 7070" color="gold2" fontcolor="darkgreen" weight=1]
 	"default/checkoutservice[Deployment]" -> "default/currencyservice[Deployment]" [label="TCP 7000" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"default/checkoutservice[Deployment]" -> "default/emailservice[Deployment]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=0.5]
@@ -44,7 +44,7 @@ digraph {
 	"default/loadgenerator[Deployment]" -> "pod with {k8s-app=kube-dns}_in_all namespaces" [label="UDP 53" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
 	"default/recommendationservice[Deployment]" -> "default/productcatalogservice[Deployment]" [label="TCP 3550" color="gold2" fontcolor="darkgreen" weight=1]
 	"default/recommendationservice[Deployment]" -> "pod with {k8s-app=kube-dns}_in_all namespaces" [label="UDP 53" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
-	"default/redis-cart[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/redis-cart[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"default/redis-cart[Deployment]" -> "entire-cluster" [label="All Connections" color="darkorange4" fontcolor="darkgreen" weight=0.5 style=dashed]
 	"entire-cluster" -> "default/redis-cart[Deployment]" [label="All Connections" color="darkorange2" fontcolor="darkgreen" weight=1 style=dashed]
 }

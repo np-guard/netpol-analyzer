@@ -13,6 +13,7 @@ import (
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -37,12 +38,13 @@ type ipMaps struct {
 
 // saveConnsWithIPs gets a P2P connection; if the connection includes an IP-Peer as one of its end-points; the conn is saved in the
 // matching map of the formatText maps
-func (i *ipMaps) saveConnsWithIPs(conn Peer2PeerConnection, explain bool) {
+func (i *ipMaps) saveConnsWithIPs(conn Peer2PeerConnection, explain bool, primaryUdnNamespaces map[string]bool) {
+	p2pConn, _ := formSingleP2PConn(conn, explain, primaryUdnNamespaces)
 	if conn.Src().IsPeerIPType() && !isEmpty(conn) {
-		i.PeerToConnsFromIPs[conn.Dst().String()] = append(i.PeerToConnsFromIPs[conn.Dst().String()], formSingleP2PConn(conn, explain))
+		i.PeerToConnsFromIPs[conn.Dst().String()] = append(i.PeerToConnsFromIPs[conn.Dst().String()], p2pConn)
 	}
 	if conn.Dst().IsPeerIPType() && !isEmpty(conn) {
-		i.peerToConnsToIPs[conn.Src().String()] = append(i.peerToConnsToIPs[conn.Src().String()], formSingleP2PConn(conn, explain))
+		i.peerToConnsToIPs[conn.Src().String()] = append(i.peerToConnsToIPs[conn.Src().String()], p2pConn)
 	}
 }
 
@@ -62,7 +64,7 @@ func createIPMaps(initMapsFlag bool) (ipMaps ipMaps) {
 // connsFormatter implements output formatting in the required output format
 type connsFormatter interface {
 	writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag bool, explain bool,
-		focusConnStr string) (string, error)
+		focusConnStr string, primaryUdnNamespaces map[string]bool) (string, error)
 }
 
 // singleConnFields represents a single connection object
@@ -86,14 +88,42 @@ func (c singleConnFields) stringWithExplanation() string {
 	return fmt.Sprintf("Connections between %s => %s:\n\n%s", c.Src, c.Dst, c.explanation)
 }
 
-// formSingleP2PConn returns a string representation of single connection fields as singleConnFields object
-func formSingleP2PConn(conn Peer2PeerConnection, explain bool) singleConnFields {
+// formSingleP2PConn returns a string representation of single connection fields as singleConnFields object;
+// if the connection belongs to an UDN, returns the udn name
+// in the mean while an allowed conn may belong to one udn (namespace) only.
+// explainability output may contain peers in two UDNs in case of running with `--focus-conn`; in this case the
+// connection will be appended to the Src's UDN (will appear under the src's udn section)
+func formSingleP2PConn(conn Peer2PeerConnection, explain bool, primaryUdnNamespaces map[string]bool) (p2pConn singleConnFields,
+	udn string) {
 	connStr := common.ConnStrFromConnProperties(conn.AllProtocolsAndPorts(), conn.ProtocolsAndPorts())
 	expl := ""
 	if explain {
 		expl = common.ExplanationFromConnProperties(conn.AllProtocolsAndPorts(), conn.(*connection).commonImplyingRules, conn.ProtocolsAndPorts())
 	}
-	return singleConnFields{Src: conn.Src().String(), Dst: conn.Dst().String(), ConnString: connStr, explanation: expl}
+	srcStr := conn.Src().String()
+	dstStr := conn.Dst().String()
+	origSrcStr := srcStr
+	origDstStr := dstStr
+	if primaryUdnNamespaces[conn.Src().Namespace()] { // if the src is in udn add the udn label to its name
+		udn = conn.Src().Namespace() + common.UDNLabel
+		srcStr = addUDNLabelToPeerStr(srcStr)
+		expl = strings.ReplaceAll(expl, origSrcStr, srcStr)
+	}
+	if primaryUdnNamespaces[conn.Dst().Namespace()] {
+		if udn == "" { // the src is not in udn
+			udn = conn.Dst().Namespace() + common.UDNLabel
+		}
+		dstStr = addUDNLabelToPeerStr(dstStr)
+		expl = strings.ReplaceAll(expl, origDstStr, dstStr)
+	}
+	return singleConnFields{Src: srcStr, Dst: dstStr, ConnString: connStr, explanation: expl}, udn
+}
+
+// addUDNLabelToPeerStr : gets peer string of the pattern : <peer Namespace>/<peer Name>+[peer Kind]
+// returns : <peer Namespace>+[udn]/<peer Name>+[peer Kind]
+func addUDNLabelToPeerStr(peerStr string) string {
+	peerStrParts := strings.SplitN(peerStr, string(types.Separator), 2)
+	return types.NamespacedName{Namespace: peerStrParts[0] + common.UDNLabel, Name: peerStrParts[1]}.String()
 }
 
 // commonly (to be) used for exposure analysis output formatters
@@ -199,11 +229,12 @@ func getRepresentativePodString(podLabels v1.LabelSelector, txtOutFlag bool) str
 
 // getConnlistAsSortedSingleConnFieldsArray returns a sorted singleConnFields list from Peer2PeerConnection list.
 // creates ipMaps object if the format requires it (to be used for exposure results later)
-func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMaps ipMaps, saveToIPMaps, explain bool) []singleConnFields {
+func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMaps ipMaps, saveToIPMaps, explain bool,
+	primaryUdnNamespaces map[string]bool) []singleConnFields {
 	connItems := make([]singleConnFields, 0)
 	for _, conn := range conns {
 		if saveToIPMaps {
-			ipMaps.saveConnsWithIPs(conn, explain)
+			ipMaps.saveConnsWithIPs(conn, explain, primaryUdnNamespaces)
 		}
 		// Note that : for formats other than 'txt' - if the `explain` flag was on for the analyzer -
 		// we get here with explain=false (ignored for output) and display regular connlist; However,
@@ -211,7 +242,8 @@ func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMap
 		if !explain && isEmpty(conn) {
 			continue
 		}
-		connItems = append(connItems, formSingleP2PConn(conn, explain))
+		p2pConn, _ := formSingleP2PConn(conn, explain, primaryUdnNamespaces)
+		connItems = append(connItems, p2pConn)
 	}
 	return sortConnFields(connItems, true)
 }

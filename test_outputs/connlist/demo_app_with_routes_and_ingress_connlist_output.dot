@@ -1,34 +1,34 @@
 digraph {
-	subgraph "cluster_helloworld" {
+	subgraph "cluster_helloworld[namespace]" {
 		color="black"
 		fontcolor="black"
 		"helloworld/hello-world[Deployment]" [label="hello-world[Deployment]" color="blue" fontcolor="blue"]
-		label="helloworld"
+		label="helloworld[namespace]"
 	}
-	subgraph "cluster_ingressworld" {
+	subgraph "cluster_ingressworld[namespace]" {
 		color="black"
 		fontcolor="black"
 		"ingressworld/ingress-world[Deployment]" [label="ingress-world[Deployment]" color="blue" fontcolor="blue"]
-		label="ingressworld"
+		label="ingressworld[namespace]"
 	}
-	subgraph "cluster_routeworld" {
+	subgraph "cluster_routeworld[namespace]" {
 		color="black"
 		fontcolor="black"
 		"routeworld/route-world[Deployment]" [label="route-world[Deployment]" color="blue" fontcolor="blue"]
-		label="routeworld"
+		label="routeworld[namespace]"
 	}
-	"0.0.0.0-255.255.255.255" [label="0.0.0.0-255.255.255.255" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
-	"0.0.0.0-255.255.255.255" -> "helloworld/hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"0.0.0.0-255.255.255.255" -> "ingressworld/ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"0.0.0.0-255.255.255.255" -> "routeworld/route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"helloworld/hello-world[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"0.0.0.0-255.255.255.255[External]" -> "helloworld/hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ingressworld/ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "routeworld/route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"helloworld/hello-world[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"helloworld/hello-world[Deployment]" -> "ingressworld/ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"helloworld/hello-world[Deployment]" -> "routeworld/route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"ingressworld/ingress-world[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ingressworld/ingress-world[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"ingressworld/ingress-world[Deployment]" -> "helloworld/hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"ingressworld/ingress-world[Deployment]" -> "routeworld/route-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"routeworld/route-world[Deployment]" -> "0.0.0.0-255.255.255.255" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"routeworld/route-world[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"routeworld/route-world[Deployment]" -> "helloworld/hello-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"routeworld/route-world[Deployment]" -> "ingressworld/ingress-world[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"{ingress-controller}" -> "helloworld/hello-world[Deployment]" [label="TCP 8000" color="gold2" fontcolor="darkgreen" weight=1]

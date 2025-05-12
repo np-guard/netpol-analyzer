@@ -22,8 +22,8 @@ type formatText struct {
 // writeOutput returns a textual string format of connections from list of Peer2PeerConnection objects,
 // and exposure analysis results if exist
 func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
-	focusConnStr string) (string, error) {
-	res := t.writeConnlistOutput(conns, exposureFlag, explain, focusConnStr)
+	focusConnStr string, primaryUdnNamespaces map[string]bool) (string, error) {
+	res := t.writeConnlistOutput(conns, exposureFlag, explain, focusConnStr, primaryUdnNamespaces)
 	if !exposureFlag {
 		return res, nil
 	}
@@ -36,39 +36,88 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 }
 
 // writeConnlistOutput writes the section of the connlist result of the output
-func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string) string {
-	connLines := make([]singleConnFields, 0, len(conns))
-	defaultConnLines := make([]singleConnFields, 0, len(conns))
+func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string,
+	primaryUdnNamespaces map[string]bool) string {
+	connLines := make([]singleConnFields, 0, len(conns))        // lines in the default pod networks
+	connsByUDN := make(map[string][]singleConnFields)           // map from a primary udn to its conns
+	defaultConnLines := make([]singleConnFields, 0, len(conns)) // used with explain
+	crossNetworksLinesFlag := false                             // indicates that there are denied conns because of isolated networks
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
-		p2pConn := formSingleP2PConn(conns[i], explain)
-		if explain && conns[i].(*connection).onlyDefaultRule() {
+		p2pConn, udn := formSingleP2PConn(conns[i], explain, primaryUdnNamespaces)
+		switch {
+		case explain && conns[i].(*connection).onlyDefaultRule():
 			defaultConnLines = append(defaultConnLines, p2pConn)
-		} else {
-			connLines = append(connLines, p2pConn)
+		case explain && conns[i].(*connection).deniedCrossNetworksRule():
+			crossNetworksLinesFlag = true
+		default:
+			if udn != "" { // append allowed conn to its udn for output grouping
+				if _, ok := connsByUDN[udn]; !ok {
+					connsByUDN[udn] = make([]singleConnFields, 0)
+				}
+				connsByUDN[udn] = append(connsByUDN[udn], p2pConn)
+			} else { // append to the pod-network conns
+				connLines = append(connLines, p2pConn)
+			}
 		}
 		// if we have exposure analysis results, also check if src/dst is an IP and store the connection
 		// save if there is a connection
 		if saveIPConns && p2pConn.ConnString != "" {
-			t.ipMaps.saveConnsWithIPs(conns[i], explain)
+			t.ipMaps.saveConnsWithIPs(conns[i], explain, primaryUdnNamespaces)
 		}
 	}
 	result := ""
 	sortedConnLines := sortConnFields(connLines, true)
 	sortedDefaultConnLines := sortConnFields(defaultConnLines, true)
 	if explain {
-		result = writeSingleTypeLinesExplanationOutput(sortedConnLines, specificConnHeader, false) +
-			writeSingleTypeLinesExplanationOutput(sortedDefaultConnLines, systemDefaultPairsHeader, true)
+		podNetworkHeader := specificConnHeader
+		if len(connsByUDN) != 0 {
+			podNetworkHeader += " in pod-network"
+		}
+		result = writeSingleTypeLinesExplanationOutput(sortedConnLines, podNetworkHeader, false) +
+			writeUDNSections(connsByUDN, false, true) +
+			writeSingleTypeLinesExplanationOutput(sortedDefaultConnLines, systemDefaultPairsHeader, true) +
+			writeSingleLineExplanationNote(crossNetworksLinesFlag)
 	} else { // not explain (regular connlist)
-		if focusConnStr == "" { // write all conns  (src => dst: conn)
-			for _, p2pConn := range sortedConnLines {
-				result += p2pConn.string() + newLineChar
-			}
+		if focusConnStr == "" { // write all pod network conns  (src => dst: conn)
+			result = writeFullConnlistTxtOutput(sortedConnLines, connsByUDN)
 		} else { // conns are already filtered by focus conn - print only (src => dst)
-			result = writeFocusConnTxtOutput(sortedConnLines, focusConnStr)
+			result = writeFocusConnTxtOutput(sortedConnLines, connsByUDN, focusConnStr)
 		}
 	}
 	return result
+}
+
+// writeUDNSections writes the conns lines grouped per UDN
+func writeUDNSections(connsByUDN map[string][]singleConnFields, nodePairForm, explain bool) string {
+	res := ""
+	udnKeys := sortMapKeys(connsByUDN)
+	for _, udn := range udnKeys {
+		sortedConns := sortConnFields(connsByUDN[udn], true)
+		if explain {
+			explainUDNHeader := specificConnHeader + " in " + udn
+			res += writeSingleTypeLinesExplanationOutput(sortedConns, explainUDNHeader, false)
+		} else { // not explain
+			res += newLineChar + udn + colon + newLineChar
+			for i := range sortedConns {
+				if nodePairForm { // running with focus-conn
+					res += sortedConns[i].nodePairString() + newLineChar
+				} else { // regular connlist line (with conn)
+					res += sortedConns[i].string() + newLineChar
+				}
+			}
+		}
+	}
+	return res
+}
+
+func sortMapKeys(udnMap map[string][]singleConnFields) []string {
+	keys := make([]string, 0, len(udnMap))
+	for k := range udnMap {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 func writeSingleTypeLinesExplanationOutput(lines []singleConnFields, header string, pairsOnly bool) string {
@@ -102,6 +151,7 @@ const (
 	separationLine80         = "--------------------------------------------------------------------------------"
 	nodePairSeparationLine   = separationLine80 + separationLine80 + common.NewLine
 	systemDefaultPairsHeader = common.AllConnsStr + common.SpaceSeparator + common.ExplSystemDefault
+	crossNetworksDenyHeader  = "Denied cross-network connections"
 	specificConnHeader       = "Specific connections and their reasons"
 	onStr                    = " On "
 )
@@ -176,10 +226,28 @@ const (
 	colon = ":"
 )
 
-func writeFocusConnTxtOutput(sortedConnLines []singleConnFields, focusConnStr string) string {
+func writeFocusConnTxtOutput(sortedConnLines []singleConnFields, udnConns map[string][]singleConnFields, focusConnStr string) string {
 	result := "Permitted connections on " + focusConnStr + colon + newLineChar
 	for _, conn := range sortedConnLines {
 		result += conn.nodePairString() + newLineChar
 	}
+	result += writeUDNSections(udnConns, true, false)
 	return result
+}
+
+func writeFullConnlistTxtOutput(sortedConnLines []singleConnFields, udnConns map[string][]singleConnFields) string {
+	result := ""
+	for _, p2pConn := range sortedConnLines {
+		result += p2pConn.string() + newLineChar
+	}
+	result += writeUDNSections(udnConns, false, false)
+	return result
+}
+
+func writeSingleLineExplanationNote(crossNetworksDeniedFlag bool) string {
+	if !crossNetworksDeniedFlag {
+		return ""
+	}
+	return newLineChar + "*** Note: Connections between any peers from separate isolated networks are denied by default " +
+		"and therefore not listed in this report."
 }

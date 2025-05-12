@@ -6,8 +6,13 @@ SPDX-License-Identifier: Apache-2.0
 
 package common
 
-// The Kubernetes API server sets this label on all namespaces
-const K8sNsNameLabelKey = "kubernetes.io/metadata.name"
+const (
+	// The Kubernetes API server sets this label on all namespaces
+	K8sNsNameLabelKey = "kubernetes.io/metadata.name"
+	// The k8s-ovn for defining a namespace with a user-defined-network
+	PrimaryUDNLabel = "k8s.ovn.org/primary-user-defined-network"
+)
+
 const (
 	// according to this: https://network-policy-api.sigs.k8s.io/api-overview/#adminnetworkpolicy-priorities
 	// The Priority field in the ANP spec is defined as an integer value within the range 0 to 1000
@@ -31,3 +36,5 @@ const (
 	IngressPodName      = "ingress-controller"
 	IngressPodNamespace = "ingress-controller-ns"
 )
+
+const UDNLabel = "[udn]"

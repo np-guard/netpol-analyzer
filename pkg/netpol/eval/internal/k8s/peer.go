@@ -148,8 +148,10 @@ func (p *IPBlockPeer) PeerType() PeerType {
 	return IPBlockType
 }
 
+const externalLabel = "[External]"
+
 func (p *IPBlockPeer) String() string {
-	return p.IPBlock.ToIPRanges()
+	return p.IP() + externalLabel
 }
 
 func (p *IPBlockPeer) GetPeerPod() *Pod {
@@ -173,7 +175,7 @@ func (p *IPBlockPeer) Namespace() string {
 }
 
 func (p *IPBlockPeer) IP() string {
-	return p.String()
+	return p.IPBlock.ToIPRanges()
 }
 
 func (p *IPBlockPeer) IsPeerIPType() bool {

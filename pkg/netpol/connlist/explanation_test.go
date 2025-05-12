@@ -318,4 +318,33 @@ var explainTests = []struct {
 		focusConn:   "tcp-8080",
 		exposure:    true,
 	},
+	{
+		testDirName: "udn_test_1",
+	},
+	{
+		testDirName: "udn_test_2",
+	},
+	{
+		testDirName: "udn_test_3",
+	},
+	{
+		testDirName: "udn_test_4",
+	},
+	{
+		testDirName: "udn_test_4",
+		focusConn:   "tcp-8080",
+	},
+	{
+		testDirName: "udn_test_1",
+		focusConn:   "tcp-90",
+	},
+	{
+		testDirName: "virtual_machines_example",
+	},
+	{
+		testDirName: "udn_and_vms_test_4",
+	},
+	{
+		testDirName: "udn_and_vms_test_5",
+	},
 }

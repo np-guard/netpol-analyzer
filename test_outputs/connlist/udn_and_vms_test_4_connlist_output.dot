@@ -1,0 +1,44 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_bar[namespace]" {
+		color="black"
+		fontcolor="black"
+		"bar/mybar[Pod]" [label="mybar[Pod]" color="blue" fontcolor="blue"]
+		label="bar[namespace]"
+	}
+	subgraph "cluster_default[namespace]" {
+		color="black"
+		fontcolor="black"
+		"default/app-1[Pod]" [label="app-1[Pod]" color="blue" fontcolor="blue"]
+		label="default[namespace]"
+	}
+	}
+	subgraph "cluster_green[udn]" {
+		color="black"
+		fontcolor="black"
+		"green/vm-a[VirtualMachine]" [label="vm-a[VirtualMachine]" color="blue" fontcolor="blue"]
+		"green/vm-b[VirtualMachine]" [label="vm-b[VirtualMachine]" color="blue" fontcolor="blue"]
+		"green/webserver[Pod]" [label="webserver[Pod]" color="blue" fontcolor="blue"]
+		label="green[udn]"
+	}
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "bar/mybar[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "default/app-1[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "green/vm-a[VirtualMachine]" [label="TCP 9001" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "green/vm-b[VirtualMachine]" [label="TCP 9001" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "green/webserver[Pod]" [label="TCP 9001" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"bar/mybar[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=1]
+	"bar/mybar[Pod]" -> "default/app-1[Pod]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/app-1[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/app-1[Pod]" -> "bar/mybar[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/vm-a[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/vm-a[VirtualMachine]" -> "green/vm-b[VirtualMachine]" [label="TCP 9001" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"green/vm-a[VirtualMachine]" -> "green/webserver[Pod]" [label="TCP 9001" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"green/vm-b[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/vm-b[VirtualMachine]" -> "green/vm-a[VirtualMachine]" [label="TCP 9001" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/vm-b[VirtualMachine]" -> "green/webserver[Pod]" [label="TCP 9001" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"green/webserver[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/webserver[Pod]" -> "green/vm-a[VirtualMachine]" [label="TCP 9001" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/webserver[Pod]" -> "green/vm-b[VirtualMachine]" [label="TCP 9001" color="gold2" fontcolor="darkgreen" weight=1]
+}
