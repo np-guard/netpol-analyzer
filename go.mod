@@ -1,8 +1,8 @@
 module github.com/np-guard/netpol-analyzer
 
-go 1.23.0
+go 1.23.4
 
-toolchain go1.24.1
+toolchain go1.23.6
 
 require (
 	github.com/hashicorp/golang-lru/v2 v2.0.7
