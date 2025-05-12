@@ -2,17 +2,17 @@ digraph {
 	subgraph "cluster_green[udn]" {
 		color="black"
 		fontcolor="black"
-		"green[udn]/app[Pod]" [label="app[Pod]" color="blue" fontcolor="blue"]
-		"green[udn]/db[Pod]" [label="db[Pod]" color="blue" fontcolor="blue"]
+		"green/app[Pod]" [label="app[Pod]" color="blue" fontcolor="blue"]
+		"green/db[Pod]" [label="db[Pod]" color="blue" fontcolor="blue"]
 		label="green[udn]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
 	"{ingress-controller}" [label="{ingress-controller}" color="blue" fontcolor="blue"]
-	"0.0.0.0-255.255.255.255[External]" -> "green[udn]/app[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"0.0.0.0-255.255.255.255[External]" -> "green[udn]/db[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"green[udn]/app[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"green[udn]/app[Pod]" -> "green[udn]/db[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"green[udn]/db[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"green[udn]/db[Pod]" -> "green[udn]/app[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"{ingress-controller}" -> "green[udn]/app[Pod]" [label="TCP 8000,8090" color="gold2" fontcolor="darkgreen" weight=1]
+	"0.0.0.0-255.255.255.255[External]" -> "green/app[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "green/db[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"green/app[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/app[Pod]" -> "green/db[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"green/db[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/db[Pod]" -> "green/app[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"{ingress-controller}" -> "green/app[Pod]" [label="TCP 8000,8090" color="gold2" fontcolor="darkgreen" weight=1]
 }
