@@ -14,9 +14,8 @@ import (
 
 // Namespace encapsulates k8s namespace fields that are relevant for evaluating network policies
 type Namespace struct {
-	Name       string
-	Labels     map[string]string
-	PrimaryUDN *UserDefinedNetwork
+	Name   string
+	Labels map[string]string
 }
 
 // @todo need a Namespace collection type along with convenience methods?

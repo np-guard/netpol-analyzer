@@ -2,19 +2,19 @@ digraph {
 	subgraph "cluster_blue[udn]" {
 		color="black"
 		fontcolor="black"
-		"blue[udn]/webserver[Pod]" [label="webserver[Pod]" color="blue" fontcolor="blue"]
+		"blue/webserver[Pod]" [label="webserver[Pod]" color="blue" fontcolor="blue"]
 		label="blue[udn]"
 	}
 	subgraph "cluster_green[udn]" {
 		color="black"
 		fontcolor="black"
-		"green[udn]/webserver-2[Pod]" [label="webserver-2[Pod]" color="blue" fontcolor="blue"]
-		"green[udn]/webserver[Pod]" [label="webserver[Pod]" color="blue" fontcolor="blue"]
+		"green/webserver-2[Pod]" [label="webserver-2[Pod]" color="blue" fontcolor="blue"]
+		"green/webserver[Pod]" [label="webserver[Pod]" color="blue" fontcolor="blue"]
 		label="green[udn]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
-	"0.0.0.0-255.255.255.255[External]" -> "blue[udn]/webserver[Pod]" [label="TCP 90" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"blue[udn]/webserver[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="TCP 90" color="gold2" fontcolor="darkgreen" weight=1]
-	"green[udn]/webserver-2[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="TCP 90" color="gold2" fontcolor="darkgreen" weight=1]
-	"green[udn]/webserver[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="TCP 90" color="gold2" fontcolor="darkgreen" weight=1]
+	"0.0.0.0-255.255.255.255[External]" -> "blue/webserver[Pod]" [label="TCP 90" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"blue/webserver[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="TCP 90" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/webserver-2[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="TCP 90" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/webserver[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="TCP 90" color="gold2" fontcolor="darkgreen" weight=1]
 }

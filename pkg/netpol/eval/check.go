@@ -184,7 +184,7 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 }
 
 // podsFromIsolatedNetworks returns true if at least one pod belongs to an isolated user-defined-network
-func podsFromIsolatedNetworks(src, dst k8s.Peer) bool {
+func (pe *PolicyEngine) podsFromIsolatedNetworks(src, dst k8s.Peer) bool {
 	// if any of the peers is an external IP return false
 	if src.PeerType() == k8s.IPBlockType || dst.PeerType() == k8s.IPBlockType {
 		return false
@@ -195,12 +195,12 @@ func podsFromIsolatedNetworks(src, dst k8s.Peer) bool {
 	if src.GetPeerNamespace() == nil || dst.GetPeerNamespace() == nil {
 		return false
 	}
-	// if pods are in default pod networks (namespaces without UDN) - return false
-	if src.GetPeerNamespace().PrimaryUDN == nil && dst.GetPeerNamespace().PrimaryUDN == nil {
+	// if pods are in default pod networks (namespaces without primary UDN) - return false
+	if !pe.primaryUDNNamespaces[src.GetPeerNamespace().Name] && !pe.primaryUDNNamespaces[dst.GetPeerNamespace().Name] {
 		return false
 	}
-	// if pods are in same user-defined network
-	if src.GetPeerNamespace().PrimaryUDN == dst.GetPeerNamespace().PrimaryUDN {
+	// at-least one pod is in a udn, check if pods are in same user-defined network (same namespaces)
+	if src.GetPeerNamespace() == dst.GetPeerNamespace() {
 		return false
 	}
 	// at least one pod is in an isolated UDN
@@ -278,7 +278,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 		return res, nil
 	}
 	// if pods are from different user-defined networks, return empty result (no conns)
-	if podsFromIsolatedNetworks(srcK8sPeer, dstK8sPeer) {
+	if pe.podsFromIsolatedNetworks(srcK8sPeer, dstK8sPeer) {
 		return common.MakeConnectionSet(false), nil
 	}
 	// egress: get egress allowed connections between the src and dst by

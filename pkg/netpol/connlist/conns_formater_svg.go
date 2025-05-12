@@ -17,10 +17,10 @@ type formatSVG struct {
 // and from exposure-analysis results if exists
 // explain input is ignored since not supported with this format
 func (s *formatSVG) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
-	focusConnStr string) (string, error) {
+	focusConnStr string, primaryUdnNamespaces map[string]bool) (string, error) {
 	// first write dot output
 	formatDot := formatDOT{peersList: s.peersList}
-	dotOutput, err := formatDot.writeOutput(conns, exposureConns, exposureFlag, explain, focusConnStr)
+	dotOutput, err := formatDot.writeOutput(conns, exposureConns, exposureFlag, explain, focusConnStr, primaryUdnNamespaces)
 	if err != nil {
 		return "", err
 	}

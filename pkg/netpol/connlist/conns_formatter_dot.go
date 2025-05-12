@@ -42,19 +42,19 @@ type formatDOT struct {
 
 // peerNameAndColorByType returns the peer label and color to be represented in the graph, and whether the peer is
 // external to cluster's namespaces
-func peerNameAndColorByType(peer Peer) (nameLabel, color string, isExternal, isInUDN bool) {
+func peerNameAndColorByType(peer Peer, primaryUdnNamespaces map[string]bool) (nameLabel, color string, isExternal, isInUDN bool) {
 	if peer.IsPeerIPType() {
 		return peer.String(), ipColor, true, false
 	} else if peer.Name() == common.IngressPodName {
 		return peer.String(), nonIPPeerColor, true, false
 	}
 	return dotformatting.NodeClusterPeerLabel(peer.Name(), peer.Kind()), nonIPPeerColor, false,
-		strings.Contains(peer.String(), common.UDNLabel)
+		primaryUdnNamespaces[peer.Namespace()]
 }
 
 // getPeerLine formats a peer line for dot graph
-func getPeerLine(peer Peer) (peerLine string, isExternal, isInUDN bool) {
-	peerNameLabel, peerColor, isExternalPeer, peerInUDN := peerNameAndColorByType(peer)
+func getPeerLine(peer Peer, primaryUdnNamespaces map[string]bool) (peerLine string, isExternal, isInUDN bool) {
+	peerNameLabel, peerColor, isExternalPeer, peerInUDN := peerNameAndColorByType(peer, primaryUdnNamespaces)
 	return fmt.Sprintf(peerLineFormatPrefix+peerLineClosing, peer.String(), peerNameLabel, peerColor, peerColor), isExternalPeer, peerInUDN
 }
 
@@ -62,7 +62,7 @@ func getPeerLine(peer Peer) (peerLine string, isExternal, isInUDN bool) {
 // and from exposure-analysis results if exists
 // explain input is ignored since not supported with this format
 func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
-	focusConnStr string) (string, error) {
+	focusConnStr string, primaryUdnNamespaces map[string]bool) (string, error) {
 	// 1. declaration of maps and slices to be used for forming the graph lines
 	nsPeers := make(map[string][]string) // map from regular namespace to its peers
 	//  (grouping peers by namespaces which are not representative, neither udn-assigned)
@@ -72,12 +72,12 @@ func (d *formatDOT) writeOutput(conns []Peer2PeerConnection, exposureConns []Exp
 	edgeLines := make([]string, 0)           // list of edges lines (connections of connlist + exposure)
 	peersVisited := make(map[string]bool, 0) // acts as a set
 	// 2. add connlist results to the graph lines
-	connsEdges, connsExternalPeers := d.addConnlistOutputData(conns, nsPeers, udnNsPeers, peersVisited)
+	connsEdges, connsExternalPeers := d.addConnlistOutputData(conns, nsPeers, udnNsPeers, peersVisited, primaryUdnNamespaces)
 	edgeLines = append(edgeLines, connsEdges...)
 	externalPeersLines = append(externalPeersLines, connsExternalPeers...)
 	// 3. add exposure-analysis results to the graph lines
 	// @todo : add udnNsPeers when supporting exposure-analysis with UDN
-	entireClusterLine, exposureEdges := addExposureOutputData(exposureConns, peersVisited, nsPeers, nsRepPeers)
+	entireClusterLine, exposureEdges := addExposureOutputData(exposureConns, peersVisited, primaryUdnNamespaces, nsPeers, nsRepPeers)
 	externalPeersLines = append(externalPeersLines, entireClusterLine...)
 	edgeLines = append(edgeLines, exposureEdges...)
 	// 4. sort graph lines
@@ -113,29 +113,33 @@ func groupPeersByNetwork(nsPeers, nsRepPeers, udnNsPeers map[string][]string) []
 
 // addConnlistOutputData updates namespace peers groups and returns edge lines and external peers lines from connlist results
 func (d *formatDOT) addConnlistOutputData(conns []Peer2PeerConnection, nsPeers, udnNsPeers map[string][]string,
-	peersVisited map[string]bool) (eLines, externalPeersLines []string) {
+	peersVisited, primaryUdnNamespaces map[string]bool) (eLines, externalPeersLines []string) {
 	edgeLines := make([]string, len(conns))
 	for index := range conns {
 		c := conns[index]
 		connStr := common.ConnStrFromConnProperties(c.AllProtocolsAndPorts(), c.ProtocolsAndPorts())
 		edgeLines[index] = dotformatting.GetEdgeLine(c.Src().String(), c.Dst().String(), connStr, connlistEdgeColor, edgeFontColor)
-		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Src(), nsPeers, udnNsPeers, peersVisited)...)
-		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Dst(), nsPeers, udnNsPeers, peersVisited)...)
+		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Src(), nsPeers, udnNsPeers, peersVisited,
+			primaryUdnNamespaces)...)
+		externalPeersLines = append(externalPeersLines, addConnlistPeerLine(conns[index].Dst(), nsPeers, udnNsPeers, peersVisited,
+			primaryUdnNamespaces)...)
 	}
 	for _, val := range d.peersList {
 		if !val.IsPeerIPType() {
-			externalPeersLines = append(externalPeersLines, addConnlistPeerLine(val, nsPeers, udnNsPeers, peersVisited)...)
+			externalPeersLines = append(externalPeersLines, addConnlistPeerLine(val, nsPeers, udnNsPeers, peersVisited,
+				primaryUdnNamespaces)...)
 		}
 	}
 	return edgeLines, externalPeersLines
 }
 
 // addConnlistPeerLine if the given peer is not visited yet, adds it to the relevant lines' group (namespace group/ external)
-func addConnlistPeerLine(peer Peer, nsPeers, udnNsPeers map[string][]string, peersVisited map[string]bool) (externalPeerLine []string) {
+func addConnlistPeerLine(peer Peer, nsPeers, udnNsPeers map[string][]string, peersVisited,
+	primaryUdnNamespaces map[string]bool) (externalPeerLine []string) {
 	peerStr := peer.String()
 	if !peersVisited[peerStr] {
 		peersVisited[peerStr] = true
-		peerLine, isExternalPeer, isInUDN := getPeerLine(peer)
+		peerLine, isExternalPeer, isInUDN := getPeerLine(peer, primaryUdnNamespaces)
 		switch {
 		case isExternalPeer: // peer that does not belong to the cluster (i.e. ip/ ingress-controller)
 			externalPeerLine = []string{peerLine}
@@ -150,13 +154,13 @@ func addConnlistPeerLine(peer Peer, nsPeers, udnNsPeers map[string][]string, pee
 
 // addExposureOutputData gets the exposure-analysis results, updates the namespaces peers groups lines for both real exposed peers and
 // representative peers and returns the exposure edges and entire cluster line (as external peer line)
-func addExposureOutputData(exposureConns []ExposedPeer, peersVisited map[string]bool,
+func addExposureOutputData(exposureConns []ExposedPeer, peersVisited, primaryUdnNamespaces map[string]bool,
 	nsPeers, nsRepPeers map[string][]string) (entireClusterLine, exposureEdges []string) {
 	representativeVisited := make(map[string]bool, 0) // acts as a set
 	for _, ep := range exposureConns {
 		if !peersVisited[ep.ExposedPeer().String()] { // an exposed peer is a real peer from the manifests,
 			// updated in the real namespaces map
-			exposedPeerLine, _, isInUDN := getPeerLine(ep.ExposedPeer())
+			exposedPeerLine, _, isInUDN := getPeerLine(ep.ExposedPeer(), primaryUdnNamespaces)
 			dotformatting.AddPeerToNsGroup(ep.ExposedPeer().Namespace(), exposedPeerLine, nsPeers, isInUDN)
 		}
 		ingressExpEdges := getXgressExposureEdges(ep.ExposedPeer().String(), ep.IngressExposure(), ep.IsProtectedByIngressNetpols(),
