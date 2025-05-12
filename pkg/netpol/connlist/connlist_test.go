@@ -373,6 +373,46 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 			dirName:          "banp_bad_path_test_15",
 			errorStrContains: alerts.InvalidCIDRAddr,
 		},
+		{
+			name:             "Input_dir_has_two_namespaces_with_same_name_return_fatal_error",
+			dirName:          "bad_path_namespace_with_same_name",
+			errorStrContains: alerts.NSWithSameNameError("blue"),
+		},
+		{
+			name:             "Input_udn_contains_invalid_value_for_key_topology_return_fatal_error",
+			dirName:          "udn_bad_path_test_1",
+			errorStrContains: alerts.InvalidKeyValue("blue/separate-namespace", "topology", "Layer4"),
+		},
+		{
+			name:             "Input_udn_contains_mismatch_between_key_topology_and_actual_layer_return_fatal_error",
+			dirName:          "udn_bad_path_test_2",
+			errorStrContains: alerts.DisMatchLayerConfiguration("blue/separate-namespace", "Layer2"),
+		},
+		{
+			name:             "Input_udn_contains_invalid_value_for_key_role_return_fatal_error",
+			dirName:          "udn_bad_path_test_3",
+			errorStrContains: alerts.InvalidKeyValue("blue/separate-namespace", "role", "Admin"),
+		},
+		{
+			name:             "Input_udn_name_is_default_return_fatal_error",
+			dirName:          "udn_bad_path_test_4",
+			errorStrContains: alerts.UDNNameAssertion("blue/default"),
+		},
+		{
+			name:             "Input_udn_is_in_default_namespace_return_fatal_error",
+			dirName:          "udn_bad_path_test_5",
+			errorStrContains: alerts.UDNNamespaceAssertion("namespace-scoped", "default"),
+		},
+		{
+			name:             "Input_udn_is_in_openshift_namespace_return_fatal_error",
+			dirName:          "udn_bad_path_test_6",
+			errorStrContains: alerts.UDNNamespaceAssertion("namespace-scoped", "openshift-oc"),
+		},
+		{
+			name:             "Input_namespace_has_two_primary_UDNs_return_fatal_error",
+			dirName:          "udn_bad_path_test_7",
+			errorStrContains: alerts.OnePrimaryUDNAssertion("blue"),
+		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
