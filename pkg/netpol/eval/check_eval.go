@@ -50,7 +50,7 @@ func (pe *PolicyEngine) CheckIfAllowed(src, dst, protocol, port string) (bool, e
 		return res, nil
 	}
 
-	if podsFromIsolatedNetworks(srcPeer, dstPeer) {
+	if pe.podsFromIsolatedNetworks(srcPeer, dstPeer) {
 		return false, nil
 	}
 

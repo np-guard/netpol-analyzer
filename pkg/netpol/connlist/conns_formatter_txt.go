@@ -22,8 +22,8 @@ type formatText struct {
 // writeOutput returns a textual string format of connections from list of Peer2PeerConnection objects,
 // and exposure analysis results if exist
 func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
-	focusConnStr string) (string, error) {
-	res := t.writeConnlistOutput(conns, exposureFlag, explain, focusConnStr)
+	focusConnStr string, primaryUdnNamespaces map[string]bool) (string, error) {
+	res := t.writeConnlistOutput(conns, exposureFlag, explain, focusConnStr, primaryUdnNamespaces)
 	if !exposureFlag {
 		return res, nil
 	}
@@ -36,14 +36,15 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 }
 
 // writeConnlistOutput writes the section of the connlist result of the output
-func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string) string {
+func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string,
+	primaryUdnNamespaces map[string]bool) string {
 	connLines := make([]singleConnFields, 0, len(conns))        // lines in the default pod networks
-	connsByUDN := make(map[string][]singleConnFields)           // map from a udn to its conns
+	connsByUDN := make(map[string][]singleConnFields)           // map from a primary udn to its conns
 	defaultConnLines := make([]singleConnFields, 0, len(conns)) // used with explain
 	crossNetworksLinesFlag := false                             // indicates that there are denied conns because of isolated networks
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
-		p2pConn, udn := formSingleP2PConn(conns[i], explain)
+		p2pConn, udn := formSingleP2PConn(conns[i], explain, primaryUdnNamespaces)
 		switch {
 		case explain && conns[i].(*connection).onlyDefaultRule():
 			defaultConnLines = append(defaultConnLines, p2pConn)
@@ -62,7 +63,7 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 		// if we have exposure analysis results, also check if src/dst is an IP and store the connection
 		// save if there is a connection
 		if saveIPConns && p2pConn.ConnString != "" {
-			t.ipMaps.saveConnsWithIPs(conns[i], explain)
+			t.ipMaps.saveConnsWithIPs(conns[i], explain, primaryUdnNamespaces)
 		}
 	}
 	result := ""

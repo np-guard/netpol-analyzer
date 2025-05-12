@@ -2,15 +2,15 @@ digraph {
 	subgraph "cluster_foo[udn]" {
 		color="black"
 		fontcolor="black"
-		"foo[udn]/fedora-apricot-pike-81[VirtualMachine]" [label="fedora-apricot-pike-81[VirtualMachine]" color="blue" fontcolor="blue"]
-		"foo[udn]/fedora-tomato-zebra-41[VirtualMachine]" [label="fedora-tomato-zebra-41[VirtualMachine]" color="blue" fontcolor="blue"]
+		"foo/fedora-apricot-pike-81[VirtualMachine]" [label="fedora-apricot-pike-81[VirtualMachine]" color="blue" fontcolor="blue"]
+		"foo/fedora-tomato-zebra-41[VirtualMachine]" [label="fedora-tomato-zebra-41[VirtualMachine]" color="blue" fontcolor="blue"]
 		label="foo[udn]"
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
-	"0.0.0.0-255.255.255.255[External]" -> "foo[udn]/fedora-apricot-pike-81[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"0.0.0.0-255.255.255.255[External]" -> "foo[udn]/fedora-tomato-zebra-41[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"foo[udn]/fedora-apricot-pike-81[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"foo[udn]/fedora-apricot-pike-81[VirtualMachine]" -> "foo[udn]/fedora-tomato-zebra-41[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"foo[udn]/fedora-tomato-zebra-41[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"foo[udn]/fedora-tomato-zebra-41[VirtualMachine]" -> "foo[udn]/fedora-apricot-pike-81[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"0.0.0.0-255.255.255.255[External]" -> "foo/fedora-apricot-pike-81[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "foo/fedora-tomato-zebra-41[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"foo/fedora-apricot-pike-81[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"foo/fedora-apricot-pike-81[VirtualMachine]" -> "foo/fedora-tomato-zebra-41[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"foo/fedora-tomato-zebra-41[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"foo/fedora-tomato-zebra-41[VirtualMachine]" -> "foo/fedora-apricot-pike-81[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 }

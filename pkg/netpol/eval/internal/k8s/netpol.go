@@ -388,10 +388,10 @@ const (
 )
 
 // ConstPeerString returns pod's owner-name not the peer instance name unless it is ip-block (used for explanation)
-func ConstPeerString(peer Peer, udn bool) string {
+func ConstPeerString(peer Peer) string {
 	peerStr := peer.String()
 	if peer.PeerType() != IPBlockType {
-		peerStr = (&WorkloadPeer{Pod: peer.GetPeerPod(), InPrimaryUDN: udn}).String()
+		peerStr = (&WorkloadPeer{peer.GetPeerPod()}).String()
 	}
 	return peerStr
 }
@@ -432,10 +432,8 @@ func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*
 		peerToSelect = src
 		policyPeer = dst
 	}
-	policyPeerUDNFlag := policyPeer.GetPeerNamespace().PrimaryUDN != nil
-	peerToSelectUDNFlag := peerToSelect.GetPeerNamespace() != nil && peerToSelect.GetPeerNamespace().PrimaryUDN != nil
-	policyPeerStr := ConstPeerString(policyPeer, policyPeerUDNFlag)
-	peerToSelectStr := ConstPeerString(peerToSelect, peerToSelectUDNFlag)
+	policyPeerStr := ConstPeerString(policyPeer)
+	peerToSelectStr := ConstPeerString(peerToSelect)
 	if numOfRules == 0 {
 		res.AddCommonImplyingRule(common.NPRuleKind, np.notSelectedByRuleExpl(isIngress, noXgressRulesExpl,
 			policyPeerStr, peerToSelectStr), isIngress)

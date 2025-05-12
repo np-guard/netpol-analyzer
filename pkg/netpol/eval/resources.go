@@ -57,8 +57,9 @@ type (
 		explain                bool
 		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
 		// used only with exposure analysis (representative peer object is a workloadPeer with kind == "RepresentativePeer")
-		objectsList        []parser.K8sObject // list of k8s objects to be inserted to the policy-engine
-		ignoredObjWarnings common.Warnings    // list of warnings from ignored objects (input objects that were parsed but
+		objectsList          []parser.K8sObject // list of k8s objects to be inserted to the policy-engine
+		primaryUDNNamespaces map[string]bool    // set of names of namespaces which are assigned with a primary user-defined-network
+		ignoredObjWarnings   common.Warnings    // list of warnings from ignored objects (input objects that were parsed but
 		// could not be inserted to the policy-engine)
 	}
 
@@ -119,6 +120,7 @@ func NewPolicyEngine() *PolicyEngine {
 		explain:                         false,
 		logger:                          logger.NewDefaultLogger(),
 		ignoredObjWarnings:              make(common.Warnings),
+		primaryUDNNamespaces:            make(map[string]bool),
 	}
 }
 
@@ -481,6 +483,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.sortedAdminNetpols = make([]*k8s.AdminNetworkPolicy, 0)
 	pe.baselineAdminNetpol = nil
 	pe.ignoredObjWarnings = make(common.Warnings)
+	pe.primaryUDNNamespaces = make(map[string]bool)
 }
 
 func (pe *PolicyEngine) insertNamespace(ns *corev1.Namespace) error {
@@ -800,13 +803,16 @@ func (pe *PolicyEngine) insertUserDefinedNetwork(udn *udnv1.UserDefinedNetwork) 
 		// 1. openshift-* namespaces should not be used to set up a UserDefinedNetwork CR.
 		// 2. UserDefinedNetwork CRs should not be created in the default namespace. This can result in no isolation and, as a result,
 		//  could introduce security risks to the cluster.
-		return errors.New(alerts.ErrUDNInDefaultNs(udn.Name, udn.Namespace))
+		return errors.New(alerts.UDNNamespaceAssertion(udn.Name, udn.Namespace))
 	}
-	if udnNs.PrimaryUDN != nil {
+	if pe.primaryUDNNamespaces[udn.Namespace] { // a primary udn is already assigned to this namespace
 		// assigning UDNs to namespaces is with a limitation of only one primary UDN to a namespace
 		return errors.New(alerts.OnePrimaryUDNAssertion(udn.Namespace))
 	}
-	udnNs.PrimaryUDN = newUDN
+	pe.primaryUDNNamespaces[udn.Namespace] = true // add the namespace of the udn to the set
+	// note that: we don't store the udn itself, as we don't use it/its fields;
+	// if in future decide to read more fields (as cidr ..),
+	// we can assign the UDN to its namespace (either in the map or the namespace struct itself)
 	return nil
 }
 
@@ -907,8 +913,7 @@ func (pe *PolicyEngine) createPodOwnersMap() (map[string]Peer, error) {
 		if err := pe.checkConsistentLabelsForPodsOfSameOwner(pod); err != nil {
 			return nil, err
 		}
-		// since all resources are already inserted, update if the workloadPeer is in a udn (from pod's namespace data)
-		workload := &k8s.WorkloadPeer{Pod: pod, InPrimaryUDN: (pe.namespacesMap[pod.Namespace].PrimaryUDN != nil)}
+		workload := &k8s.WorkloadPeer{Pod: pod}
 		res[workload.String()] = workload
 	}
 	return res, nil
@@ -1172,4 +1177,8 @@ func (pe *PolicyEngine) LogPolicyEngineWarnings() (warns []string) {
 		warns = append(warns, pe.baselineAdminNetpol.LogWarnings(pe.logger)...)
 	}
 	return warns
+}
+
+func (pe *PolicyEngine) GetPrimaryUDNNamespaces() map[string]bool {
+	return pe.primaryUDNNamespaces
 }

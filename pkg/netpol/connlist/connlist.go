@@ -62,6 +62,8 @@ type ConnlistAnalyzer struct {
 	muteErrsAndWarns   bool
 	peersList          []Peer // internally used peersList used in dot/svg formatting;
 	// in case of focusWorkload option contains only relevant peers
+	primaryUdnNamespaces map[string]bool // set of the names of isolated by primary UDN namespaces,
+	// internally used in formatting output
 	focusConnSet *common.ConnectionSet // internally used to focus conns list results with this specific connection
 }
 
@@ -364,6 +366,7 @@ func (ca *ConnlistAnalyzer) connsListFromParsedResources(objectsList []parser.K8
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
 	}
+	ca.primaryUdnNamespaces = pe.GetPrimaryUDNNamespaces()
 	return ca.getConnectionsList(pe, ia)
 }
 
@@ -496,7 +499,7 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 	if ca.focusConnSet != nil {
 		focusConnStr = ca.focusConnSet.String()
 	}
-	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis, ca.explain, focusConnStr)
+	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis, ca.explain, focusConnStr, ca.primaryUdnNamespaces)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err

@@ -155,7 +155,7 @@ func OnePrimaryUDNAssertion(ns string) string {
 
 const udnPrefix = "user-defined-network: "
 
-func ErrUDNInDefaultNs(udnName, namespace string) string {
+func UDNNamespaceAssertion(udnName, namespace string) string {
 	return udnPrefix + udnName + " is assigned to namespace: " + namespace +
 		"; UserDefinedNetwork CRs should not be created in this namespace." +
 		" This can result in no isolation and, as a result, could introduce security risks to the cluster."
