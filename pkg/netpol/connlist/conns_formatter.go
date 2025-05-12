@@ -89,7 +89,10 @@ func (c singleConnFields) stringWithExplanation() string {
 }
 
 // formSingleP2PConn returns a string representation of single connection fields as singleConnFields object;
-// if the connection belongs to an UDN, returns the udn name (in the mean while a conn may belong to one udn only)
+// if the connection belongs to an UDN, returns the udn name
+// in the mean while an allowed conn may belong to one udn (namespace) only.
+// explainability output may contain peers in two UDNs in case of running with `--focus-conn`; in this case the
+// connection will be appended to the Src's UDN (will appear under the src's udn section)
 func formSingleP2PConn(conn Peer2PeerConnection, explain bool, primaryUdnNamespaces map[string]bool) (p2pConn singleConnFields,
 	udn string) {
 	connStr := common.ConnStrFromConnProperties(conn.AllProtocolsAndPorts(), conn.ProtocolsAndPorts())
@@ -99,15 +102,19 @@ func formSingleP2PConn(conn Peer2PeerConnection, explain bool, primaryUdnNamespa
 	}
 	srcStr := conn.Src().String()
 	dstStr := conn.Dst().String()
+	origSrcStr := srcStr
+	origDstStr := dstStr
 	if primaryUdnNamespaces[conn.Src().Namespace()] { // if the src is in udn add the udn label to its name
 		udn = conn.Src().Namespace() + common.UDNLabel
 		srcStr = addUDNLabelToPeerStr(srcStr)
+		expl = strings.ReplaceAll(expl, origSrcStr, srcStr)
 	}
 	if primaryUdnNamespaces[conn.Dst().Namespace()] {
 		if udn == "" { // the src is not in udn
 			udn = conn.Dst().Namespace() + common.UDNLabel
 		}
 		dstStr = addUDNLabelToPeerStr(dstStr)
+		expl = strings.ReplaceAll(expl, origDstStr, dstStr)
 	}
 	return singleConnFields{Src: srcStr, Dst: dstStr, ConnString: connStr, explanation: expl}, udn
 }

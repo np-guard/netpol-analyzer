@@ -1,0 +1,52 @@
+
+#######################################################
+# Specific connections and their reasons in blue[udn] #
+#######################################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255[External] => blue[udn]/webserver[Pod]:
+
+Allowed connections:
+	Allowed TCP:[90] due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between blue[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External]:
+
+Allowed connections:
+	Allowed TCP:[90] due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between blue[udn]/webserver[Pod] => green[udn]/webserver[Pod]:
+
+Denied connections:
+	Denied TCP:[90] due to existence of user defined networks:
+		Egress 
+			UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]; and UserDefinedNetwork 'green' isolates green[udn]/webserver[Pod]
+		Ingress 
+			UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]; and UserDefinedNetwork 'green' isolates green[udn]/webserver[Pod]
+
+
+########################################################
+# Specific connections and their reasons in green[udn] #
+########################################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255[External] => green[udn]/webserver[Pod]:
+
+Allowed connections:
+	Allowed TCP:[90] due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between green[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External]:
+
+Allowed connections:
+	Allowed TCP:[90] due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between green[udn]/webserver[Pod] => blue[udn]/webserver[Pod]:
+
+Denied connections:
+	Denied TCP:[90] due to existence of user defined networks:
+		Egress 
+			UserDefinedNetwork 'green' isolates green[udn]/webserver[Pod]; and UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]
+		Ingress 
+			UserDefinedNetwork 'green' isolates green[udn]/webserver[Pod]; and UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]
+

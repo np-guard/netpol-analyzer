@@ -271,6 +271,16 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 	return nil, errors.New(alerts.BothSrcAndDstIPsErrStr(srcPeer.String(), dstPeer.String()))
 }
 
+func (pe *PolicyEngine) getUDNsNames(src, dst k8s.Peer) (srcUDN, dstUDN string) {
+	if pe.primaryUDNNamespaces[src.GetPeerNamespace().Name] {
+		srcUDN = src.GetPeerNamespace().Name
+	}
+	if pe.primaryUDNNamespaces[dst.GetPeerNamespace().Name] {
+		dstUDN = dst.GetPeerNamespace().Name
+	}
+	return srcUDN, dstUDN
+}
+
 // allAllowedConnectionsBetweenPeers: returns the allowed connections from srcPeer to dstPeer
 // expecting that srcPeer and dstPeer are in level of pods (PodPeer)
 // allowed conns are computed considering all the available resources of k8s network policy api:
@@ -289,7 +299,13 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	}
 	// if pods are from different user-defined networks, return empty result (no conns)
 	if pe.podsFromIsolatedNetworks(srcK8sPeer, dstK8sPeer) {
-		return common.MakeConnectionSet(false), nil
+		res = common.MakeConnectionSet(false)
+		srcUDN, dstUDN := pe.getUDNsNames(srcK8sPeer, dstK8sPeer)
+		res.AddCommonImplyingRule(common.UDNRuleKind, common.IsolatedUDNRule(k8s.ConstPeerString(srcK8sPeer),
+			k8s.ConstPeerString(dstK8sPeer), srcUDN, dstUDN), true)
+		res.AddCommonImplyingRule(common.UDNRuleKind, common.IsolatedUDNRule(k8s.ConstPeerString(srcK8sPeer),
+			k8s.ConstPeerString(dstK8sPeer), srcUDN, dstUDN), false)
+		return res, nil
 	}
 	// egress: get egress allowed connections between the src and dst by
 	// walking through all k8s egress policies capturing the src;

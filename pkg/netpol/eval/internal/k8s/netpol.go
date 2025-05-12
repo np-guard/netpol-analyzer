@@ -387,11 +387,10 @@ const (
 	explNoMatchOfNamedPortsToDst = "but named ports of the rule have no match in the configuration of the destination peer"
 )
 
-// constPeerString returns pod's owner-name not the peer instance name unless it is ip-block (used for explanation)
-func constPeerString(peer Peer) string {
+// ConstPeerString returns pod's owner-name not the peer instance name unless it is ip-block (used for explanation)
+func ConstPeerString(peer Peer) string {
 	peerStr := peer.String()
 	if peer.PeerType() != IPBlockType {
-		// @todo: when updating expalinability with UDN check if this needs to be inhanced with the InPrimaryUDN flag
 		peerStr = (&WorkloadPeer{peer.GetPeerPod()}).String()
 	}
 	return peerStr
@@ -433,8 +432,8 @@ func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*
 		peerToSelect = src
 		policyPeer = dst
 	}
-	policyPeerStr := constPeerString(policyPeer)
-	peerToSelectStr := constPeerString(peerToSelect)
+	policyPeerStr := ConstPeerString(policyPeer)
+	peerToSelectStr := ConstPeerString(peerToSelect)
 	if numOfRules == 0 {
 		res.AddCommonImplyingRule(common.NPRuleKind, np.notSelectedByRuleExpl(isIngress, noXgressRulesExpl,
 			policyPeerStr, peerToSelectStr), isIngress)

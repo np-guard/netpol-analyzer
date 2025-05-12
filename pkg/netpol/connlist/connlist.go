@@ -561,6 +561,10 @@ func (c *connection) onlyDefaultRule() bool {
 	return c.allConnections && len(c.protocolsAndPorts) == 0 && c.commonImplyingRules.OnlyDefaultRule()
 }
 
+func (c *connection) deniedCrossNetworksRule() bool {
+	return !c.allConnections && len(c.protocolsAndPorts) == 0 && c.commonImplyingRules.CrossNetworkDenyRule()
+}
+
 // returns a *common.ConnectionSet from Peer2PeerConnection data
 func GetConnectionSetFromP2PConnection(c Peer2PeerConnection) *common.ConnectionSet {
 	protocolsToPortSetMap := make(map[v1.Protocol]*common.PortSet, len(c.ProtocolsAndPorts()))
