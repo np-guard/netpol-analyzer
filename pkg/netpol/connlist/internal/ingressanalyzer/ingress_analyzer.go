@@ -385,8 +385,10 @@ func (ia *IngressAnalyzer) getIngressPeerConnection(peer eval.Peer, actualServic
 				return nil, err
 			}
 			// only TCP ports are acceptable for Ingress resource
+			// Note that: if the current peer is a virtual-machine then named-ports will always have no match and be skipped;
+			// since virtual-machine does not specify any ports in its spec; so named-port can not be converted
 			if protocol != string(corev1.ProtocolTCP) || portInt < 0 { // no matching port for the given named port
-				continue
+				continue // skip
 			}
 			portNum = int(portInt)
 		}

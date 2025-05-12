@@ -2158,6 +2158,17 @@ var goodPathTests = []struct {
 		testDirName:   "udn_test_4",
 		outputFormats: ValidFormats,
 	},
+	{
+		// a test with UDN and Ingress-Controller; external ingress to a service in a UDN are allowed if the pod's ports match
+		testDirName:   "udn_with_ingress_controller",
+		outputFormats: ValidFormats,
+	},
+	{
+		// a test with UDN and Ingress-Controller; external ingress to a service in a UDN are allowed if the pod's ports match
+		// this test contains two pods in the UDN, one matches the Ingress and service's ports and the second not matching them
+		testDirName:   "udn_with_ingress_controller_two_pods",
+		outputFormats: ValidFormats,
+	},
 	// tests involving udn(s) and virtual-machine workloads
 	{
 		testDirName:   "udn_and_vms_test_1",
@@ -2182,6 +2193,11 @@ var goodPathTests = []struct {
 	{
 		// virtual-machine(s) test in the default namespace (without-udn)
 		testDirName:   "virtual_machines_example",
+		outputFormats: ValidFormats,
+	},
+	{
+		// a test with UDN having a VM and Ingress-Controller; external ingress ports to a service in a UDN are allowed to the VM
+		testDirName:   "udn_with_vm_and_ingress_controller",
 		outputFormats: ValidFormats,
 	},
 }
