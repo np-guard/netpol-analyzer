@@ -1,5 +1,5 @@
 REPOSITORY := github.com/np-guard/netpol-analyzer
-EXE:=k8snetpolicy
+EXE:=netpol-analyzer
 COVERAGE:=netpolicy.coverprofile
 
 mod: go.mod

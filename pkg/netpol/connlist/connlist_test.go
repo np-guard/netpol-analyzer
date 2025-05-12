@@ -484,7 +484,7 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 			emptyRes:            false,
 		},
 		/*
-			$ ./bin/k8snetpolicy list --dirpath tests/malformed_pod_example/
+			$ ./bin/netpol-analyzer list --dirpath tests/malformed_pod_example/
 			2023/11/02 08:56:16 : err : in file: tests\malformed_pod_example\pod.yaml YAML document is malformed:
 			 error for resource with kind: Pod , name: nginx , :  unrecognized type: int32
 			2023/11/02 08:56:16 : no relevant Kubernetes workload resources found

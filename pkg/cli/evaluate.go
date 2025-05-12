@@ -228,10 +228,10 @@ func newCommandEvaluate() *cobra.Command {
 		Short:   "Evaluate if a specific connection allowed",
 		Aliases: []string{"eval", "check", "allow"}, // TODO: close on fewer, consider changing command name?
 		Example: `  # Evaluate if a specific connection is allowed on given resources from dir path
-	k8snetpolicy eval --dirpath ./resources_dir/ -s pod-1 -d pod-2 -p 80
+	netpol-analyzer eval --dirpath ./resources_dir/ -s pod-1 -d pod-2 -p 80
 	
 	# Evaluate if a specific connection is allowed on a live k8s cluster
-	k8snetpolicy eval -k ./kube/config -s pod-1 -d pod-2 -p 80`,
+	netpol-analyzer eval -k ./kube/config -s pod-1 -d pod-2 -p 80`,
 
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if err := validateEvalFlags(); err != nil {

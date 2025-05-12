@@ -132,7 +132,7 @@ func TestCommandsFailExecute(t *testing.T) {
 		expectedErrorContains string
 	}{
 		{
-			name:                  "unknown_command_should_return_error_of_unknown_command_for_k8snetpolicy",
+			name:                  "unknown_command_should_return_error_of_unknown_command_for_netpol-analyzer",
 			args:                  []string{"A"},
 			expectedErrorContains: netpolerrors.UnknownCommandErr,
 		},

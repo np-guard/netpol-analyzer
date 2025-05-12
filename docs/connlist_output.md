@@ -21,7 +21,7 @@ It assumes that the ingress controller Pod is unknown, and thus using this notat
 
 `list` output in `txt` format:
 ```
-$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/
+$ ./bin/netpol-analyzer list --dirpath tests/netpol-analysis-example-minimal/
 
 0.0.0.0-255.255.255.255 => default/frontend[Deployment] : TCP 8080
 default/frontend[Deployment] => 0.0.0.0-255.255.255.255 : UDP 53
@@ -30,7 +30,7 @@ default/frontend[Deployment] => default/backend[Deployment] : TCP 9090
 
 `list` output in `md` format:
 ```
-$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o md
+$ ./bin/netpol-analyzer list --dirpath tests/netpol-analysis-example-minimal/ -o md
 ```
 | src | dst | conn |
 |-----|-----|------|
@@ -40,7 +40,7 @@ $ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o md
 
 `list` output in `csv` format:
 ```
-$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o csv
+$ ./bin/netpol-analyzer list --dirpath tests/netpol-analysis-example-minimal/ -o csv
 
 src,dst,conn
 0.0.0.0-255.255.255.255,default/frontend[Deployment],TCP 8080
@@ -50,7 +50,7 @@ default/frontend[Deployment],default/backend[Deployment],TCP 9090
 
 `list` output in `json` format:
 ```
-$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o json
+$ ./bin/netpol-analyzer list --dirpath tests/netpol-analysis-example-minimal/ -o json
 
 [
   {
@@ -75,7 +75,7 @@ $ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o js
 
 In `dot` output graphs, all the peers of the analyzed cluster are grouped by their namespaces.
 ```
-$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o dot
+$ ./bin/netpol-analyzer list --dirpath tests/netpol-analysis-example-minimal/ -o dot
 
 digraph {
 	subgraph cluster_default {
@@ -96,7 +96,7 @@ $ dot -Tsvg test_outputs/connlist/netpol-analysis-example-minimal_connlist_outpu
 ```
 or by running the command with `svg` format as following:
 ```
-$ ./bin/k8snetpolicy list --dirpath tests/netpol-analysis-example-minimal/ -o svg -f ./connlist_example_svg.svg
+$ ./bin/netpol-analyzer list --dirpath tests/netpol-analysis-example-minimal/ -o svg -f ./connlist_example_svg.svg
 ```
 
 The frames in the graph represent namespaces of the analyzed cluster.

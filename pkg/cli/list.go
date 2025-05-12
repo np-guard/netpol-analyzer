@@ -114,10 +114,10 @@ func newCommandList() *cobra.Command {
 		Long: `Lists all allowed connections based on the workloads, network policies, and Ingress/Route resources
 defined`,
 		Example: `  # Get list of allowed connections from resources dir path
-  k8snetpolicy list --dirpath ./resources_dir/ 
+  netpol-analyzer list --dirpath ./resources_dir/ 
   
   # Get list of allowed connections from live k8s cluster
-  k8snetpolicy list -k ./kube/config`,
+  netpol-analyzer list -k ./kube/config`,
 
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if err := outconsts.ValidateOutputFormat(output, connlist.ValidFormats); err != nil {
