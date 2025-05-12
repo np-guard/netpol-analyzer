@@ -44,10 +44,10 @@ func determineLogVerbosity() logger.Verbosity {
 	return verbosity
 }
 
-// newCommandRoot returns a cobra command with the appropriate configuration, flags and sub-commands to run the root command k8snetpolicy
+// newCommandRoot returns a cobra command with the appropriate configuration, flags and sub-commands to run the root command netpol-analyzer
 func newCommandRoot() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "k8snetpolicy",
+		Use:   "netpol-analyzer",
 		Short: "Determine allowed connection based on Kubernetes NetworkPolicy objects",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if quiet && verbose {

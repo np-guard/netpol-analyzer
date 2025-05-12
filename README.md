@@ -11,17 +11,17 @@ This repo contains a Golang library and CLI for analyzing k8s connectivity-confi
 Evaluate if a specific connection allowed
 
 Usage:
-  k8snetpolicy evaluate [flags]
+  netpol-analyzer evaluate [flags]
 
 Aliases:
   evaluate, eval, check, allow
 
 Examples:
   # Evaluate if a specific connection is allowed on given resources from dir path
-  k8snetpolicy eval --dirpath ./resources_dir/ -s pod-1 -d pod-2 -p 80
+  netpol-analyzer eval --dirpath ./resources_dir/ -s pod-1 -d pod-2 -p 80
 
   # Evaluate if a specific connection is allowed on a live k8s cluster
-  k8snetpolicy eval -k ./kube/config -s pod-1 -d pod-2 -p 80
+  netpol-analyzer eval -k ./kube/config -s pod-1 -d pod-2 -p 80
 
 Flags:
       --destination-ip string          Destination (external) IP address
@@ -51,14 +51,14 @@ Lists all allowed connections based on the workloads, network policies, and Ingr
 Connections between workload to itself are excluded from the output.
 
 Usage:
-  k8snetpolicy list [flags]
+  netpol-analyzer list [flags]
 
 Examples:
   # Get list of allowed connections from resources dir path
-  k8snetpolicy list --dirpath ./resources_dir/
+  netpol-analyzer list --dirpath ./resources_dir/
 
   # Get list of allowed connections from live k8s cluster
-  k8snetpolicy list -k ./kube/config
+  netpol-analyzer list -k ./kube/config
 
 Flags:
       --explain                       Enhance the analysis of permitted connectivity with explainability information 
@@ -86,11 +86,11 @@ Global Flags:
 Reports all differences in allowed connections between two different directories of YAML manifests.
 
 Usage:
-  k8snetpolicy diff [flags]
+  netpol-analyzer diff [flags]
 
 Examples:
   # Get list of different allowed connections between two resources dir paths
-  k8snetpolicy diff --dir1 ./resources_dir/ --dir2 ./other_resources_dir/
+  netpol-analyzer diff --dir1 ./resources_dir/ --dir2 ./other_resources_dir/
 
 Flags:
       --dir1    string  First resources dir path
@@ -112,13 +112,13 @@ Global Flags:
 ### Example outputs:
 
 ```
-$ k8snetpolicy eval --dirpath tests/onlineboutique -s adservice-77d5cd745d-t8mx4 -d emailservice-54c7c5d9d-vp27n -p 80
+$ netpol-analyzer eval --dirpath tests/onlineboutique -s adservice-77d5cd745d-t8mx4 -d emailservice-54c7c5d9d-vp27n -p 80
 
 default/adservice-77d5cd745d-t8mx4 => default/emailservice-54c7c5d9d-vp27n over tcp/80: false
 
 
 
-$ k8snetpolicy list --dirpath tests/onlineboutique_workloads
+$ netpol-analyzer list --dirpath tests/onlineboutique_workloads
 
 0.0.0.0-255.255.255.255 => default/redis-cart[Deployment] : All Connections
 default/checkoutservice[Deployment] => default/cartservice[Deployment] : TCP 7070
@@ -140,7 +140,7 @@ default/redis-cart[Deployment] => 0.0.0.0-255.255.255.255 : All Connections
 
 
 
-$ ./bin/k8snetpolicy diff --dir1 tests/onlineboutique_workloads --dir2 tests/onlineboutique_workloads_changed_netpols
+$ ./bin/netpol-analyzer diff --dir1 tests/onlineboutique_workloads --dir2 tests/onlineboutique_workloads_changed_netpols
 Connectivity diff:
 source: default/checkoutservice[Deployment], destination: default/cartservice[Deployment], dir1:  TCP 7070, dir2: TCP 8000, diff-type: changed
 source: default/checkoutservice[Deployment], destination: default/emailservice[Deployment], dir1:  TCP 8080, dir2: TCP 8080,9555, diff-type: changed
@@ -173,7 +173,7 @@ make mod
 make build
 ```
 
-Test your build by running `./bin/k8snetpolicy -h`.
+Test your build by running `./bin/netpol-analyzer -h`.
 
 
 

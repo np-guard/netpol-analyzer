@@ -190,7 +190,7 @@ spec:
 #### Textual Result:
 
 
-Running  as `k8snetpolicy list --dirpath tests/anp_banp_blog_demo/ --explain`
+Running  as `netpol-analyzer list --dirpath tests/anp_banp_blog_demo/ --explain`
 
 ```
 ##########################################

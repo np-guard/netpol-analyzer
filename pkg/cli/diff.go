@@ -66,7 +66,7 @@ func newCommandDiff() *cobra.Command {
 		Short: "Reports semantic-diff of allowed connectivity ",
 		Long:  `Reports all differences in allowed connections between two different directories of YAML manifests.`,
 		Example: ` # Get list of different allowed connections between two resources dir paths
-		k8snetpolicy diff --dir1 ./resources_dir/ --dir2 ./other_resources_dir/`,
+		netpol-analyzer diff --dir1 ./resources_dir/ --dir2 ./other_resources_dir/`,
 
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if dirPath != "" {

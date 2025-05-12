@@ -7,7 +7,7 @@ The diff output provides a summary of changed/added/removed connections from dir
 
 Diff output in `txt` format:
 ```
-$ ./bin/k8snetpolicy diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 tests/netpol-diff-example-minimal/ -o txt
+$ ./bin/netpol-analyzer diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 tests/netpol-diff-example-minimal/ -o txt
 
 Connectivity diff:
 diff-type: changed, source: default/frontend[Deployment], destination: default/backend[Deployment], dir1:  TCP 9090, dir2: TCP 9090,UDP 53
@@ -16,7 +16,7 @@ diff-type: added, source: 0.0.0.0-255.255.255.255, destination: default/backend[
 
 Diff output in `md` format:
 ```
-$ ./bin/k8snetpolicy diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 tests/netpol-diff-example-minimal/ -o md
+$ ./bin/netpol-analyzer diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 tests/netpol-diff-example-minimal/ -o md
 ```
 
 | diff-type | source | destination | dir1 | dir2 | workloads-diff-info |
@@ -26,7 +26,7 @@ $ ./bin/k8snetpolicy diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 t
 
 Diff output in `csv` format:
 ```
-$ ./bin/k8snetpolicy diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 tests/netpol-diff-example-minimal/ -o csv
+$ ./bin/netpol-analyzer diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 tests/netpol-diff-example-minimal/ -o csv
 
 diff-type,source,destination,dir1,dir2,workloads-diff-info
 changed,default/frontend[Deployment],default/backend[Deployment],TCP 9090,"TCP 9090,UDP 53",
@@ -38,7 +38,7 @@ Diff output in `dot` format:
 In dot output graphs, all the peers of the analyzed cluster are grouped by their namespaces.
 
 ```
-$ ./bin/k8snetpolicy diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 tests/netpol-diff-example-minimal/ -o dot
+$ ./bin/netpol-analyzer diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 tests/netpol-diff-example-minimal/ -o dot
 
 digraph {
         subgraph cluster_default {
@@ -61,7 +61,7 @@ $ dot -Tsvg test_outputs/diff/diff_between_netpol-diff-example-minimal_and_netpo
 ```
 or by running the command with `svg` format as following:
 ```
-$ ./bin/k8snetpolicy diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 tests/netpol-diff-example-minimal/ -o svg -f ./diff_example_svg.svg
+$ ./bin/netpol-analyzer diff --dir1 tests/netpol-analysis-example-minimal/ --dir2 tests/netpol-diff-example-minimal/ -o svg -f ./diff_example_svg.svg
 ```
 
 The frames in the graph represent namespaces of the analyzed cluster.
