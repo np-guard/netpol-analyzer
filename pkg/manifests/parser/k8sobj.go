@@ -46,6 +46,8 @@ const (
 	BaselineAdminNetworkPolicyList string = "BaselineAdminNetworkPolicyList" // a list with max 1 object according to apis/v1alpha
 	UserDefinedNetwork             string = "UserDefinedNetwork"
 	UserDefinedNetworkList         string = "UserDefinedNetworkList"
+	ClusterUserDefinedNetwork      string = "ClusterUserDefinedNetwork"
+	ClusterUserDefinedNetworkList  string = "ClusterUserDefinedNetworkList"
 	VirtualMachine                 string = "VirtualMachine"
 	VirtualMachineList             string = "VirtualMachineList"
 )
@@ -81,8 +83,9 @@ type K8sObject struct {
 	DaemonSet             *appsv1.DaemonSet
 
 	// ovn-k8s objects
-	UserDefinedNetwork *udnv1.UserDefinedNetwork
-	VirtualMachine     *kubevirt.VirtualMachine
+	UserDefinedNetwork        *udnv1.UserDefinedNetwork
+	ClusterUserDefinedNetwork *udnv1.ClusterUserDefinedNetwork
+	VirtualMachine            *kubevirt.VirtualMachine
 }
 
 //gocyclo:ignore
@@ -136,6 +139,9 @@ func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
 	case UserDefinedNetwork:
 		k.UserDefinedNetwork = &udnv1.UserDefinedNetwork{}
 		return k.UserDefinedNetwork
+	case ClusterUserDefinedNetwork:
+		k.ClusterUserDefinedNetwork = &udnv1.ClusterUserDefinedNetwork{}
+		return k.ClusterUserDefinedNetwork
 	case VirtualMachine:
 		k.VirtualMachine = &kubevirt.VirtualMachine{}
 		return k.VirtualMachine
@@ -277,6 +283,8 @@ func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) 
 			if _, ok := nsMap[obj.UserDefinedNetwork.Namespace]; ok {
 				res = append(res, obj)
 			}
+		case ClusterUserDefinedNetwork:
+			res = append(res, obj)
 		case VirtualMachine:
 			if _, ok := nsMap[obj.VirtualMachine.Namespace]; ok {
 				res = append(res, obj)

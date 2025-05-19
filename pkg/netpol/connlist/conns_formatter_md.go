@@ -9,6 +9,8 @@ package connlist
 import (
 	"fmt"
 	"strings"
+
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
 // formatMD: implements the connsFormatter interface for md output format
@@ -62,7 +64,7 @@ func getMDLine(c singleConnFields, srcFirst bool, focusConnStr string) string {
 // and exposure analysis results from list ExposedPeer if exists
 // explain input is ignored since not supported with this format
 func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
-	focusConnStr string, primaryUdnNamespaces map[string]bool) (string, error) {
+	focusConnStr string, primaryUdnNamespaces map[string]eval.UDNData) (string, error) {
 	// first write connlist lines
 	allLines := md.writeMdConnlistLines(conns, exposureFlag, false, focusConnStr, primaryUdnNamespaces)
 	if !exposureFlag {
@@ -84,7 +86,7 @@ func writeMdLines(conns []singleConnFields, srcFirst bool, focusConnStr string) 
 
 // writeMdConnlistLines returns md lines from the list of Peer2PeerConnection
 func (md *formatMD) writeMdConnlistLines(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string,
-	primaryUdnNamespaces map[string]bool) []string {
+	primaryUdnNamespaces map[string]eval.UDNData) []string {
 	md.ipMaps = createIPMaps(saveIPConns)
 	sortedConns := getConnlistAsSortedSingleConnFieldsArray(conns, md.ipMaps, saveIPConns, explain, primaryUdnNamespaces)
 	connlistLines := []string{getMDHeader(true, focusConnStr)} // connlist results are formatted: src | dst | conn

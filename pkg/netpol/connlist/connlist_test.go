@@ -2200,6 +2200,10 @@ var goodPathTests = []struct {
 		testDirName:   "udn_with_vm_and_ingress_controller",
 		outputFormats: ValidFormats,
 	},
+	{
+		testDirName:   "cudn_test_1",
+		outputFormats: ValidFormats,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

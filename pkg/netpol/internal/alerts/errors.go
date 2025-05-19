@@ -8,6 +8,8 @@ package alerts
 import (
 	"fmt"
 
+	"k8s.io/apimachinery/pkg/types"
+
 	"github.com/np-guard/netpol-analyzer/pkg/internal/netpolerrors"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -149,26 +151,44 @@ func InvalidFocusConnProtocol(focusConn, protocol string) string {
 	return netpolerrors.InvalidFocusConn + focusConn + "; unknown protocol: " + protocol
 }
 
-func OnePrimaryUDNAssertion(ns string) string {
-	return "only one primary UserDefinedNetwork may be assigned to a single namespace. More than one UDN is assigned to namespace: " + ns
+func AllNamespacesAlreadyInCUDN(udnName, ns string) string {
+	return "all namespaces are already isolated by a cluster user defined network; " + udnPrefix +
+		types.NamespacedName{Namespace: ns, Name: udnName}.String() + " is illogically assigned"
 }
 
-const udnPrefix = "user-defined-network: "
+func MutualExclusiveWithCUDNOnEntireCluster(cudn string) string {
+	return "cluster-" + udnPrefix + cudn + " selects all namespaces while some of them belong to another primary " + clusterPrefix + udnPrefix
+}
+
+func OnePrimaryUDNAssertion(ns string) string {
+	return "only one primary (Cluster)UserDefinedNetwork may be assigned to a single namespace." +
+		" More than one (C)UDN is assigned to namespace: " + ns
+}
+
+func OnePrimaryEntireClusterUDNAssertion(oldCudn, newCudn string) string {
+	return "only one primary ClusterUserDefinedNetwork may be assigned to all namespaces cluster-" + udnPrefix + oldCudn +
+		" already selects all namespaces. cluster-" + udnPrefix + newCudn + " is illogically used."
+}
+
+const (
+	udnPrefix     = "user-defined-network: "
+	clusterPrefix = "(cluster-)"
+)
 
 func UDNNamespaceAssertion(udnName, namespace string) string {
-	return udnPrefix + udnName + " is assigned to namespace: " + namespace +
+	return clusterPrefix + udnPrefix + udnName + " is assigned to namespace: " + namespace +
 		"; UserDefinedNetwork CRs should not be created in this namespace." +
 		" This can result in no isolation and, as a result, could introduce security risks to the cluster."
 }
 
 func UDNNameAssertion(udn string) string {
-	return "illegal name of user-defined-network: " + udn + "; Name of UserDefinedNetwork resource should not be default"
+	return "illegal name of " + udnPrefix + " " + udn + "; Name of UserDefinedNetwork resource should not be default"
 }
 
 func InvalidKeyValue(udn, key, val string) string {
-	return udnPrefix + udn + "; Invalid value: " + val + " for key: " + key
+	return clusterPrefix + udnPrefix + udn + "; Invalid value: " + val + " for key: " + key
 }
 
 func DisMatchLayerConfiguration(udn, topology string) string {
-	return udnPrefix + udn + "; Mismatch between topology value: " + topology + " and actual layer configuration"
+	return clusterPrefix + udnPrefix + udn + "; Mismatch between topology value: " + topology + " and actual layer configuration"
 }
