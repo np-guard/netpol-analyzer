@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: udn-prod
+  labels:
+    k8s.ovn.org/primary-user-defined-network: ""
+    cluster-udn: prod
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: udn-preprod
+  labels:
+    k8s.ovn.org/primary-user-defined-network: ""
+    cluster-udn: prod

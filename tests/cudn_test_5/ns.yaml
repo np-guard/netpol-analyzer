@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: blue
+  labels:
+    name: blue
+    k8s.ovn.org/primary-user-defined-network: ""
+    purpose: kubecon-eu-2025-demo
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: green
+  labels:
+    name: green
+    k8s.ovn.org/primary-user-defined-network: ""
+    purpose: kubecon-eu-2025-demo
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: red
+  labels:
+    name: red
+    k8s.ovn.org/primary-user-defined-network: ""
+    purpose: kubecon-eu-2025-demo
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: yellow
+  labels:
+    name: yellow
+    k8s.ovn.org/primary-user-defined-network: ""
+    purpose: kubecon-eu-2025-demo

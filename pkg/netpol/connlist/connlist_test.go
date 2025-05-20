@@ -2201,7 +2201,36 @@ var goodPathTests = []struct {
 		outputFormats: ValidFormats,
 	},
 	{
+		// resource: https://github.com/maiqueb/fosdem2025-p-udn/tree/main/manifests/cluster-wide-network
 		testDirName:   "cudn_test_1",
+		outputFormats: ValidFormats,
+	},
+	{
+		// cudn selects all namespaces, all of them have the required label to define ns as a udn
+		testDirName:   "cudn_test_2",
+		outputFormats: ValidFormats,
+	},
+	{
+		// cudn selects all namespaces, but not all of the namespaces has the required label in their spec,
+		// so those will not belong to the cudn
+		testDirName:   "cudn_test_3",
+		outputFormats: ValidFormats,
+	},
+	{
+		// resource: https://github.com/epheo/blog/tree/e0e83c121b6b225fd38c6443bf19b7b5a0f7687d/articles/openshift-layer2-udn
+		// involves udn and cudn
+		testDirName:   "cudn_test_4",
+		outputFormats: ValidFormats,
+	},
+	{
+		// resource: https://github.com/tssurya/kubecon-eu-2025-london-udn-workshop/tree
+		// /4d6be99a0ee1ede775a505c35026ee75c799228d/manifests/udns-with-pods
+		// cudn + udns + networkpolicy
+		testDirName:   "cudn_test_5",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "cudn_test_6",
 		outputFormats: ValidFormats,
 	},
 }

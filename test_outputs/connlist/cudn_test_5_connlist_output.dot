@@ -1,0 +1,50 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_default[namespace]" {
+		color="black"
+		fontcolor="black"
+		"default/app-default[StatefulSet]" [label="app-default[StatefulSet]" color="blue" fontcolor="blue"]
+		label="default[namespace]"
+	}
+	}
+	subgraph "cluster_blue[udn]" {
+		color="black"
+		fontcolor="black"
+		"blue/app-blue[StatefulSet]" [label="app-blue[StatefulSet]" color="blue" fontcolor="blue"]
+		label="blue[udn]"
+	}
+	subgraph "cluster_green[udn]" {
+		color="black"
+		fontcolor="black"
+		"green/app-green[StatefulSet]" [label="app-green[StatefulSet]" color="blue" fontcolor="blue"]
+		label="green[udn]"
+	}
+	subgraph "cluster_colored-enterprise" {
+	label="colored-enterprise[cluster-udn]"
+	subgraph "cluster_red[namespace]" {
+		color="black"
+		fontcolor="black"
+		"red/app-red[StatefulSet]" [label="app-red[StatefulSet]" color="blue" fontcolor="blue"]
+		label="red[namespace]"
+	}
+	subgraph "cluster_yellow[namespace]" {
+		color="black"
+		fontcolor="black"
+		"yellow/app-yellow[StatefulSet]" [label="app-yellow[StatefulSet]" color="blue" fontcolor="blue"]
+		label="yellow[namespace]"
+	}
+	}
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "blue/app-blue[StatefulSet]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "default/app-default[StatefulSet]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "green/app-green[StatefulSet]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "red/app-red[StatefulSet]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "yellow/app-yellow[StatefulSet]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"blue/app-blue[StatefulSet]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/app-default[StatefulSet]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green/app-green[StatefulSet]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"red/app-red[StatefulSet]" -> "yellow/app-yellow[StatefulSet]" [label="TCP 8080" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"yellow/app-yellow[StatefulSet]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"yellow/app-yellow[StatefulSet]" -> "red/app-red[StatefulSet]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "udn-example[udn]/example-vm[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "udn-preprod/vm-preprod[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "udn-prod/vm-prod[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "udn-example[udn]/example-vm[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "udn-preprod/vm-preprod[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "udn-preprod/vm-preprod[VirtualMachine]",
+    "dst": "udn-prod/vm-prod[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "udn-prod/vm-prod[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "udn-prod/vm-prod[VirtualMachine]",
+    "dst": "udn-preprod/vm-preprod[VirtualMachine]",
+    "conn": "All Connections"
+  }
+]
