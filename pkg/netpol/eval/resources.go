@@ -865,10 +865,7 @@ func (pe *PolicyEngine) findNamespacesSelectedByCUDN(cudnName string, nsSelector
 		} // else ns matches selector
 		// even if the selector selects all namespaces, we have to do following checks and avoid adding
 		// namespaces that don't contain the primary-udn label to the cudn
-		// also a cudn can not catch "default" or "openshift-*" namespaces
-		if nsName == defaultName || strings.HasPrefix(nsName, openshiftNsPrefix) {
-			return errors.New(alerts.UDNNamespaceAssertion(cudnName, nsName))
-		}
+		// also a cudn should not select "default" or "openshift-*" namespaces
 		if _, ok := pe.primaryUDNNamespaces[nsName]; ok {
 			return errors.New(alerts.OnePrimaryUDNAssertion(nsName))
 		}
@@ -876,6 +873,9 @@ func (pe *PolicyEngine) findNamespacesSelectedByCUDN(cudnName string, nsSelector
 			// do not contain the must label
 			pe.ignoredObjWarnings.AddWarning(alerts.WarnCudnSelectsNsWithoutPrimaryUDNLabel(cudnName, nsName))
 			continue
+		}
+		if nsName == defaultName || strings.HasPrefix(nsName, openshiftNsPrefix) {
+			return errors.New(alerts.UDNNamespaceAssertion(cudnName, nsName))
 		}
 		cnt++
 		pe.primaryUDNNamespaces[nsName] = UDNData{UdnName: cudnName, IsClusterUdn: true}
