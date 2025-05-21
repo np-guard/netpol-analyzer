@@ -413,6 +413,11 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 			dirName:          "udn_bad_path_test_7",
 			errorStrContains: alerts.OnePrimaryUDNAssertion("blue"),
 		},
+		{
+			name:             "Input_namespace_selected_by_two_primary_CUDN_and_UDN_return_fatal_error",
+			dirName:          "cudn_bad_test_1",
+			errorStrContains: alerts.OnePrimaryUDNAssertion("red"),
+		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -778,6 +783,16 @@ func TestLoggerWarnings(t *testing.T) {
 			name:                        "input_resources_contain_virt_launcher_pod_should_warn_that_it_is_ignored",
 			dirName:                     "udn_and_vms_test_5",
 			expectedWarningsStrContains: []string{alerts.WarnIgnoredVirtLauncherPod("foo/virt-launcher-fedora-apricot-pike-81-qr48r")},
+		},
+		{
+			name:                        "cudn_selecting_a_ns_without_label_should_warn_that_selection_is_ignored",
+			dirName:                     "cudn_test_3",
+			expectedWarningsStrContains: []string{alerts.WarnCudnSelectsNsWithoutPrimaryUDNLabel("entire-cluster-cudn", "yellow-namespace")},
+		},
+		{
+			name:                        "cudn_selector_has_no_matches",
+			dirName:                     "cudn_warning_test_1",
+			expectedWarningsStrContains: []string{alerts.EmptyCUDN("no-selection")},
 		},
 	}
 	for _, tt := range cases {
