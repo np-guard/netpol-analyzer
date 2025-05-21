@@ -1,0 +1,17 @@
+# this xample is from : https://github.com/epheo/blog/tree/e0e83c121b6b225fd38c6443bf19b7b5a0f7687d/articles/openshift-layer2-udn
+apiVersion: k8s.ovn.org/v1
+kind: ClusterUserDefinedNetwork
+metadata:
+  name: cluster-udn-prod
+spec:
+  namespaceSelector:
+    matchLabels:
+      cluster-udn: prod
+  network:
+    layer2:
+      ipam:
+        lifecycle: Persistent
+      role: Primary
+      subnets:
+      - 10.100.0.0/16
+    topology: Layer2

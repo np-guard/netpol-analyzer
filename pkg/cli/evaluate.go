@@ -118,6 +118,8 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 			err = pe.InsertObject(obj.BaselineAdminNetworkPolicy)
 		case parser.UserDefinedNetwork:
 			err = pe.InsertObject(obj.UserDefinedNetwork)
+		case parser.ClusterUserDefinedNetwork:
+			err = pe.InsertObject(obj.ClusterUserDefinedNetwork)
 		default:
 			continue
 		}

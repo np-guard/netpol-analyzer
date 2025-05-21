@@ -1,0 +1,160 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app-blue
+  namespace: blue
+  labels:
+    network: blue
+    purpose: kubecon-eu-2025-demo
+spec:
+  selector:
+    matchLabels:
+        network: blue
+        purpose: kubecon-eu-2025-demo
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        network: blue
+        purpose: kubecon-eu-2025-demo
+    spec:
+      containers:
+      - args:
+        - netexec
+        image: k8s.gcr.io/e2e-test-images/agnhost:2.45
+        imagePullPolicy: IfNotPresent
+        name: agnhost-container
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 15
+          timeoutSeconds: 2
+          periodSeconds: 10
+          failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app-green
+  namespace: green
+  labels:
+    network: green
+    purpose: kubecon-eu-2025-demo
+spec:
+  selector:
+    matchLabels:
+        network: green
+        purpose: kubecon-eu-2025-demo
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        network: green
+        purpose: kubecon-eu-2025-demo
+    spec:
+      containers:
+      - args:
+        - netexec
+        image: k8s.gcr.io/e2e-test-images/agnhost:2.45
+        imagePullPolicy: IfNotPresent
+        name: agnhost-container
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app-red
+  namespace: red
+  labels:
+    network: red
+    purpose: kubecon-eu-2025-demo
+spec:
+  selector:
+    matchLabels:
+        network: red
+        purpose: kubecon-eu-2025-demo
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        network: red
+        purpose: kubecon-eu-2025-demo
+    spec:
+      containers:
+      - args:
+        - netexec
+        - --http-port=8080
+        - --udp-port=-1
+        image: k8s.gcr.io/e2e-test-images/agnhost:2.45
+        imagePullPolicy: IfNotPresent
+        name: agnhost-container-8080
+      - args:
+        - netexec
+        - --http-port=9090
+        - --udp-port=-1
+        image: k8s.gcr.io/e2e-test-images/agnhost:2.45
+        imagePullPolicy: IfNotPresent
+        name: agnhost-container-9090
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app-yellow
+  namespace: yellow
+  labels:
+    network: yellow
+    purpose: kubecon-eu-2025-demo
+spec:
+  selector:
+    matchLabels:
+        network: yellow
+        purpose: kubecon-eu-2025-demo
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        network: yellow
+        purpose: kubecon-eu-2025-demo
+    spec:
+      containers:
+      - args:
+        - netexec
+        - --http-port=8080
+        - --udp-port=-1
+        image: k8s.gcr.io/e2e-test-images/agnhost:2.45
+        imagePullPolicy: IfNotPresent
+        name: agnhost-container-8080
+      - args:
+        - netexec
+        - --http-port=9090
+        - --udp-port=-1
+        image: k8s.gcr.io/e2e-test-images/agnhost:2.45
+        imagePullPolicy: IfNotPresent
+        name: agnhost-container-9090
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app-default
+  namespace: default
+  labels:
+    network: default
+    purpose: kubecon-eu-2025-demo
+spec:
+  selector:
+    matchLabels:
+        network: default
+        purpose: kubecon-eu-2025-demo
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        network: default
+        purpose: kubecon-eu-2025-demo
+    spec:
+      containers:
+      - args:
+        - netexec
+        image: k8s.gcr.io/e2e-test-images/agnhost:2.45
+        imagePullPolicy: IfNotPresent
+        name: agnhost-container

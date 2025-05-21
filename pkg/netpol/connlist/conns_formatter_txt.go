@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -22,7 +23,7 @@ type formatText struct {
 // writeOutput returns a textual string format of connections from list of Peer2PeerConnection objects,
 // and exposure analysis results if exist
 func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
-	focusConnStr string, primaryUdnNamespaces map[string]bool) (string, error) {
+	focusConnStr string, primaryUdnNamespaces map[string]eval.UDNData) (string, error) {
 	res := t.writeConnlistOutput(conns, exposureFlag, explain, focusConnStr, primaryUdnNamespaces)
 	if !exposureFlag {
 		return res, nil
@@ -37,7 +38,7 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 
 // writeConnlistOutput writes the section of the connlist result of the output
 func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string,
-	primaryUdnNamespaces map[string]bool) string {
+	primaryUdnNamespaces map[string]eval.UDNData) string {
 	connLines := make([]singleConnFields, 0, len(conns))        // lines in the default pod networks
 	connsByUDN := make(map[string][]singleConnFields)           // map from a primary udn to its conns
 	defaultConnLines := make([]singleConnFields, 0, len(conns)) // used with explain

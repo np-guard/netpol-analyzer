@@ -1,0 +1,31 @@
+apiVersion: k8s.ovn.org/v1
+kind: UserDefinedNetwork
+metadata:
+  name: blue-network
+  namespace: blue
+  labels:
+    name: blue
+    purpose: kubecon-eu-2025-demo
+spec: 
+  topology: Layer3
+  layer3:
+    role: Primary
+    subnets:
+    - cidr: 103.103.0.0/16
+      hostSubnet: 24
+---
+apiVersion: k8s.ovn.org/v1
+kind: UserDefinedNetwork
+metadata:
+  name: green-network
+  namespace: green
+  labels:
+    name: green
+    purpose: kubecon-eu-2025-demo
+spec: 
+  topology: Layer3
+  layer3:
+    role: Primary
+    subnets:
+    - cidr: 203.203.0.0/16
+      hostSubnet: 24

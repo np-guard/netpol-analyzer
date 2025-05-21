@@ -1,0 +1,37 @@
+# this example is taken from : 
+# https://github.com/maiqueb/fosdem2025-p-udn/blob/83592387a6d0c0d307236b4e2fd003306c606e07/manifests/cluster-wide-network/01-udn.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: red-namespace
+  labels:
+    k8s.ovn.org/primary-user-defined-network: ""
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: blue-namespace
+  labels:
+    k8s.ovn.org/primary-user-defined-network: ""
+---
+apiVersion: k8s.ovn.org/v1
+kind: ClusterUserDefinedNetwork
+metadata:
+  name: happy-tenant
+spec:
+  namespaceSelector:
+    matchExpressions:
+    - key: kubernetes.io/metadata.name
+      operator: In
+      values:
+        - red-namespace
+        - blue-namespace
+  network:
+    topology: Layer2
+    layer2:
+      role: Primary
+      ipam:
+        lifecycle: Persistent
+      subnets:
+        - 203.203.0.0/16

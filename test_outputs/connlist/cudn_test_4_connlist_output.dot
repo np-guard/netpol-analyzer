@@ -1,0 +1,32 @@
+digraph {
+	subgraph "cluster_udn_example[udn]" {
+		color="black"
+		fontcolor="black"
+		"udn-example/example-vm[VirtualMachine]" [label="example-vm[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="udn-example[udn]"
+	}
+	subgraph "cluster_cluster-udn-prod" {
+	label="cluster-udn-prod[cluster-udn]"
+	subgraph "cluster_udn_preprod[namespace]" {
+		color="black"
+		fontcolor="black"
+		"udn-preprod/vm-preprod[VirtualMachine]" [label="vm-preprod[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="udn-preprod[namespace]"
+	}
+	subgraph "cluster_udn_prod[namespace]" {
+		color="black"
+		fontcolor="black"
+		"udn-prod/vm-prod[VirtualMachine]" [label="vm-prod[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="udn-prod[namespace]"
+	}
+	}
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "udn-example/example-vm[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "udn-preprod/vm-preprod[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "udn-prod/vm-prod[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"udn-example/example-vm[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"udn-preprod/vm-preprod[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"udn-preprod/vm-preprod[VirtualMachine]" -> "udn-prod/vm-prod[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"udn-prod/vm-prod[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"udn-prod/vm-prod[VirtualMachine]" -> "udn-preprod/vm-preprod[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}

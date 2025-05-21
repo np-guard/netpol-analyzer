@@ -205,12 +205,18 @@ func (pe *PolicyEngine) podsFromIsolatedNetworks(src, dst k8s.Peer) bool {
 	if src.GetPeerNamespace() == nil || dst.GetPeerNamespace() == nil {
 		return false
 	}
+	srcUDNData, srcInUDN := pe.primaryUDNNamespaces[src.GetPeerNamespace().Name]
+	dstUDNData, dstInUDN := pe.primaryUDNNamespaces[dst.GetPeerNamespace().Name]
 	// if pods are in default pod networks (namespaces without primary UDN) - return false
-	if !pe.primaryUDNNamespaces[src.GetPeerNamespace().Name] && !pe.primaryUDNNamespaces[dst.GetPeerNamespace().Name] {
+	if !srcInUDN && !dstInUDN {
 		return false
 	}
 	// at-least one pod is in a udn, check if pods are in same user-defined network (same namespaces)
 	if src.GetPeerNamespace() == dst.GetPeerNamespace() {
+		return false
+	}
+	// check if pods are in same udn (when not in same namespace)
+	if srcUDNData.IsClusterUdn && dstUDNData.IsClusterUdn && srcUDNData.UdnName == dstUDNData.UdnName {
 		return false
 	}
 	// at least one pod is in an isolated UDN
@@ -271,14 +277,16 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 	return nil, errors.New(alerts.BothSrcAndDstIPsErrStr(srcPeer.String(), dstPeer.String()))
 }
 
-func (pe *PolicyEngine) getUDNsNames(src, dst k8s.Peer) (srcUDN, dstUDN string) {
-	if pe.primaryUDNNamespaces[src.GetPeerNamespace().Name] {
-		srcUDN = src.GetPeerNamespace().Name
+func (pe *PolicyEngine) getPeerUDNNamesAndKind(peer k8s.Peer) (peerUDNName, peerUDNKind string) {
+	if _, ok := pe.primaryUDNNamespaces[peer.GetPeerNamespace().Name]; ok {
+		if pe.primaryUDNNamespaces[peer.GetPeerNamespace().Name].IsClusterUdn {
+			// in a primary cluster-udn
+			return pe.primaryUDNNamespaces[peer.GetPeerNamespace().Name].UdnName, parser.ClusterUserDefinedNetwork
+		}
+		// the namespace is a primary-udn
+		return peer.GetPeerNamespace().Name, parser.UserDefinedNetwork
 	}
-	if pe.primaryUDNNamespaces[dst.GetPeerNamespace().Name] {
-		dstUDN = dst.GetPeerNamespace().Name
-	}
-	return srcUDN, dstUDN
+	return "", ""
 }
 
 // allAllowedConnectionsBetweenPeers: returns the allowed connections from srcPeer to dstPeer
@@ -300,11 +308,12 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	// if pods are from different user-defined networks, return empty result (no conns)
 	if pe.podsFromIsolatedNetworks(srcK8sPeer, dstK8sPeer) {
 		res = common.MakeConnectionSet(false)
-		srcUDN, dstUDN := pe.getUDNsNames(srcK8sPeer, dstK8sPeer)
+		srcUDN, srcUDNKind := pe.getPeerUDNNamesAndKind(srcK8sPeer)
+		dstUDN, dstUDNKind := pe.getPeerUDNNamesAndKind(dstK8sPeer)
 		res.AddCommonImplyingRule(common.UDNRuleKind, common.IsolatedUDNRule(k8s.ConstPeerString(srcK8sPeer),
-			k8s.ConstPeerString(dstK8sPeer), srcUDN, dstUDN), true)
+			k8s.ConstPeerString(dstK8sPeer), srcUDN, dstUDN, srcUDNKind, dstUDNKind), true)
 		res.AddCommonImplyingRule(common.UDNRuleKind, common.IsolatedUDNRule(k8s.ConstPeerString(srcK8sPeer),
-			k8s.ConstPeerString(dstK8sPeer), srcUDN, dstUDN), false)
+			k8s.ConstPeerString(dstK8sPeer), srcUDN, dstUDN, srcUDNKind, dstUDNKind), false)
 		return res, nil
 	}
 	// egress: get egress allowed connections between the src and dst by

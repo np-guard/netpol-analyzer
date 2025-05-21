@@ -1,0 +1,23 @@
+# this example is from: https://github.com/tssurya/kubecon-eu-2025-london-udn-workshop/blob/4d6be99a0ee1ede775a505c35026ee75c799228d/manifests/udns-with-pods/cudns.yaml
+apiVersion: k8s.ovn.org/v1
+kind: ClusterUserDefinedNetwork
+metadata:
+  name: colored-enterprise
+  labels:
+    purpose: kubecon-eu-2025-demo
+spec:
+  namespaceSelector:
+    matchExpressions:
+    - key: kubernetes.io/metadata.name
+      operator: In
+      values:
+      - red
+      - yellow
+  network:
+    topology: Layer2
+    layer2:
+      role: Primary
+      ipam:
+        lifecycle: Persistent
+      subnets:
+        - 192.168.0.0/16

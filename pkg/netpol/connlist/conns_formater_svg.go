@@ -6,7 +6,10 @@ SPDX-License-Identifier: Apache-2.0
 
 package connlist
 
-import "github.com/np-guard/netpol-analyzer/pkg/netpol/internal/formatting"
+import (
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
+	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/formatting"
+)
 
 // formatSVG: implements the connsFormatter interface for svg output format
 type formatSVG struct {
@@ -17,7 +20,7 @@ type formatSVG struct {
 // and from exposure-analysis results if exists
 // explain input is ignored since not supported with this format
 func (s *formatSVG) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
-	focusConnStr string, primaryUdnNamespaces map[string]bool) (string, error) {
+	focusConnStr string, primaryUdnNamespaces map[string]eval.UDNData) (string, error) {
 	// first write dot output
 	formatDot := formatDOT{peersList: s.peersList}
 	dotOutput, err := formatDot.writeOutput(conns, exposureConns, exposureFlag, explain, focusConnStr, primaryUdnNamespaces)

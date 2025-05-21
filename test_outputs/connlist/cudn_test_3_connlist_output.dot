@@ -1,0 +1,47 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_yellow_namespace[namespace]" {
+		color="black"
+		fontcolor="black"
+		"yellow-namespace/yellow[VirtualMachine]" [label="yellow[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="yellow-namespace[namespace]"
+	}
+	}
+	subgraph "cluster_entire-cluster-cudn" {
+	label="entire-cluster-cudn[cluster-udn]"
+	subgraph "cluster_blue_namespace[namespace]" {
+		color="black"
+		fontcolor="black"
+		"blue-namespace/blue[VirtualMachine]" [label="blue[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="blue-namespace[namespace]"
+	}
+	subgraph "cluster_green_namespace[namespace]" {
+		color="black"
+		fontcolor="black"
+		"green-namespace/green[VirtualMachine]" [label="green[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="green-namespace[namespace]"
+	}
+	subgraph "cluster_red_namespace[namespace]" {
+		color="black"
+		fontcolor="black"
+		"red-namespace/red[VirtualMachine]" [label="red[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="red-namespace[namespace]"
+	}
+	}
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "blue-namespace/blue[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "green-namespace/green[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "red-namespace/red[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "yellow-namespace/yellow[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"blue-namespace/blue[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"blue-namespace/blue[VirtualMachine]" -> "green-namespace/green[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"blue-namespace/blue[VirtualMachine]" -> "red-namespace/red[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"green-namespace/green[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green-namespace/green[VirtualMachine]" -> "blue-namespace/blue[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"green-namespace/green[VirtualMachine]" -> "red-namespace/red[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"red-namespace/red[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"red-namespace/red[VirtualMachine]" -> "blue-namespace/blue[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"red-namespace/red[VirtualMachine]" -> "green-namespace/green[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"yellow-namespace/yellow[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}

@@ -62,7 +62,7 @@ type ConnlistAnalyzer struct {
 	muteErrsAndWarns   bool
 	peersList          []Peer // internally used peersList used in dot/svg formatting;
 	// in case of focusWorkload option contains only relevant peers
-	primaryUdnNamespaces map[string]bool // set of the names of isolated by primary UDN namespaces,
+	primaryUdnNamespaces map[string]eval.UDNData // set of the names of isolated by primary UDN/CUDN namespaces,
 	// internally used in formatting output
 	focusConnSet *common.ConnectionSet // internally used to focus conns list results with this specific connection
 }

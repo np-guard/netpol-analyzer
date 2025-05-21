@@ -1,0 +1,19 @@
+apiVersion: k8s.ovn.org/v1
+kind: ClusterUserDefinedNetwork
+metadata:
+  name: cudn-selecting-red-ns
+spec:
+  namespaceSelector:
+    matchExpressions:
+    - key: kubernetes.io/metadata.name
+      operator: In
+      values:
+      - red
+  network:
+    topology: Layer2
+    layer2:
+      role: Primary
+      ipam:
+        lifecycle: Persistent
+      subnets:
+        - 192.168.0.0/16

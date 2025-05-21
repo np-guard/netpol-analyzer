@@ -149,20 +149,20 @@ const (
 	denyResultStr                     = "Denied"
 	connectionsStr                    = " connections"
 	ExplNotReferencedProtocolsOrPorts = "but the protocols and ports do not match"
-	isolatedExpl                      = "UserDefinedNetwork '%s' isolates %s"
+	isolatedExpl                      = "%s '%s' isolates %s"
 )
 
 // IsolatedUDNRule returns an explanation on the isolated peer(s)
-func IsolatedUDNRule(srcStr, dstStr, srcUDN, dstUDN string) string {
+func IsolatedUDNRule(srcStr, dstStr, srcUDN, dstUDN, srcUDNKind, dstUDNKind string) string {
 	res := ""
 	if srcUDN != "" {
-		res += fmt.Sprintf(isolatedExpl, srcUDN, srcStr)
+		res += fmt.Sprintf(isolatedExpl, srcUDNKind, srcUDN, srcStr)
 		if dstUDN != "" {
 			res += "; and "
 		}
 	}
 	if dstUDN != "" {
-		res += fmt.Sprintf(isolatedExpl, dstUDN, dstStr)
+		res += fmt.Sprintf(isolatedExpl, dstUDNKind, dstUDN, dstStr)
 	}
 	return res
 }

@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: red-namespace
+  labels:
+    k8s.ovn.org/primary-user-defined-network: ""
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: blue-namespace
+  labels:
+    k8s.ovn.org/primary-user-defined-network: ""
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: green-namespace
+  labels:
+    k8s.ovn.org/primary-user-defined-network: ""
+---
+# yellow namespace will not be captured by the cudn
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: yellow-namespace
+---
+# cudn selects all namespaces, but not all of the namespaces has the required label in their spec, so those will not belong to the cudn
+apiVersion: k8s.ovn.org/v1
+kind: ClusterUserDefinedNetwork
+metadata:
+  name: entire-cluster-cudn
+spec:
+  namespaceSelector:
+    matchLabels:
+  network:
+    topology: Layer2
+    layer2:
+      role: Primary
+      ipam:
+        lifecycle: Persistent
+      subnets:
+        - 203.203.0.0/16
