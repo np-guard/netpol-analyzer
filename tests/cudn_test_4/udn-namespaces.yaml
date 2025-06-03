@@ -14,3 +14,10 @@ metadata:
   labels:
     k8s.ovn.org/primary-user-defined-network: ""
     cluster-udn: prod
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: udn-example
+  labels:
+    k8s.ovn.org/primary-user-defined-network: ""
