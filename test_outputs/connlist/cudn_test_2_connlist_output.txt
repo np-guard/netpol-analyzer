@@ -1,5 +1,5 @@
 
-entire-cluster-cudn[cluster-udn]:
+Permitted connectivity analyzed in CUDN entire-cluster-cudn:
 0.0.0.0-255.255.255.255[External] => blue-namespace/blue[VirtualMachine] : All Connections
 0.0.0.0-255.255.255.255[External] => green-namespace/green[VirtualMachine] : All Connections
 0.0.0.0-255.255.255.255[External] => red-namespace/red[VirtualMachine] : All Connections

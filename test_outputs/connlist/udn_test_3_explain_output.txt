@@ -18,9 +18,9 @@ Denied connections:
 		Ingress (Allowed) due to the system default (Allow all)
 
 
-########################################################
-# Specific connections and their reasons in green[udn] #
-########################################################
+#######################################################
+# Specific connections and their reasons in UDN green #
+#######################################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-255.255.255.255[External] => green[udn]/webserver-2[Pod]:
 

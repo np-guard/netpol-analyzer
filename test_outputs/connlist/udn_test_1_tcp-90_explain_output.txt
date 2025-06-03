@@ -1,7 +1,7 @@
 
-#######################################################
-# Specific connections and their reasons in blue[udn] #
-#######################################################
+######################################################
+# Specific connections and their reasons in UDN blue #
+######################################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-255.255.255.255[External] => blue[udn]/webserver[Pod]:
 
@@ -25,9 +25,9 @@ Denied connections:
 			UserDefinedNetwork 'blue' isolates blue[udn]/webserver[Pod]; and UserDefinedNetwork 'green' isolates green[udn]/webserver[Pod]
 
 
-########################################################
-# Specific connections and their reasons in green[udn] #
-########################################################
+#######################################################
+# Specific connections and their reasons in UDN green #
+#######################################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-255.255.255.255[External] => green[udn]/webserver[Pod]:
 

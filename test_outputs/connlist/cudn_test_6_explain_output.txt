@@ -1,7 +1,7 @@
 
-#####################################################################
-# Specific connections and their reasons in colored-bg[cluster-udn] #
-#####################################################################
+#############################################################
+# Specific connections and their reasons in CUDN colored-bg #
+#############################################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-255.255.255.255[External] => blue/app-blue[StatefulSet]:
 
@@ -51,9 +51,9 @@ Denied connections:
 			NetworkPolicy 'blue/allow-to-all-pods' selects blue/app-blue[StatefulSet], and Ingress rule #1 selects green/app-green[StatefulSet], but the protocols and ports do not match
 
 
-#####################################################################
-# Specific connections and their reasons in colored-ry[cluster-udn] #
-#####################################################################
+#############################################################
+# Specific connections and their reasons in CUDN colored-ry #
+#############################################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between red/app-red[StatefulSet] => 0.0.0.0-255.255.255.255[External]:
 

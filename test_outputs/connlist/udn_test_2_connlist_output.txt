@@ -1,9 +1,9 @@
 
-blue[udn]:
+Permitted connectivity analyzed in UDN blue:
 0.0.0.0-255.255.255.255[External] => blue[udn]/webserver[Pod] : All Connections
 blue[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
 
-green[udn]:
+Permitted connectivity analyzed in UDN green:
 0.0.0.0-255.255.255.255[External] => green[udn]/webserver-2[Pod] : TCP 9001
 0.0.0.0-255.255.255.255[External] => green[udn]/webserver[Pod] : TCP 9001
 green[udn]/webserver-2[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections

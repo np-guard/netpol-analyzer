@@ -1,13 +1,14 @@
+Permitted connectivity analyzed in Pod network:
 0.0.0.0-255.255.255.255[External] => default/app-default[StatefulSet] : All Connections
 default/app-default[StatefulSet] => 0.0.0.0-255.255.255.255[External] : All Connections
 
-colored-bg[cluster-udn]:
+Permitted connectivity analyzed in CUDN colored-bg:
 0.0.0.0-255.255.255.255[External] => green/app-green[StatefulSet] : All Connections
 blue/app-blue[StatefulSet] => green/app-green[StatefulSet] : TCP 9090
 green/app-green[StatefulSet] => 0.0.0.0-255.255.255.255[External] : All Connections
 green/app-green[StatefulSet] => blue/app-blue[StatefulSet] : TCP 8000
 
-colored-ry[cluster-udn]:
+Permitted connectivity analyzed in CUDN colored-ry:
 0.0.0.0-255.255.255.255[External] => red/app-red[StatefulSet] : All Connections
 0.0.0.0-255.255.255.255[External] => yellow/app-yellow[StatefulSet] : All Connections
 red/app-red[StatefulSet] => yellow/app-yellow[StatefulSet] : TCP 8080

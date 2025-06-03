@@ -1,8 +1,8 @@
 
-blue[udn]:
+Permitted connectivity analyzed in UDN blue:
 0.0.0.0-255.255.255.255[External] => blue[udn]/webserver[Pod] : All Connections
 blue[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
 
-green[udn]:
+Permitted connectivity analyzed in UDN green:
 0.0.0.0-255.255.255.255[External] => green[udn]/webserver[Pod] : All Connections
 green[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections

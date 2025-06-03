@@ -1,7 +1,7 @@
 
-#####################################################################
-# Specific connections and their reasons in colored-bg[cluster-udn] #
-#####################################################################
+#############################################################
+# Specific connections and their reasons in CUDN colored-bg #
+#############################################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between 0.0.0.0-255.255.255.255[External] => green/app-green[StatefulSet]:
 
@@ -73,9 +73,9 @@ Denied connections:
 			ClusterUserDefinedNetwork 'colored-bg' isolates green/app-green[StatefulSet]; and ClusterUserDefinedNetwork 'colored-ry' isolates yellow/app-yellow[StatefulSet]
 
 
-#####################################################################
-# Specific connections and their reasons in colored-ry[cluster-udn] #
-#####################################################################
+#############################################################
+# Specific connections and their reasons in CUDN colored-ry #
+#############################################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between red/app-red[StatefulSet] => green/app-green[StatefulSet]:
 
