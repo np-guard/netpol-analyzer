@@ -67,13 +67,24 @@ func WarnMissingNamespaceOfUDN(udnName, udnNs string) string {
 		types.NamespacedName{Name: udnName, Namespace: udnNs}.String(), udnNs)
 }
 
+const nsWithoutPrimaryLabel = " Namespace %s does not contain %s label"
+
 func WarnNamespaceDoesNotSupportUDN(udnName, udnNs string) string {
-	return fmt.Sprintf(warnIgnoredUDN+" Namespace %s does not contain %s label",
+	return fmt.Sprintf(warnIgnoredUDN+nsWithoutPrimaryLabel,
 		types.NamespacedName{Name: udnName, Namespace: udnNs}.String(), udnNs, common.PrimaryUDNLabel)
 }
 
+func WarnCudnSelectsNsWithoutPrimaryUDNLabel(cudn, ns string) string {
+	return fmt.Sprintf("selecting %s by cluster-user-defined-network: %s is ignored;"+nsWithoutPrimaryLabel,
+		ns, cudn, ns, common.PrimaryUDNLabel)
+}
+
+func EmptyCUDN(cudn string) string {
+	return "cluster-user-defined-network: " + cudn + " is ignored; It does not select any namespace in the cluster"
+}
+
 func NotSupportedUDNRole(udn string) string {
-	return fmt.Sprintf(warnIgnoredUDN+" Secondary user-defined-network is not supported", udn)
+	return fmt.Sprintf(warnIgnoredUDN+" Secondary (cluster-)user-defined-network is not supported", udn)
 }
 
 func IgnoredResourceKind(kind string) string {

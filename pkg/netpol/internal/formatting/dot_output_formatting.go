@@ -27,8 +27,8 @@ const (
 var EdgeLineFormat = fmt.Sprintf("\t%%q -> %%q [label=%%q color=%%q fontcolor=%%q weight=%%s%%s]")
 
 // AddPeerToNsGroup adds the peer line to the namespace list in the given map.
-func AddPeerToNsGroup(peerNs, peerLine string, mapNsToPeers map[string][]string, isInUDN bool) {
-	if isInUDN {
+func AddPeerToNsGroup(peerNs, peerLine string, mapNsToPeers map[string][]string, addUdnLabel bool) {
+	if addUdnLabel {
 		peerNs += common.UDNLabel
 	} else {
 		peerNs += namespaceLabel

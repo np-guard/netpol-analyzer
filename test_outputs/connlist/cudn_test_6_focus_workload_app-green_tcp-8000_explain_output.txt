@@ -1,0 +1,98 @@
+
+#############################################################
+# Specific connections and their reasons in CUDN colored-bg #
+#############################################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255[External] => green/app-green[StatefulSet]:
+
+Allowed connections:
+	Allowed TCP:[8000] due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between blue/app-blue[StatefulSet] => green/app-green[StatefulSet]:
+
+Denied connections:
+	Denied TCP:[8000] due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'blue/allow-to-all-pods' selects blue/app-blue[StatefulSet], and Egress rule #1 selects green/app-green[StatefulSet], but the protocols and ports do not match
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between default/app-default[StatefulSet] => green/app-green[StatefulSet]:
+
+Denied connections:
+	Denied TCP:[8000] due to existence of user defined networks:
+		Egress 
+			ClusterUserDefinedNetwork 'colored-bg' isolates green/app-green[StatefulSet]
+		Ingress 
+			ClusterUserDefinedNetwork 'colored-bg' isolates green/app-green[StatefulSet]
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between green/app-green[StatefulSet] => 0.0.0.0-255.255.255.255[External]:
+
+Allowed connections:
+	Allowed TCP:[8000] due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between green/app-green[StatefulSet] => blue/app-blue[StatefulSet]:
+
+Allowed connections:
+	Allowed TCP:[8000] due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Allowed)
+			NetworkPolicy 'blue/allow-to-all-pods' allows connections by Ingress rule #1
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between green/app-green[StatefulSet] => default/app-default[StatefulSet]:
+
+Denied connections:
+	Denied TCP:[8000] due to existence of user defined networks:
+		Egress 
+			ClusterUserDefinedNetwork 'colored-bg' isolates green/app-green[StatefulSet]
+		Ingress 
+			ClusterUserDefinedNetwork 'colored-bg' isolates green/app-green[StatefulSet]
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between green/app-green[StatefulSet] => red/app-red[StatefulSet]:
+
+Denied connections:
+	Denied TCP:[8000] due to existence of user defined networks:
+		Egress 
+			ClusterUserDefinedNetwork 'colored-bg' isolates green/app-green[StatefulSet]; and ClusterUserDefinedNetwork 'colored-ry' isolates red/app-red[StatefulSet]
+		Ingress 
+			ClusterUserDefinedNetwork 'colored-bg' isolates green/app-green[StatefulSet]; and ClusterUserDefinedNetwork 'colored-ry' isolates red/app-red[StatefulSet]
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between green/app-green[StatefulSet] => yellow/app-yellow[StatefulSet]:
+
+Denied connections:
+	Denied TCP:[8000] due to existence of user defined networks:
+		Egress 
+			ClusterUserDefinedNetwork 'colored-bg' isolates green/app-green[StatefulSet]; and ClusterUserDefinedNetwork 'colored-ry' isolates yellow/app-yellow[StatefulSet]
+		Ingress 
+			ClusterUserDefinedNetwork 'colored-bg' isolates green/app-green[StatefulSet]; and ClusterUserDefinedNetwork 'colored-ry' isolates yellow/app-yellow[StatefulSet]
+
+
+#############################################################
+# Specific connections and their reasons in CUDN colored-ry #
+#############################################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between red/app-red[StatefulSet] => green/app-green[StatefulSet]:
+
+Denied connections:
+	Denied TCP:[8000] due to existence of user defined networks:
+		Egress 
+			ClusterUserDefinedNetwork 'colored-ry' isolates red/app-red[StatefulSet]; and ClusterUserDefinedNetwork 'colored-bg' isolates green/app-green[StatefulSet]
+		Ingress 
+			ClusterUserDefinedNetwork 'colored-ry' isolates red/app-red[StatefulSet]; and ClusterUserDefinedNetwork 'colored-bg' isolates green/app-green[StatefulSet]
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between yellow/app-yellow[StatefulSet] => green/app-green[StatefulSet]:
+
+Denied connections:
+	Denied TCP:[8000] due to existence of user defined networks:
+		Egress 
+			ClusterUserDefinedNetwork 'colored-ry' isolates yellow/app-yellow[StatefulSet]; and ClusterUserDefinedNetwork 'colored-bg' isolates green/app-green[StatefulSet]
+		Ingress 
+			ClusterUserDefinedNetwork 'colored-ry' isolates yellow/app-yellow[StatefulSet]; and ClusterUserDefinedNetwork 'colored-bg' isolates green/app-green[StatefulSet]
+

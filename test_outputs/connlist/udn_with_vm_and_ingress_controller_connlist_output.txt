@@ -1,5 +1,5 @@
 
-green[udn]:
+Permitted connectivity analyzed in UDN green:
 0.0.0.0-255.255.255.255[External] => green[udn]/vm-a[VirtualMachine] : All Connections
 green[udn]/vm-a[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
 {ingress-controller} => green[udn]/vm-a[VirtualMachine] : TCP 8000,8090

@@ -1,0 +1,28 @@
+
+#############################################################
+# Specific connections and their reasons in CUDN colored-ry #
+#############################################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between red/app-red[StatefulSet] => yellow/app-yellow[StatefulSet]:
+
+Allowed connections:
+	Allowed TCP:[8080] due to the following policies and rules:
+		Egress (Allowed)
+			NetworkPolicy 'red/allow-to-all-pods' allows connections by Egress rule #1
+		Ingress (Allowed) due to the system default (Allow all)
+
+Denied connections:
+	Denied TCP:[1-8079,8081-65535], UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'red/allow-to-all-pods' selects red/app-red[StatefulSet], and Egress rule #1 selects yellow/app-yellow[StatefulSet], but the protocols and ports do not match
+		Ingress (Allowed) due to the system default (Allow all)
+
+
+#########################################################
+# All Connections due to the system default (Allow all) #
+#########################################################
+0.0.0.0-255.255.255.255[External] => yellow/app-yellow[StatefulSet]
+yellow/app-yellow[StatefulSet] => 0.0.0.0-255.255.255.255[External]
+yellow/app-yellow[StatefulSet] => red/app-red[StatefulSet]
+
+*** Note: Connections between any peers from separate isolated networks are denied by default and therefore not listed in this report.

@@ -411,7 +411,12 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		{
 			name:             "Input_namespace_has_two_primary_UDNs_return_fatal_error",
 			dirName:          "udn_bad_path_test_7",
-			errorStrContains: alerts.OnePrimaryUDNAssertion("blue"),
+			errorStrContains: alerts.OnePrimaryUDNAssertion("blue", "blue/separate-namespace", "blue/namespace-scoped"),
+		},
+		{
+			name:             "Input_namespace_selected_by_two_primary_CUDN_and_UDN_return_fatal_error",
+			dirName:          "cudn_bad_test_1",
+			errorStrContains: alerts.OnePrimaryUDNAssertion("red", "cudn-selecting-red-ns", "red/red-network"),
 		},
 	}
 	for _, tt := range cases {
@@ -778,6 +783,16 @@ func TestLoggerWarnings(t *testing.T) {
 			name:                        "input_resources_contain_virt_launcher_pod_should_warn_that_it_is_ignored",
 			dirName:                     "udn_and_vms_test_5",
 			expectedWarningsStrContains: []string{alerts.WarnIgnoredVirtLauncherPod("foo/virt-launcher-fedora-apricot-pike-81-qr48r")},
+		},
+		{
+			name:                        "cudn_selecting_a_ns_without_label_should_warn_that_selection_is_ignored",
+			dirName:                     "cudn_test_3",
+			expectedWarningsStrContains: []string{alerts.WarnCudnSelectsNsWithoutPrimaryUDNLabel("entire-cluster-cudn", "yellow-namespace")},
+		},
+		{
+			name:                        "cudn_selector_has_no_matches",
+			dirName:                     "cudn_warning_test_1",
+			expectedWarningsStrContains: []string{alerts.EmptyCUDN("no-selection")},
 		},
 	}
 	for _, tt := range cases {
@@ -2198,6 +2213,39 @@ var goodPathTests = []struct {
 	{
 		// a test with UDN having a VM and Ingress-Controller; external ingress ports to a service in a UDN are allowed to the VM
 		testDirName:   "udn_with_vm_and_ingress_controller",
+		outputFormats: ValidFormats,
+	},
+	{
+		// resource: https://github.com/maiqueb/fosdem2025-p-udn/tree/main/manifests/cluster-wide-network
+		testDirName:   "cudn_test_1",
+		outputFormats: ValidFormats,
+	},
+	{
+		// cudn selects all namespaces, all of them have the required label to define ns as a udn
+		testDirName:   "cudn_test_2",
+		outputFormats: ValidFormats,
+	},
+	{
+		// cudn selects all namespaces, but not all of the namespaces has the required label in their spec,
+		// so those will not belong to the cudn
+		testDirName:   "cudn_test_3",
+		outputFormats: ValidFormats,
+	},
+	{
+		// resource: https://github.com/epheo/blog/tree/e0e83c121b6b225fd38c6443bf19b7b5a0f7687d/articles/openshift-layer2-udn
+		// involves udn and cudn
+		testDirName:   "cudn_test_4",
+		outputFormats: ValidFormats,
+	},
+	{
+		// resource: https://github.com/tssurya/kubecon-eu-2025-london-udn-workshop/tree
+		// /4d6be99a0ee1ede775a505c35026ee75c799228d/manifests/udns-with-pods
+		// cudn + udns + networkpolicy
+		testDirName:   "cudn_test_5",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "cudn_test_6",
 		outputFormats: ValidFormats,
 	},
 }

@@ -347,4 +347,19 @@ var explainTests = []struct {
 	{
 		testDirName: "udn_and_vms_test_5",
 	},
+	{
+		testDirName: "cudn_test_1",
+	},
+	{
+		testDirName: "cudn_test_6",
+	},
+	{
+		testDirName:    "cudn_test_6",
+		focusWorkloads: []string{"app-yellow"},
+	},
+	{
+		testDirName:    "cudn_test_6",
+		focusWorkloads: []string{"app-green"},
+		focusConn:      "tcp-8000",
+	},
 }

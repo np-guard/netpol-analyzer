@@ -1,0 +1,57 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "default/app-default[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "green/app-green[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "red/app-red[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "yellow/app-yellow[StatefulSet]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "blue/app-blue[StatefulSet]",
+    "dst": "green/app-green[StatefulSet]",
+    "conn": "TCP 9090"
+  },
+  {
+    "src": "default/app-default[StatefulSet]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "green/app-green[StatefulSet]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "green/app-green[StatefulSet]",
+    "dst": "blue/app-blue[StatefulSet]",
+    "conn": "TCP 8000"
+  },
+  {
+    "src": "red/app-red[StatefulSet]",
+    "dst": "yellow/app-yellow[StatefulSet]",
+    "conn": "TCP 8080"
+  },
+  {
+    "src": "yellow/app-yellow[StatefulSet]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "yellow/app-yellow[StatefulSet]",
+    "dst": "red/app-red[StatefulSet]",
+    "conn": "All Connections"
+  }
+]

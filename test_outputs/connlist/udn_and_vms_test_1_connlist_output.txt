@@ -1,9 +1,9 @@
 
-blue[udn]:
+Permitted connectivity analyzed in UDN blue:
 0.0.0.0-255.255.255.255[External] => blue[udn]/vm-a[VirtualMachine] : All Connections
 blue[udn]/vm-a[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
 
-green[udn]:
+Permitted connectivity analyzed in UDN green:
 0.0.0.0-255.255.255.255[External] => green[udn]/vm-a[VirtualMachine] : All Connections
 0.0.0.0-255.255.255.255[External] => green[udn]/vm-b[VirtualMachine] : All Connections
 0.0.0.0-255.255.255.255[External] => green[udn]/webserver[Pod] : All Connections

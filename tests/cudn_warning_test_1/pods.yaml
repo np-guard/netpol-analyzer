@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app-blue
+  namespace: blue
+  labels:
+    network: blue
+spec:
+  selector:
+    matchLabels:
+        network: blue
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        network: blue
+    spec:
+      containers:
+      - args:
+        - netexec
+        image: k8s.gcr.io/e2e-test-images/agnhost:2.45
+        imagePullPolicy: IfNotPresent
+        name: agnhost-container
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 15
+          timeoutSeconds: 2
+          periodSeconds: 10
+          failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app-green
+  namespace: green
+  labels:
+    network: green
+spec:
+  selector:
+    matchLabels:
+        network: green
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        network: green
+    spec:
+      containers:
+      - args:
+        - netexec
+        image: k8s.gcr.io/e2e-test-images/agnhost:2.45
+        imagePullPolicy: IfNotPresent
+        name: agnhost-container
+---

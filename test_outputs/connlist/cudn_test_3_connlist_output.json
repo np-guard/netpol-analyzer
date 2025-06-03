@@ -1,0 +1,72 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "blue-namespace/blue[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "green-namespace/green[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "red-namespace/red[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "yellow-namespace/yellow[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "blue-namespace/blue[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "blue-namespace/blue[VirtualMachine]",
+    "dst": "green-namespace/green[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "blue-namespace/blue[VirtualMachine]",
+    "dst": "red-namespace/red[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "green-namespace/green[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "green-namespace/green[VirtualMachine]",
+    "dst": "blue-namespace/blue[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "green-namespace/green[VirtualMachine]",
+    "dst": "red-namespace/red[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "red-namespace/red[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "red-namespace/red[VirtualMachine]",
+    "dst": "blue-namespace/blue[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "red-namespace/red[VirtualMachine]",
+    "dst": "green-namespace/green[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "yellow-namespace/yellow[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  }
+]
