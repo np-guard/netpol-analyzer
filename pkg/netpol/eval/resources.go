@@ -819,15 +819,28 @@ func (pe *PolicyEngine) insertUserDefinedNetwork(udn *udnv1.UserDefinedNetwork) 
 		//  could introduce security risks to the cluster.
 		return errors.New(alerts.UDNNamespaceAssertion(udn.Name, udn.Namespace))
 	}
-	if _, ok := pe.primaryUDNNamespaces[udn.Namespace]; ok { // a primary udn is already assigned to this namespace
+	if currentUdn, ok := pe.primaryUDNNamespaces[udn.Namespace]; ok { // a primary udn is already assigned to this namespace
 		// assigning UDNs to namespaces is with a limitation of only one primary UDN to a namespace
-		return errors.New(alerts.OnePrimaryUDNAssertion(udn.Namespace))
+
+		return errors.New(alerts.OnePrimaryUDNAssertion(udn.Namespace, getUDNFullName(udn.Namespace, currentUdn.UdnName, currentUdn.IsClusterUdn),
+			types.NamespacedName{Namespace: udn.Namespace, Name: udn.Name}.String()))
 	}
 	pe.primaryUDNNamespaces[udn.Namespace] = UDNData{UdnName: udn.Name, IsClusterUdn: false} // add the namespace of the udn to the set
 	// note that: we don't store the udn itself, as we don't use it/its fields;
 	// if in future decide to read more fields (as cidr ..),
 	// we can assign the UDN to its namespace (either in the map or the namespace struct itself)
 	return nil
+}
+
+// getUDNFullName:
+// if the UDN is a clusterUDN returns the udnName
+// else returns the namespaced name of the UDN
+func getUDNFullName(ns, udnName string, isClusterUdn bool) string {
+	currentUDNName := udnName
+	if !isClusterUdn {
+		currentUDNName = types.NamespacedName{Namespace: ns, Name: currentUDNName}.String()
+	}
+	return currentUDNName
 }
 
 // insertClusterUserDefinedNetwork if all conditions of a primary cluster-user-defined-network matching namespaces are ok;
@@ -866,8 +879,9 @@ func (pe *PolicyEngine) findNamespacesSelectedByCUDN(cudnName string, nsSelector
 		// even if the selector selects all namespaces, we have to do following checks and avoid adding
 		// namespaces that don't contain the primary-udn label to the cudn
 		// also a cudn should not select "default" or "openshift-*" namespaces
-		if _, ok := pe.primaryUDNNamespaces[nsName]; ok {
-			return errors.New(alerts.OnePrimaryUDNAssertion(nsName))
+		if currentUDN, ok := pe.primaryUDNNamespaces[nsName]; ok {
+			return errors.New(alerts.OnePrimaryUDNAssertion(nsName, getUDNFullName(nsName, currentUDN.UdnName, currentUDN.IsClusterUdn),
+				cudnName))
 		}
 		if _, ok := ns.Labels[common.PrimaryUDNLabel]; !ok { // continue, avoid adding this namespace to the cudn since its labels
 			// do not contain the must label

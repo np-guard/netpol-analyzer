@@ -411,12 +411,12 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 		{
 			name:             "Input_namespace_has_two_primary_UDNs_return_fatal_error",
 			dirName:          "udn_bad_path_test_7",
-			errorStrContains: alerts.OnePrimaryUDNAssertion("blue"),
+			errorStrContains: alerts.OnePrimaryUDNAssertion("blue", "blue/separate-namespace", "blue/namespace-scoped"),
 		},
 		{
 			name:             "Input_namespace_selected_by_two_primary_CUDN_and_UDN_return_fatal_error",
 			dirName:          "cudn_bad_test_1",
-			errorStrContains: alerts.OnePrimaryUDNAssertion("red"),
+			errorStrContains: alerts.OnePrimaryUDNAssertion("red", "cudn-selecting-red-ns", "red/red-network"),
 		},
 	}
 	for _, tt := range cases {

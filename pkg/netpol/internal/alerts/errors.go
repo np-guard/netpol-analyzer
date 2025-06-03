@@ -98,7 +98,7 @@ const PriorityErrExplain = "Two policies are considered to be conflicting if the
 
 // SamePriorityErr returns the error message if a priority appears more than once in different admin-network-policies
 func SamePriorityErr(name1, name2 string) string {
-	return "Admin Network Policies: " + name1 + " and " + name2 + " have same priority;" + PriorityErrExplain
+	return "Admin Network Policies: " + name1 + and + name2 + " have same priority;" + PriorityErrExplain
 }
 
 // PriorityValueErr returns error message of invalid priority value in an admin-network-policy
@@ -160,9 +160,9 @@ func MutualExclusiveWithCUDNOnEntireCluster(cudn string) string {
 	return "cluster-" + udnPrefix + cudn + " selects all namespaces while some of them belong to another primary " + clusterPrefix + udnPrefix
 }
 
-func OnePrimaryUDNAssertion(ns string) string {
+func OnePrimaryUDNAssertion(ns, currentUdn, newUdn string) string {
 	return "only one primary (Cluster)UserDefinedNetwork may be assigned to a single namespace." +
-		" More than one (C)UDN is assigned to namespace: " + ns
+		"However both (C)UDNs: " + currentUdn + and + newUdn + " are assigned to namespace: " + ns
 }
 
 func OnePrimaryEntireClusterUDNAssertion(oldCudn, newCudn string) string {
@@ -173,6 +173,7 @@ func OnePrimaryEntireClusterUDNAssertion(oldCudn, newCudn string) string {
 const (
 	udnPrefix     = "user-defined-network: "
 	clusterPrefix = "(cluster-)"
+	and           = " and "
 )
 
 func UDNNamespaceAssertion(udnName, namespace string) string {
