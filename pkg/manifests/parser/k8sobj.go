@@ -17,39 +17,42 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
+	nad "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	udnv1 "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/userdefinednetwork/v1"
 	kubevirt "kubevirt.io/api/core/v1"
 )
 
 // relevant K8s resource kinds as string values
 const (
-	NetworkPolicy                  string = "NetworkPolicy"
-	Namespace                      string = "Namespace"
-	Pod                            string = "Pod"
-	ReplicaSet                     string = "ReplicaSet"
-	ReplicationController          string = "ReplicationController"
-	Deployment                     string = "Deployment"
-	StatefulSet                    string = "StatefulSet"
-	DaemonSet                      string = "DaemonSet"
-	Job                            string = "Job"
-	CronJob                        string = "CronJob"
-	List                           string = "List"
-	NamespaceList                  string = "NamespaceList"
-	NetworkPolicyList              string = "NetworkPolicyList"
-	PodList                        string = "PodList"
-	Service                        string = "Service"
-	Route                          string = "Route"
-	Ingress                        string = "Ingress"
-	AdminNetworkPolicy             string = "AdminNetworkPolicy"
-	AdminNetworkPolicyList         string = "AdminNetworkPolicyList"
-	BaselineAdminNetworkPolicy     string = "BaselineAdminNetworkPolicy"
-	BaselineAdminNetworkPolicyList string = "BaselineAdminNetworkPolicyList" // a list with max 1 object according to apis/v1alpha
-	UserDefinedNetwork             string = "UserDefinedNetwork"
-	UserDefinedNetworkList         string = "UserDefinedNetworkList"
-	ClusterUserDefinedNetwork      string = "ClusterUserDefinedNetwork"
-	ClusterUserDefinedNetworkList  string = "ClusterUserDefinedNetworkList"
-	VirtualMachine                 string = "VirtualMachine"
-	VirtualMachineList             string = "VirtualMachineList"
+	NetworkPolicy                   string = "NetworkPolicy"
+	Namespace                       string = "Namespace"
+	Pod                             string = "Pod"
+	ReplicaSet                      string = "ReplicaSet"
+	ReplicationController           string = "ReplicationController"
+	Deployment                      string = "Deployment"
+	StatefulSet                     string = "StatefulSet"
+	DaemonSet                       string = "DaemonSet"
+	Job                             string = "Job"
+	CronJob                         string = "CronJob"
+	List                            string = "List"
+	NamespaceList                   string = "NamespaceList"
+	NetworkPolicyList               string = "NetworkPolicyList"
+	PodList                         string = "PodList"
+	Service                         string = "Service"
+	Route                           string = "Route"
+	Ingress                         string = "Ingress"
+	AdminNetworkPolicy              string = "AdminNetworkPolicy"
+	AdminNetworkPolicyList          string = "AdminNetworkPolicyList"
+	BaselineAdminNetworkPolicy      string = "BaselineAdminNetworkPolicy"
+	BaselineAdminNetworkPolicyList  string = "BaselineAdminNetworkPolicyList" // a list with max 1 object according to apis/v1alpha
+	UserDefinedNetwork              string = "UserDefinedNetwork"
+	UserDefinedNetworkList          string = "UserDefinedNetworkList"
+	ClusterUserDefinedNetwork       string = "ClusterUserDefinedNetwork"
+	ClusterUserDefinedNetworkList   string = "ClusterUserDefinedNetworkList"
+	VirtualMachine                  string = "VirtualMachine"
+	VirtualMachineList              string = "VirtualMachineList"
+	NetworkAttachmentDefinition     string = "NetworkAttachmentDefinition"
+	NetworkAttachmentDefinitionList string = "NetworkAttachmentDefinitionList"
 )
 
 // K8sObject holds a an object kind and a pointer of the relevant object
@@ -86,6 +89,8 @@ type K8sObject struct {
 	UserDefinedNetwork        *udnv1.UserDefinedNetwork
 	ClusterUserDefinedNetwork *udnv1.ClusterUserDefinedNetwork
 	VirtualMachine            *kubevirt.VirtualMachine
+
+	NetworkAttachmentDefinition *nad.NetworkAttachmentDefinition
 }
 
 //gocyclo:ignore
@@ -142,6 +147,9 @@ func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
 	case ClusterUserDefinedNetwork:
 		k.ClusterUserDefinedNetwork = &udnv1.ClusterUserDefinedNetwork{}
 		return k.ClusterUserDefinedNetwork
+	case NetworkAttachmentDefinition:
+		k.NetworkAttachmentDefinition = &nad.NetworkAttachmentDefinition{}
+		return k.NetworkAttachmentDefinition
 	case VirtualMachine:
 		k.VirtualMachine = &kubevirt.VirtualMachine{}
 		return k.VirtualMachine
@@ -204,6 +212,10 @@ func (k *K8sObject) initDefaultNamespace() {
 	case UserDefinedNetwork:
 		if k.UserDefinedNetwork.Namespace == "" {
 			k.UserDefinedNetwork.Namespace = metav1.NamespaceDefault
+		}
+	case NetworkAttachmentDefinition:
+		if k.NetworkAttachmentDefinition.Namespace == "" {
+			k.NetworkAttachmentDefinition.Namespace = metav1.NamespaceDefault
 		}
 	case VirtualMachine:
 		if k.VirtualMachine.Namespace == "" {
@@ -285,6 +297,10 @@ func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) 
 			}
 		case ClusterUserDefinedNetwork:
 			res = append(res, obj)
+		case NetworkAttachmentDefinition:
+			if _, ok := nsMap[obj.NetworkAttachmentDefinition.Namespace]; ok {
+				res = append(res, obj)
+			}
 		case VirtualMachine:
 			if _, ok := nsMap[obj.VirtualMachine.Namespace]; ok {
 				res = append(res, obj)
