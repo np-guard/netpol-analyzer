@@ -11,7 +11,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
 
@@ -23,8 +22,8 @@ type formatText struct {
 // writeOutput returns a textual string format of connections from list of Peer2PeerConnection objects,
 // and exposure analysis results if exist
 func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
-	focusConnStr string, primaryUdnNamespaces map[string]eval.UDNData) (string, error) {
-	res := t.writeConnlistOutput(conns, exposureFlag, explain, focusConnStr, primaryUdnNamespaces)
+	focusConnStr string) (string, error) {
+	res := t.writeConnlistOutput(conns, exposureFlag, explain, focusConnStr)
 	if !exposureFlag {
 		return res, nil
 	}
@@ -37,8 +36,7 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 }
 
 // writeConnlistOutput writes the section of the connlist result of the output
-func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string,
-	primaryUdnNamespaces map[string]eval.UDNData) string {
+func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string) string {
 	connLines := make([]singleConnFields, 0, len(conns))        // lines in the default pod networks
 	connsByUDN := make(map[string][]singleConnFields)           // map from a primary udn to its conns
 	connsByCUDN := make(map[string][]singleConnFields)          // map from a primary c-udn to its conns
@@ -46,7 +44,7 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 	crossNetworksLinesFlag := false                             // indicates that there are denied conns because of isolated networks
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
-		p2pConn, udn, isClusterUdn := formSingleP2PConn(conns[i], explain, primaryUdnNamespaces)
+		p2pConn, udn, isClusterUdn := formSingleP2PConn(conns[i], explain)
 		switch {
 		case explain && conns[i].(*connection).onlyDefaultRule():
 			defaultConnLines = append(defaultConnLines, p2pConn)
@@ -66,7 +64,7 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 		// if we have exposure analysis results, also check if src/dst is an IP and store the connection
 		// save if there is a connection
 		if saveIPConns && p2pConn.ConnString != "" {
-			t.ipMaps.saveConnsWithIPs(conns[i], explain, primaryUdnNamespaces)
+			t.ipMaps.saveConnsWithIPs(conns[i], explain)
 		}
 	}
 	result := ""
@@ -243,6 +241,9 @@ const (
 func writeFocusConnTxtOutput(sortedConnLines []singleConnFields, udnConns, cudnConns map[string][]singleConnFields,
 	focusConnStr string) string {
 	result := "Permitted connections on " + focusConnStr + colon + newLineChar
+	if (len(udnConns) != 0 || len(cudnConns) != 0) && len(sortedConnLines) != 0 {
+		result += sectionHeaderPrefix + podNetworkStr + colon + newLineChar
+	}
 	for _, conn := range sortedConnLines {
 		result += conn.nodePairString() + newLineChar
 	}

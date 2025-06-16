@@ -61,14 +61,10 @@ type (
 		ignoredObjWarnings common.Warnings    // list of warnings from ignored objects (input objects that were parsed but
 		// could not be inserted to the policy-engine)
 
-		primaryUDNNamespaces map[string]UDNData // map from namespace which is assigned with a primary (cluster-)user-defined-network
-		// to the its primary udn data
-	}
-
-	// UDNData stores the name of the UDN and an indication if it is a cluster-udn or namespaced-udn
-	UDNData struct {
-		UdnName      string
-		IsClusterUdn bool
+		// primary networks - primary networks source is UDN/CUDN; each namespace may be assigned with only one primary network
+		// note that: primary traffic takes precedence on other network interfaces
+		primaryNetworks map[string]common.NetworkData // map from namespace which is assigned with a primary (cluster-)user-defined-network
+		// to its network data
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -128,7 +124,7 @@ func NewPolicyEngine() *PolicyEngine {
 		explain:                         false,
 		logger:                          logger.NewDefaultLogger(),
 		ignoredObjWarnings:              make(common.Warnings),
-		primaryUDNNamespaces:            make(map[string]UDNData),
+		primaryNetworks:                 make(map[string]common.NetworkData),
 	}
 }
 
@@ -497,7 +493,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.sortedAdminNetpols = make([]*k8s.AdminNetworkPolicy, 0)
 	pe.baselineAdminNetpol = nil
 	pe.ignoredObjWarnings = make(common.Warnings)
-	pe.primaryUDNNamespaces = make(map[string]UDNData)
+	pe.primaryNetworks = make(map[string]common.NetworkData)
 }
 
 func (pe *PolicyEngine) insertNamespace(ns *corev1.Namespace) error {
@@ -789,8 +785,11 @@ func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineA
 }
 
 // insertUserDefinedNetwork if all conditions of a primary user-defined-network namespace are ok;
-// adds its Namespace to the primaryUDNNamespaces map
+// adds its Namespace to the primaryNetworks map
 func (pe *PolicyEngine) insertUserDefinedNetwork(udn *udnv1.UserDefinedNetwork) error {
+	if pe.exposureAnalysisFlag {
+		return errors.New(alerts.ExposureAnalysisNotSupported)
+	}
 	if udn.Name == defaultName {
 		// Name of UserDefinedNetwork resource should not be default
 		return errors.New(alerts.UDNNameAssertion(types.NamespacedName{Namespace: udn.Namespace, Name: udn.Name}.String()))
@@ -819,13 +818,15 @@ func (pe *PolicyEngine) insertUserDefinedNetwork(udn *udnv1.UserDefinedNetwork) 
 		//  could introduce security risks to the cluster.
 		return errors.New(alerts.UDNNamespaceAssertion(udn.Name, udn.Namespace))
 	}
-	if currentUdn, ok := pe.primaryUDNNamespaces[udn.Namespace]; ok { // a primary udn is already assigned to this namespace
+	if currentUdn, ok := pe.primaryNetworks[udn.Namespace]; ok { // a primary udn is already assigned to this namespace
 		// assigning UDNs to namespaces is with a limitation of only one primary UDN to a namespace
 
-		return errors.New(alerts.OnePrimaryUDNAssertion(udn.Namespace, getUDNFullName(udn.Namespace, currentUdn.UdnName, currentUdn.IsClusterUdn),
-			types.NamespacedName{Namespace: udn.Namespace, Name: udn.Name}.String()))
+		return errors.New(alerts.OnePrimaryUDNAssertion(udn.Namespace, getUDNFullName(udn.Namespace, currentUdn.ResourceName,
+			currentUdn.Resource == common.CUDN), types.NamespacedName{Namespace: udn.Namespace, Name: udn.Name}.String()))
 	}
-	pe.primaryUDNNamespaces[udn.Namespace] = UDNData{UdnName: udn.Name, IsClusterUdn: false} // add the namespace of the udn to the set
+	// note that since a udn is assigned for single namespace will store the network name as the namespace name
+	pe.primaryNetworks[udn.Namespace] = common.NetworkData{NetworkName: udn.Namespace, Interface: common.Primary, Resource: common.UDN,
+		ResourceName: udn.Name}
 	// note that: we don't store the udn itself, as we don't use it/its fields;
 	// if in future decide to read more fields (as cidr ..),
 	// we can assign the UDN to its namespace (either in the map or the namespace struct itself)
@@ -844,8 +845,11 @@ func getUDNFullName(ns, udnName string, isClusterUdn bool) string {
 }
 
 // insertClusterUserDefinedNetwork if all conditions of a primary cluster-user-defined-network matching namespaces are ok;
-// adds matching Namespaces to the primaryUDNNamespaces map
+// adds matching Namespaces to the primaryNetworks map
 func (pe *PolicyEngine) insertClusterUserDefinedNetwork(cudn *udnv1.ClusterUserDefinedNetwork) error {
+	if pe.exposureAnalysisFlag {
+		return errors.New(alerts.ExposureAnalysisNotSupported)
+	}
 	newCUDN := (*k8s.ClusterUserDefinedNetwork)(cudn)
 	// check UDN validity
 	if err := newCUDN.CheckFieldsValidity(); err != nil {
@@ -859,12 +863,12 @@ func (pe *PolicyEngine) insertClusterUserDefinedNetwork(cudn *udnv1.ClusterUserD
 	if err != nil {
 		return err
 	}
-	if nsSelector.Empty() && len(pe.primaryUDNNamespaces) != 0 {
+	if nsSelector.Empty() && len(pe.primaryNetworks) != 0 {
 		// this cudn selects all namespaces, however if there is a (c)udn selecting single namespace,
 		// then a namespace is selected by both udn and this cudn which is illogical isolation
 		return errors.New(alerts.MutualExclusiveWithCUDNOnEntireCluster(cudn.Name))
 	}
-	// find the namespaces selected by this C-UDN and update the pe.primaryUDNNamespacesMap
+	// find the namespaces selected by this C-UDN and update the pe.primaryNetworksMap
 	// note that even if the selector is empty and select all namespaces, still we have to check if the
 	// namespaces contain the primary-udn label, otherwise, that namespace will not be appended to the cudn and stay in the pod-network
 	return pe.findNamespacesSelectedByCUDN(cudn.Name, nsSelector)
@@ -879,9 +883,9 @@ func (pe *PolicyEngine) findNamespacesSelectedByCUDN(cudnName string, nsSelector
 		// even if the selector selects all namespaces, we have to do following checks and avoid adding
 		// namespaces that don't contain the primary-udn label to the cudn
 		// also a cudn should not select "default" or "openshift-*" namespaces
-		if currentUDN, ok := pe.primaryUDNNamespaces[nsName]; ok {
-			return errors.New(alerts.OnePrimaryUDNAssertion(nsName, getUDNFullName(nsName, currentUDN.UdnName, currentUDN.IsClusterUdn),
-				cudnName))
+		if currentUDN, ok := pe.primaryNetworks[nsName]; ok {
+			return errors.New(alerts.OnePrimaryUDNAssertion(nsName, getUDNFullName(nsName, currentUDN.ResourceName,
+				currentUDN.Resource == common.CUDN), cudnName))
 		}
 		if _, ok := ns.Labels[common.PrimaryUDNLabel]; !ok { // continue, avoid adding this namespace to the cudn since its labels
 			// do not contain the must label
@@ -892,7 +896,8 @@ func (pe *PolicyEngine) findNamespacesSelectedByCUDN(cudnName string, nsSelector
 			return errors.New(alerts.UDNNamespaceAssertion(cudnName, nsName))
 		}
 		cnt++
-		pe.primaryUDNNamespaces[nsName] = UDNData{UdnName: cudnName, IsClusterUdn: true}
+		pe.primaryNetworks[nsName] = common.NetworkData{NetworkName: cudnName, Interface: common.Primary, Resource: common.CUDN,
+			ResourceName: cudnName}
 	}
 	if cnt == 0 {
 		pe.ignoredObjWarnings.AddWarning(alerts.EmptyCUDN(cudnName))
@@ -1261,8 +1266,4 @@ func (pe *PolicyEngine) LogPolicyEngineWarnings() (warns []string) {
 		warns = append(warns, pe.baselineAdminNetpol.LogWarnings(pe.logger)...)
 	}
 	return warns
-}
-
-func (pe *PolicyEngine) GetPrimaryUDNNamespaces() map[string]UDNData {
-	return pe.primaryUDNNamespaces
 }
