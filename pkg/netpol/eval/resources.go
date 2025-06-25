@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	nad "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
+	nadv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	udnv1 "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/userdefinednetwork/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -468,7 +468,7 @@ func (pe *PolicyEngine) InsertObject(rtObj runtime.Object) error {
 		return pe.insertUserDefinedNetwork(obj)
 	case *udnv1.ClusterUserDefinedNetwork:
 		return pe.insertClusterUserDefinedNetwork(obj)
-	case *nad.NetworkAttachmentDefinition:
+	case *nadv1.NetworkAttachmentDefinition:
 		return pe.insertNetworkAttachmentDefinition(obj)
 	}
 	return nil
@@ -906,7 +906,7 @@ func (pe *PolicyEngine) findNamespacesSelectedByCUDN(cudnName string, nsSelector
 	return nil
 }
 
-func (pe *PolicyEngine) insertNetworkAttachmentDefinition(nad *nad.NetworkAttachmentDefinition) error {
+func (pe *PolicyEngine) insertNetworkAttachmentDefinition(nad *nadv1.NetworkAttachmentDefinition) error {
 	if pe.exposureAnalysisFlag {
 		return errors.New(alerts.ExposureAnalysisNotSupported)
 	}
