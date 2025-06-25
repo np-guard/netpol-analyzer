@@ -1,0 +1,18 @@
+# this example is taken from :
+# https://www.redhat.com/en/blog/secondary-network-overlays-virtualization-workloads
+# quote from the link above that demonstrates connectivity:
+# In it, the pod network is used to access the outside world (e.g., the Internet) and Kubernetes services, 
+# while the secondary network is used for communication between the VMs 
+apiVersion: k8s.cni.cnf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: flat12
+spec:
+    config: |2
+      {
+        "cniVersion": "0.3.1",
+        "name": "flat12",
+        "netAttachDefName": "default/flat12",
+        "topology": "layer2",
+        "type": "ovn-k8s-cni-overlay"
+      }

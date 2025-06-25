@@ -2248,6 +2248,19 @@ var goodPathTests = []struct {
 		testDirName:   "cudn_test_6",
 		outputFormats: ValidFormats,
 	},
+	{
+		//  this example is taken from :
+		//  https://www.redhat.com/en/blog/secondary-network-overlays-virtualization-workloads
+		//  quote from the link above that demonstrates connectivity:
+		//  In it, the pod network is used to access the outside world (e.g., the Internet) and Kubernetes services,
+		//  while the secondary network is used for communication between the VMs
+		testDirName:   "nad_test_2",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "nad_test_1",
+		outputFormats: ValidFormats,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

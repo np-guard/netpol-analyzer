@@ -39,7 +39,7 @@ type ipMaps struct {
 // saveConnsWithIPs gets a P2P connection; if the connection includes an IP-Peer as one of its end-points; the conn is saved in the
 // matching map of the formatText maps
 func (i *ipMaps) saveConnsWithIPs(conn Peer2PeerConnection, explain bool) {
-	p2pConn, _, _ := formSingleP2PConn(conn, explain)
+	p2pConn, _, _, _ := formSingleP2PConn(conn, explain) //nolint:dogsled // other returned values not relevant here
 	if conn.Src().IsPeerIPType() && !isEmpty(conn) {
 		i.PeerToConnsFromIPs[conn.Dst().String()] = append(i.PeerToConnsFromIPs[conn.Dst().String()], p2pConn)
 	}
@@ -94,21 +94,22 @@ func (c singleConnFields) stringWithExplanation() string {
 // explainability output may contain peers in two UDNs in case of running with `--focus-conn`; in this case the
 // connection will be appended to the Src's UDN (will appear under the src's udn section)
 func formSingleP2PConn(conn Peer2PeerConnection, explain bool) (p2pConn singleConnFields,
-	udn string, isClusterUdn bool) {
+	networkName string, isClusterUdn bool, networkInf common.NetworkInterface) {
 	connStr := common.ConnStrFromConnProperties(conn.AllProtocolsAndPorts(), conn.ProtocolsAndPorts())
 	expl := ""
 	if explain {
 		expl = common.ExplanationFromConnProperties(conn.AllProtocolsAndPorts(), conn.(*connection).commonImplyingRules, conn.ProtocolsAndPorts())
 	}
 	networkData := conn.(*connection).networkData
+	networkInf = networkData.Interface
+	networkName = networkData.NetworkName
 	srcStr := conn.Src().String()
 	dstStr := conn.Dst().String()
 	origSrcStr := srcStr
 	origDstStr := dstStr
 	if networkData.Interface == common.Primary { // if the src is in udn add the udn label to its name
-		udn = networkData.NetworkName
-		isClusterUdn = networkData.Resource == common.CUDN
-		if networkData.Resource == common.UDN {
+		isClusterUdn = networkData.ResourceKind == common.CUDN
+		if networkData.ResourceKind == common.UDN {
 			if conn.Src().Namespace() == networkData.NetworkName {
 				srcStr = addUDNLabelToPeerStr(srcStr)
 			}
@@ -121,7 +122,7 @@ func formSingleP2PConn(conn Peer2PeerConnection, explain bool) (p2pConn singleCo
 			expl = strings.ReplaceAll(expl, origDstStr, dstStr)
 		}
 	}
-	return singleConnFields{Src: srcStr, Dst: dstStr, ConnString: connStr, explanation: expl}, udn, isClusterUdn
+	return singleConnFields{Src: srcStr, Dst: dstStr, ConnString: connStr, explanation: expl}, networkName, isClusterUdn, networkInf
 }
 
 // addUDNLabelToPeerStr : gets peer string of the pattern : <peer Namespace>/<peer Name>+[peer Kind]
@@ -142,6 +143,7 @@ const (
 	mapClose               = "}"
 	comma                  = ","
 	cudnLabel              = "[cluster-udn]"
+	nadLabel               = "[nad]"
 )
 
 // formSingleExposureConn returns a representation of single exposure connection fields as singleConnFields object
@@ -247,7 +249,7 @@ func getConnlistAsSortedSingleConnFieldsArray(conns []Peer2PeerConnection, ipMap
 		if !explain && isEmpty(conn) {
 			continue
 		}
-		p2pConn, _, _ := formSingleP2PConn(conn, explain)
+		p2pConn, _, _, _ := formSingleP2PConn(conn, explain)
 		connItems = append(connItems, p2pConn)
 	}
 	return sortConnFields(connItems, true)

@@ -14,8 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/np-guard/models/pkg/netset"
-
+	nad "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	udnv1 "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/userdefinednetwork/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -29,6 +28,8 @@ import (
 	kubevirt "kubevirt.io/api/core/v1"
 	apisv1a "sigs.k8s.io/network-policy-api/apis/v1alpha1"
 	policyapi "sigs.k8s.io/network-policy-api/pkg/client/clientset/versioned"
+
+	"github.com/np-guard/models/pkg/netset"
 
 	pkgcommon "github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
@@ -65,6 +66,12 @@ type (
 		// note that: primary traffic takes precedence on other network interfaces
 		primaryNetworks map[string]common.NetworkData // map from namespace which is assigned with a primary (cluster-)user-defined-network
 		// to its network data
+
+		// Secondary networks: Act as secondary, non-default networks for a pod.
+		// The pod must be in the same namespace as the secondary network;
+		// its useful to have two NADs with same name and configs in different namespaces -> means same network interface
+		// so pods/ Vms can connect through this network
+		secondaryNetworks map[string]common.SecondaryNetworkData // map from network name to its data and namespaces
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -125,6 +132,7 @@ func NewPolicyEngine() *PolicyEngine {
 		logger:                          logger.NewDefaultLogger(),
 		ignoredObjWarnings:              make(common.Warnings),
 		primaryNetworks:                 make(map[string]common.NetworkData),
+		secondaryNetworks:               make(map[string]common.SecondaryNetworkData),
 	}
 }
 
@@ -270,6 +278,8 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 			err = pe.InsertObject(obj.UserDefinedNetwork)
 		case parser.ClusterUserDefinedNetwork:
 			err = pe.InsertObject(obj.ClusterUserDefinedNetwork)
+		case parser.NetworkAttachmentDefinition:
+			err = pe.InsertObject(obj.NetworkAttachmentDefinition)
 		case parser.Service, parser.Route, parser.Ingress:
 			continue
 		default: // should not get here
@@ -458,6 +468,8 @@ func (pe *PolicyEngine) InsertObject(rtObj runtime.Object) error {
 		return pe.insertUserDefinedNetwork(obj)
 	case *udnv1.ClusterUserDefinedNetwork:
 		return pe.insertClusterUserDefinedNetwork(obj)
+	case *nad.NetworkAttachmentDefinition:
+		return pe.insertNetworkAttachmentDefinition(obj)
 	}
 	return nil
 }
@@ -494,6 +506,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.baselineAdminNetpol = nil
 	pe.ignoredObjWarnings = make(common.Warnings)
 	pe.primaryNetworks = make(map[string]common.NetworkData)
+	pe.secondaryNetworks = make(map[string]common.SecondaryNetworkData)
 }
 
 func (pe *PolicyEngine) insertNamespace(ns *corev1.Namespace) error {
@@ -818,30 +831,19 @@ func (pe *PolicyEngine) insertUserDefinedNetwork(udn *udnv1.UserDefinedNetwork) 
 		//  could introduce security risks to the cluster.
 		return errors.New(alerts.UDNNamespaceAssertion(udn.Name, udn.Namespace))
 	}
+	udnFullName := types.NamespacedName{Namespace: udn.Namespace, Name: udn.Name}.String()
 	if currentUdn, ok := pe.primaryNetworks[udn.Namespace]; ok { // a primary udn is already assigned to this namespace
 		// assigning UDNs to namespaces is with a limitation of only one primary UDN to a namespace
-
-		return errors.New(alerts.OnePrimaryUDNAssertion(udn.Namespace, getUDNFullName(udn.Namespace, currentUdn.ResourceName,
-			currentUdn.Resource == common.CUDN), types.NamespacedName{Namespace: udn.Namespace, Name: udn.Name}.String()))
+		return errors.New(alerts.OnePrimaryUDNAssertion(udn.Namespace, currentUdn.ResourceName, udnFullName))
 	}
+
 	// note that since a udn is assigned for single namespace will store the network name as the namespace name
-	pe.primaryNetworks[udn.Namespace] = common.NetworkData{NetworkName: udn.Namespace, Interface: common.Primary, Resource: common.UDN,
-		ResourceName: udn.Name}
+	pe.primaryNetworks[udn.Namespace] = common.NetworkData{NetworkName: udn.Namespace, Interface: common.Primary, ResourceKind: common.UDN,
+		ResourceName: udnFullName}
 	// note that: we don't store the udn itself, as we don't use it/its fields;
 	// if in future decide to read more fields (as cidr ..),
 	// we can assign the UDN to its namespace (either in the map or the namespace struct itself)
 	return nil
-}
-
-// getUDNFullName:
-// if the UDN is a clusterUDN returns the udnName
-// else returns the namespaced name of the UDN
-func getUDNFullName(ns, udnName string, isClusterUdn bool) string {
-	currentUDNName := udnName
-	if !isClusterUdn {
-		currentUDNName = types.NamespacedName{Namespace: ns, Name: currentUDNName}.String()
-	}
-	return currentUDNName
 }
 
 // insertClusterUserDefinedNetwork if all conditions of a primary cluster-user-defined-network matching namespaces are ok;
@@ -884,8 +886,7 @@ func (pe *PolicyEngine) findNamespacesSelectedByCUDN(cudnName string, nsSelector
 		// namespaces that don't contain the primary-udn label to the cudn
 		// also a cudn should not select "default" or "openshift-*" namespaces
 		if currentUDN, ok := pe.primaryNetworks[nsName]; ok {
-			return errors.New(alerts.OnePrimaryUDNAssertion(nsName, getUDNFullName(nsName, currentUDN.ResourceName,
-				currentUDN.Resource == common.CUDN), cudnName))
+			return errors.New(alerts.OnePrimaryUDNAssertion(nsName, currentUDN.ResourceName, cudnName))
 		}
 		if _, ok := ns.Labels[common.PrimaryUDNLabel]; !ok { // continue, avoid adding this namespace to the cudn since its labels
 			// do not contain the must label
@@ -896,12 +897,33 @@ func (pe *PolicyEngine) findNamespacesSelectedByCUDN(cudnName string, nsSelector
 			return errors.New(alerts.UDNNamespaceAssertion(cudnName, nsName))
 		}
 		cnt++
-		pe.primaryNetworks[nsName] = common.NetworkData{NetworkName: cudnName, Interface: common.Primary, Resource: common.CUDN,
+		pe.primaryNetworks[nsName] = common.NetworkData{NetworkName: cudnName, Interface: common.Primary, ResourceKind: common.CUDN,
 			ResourceName: cudnName}
 	}
 	if cnt == 0 {
 		pe.ignoredObjWarnings.AddWarning(alerts.EmptyCUDN(cudnName))
 	}
+	return nil
+}
+
+func (pe *PolicyEngine) insertNetworkAttachmentDefinition(nad *nad.NetworkAttachmentDefinition) error {
+	if pe.exposureAnalysisFlag {
+		return errors.New(alerts.ExposureAnalysisNotSupported)
+	}
+	// @todo if ok, compare configurations of the nets, return error if not the same
+	if _, ok := pe.secondaryNetworks[nad.Name]; !ok {
+		pe.secondaryNetworks[nad.Name] = common.SecondaryNetworkData{
+			NetworkData: common.NetworkData{
+				NetworkName:  nad.Name,
+				ResourceName: types.NamespacedName{Name: nad.Name, Namespace: nad.Namespace}.String(),
+				Interface:    common.Secondary,
+				ResourceKind: common.NAD,
+			},
+			Namespaces: make(map[string]bool),
+		}
+	}
+	// adding the NAD's namespace to the network namespaces set
+	pe.secondaryNetworks[nad.Name].Namespaces[nad.Namespace] = true
 	return nil
 }
 

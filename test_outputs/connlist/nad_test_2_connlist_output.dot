@@ -1,0 +1,29 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_default[namespace]" {
+		color="black"
+		fontcolor="black"
+		"default/vm-client[VirtualMachine]" [label="vm-client[VirtualMachine]" color="blue" fontcolor="blue"]
+		"default/vm-server[VirtualMachine]" [label="vm-server[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="default[namespace]"
+	}
+	}
+	subgraph "cluster_flat12" {
+	label="flat12[nad]"
+	subgraph "cluster_default[namespace]" {
+		color="black"
+		fontcolor="black"
+		"default/vm-client[VirtualMachine]flat12" [label="vm-client[VirtualMachine]" color="blue" fontcolor="blue"]
+		"default/vm-server[VirtualMachine]flat12" [label="vm-server[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="default[namespace]"
+	}
+	}
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "default/vm-client[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "default/vm-server[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/vm-client[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/vm-client[VirtualMachine]flat12" -> "default/vm-server[VirtualMachine]flat12" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/vm-server[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/vm-server[VirtualMachine]flat12" -> "default/vm-client[VirtualMachine]flat12" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}
