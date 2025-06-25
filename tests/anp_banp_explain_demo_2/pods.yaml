@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: internal-apps
+  name: internal-app-a
+  labels:
+    security: internal
+spec:
+  containers:
+    - name: myfirstcontainer
+      image: app-a-image
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: isolated-apps
+  name: isolated-data-service
+  labels:
+    security: internal
+spec:
+  containers:
+    - name: myfirstcontainer
+      image: dataservice-image
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: monitoring
+  name: monitoring-service
+  labels:
+    security: monitoring
+spec:
+  containers:
+    - name: myfirstcontainer
+      image: monitoringimage

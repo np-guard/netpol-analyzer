@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: internal-apps
+  labels:
+    security: internal
+    kubernetes.io/metadata.name: internal-apps
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: isolated-apps
+  labels:
+    security: internal
+    kubernetes.io/metadata.name: isolated-apps    
+
+---
+
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    kubernetes.io/metadata.name: monitoring    
