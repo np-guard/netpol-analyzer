@@ -1,0 +1,26 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "default/vm-client[VirtualMachine]"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "default/vm-server[VirtualMachine]"
+  },
+  {
+    "src": "default/vm-client[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]"
+  },
+  {
+    "src": "default/vm-client[VirtualMachine]",
+    "dst": "default/vm-server[VirtualMachine]"
+  },
+  {
+    "src": "default/vm-server[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]"
+  },
+  {
+    "src": "default/vm-server[VirtualMachine]",
+    "dst": "default/vm-client[VirtualMachine]"
+  }
+]

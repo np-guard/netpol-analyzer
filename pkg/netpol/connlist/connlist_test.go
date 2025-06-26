@@ -2261,6 +2261,11 @@ var goodPathTests = []struct {
 		testDirName:   "nad_test_1",
 		outputFormats: ValidFormats,
 	},
+	{
+		testDirName:   "nad_test_2",
+		outputFormats: ValidFormats,
+		focusConn:     "tcp-80",
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {
