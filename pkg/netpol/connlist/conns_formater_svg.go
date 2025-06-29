@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package connlist
 
 import (
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/formatting"
 )
 
@@ -20,10 +19,10 @@ type formatSVG struct {
 // and from exposure-analysis results if exists
 // explain input is ignored since not supported with this format
 func (s *formatSVG) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
-	focusConnStr string, primaryUdnNamespaces map[string]eval.UDNData) (string, error) {
+	focusConnStr string) (string, error) {
 	// first write dot output
 	formatDot := formatDOT{peersList: s.peersList}
-	dotOutput, err := formatDot.writeOutput(conns, exposureConns, exposureFlag, explain, focusConnStr, primaryUdnNamespaces)
+	dotOutput, err := formatDot.writeOutput(conns, exposureConns, exposureFlag, explain, focusConnStr)
 	if err != nil {
 		return "", err
 	}

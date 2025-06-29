@@ -51,6 +51,8 @@ const (
 	BANPAlreadyExists                = "only one baseline admin network policy may be provided in input resources; one already exists"
 	BANPNameAssertion                = "only one baseline admin network policy with metadata.name=default can be created in the cluster"
 	NilRepresentativePodSelectorsErr = "representative pod might not be generated if it does not have any representative selector"
+	ExposureAnalysisNotSupported     = "exposure-analysis is not supported when input resources include (cluster-)user-defined-network" +
+		" or network-attachment-definition objects"
 )
 
 // errors from k8s objects:

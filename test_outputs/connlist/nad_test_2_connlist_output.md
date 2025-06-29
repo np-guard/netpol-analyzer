@@ -1,0 +1,8 @@
+| src | dst | conn |
+|-----|-----|------|
+| 0.0.0.0-255.255.255.255[External] | default/vm-client[VirtualMachine] | All Connections |
+| 0.0.0.0-255.255.255.255[External] | default/vm-server[VirtualMachine] | All Connections |
+| default/vm-client[VirtualMachine] | 0.0.0.0-255.255.255.255[External] | All Connections |
+| default/vm-client[VirtualMachine] | default/vm-server[VirtualMachine] | All Connections |
+| default/vm-server[VirtualMachine] | 0.0.0.0-255.255.255.255[External] | All Connections |
+| default/vm-server[VirtualMachine] | default/vm-client[VirtualMachine] | All Connections |

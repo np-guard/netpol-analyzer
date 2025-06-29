@@ -188,39 +188,126 @@ func GetPeerExposedTCPConnections(peer Peer) *common.ConnectionSet {
 	}
 }
 
+// isPeerExternal returns true if the input peer is an IPBlock or ingress-controller
+func isPeerExternal(peer k8s.Peer) bool {
+	if peer.PeerType() == k8s.IPBlockType {
+		return true
+	}
+	if peer.GetPeerPod().Name == common.IngressPodName && peer.GetPeerNamespace().Name == common.IngressPodNamespace {
+		return true
+	}
+	return false
+}
+
+func (pe *PolicyEngine) getPeerPrimaryNetwork(peer k8s.Peer) common.NetworkData {
+	if isPeerExternal(peer) { // external peer may connect with all network interfaces in the cluster if xgress is enabled
+		return common.NetworkData{} // the network data is not relevant for external peers
+	}
+	// peer is not external,
+	// check if the peer belongs to a primary-network (udn/cudn)
+	if networkData, ok := pe.primaryNetworks[peer.GetPeerNamespace().Name]; ok {
+		return networkData
+	}
+	// if it does not belong to a primary network: return default network data (pod network)
+	// if the pod is not in a primary network its default network is the pod network
+	return common.DefaultNetworkData()
+}
+
+func (pe *PolicyEngine) getPeerSecondaryNetworks(peer k8s.Peer) map[string]common.NetworkData {
+	if isPeerExternal(peer) {
+		return nil
+	}
+	res := make(map[string]common.NetworkData)
+	// go through the pod's secondaryNetworks, return networks that are inserted to the policy-engine
+	// and that the namespace of the NAD matches the pod's namespace or pod's network namespace
+	for network := range peer.GetPeerPod().SecondaryNetworks {
+		peerNetworkNs := peer.GetPeerNamespace().Name
+		networkName := network
+		// if the network name in format ns/name separate them
+		if strings.Contains(networkName, string(types.Separator)) {
+			nsAndName := strings.Split(networkName, string(types.Separator))
+			peerNetworkNs = nsAndName[0]
+			networkName = nsAndName[1]
+		}
+		networkData, ok := pe.secondaryNetworks[networkName]
+		if ok && networkData.Namespaces[peerNetworkNs] { // the pod must be in a namespace that has matching NAD
+			res[networkName] = networkData.NetworkData
+		}
+	}
+	return res
+}
+
+func (pe *PolicyEngine) findCommonSecondaryNetworkForPeersPair(src, dst k8s.Peer) common.NetworkData {
+	srcSecondaryNets := pe.getPeerSecondaryNetworks(src)
+	dstSecondaryNets := pe.getPeerSecondaryNetworks(dst)
+	if srcSecondaryNets == nil || dstSecondaryNets == nil {
+		return common.NetworkData{}
+	}
+	for netName, netData := range srcSecondaryNets {
+		if _, ok := dstSecondaryNets[netName]; ok {
+			return netData
+		}
+	}
+	return common.NetworkData{}
+}
+
 // podsFromIsolatedNetworks returns true if at least one pod belongs to an isolated user-defined-network
-func (pe *PolicyEngine) podsFromIsolatedNetworks(src, dst k8s.Peer) bool {
-	// if any of the peers is an external IP return false
-	if src.PeerType() == k8s.IPBlockType || dst.PeerType() == k8s.IPBlockType {
-		return false
+// if the peers are not isolated, returns the network of the connection between src and dst
+//
+// note that:
+//   - Primary networks: Act as the primary network for the pod. By default, all traffic passes through the primary network.
+//     i.e. pod that is attached to a primary network = its default network
+//   - Secondary networks: Act as secondary, non-default networks for a pod; its used to connect peers on same secondary network;
+//     however, its additive and all of the pods in the cluster still use the cluster-wide default network to maintain connectivity
+//     across the cluster.
+//
+//gocyclo:ignore
+func (pe *PolicyEngine) podsFromIsolatedNetworks(src, dst k8s.Peer) (isolated bool, connNetwork common.NetworkData) {
+	if pe.exposureAnalysisFlag {
+		return false, common.NetworkData{}
 	}
-	// external ingress which is captured by Ingress/Route and Service objects in the UDN's Namespace
-	// is allowed to matching pods in the UDN.
-	// "DNS lookups for services and external entities will function as expected."
-	if src.GetPeerPod().Name == common.IngressPodName && src.GetPeerNamespace().Name == common.IngressPodNamespace {
-		return false
+	srcPrimaryNetwork := pe.getPeerPrimaryNetwork(src) // the primary network or pod-network if it does not belong to primary udn/cudn
+	dstPrimaryNetwork := pe.getPeerPrimaryNetwork(dst)
+	switch {
+	case isPeerExternal(src):
+		return false, dstPrimaryNetwork
+	case isPeerExternal(dst):
+		return false, srcPrimaryNetwork
+
+	case srcPrimaryNetwork.Interface == common.Primary && dstPrimaryNetwork.Interface == common.Primary:
+		if srcPrimaryNetwork.ResourceKind == common.UDN && dstPrimaryNetwork.ResourceKind == common.UDN &&
+			src.GetPeerNamespace() == dst.GetPeerNamespace() {
+			return false, srcPrimaryNetwork
+		}
+		if srcPrimaryNetwork.ResourceKind == common.CUDN && dstPrimaryNetwork.ResourceKind == common.CUDN &&
+			srcPrimaryNetwork.NetworkName == dstPrimaryNetwork.NetworkName {
+			return false, srcPrimaryNetwork
+		}
+		// Different primary networks , isolated peers
+		return true, srcPrimaryNetwork
+
+		// only one peer in a primary network; peers are isolated since the primary (c)udn isolates its peers
+	case srcPrimaryNetwork.Interface == common.Primary && dstPrimaryNetwork.Interface != common.Primary,
+		dstPrimaryNetwork.Interface == common.Primary && srcPrimaryNetwork.Interface != common.Primary:
+		if srcPrimaryNetwork.Interface == common.Primary {
+			return true, srcPrimaryNetwork
+		}
+		return true, dstPrimaryNetwork
+	// both src and dst are not belonging to a primary network; if both belong to a secondary network - conns are maintained by it else on
+	// pod-network
+	case srcPrimaryNetwork.Interface != common.Primary && dstPrimaryNetwork.Interface != common.Primary:
+		commonSecondaryNetwork := pe.findCommonSecondaryNetworkForPeersPair(src, dst)
+		if !commonSecondaryNetwork.IsEmpty() {
+			return false, commonSecondaryNetwork
+		}
+		// https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/networking/multiple-networks#attaching-pod
+		// "You can add a pod to a secondary network. The pod continues to send normal cluster-related
+		// network traffic over the default network."
+		return false, common.DefaultNetworkData()
+
+	default: // should not get here
+		return true, common.NetworkData{}
 	}
-	// return false if one pod is representative-peer
-	// @todo: support exposure with UDNs - a pod in a udn should not be exposed to other primary UDNs
-	if src.GetPeerNamespace() == nil || dst.GetPeerNamespace() == nil {
-		return false
-	}
-	srcUDNData, srcInUDN := pe.primaryUDNNamespaces[src.GetPeerNamespace().Name]
-	dstUDNData, dstInUDN := pe.primaryUDNNamespaces[dst.GetPeerNamespace().Name]
-	// if pods are in default pod networks (namespaces without primary UDN) - return false
-	if !srcInUDN && !dstInUDN {
-		return false
-	}
-	// at-least one pod is in a udn, check if pods are in same user-defined network (same namespaces)
-	if src.GetPeerNamespace() == dst.GetPeerNamespace() {
-		return false
-	}
-	// check if pods are in same udn (when not in same namespace)
-	if srcUDNData.IsClusterUdn && dstUDNData.IsClusterUdn && srcUDNData.UdnName == dstUDNData.UdnName {
-		return false
-	}
-	// at least one pod is in an isolated UDN
-	return true
 }
 
 // allAllowedConnections: returns allowed connection between input strings of src and dst
@@ -278,13 +365,12 @@ func (pe *PolicyEngine) AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPe
 }
 
 func (pe *PolicyEngine) getPeerUDNNamesAndKind(peer k8s.Peer) (peerUDNName, peerUDNKind string) {
-	if _, ok := pe.primaryUDNNamespaces[peer.GetPeerNamespace().Name]; ok {
-		if pe.primaryUDNNamespaces[peer.GetPeerNamespace().Name].IsClusterUdn {
-			// in a primary cluster-udn
-			return pe.primaryUDNNamespaces[peer.GetPeerNamespace().Name].UdnName, parser.ClusterUserDefinedNetwork
-		}
-		// the namespace is a primary-udn
-		return peer.GetPeerNamespace().Name, parser.UserDefinedNetwork
+	if isPeerExternal(peer) {
+		return "", ""
+	}
+	if _, ok := pe.primaryNetworks[peer.GetPeerNamespace().Name]; ok {
+		return pe.primaryNetworks[peer.GetPeerNamespace().Name].NetworkName,
+			common.ResourceString(pe.primaryNetworks[peer.GetPeerNamespace().Name].ResourceKind)
 	}
 	return "", ""
 }
@@ -305,8 +391,10 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 		res.AddCommonImplyingRule("", common.PodToItselfRule, false)
 		return res, nil
 	}
-	// if pods are from different user-defined networks, return empty result (no conns)
-	if pe.podsFromIsolatedNetworks(srcK8sPeer, dstK8sPeer) {
+	isolated, connNetwork := pe.podsFromIsolatedNetworks(srcK8sPeer, dstK8sPeer)
+	// if pods are isolated, this means at least one of them is isolated by a different user-defined network,
+	//  return empty result (no conns)
+	if isolated {
 		res = common.MakeConnectionSet(false)
 		srcUDN, srcUDNKind := pe.getPeerUDNNamesAndKind(srcK8sPeer)
 		dstUDN, dstUDNKind := pe.getPeerUDNNamesAndKind(dstK8sPeer)
@@ -314,8 +402,13 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 			k8s.ConstPeerString(dstK8sPeer), srcUDN, dstUDN, srcUDNKind, dstUDNKind), true)
 		res.AddCommonImplyingRule(common.UDNRuleKind, common.IsolatedUDNRule(k8s.ConstPeerString(srcK8sPeer),
 			k8s.ConstPeerString(dstK8sPeer), srcUDN, dstUDN, srcUDNKind, dstUDNKind), false)
+		res.NetworkData = connNetwork
 		return res, nil
 	}
+
+	// @todo: if connNetwork is secondary and resource is NAD - analyze multi-np
+	// else - original
+
 	// egress: get egress allowed connections between the src and dst by
 	// walking through all k8s egress policies capturing the src;
 	// evaluating first ANPs then NPs and finally the BANP
@@ -325,6 +418,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	}
 	res.SetExplResult(false)
 	if res.IsEmpty() && !pe.explain {
+		res.NetworkData = connNetwork
 		return res, nil
 	}
 	// ingress: get ingress allowed connections between the src and dst by
@@ -336,6 +430,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	}
 	ingressRes.SetExplResult(true)
 	res.Intersection(ingressRes)
+	res.NetworkData = connNetwork
 	return res, nil
 }
 

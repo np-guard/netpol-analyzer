@@ -9,8 +9,6 @@ package connlist
 import (
 	"bytes"
 	"encoding/csv"
-
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
 // formatCSV: implements the connsFormatter interface for csv output format
@@ -22,12 +20,12 @@ type formatCSV struct {
 // and exposure analysis results from list ExposedPeer if exists
 // explain input is ignored since not supported with this format
 func (cs *formatCSV) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
-	focusConnStr string, primaryUdnNamespaces map[string]eval.UDNData) (string, error) {
+	focusConnStr string) (string, error) {
 	// writing csv rows into a buffer
 	buf := new(bytes.Buffer)
 	writer := csv.NewWriter(buf)
 
-	err := cs.writeCsvConnlistTable(conns, writer, exposureFlag, false, focusConnStr, primaryUdnNamespaces)
+	err := cs.writeCsvConnlistTable(conns, writer, exposureFlag, false, focusConnStr)
 	if err != nil {
 		return "", err
 	}
@@ -78,14 +76,14 @@ func writeTableRows(conns []singleConnFields, writer *csv.Writer, srcFirst bool,
 
 // writeCsvConnlistTable writes csv table for the Peer2PeerConnection list
 func (cs *formatCSV) writeCsvConnlistTable(conns []Peer2PeerConnection, writer *csv.Writer, saveIPConns, explain bool,
-	focusConnStr string, primaryUdnNamespaces map[string]eval.UDNData) error {
+	focusConnStr string) error {
 	err := writeCsvColumnsHeader(writer, true, focusConnStr)
 	if err != nil {
 		return err
 	}
 	cs.ipMaps = createIPMaps(saveIPConns)
 	// get an array of sorted conns items ([]singleConnFields), if required also save the relevant conns to ipMaps
-	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, cs.ipMaps, saveIPConns, explain, primaryUdnNamespaces)
+	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, cs.ipMaps, saveIPConns, explain)
 	return writeTableRows(sortedConnItems, writer, true, focusConnStr)
 }
 
