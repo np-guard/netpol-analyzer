@@ -331,7 +331,8 @@ func updatePodSecondaryNetworksFromAnnotation(v string, secondaryNetworksSet map
 		for _, n := range strings.Split(v, ",") {
 			// Remove leading and trailing whitespace.
 			networkName := strings.TrimSpace(n)
-			// @todo: ignore interface cases (i.e. <namespace>/<network name>@<ifname>)
+			// ignore interface name if exists (i.e. <namespace>/<network name>@<ifname>)
+			networkName = strings.Split(networkName, "@")[0]
 			secondaryNetworksSet[networkName] = true
 		}
 	}
