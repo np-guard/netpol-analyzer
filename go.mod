@@ -6,6 +6,7 @@ toolchain go1.23.6
 
 require (
 	github.com/hashicorp/golang-lru/v2 v2.0.7
+	github.com/k8snetworkplumbingwg/multi-networkpolicy v1.0.1
 	github.com/k8snetworkplumbingwg/network-attachment-definition-client v1.6.0
 	github.com/np-guard/models v0.5.7
 	github.com/openshift/api v0.0.0-20231120222239-b86761094ee3
