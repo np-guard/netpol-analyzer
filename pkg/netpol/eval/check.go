@@ -406,13 +406,10 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 		return res, nil
 	}
 
-	// @todo: if connNetwork is secondary and resource is NAD - analyze multi-np
-	// else - original
-
 	// egress: get egress allowed connections between the src and dst by
 	// walking through all k8s egress policies capturing the src;
 	// evaluating first ANPs then NPs and finally the BANP
-	res, err = pe.allAllowedXgressConnections(srcK8sPeer, dstK8sPeer, false)
+	res, err = pe.allAllowedXgressConnections(srcK8sPeer, dstK8sPeer, false, connNetwork)
 	if err != nil {
 		return nil, err
 	}
@@ -424,7 +421,7 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	// ingress: get ingress allowed connections between the src and dst by
 	// walking through all k8s ingress policies capturing the dst;
 	// evaluating first ANPs then NPs and finally the BANP
-	ingressRes, err := pe.allAllowedXgressConnections(srcK8sPeer, dstK8sPeer, true)
+	ingressRes, err := pe.allAllowedXgressConnections(srcK8sPeer, dstK8sPeer, true, connNetwork)
 	if err != nil {
 		return nil, err
 	}
@@ -432,6 +429,19 @@ func (pe *PolicyEngine) allAllowedConnectionsBetweenPeers(srcPeer, dstPeer Peer)
 	res.Intersection(ingressRes)
 	res.NetworkData = connNetwork
 	return res, nil
+}
+
+// allAllowedXgressConnections returns the allowed connections from srcPeer to dstPeer on the
+// given direction (ingress/egress)
+// * if src and dst are in a secondary network (referenced by a NAD) : returns allowed conns by analyzing relevant multiNetworkPolicies
+// * otherwise (peers are in a (C)UDN or pod-network) : returns the allowed conns by analyzing k8s api policies (e.g NetworkPolicy /
+// (Baseline)AdminNetworkPolicy)
+func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress bool,
+	network common.NetworkData) (allowedConns *common.ConnectionSet, err error) {
+	if network.Interface == common.Secondary && network.ResourceKind == common.NAD {
+		return pe.allAllowedXgressConnectionsByMultiNetpolsCRDs(src, dst, isIngress, network.NetworkName)
+	}
+	return pe.allAllowedXgressConnectionsByk8sNetpols(src, dst, isIngress)
 }
 
 // policiesLayerXgressConns stores data of connections from policies of same type (layer) on ingress/egress direction.
@@ -450,14 +460,16 @@ func initEmptyPoliciesLayerXgressConns() *policiesLayerXgressConns {
 	return &policiesLayerXgressConns{isCaptured: false, layerConns: k8s.NewPolicyConnections()}
 }
 
-// allAllowedXgressConnections: returns the allowed connections from srcPeer to dstPeer on the
-// given direction (ingress/egress)
+// allAllowedXgressConnectionsByk8sNetpols: returns the allowed connections from srcPeer to dstPeer on the
+// given direction (ingress/egress) by analyzing k8s network policy api objects
 // allowed conns are computed by walking through all the available resources of k8s network policy api:
 // admin-network-policies, network-policies and baseline-admin-network-policies;
 // considering the precedence of each policy
 // in case of exposure-analysis it also checks and updates if a src is exposed to entire cluster on egress
 // or dst is exposed to entire cluster on ingress
-func (pe *PolicyEngine) allAllowedXgressConnections(src, dst k8s.Peer, isIngress bool) (allowedConns *common.ConnectionSet, err error) {
+// this is relevant for primary and default pod network
+func (pe *PolicyEngine) allAllowedXgressConnectionsByk8sNetpols(src, dst k8s.Peer, isIngress bool) (allowedConns *common.ConnectionSet,
+	err error) {
 	// Tanya TODO: think about the implicitly denied protocols/port ranges
 	// (due to NPs capturing this src/dst, but defining only some of protocols/ports)
 	// How to update implying rules in this case?
@@ -843,4 +855,79 @@ func (pe *PolicyEngine) getXgressDefaultConns(src, dst k8s.Peer, isIngress bool)
 		defaultConns.layerConns.AllowedConns = common.MakeConnectionSetWithRule(true, "", common.SystemDefaultRule, isIngress)
 	}
 	return defaultConns, exposureConns, nil
+}
+
+// allAllowedXgressConnectionsByMultiNetpolsCRDs returns allowed egress/ingress conns between the src and dst in a secondary network by
+// analyzing the multi-network-policies
+func (pe *PolicyEngine) allAllowedXgressConnectionsByMultiNetpolsCRDs(src, dst k8s.Peer, isIngress bool,
+	networkName string) (*common.ConnectionSet, error) {
+	// Note that: currently secondary networks describe connections between workloads in the cluster-only (both src and dst are PodPeer)
+	// conns between external-ipblock-peers and internal-pods are attached to a primary network or
+	//  the pod-network (depending on the primary network that the internal peer belongs to)
+
+	// @todo: selecting internal peers by their IP-addresses with an IPBlock selector in a policy's rule is not supported yet
+
+	// relevant multi-network-policies: policies that are in the given network and capture dst if isIngress, else capture src
+	var err error
+	var multiNetpols []*k8s.MultiNetworkPolicy
+	if isIngress {
+		multiNetpols, err = pe.getMultiNetworkPoliciesSelectingPod(dst.GetPeerPod(), netv1.PolicyTypeIngress, networkName)
+	} else {
+		multiNetpols, err = pe.getMultiNetworkPoliciesSelectingPod(src.GetPeerPod(), netv1.PolicyTypeEgress, networkName)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	if len(multiNetpols) == 0 {
+		return common.MakeConnectionSet(true), nil // all connections allowed - no relevant multi-network-policy captures the relevant pod
+		// on the required direction
+	}
+
+	allowedConns := common.MakeConnectionSet(false)
+
+	// iterate relevant multi-network-policies
+	for _, mnp := range multiNetpols {
+		// determine policy's allowed connections between the peers for the direction
+		// if isIngress: check for ingress rules that capture src within 'from'
+		// if not isIngress: check for egress rules that capture dst within 'to'
+		// collect the allowed connectivity from the relevant rules into allowedConns
+		var policyAllowedConnectionsPerDirection *common.ConnectionSet
+		var err error
+		if isIngress {
+			policyAllowedConnectionsPerDirection, err = mnp.GetMNPXgressAllowedConns(src, dst, true)
+		} else {
+			policyAllowedConnectionsPerDirection, err = mnp.GetMNPXgressAllowedConns(src, dst, false)
+		}
+		if err != nil {
+			return allowedConns, err
+		}
+		allowedConns.Union(policyAllowedConnectionsPerDirection, true)
+	}
+	return allowedConns, nil
+}
+
+func (pe *PolicyEngine) getMultiNetworkPoliciesSelectingPod(pod *k8s.Pod, direction netv1.PolicyType,
+	networkName string) ([]*k8s.MultiNetworkPolicy, error) {
+	multiNetpols := pe.multiNetpolsMap[pod.Namespace] // policies must be in same namespace as the pod
+	res := []*k8s.MultiNetworkPolicy{}
+	for _, mnp := range multiNetpols {
+		// check if the annotation policy-for targets the given network; and its namespace is in the network's namespaces
+		targetsNetwork, err := mnp.TargetsNetwork(networkName, pe.secondaryNetworks[networkName].Namespaces)
+		if err != nil {
+			return nil, err
+		}
+		if !targetsNetwork {
+			continue
+		}
+		// check if the policy selects the given pod and affects given direction
+		selects, err := mnp.Selects(pod, string(direction))
+		if err != nil {
+			return nil, err
+		}
+		if selects {
+			res = append(res, mnp)
+		}
+	}
+	return res, nil
 }

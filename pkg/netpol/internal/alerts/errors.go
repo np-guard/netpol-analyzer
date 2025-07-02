@@ -16,22 +16,26 @@ import (
 
 const (
 	// errors from k8s objects (eval/internal/k8s pkg)
-	CidrErrTitle               = "CIDR error"
-	SelectorErrTitle           = "selector error"
-	RulePeerErrTitle           = "rule NetworkPolicyPeer error"
-	EmptyRulePeerErrStr        = "cannot have empty rule peer"
-	CombinedRulePeerErrStr     = "cannot have both IPBlock and PodSelector/NamespaceSelector set"
-	NamedPortErrTitle          = "named port error"
-	ConvertNamedPortErrStr     = "cannot convert named port for an IP destination"
-	EndPortWithNamedPortErrStr = "endPort field cannot be defined if the port field is defined as a named (string) port"
-	InvalidCIDRAddr            = "invalid CIDR address"
-	oneFieldSetErr             = "exactly one field must be set"
-	OneFieldSetRulePeerErr     = oneFieldSetErr + " in a rule peer"
-	OneFieldSetSubjectErr      = oneFieldSetErr + " in a subject"
-	UnknownRuleActionErr       = "unrecognized action"
-	ANPPortsError              = "exactly one field must be set in an AdminNetworkPolicyPort"
-	ANPIngressRulePeersErr     = "from field must be defined and contain at least one item"
-	ANPEgressRulePeersErr      = "to field must be defined and contain at least one item"
+	CidrErrTitle                        = "CIDR error"
+	SelectorErrTitle                    = "selector error"
+	RulePeerErrTitle                    = "rule NetworkPolicyPeer error"
+	MNPRulePeerErrTitle                 = "rule MultiNetworkPolicyPeer error"
+	EmptyRulePeerErrStr                 = "cannot have empty rule peer"
+	CombinedRulePeerErrStr              = "cannot have both IPBlock and PodSelector/NamespaceSelector set"
+	NamedPortErrTitle                   = "named port error"
+	ConvertNamedPortErrStr              = "cannot convert named port for an IP destination"
+	EndPortWithNamedPortErrStr          = "endPort field cannot be defined if the port field is defined as a named (string) port"
+	InvalidCIDRAddr                     = "invalid CIDR address"
+	oneFieldSetErr                      = "exactly one field must be set"
+	OneFieldSetRulePeerErr              = oneFieldSetErr + " in a rule peer"
+	OneFieldSetSubjectErr               = oneFieldSetErr + " in a subject"
+	UnknownRuleActionErr                = "unrecognized action"
+	ANPPortsError                       = "exactly one field must be set in an AdminNetworkPolicyPort"
+	ANPIngressRulePeersErr              = "from field must be defined and contain at least one item"
+	ANPEgressRulePeersErr               = "to field must be defined and contain at least one item"
+	MissingPolicyForAnnotation          = "annotations error"
+	InvalidMultiNetworkPolicyAnnotation = "a policy-for annotation indicating to which secondary networks the policy applies must " +
+		"be specified"
 
 	// errors from malformed yamls which are raised by external libraries (used in connlist_test/ diff_test)
 	InvalidKeyVal           = "key: Invalid value"
@@ -109,19 +113,23 @@ func PriorityValueErr(name string, priority int32) string {
 		common.MinANPPriority, common.MaxANPPriority)
 }
 
-const uniquenessRequest = "Only one object of a given kind can have a given name at a time."
+const uniquenessRequest = "%q is already exists. Only one object of a given kind can have a given name at a time."
 
 // ANPsWithSameNameErr returns error message when there are two admin-network-policies with same name in the manifests
 func ANPsWithSameNameErr(anpName string) string {
-	return fmt.Sprintf("an AdminNetworkPolicy with name %q is already found. %s", anpName, uniquenessRequest)
+	return fmt.Sprintf("an AdminNetworkPolicy "+uniquenessRequest, anpName)
 }
 
 func NPWithSameNameError(npName string) string {
-	return fmt.Sprintf("NetworkPolicy %q already exists. %s", npName, uniquenessRequest)
+	return fmt.Sprintf("NetworkPolicy "+uniquenessRequest, npName)
+}
+
+func MultiNpWithSameNameError(mnpStr string) string {
+	return fmt.Sprintf("MultiNetworkPolicy "+uniquenessRequest, mnpStr)
 }
 
 func NSWithSameNameError(ns string) string {
-	return fmt.Sprintf("Namespace %q already exists. %s", ns, uniquenessRequest)
+	return fmt.Sprintf("Namespace "+uniquenessRequest, ns)
 }
 
 // connlist pkg errors:

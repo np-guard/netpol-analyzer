@@ -23,6 +23,7 @@ const (
 	NPLayer
 	ANPLayer
 	UDNLayer
+	MNPLayer
 )
 
 type ExplResultType int
@@ -55,6 +56,7 @@ const (
 	NPRuleKind      = "NetworkPolicy"
 	ANPRuleKind     = "AdminNetworkPolicy"
 	BANPRuleKind    = "BaselineAdminNetworkPolicy"
+	MNPRuleKind     = "MultiNetworkPolicy"
 	IngressRuleKind = "Ingress"
 	RouteRuleKind   = "Route"
 	UDNRuleKind     = "UDN"
@@ -74,6 +76,8 @@ func ruleKindToLayer(kind string) LayerType {
 		return BANPLayer
 	case UDNRuleKind:
 		return UDNLayer
+	case MNPRuleKind:
+		return MNPLayer
 	case "":
 		return DefaultLayer
 	}

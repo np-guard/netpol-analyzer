@@ -14,6 +14,8 @@ import (
 	"strings"
 	"time"
 
+	mnpv1 "github.com/k8snetworkplumbingwg/multi-networkpolicy/pkg/apis/k8s.cni.cncf.io/v1beta1"
+
 	nadv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	udnv1 "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/userdefinednetwork/v1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -71,7 +73,8 @@ type (
 		// The pod must be in the same namespace as the secondary network;
 		// its useful to have two NADs with same name and configs in different namespaces -> means same network interface
 		// so pods/ Vms can connect through this network
-		secondaryNetworks map[string]common.SecondaryNetworkData // map from network name to its data and namespaces
+		secondaryNetworks map[string]common.SecondaryNetworkData        // map from network name to its data and namespaces
+		multiNetpolsMap   map[string]map[string]*k8s.MultiNetworkPolicy // map from namespace to map from multi-netpol name to its object
 	}
 
 	// NotificationTarget defines an interface for updating the state needed for network policy
@@ -133,6 +136,7 @@ func NewPolicyEngine() *PolicyEngine {
 		ignoredObjWarnings:              make(common.Warnings),
 		primaryNetworks:                 make(map[string]common.NetworkData),
 		secondaryNetworks:               make(map[string]common.SecondaryNetworkData),
+		multiNetpolsMap:                 make(map[string]map[string]*k8s.MultiNetworkPolicy),
 	}
 }
 
@@ -210,6 +214,7 @@ func (pe *PolicyEngine) addObjectsForExposureAnalysis() error {
 	return err
 }
 
+// splitPoliciesAndOtherObjects: split k8s policies which are used in default-pod/primary networks
 func splitPoliciesAndOtherObjects(objects []parser.K8sObject) (policies, others []parser.K8sObject) {
 	for i := range objects {
 		obj := objects[i]
@@ -280,6 +285,8 @@ func (pe *PolicyEngine) addObjectsByKind(objects []parser.K8sObject) error {
 			err = pe.InsertObject(obj.ClusterUserDefinedNetwork)
 		case parser.NetworkAttachmentDefinition:
 			err = pe.InsertObject(obj.NetworkAttachmentDefinition)
+		case parser.MultiNetworkPolicy:
+			err = pe.InsertObject(obj.MultiNetworkPolicy)
 		case parser.Service, parser.Route, parser.Ingress:
 			continue
 		default: // should not get here
@@ -470,6 +477,8 @@ func (pe *PolicyEngine) InsertObject(rtObj runtime.Object) error {
 		return pe.insertClusterUserDefinedNetwork(obj)
 	case *nadv1.NetworkAttachmentDefinition:
 		return pe.insertNetworkAttachmentDefinition(obj)
+	case *mnpv1.MultiNetworkPolicy:
+		return pe.insertMultiNetworkPolicy(obj)
 	}
 	return nil
 }
@@ -487,6 +496,8 @@ func (pe *PolicyEngine) DeleteObject(rtObj runtime.Object) error {
 		return pe.deleteAdminNetworkPolicy(obj)
 	case *apisv1a.BaselineAdminNetworkPolicy:
 		return pe.deleteBaselineAdminNetworkPolicy(obj)
+	case *mnpv1.MultiNetworkPolicy:
+		return pe.deleteMultiNetworkPolicy(obj)
 	}
 	return nil
 }
@@ -507,6 +518,7 @@ func (pe *PolicyEngine) ClearResources() {
 	pe.ignoredObjWarnings = make(common.Warnings)
 	pe.primaryNetworks = make(map[string]common.NetworkData)
 	pe.secondaryNetworks = make(map[string]common.SecondaryNetworkData)
+	pe.multiNetpolsMap = make(map[string]map[string]*k8s.MultiNetworkPolicy)
 }
 
 func (pe *PolicyEngine) insertNamespace(ns *corev1.Namespace) error {
@@ -927,6 +939,28 @@ func (pe *PolicyEngine) insertNetworkAttachmentDefinition(nad *nadv1.NetworkAtta
 	return nil
 }
 
+func (pe *PolicyEngine) insertMultiNetworkPolicy(mnp *mnpv1.MultiNetworkPolicy) error {
+	mnpNs := mnp.Namespace
+	if mnpNs == "" {
+		mnpNs = metav1.NamespaceDefault
+		mnp.Namespace = mnpNs
+	}
+	if _, ok := pe.multiNetpolsMap[mnpNs]; !ok {
+		pe.multiNetpolsMap[mnpNs] = make(map[string]*k8s.MultiNetworkPolicy)
+	}
+
+	newMultiNetpol := &k8s.MultiNetworkPolicy{
+		MultiNetworkPolicy: mnp,
+		Warnings:           make(common.Warnings),
+	}
+	if _, ok := pe.multiNetpolsMap[mnpNs][mnp.Name]; ok {
+		return errors.New(alerts.MultiNpWithSameNameError(types.NamespacedName{Namespace: mnpNs, Name: mnp.Name}.String()))
+	}
+	pe.multiNetpolsMap[mnpNs][mnp.Name] = newMultiNetpol
+
+	return nil
+}
+
 func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
 	delete(pe.namespacesMap, ns.Name)
 	return nil
@@ -1002,6 +1036,16 @@ func (pe *PolicyEngine) deleteBaselineAdminNetworkPolicy(banp *apisv1a.BaselineA
 	if pe.baselineAdminNetpol.Name == banp.Name { // if this is the banp used in pe delete it
 		// @TBD : should keep this if? no other banps are in the resources (illegal)
 		pe.baselineAdminNetpol = nil
+	}
+	return nil
+}
+
+func (pe *PolicyEngine) deleteMultiNetworkPolicy(mnp *mnpv1.MultiNetworkPolicy) error {
+	if policiesMap, ok := pe.multiNetpolsMap[mnp.Namespace]; ok {
+		delete(policiesMap, mnp.Name)
+		if len(policiesMap) == 0 {
+			delete(pe.multiNetpolsMap, mnp.Namespace)
+		}
 	}
 	return nil
 }
@@ -1286,6 +1330,12 @@ func (pe *PolicyEngine) LogPolicyEngineWarnings() (warns []string) {
 	// log warnings from the BaselineAdminNetworkPolicy
 	if pe.baselineAdminNetpol != nil {
 		warns = append(warns, pe.baselineAdminNetpol.LogWarnings(pe.logger)...)
+	}
+	// log warnings from MultiNetworkPolicy objects
+	for _, nsMap := range pe.multiNetpolsMap {
+		for _, policy := range nsMap {
+			warns = append(warns, policy.LogWarnings(pe.logger)...)
+		}
 	}
 	return warns
 }
