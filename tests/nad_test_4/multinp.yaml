@@ -1,0 +1,38 @@
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for: l2-network
+  name: allow-from-vm3-to-vm2-port-80
+  namespace: ns1
+spec:
+  podSelector:
+    matchLabels:
+      app: vm2
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector:
+          matchLabels:
+            app: vm3
+      ports:
+        - port: 80
+          protocol: TCP
+  policyTypes:
+  - Ingress
+---
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for: l2-network
+  name: deny-all-to-vm3
+  namespace: ns2
+spec:
+  podSelector:
+    matchLabels:
+      app: vm3
+  ingress: []
+  policyTypes:
+  - Ingress
+---

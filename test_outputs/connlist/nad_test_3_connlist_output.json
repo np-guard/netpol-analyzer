@@ -1,0 +1,57 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "ns1/vm1[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "ns1/vm2[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "ns2/vm3[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "ns1/vm1[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "ns1/vm1[VirtualMachine]",
+    "dst": "ns1/vm2[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "ns1/vm1[VirtualMachine]",
+    "dst": "ns2/vm3[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "ns1/vm2[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "ns1/vm2[VirtualMachine]",
+    "dst": "ns1/vm1[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "ns2/vm3[VirtualMachine]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "ns2/vm3[VirtualMachine]",
+    "dst": "ns1/vm1[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "ns2/vm3[VirtualMachine]",
+    "dst": "ns1/vm2[VirtualMachine]",
+    "conn": "TCP 80"
+  }
+]

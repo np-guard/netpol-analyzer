@@ -1,0 +1,7 @@
+[
+  {
+    "src": "ns2/vm3[VirtualMachine]",
+    "dst": "ns1/vm2[VirtualMachine]",
+    "conn": "TCP 80"
+  }
+]

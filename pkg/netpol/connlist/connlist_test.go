@@ -2266,6 +2266,16 @@ var goodPathTests = []struct {
 		outputFormats: ValidFormats,
 		focusConn:     "tcp-80",
 	},
+	{
+		// 2 vm from different namespaces belong to same secondary network with 2 multi-network-policy defining how both can connect
+		testDirName:   "nad_test_3",
+		outputFormats: ValidFormats,
+	},
+	{
+		// same as nad_test_3 with networkpolicies deniying all conns in the pod-network
+		testDirName:   "nad_test_4",
+		outputFormats: ValidFormats,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {
