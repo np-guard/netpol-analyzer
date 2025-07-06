@@ -1,0 +1,33 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_ns1[namespace]" {
+		color="black"
+		fontcolor="black"
+		"ns1/vm2[VirtualMachine]" [label="vm2[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="ns1[namespace]"
+	}
+	subgraph "cluster_ns2[namespace]" {
+		color="black"
+		fontcolor="black"
+		"ns2/vm3[VirtualMachine]" [label="vm3[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="ns2[namespace]"
+	}
+	}
+	subgraph "cluster_l2-network" {
+	label="l2-network[nad]"
+	subgraph "cluster_ns1[namespace]" {
+		color="black"
+		fontcolor="black"
+		"ns1/vm2[VirtualMachine]l2-network" [label="vm2[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="ns1[namespace]"
+	}
+	subgraph "cluster_ns2[namespace]" {
+		color="black"
+		fontcolor="black"
+		"ns2/vm3[VirtualMachine]l2-network" [label="vm3[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="ns2[namespace]"
+	}
+	}
+	"ns2/vm3[VirtualMachine]l2-network" -> "ns1/vm2[VirtualMachine]l2-network" [label="TCP 80" color="gold2" fontcolor="darkgreen" weight=1]
+}

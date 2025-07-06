@@ -368,4 +368,21 @@ var explainTests = []struct {
 	{
 		testDirName: "nad_test_4",
 	},
+	{
+		testDirName:    "nad_test_4",
+		focusConn:      "tcp-80",
+		focusDirection: common.IngressFocusDirection,
+	},
+	{
+		testDirName:        "nad_test_4",
+		focusConn:          "tcp-80",
+		focusDirection:     common.IngressFocusDirection,
+		focusWorkloads:     []string{"vm2"},
+		focusWorkloadPeers: []string{"vm3"},
+	},
+	{
+		testDirName: "nad_test_4",
+		focusConn:   "tcp-80",
+		explainOnly: common.ExplainOnlyAllow,
+	},
 }

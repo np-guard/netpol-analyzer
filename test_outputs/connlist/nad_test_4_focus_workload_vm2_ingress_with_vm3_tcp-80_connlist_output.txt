@@ -1,0 +1,4 @@
+Permitted connections on TCP 80:
+
+Permitted connectivity analyzed in NAD l2-network:
+ns2/vm3[VirtualMachine] => ns1/vm2[VirtualMachine]

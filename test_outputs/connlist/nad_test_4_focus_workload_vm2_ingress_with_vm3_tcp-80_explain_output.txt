@@ -1,0 +1,12 @@
+
+############################################################
+# Specific connections and their reasons in NAD l2-network #
+############################################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between ns2/vm3[VirtualMachine] => ns1/vm2[VirtualMachine]:
+
+Allowed connections:
+	Allowed TCP:[80] due to the following policies and rules:
+		Ingress (Allowed)
+			MultiNetworkPolicy 'ns1/allow-from-vm3-to-vm2-port-80' allows connections by Ingress rule #1
+

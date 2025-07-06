@@ -2276,6 +2276,22 @@ var goodPathTests = []struct {
 		testDirName:   "nad_test_4",
 		outputFormats: ValidFormats,
 	},
+	{
+		// same as nad_test_3 with networkpolicies deniying all conns in the pod-network
+		testDirName:    "nad_test_4",
+		outputFormats:  ValidFormats,
+		focusConn:      "tcp-80",
+		focusDirection: common.IngressFocusDirection,
+	},
+	{
+		// same as nad_test_3 with networkpolicies deniying all conns in the pod-network
+		testDirName:        "nad_test_4",
+		outputFormats:      ValidFormats,
+		focusConn:          "tcp-80",
+		focusDirection:     common.IngressFocusDirection,
+		focusWorkloads:     []string{"vm2"},
+		focusWorkloadPeers: []string{"vm3"},
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {
