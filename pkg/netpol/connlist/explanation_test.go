@@ -362,4 +362,10 @@ var explainTests = []struct {
 		focusWorkloads: []string{"app-green"},
 		focusConn:      "tcp-8000",
 	},
+	{
+		testDirName: "nad_test_3",
+	},
+	{
+		testDirName: "nad_test_4",
+	},
 }

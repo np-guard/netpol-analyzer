@@ -1,0 +1,123 @@
+
+#########################################################
+# Specific connections and their reasons in pod-network #
+#########################################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255[External] => ns1/vm1[VirtualMachine]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			NetworkPolicy 'ns1/default-deny-in-namespace-ns1' selects ns1/vm1[VirtualMachine], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255[External] => ns1/vm2[VirtualMachine]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			NetworkPolicy 'ns1/default-deny-in-namespace-ns1' selects ns1/vm2[VirtualMachine], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between 0.0.0.0-255.255.255.255[External] => ns2/vm3[VirtualMachine]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Allowed) due to the system default (Allow all)
+		Ingress (Denied)
+			NetworkPolicy 'ns2/default-deny-in-namespace-ns2' selects ns2/vm3[VirtualMachine], but 0.0.0.0-255.255.255.255[External] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between ns1/vm1[VirtualMachine] => 0.0.0.0-255.255.255.255[External]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'ns1/default-deny-in-namespace-ns1' selects ns1/vm1[VirtualMachine], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between ns1/vm1[VirtualMachine] => ns1/vm2[VirtualMachine]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'ns1/default-deny-in-namespace-ns1' selects ns1/vm1[VirtualMachine], but ns1/vm2[VirtualMachine] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy 'ns1/default-deny-in-namespace-ns1' selects ns1/vm2[VirtualMachine], but ns1/vm1[VirtualMachine] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between ns1/vm1[VirtualMachine] => ns2/vm3[VirtualMachine]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'ns1/default-deny-in-namespace-ns1' selects ns1/vm1[VirtualMachine], but ns2/vm3[VirtualMachine] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy 'ns2/default-deny-in-namespace-ns2' selects ns2/vm3[VirtualMachine], but ns1/vm1[VirtualMachine] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between ns1/vm2[VirtualMachine] => 0.0.0.0-255.255.255.255[External]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'ns1/default-deny-in-namespace-ns1' selects ns1/vm2[VirtualMachine], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between ns1/vm2[VirtualMachine] => ns1/vm1[VirtualMachine]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'ns1/default-deny-in-namespace-ns1' selects ns1/vm2[VirtualMachine], but ns1/vm1[VirtualMachine] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy 'ns1/default-deny-in-namespace-ns1' selects ns1/vm1[VirtualMachine], but ns1/vm2[VirtualMachine] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between ns2/vm3[VirtualMachine] => 0.0.0.0-255.255.255.255[External]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'ns2/default-deny-in-namespace-ns2' selects ns2/vm3[VirtualMachine], but 0.0.0.0-255.255.255.255[External] is not allowed by any Egress rule (no rules defined)
+		Ingress (Allowed) due to the system default (Allow all)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between ns2/vm3[VirtualMachine] => ns1/vm1[VirtualMachine]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'ns2/default-deny-in-namespace-ns2' selects ns2/vm3[VirtualMachine], but ns1/vm1[VirtualMachine] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy 'ns1/default-deny-in-namespace-ns1' selects ns1/vm1[VirtualMachine], but ns2/vm3[VirtualMachine] is not allowed by any Ingress rule (no rules defined)
+
+
+############################################################
+# Specific connections and their reasons in NAD l2-network #
+############################################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between ns1/vm2[VirtualMachine] => ns2/vm3[VirtualMachine]:
+
+Denied connections:
+	Denied TCP, UDP, SCTP due to the following policies and rules:
+		Ingress (Denied)
+			MultiNetworkPolicy 'ns2/deny-all-to-vm3' selects ns2/vm3[VirtualMachine], but ns1/vm2[VirtualMachine] is not allowed by any Ingress rule (no rules defined)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between ns2/vm3[VirtualMachine] => ns1/vm2[VirtualMachine]:
+
+Allowed connections:
+	Allowed TCP:[80] due to the following policies and rules:
+		Ingress (Allowed)
+			MultiNetworkPolicy 'ns1/allow-from-vm3-to-vm2-port-80' allows connections by Ingress rule #1
+
+Denied connections:
+	Denied TCP:[1-79,81-65535], UDP, SCTP due to the following policies and rules:
+		Ingress (Denied)
+			MultiNetworkPolicy 'ns1/allow-from-vm3-to-vm2-port-80' selects ns1/vm2[VirtualMachine], and Ingress rule #1 selects ns2/vm3[VirtualMachine], but the protocols and ports do not match
+
