@@ -229,12 +229,11 @@ func (mnp *MultiNetworkPolicy) multiNetworkPolicyAffectsDirection(direction stri
 			}
 		}
 		return false
-	} else if direction == string(mnpv1.PolicyTypeIngress) && len(mnp.Spec.Ingress) > 0 {
+	} else if direction == string(mnpv1.PolicyTypeIngress) {
 		return true
-		// @todo : check if multi-network-policy without defined PolicyTypes is assumed to affect Ingress (as NetworkPolicy)
 	}
 	// policy without defined PolicyTypes affects Egress only if it has Egress rules
-	return direction == string(mnpv1.PolicyTypeEgress) && len(mnp.Spec.Egress) > 0
+	return len(mnp.Spec.Egress) > 0
 }
 
 func (mnp *MultiNetworkPolicy) FullName() string {

@@ -22,8 +22,6 @@ digraph {
 	}
 	}
 	"test-simple-v4-egress/pod-client-a[Pod]macvlan1-simple" -> "test-simple-v4-egress/pod-client-b[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"test-simple-v4-egress/pod-client-a[Pod]macvlan1-simple" -> "test-simple-v4-egress/pod-server[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"test-simple-v4-egress/pod-client-b[Pod]macvlan1-simple" -> "test-simple-v4-egress/pod-client-a[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"test-simple-v4-egress/pod-client-b[Pod]macvlan1-simple" -> "test-simple-v4-egress/pod-server[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"test-simple-v4-egress/pod-server[Pod]macvlan1-simple" -> "test-simple-v4-egress/pod-client-a[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 }

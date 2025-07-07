@@ -5,18 +5,8 @@
     "conn": "All Connections"
   },
   {
-    "src": "test-simple-v4-egress/pod-client-a[Pod]",
-    "dst": "test-simple-v4-egress/pod-server[Pod]",
-    "conn": "All Connections"
-  },
-  {
     "src": "test-simple-v4-egress/pod-client-b[Pod]",
     "dst": "test-simple-v4-egress/pod-client-a[Pod]",
-    "conn": "All Connections"
-  },
-  {
-    "src": "test-simple-v4-egress/pod-client-b[Pod]",
-    "dst": "test-simple-v4-egress/pod-server[Pod]",
     "conn": "All Connections"
   },
   {
