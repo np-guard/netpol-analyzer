@@ -1,0 +1,29 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_test_ingress_ns_selector_no_pods[namespace]" {
+		color="black"
+		fontcolor="black"
+		"test-ingress-ns-selector-no-pods/pod-server[Pod]" [label="pod-server[Pod]" color="blue" fontcolor="blue"]
+		label="test-ingress-ns-selector-no-pods[namespace]"
+	}
+	}
+	subgraph "cluster_macvlan1-simple" {
+	label="macvlan1-simple[nad]"
+	subgraph "cluster_test_ingress_ns_selector_no_pods_blue[namespace]" {
+		color="black"
+		fontcolor="black"
+		"test-ingress-ns-selector-no-pods-blue/pod-client-b[Pod]macvlan1-simple" [label="pod-client-b[Pod]" color="blue" fontcolor="blue"]
+		label="test-ingress-ns-selector-no-pods-blue[namespace]"
+	}
+	subgraph "cluster_test_ingress_ns_selector_no_pods[namespace]" {
+		color="black"
+		fontcolor="black"
+		"test-ingress-ns-selector-no-pods/pod-client-a[Pod]macvlan1-simple" [label="pod-client-a[Pod]" color="blue" fontcolor="blue"]
+		"test-ingress-ns-selector-no-pods/pod-server[Pod]macvlan1-simple" [label="pod-server[Pod]" color="blue" fontcolor="blue"]
+		label="test-ingress-ns-selector-no-pods[namespace]"
+	}
+	}
+	"test-ingress-ns-selector-no-pods/pod-server[Pod]macvlan1-simple" -> "test-ingress-ns-selector-no-pods-blue/pod-client-b[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"test-ingress-ns-selector-no-pods/pod-server[Pod]macvlan1-simple" -> "test-ingress-ns-selector-no-pods/pod-client-a[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}

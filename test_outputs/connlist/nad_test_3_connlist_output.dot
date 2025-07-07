@@ -4,14 +4,14 @@ digraph {
 	subgraph "cluster_ns1[namespace]" {
 		color="black"
 		fontcolor="black"
-		"ns1/vm1[VirtualMachine]" [label="vm1[VirtualMachine]" color="blue" fontcolor="blue"]
-		"ns1/vm2[VirtualMachine]" [label="vm2[VirtualMachine]" color="blue" fontcolor="blue"]
+		"ns1/pod1[Pod]" [label="pod1[Pod]" color="blue" fontcolor="blue"]
+		"ns1/pod2[Pod]" [label="pod2[Pod]" color="blue" fontcolor="blue"]
 		label="ns1[namespace]"
 	}
 	subgraph "cluster_ns2[namespace]" {
 		color="black"
 		fontcolor="black"
-		"ns2/vm3[VirtualMachine]" [label="vm3[VirtualMachine]" color="blue" fontcolor="blue"]
+		"ns2/pod3[Pod]" [label="pod3[Pod]" color="blue" fontcolor="blue"]
 		label="ns2[namespace]"
 	}
 	}
@@ -20,26 +20,26 @@ digraph {
 	subgraph "cluster_ns1[namespace]" {
 		color="black"
 		fontcolor="black"
-		"ns1/vm2[VirtualMachine]l2-network" [label="vm2[VirtualMachine]" color="blue" fontcolor="blue"]
+		"ns1/pod2[Pod]l2-network" [label="pod2[Pod]" color="blue" fontcolor="blue"]
 		label="ns1[namespace]"
 	}
 	subgraph "cluster_ns2[namespace]" {
 		color="black"
 		fontcolor="black"
-		"ns2/vm3[VirtualMachine]l2-network" [label="vm3[VirtualMachine]" color="blue" fontcolor="blue"]
+		"ns2/pod3[Pod]l2-network" [label="pod3[Pod]" color="blue" fontcolor="blue"]
 		label="ns2[namespace]"
 	}
 	}
 	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
-	"0.0.0.0-255.255.255.255[External]" -> "ns1/vm1[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"0.0.0.0-255.255.255.255[External]" -> "ns1/vm2[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"0.0.0.0-255.255.255.255[External]" -> "ns2/vm3[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"ns1/vm1[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"ns1/vm1[VirtualMachine]" -> "ns1/vm2[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"ns1/vm1[VirtualMachine]" -> "ns2/vm3[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
-	"ns1/vm2[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"ns1/vm2[VirtualMachine]" -> "ns1/vm1[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"ns2/vm3[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"ns2/vm3[VirtualMachine]" -> "ns1/vm1[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
-	"ns2/vm3[VirtualMachine]l2-network" -> "ns1/vm2[VirtualMachine]l2-network" [label="TCP 80" color="gold2" fontcolor="darkgreen" weight=1]
+	"0.0.0.0-255.255.255.255[External]" -> "ns1/pod1[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ns1/pod2[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ns2/pod3[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns1/pod1[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns1/pod1[Pod]" -> "ns1/pod2[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns1/pod1[Pod]" -> "ns2/pod3[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns1/pod2[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns1/pod2[Pod]" -> "ns1/pod1[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns2/pod3[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns2/pod3[Pod]" -> "ns1/pod1[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns2/pod3[Pod]l2-network" -> "ns1/pod2[Pod]l2-network" [label="TCP 80" color="gold2" fontcolor="darkgreen" weight=1]
 }

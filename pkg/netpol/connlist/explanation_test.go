@@ -377,8 +377,8 @@ var explainTests = []struct {
 		testDirName:        "nad_test_4",
 		focusConn:          "tcp-80",
 		focusDirection:     common.IngressFocusDirection,
-		focusWorkloads:     []string{"vm2"},
-		focusWorkloadPeers: []string{"vm3"},
+		focusWorkloads:     []string{"pod2"},
+		focusWorkloadPeers: []string{"pod3"},
 	},
 	{
 		testDirName: "nad_test_4",

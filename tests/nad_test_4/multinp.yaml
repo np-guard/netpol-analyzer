@@ -3,18 +3,18 @@ kind: MultiNetworkPolicy
 metadata:
   annotations:
     k8s.v1.cni.cncf.io/policy-for: l2-network
-  name: allow-from-vm3-to-vm2-port-80
+  name: allow-from-pod3-to-pod2-port-80
   namespace: ns1
 spec:
   podSelector:
     matchLabels:
-      app: vm2
+      app: pod2
   ingress:
     - from:
       - namespaceSelector: {}
         podSelector:
           matchLabels:
-            app: vm3
+            app: pod3
       ports:
         - port: 80
           protocol: TCP
@@ -26,12 +26,12 @@ kind: MultiNetworkPolicy
 metadata:
   annotations:
     k8s.v1.cni.cncf.io/policy-for: l2-network
-  name: deny-all-to-vm3
+  name: deny-all-to-pod3
   namespace: ns2
 spec:
   podSelector:
     matchLabels:
-      app: vm3
+      app: pod3
   ingress: []
   policyTypes:
   - Ingress

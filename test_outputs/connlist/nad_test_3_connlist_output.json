@@ -1,57 +1,57 @@
 [
   {
     "src": "0.0.0.0-255.255.255.255[External]",
-    "dst": "ns1/vm1[VirtualMachine]",
+    "dst": "ns1/pod1[Pod]",
     "conn": "All Connections"
   },
   {
     "src": "0.0.0.0-255.255.255.255[External]",
-    "dst": "ns1/vm2[VirtualMachine]",
+    "dst": "ns1/pod2[Pod]",
     "conn": "All Connections"
   },
   {
     "src": "0.0.0.0-255.255.255.255[External]",
-    "dst": "ns2/vm3[VirtualMachine]",
+    "dst": "ns2/pod3[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "ns1/vm1[VirtualMachine]",
+    "src": "ns1/pod1[Pod]",
     "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   },
   {
-    "src": "ns1/vm1[VirtualMachine]",
-    "dst": "ns1/vm2[VirtualMachine]",
+    "src": "ns1/pod1[Pod]",
+    "dst": "ns1/pod2[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "ns1/vm1[VirtualMachine]",
-    "dst": "ns2/vm3[VirtualMachine]",
+    "src": "ns1/pod1[Pod]",
+    "dst": "ns2/pod3[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "ns1/vm2[VirtualMachine]",
+    "src": "ns1/pod2[Pod]",
     "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   },
   {
-    "src": "ns1/vm2[VirtualMachine]",
-    "dst": "ns1/vm1[VirtualMachine]",
+    "src": "ns1/pod2[Pod]",
+    "dst": "ns1/pod1[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "ns2/vm3[VirtualMachine]",
+    "src": "ns2/pod3[Pod]",
     "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
   },
   {
-    "src": "ns2/vm3[VirtualMachine]",
-    "dst": "ns1/vm1[VirtualMachine]",
+    "src": "ns2/pod3[Pod]",
+    "dst": "ns1/pod1[Pod]",
     "conn": "All Connections"
   },
   {
-    "src": "ns2/vm3[VirtualMachine]",
-    "dst": "ns1/vm2[VirtualMachine]",
+    "src": "ns2/pod3[Pod]",
+    "dst": "ns1/pod2[Pod]",
     "conn": "TCP 80"
   }
 ]

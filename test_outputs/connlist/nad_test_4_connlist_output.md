@@ -1,3 +1,3 @@
 | src | dst | conn |
 |-----|-----|------|
-| ns2/vm3[VirtualMachine] | ns1/vm2[VirtualMachine] | TCP 80 |
+| ns2/pod3[Pod] | ns1/pod2[Pod] | TCP 80 |

@@ -2289,8 +2289,31 @@ var goodPathTests = []struct {
 		outputFormats:      ValidFormats,
 		focusConn:          "tcp-80",
 		focusDirection:     common.IngressFocusDirection,
-		focusWorkloads:     []string{"vm2"},
-		focusWorkloadPeers: []string{"vm3"},
+		focusWorkloads:     []string{"pod2"},
+		focusWorkloadPeers: []string{"pod3"},
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/simple-v4-egress.yml#L28
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:   "nad_test_5",
+		outputFormats: ValidFormats,
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/simple-v4-ingress.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:   "nad_test_6",
+		outputFormats: ValidFormats,
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/ingress-ns-selector-
+		// no-pods.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:    "nad_test_7",
+		outputFormats:  ValidFormats,
+		focusWorkloads: []string{"pod-server"},
 	},
 }
 
