@@ -237,6 +237,7 @@ func (pe *PolicyEngine) getPeerSecondaryNetworks(peer k8s.Peer) map[string]commo
 	return res
 }
 
+// @todo return value should be []common.NetworkData as src and dst may have multiple common secondary interfaces and connect on each
 func (pe *PolicyEngine) findCommonSecondaryNetworkForPeersPair(src, dst k8s.Peer) common.NetworkData {
 	srcSecondaryNets := pe.getPeerSecondaryNetworks(src)
 	dstSecondaryNets := pe.getPeerSecondaryNetworks(dst)

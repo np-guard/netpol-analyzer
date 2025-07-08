@@ -114,6 +114,7 @@ func (mnp *MultiNetworkPolicy) ruleSelectsPeer(rulePeers []mnpv1.MultiNetworkPol
 			}
 			return true, nil
 		} // else  // ipblock - still not supported, it should check match with the peer's pod IP
+		// @todo :  support selecting internal peers by IPBlock
 		mnp.Warnings.AddWarning(mnp.FullName() + " " + alerts.MNPUnsupportedRuleField)
 		return false, nil
 	}
