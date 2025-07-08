@@ -1,0 +1,12 @@
+[
+  {
+    "src": "test-protocol-only-ports/pod-a[Pod]",
+    "dst": "test-protocol-only-ports/pod-b[Pod]",
+    "conn": "TCP 1-65535"
+  },
+  {
+    "src": "test-protocol-only-ports/pod-b[Pod]",
+    "dst": "test-protocol-only-ports/pod-a[Pod]",
+    "conn": "UDP 1-65535"
+  }
+]

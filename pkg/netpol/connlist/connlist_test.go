@@ -2315,6 +2315,36 @@ var goodPathTests = []struct {
 		outputFormats:  ValidFormats,
 		focusWorkloads: []string{"pod-server"},
 	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/protocol-only-ports.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:   "nad_test_8",
+		outputFormats: ValidFormats,
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/simple-v4-egress-list.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:    "nad_test_9",
+		outputFormats:  []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+		focusWorkloads: []string{"pod-server"},
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/simple-v4-ingress-list.yml
+		testDirName:    "nad_test_10",
+		outputFormats:  []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+		focusWorkloads: []string{"pod-server"}, // connects with external ips by pod-network, no restriction
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/stacked.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:    "nad_test_11",
+		outputFormats:  []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+		focusWorkloads: []string{"pod-server"},
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

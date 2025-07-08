@@ -1,0 +1,28 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_test_stacked[namespace]" {
+		color="black"
+		fontcolor="black"
+		"test-stacked/pod-server[Pod]" [label="pod-server[Pod]" color="blue" fontcolor="blue"]
+		label="test-stacked[namespace]"
+	}
+	}
+	subgraph "cluster_macvlan1-stacked" {
+	label="macvlan1-stacked[nad]"
+	subgraph "cluster_test_stacked[namespace]" {
+		color="black"
+		fontcolor="black"
+		"test-stacked/pod-client-a[Pod]macvlan1-stacked" [label="pod-client-a[Pod]" color="blue" fontcolor="blue"]
+		"test-stacked/pod-client-b[Pod]macvlan1-stacked" [label="pod-client-b[Pod]" color="blue" fontcolor="blue"]
+		"test-stacked/pod-client-c[Pod]macvlan1-stacked" [label="pod-client-c[Pod]" color="blue" fontcolor="blue"]
+		"test-stacked/pod-server[Pod]macvlan1-stacked" [label="pod-server[Pod]" color="blue" fontcolor="blue"]
+		label="test-stacked[namespace]"
+	}
+	}
+	"test-stacked/pod-client-a[Pod]macvlan1-stacked" -> "test-stacked/pod-server[Pod]macvlan1-stacked" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"test-stacked/pod-client-b[Pod]macvlan1-stacked" -> "test-stacked/pod-server[Pod]macvlan1-stacked" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"test-stacked/pod-server[Pod]macvlan1-stacked" -> "test-stacked/pod-client-a[Pod]macvlan1-stacked" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"test-stacked/pod-server[Pod]macvlan1-stacked" -> "test-stacked/pod-client-b[Pod]macvlan1-stacked" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"test-stacked/pod-server[Pod]macvlan1-stacked" -> "test-stacked/pod-client-c[Pod]macvlan1-stacked" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}
