@@ -1,5 +1,5 @@
 
-Permitted connectivity analyzed in NAD macvlan1-stacked:
+Permitted connectivity analyzed in secondary NAD macvlan1-stacked:
 test-stacked/pod-client-a[Pod] => test-stacked/pod-server[Pod] : All Connections
 test-stacked/pod-client-b[Pod] => test-stacked/pod-server[Pod] : All Connections
 test-stacked/pod-server[Pod] => test-stacked/pod-client-a[Pod] : All Connections

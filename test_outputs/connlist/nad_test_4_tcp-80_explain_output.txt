@@ -97,9 +97,9 @@ Denied connections:
 			NetworkPolicy 'ns1/default-deny-in-namespace-ns1' selects ns1/pod1[Pod], but ns2/pod3[Pod] is not allowed by any Ingress rule (no rules defined)
 
 
-############################################################
-# Specific connections and their reasons in NAD l2-network #
-############################################################
+######################################################################
+# Specific connections and their reasons in secondary NAD l2-network #
+######################################################################
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Connections between ns1/pod2[Pod] => ns2/pod3[Pod]:
 

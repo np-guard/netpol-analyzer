@@ -1,3 +1,3 @@
 
-Permitted connectivity analyzed in NAD l2-network:
+Permitted connectivity analyzed in secondary NAD l2-network:
 ns2/pod3[Pod] => ns1/pod2[Pod] : TCP 80

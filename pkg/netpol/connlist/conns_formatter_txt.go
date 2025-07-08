@@ -79,8 +79,9 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 			podNetworkHeader += " in pod-network" // add this header if there are also other networks in the cluster
 		}
 		result = writeSingleTypeLinesExplanationOutput(sortedConnLines, podNetworkHeader, false) +
-			writeNetworksSection(connsByUDN, false, true, common.UDNStr) + writeNetworksSection(connsByCUDN, false, true, common.CUDNStr) +
-			writeNetworksSection(connsByNAD, false, true, common.NADStr) +
+			writeNetworksSection(connsByUDN, false, true, primaryUDN) +
+			writeNetworksSection(connsByCUDN, false, true, primaryCUDN) +
+			writeNetworksSection(connsByNAD, false, true, secondaryNAD) +
 			writeSingleTypeLinesExplanationOutput(sortedDefaultConnLines, systemDefaultPairsHeader, true) +
 			writeSingleLineExplanationNote(crossNetworksLinesFlag)
 	} else { // not explain (regular connlist)
@@ -239,6 +240,14 @@ const (
 	sectionHeaderPrefix = "Permitted connectivity analyzed in "
 	podNetworkStr       = "Pod network"
 	spaceSeparator      = " "
+	secondary           = "secondary"
+	primary             = "primary"
+	udnStr              = "UDN"
+	cudnStr             = "CUDN"
+	nadStr              = "NAD"
+	secondaryNAD        = secondary + spaceSeparator + nadStr
+	primaryCUDN         = primary + spaceSeparator + cudnStr
+	primaryUDN          = primary + spaceSeparator + udnStr
 )
 
 func writeFocusConnTxtOutput(sortedConnLines []singleConnFields, udnConns, cudnConns, nadConns map[string][]singleConnFields,
@@ -250,8 +259,9 @@ func writeFocusConnTxtOutput(sortedConnLines []singleConnFields, udnConns, cudnC
 	for _, conn := range sortedConnLines {
 		result += conn.nodePairString() + newLineChar
 	}
-	result += writeNetworksSection(udnConns, true, false, common.UDNStr) + writeNetworksSection(cudnConns, true, false, common.CUDNStr) +
-		writeNetworksSection(nadConns, true, false, common.NADStr)
+	result += writeNetworksSection(udnConns, true, false, primaryUDN) +
+		writeNetworksSection(cudnConns, true, false, primaryCUDN) +
+		writeNetworksSection(nadConns, true, false, secondaryNAD)
 	return result
 }
 
@@ -263,8 +273,9 @@ func writeFullConnlistTxtOutput(sortedConnLines []singleConnFields, udnConns, cu
 	for _, p2pConn := range sortedConnLines {
 		result += p2pConn.string() + newLineChar
 	}
-	result += writeNetworksSection(udnConns, false, false, common.UDNStr) + writeNetworksSection(cudnConns, false, false, common.CUDNStr) +
-		writeNetworksSection(nadConns, false, false, common.NADStr)
+	result += writeNetworksSection(udnConns, false, false, primaryUDN) +
+		writeNetworksSection(cudnConns, false, false, primaryCUDN) +
+		writeNetworksSection(nadConns, false, false, secondaryNAD)
 	return result
 }
 

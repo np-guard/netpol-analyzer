@@ -5,6 +5,6 @@ Permitted connectivity analyzed in Pod network:
 default/vm-client[VirtualMachine] => 0.0.0.0-255.255.255.255[External]
 default/vm-server[VirtualMachine] => 0.0.0.0-255.255.255.255[External]
 
-Permitted connectivity analyzed in NAD flat12:
+Permitted connectivity analyzed in secondary NAD flat12:
 default/vm-client[VirtualMachine] => default/vm-server[VirtualMachine]
 default/vm-server[VirtualMachine] => default/vm-client[VirtualMachine]
