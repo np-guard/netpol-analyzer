@@ -1,0 +1,29 @@
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: l2-network
+  namespace: ns1
+spec:
+  config: |2
+    {
+            "cniVersion": "0.3.1", 
+            "name": "l2-network", 
+            "type": "ovn-k8s-cni-overlay", 
+            "topology":"layer2", 
+            "mtu": 1300, 
+    }
+---
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: l2-network
+  namespace: ns2
+spec:
+  config: |2
+    {
+            "cniVersion": "0.3.1", 
+            "name": "l2-network", 
+            "type": "ovn-k8s-cni-overlay", 
+            "topology":"layer2", 
+            "mtu": 1300, 
+    }

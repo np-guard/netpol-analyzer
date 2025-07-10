@@ -1,0 +1,3 @@
+src,dst,conn
+test-protocol-only-ports/pod-a[Pod],test-protocol-only-ports/pod-b[Pod],TCP 1-65535
+test-protocol-only-ports/pod-b[Pod],test-protocol-only-ports/pod-a[Pod],UDP 1-65535

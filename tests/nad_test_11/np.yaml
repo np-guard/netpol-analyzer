@@ -1,0 +1,11 @@
+# np default deny to restrict external conns
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-in-namespace
+  namespace: test-stacked
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress

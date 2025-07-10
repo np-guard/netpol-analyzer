@@ -1,0 +1,16 @@
+
+Permitted connectivity analyzed in primary UDN ns-udn-a:
+0.0.0.0-255.255.255.255[External] => ns-udn-a[udn]/pod-a[Pod] : All Connections
+0.0.0.0-255.255.255.255[External] => ns-udn-a[udn]/vm-a[VirtualMachine] : All Connections
+ns-udn-a[udn]/pod-a[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-udn-a[udn]/pod-a[Pod] => ns-udn-a[udn]/vm-a[VirtualMachine] : All Connections
+ns-udn-a[udn]/vm-a[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-udn-a[udn]/vm-a[VirtualMachine] => ns-udn-a[udn]/pod-a[Pod] : All Connections
+
+Permitted connectivity analyzed in primary UDN ns-udn-b:
+0.0.0.0-255.255.255.255[External] => ns-udn-b[udn]/pod-b[Pod] : All Connections
+0.0.0.0-255.255.255.255[External] => ns-udn-b[udn]/vm-b[VirtualMachine] : All Connections
+ns-udn-b[udn]/pod-b[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-udn-b[udn]/pod-b[Pod] => ns-udn-b[udn]/vm-b[VirtualMachine] : All Connections
+ns-udn-b[udn]/vm-b[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-udn-b[udn]/vm-b[VirtualMachine] => ns-udn-b[udn]/pod-b[Pod] : All Connections

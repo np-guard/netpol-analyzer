@@ -1,0 +1,13 @@
+| src | dst | conn |
+|-----|-----|------|
+| 0.0.0.0-255.255.255.255[External] | ns1/pod1[Pod] | All Connections |
+| 0.0.0.0-255.255.255.255[External] | ns1/pod2[Pod] | All Connections |
+| 0.0.0.0-255.255.255.255[External] | ns2/pod3[Pod] | All Connections |
+| ns1/pod1[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections |
+| ns1/pod1[Pod] | ns1/pod2[Pod] | All Connections |
+| ns1/pod1[Pod] | ns2/pod3[Pod] | All Connections |
+| ns1/pod2[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections |
+| ns1/pod2[Pod] | ns1/pod1[Pod] | All Connections |
+| ns2/pod3[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections |
+| ns2/pod3[Pod] | ns1/pod1[Pod] | All Connections |
+| ns2/pod3[Pod] | ns1/pod2[Pod] | TCP 80 |

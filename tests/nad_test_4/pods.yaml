@@ -1,0 +1,49 @@
+apiVersion: v1 # pod1 in ns1, the pod networks: pod-network
+kind: Pod
+metadata:
+  name: pod1
+  namespace: ns1
+  labels:
+    app: pod1
+spec:
+  containers:
+  - name: l2-worker1
+    image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy1
+    command: ["nc", "-klp", "5555"]
+    securityContext:
+      privileged: true
+---
+apiVersion: v1 # pod2 in ns1, the pod networks: pod-network and l2-network
+kind: Pod
+metadata:
+  name: pod2
+  namespace: ns1
+  labels:
+    app: pod2
+  annotations:
+    k8s.v1.cni.cncf.io/networks: l2-network
+spec:
+  containers:
+  - name: l2-worker1
+    image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy1
+    command: ["nc", "-klp", "5555"]
+    securityContext:
+      privileged: true
+---
+apiVersion: v1 # pod3 in ns2, the pod networks: pod-network and l2-network
+kind: Pod
+metadata:
+  name: pod3
+  namespace: ns2
+  labels:
+    app: pod3
+  annotations:
+    k8s.v1.cni.cncf.io/networks: l2-network
+spec:
+  containers:
+  - name: l2-worker1
+    image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy1
+    command: ["nc", "-klp", "5555"]
+    securityContext:
+      privileged: true
+---

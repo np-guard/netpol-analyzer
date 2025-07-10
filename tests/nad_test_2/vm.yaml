@@ -1,0 +1,93 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+ name: vm-server
+spec:
+ running: true
+ template:
+   spec:
+     domain:
+       devices:
+         disks:
+           - name: containerdisk
+             disk:
+               bus: virtio
+           - name: cloudinitdisk
+             disk:
+               bus: virtio
+         interfaces:
+         - name: default
+           masquerade: {}
+         - name: flatl2-overlay
+           bridge: {}
+       machine:
+         type: ""
+       resources:
+         requests:
+           memory: 1024M
+     networks:
+     - name: default
+       pod: {}
+     - name: flatl2-overlay
+       multus:
+         networkName: flat12
+     terminationGracePeriodSeconds: 0
+     volumes:
+       - name: containerdisk
+         containerDisk:
+           image: quay.io/containerdisks/fedora:38
+       - name: cloudinitdisk
+         cloudInitNoCloud:
+           userData: |-
+             #cloud-config
+             password: fedora
+             chpasswd: { expire: False }
+             packages:
+             - nginx
+             runcmd:
+             - [ "systemctl", "enable", "--now", "nginx" ]
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+ name: vm-client
+spec:
+ running: true
+ template:
+   spec:
+     domain:
+       devices:
+         disks:
+           - name: containerdisk
+             disk:
+               bus: virtio
+           - name: cloudinitdisk
+             disk:
+               bus: virtio
+         interfaces:
+         - name: default
+           masquerade: {}
+         - name: flat12-overlay
+           bridge: {}
+       machine:
+         type: ""
+       resources:
+         requests:
+           memory: 1024M
+     networks:
+     - name: default
+       pod: {}
+     - name: flat12-overlay
+       multus:
+         networkName: flat12
+     terminationGracePeriodSeconds: 0
+     volumes:
+       - name: containerdisk
+         containerDisk:
+           image: quay.io/containerdisks/fedora:38
+       - name: cloudinitdisk
+         cloudInitNoCloud:
+           userData: |-
+             #cloud-config
+             password: fedora
+             chpasswd: { expire: False }

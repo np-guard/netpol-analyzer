@@ -1,0 +1,12 @@
+[
+  {
+    "src": "test-ingress-ns-selector-no-pods/pod-server[Pod]",
+    "dst": "test-ingress-ns-selector-no-pods-blue/pod-client-b[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "test-ingress-ns-selector-no-pods/pod-server[Pod]",
+    "dst": "test-ingress-ns-selector-no-pods/pod-client-a[Pod]",
+    "conn": "All Connections"
+  }
+]

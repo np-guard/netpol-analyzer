@@ -362,4 +362,27 @@ var explainTests = []struct {
 		focusWorkloads: []string{"app-green"},
 		focusConn:      "tcp-8000",
 	},
+	{
+		testDirName: "nad_test_3",
+	},
+	{
+		testDirName: "nad_test_4",
+	},
+	{
+		testDirName:    "nad_test_4",
+		focusConn:      "tcp-80",
+		focusDirection: common.IngressFocusDirection,
+	},
+	{
+		testDirName:        "nad_test_4",
+		focusConn:          "tcp-80",
+		focusDirection:     common.IngressFocusDirection,
+		focusWorkloads:     []string{"pod2"},
+		focusWorkloadPeers: []string{"pod3"},
+	},
+	{
+		testDirName: "nad_test_4",
+		focusConn:   "tcp-80",
+		explainOnly: common.ExplainOnlyAllow,
+	},
 }

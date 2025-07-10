@@ -1,0 +1,28 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_test_simple_v4_egress_list[namespace]" {
+		color="black"
+		fontcolor="black"
+		"test-simple-v4-egress-list/pod-server[Pod]" [label="pod-server[Pod]" color="blue" fontcolor="blue"]
+		label="test-simple-v4-egress-list[namespace]"
+	}
+	}
+	subgraph "cluster_macvlan1-simple" {
+	label="macvlan1-simple[nad]"
+	subgraph "cluster_test_simple_v4_egress_list[namespace]" {
+		color="black"
+		fontcolor="black"
+		"test-simple-v4-egress-list/pod-client-a[Pod]macvlan1-simple" [label="pod-client-a[Pod]" color="blue" fontcolor="blue"]
+		"test-simple-v4-egress-list/pod-client-b[Pod]macvlan1-simple" [label="pod-client-b[Pod]" color="blue" fontcolor="blue"]
+		"test-simple-v4-egress-list/pod-client-c[Pod]macvlan1-simple" [label="pod-client-c[Pod]" color="blue" fontcolor="blue"]
+		"test-simple-v4-egress-list/pod-server[Pod]macvlan1-simple" [label="pod-server[Pod]" color="blue" fontcolor="blue"]
+		label="test-simple-v4-egress-list[namespace]"
+	}
+	}
+	"test-simple-v4-egress-list/pod-client-a[Pod]macvlan1-simple" -> "test-simple-v4-egress-list/pod-server[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"test-simple-v4-egress-list/pod-client-b[Pod]macvlan1-simple" -> "test-simple-v4-egress-list/pod-server[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"test-simple-v4-egress-list/pod-client-c[Pod]macvlan1-simple" -> "test-simple-v4-egress-list/pod-server[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"test-simple-v4-egress-list/pod-server[Pod]macvlan1-simple" -> "test-simple-v4-egress-list/pod-client-a[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"test-simple-v4-egress-list/pod-server[Pod]macvlan1-simple" -> "test-simple-v4-egress-list/pod-client-c[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}

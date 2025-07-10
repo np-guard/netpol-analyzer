@@ -1,5 +1,5 @@
 
-Permitted connectivity analyzed in UDN green:
+Permitted connectivity analyzed in primary UDN green:
 0.0.0.0-255.255.255.255[External] => green[udn]/app[Pod] : All Connections
 0.0.0.0-255.255.255.255[External] => green[udn]/db[Pod] : All Connections
 green[udn]/app[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections

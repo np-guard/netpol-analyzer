@@ -2248,6 +2248,126 @@ var goodPathTests = []struct {
 		testDirName:   "cudn_test_6",
 		outputFormats: ValidFormats,
 	},
+	{
+		//  this example is taken from :
+		//  https://www.redhat.com/en/blog/secondary-network-overlays-virtualization-workloads
+		//  quote from the link above that demonstrates connectivity:
+		//  In it, the pod network is used to access the outside world (e.g., the Internet) and Kubernetes services,
+		//  while the secondary network is used for communication between the VMs
+		testDirName:   "nad_test_2",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "nad_test_1",
+		outputFormats: ValidFormats,
+	},
+	{
+		testDirName:   "nad_test_2",
+		outputFormats: ValidFormats,
+		focusConn:     "tcp-80",
+	},
+	{
+		// 2 vm from different namespaces belong to same secondary network with 2 multi-network-policy defining how both can connect
+		testDirName:   "nad_test_3",
+		outputFormats: ValidFormats,
+	},
+	{
+		// same as nad_test_3 with networkpolicies deniying all conns in the pod-network
+		testDirName:   "nad_test_4",
+		outputFormats: ValidFormats,
+	},
+	{
+		// same as nad_test_3 with networkpolicies deniying all conns in the pod-network
+		testDirName:    "nad_test_4",
+		outputFormats:  ValidFormats,
+		focusConn:      "tcp-80",
+		focusDirection: common.IngressFocusDirection,
+	},
+	{
+		// same as nad_test_3 with networkpolicies deniying all conns in the pod-network
+		testDirName:        "nad_test_4",
+		outputFormats:      ValidFormats,
+		focusConn:          "tcp-80",
+		focusDirection:     common.IngressFocusDirection,
+		focusWorkloads:     []string{"pod2"},
+		focusWorkloadPeers: []string{"pod3"},
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/simple-v4-egress.yml#L28
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:   "nad_test_5",
+		outputFormats: ValidFormats,
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/simple-v4-ingress.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:   "nad_test_6",
+		outputFormats: ValidFormats,
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/ingress-ns-selector-
+		// no-pods.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:    "nad_test_7",
+		outputFormats:  ValidFormats,
+		focusWorkloads: []string{"pod-server"},
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/protocol-only-ports.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:   "nad_test_8",
+		outputFormats: ValidFormats,
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/simple-v4-egress-list.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:    "nad_test_9",
+		outputFormats:  []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+		focusWorkloads: []string{"pod-server"},
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/simple-v4-ingress-list.yml
+		testDirName:    "nad_test_10",
+		outputFormats:  []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+		focusWorkloads: []string{"pod-server"}, // connects with external ips by pod-network, no restriction
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/stacked.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:    "nad_test_11",
+		outputFormats:  []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+		focusWorkloads: []string{"pod-server"},
+	},
+	{
+		// two namespaces , each is a primary udn assigned;
+		// pods and vms in each udn are isolated from the other pods/vms in the other udn
+		// even though all pods and vm-s share same secondary network;
+		// since allowed-conns between two peers is returned in one-network only (one *connectionSet for each pair)
+		// and the primary interface of each peer takes precedence on all other networks.
+		testDirName:   "nad_test_12",
+		outputFormats: []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+	},
+	{
+		// same udn networks from nad_test_12 with new added two regular namespaces (with no udn): ns-c, ns-d
+		// all pods in ns-c and ns-d are sharing same secondary network interface;
+		// then we will see connections between peers from those namespaces in the shared network
+		testDirName:   "nad_test_13",
+		outputFormats: []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+	},
+	{
+		// same objects from nad_test_13, with network-policy and multi-network-policy objects;
+		// to see that network-policy objects affect connectivity in pod-network and UDN networks only
+		// while multi-netpol objects affects connectivity in secondary networks only
+		testDirName:   "nad_test_14",
+		outputFormats: []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

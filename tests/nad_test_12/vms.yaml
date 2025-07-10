@@ -1,0 +1,67 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: vm-a
+  namespace: ns-udn-a
+spec:
+  running: true
+  template:
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              bridge: {}
+            - name: macvlan-shared-net
+              bridge: {}
+        resources:
+          requests:
+            memory: 512Mi
+      networks:
+        - name: default
+          pod: {}
+        - name: macvlan-shared-net
+          multus:
+            networkName: macvlan-shared-net
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: kubevirt/cirros-container-disk-demo
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: vm-b
+  namespace: ns-udn-b
+spec:
+  running: true
+  template:
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              bridge: {}
+            - name: macvlan-shared-net
+              bridge: {}
+        resources:
+          requests:
+            memory: 512Mi
+      networks:
+        - name: default
+          pod: {}
+        - name: macvlan-shared-net
+          multus:
+            networkName: macvlan-shared-net
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: kubevirt/cirros-container-disk-demo

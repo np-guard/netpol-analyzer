@@ -1,0 +1,7 @@
+
+Permitted connectivity analyzed in secondary NAD macvlan1-simple:
+test-simple-v4-egress-list/pod-client-a[Pod] => test-simple-v4-egress-list/pod-server[Pod] : All Connections
+test-simple-v4-egress-list/pod-client-b[Pod] => test-simple-v4-egress-list/pod-server[Pod] : All Connections
+test-simple-v4-egress-list/pod-client-c[Pod] => test-simple-v4-egress-list/pod-server[Pod] : All Connections
+test-simple-v4-egress-list/pod-server[Pod] => test-simple-v4-egress-list/pod-client-a[Pod] : All Connections
+test-simple-v4-egress-list/pod-server[Pod] => test-simple-v4-egress-list/pod-client-c[Pod] : All Connections

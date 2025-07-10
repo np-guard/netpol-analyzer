@@ -9,8 +9,6 @@ package connlist
 import (
 	"fmt"
 	"strings"
-
-	"github.com/np-guard/netpol-analyzer/pkg/netpol/eval"
 )
 
 // formatMD: implements the connsFormatter interface for md output format
@@ -64,9 +62,9 @@ func getMDLine(c singleConnFields, srcFirst bool, focusConnStr string) string {
 // and exposure analysis results from list ExposedPeer if exists
 // explain input is ignored since not supported with this format
 func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []ExposedPeer, exposureFlag, explain bool,
-	focusConnStr string, primaryUdnNamespaces map[string]eval.UDNData) (string, error) {
+	focusConnStr string) (string, error) {
 	// first write connlist lines
-	allLines := md.writeMdConnlistLines(conns, exposureFlag, false, focusConnStr, primaryUdnNamespaces)
+	allLines := md.writeMdConnlistLines(conns, exposureFlag, false, focusConnStr)
 	if !exposureFlag {
 		return strings.Join(allLines, newLineChar) + newLineChar, nil
 	}
@@ -85,10 +83,9 @@ func writeMdLines(conns []singleConnFields, srcFirst bool, focusConnStr string) 
 }
 
 // writeMdConnlistLines returns md lines from the list of Peer2PeerConnection
-func (md *formatMD) writeMdConnlistLines(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string,
-	primaryUdnNamespaces map[string]eval.UDNData) []string {
+func (md *formatMD) writeMdConnlistLines(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string) []string {
 	md.ipMaps = createIPMaps(saveIPConns)
-	sortedConns := getConnlistAsSortedSingleConnFieldsArray(conns, md.ipMaps, saveIPConns, explain, primaryUdnNamespaces)
+	sortedConns := getConnlistAsSortedSingleConnFieldsArray(conns, md.ipMaps, saveIPConns, explain)
 	connlistLines := []string{getMDHeader(true, focusConnStr)} // connlist results are formatted: src | dst | conn
 	connlistLines = append(connlistLines, writeMdLines(sortedConns, true, focusConnStr)...)
 	return connlistLines

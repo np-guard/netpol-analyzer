@@ -1,0 +1,46 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_default[namespace]" {
+		color="black"
+		fontcolor="black"
+		"default/dns-app[Deployment]" [label="dns-app[Deployment]" color="blue" fontcolor="blue"]
+		"default/nginx-app[Deployment]" [label="nginx-app[Deployment]" color="blue" fontcolor="blue"]
+		"default/router-app[Deployment]" [label="router-app[Deployment]" color="blue" fontcolor="blue"]
+		label="default[namespace]"
+	}
+	}
+	subgraph "cluster_first-network" {
+	label="first-network[nad]"
+	subgraph "cluster_default[namespace]" {
+		color="black"
+		fontcolor="black"
+		"default/dns-app[Deployment]first-network" [label="dns-app[Deployment]" color="blue" fontcolor="blue"]
+		"default/router-app[Deployment]first-network" [label="router-app[Deployment]" color="blue" fontcolor="blue"]
+		label="default[namespace]"
+	}
+	}
+	subgraph "cluster_nginx-network" {
+	label="nginx-network[nad]"
+	subgraph "cluster_default[namespace]" {
+		color="black"
+		fontcolor="black"
+		"default/nginx-app[Deployment]nginx-network" [label="nginx-app[Deployment]" color="blue" fontcolor="blue"]
+		"default/router-app[Deployment]nginx-network" [label="router-app[Deployment]" color="blue" fontcolor="blue"]
+		label="default[namespace]"
+	}
+	}
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "default/dns-app[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "default/nginx-app[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "default/router-app[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/dns-app[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/dns-app[Deployment]" -> "default/nginx-app[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/dns-app[Deployment]first-network" -> "default/router-app[Deployment]first-network" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/nginx-app[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/nginx-app[Deployment]" -> "default/dns-app[Deployment]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/nginx-app[Deployment]nginx-network" -> "default/router-app[Deployment]nginx-network" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/router-app[Deployment]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/router-app[Deployment]first-network" -> "default/dns-app[Deployment]first-network" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/router-app[Deployment]nginx-network" -> "default/nginx-app[Deployment]nginx-network" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}

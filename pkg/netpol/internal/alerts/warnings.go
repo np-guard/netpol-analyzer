@@ -35,6 +35,7 @@ const (
 		" external IP-blocks"
 	WarnIgnoredExposureOnLiveCluster = "exposure analysis is not supported on live-cluster; exposure flag will be ignored"
 	warnIgnoredUDN                   = udnPrefix + "%s is ignored."
+	MNPUnsupportedRuleField          = "IPBlock rule peer is not supported yet; rule will be ignored"
 )
 
 func WarnIgnoredExposure(flag1, flag2 string) string {

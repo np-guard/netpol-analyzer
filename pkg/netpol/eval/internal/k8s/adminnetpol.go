@@ -212,40 +212,6 @@ func (anp *AdminNetworkPolicy) LogWarnings(l logger.Logger) []string {
 // global to be used in the common func, initialized (cleared) and logged by the relevant (B)ANP calling funcs
 var ruleWarnings = []string{}
 
-// doesNamespaceSelectorMatchesPeer returns true if the given namespaces LabelSelector matches the given peer's namespace object
-func doesNamespaceSelectorMatchesPeer(namespaces *metav1.LabelSelector, peer Peer) (bool, error) {
-	if peer.PeerType() == IPBlockType {
-		return false, nil // IPs are not namespace-scoped
-	}
-	peerNamespace := peer.GetPeerNamespace()
-	var peerNsLabels map[string]string
-	if peerNamespace != nil { // peerNamespace may be nil for representative peers
-		peerNsLabels = peerNamespace.Labels
-	}
-	return selectorsMatch(namespaces, peer.GetPeerPod().RepresentativeNsLabelSelector, peerNsLabels, isPeerRepresentative(peer))
-}
-
-// selectorsMatch checks if the given selectors match each other.
-// called either with namespace-selectors, or with pod-selectors
-// when exposure analysis is on : checks the match between rule selector and the relevant representativePeer selector
-// otherwise, checks match between rule-selector and pod/namespace labels
-func selectorsMatch(ruleSelector, peerSelector *metav1.LabelSelector, peerLabels map[string]string,
-	isPeerRepresentative bool) (selectorsMatch bool, err error) {
-	// for exposure analysis (representative-peer), use relevant func to check if representative peer is matched by rule's selector
-	if isPeerRepresentative {
-		// representative peer is inferred from a rule:
-		// - by having representative selector pointing to same reference of the rule's selector
-		// - or by having representative labelSelector with requirements equal to the rule's requirements
-		// note that if the given ruleSelector is nil, we don't get here.
-		return SelectorsFullMatch(ruleSelector, peerSelector)
-	} // else for real peer just check if the selector matches the peer's labels
-	selector, err := metav1.LabelSelectorAsSelector(ruleSelector)
-	if err != nil {
-		return false, fmt.Errorf("%s", alerts.SelectorErrTitle+" : "+err.Error())
-	}
-	return selector.Matches(labels.Set(peerLabels)), nil
-}
-
 // doesPodsFieldMatchPeer returns if the given NamespacedPod object matches the given peer
 // a NamespacedPod object contains both NamespaceSelector and PodSelector
 func doesPodsFieldMatchPeer(pods *apisv1a.NamespacedPod, peer Peer) (bool, error) {

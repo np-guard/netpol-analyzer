@@ -9,8 +9,10 @@ package k8s
 import (
 	"crypto/sha1" //nolint:gosec // Non-crypto use
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -25,6 +27,9 @@ import (
 )
 
 const defaultPortsListSize = 8
+
+// Configuring pods for secondary networks is by specifying the NADs through the k8s.v1.cni.cncf.io/networks annotation.
+const networksAnnotation = "k8s.v1.cni.cncf.io/networks"
 
 type PodExposureInfo struct {
 	// 	IsProtected indicates if the pod is selected by any network-policy or not
@@ -44,12 +49,14 @@ func initiatePodExposure() PodExposureInfo {
 type Pod struct {
 	Name      string
 	Namespace string
-	FakePod   bool // this flag is used to indicate if the pod is created from scanner objects or fake (ingress-controller/ representative pod)
-	Labels    map[string]string
-	IPs       []corev1.PodIP
-	Ports     []corev1.ContainerPort
-	HostIP    string
-	Owner     Owner
+	FakePod   bool // this flag is used to indicate if the pod is created from scanner objects or
+	// fake (ingress-controller/ representative pod)
+	Labels            map[string]string
+	IPs               []corev1.PodIP
+	Ports             []corev1.ContainerPort
+	HostIP            string
+	Owner             Owner
+	SecondaryNetworks map[string]bool // set of the secondary networks attached to the pod
 
 	// The fields below are relevant to real pods when exposure analysis is active:
 
@@ -115,6 +122,7 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		FakePod:             false,
 		IngressExposureData: initiatePodExposure(),
 		EgressExposureData:  initiatePodExposure(),
+		SecondaryNetworks:   make(map[string]bool, 0),
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -136,7 +144,14 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 			break
 		}
 	}
-
+	// add secondary networks which are specified by the 'k8s.v1.cni.cncf.io/networks' annotation
+	for k, v := range p.Annotations {
+		if k == networksAnnotation {
+			if err := updatePodSecondaryNetworksFromAnnotation(v, pr.SecondaryNetworks); err != nil {
+				return nil, err
+			}
+		}
+	}
 	return pr, nil
 }
 
@@ -159,6 +174,8 @@ func getReplicas(r *int32) int32 {
 }
 
 // PodsFromWorkloadObject creates a slice of one or two Pod objects by extracting relevant fields from the k8s workload
+//
+//gocyclo:ignore
 func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) { //nolint:funlen // should not break this up
 	var replicas int32
 	var workloadName string
@@ -250,8 +267,9 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		pod.FakePod = false
 		pod.IngressExposureData = initiatePodExposure()
 		pod.EgressExposureData = initiatePodExposure()
-		// for all workload-kinds: pod Labels are taken from its Spec.Template
-		if kind != parser.VirtualMachine { // podTemplate is used for all other workload types
+		pod.SecondaryNetworks = make(map[string]bool)
+		// for all workload-kinds: pod Labels and Annotations are taken from its Spec.Template
+		if kind != parser.VirtualMachine { // podTemplate is used for all workload types other than VirtualMachine
 			for k, v := range podTemplate.Labels {
 				pod.Labels[k] = v
 			}
@@ -259,15 +277,75 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 				pod.Ports = append(pod.Ports, podTemplate.Spec.Containers[i].Ports...)
 			}
 			pod.Owner.Variant = variantFromLabelsMap(podTemplate.Labels)
+			// add secondary networks which are specified by the 'k8s.v1.cni.cncf.io/networks' annotation
+			for k, v := range podTemplate.Annotations {
+				if k == networksAnnotation {
+					if err := updatePodSecondaryNetworksFromAnnotation(v, pod.SecondaryNetworks); err != nil {
+						return nil, err
+					}
+				}
+			}
 		} else { // for virtualMachines the vmTemplate is used
 			for k, v := range vmTemplate.ObjectMeta.Labels {
 				pod.Labels[k] = v
 			}
 			pod.Owner.Variant = variantFromLabelsMap(vmTemplate.ObjectMeta.Labels)
+			updateVirtualMachineSecondaryNetworks(vmTemplate.Spec.Networks, pod.SecondaryNetworks)
 		}
 		res[index-1] = pod
 	}
 	return res, nil
+}
+
+// networkSelection is used to extract the network name and ns when json format is used in the pod's networks annotation
+type networkSelection struct {
+	Name      string `json:"name"` // NAD name
+	Namespace string `json:"namespace"`
+}
+
+// updatePodSecondaryNetworksFromAnnotation extracts the NAD's names from the pod's relevant annotation
+// Only one of the following annotation formats can be used:
+// 1. k8s.v1.cni.cncf.io/networks: <network>[,<network>,...] (comma separated string list)
+// 2. json format to add a secondary networks
+// stores the names of the networks in the input set , if the ns is provided it is stored in a <ns/name> format
+func updatePodSecondaryNetworksFromAnnotation(v string, secondaryNetworksSet map[string]bool) error {
+	if v == "" {
+		return nil
+	}
+	var networks []networkSelection
+	if strings.ContainsAny(v, "[{\"") { // json case
+		if err := json.Unmarshal([]byte(v), &networks); err != nil {
+			return err
+		}
+		for _, nc := range networks {
+			networkName := nc.Name
+			if nc.Namespace != "" {
+				networkName = types.NamespacedName{Name: nc.Name, Namespace: nc.Namespace}.String()
+			}
+			if networkName != "" {
+				secondaryNetworksSet[networkName] = true
+			}
+		}
+	} else {
+		// Comma-delimited list of network attachment object names
+		for _, n := range strings.Split(v, ",") {
+			// Remove leading and trailing whitespace.
+			networkName := strings.TrimSpace(n)
+			// ignore interface name if exists (i.e. <namespace>/<network name>@<ifname>)
+			networkName = strings.Split(networkName, "@")[0]
+			secondaryNetworksSet[networkName] = true
+		}
+	}
+	return nil
+}
+
+// updateVirtualMachineSecondaryNetworks extracts the NAD's names from the vm's relevant multus networks
+func updateVirtualMachineSecondaryNetworks(networks []kubevirt.Network, secondaryNetworksSet map[string]bool) {
+	for _, n := range networks {
+		if n.Multus != nil {
+			secondaryNetworksSet[n.Multus.NetworkName] = true
+		}
+	}
 }
 
 // canonical Pod name

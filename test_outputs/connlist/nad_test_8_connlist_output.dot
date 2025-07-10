@@ -1,0 +1,24 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_test_protocol_only_ports[namespace]" {
+		color="black"
+		fontcolor="black"
+		"test-protocol-only-ports/pod-a[Pod]" [label="pod-a[Pod]" color="blue" fontcolor="blue"]
+		"test-protocol-only-ports/pod-b[Pod]" [label="pod-b[Pod]" color="blue" fontcolor="blue"]
+		label="test-protocol-only-ports[namespace]"
+	}
+	}
+	subgraph "cluster_macvlan1-simple" {
+	label="macvlan1-simple[nad]"
+	subgraph "cluster_test_protocol_only_ports[namespace]" {
+		color="black"
+		fontcolor="black"
+		"test-protocol-only-ports/pod-a[Pod]macvlan1-simple" [label="pod-a[Pod]" color="blue" fontcolor="blue"]
+		"test-protocol-only-ports/pod-b[Pod]macvlan1-simple" [label="pod-b[Pod]" color="blue" fontcolor="blue"]
+		label="test-protocol-only-ports[namespace]"
+	}
+	}
+	"test-protocol-only-ports/pod-a[Pod]macvlan1-simple" -> "test-protocol-only-ports/pod-b[Pod]macvlan1-simple" [label="TCP 1-65535" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"test-protocol-only-ports/pod-b[Pod]macvlan1-simple" -> "test-protocol-only-ports/pod-a[Pod]macvlan1-simple" [label="UDP 1-65535" color="gold2" fontcolor="darkgreen" weight=1]
+}

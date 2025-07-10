@@ -1,0 +1,112 @@
+# resource : https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/ingress-ns-selector-no-pods.yml
+# confirming results : 
+# https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/ingress-ns-selector-no-pods.bats
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  namespace: default
+  name: macvlan1-simple
+spec: 
+  config: '{
+            "cniVersion": "0.3.1",
+            "name": "macvlan1-simple",
+            "plugins": [
+                {
+                    "type": "macvlan",
+                    "mode": "bridge",
+                    "ipam":{
+                      "type":"host-local",
+                      "subnet":"2.2.6.0/24",
+                      "rangeStart":"2.2.6.8",
+                      "rangeEnd":"2.2.6.67"
+                    }
+                }]
+        }'
+---
+# namespace for MultiNetworkPolicy 
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: test-ingress-ns-selector-no-pods
+--- 
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: test-ingress-ns-selector-no-pods-blue
+---
+# Pods
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-server
+  namespace: test-ingress-ns-selector-no-pods
+  annotations:
+    k8s.v1.cni.cncf.io/networks: default/macvlan1-simple
+  labels:
+    app: test-ingress-ns-selector-no-pods
+    name: pod-server
+spec:
+  containers:
+  - name: macvlan-worker1
+    image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy-iptables:e2e-test
+    command: ["nc", "-klp", "5555"]
+    securityContext:
+      privileged: true
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-client-a
+  namespace: test-ingress-ns-selector-no-pods
+  annotations:
+    k8s.v1.cni.cncf.io/networks: default/macvlan1-simple
+  labels:
+    app: test-ingress-ns-selector-no-pods
+    name: pod-client-a
+spec:
+  containers:
+  - name: macvlan-worker1
+    image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy-iptables:e2e-test
+    command: ["nc", "-klp", "5555"]
+    securityContext:
+      privileged: true
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-client-b
+  namespace: test-ingress-ns-selector-no-pods-blue
+  annotations:
+    k8s.v1.cni.cncf.io/networks: default/macvlan1-simple
+  labels:
+    app: test-ingress-ns-selector-no-pods
+    name: pod-client-b
+spec:
+  containers:
+  - name: macvlan-worker1
+    image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy-iptables:e2e-test
+    command: ["nc", "-klp", "5555"]
+    securityContext:
+      privileged: true
+---
+# MultiNetworkPolicies
+# this policy accepts ingress trafic from pod-client-a to pod-server
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: policy-test-ingress-ns-selector-no-pods
+  namespace: test-ingress-ns-selector-no-pods
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for: default/macvlan1-simple
+spec:
+  podSelector:
+    matchLabels:
+      name: pod-server
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          foo: bar # No namespace with this label exists
+  policyTypes:
+  - Ingress

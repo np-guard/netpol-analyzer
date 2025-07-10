@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: router-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: router
+  template:
+    metadata:
+      labels:
+      app: router
+      annotations:
+        k8s.v1.cni.cncf.io/networks: first-network, nginx-network
+    spec:
+      containers:
+      - name: router
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-app
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+      annotations:
+        k8s.v1.cni.cncf.io/networks: nginx-network
+    spec:
+      containers:
+      - name: nginx-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dns-app
+  labels:
+    app: dns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dns
+  template:
+    metadata:
+      labels:
+        app: dns
+      annotations:
+        k8s.v1.cni.cncf.io/networks: first-network
+    spec:
+      containers:
+      - name: dns
