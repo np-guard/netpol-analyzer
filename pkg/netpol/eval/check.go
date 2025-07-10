@@ -252,15 +252,21 @@ func (pe *PolicyEngine) findCommonSecondaryNetworkForPeersPair(src, dst k8s.Peer
 	return common.NetworkData{}
 }
 
-// podsFromIsolatedNetworks returns true if at least one pod belongs to an isolated user-defined-network
-// if the peers are not isolated, returns the network of the connection between src and dst
+// podsFromIsolatedNetworks determines whether two Kubernetes peers (src and dst) are isolated from each other
+// based on their network configurations, and returns the relevant network data for their connection.
 //
-// note that:
-//   - Primary networks: Act as the primary network for the pod. By default, all traffic passes through the primary network.
-//     i.e. pod that is attached to a primary network = its default network
-//   - Secondary networks: Act as secondary, non-default networks for a pod; its used to connect peers on same secondary network;
-//     however, its additive and all of the pods in the cluster still use the cluster-wide default network to maintain connectivity
-//     across the cluster.
+// The logic considers various scenarios:
+//   - If exposure analysis is enabled, always returns not isolated with empty network data
+//     (exposure analysis is not supported with virtual interfaces).
+//   - If either peer is external, returns not isolated with the other's primary network.
+//   - If both peers are in primary networks:
+//   - If both are UDNs in the same namespace, or both are CUDNs in the same network, they are not isolated.
+//   - Otherwise, they are isolated.
+//   - If only one peer is in a primary network, they are isolated, and the primary network is returned.
+//   - If neither peer is in a primary network:
+//   - If they share a common secondary network, they are not isolated and that network is returned.
+//   - Otherwise, they are not isolated and the default network is returned.
+//   - In any other case (should not occur), returns isolated with empty network data.
 //
 //gocyclo:ignore
 func (pe *PolicyEngine) podsFromIsolatedNetworks(src, dst k8s.Peer) (isolated bool, connNetwork common.NetworkData) {
