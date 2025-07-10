@@ -1,0 +1,29 @@
+digraph {
+	subgraph "cluster_ns_udn_a[udn]" {
+		color="black"
+		fontcolor="black"
+		"ns-udn-a/pod-a[Pod]" [label="pod-a[Pod]" color="blue" fontcolor="blue"]
+		"ns-udn-a/vm-a[VirtualMachine]" [label="vm-a[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="ns-udn-a[udn]"
+	}
+	subgraph "cluster_ns_udn_b[udn]" {
+		color="black"
+		fontcolor="black"
+		"ns-udn-b/pod-b[Pod]" [label="pod-b[Pod]" color="blue" fontcolor="blue"]
+		"ns-udn-b/vm-b[VirtualMachine]" [label="vm-b[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="ns-udn-b[udn]"
+	}
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "ns-udn-a/pod-a[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ns-udn-a/vm-a[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ns-udn-b/pod-b[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ns-udn-b/vm-b[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns-udn-a/pod-a[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-udn-a/pod-a[Pod]" -> "ns-udn-a/vm-a[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns-udn-a/vm-a[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-udn-a/vm-a[VirtualMachine]" -> "ns-udn-a/pod-a[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-udn-b/pod-b[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-udn-b/pod-b[Pod]" -> "ns-udn-b/vm-b[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns-udn-b/vm-b[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-udn-b/vm-b[VirtualMachine]" -> "ns-udn-b/pod-b[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}

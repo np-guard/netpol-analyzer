@@ -2345,6 +2345,29 @@ var goodPathTests = []struct {
 		outputFormats:  []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
 		focusWorkloads: []string{"pod-server"},
 	},
+	{
+		// two namespaces , each is a primary udn assigned;
+		// pods and vms in each udn are isolated from the other pods/vms in the other udn
+		// even though all pods and vm-s share same secondary network;
+		// since allowed-conns between two peers is returned in one-network only (one *connectionSet for each pair)
+		// and the primary interface of each peer takes precedence on all other networks.
+		testDirName:   "nad_test_12",
+		outputFormats: []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+	},
+	{
+		// same udn networks from nad_test_12 with new added two regular namespaces (with no udn): ns-c, ns-d
+		// all pods in ns-c and ns-d are sharing same secondary network interface;
+		// then we will see connections between peers from those namespaces in the shared network
+		testDirName:   "nad_test_13",
+		outputFormats: []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+	},
+	{
+		// same objects from nad_test_13, with network-policy and multi-network-policy objects;
+		// to see that network-policy objects affect connectivity in pod-network and UDN networks only
+		// while multi-netpol objects affects connectivity in secondary networks only
+		testDirName:   "nad_test_14",
+		outputFormats: []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

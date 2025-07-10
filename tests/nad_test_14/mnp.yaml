@@ -1,0 +1,21 @@
+# multi network-policy in ns-c allows ingress-egress only on udp 5353 for shared network 
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: testnetwork-policy-ns-c
+  namespace: ns-c
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for: macvlan-shared-net
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - ports:
+    - port: 5353
+      protocol: UDP
+  egress:
+  - ports:
+    - port: 5353
+      protocol: UDP

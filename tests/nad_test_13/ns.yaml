@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-udn-a
+  labels:
+    k8s.v1.cni.cncf.io/default-network: ns-udn-a/udn-a
+    k8s.ovn.org/primary-user-defined-network: ""
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-udn-b
+  labels:
+    k8s.v1.cni.cncf.io/default-network: ns-udn-b/udn-b
+    k8s.ovn.org/primary-user-defined-network: ""
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-c
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-d

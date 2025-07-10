@@ -1,0 +1,35 @@
+Permitted connectivity analyzed in Pod network:
+0.0.0.0-255.255.255.255[External] => ns-c/pod-c[Pod] : TCP 1-65535
+0.0.0.0-255.255.255.255[External] => ns-c/vm-c[VirtualMachine] : TCP 1-65535
+0.0.0.0-255.255.255.255[External] => ns-d/pod-d[Pod] : All Connections
+0.0.0.0-255.255.255.255[External] => ns-d/vm-d[VirtualMachine] : All Connections
+ns-c/pod-c[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-c/vm-c[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-d/pod-d[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-d/vm-d[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
+
+Permitted connectivity analyzed in primary UDN ns-udn-a:
+ns-udn-a[udn]/pod-a[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-udn-a[udn]/vm-a[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
+
+Permitted connectivity analyzed in primary UDN ns-udn-b:
+0.0.0.0-255.255.255.255[External] => ns-udn-b[udn]/pod-b[Pod] : All Connections
+0.0.0.0-255.255.255.255[External] => ns-udn-b[udn]/vm-b[VirtualMachine] : All Connections
+ns-udn-b[udn]/pod-b[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-udn-b[udn]/pod-b[Pod] => ns-udn-b[udn]/vm-b[VirtualMachine] : All Connections
+ns-udn-b[udn]/vm-b[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-udn-b[udn]/vm-b[VirtualMachine] => ns-udn-b[udn]/pod-b[Pod] : All Connections
+
+Permitted connectivity analyzed in secondary NAD macvlan-shared-net:
+ns-c/pod-c[Pod] => ns-c/vm-c[VirtualMachine] : UDP 5353
+ns-c/pod-c[Pod] => ns-d/pod-d[Pod] : UDP 5353
+ns-c/pod-c[Pod] => ns-d/vm-d[VirtualMachine] : UDP 5353
+ns-c/vm-c[VirtualMachine] => ns-c/pod-c[Pod] : UDP 5353
+ns-c/vm-c[VirtualMachine] => ns-d/pod-d[Pod] : UDP 5353
+ns-c/vm-c[VirtualMachine] => ns-d/vm-d[VirtualMachine] : UDP 5353
+ns-d/pod-d[Pod] => ns-c/pod-c[Pod] : UDP 5353
+ns-d/pod-d[Pod] => ns-c/vm-c[VirtualMachine] : UDP 5353
+ns-d/pod-d[Pod] => ns-d/vm-d[VirtualMachine] : All Connections
+ns-d/vm-d[VirtualMachine] => ns-c/pod-c[Pod] : UDP 5353
+ns-d/vm-d[VirtualMachine] => ns-c/vm-c[VirtualMachine] : UDP 5353
+ns-d/vm-d[VirtualMachine] => ns-d/pod-d[Pod] : All Connections
