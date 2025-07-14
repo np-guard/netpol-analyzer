@@ -14,12 +14,13 @@ import (
 // A DiffAnalyzer provides API to recursively scan two directories for Kubernetes resources including network policies,
 // and get the difference of permitted connectivity between the workloads of the K8s application managed in theses directories.
 type DiffAnalyzer struct {
-	logger       logger.Logger
-	stopOnError  bool
-	errors       []DiffError
-	outputFormat string
-	ref1Name     string
-	ref2Name     string
+	logger           logger.Logger
+	stopOnError      bool
+	errors           []DiffError
+	outputFormat     string
+	ref1Name         string
+	ref2Name         string
+	multipleNetworks bool
 }
 
 // DiffAnalyzerOption is the type for specifying options for DiffAnalyzer,
@@ -49,6 +50,14 @@ func WithStopOnError() DiffAnalyzerOption {
 	}
 }
 
+// WithMultipleNetworks is a functional option which directs DiffAnalyzer to enable parsing and analyzing multiple-networks resources,
+// such as (Cluster)UserDefinedNetwork, NetworkAttachmentDefinition and MultiNetworkPolicy
+func WithMultipleNetworks() DiffAnalyzerOption {
+	return func(da *DiffAnalyzer) {
+		da.multipleNetworks = true
+	}
+}
+
 // WithArgNames is a functional option that sets the names to be used for the two sets of analyzed resources
 // (default is ref1,ref2) in the output reports and log messages.
 func WithArgNames(ref1Name, ref2Name string) DiffAnalyzerOption {
@@ -67,12 +76,13 @@ func (da *DiffAnalyzer) Errors() []DiffError {
 func NewDiffAnalyzer(options ...DiffAnalyzerOption) *DiffAnalyzer {
 	// object with default behavior options
 	da := &DiffAnalyzer{
-		logger:       logger.NewDefaultLogger(),
-		stopOnError:  false,
-		errors:       []DiffError{},
-		outputFormat: output.DefaultFormat,
-		ref1Name:     "ref1",
-		ref2Name:     "ref2",
+		logger:           logger.NewDefaultLogger(),
+		stopOnError:      false,
+		errors:           []DiffError{},
+		outputFormat:     output.DefaultFormat,
+		ref1Name:         "ref1",
+		ref2Name:         "ref2",
+		multipleNetworks: false,
 	}
 	for _, o := range options {
 		o(da)

@@ -196,10 +196,14 @@ func (da *DiffAnalyzer) getConnlistAnalysis(
 // return a []ConnlistAnalyzerOption with mute errs/warns, so that logging of err/wanr is not duplicated, and
 // added to log only by getConnlistAnalysis function, which adds the context of ref1/ref2
 func (da *DiffAnalyzer) determineConnlistAnalyzerOptions() []connlist.ConnlistAnalyzerOption {
+	opts := []connlist.ConnlistAnalyzerOption{connlist.WithMuteErrsAndWarns(), connlist.WithLogger(da.logger)}
 	if da.stopOnError {
-		return []connlist.ConnlistAnalyzerOption{connlist.WithMuteErrsAndWarns(), connlist.WithLogger(da.logger), connlist.WithStopOnError()}
+		opts = append(opts, connlist.WithStopOnError())
 	}
-	return []connlist.ConnlistAnalyzerOption{connlist.WithMuteErrsAndWarns(), connlist.WithLogger(da.logger)}
+	if da.multipleNetworks {
+		opts = append(opts, connlist.WithMultipleNetworks())
+	}
+	return opts
 }
 
 func (da *DiffAnalyzer) errPrefixSpecifyRefName(isRef1 bool) string {

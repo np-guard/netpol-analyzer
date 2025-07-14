@@ -98,7 +98,8 @@ type K8sObject struct {
 }
 
 //gocyclo:ignore
-func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} { //nolint:funlen // should not break this up
+func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string, //nolint:funlen // should not break this up
+	multipleNetworksEnabled bool) interface{} {
 	switch kind {
 	case Deployment:
 		k.Deployment = &appsv1.Deployment{}
@@ -146,20 +147,28 @@ func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
 		k.BaselineAdminNetworkPolicy = &apisv1a.BaselineAdminNetworkPolicy{}
 		return k.BaselineAdminNetworkPolicy
 	case UserDefinedNetwork:
-		k.UserDefinedNetwork = &udnv1.UserDefinedNetwork{}
-		return k.UserDefinedNetwork
+		if multipleNetworksEnabled {
+			k.UserDefinedNetwork = &udnv1.UserDefinedNetwork{}
+			return k.UserDefinedNetwork
+		}
 	case ClusterUserDefinedNetwork:
-		k.ClusterUserDefinedNetwork = &udnv1.ClusterUserDefinedNetwork{}
-		return k.ClusterUserDefinedNetwork
+		if multipleNetworksEnabled {
+			k.ClusterUserDefinedNetwork = &udnv1.ClusterUserDefinedNetwork{}
+			return k.ClusterUserDefinedNetwork
+		}
 	case NetworkAttachmentDefinition:
-		k.NetworkAttachmentDefinition = &nadv1.NetworkAttachmentDefinition{}
-		return k.NetworkAttachmentDefinition
+		if multipleNetworksEnabled {
+			k.NetworkAttachmentDefinition = &nadv1.NetworkAttachmentDefinition{}
+			return k.NetworkAttachmentDefinition
+		}
 	case VirtualMachine:
 		k.VirtualMachine = &kubevirt.VirtualMachine{}
 		return k.VirtualMachine
 	case MultiNetworkPolicy:
-		k.MultiNetworkPolicy = &mnpv1.MultiNetworkPolicy{}
-		return k.MultiNetworkPolicy
+		if multipleNetworksEnabled {
+			k.MultiNetworkPolicy = &mnpv1.MultiNetworkPolicy{}
+			return k.MultiNetworkPolicy
+		}
 	}
 	return nil
 }

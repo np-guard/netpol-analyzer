@@ -56,6 +56,7 @@ type ConnlistAnalyzer struct {
 	exposureAnalysis   bool
 	exposureResult     []ExposedPeer
 	explain            bool
+	multipleNetworks   bool
 	explainOnly        string
 	focusConnection    string
 	outputFormat       string
@@ -108,7 +109,7 @@ func (ca *ConnlistAnalyzer) warnIncompatibleFlagsUsage() {
 // and the list of all workloads from the parsed resources
 func (ca *ConnlistAnalyzer) ConnlistFromResourceInfos(info []*resource.Info) ([]Peer2PeerConnection, []Peer, error) {
 	// convert resource.Info objects to k8s resources, filter irrelevant resources
-	objects, fpErrs := parser.ResourceInfoListToK8sObjectsList(info, ca.logger, ca.muteErrsAndWarns)
+	objects, fpErrs := parser.ResourceInfoListToK8sObjectsList(info, ca.logger, ca.muteErrsAndWarns, ca.multipleNetworks)
 	ca.copyFpErrs(fpErrs)
 	if ca.stopProcessing() {
 		if err := ca.hasFatalError(); err != nil {
@@ -230,6 +231,14 @@ func WithExplainOnly(explainOnly string) ConnlistAnalyzerOption {
 	}
 }
 
+// WithMultipleNetworks is a functional option which directs ConnlistAnalyzer to enable parsing and analyzing multiple-networks resources,
+// such as (Cluster)UserDefinedNetwork, NetworkAttachmentDefinition and MultiNetworkPolicy
+func WithMultipleNetworks() ConnlistAnalyzerOption {
+	return func(ca *ConnlistAnalyzer) {
+		ca.multipleNetworks = true
+	}
+}
+
 // WithOutputFormat is a functional option, allowing user to choose the output format txt/json/dot/csv/md.
 func WithOutputFormat(outputFormat string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
@@ -253,6 +262,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 		exposureAnalysis: false,
 		exposureResult:   nil,
 		explain:          false,
+		multipleNetworks: false,
 		errors:           []ConnlistError{},
 		outputFormat:     output.DefaultFormat,
 	}

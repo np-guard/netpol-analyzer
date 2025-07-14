@@ -85,7 +85,7 @@ func TestServiceMappingToPods(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{servicesDir}, true, false)
-			objects, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, l, false)
+			objects, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, l, false, false)
 			require.Len(t, processingErrs, 1, "test: %q", tt.name) // no policies
 			require.Len(t, objects, 17, "test: %q", tt.name)       // found 6 services and 11 pods
 			pe, err := eval.NewPolicyEngineWithOptionsList(eval.WithObjectsList(objects))
