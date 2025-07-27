@@ -1057,7 +1057,7 @@ func writeRes(res, fileName string) {
 
 func setResourcesFromDir(pe *PolicyEngine, path string, netpolLimit ...int) error {
 	rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{path}, true, false)
-	objectsList, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
+	objectsList, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false, false)
 	if len(processingErrs) > 0 {
 		return errors.New("processing errors occurred")
 	}
@@ -1782,7 +1782,7 @@ func TestPolicyEngineWithWorkloads(t *testing.T) {
 	path := testutils.GetTestDirPath("onlineboutique_workloads")
 
 	rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{path}, true, false)
-	objects, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
+	objects, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false, false)
 	if len(processingErrs) > 0 {
 		t.Fatalf("TestPolicyEngineWithWorkloads errors: %v", processingErrs)
 	}
@@ -1956,7 +1956,7 @@ func TestDirPathEvalResults(t *testing.T) {
 			path := testutils.GetTestDirPath(tt.dir)
 			rList, errs := fsscanner.GetResourceInfosFromDirPath([]string{path}, true, false)
 			require.Empty(t, errs, "test: %q", testName)
-			objectsList, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false)
+			objectsList, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, logger.NewDefaultLogger(), false, false)
 			require.Empty(t, processingErrs, "test: %q", testName)
 			pe, err := NewPolicyEngineWithOptionsList(WithObjectsList(objectsList))
 			require.Nil(t, err, "test: %q", testName)

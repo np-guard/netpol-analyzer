@@ -43,7 +43,7 @@ func TestConnlistOnMockK8sServer(t *testing.T) {
 			for _, format := range tt.outputFormats {
 				testutils.SkipRunningSVGTestOnGithub(t, format)
 				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, tt.focusConn,
-					format, tt.exposureAnalysis)
+					format, tt.exposureAnalysis, false)
 				runTest(t, pTest)
 			}
 		})
@@ -59,7 +59,7 @@ func TestConnlistWithExplanationOnMockK8sServer(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, tt.focusConn,
-				tt.explainOnly, tt.exposure)
+				tt.explainOnly, tt.exposure, false)
 			runTest(t, pTest)
 		})
 	}
@@ -67,7 +67,7 @@ func TestConnlistWithExplanationOnMockK8sServer(t *testing.T) {
 
 func runTest(t *testing.T, pTest preparedTest) {
 	infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
-	objects, _ := parser.ResourceInfoListToK8sObjectsList(infos, logger.NewDefaultLogger(), true)
+	objects, _ := parser.ResourceInfoListToK8sObjectsList(infos, logger.NewDefaultLogger(), true, false)
 
 	k8sClientset, policyAPIClientset, err := buildFakeClientsets(objects)
 	require.Nil(t, err, pTest.testInfo)

@@ -89,7 +89,8 @@ func updatePolicyEngineObjectsFromDirPath(pe *eval.PolicyEngine, podNames []type
 			eLogger.Errorf(err, netpolerrors.FailedReadingFileErrorStr) // print to log the error from builder
 		}
 	}
-	objectsList, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, eLogger, false)
+	// @todo: add support of NAD and MultiNP; eval currently supports (C)UDN
+	objectsList, processingErrs := parser.ResourceInfoListToK8sObjectsList(rList, eLogger, false, multipleNetworks)
 	for _, err := range processingErrs {
 		if err.IsFatal() || (stopOnFirstError && err.IsSevere()) {
 			return fmt.Errorf("scan dir path %s had processing errors: %w", dirPath, err.Error())

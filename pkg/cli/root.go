@@ -31,6 +31,7 @@ var (
 	quiet              bool
 	verbose            bool
 	stopOnFirstError   bool
+	multipleNetworks   bool // support multiple networks in the cluster
 )
 
 // returns verbosity level based on the -q and -v switches
@@ -97,6 +98,8 @@ func newCommandRoot() *cobra.Command {
 	c.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "runs quietly, reports only severe errors and results")
 	c.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "runs with more informative messages printed to log")
 	c.PersistentFlags().BoolVarP(&stopOnFirstError, "fail", "", false, "fail on the first encountered error")
+	c.PersistentFlags().BoolVarP(&multipleNetworks, "multiple-networks", "", true, "Enable analysis of multi-network resources such as"+
+		" UserDefinedNetwork, NetworkAttachmentDefinition, and MultiNetworkPolicy. If disabled, these resources will be ignored.")
 
 	// add sub-commands
 	c.AddCommand(newCommandEvaluate())

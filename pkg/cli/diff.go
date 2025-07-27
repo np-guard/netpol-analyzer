@@ -57,6 +57,9 @@ func getDiffOptions(l *logger.DefaultLogger) []diff.DiffAnalyzerOption {
 	if stopOnFirstError {
 		res = append(res, diff.WithStopOnError())
 	}
+	if multipleNetworks {
+		res = append(res, diff.WithMultipleNetworks())
+	}
 	return res
 }
 

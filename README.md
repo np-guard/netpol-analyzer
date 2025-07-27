@@ -40,6 +40,7 @@ Global Flags:
       --fail                fail on the first encountered error
       --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
   -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
+      --multiple-networks   Enables analysis of multi-network resources such as UserDefinedNetwork, NetworkAttachmentDefinition, and MultiNetworkPolicy. If disabled, these resources will be ignored (default "true").
   -q, --quiet               Runs quietly, reports only severe errors and results
   -v, --verbose             Runs with more informative messages printed to log
 ```
@@ -77,6 +78,7 @@ Global Flags:
       --dirpath     string    Resources dir path when evaluating connections from a dir
       --fail                  fail on the first encountered error
   -k, --kubeconfig  string    Path and file to use for kubeconfig when evaluating connections in a live cluster
+      --multiple-networks     Enables analysis of multi-network resources such as UserDefinedNetwork, NetworkAttachmentDefinition, and MultiNetworkPolicy. If disabled, these resources will be ignored (default "true").
   -q, --quiet                 runs quietly, reports only severe errors and results
   -v, --verbose               runs with more informative messages printed to log
 ```
@@ -105,6 +107,7 @@ Global Flags:
       --fail                fail on the first encountered error
       --include-json        consider JSON manifests (in addition to YAML) when analyzing from dir
   -k, --kubeconfig string   Path and file to use for kubeconfig when evaluating connections in a live cluster
+      --multiple-networks   Enables analysis of multi-network resources such as UserDefinedNetwork, NetworkAttachmentDefinition, and MultiNetworkPolicy. If disabled, these resources will be ignored (default "true").
   -q, --quiet               Runs quietly, reports only severe errors and results
   -v, --verbose             Runs with more informative messages printed to log  
 ```

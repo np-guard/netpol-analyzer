@@ -26,7 +26,7 @@ var l = logger.NewDefaultLogger()
 func getIngressAnalyzerFromDirObjects(t *testing.T, testName, dirName string, processingErrsNum int) *IngressAnalyzer {
 	path := testutils.GetTestDirPath(dirName)
 	rList, _ := fsscanner.GetResourceInfosFromDirPath([]string{path}, true, false)
-	objects, fpErrs := parser.ResourceInfoListToK8sObjectsList(rList, l, false)
+	objects, fpErrs := parser.ResourceInfoListToK8sObjectsList(rList, l, false, false)
 	require.Len(t, fpErrs, processingErrsNum, "test: %q, expected %d processing errors but got %d",
 		testName, processingErrsNum, len(fpErrs))
 	pe, err := eval.NewPolicyEngineWithOptionsList(eval.WithObjectsList(objects))
