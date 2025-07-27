@@ -46,6 +46,7 @@ const (
 	AdminNetworkPolicyList          string = "AdminNetworkPolicyList"
 	BaselineAdminNetworkPolicy      string = "BaselineAdminNetworkPolicy"
 	BaselineAdminNetworkPolicyList  string = "BaselineAdminNetworkPolicyList" // a list with max 1 object according to apis/v1alpha
+        // relevant ocp-virt resources
 	UserDefinedNetwork              string = "UserDefinedNetwork"
 	UserDefinedNetworkList          string = "UserDefinedNetworkList"
 	ClusterUserDefinedNetwork       string = "ClusterUserDefinedNetwork"
