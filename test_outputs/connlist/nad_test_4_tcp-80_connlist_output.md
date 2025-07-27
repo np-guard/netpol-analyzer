@@ -1,0 +1,3 @@
+| src | dst |
+|-----|-----|
+| ns2/pod3[Pod] | ns1/pod2[Pod] |

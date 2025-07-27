@@ -1,0 +1,29 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_test_simple_v4_ingress[namespace]" {
+		color="black"
+		fontcolor="black"
+		"test-simple-v4-ingress/pod-client-a[Pod]" [label="pod-client-a[Pod]" color="blue" fontcolor="blue"]
+		"test-simple-v4-ingress/pod-client-b[Pod]" [label="pod-client-b[Pod]" color="blue" fontcolor="blue"]
+		"test-simple-v4-ingress/pod-server[Pod]" [label="pod-server[Pod]" color="blue" fontcolor="blue"]
+		label="test-simple-v4-ingress[namespace]"
+	}
+	}
+	subgraph "cluster_macvlan1-simple" {
+	label="macvlan1-simple[nad]"
+	subgraph "cluster_test_simple_v4_ingress[namespace]" {
+		color="black"
+		fontcolor="black"
+		"test-simple-v4-ingress/pod-client-a[Pod]macvlan1-simple" [label="pod-client-a[Pod]" color="blue" fontcolor="blue"]
+		"test-simple-v4-ingress/pod-client-b[Pod]macvlan1-simple" [label="pod-client-b[Pod]" color="blue" fontcolor="blue"]
+		"test-simple-v4-ingress/pod-server[Pod]macvlan1-simple" [label="pod-server[Pod]" color="blue" fontcolor="blue"]
+		label="test-simple-v4-ingress[namespace]"
+	}
+	}
+	"test-simple-v4-ingress/pod-client-a[Pod]macvlan1-simple" -> "test-simple-v4-ingress/pod-client-b[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"test-simple-v4-ingress/pod-client-a[Pod]macvlan1-simple" -> "test-simple-v4-ingress/pod-server[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"test-simple-v4-ingress/pod-client-b[Pod]macvlan1-simple" -> "test-simple-v4-ingress/pod-client-a[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"test-simple-v4-ingress/pod-server[Pod]macvlan1-simple" -> "test-simple-v4-ingress/pod-client-a[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"test-simple-v4-ingress/pod-server[Pod]macvlan1-simple" -> "test-simple-v4-ingress/pod-client-b[Pod]macvlan1-simple" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}

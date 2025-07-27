@@ -97,6 +97,9 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 	if explain {
 		res = append(res, connlist.WithExplanation())
 	}
+	if multipleNetworks {
+		res = append(res, connlist.WithMultipleNetworks())
+	}
 	return res
 }
 

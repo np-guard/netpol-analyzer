@@ -22,14 +22,14 @@ import (
 // an input list of resource.Info objects. Irrelevant resources are skipped.
 // Possible errs/warnings as FileProcessingError:
 // malformedYamlDoc , noK8sWorkloadResourcesFound, noK8sNetworkPolicyResourcesFound
-func ResourceInfoListToK8sObjectsList(infosList []*resource.Info, l logger.Logger, muteErrsAndWarns bool) (
+func ResourceInfoListToK8sObjectsList(infosList []*resource.Info, l logger.Logger, muteErrsAndWarns, multipleNetworksEnabled bool) (
 	[]K8sObject, []FileProcessingError) {
 	res := make([]K8sObject, 0)
 	fpErrList := []FileProcessingError{}
 	var hasWorkloads, hasNetpols bool
 	for _, info := range infosList {
 		// fpErr can be  malformedYamlDoc
-		k8sObj, fpErr := resourceInfoToK8sObject(info, l, muteErrsAndWarns)
+		k8sObj, fpErr := resourceInfoToK8sObject(info, l, muteErrsAndWarns, multipleNetworksEnabled)
 		if fpErr != nil {
 			fpErrList = append(fpErrList, *fpErr)
 			// no need to stop if stopOnErr was set, since malformedYamlDoc is a warning
@@ -55,13 +55,13 @@ func ResourceInfoListToK8sObjectsList(infosList []*resource.Info, l logger.Logge
 }
 
 // resourceInfoToK8sObject converts an input resource.Info object to a K8sObject
-func resourceInfoToK8sObject(info *resource.Info, l logger.Logger, muteErrsAndWarns bool) (
+func resourceInfoToK8sObject(info *resource.Info, l logger.Logger, muteErrsAndWarns, multipleNetworksEnabled bool) (
 	*K8sObject, *FileProcessingError) {
 	resObject := K8sObject{}
 	if unstructuredObj, ok := info.Object.(*unstructured.Unstructured); ok {
 		resObject.Kind = unstructuredObj.GetKind()
 		var err error
-		objField := resObject.getEmptyInitializedFieldObjByKind(resObject.Kind)
+		objField := resObject.getEmptyInitializedFieldObjByKind(resObject.Kind, multipleNetworksEnabled)
 		if objField == nil {
 			l.Infof("in file: %s, skipping object with type: %s", info.Source, resObject.Kind)
 			return nil, nil

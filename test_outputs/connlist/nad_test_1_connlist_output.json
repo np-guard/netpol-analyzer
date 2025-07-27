@@ -1,0 +1,62 @@
+[
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "default/dns-app[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "default/nginx-app[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "0.0.0.0-255.255.255.255[External]",
+    "dst": "default/router-app[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/dns-app[Deployment]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/dns-app[Deployment]",
+    "dst": "default/nginx-app[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/dns-app[Deployment]",
+    "dst": "default/router-app[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/nginx-app[Deployment]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/nginx-app[Deployment]",
+    "dst": "default/dns-app[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/nginx-app[Deployment]",
+    "dst": "default/router-app[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/router-app[Deployment]",
+    "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/router-app[Deployment]",
+    "dst": "default/dns-app[Deployment]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/router-app[Deployment]",
+    "dst": "default/nginx-app[Deployment]",
+    "conn": "All Connections"
+  }
+]

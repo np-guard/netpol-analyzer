@@ -1,0 +1,83 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_ns_c[namespace]" {
+		color="black"
+		fontcolor="black"
+		"ns-c/pod-c[Pod]" [label="pod-c[Pod]" color="blue" fontcolor="blue"]
+		"ns-c/vm-c[VirtualMachine]" [label="vm-c[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="ns-c[namespace]"
+	}
+	subgraph "cluster_ns_d[namespace]" {
+		color="black"
+		fontcolor="black"
+		"ns-d/pod-d[Pod]" [label="pod-d[Pod]" color="blue" fontcolor="blue"]
+		"ns-d/vm-d[VirtualMachine]" [label="vm-d[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="ns-d[namespace]"
+	}
+	}
+	subgraph "cluster_ns_udn_a[udn]" {
+		color="black"
+		fontcolor="black"
+		"ns-udn-a/pod-a[Pod]" [label="pod-a[Pod]" color="blue" fontcolor="blue"]
+		"ns-udn-a/vm-a[VirtualMachine]" [label="vm-a[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="ns-udn-a[udn]"
+	}
+	subgraph "cluster_ns_udn_b[udn]" {
+		color="black"
+		fontcolor="black"
+		"ns-udn-b/pod-b[Pod]" [label="pod-b[Pod]" color="blue" fontcolor="blue"]
+		"ns-udn-b/vm-b[VirtualMachine]" [label="vm-b[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="ns-udn-b[udn]"
+	}
+	subgraph "cluster_macvlan-shared-net" {
+	label="macvlan-shared-net[nad]"
+	subgraph "cluster_ns_c[namespace]" {
+		color="black"
+		fontcolor="black"
+		"ns-c/pod-c[Pod]macvlan-shared-net" [label="pod-c[Pod]" color="blue" fontcolor="blue"]
+		"ns-c/vm-c[VirtualMachine]macvlan-shared-net" [label="vm-c[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="ns-c[namespace]"
+	}
+	subgraph "cluster_ns_d[namespace]" {
+		color="black"
+		fontcolor="black"
+		"ns-d/pod-d[Pod]macvlan-shared-net" [label="pod-d[Pod]" color="blue" fontcolor="blue"]
+		"ns-d/vm-d[VirtualMachine]macvlan-shared-net" [label="vm-d[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="ns-d[namespace]"
+	}
+	}
+	"0.0.0.0-255.255.255.255[External]" [label="0.0.0.0-255.255.255.255[External]" color="red2" fontcolor="red2"]
+	"0.0.0.0-255.255.255.255[External]" -> "ns-c/pod-c[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ns-c/vm-c[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ns-d/pod-d[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ns-d/vm-d[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ns-udn-a/pod-a[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ns-udn-a/vm-a[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ns-udn-b/pod-b[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"0.0.0.0-255.255.255.255[External]" -> "ns-udn-b/vm-b[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns-c/pod-c[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-c/pod-c[Pod]macvlan-shared-net" -> "ns-c/vm-c[VirtualMachine]macvlan-shared-net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns-c/pod-c[Pod]macvlan-shared-net" -> "ns-d/pod-d[Pod]macvlan-shared-net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns-c/pod-c[Pod]macvlan-shared-net" -> "ns-d/vm-d[VirtualMachine]macvlan-shared-net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns-c/vm-c[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-c/vm-c[VirtualMachine]macvlan-shared-net" -> "ns-c/pod-c[Pod]macvlan-shared-net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-c/vm-c[VirtualMachine]macvlan-shared-net" -> "ns-d/pod-d[Pod]macvlan-shared-net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns-c/vm-c[VirtualMachine]macvlan-shared-net" -> "ns-d/vm-d[VirtualMachine]macvlan-shared-net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns-d/pod-d[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-d/pod-d[Pod]macvlan-shared-net" -> "ns-c/pod-c[Pod]macvlan-shared-net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-d/pod-d[Pod]macvlan-shared-net" -> "ns-c/vm-c[VirtualMachine]macvlan-shared-net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-d/pod-d[Pod]macvlan-shared-net" -> "ns-d/vm-d[VirtualMachine]macvlan-shared-net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns-d/vm-d[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-d/vm-d[VirtualMachine]macvlan-shared-net" -> "ns-c/pod-c[Pod]macvlan-shared-net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-d/vm-d[VirtualMachine]macvlan-shared-net" -> "ns-c/vm-c[VirtualMachine]macvlan-shared-net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-d/vm-d[VirtualMachine]macvlan-shared-net" -> "ns-d/pod-d[Pod]macvlan-shared-net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-udn-a/pod-a[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-udn-a/pod-a[Pod]" -> "ns-udn-a/vm-a[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns-udn-a/vm-a[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-udn-a/vm-a[VirtualMachine]" -> "ns-udn-a/pod-a[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-udn-b/pod-b[Pod]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-udn-b/pod-b[Pod]" -> "ns-udn-b/vm-b[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"ns-udn-b/vm-b[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"ns-udn-b/vm-b[VirtualMachine]" -> "ns-udn-b/pod-b[Pod]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}

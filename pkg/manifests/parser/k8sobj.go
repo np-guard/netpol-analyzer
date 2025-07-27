@@ -17,6 +17,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
+	mnpv1 "github.com/k8snetworkplumbingwg/multi-networkpolicy/pkg/apis/k8s.cni.cncf.io/v1beta1" // fixed
+	nadv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	udnv1 "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/userdefinednetwork/v1"
 	kubevirt "kubevirt.io/api/core/v1"
 )
@@ -44,12 +46,17 @@ const (
 	AdminNetworkPolicyList         string = "AdminNetworkPolicyList"
 	BaselineAdminNetworkPolicy     string = "BaselineAdminNetworkPolicy"
 	BaselineAdminNetworkPolicyList string = "BaselineAdminNetworkPolicyList" // a list with max 1 object according to apis/v1alpha
-	UserDefinedNetwork             string = "UserDefinedNetwork"
-	UserDefinedNetworkList         string = "UserDefinedNetworkList"
-	ClusterUserDefinedNetwork      string = "ClusterUserDefinedNetwork"
-	ClusterUserDefinedNetworkList  string = "ClusterUserDefinedNetworkList"
-	VirtualMachine                 string = "VirtualMachine"
-	VirtualMachineList             string = "VirtualMachineList"
+	// relevant ocp-virt resources
+	UserDefinedNetwork              string = "UserDefinedNetwork"
+	UserDefinedNetworkList          string = "UserDefinedNetworkList"
+	ClusterUserDefinedNetwork       string = "ClusterUserDefinedNetwork"
+	ClusterUserDefinedNetworkList   string = "ClusterUserDefinedNetworkList"
+	VirtualMachine                  string = "VirtualMachine"
+	VirtualMachineList              string = "VirtualMachineList"
+	NetworkAttachmentDefinition     string = "NetworkAttachmentDefinition"
+	NetworkAttachmentDefinitionList string = "NetworkAttachmentDefinitionList"
+	MultiNetworkPolicy              string = "MultiNetworkPolicy"
+	MultiNetworkPolicyList          string = "MultiNetworkPolicyList"
 )
 
 // K8sObject holds a an object kind and a pointer of the relevant object
@@ -86,10 +93,14 @@ type K8sObject struct {
 	UserDefinedNetwork        *udnv1.UserDefinedNetwork
 	ClusterUserDefinedNetwork *udnv1.ClusterUserDefinedNetwork
 	VirtualMachine            *kubevirt.VirtualMachine
+
+	NetworkAttachmentDefinition *nadv1.NetworkAttachmentDefinition
+	MultiNetworkPolicy          *mnpv1.MultiNetworkPolicy
 }
 
 //gocyclo:ignore
-func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} { //nolint:funlen // should not break this up
+func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string, //nolint:funlen // should not break this up
+	multipleNetworksEnabled bool) interface{} {
 	switch kind {
 	case Deployment:
 		k.Deployment = &appsv1.Deployment{}
@@ -137,14 +148,30 @@ func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string) interface{} {
 		k.BaselineAdminNetworkPolicy = &apisv1a.BaselineAdminNetworkPolicy{}
 		return k.BaselineAdminNetworkPolicy
 	case UserDefinedNetwork:
-		k.UserDefinedNetwork = &udnv1.UserDefinedNetwork{}
-		return k.UserDefinedNetwork
+		if multipleNetworksEnabled {
+			k.UserDefinedNetwork = &udnv1.UserDefinedNetwork{}
+			return k.UserDefinedNetwork
+		}
 	case ClusterUserDefinedNetwork:
-		k.ClusterUserDefinedNetwork = &udnv1.ClusterUserDefinedNetwork{}
-		return k.ClusterUserDefinedNetwork
+		if multipleNetworksEnabled {
+			k.ClusterUserDefinedNetwork = &udnv1.ClusterUserDefinedNetwork{}
+			return k.ClusterUserDefinedNetwork
+		}
+	case NetworkAttachmentDefinition:
+		if multipleNetworksEnabled {
+			k.NetworkAttachmentDefinition = &nadv1.NetworkAttachmentDefinition{}
+			return k.NetworkAttachmentDefinition
+		}
 	case VirtualMachine:
-		k.VirtualMachine = &kubevirt.VirtualMachine{}
-		return k.VirtualMachine
+		if multipleNetworksEnabled {
+			k.VirtualMachine = &kubevirt.VirtualMachine{}
+			return k.VirtualMachine
+		}
+	case MultiNetworkPolicy:
+		if multipleNetworksEnabled {
+			k.MultiNetworkPolicy = &mnpv1.MultiNetworkPolicy{}
+			return k.MultiNetworkPolicy
+		}
 	}
 	return nil
 }
@@ -205,9 +232,17 @@ func (k *K8sObject) initDefaultNamespace() {
 		if k.UserDefinedNetwork.Namespace == "" {
 			k.UserDefinedNetwork.Namespace = metav1.NamespaceDefault
 		}
+	case NetworkAttachmentDefinition:
+		if k.NetworkAttachmentDefinition.Namespace == "" {
+			k.NetworkAttachmentDefinition.Namespace = metav1.NamespaceDefault
+		}
 	case VirtualMachine:
 		if k.VirtualMachine.Namespace == "" {
 			k.VirtualMachine.Namespace = metav1.NamespaceDefault
+		}
+	case MultiNetworkPolicy:
+		if k.MultiNetworkPolicy.Namespace == "" {
+			k.MultiNetworkPolicy.Namespace = metav1.NamespaceDefault
 		}
 	}
 }
@@ -241,6 +276,7 @@ var policyKinds = map[string]bool{
 	NetworkPolicy:              true,
 	AdminNetworkPolicy:         true,
 	BaselineAdminNetworkPolicy: true,
+	MultiNetworkPolicy:         true,
 }
 
 //gocyclo:ignore
@@ -285,6 +321,10 @@ func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) 
 			}
 		case ClusterUserDefinedNetwork:
 			res = append(res, obj)
+		case NetworkAttachmentDefinition:
+			if _, ok := nsMap[obj.NetworkAttachmentDefinition.Namespace]; ok {
+				res = append(res, obj)
+			}
 		case VirtualMachine:
 			if _, ok := nsMap[obj.VirtualMachine.Namespace]; ok {
 				res = append(res, obj)
@@ -293,6 +333,10 @@ func FilterObjectsList(allObjects []K8sObject, podNames []types.NamespacedName) 
 			res = append(res, obj)
 		case BaselineAdminNetworkPolicy:
 			res = append(res, obj)
+		case MultiNetworkPolicy:
+			if _, ok := nsMap[obj.MultiNetworkPolicy.Namespace]; ok {
+				res = append(res, obj)
+			}
 		default:
 			continue
 		}

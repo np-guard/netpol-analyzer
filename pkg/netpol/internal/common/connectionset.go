@@ -32,6 +32,7 @@ type ConnectionSet struct {
 	AllowAll            bool
 	AllowedProtocols    map[v1.Protocol]*PortSet // map from protocol name to set of allowed ports
 	CommonImplyingRules ImplyingRulesType        // used for explainability, when AllowedProtocols is empty (i.e., all allowed or all denied)
+	NetworkData         NetworkData
 }
 
 var allProtocols = []v1.Protocol{v1.ProtocolTCP, v1.ProtocolUDP, v1.ProtocolSCTP}

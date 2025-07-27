@@ -1,0 +1,4 @@
+Permitted connections on TCP 80:
+
+Permitted connectivity analyzed in secondary NAD l2-network:
+ns2/pod3[Pod] => ns1/pod2[Pod]

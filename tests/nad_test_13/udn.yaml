@@ -1,0 +1,19 @@
+apiVersion: nmstate.io/v1
+kind: UserDefinedNetwork
+metadata:
+  name: udn-a
+  namespace: ns-udn-a
+spec:
+  topology: Layer2
+  layer2:
+    role: Primary
+---
+apiVersion: nmstate.io/v1
+kind: UserDefinedNetwork
+metadata:
+  name: udn-b
+  namespace: ns-udn-b
+spec:
+  topology: Layer2
+  layer2:
+    role: Primary

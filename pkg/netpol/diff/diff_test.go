@@ -38,7 +38,7 @@ func TestDiff(t *testing.T) {
 		for _, format := range tt.formats {
 			testutils.SkipRunningSVGTestOnGithub(t, format)
 			for _, apiFunc := range diffTestedAPIS {
-				pTest := prepareTest(tt.firstDirName, tt.secondDirName, format, apiFunc, "")
+				pTest := prepareTest(tt.firstDirName, tt.secondDirName, format, apiFunc, "", tt.multipleNetworksEnabled)
 				t.Run(pTest.testName, func(t *testing.T) {
 					t.Parallel()
 					diffRes, err := getAnalysisResFromAPI(apiFunc, pTest)
@@ -65,7 +65,7 @@ func TestDiffAnalyzeFatalErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiFunc := range diffTestedAPIS {
-				pTest := prepareTest(tt.ref1, tt.ref2, output.DefaultFormat, apiFunc, tt.name)
+				pTest := prepareTest(tt.ref1, tt.ref2, output.DefaultFormat, apiFunc, tt.name, false)
 				diffRes, err := getAnalysisResFromAPI(apiFunc, pTest)
 				require.Empty(t, diffRes, "test: %q, apiFunc: %q", tt.name, apiFunc)
 				testutils.CheckErrorContainment(t, pTest.testInfo, tt.errorStrContains, err.Error())
@@ -153,7 +153,7 @@ func TestDiffAnalyzerSevereErrorsAndWarnings(t *testing.T) {
 				if tt.onlyDirPathsAPI && apiFunc != DirPathFunc {
 					continue
 				}
-				pTest := prepareTest(tt.ref1, tt.ref2, output.DefaultFormat, apiFunc, tt.name)
+				pTest := prepareTest(tt.ref1, tt.ref2, output.DefaultFormat, apiFunc, tt.name, false)
 				diffRes, err := getAnalysisResFromAPI(apiFunc, pTest)
 				if tt.emptyRes {
 					require.Empty(t, diffRes, pTest.testInfo)
@@ -239,7 +239,7 @@ func TestErrorsConnDiffFromDirPathOnly(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			pTest := prepareTest(tt.ref1, tt.ref2, output.DefaultFormat, DirPathFunc, tt.name)
+			pTest := prepareTest(tt.ref1, tt.ref2, output.DefaultFormat, DirPathFunc, tt.name, false)
 			diffRes, err := getAnalysisResFromAPI(DirPathFunc, pTest)
 			if tt.emptyRes {
 				require.Empty(t, diffRes, pTest.testInfo)
@@ -289,7 +289,7 @@ func TestDiffOutputFatalErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiFunc := range diffTestedAPIS {
-				pTest := prepareTest(tt.ref1, tt.ref2, tt.format, apiFunc, tt.name)
+				pTest := prepareTest(tt.ref1, tt.ref2, tt.format, apiFunc, tt.name, false)
 				connsDiff, err := getAnalysisResFromAPI(apiFunc, pTest)
 				require.Nil(t, err, pTest.testInfo)
 				require.NotEmpty(t, connsDiff, pTest.testInfo)
@@ -330,7 +330,7 @@ type preparedTest struct {
 	analyzer               *DiffAnalyzer
 }
 
-func prepareTest(firstDir, secondDir, format, apiName, testNameStr string) *preparedTest {
+func prepareTest(firstDir, secondDir, format, apiName, testNameStr string, multipleNetwork bool) *preparedTest {
 	var testName, expectedOutputFileName string
 	if testNameStr != "" {
 		testName = testNameStr
@@ -338,12 +338,15 @@ func prepareTest(firstDir, secondDir, format, apiName, testNameStr string) *prep
 	} else {
 		testName, expectedOutputFileName = testutils.DiffTestNameByTestArgs(firstDir, secondDir, format)
 	}
-
+	opts := []DiffAnalyzerOption{WithOutputFormat(format)}
+	if multipleNetwork {
+		opts = append(opts, WithMultipleNetworks())
+	}
 	return &preparedTest{
 		testName:               testName,
 		expectedOutputFileName: expectedOutputFileName,
 		testInfo:               fmt.Sprintf("test: %q, output format: %q, api func: %q", testName, format, apiName),
-		analyzer:               NewDiffAnalyzer(WithOutputFormat(format)),
+		analyzer:               NewDiffAnalyzer(opts...),
 		firstDirPath:           testutils.GetTestDirPath(firstDir),
 		secondDirPath:          testutils.GetTestDirPath(secondDir),
 	}
@@ -362,9 +365,10 @@ func getAnalysisResFromAPI(apiName string, pTest *preparedTest) (diffRes Connect
 }
 
 var goodPathTests = []struct {
-	firstDirName  string
-	secondDirName string
-	formats       []string
+	firstDirName            string
+	secondDirName           string
+	formats                 []string
+	multipleNetworksEnabled bool
 }{
 	{
 		// description:
@@ -755,9 +759,10 @@ var goodPathTests = []struct {
 		// in second dir we have same pods, but defined their namespaces with primary-user-defined-networks,
 		// so the different namespaces are isolated; and the conns between pods from different
 		// namespaces are blocked (no policies in the resources)
-		firstDirName:  "only_pods_test",
-		secondDirName: "udn_test_1",
-		formats:       ValidDiffFormats,
+		firstDirName:            "only_pods_test",
+		secondDirName:           "udn_test_1",
+		formats:                 ValidDiffFormats,
+		multipleNetworksEnabled: true,
 	},
 }
 

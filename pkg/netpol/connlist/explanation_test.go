@@ -25,7 +25,7 @@ func TestExplainFromDir(t *testing.T) {
 		t.Run(tt.testDirName, func(t *testing.T) {
 			t.Parallel()
 			pTest := prepareExplainTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection,
-				tt.focusConn, tt.explainOnly, tt.exposure)
+				tt.focusConn, tt.explainOnly, tt.exposure, tt.multipleNetworksEnabled)
 			res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 			require.Nil(t, err, pTest.testInfo)
 			out, err := pTest.analyzer.ConnectionsListToString(res)
@@ -37,7 +37,7 @@ func TestExplainFromDir(t *testing.T) {
 }
 
 func prepareExplainTest(dirName string, focusWorkloads, focusWorkloadPeers []string, focusDirection, focusConn,
-	explainOnly string, exposure bool) preparedTest {
+	explainOnly string, exposure, multipleNetworksEnabled bool) preparedTest {
 	res := preparedTest{}
 	res.testName, res.expectedOutputFileName = testutils.ExplainTestNameByTestArgs(dirName,
 		strings.Join(focusWorkloads, testutils.Underscore), strings.Join(focusWorkloadPeers, testutils.Underscore), focusDirection,
@@ -49,20 +49,24 @@ func prepareExplainTest(dirName string, focusWorkloads, focusWorkloadPeers []str
 	if exposure {
 		opts = append(opts, WithExposureAnalysis())
 	}
+	if multipleNetworksEnabled {
+		opts = append(opts, WithMultipleNetworks())
+	}
 	res.analyzer = NewConnlistAnalyzer(opts...)
 	res.dirPath = testutils.GetTestDirPath(dirName)
 	return res
 }
 
 var explainTests = []struct {
-	testDirName            string
-	focusWorkloads         []string
-	focusDirection         string
-	focusConn              string
-	focusWorkloadPeers     []string
-	exposure               bool
-	explainOnly            string
-	supportedOnLiveCluster bool
+	testDirName             string
+	focusWorkloads          []string
+	focusDirection          string
+	focusConn               string
+	focusWorkloadPeers      []string
+	exposure                bool
+	explainOnly             string
+	supportedOnLiveCluster  bool
+	multipleNetworksEnabled bool
 }{
 	{
 		testDirName: "netpol-demo",
@@ -319,47 +323,88 @@ var explainTests = []struct {
 		exposure:    true,
 	},
 	{
-		testDirName: "udn_test_1",
+		testDirName:             "udn_test_1",
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName: "udn_test_2",
+		testDirName:             "udn_test_2",
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName: "udn_test_3",
+		testDirName:             "udn_test_3",
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName: "udn_test_4",
+		testDirName:             "udn_test_4",
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName: "udn_test_4",
-		focusConn:   "tcp-8080",
+		testDirName:             "udn_test_4",
+		focusConn:               "tcp-8080",
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName: "udn_test_1",
-		focusConn:   "tcp-90",
+		testDirName:             "udn_test_1",
+		focusConn:               "tcp-90",
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName: "virtual_machines_example",
+		testDirName:             "virtual_machines_example",
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName: "udn_and_vms_test_4",
+		testDirName:             "udn_and_vms_test_4",
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName: "udn_and_vms_test_5",
+		testDirName:             "udn_and_vms_test_5",
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName: "cudn_test_1",
+		testDirName:             "cudn_test_1",
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName: "cudn_test_6",
+		testDirName:             "cudn_test_6",
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName:    "cudn_test_6",
-		focusWorkloads: []string{"app-yellow"},
+		testDirName:             "cudn_test_6",
+		focusWorkloads:          []string{"app-yellow"},
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName:    "cudn_test_6",
-		focusWorkloads: []string{"app-green"},
-		focusConn:      "tcp-8000",
+		testDirName:             "cudn_test_6",
+		focusWorkloads:          []string{"app-green"},
+		focusConn:               "tcp-8000",
+		multipleNetworksEnabled: true,
+	},
+	{
+		testDirName:             "nad_test_3",
+		multipleNetworksEnabled: true,
+	},
+	{
+		testDirName:             "nad_test_4",
+		multipleNetworksEnabled: true,
+	},
+	{
+		testDirName:             "nad_test_4",
+		focusConn:               "tcp-80",
+		focusDirection:          common.IngressFocusDirection,
+		multipleNetworksEnabled: true,
+	},
+	{
+		testDirName:             "nad_test_4",
+		focusConn:               "tcp-80",
+		focusDirection:          common.IngressFocusDirection,
+		focusWorkloads:          []string{"pod2"},
+		focusWorkloadPeers:      []string{"pod3"},
+		multipleNetworksEnabled: true,
+	},
+	{
+		testDirName:             "nad_test_4",
+		focusConn:               "tcp-80",
+		explainOnly:             common.ExplainOnlyAllow,
+		multipleNetworksEnabled: true,
 	},
 }

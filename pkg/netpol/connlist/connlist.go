@@ -56,14 +56,13 @@ type ConnlistAnalyzer struct {
 	exposureAnalysis   bool
 	exposureResult     []ExposedPeer
 	explain            bool
+	multipleNetworks   bool
 	explainOnly        string
 	focusConnection    string
 	outputFormat       string
 	muteErrsAndWarns   bool
 	peersList          []Peer // internally used peersList used in dot/svg formatting;
 	// in case of focusWorkload option contains only relevant peers
-	primaryUdnNamespaces map[string]eval.UDNData // set of the names of isolated by primary UDN/CUDN namespaces,
-	// internally used in formatting output
 	focusConnSet *common.ConnectionSet // internally used to focus conns list results with this specific connection
 }
 
@@ -110,7 +109,7 @@ func (ca *ConnlistAnalyzer) warnIncompatibleFlagsUsage() {
 // and the list of all workloads from the parsed resources
 func (ca *ConnlistAnalyzer) ConnlistFromResourceInfos(info []*resource.Info) ([]Peer2PeerConnection, []Peer, error) {
 	// convert resource.Info objects to k8s resources, filter irrelevant resources
-	objects, fpErrs := parser.ResourceInfoListToK8sObjectsList(info, ca.logger, ca.muteErrsAndWarns)
+	objects, fpErrs := parser.ResourceInfoListToK8sObjectsList(info, ca.logger, ca.muteErrsAndWarns, ca.multipleNetworks)
 	ca.copyFpErrs(fpErrs)
 	if ca.stopProcessing() {
 		if err := ca.hasFatalError(); err != nil {
@@ -232,6 +231,14 @@ func WithExplainOnly(explainOnly string) ConnlistAnalyzerOption {
 	}
 }
 
+// WithMultipleNetworks is a functional option which directs ConnlistAnalyzer to enable parsing and analyzing multiple-networks resources,
+// such as (Cluster)UserDefinedNetwork, NetworkAttachmentDefinition and MultiNetworkPolicy
+func WithMultipleNetworks() ConnlistAnalyzerOption {
+	return func(ca *ConnlistAnalyzer) {
+		ca.multipleNetworks = true
+	}
+}
+
 // WithOutputFormat is a functional option, allowing user to choose the output format txt/json/dot/csv/md.
 func WithOutputFormat(outputFormat string) ConnlistAnalyzerOption {
 	return func(p *ConnlistAnalyzer) {
@@ -255,6 +262,7 @@ func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 		exposureAnalysis: false,
 		exposureResult:   nil,
 		explain:          false,
+		multipleNetworks: false,
 		errors:           []ConnlistError{},
 		outputFormat:     output.DefaultFormat,
 	}
@@ -366,7 +374,6 @@ func (ca *ConnlistAnalyzer) connsListFromParsedResources(objectsList []parser.K8
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, err
 	}
-	ca.primaryUdnNamespaces = pe.GetPrimaryUDNNamespaces()
 	return ca.getConnectionsList(pe, ia)
 }
 
@@ -499,7 +506,7 @@ func (ca *ConnlistAnalyzer) ConnectionsListToString(conns []Peer2PeerConnection)
 	if ca.focusConnSet != nil {
 		focusConnStr = ca.focusConnSet.String()
 	}
-	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis, ca.explain, focusConnStr, ca.primaryUdnNamespaces)
+	out, err := connsFormatter.writeOutput(conns, ca.exposureResult, ca.exposureAnalysis, ca.explain, focusConnStr)
 	if err != nil {
 		ca.errors = append(ca.errors, newResultFormattingError(err))
 		return "", err
@@ -541,6 +548,7 @@ type connection struct {
 	dst                 Peer
 	allConnections      bool
 	commonImplyingRules common.ImplyingRulesType // used for explainability, when allConnections is true
+	networkData         common.NetworkData
 	protocolsAndPorts   map[v1.Protocol][]common.PortRange
 }
 
@@ -950,6 +958,7 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		peConn.RemoveDefaultRule(true)
 		peerAndConn.ConnSet.Intersection(peConn)
 		peerAndConn.ConnSet.SetExplResult(true)
+		peerAndConn.ConnSet.NetworkData = peConn.NetworkData
 		if peerAndConn.ConnSet.IsEmpty() {
 			ca.warnBlockedIngress(peerStr, peerAndConn.IngressObjects)
 			continue
@@ -1024,6 +1033,7 @@ func createConnectionObject(allowedConnections common.Connection, src, dst Peer)
 		allConnections:      allowedConnections.IsAllConnections(),
 		commonImplyingRules: allowedConnections.(*common.ConnectionSet).CommonImplyingRules,
 		protocolsAndPorts:   allowedConnections.ProtocolsAndPortsMap(true),
+		networkData:         allowedConnections.(*common.ConnectionSet).NetworkData,
 	}
 }
 
@@ -1076,10 +1086,12 @@ func (ca *ConnlistAnalyzer) shouldAddPeerGeneralExposureData(pe *eval.PolicyEngi
 func (ca *ConnlistAnalyzer) getFocusConnSetWithDataFromAllowedConns(allowedConns *common.ConnectionSet) (fc *common.ConnectionSet,
 	err error) {
 	if !ca.explain {
+		ca.focusConnSet.NetworkData = allowedConns.NetworkData
 		return ca.focusConnSet, nil
 	}
 	// else : explain is on
 	focusConnSetWithExp, allowedFlag, err := common.GetFocusConnSetWithExplainabilityFromAllowedConnSet(allowedConns, ca.focusConnSet)
+	focusConnSetWithExp.NetworkData = allowedConns.NetworkData
 	if ca.explainOnly == pkgcommon.ExplainOnlyAllow && !allowedFlag {
 		return nil, nil // the focus conn is denied - nothing to display
 	}

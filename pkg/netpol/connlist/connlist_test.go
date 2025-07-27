@@ -86,7 +86,7 @@ func TestConnListFromDir(t *testing.T) {
 			for _, format := range tt.outputFormats {
 				testutils.SkipRunningSVGTestOnGithub(t, format)
 				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, tt.focusConn,
-					format, tt.exposureAnalysis)
+					format, tt.exposureAnalysis, tt.multipleNetworksEnabled)
 				res, _, err := pTest.analyzer.ConnlistFromDirPath(pTest.dirPath)
 				require.Nil(t, err, pTest.testInfo)
 				out, err := pTest.analyzer.ConnectionsListToString(res)
@@ -106,7 +106,7 @@ func TestConnListFromResourceInfos(t *testing.T) {
 			for _, format := range tt.outputFormats {
 				testutils.SkipRunningSVGTestOnGithub(t, format)
 				pTest := prepareTest(tt.testDirName, tt.focusWorkloads, tt.focusWorkloadPeers, tt.focusDirection, tt.focusConn,
-					format, tt.exposureAnalysis)
+					format, tt.exposureAnalysis, tt.multipleNetworksEnabled)
 				infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
 				// require.Empty(t, errs, testInfo) - TODO: add info about expected errors
 				// from each test here (these errors do not stop the analysis or affect the output)
@@ -130,9 +130,10 @@ func TestConnListFromResourceInfos(t *testing.T) {
 func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		name             string
-		dirName          string
-		errorStrContains string
+		name                    string
+		dirName                 string
+		errorStrContains        string
+		multipleNetworksEnabled bool
 	}{
 		// invalid netpols batch
 		{
@@ -379,51 +380,59 @@ func TestConnlistAnalyzeFatalErrors(t *testing.T) {
 			errorStrContains: alerts.NSWithSameNameError("blue"),
 		},
 		{
-			name:             "Input_udn_contains_invalid_value_for_key_topology_return_fatal_error",
-			dirName:          "udn_bad_path_test_1",
-			errorStrContains: alerts.InvalidKeyValue("blue/separate-namespace", "topology", "Layer4"),
+			name:                    "Input_udn_contains_invalid_value_for_key_topology_return_fatal_error",
+			dirName:                 "udn_bad_path_test_1",
+			errorStrContains:        alerts.InvalidKeyValue("blue/separate-namespace", "topology", "Layer4"),
+			multipleNetworksEnabled: true,
 		},
 		{
-			name:             "Input_udn_contains_mismatch_between_key_topology_and_actual_layer_return_fatal_error",
-			dirName:          "udn_bad_path_test_2",
-			errorStrContains: alerts.DisMatchLayerConfiguration("blue/separate-namespace", "Layer2"),
+			name:                    "Input_udn_contains_mismatch_between_key_topology_and_actual_layer_return_fatal_error",
+			dirName:                 "udn_bad_path_test_2",
+			errorStrContains:        alerts.DisMatchLayerConfiguration("blue/separate-namespace", "Layer2"),
+			multipleNetworksEnabled: true,
 		},
 		{
-			name:             "Input_udn_contains_invalid_value_for_key_role_return_fatal_error",
-			dirName:          "udn_bad_path_test_3",
-			errorStrContains: alerts.InvalidKeyValue("blue/separate-namespace", "role", "Admin"),
+			name:                    "Input_udn_contains_invalid_value_for_key_role_return_fatal_error",
+			dirName:                 "udn_bad_path_test_3",
+			errorStrContains:        alerts.InvalidKeyValue("blue/separate-namespace", "role", "Admin"),
+			multipleNetworksEnabled: true,
 		},
 		{
-			name:             "Input_udn_name_is_default_return_fatal_error",
-			dirName:          "udn_bad_path_test_4",
-			errorStrContains: alerts.UDNNameAssertion("blue/default"),
+			name:                    "Input_udn_name_is_default_return_fatal_error",
+			dirName:                 "udn_bad_path_test_4",
+			errorStrContains:        alerts.UDNNameAssertion("blue/default"),
+			multipleNetworksEnabled: true,
 		},
 		{
-			name:             "Input_udn_is_in_default_namespace_return_fatal_error",
-			dirName:          "udn_bad_path_test_5",
-			errorStrContains: alerts.UDNNamespaceAssertion("namespace-scoped", "default"),
+			name:                    "Input_udn_is_in_default_namespace_return_fatal_error",
+			dirName:                 "udn_bad_path_test_5",
+			errorStrContains:        alerts.UDNNamespaceAssertion("namespace-scoped", "default"),
+			multipleNetworksEnabled: true,
 		},
 		{
-			name:             "Input_udn_is_in_openshift_namespace_return_fatal_error",
-			dirName:          "udn_bad_path_test_6",
-			errorStrContains: alerts.UDNNamespaceAssertion("namespace-scoped", "openshift-oc"),
+			name:                    "Input_udn_is_in_openshift_namespace_return_fatal_error",
+			dirName:                 "udn_bad_path_test_6",
+			errorStrContains:        alerts.UDNNamespaceAssertion("namespace-scoped", "openshift-oc"),
+			multipleNetworksEnabled: true,
 		},
 		{
-			name:             "Input_namespace_has_two_primary_UDNs_return_fatal_error",
-			dirName:          "udn_bad_path_test_7",
-			errorStrContains: alerts.OnePrimaryUDNAssertion("blue", "blue/separate-namespace", "blue/namespace-scoped"),
+			name:                    "Input_namespace_has_two_primary_UDNs_return_fatal_error",
+			dirName:                 "udn_bad_path_test_7",
+			errorStrContains:        alerts.OnePrimaryUDNAssertion("blue", "blue/separate-namespace", "blue/namespace-scoped"),
+			multipleNetworksEnabled: true,
 		},
 		{
-			name:             "Input_namespace_selected_by_two_primary_CUDN_and_UDN_return_fatal_error",
-			dirName:          "cudn_bad_test_1",
-			errorStrContains: alerts.OnePrimaryUDNAssertion("red", "cudn-selecting-red-ns", "red/red-network"),
+			name:                    "Input_namespace_selected_by_two_primary_CUDN_and_UDN_return_fatal_error",
+			dirName:                 "cudn_bad_test_1",
+			errorStrContains:        alerts.OnePrimaryUDNAssertion("red", "cudn-selecting-red-ns", "red/red-network"),
+			multipleNetworksEnabled: true,
 		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			for _, apiToTest := range connlistTestedAPIS {
-				analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(apiToTest, tt.dirName, nil, nil, "")
+				analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(apiToTest, tt.dirName, nil, nil, "", tt.multipleNetworksEnabled)
 				testFatalErr(t, connsRes, peersRes, err, tt.name, tt.errorStrContains, analyzer)
 			}
 		})
@@ -443,9 +452,10 @@ func testFatalErr(t *testing.T,
 	testutils.CheckErrorContainment(t, testName, errStr, analyzer.errors[0].Error().Error())
 }
 
-func getAnalysisResFromAPI(apiName, dirName string, focusWorkloads, focusWorkloadPeers []string, focusDirection string) (
+func getAnalysisResFromAPI(apiName, dirName string, focusWorkloads, focusWorkloadPeers []string, focusDirection string,
+	multipleNetworks bool) (
 	analyzer *ConnlistAnalyzer, connsRes []Peer2PeerConnection, peersRes []Peer, err error) {
-	pTest := prepareTest(dirName, focusWorkloads, focusWorkloadPeers, focusDirection, "", output.DefaultFormat, false)
+	pTest := prepareTest(dirName, focusWorkloads, focusWorkloadPeers, focusDirection, "", output.DefaultFormat, false, multipleNetworks)
 	switch apiName {
 	case ResourceInfosFunc:
 		infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{pTest.dirPath}, true, false)
@@ -578,7 +588,7 @@ func TestConnlistAnalyzeSevereErrorsAndWarnings(t *testing.T) {
 
 			for _, apiToTest := range connlistTestedAPIS {
 				analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(apiToTest, tt.dirName, tt.focusWorkloads,
-					tt.focusWorkloadPeers, tt.focusDirection)
+					tt.focusWorkloadPeers, tt.focusDirection, false)
 				require.Nil(t, err, tt.name)
 				if tt.emptyRes {
 					require.Empty(t, connsRes, tt.name)
@@ -642,7 +652,7 @@ func TestFatalErrorsConnlistFromDirPathOnly(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, nil, nil, "")
+			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, nil, nil, "", false)
 			testFatalErr(t, connsRes, peersRes, err, tt.name, tt.errorStrContains, analyzer)
 		})
 	}
@@ -673,7 +683,7 @@ func TestErrorsAndWarningsConnlistFromDirPathOnly(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, nil, nil, "")
+			analyzer, connsRes, peersRes, err := getAnalysisResFromAPI(DirPathFunc, tt.dirName, nil, nil, "", false)
 			require.Nil(t, err, tt.name)
 			if tt.emptyRes {
 				require.Empty(t, connsRes, tt.name)
@@ -700,6 +710,7 @@ func TestLoggerWarnings(t *testing.T) {
 		explain                     bool
 		explainOnly                 string
 		expectedWarningsStrContains []string
+		multipleNetworksEnabled     bool
 	}{
 		{
 			name:                        "input_admin_policy_contains_nodes_egress_peer_should_get_warning",
@@ -768,31 +779,43 @@ func TestLoggerWarnings(t *testing.T) {
 			name:                        "using_secondary_udn_should_warn_that_not_supported_yet",
 			dirName:                     "udn_warning_test_1",
 			expectedWarningsStrContains: []string{alerts.NotSupportedUDNRole("green/namespace-scoped")},
+			multipleNetworksEnabled:     true,
 		},
 		{
 			name:                        "udn_in_not_existing_namespace_should_warn_that_udn_is_ignored",
 			dirName:                     "udn_warning_test_2",
 			expectedWarningsStrContains: []string{alerts.WarnMissingNamespaceOfUDN("separate-namespace", "blue")},
+			multipleNetworksEnabled:     true,
 		},
 		{
 			name:                        "udn_in_ns_without_label_should_warn_that_udn_is_ignored",
 			dirName:                     "udn_warning_test_3",
 			expectedWarningsStrContains: []string{alerts.WarnNamespaceDoesNotSupportUDN("namespace-scoped", "green")},
+			multipleNetworksEnabled:     true,
 		},
 		{
 			name:                        "input_resources_contain_virt_launcher_pod_should_warn_that_it_is_ignored",
 			dirName:                     "udn_and_vms_test_5",
 			expectedWarningsStrContains: []string{alerts.WarnIgnoredVirtLauncherPod("foo/virt-launcher-fedora-apricot-pike-81-qr48r")},
+			multipleNetworksEnabled:     true,
 		},
 		{
 			name:                        "cudn_selecting_a_ns_without_label_should_warn_that_selection_is_ignored",
 			dirName:                     "cudn_test_3",
 			expectedWarningsStrContains: []string{alerts.WarnCudnSelectsNsWithoutPrimaryUDNLabel("entire-cluster-cudn", "yellow-namespace")},
+			multipleNetworksEnabled:     true,
 		},
 		{
 			name:                        "cudn_selector_has_no_matches",
 			dirName:                     "cudn_warning_test_1",
 			expectedWarningsStrContains: []string{alerts.EmptyCUDN("no-selection")},
+			multipleNetworksEnabled:     true,
+		},
+		{
+			name:                        "nad_is_ignored_if_multiple_networks_is_disabled",
+			dirName:                     "nad_test_1",
+			expectedWarningsStrContains: []string{"skipping object with type: NetworkAttachmentDefinition"},
+			multipleNetworksEnabled:     false,
 		},
 	}
 	for _, tt := range cases {
@@ -806,6 +829,9 @@ func TestLoggerWarnings(t *testing.T) {
 			}
 			if tt.explain {
 				opts = append(opts, WithExplanation())
+			}
+			if tt.multipleNetworksEnabled {
+				opts = append(opts, WithMultipleNetworks())
 			}
 			_, _, err := getConnlistFromDirPathRes(opts, tt.dirName)
 			require.Nil(t, err, "test: %q", tt.name)
@@ -885,7 +911,7 @@ type preparedTest struct {
 }
 
 func prepareTest(dirName string, focusWorkloads, focusWorkloadPeers []string, focusDirection, focusConn, format string,
-	exposureFlag bool) preparedTest {
+	exposureFlag, multipleNetworksEnabled bool) preparedTest {
 	res := preparedTest{}
 	res.testName, res.expectedOutputFileName = testutils.ConnlistTestNameByTestArgs(dirName,
 		strings.Join(focusWorkloads, testutils.Underscore),
@@ -895,6 +921,9 @@ func prepareTest(dirName string, focusWorkloads, focusWorkloadPeers []string, fo
 		WithFocusWorkloadPeerList(focusWorkloadPeers), WithFocusConnection(focusConn)}
 	if exposureFlag {
 		opts = append(opts, WithExposureAnalysis())
+	}
+	if multipleNetworksEnabled {
+		opts = append(opts, WithMultipleNetworks())
 	}
 	res.analyzer = NewConnlistAnalyzer(opts...)
 	res.dirPath = testutils.GetTestDirPath(dirName)
@@ -931,7 +960,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			preparedTest := prepareTest(tt.dirName, nil, nil, "", "", tt.format, tt.exposureFlag)
+			preparedTest := prepareTest(tt.dirName, nil, nil, "", "", tt.format, tt.exposureFlag, false)
 			connsRes, peersRes, err := preparedTest.analyzer.ConnlistFromDirPath(preparedTest.dirPath)
 
 			require.Nil(t, err, tt.name)
@@ -945,7 +974,7 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 			testutils.CheckErrorContainment(t, tt.name, tt.errorStrContains, err.Error())
 
 			// re-run the test with new analyzer (to clear the analyzer.errors array )
-			preparedTest = prepareTest(tt.dirName, nil, nil, "", "", tt.format, tt.exposureFlag)
+			preparedTest = prepareTest(tt.dirName, nil, nil, "", "", tt.format, tt.exposureFlag, false)
 			infos, _ := fsscanner.GetResourceInfosFromDirPath([]string{preparedTest.dirPath}, true, false)
 			connsRes2, peersRes2, err2 := preparedTest.analyzer.ConnlistFromResourceInfos(infos)
 
@@ -962,14 +991,15 @@ func TestConnlistOutputFatalErrors(t *testing.T) {
 }
 
 var goodPathTests = []struct {
-	testDirName            string
-	outputFormats          []string
-	focusWorkloads         []string
-	focusWorkloadPeers     []string
-	focusDirection         string
-	focusConn              string
-	exposureAnalysis       bool
-	supportedOnLiveCluster bool
+	testDirName             string
+	outputFormats           []string
+	focusWorkloads          []string
+	focusWorkloadPeers      []string
+	focusDirection          string
+	focusConn               string
+	exposureAnalysis        bool
+	multipleNetworksEnabled bool
+	supportedOnLiveCluster  bool
 }{
 	{
 		testDirName:            "ipblockstest",
@@ -2145,108 +2175,265 @@ var goodPathTests = []struct {
 	{
 		// With user-defined networks, the need for complex network policies are eliminated because isolation
 		// can be achieved by grouping workloads in different networks.
-		testDirName:   "udn_test_1",
-		outputFormats: ValidFormats,
+		testDirName:             "udn_test_1",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
 		// user-defined network with network-policy in an isolated network
-		testDirName:   "udn_test_2",
-		outputFormats: ValidFormats,
+		testDirName:             "udn_test_2",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
 		// user-defined network with network-policy in an isolated network
-		testDirName:   "udn_test_2",
-		outputFormats: ValidFormats,
-		focusConn:     "tcp-90",
+		testDirName:             "udn_test_2",
+		outputFormats:           ValidFormats,
+		focusConn:               "tcp-90",
+		multipleNetworksEnabled: true,
 	},
 	{
 		// one user-defined network with network-policy.
 		// 2 regular pod networks (in namespaces without UDN)
 		// AdminNetworkPolicy that enables egress from pods with specific label - pods in the udn still isolated
-		testDirName:   "udn_test_3",
-		outputFormats: ValidFormats,
+		testDirName:             "udn_test_3",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
 		// one user-defined network with network-policy.
 		// 2 namespaces in regular pod networks (without UDN)
 		// Networkpolicy in the regular pod networks that enables egress to whole world - pods in the udn still isolated
-		testDirName:   "udn_test_4",
-		outputFormats: ValidFormats,
+		testDirName:             "udn_test_4",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
 		// a test with UDN and Ingress-Controller; external ingress to a service in a UDN are allowed if the pod's ports match
-		testDirName:   "udn_with_ingress_controller",
-		outputFormats: ValidFormats,
+		testDirName:             "udn_with_ingress_controller",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
 		// a test with UDN and Ingress-Controller; external ingress to a service in a UDN are allowed if the pod's ports match
 		// this test contains two pods in the UDN, one matches the Ingress and service's ports and the second not matching them
-		testDirName:   "udn_with_ingress_controller_two_pods",
-		outputFormats: ValidFormats,
+		testDirName:             "udn_with_ingress_controller_two_pods",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	// tests involving udn(s) and virtual-machine workloads
 	{
-		testDirName:   "udn_and_vms_test_1",
-		outputFormats: ValidFormats,
+		testDirName:             "udn_and_vms_test_1",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName:   "udn_and_vms_test_2",
-		outputFormats: ValidFormats,
+		testDirName:             "udn_and_vms_test_2",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName:   "udn_and_vms_test_3",
-		outputFormats: ValidFormats,
+		testDirName:             "udn_and_vms_test_3",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName:   "udn_and_vms_test_4",
-		outputFormats: ValidFormats,
+		testDirName:             "udn_and_vms_test_4",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName:   "udn_and_vms_test_5",
-		outputFormats: ValidFormats,
+		testDirName:             "udn_and_vms_test_5",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
 		// virtual-machine(s) test in the default namespace (without-udn)
-		testDirName:   "virtual_machines_example",
-		outputFormats: ValidFormats,
+		testDirName:             "virtual_machines_example",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
 		// a test with UDN having a VM and Ingress-Controller; external ingress ports to a service in a UDN are allowed to the VM
-		testDirName:   "udn_with_vm_and_ingress_controller",
-		outputFormats: ValidFormats,
+		testDirName:             "udn_with_vm_and_ingress_controller",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
 		// resource: https://github.com/maiqueb/fosdem2025-p-udn/tree/main/manifests/cluster-wide-network
-		testDirName:   "cudn_test_1",
-		outputFormats: ValidFormats,
+		testDirName:             "cudn_test_1",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
 		// cudn selects all namespaces, all of them have the required label to define ns as a udn
-		testDirName:   "cudn_test_2",
-		outputFormats: ValidFormats,
+		testDirName:             "cudn_test_2",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
 		// cudn selects all namespaces, but not all of the namespaces has the required label in their spec,
 		// so those will not belong to the cudn
-		testDirName:   "cudn_test_3",
-		outputFormats: ValidFormats,
+		testDirName:             "cudn_test_3",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
 		// resource: https://github.com/epheo/blog/tree/e0e83c121b6b225fd38c6443bf19b7b5a0f7687d/articles/openshift-layer2-udn
 		// involves udn and cudn
-		testDirName:   "cudn_test_4",
-		outputFormats: ValidFormats,
+		testDirName:             "cudn_test_4",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
 		// resource: https://github.com/tssurya/kubecon-eu-2025-london-udn-workshop/tree
 		// /4d6be99a0ee1ede775a505c35026ee75c799228d/manifests/udns-with-pods
 		// cudn + udns + networkpolicy
-		testDirName:   "cudn_test_5",
-		outputFormats: ValidFormats,
+		testDirName:             "cudn_test_5",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
 	},
 	{
-		testDirName:   "cudn_test_6",
-		outputFormats: ValidFormats,
+		testDirName:             "cudn_test_6",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
+	},
+	{
+		//  this example is taken from :
+		//  https://www.redhat.com/en/blog/secondary-network-overlays-virtualization-workloads
+		//  quote from the link above that demonstrates connectivity:
+		//  In it, the pod network is used to access the outside world (e.g., the Internet) and Kubernetes services,
+		//  while the secondary network is used for communication between the VMs
+		testDirName:             "nad_test_2",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
+	},
+	{
+		testDirName:             "nad_test_1",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
+	},
+	{
+		testDirName:             "nad_test_2",
+		outputFormats:           ValidFormats,
+		focusConn:               "tcp-80",
+		multipleNetworksEnabled: true,
+	},
+	{
+		// 2 vm from different namespaces belong to same secondary network with 2 multi-network-policy defining how both can connect
+		testDirName:             "nad_test_3",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
+	},
+	{
+		// same as nad_test_3 with networkpolicies deniying all conns in the pod-network
+		testDirName:             "nad_test_4",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
+	},
+	{
+		// same as nad_test_3 with networkpolicies deniying all conns in the pod-network
+		testDirName:             "nad_test_4",
+		outputFormats:           ValidFormats,
+		focusConn:               "tcp-80",
+		focusDirection:          common.IngressFocusDirection,
+		multipleNetworksEnabled: true,
+	},
+	{
+		// same as nad_test_3 with networkpolicies deniying all conns in the pod-network
+		testDirName:             "nad_test_4",
+		outputFormats:           ValidFormats,
+		focusConn:               "tcp-80",
+		focusDirection:          common.IngressFocusDirection,
+		focusWorkloads:          []string{"pod2"},
+		focusWorkloadPeers:      []string{"pod3"},
+		multipleNetworksEnabled: true,
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/simple-v4-egress.yml#L28
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:             "nad_test_5",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/simple-v4-ingress.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:             "nad_test_6",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/ingress-ns-selector-
+		// no-pods.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:             "nad_test_7",
+		outputFormats:           ValidFormats,
+		focusWorkloads:          []string{"pod-server"},
+		multipleNetworksEnabled: true,
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/protocol-only-ports.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:             "nad_test_8",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/simple-v4-egress-list.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:             "nad_test_9",
+		outputFormats:           []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+		focusWorkloads:          []string{"pod-server"},
+		multipleNetworksEnabled: true,
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/simple-v4-ingress-list.yml
+		testDirName:             "nad_test_10",
+		outputFormats:           []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+		focusWorkloads:          []string{"pod-server"}, // connects with external ips by pod-network, no restriction
+		multipleNetworksEnabled: true,
+	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/stacked.yml
+		// added default deny networkpolicy to restrict connections with external ip-blocks in the pod-network
+		testDirName:             "nad_test_11",
+		outputFormats:           []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+		focusWorkloads:          []string{"pod-server"},
+		multipleNetworksEnabled: true,
+	},
+	{
+		// two namespaces , each is a primary udn assigned;
+		// pods and vms in each udn are isolated from the other pods/vms in the other udn
+		// even though all pods and vm-s share same secondary network;
+		// since allowed-conns between two peers is returned in one-network only (one *connectionSet for each pair)
+		// and the primary interface of each peer takes precedence on all other networks.
+		testDirName:             "nad_test_12",
+		outputFormats:           []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+		multipleNetworksEnabled: true,
+	},
+	{
+		// same udn networks from nad_test_12 with new added two regular namespaces (with no udn): ns-c, ns-d
+		// all pods in ns-c and ns-d are sharing same secondary network interface;
+		// then we will see connections between peers from those namespaces in the shared network
+		testDirName:             "nad_test_13",
+		outputFormats:           []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+		multipleNetworksEnabled: true,
+	},
+	{
+		// same objects from nad_test_13, with network-policy and multi-network-policy objects;
+		// to see that network-policy objects affect connectivity in pod-network and UDN networks only
+		// while multi-netpol objects affects connectivity in secondary networks only
+		testDirName:             "nad_test_14",
+		outputFormats:           []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
+		multipleNetworksEnabled: true,
 	},
 }
 
