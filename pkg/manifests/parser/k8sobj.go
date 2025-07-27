@@ -162,8 +162,10 @@ func (k *K8sObject) getEmptyInitializedFieldObjByKind(kind string, //nolint:funl
 			return k.NetworkAttachmentDefinition
 		}
 	case VirtualMachine:
-		k.VirtualMachine = &kubevirt.VirtualMachine{}
-		return k.VirtualMachine
+		if multipleNetworksEnabled {
+			k.VirtualMachine = &kubevirt.VirtualMachine{}
+			return k.VirtualMachine
+		}
 	case MultiNetworkPolicy:
 		if multipleNetworksEnabled {
 			k.MultiNetworkPolicy = &mnpv1.MultiNetworkPolicy{}
