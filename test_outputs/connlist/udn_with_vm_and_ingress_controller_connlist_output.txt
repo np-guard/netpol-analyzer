@@ -1,3 +1,5 @@
+Permitted connectivity analyzed in Pod network:
+all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network
 
 Permitted connectivity analyzed in primary UDN green:
 0.0.0.0-255.255.255.255[External] => green[udn]/vm-a[VirtualMachine] : All Connections

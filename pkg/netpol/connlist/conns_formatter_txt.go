@@ -16,7 +16,8 @@ import (
 
 // formatText: implements the connsFormatter interface for txt output format
 type formatText struct {
-	ipMaps ipMaps
+	multipleNetworksEnabled bool
+	ipMaps                  ipMaps
 }
 
 // writeOutput returns a textual string format of connections from list of Peer2PeerConnection objects,
@@ -86,7 +87,7 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 			writeSingleLineExplanationNote(crossNetworksLinesFlag)
 	} else { // not explain (regular connlist)
 		if focusConnStr == "" { // write all pod network conns  (src => dst: conn)
-			result = writeFullConnlistTxtOutput(sortedConnLines, connsByUDN, connsByCUDN, connsByNAD)
+			result = t.writeFullConnlistTxtOutput(sortedConnLines, connsByUDN, connsByCUDN, connsByNAD)
 		} else { // conns are already filtered by focus conn - print only (src => dst)
 			result = writeFocusConnTxtOutput(sortedConnLines, connsByUDN, connsByCUDN, connsByNAD, focusConnStr)
 		}
@@ -236,18 +237,19 @@ func (c singleConnFields) exposureString(isIngress bool, maxStrLen int, focusCon
 }
 
 const (
-	colon               = ":"
-	sectionHeaderPrefix = "Permitted connectivity analyzed in "
-	podNetworkStr       = "Pod network"
-	spaceSeparator      = " "
-	secondary           = "secondary"
-	primary             = "primary"
-	udnStr              = "UDN"
-	cudnStr             = "CUDN"
-	nadStr              = "NAD"
-	secondaryNAD        = secondary + spaceSeparator + nadStr
-	primaryCUDN         = primary + spaceSeparator + cudnStr
-	primaryUDN          = primary + spaceSeparator + udnStr
+	colon                    = ":"
+	sectionHeaderPrefix      = "Permitted connectivity analyzed in "
+	podNetworkStr            = "Pod network"
+	spaceSeparator           = " "
+	secondary                = "secondary"
+	primary                  = "primary"
+	udnStr                   = "UDN"
+	cudnStr                  = "CUDN"
+	nadStr                   = "NAD"
+	secondaryNAD             = secondary + spaceSeparator + nadStr
+	primaryCUDN              = primary + spaceSeparator + cudnStr
+	primaryUDN               = primary + spaceSeparator + udnStr
+	emptyPodNetworkConnsExpl = "all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network"
 )
 
 func writeFocusConnTxtOutput(sortedConnLines []singleConnFields, udnConns, cudnConns, nadConns map[string][]singleConnFields,
@@ -265,10 +267,14 @@ func writeFocusConnTxtOutput(sortedConnLines []singleConnFields, udnConns, cudnC
 	return result
 }
 
-func writeFullConnlistTxtOutput(sortedConnLines []singleConnFields, udnConns, cudnConns, nadConns map[string][]singleConnFields) string {
+func (t *formatText) writeFullConnlistTxtOutput(sortedConnLines []singleConnFields, udnConns, cudnConns,
+	nadConns map[string][]singleConnFields) string {
 	result := ""
-	if (len(udnConns) != 0 || len(cudnConns) != 0 || len(nadConns) != 0) && len(sortedConnLines) != 0 {
+	if len(udnConns) != 0 || len(cudnConns) != 0 || len(nadConns) != 0 {
 		result += sectionHeaderPrefix + podNetworkStr + colon + newLineChar
+		if len(sortedConnLines) == 0 && t.multipleNetworksEnabled {
+			result += emptyPodNetworkConnsExpl + newLineChar
+		}
 	}
 	for _, p2pConn := range sortedConnLines {
 		result += p2pConn.string() + newLineChar

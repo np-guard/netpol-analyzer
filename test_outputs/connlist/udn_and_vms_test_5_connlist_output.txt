@@ -1,3 +1,5 @@
+Permitted connectivity analyzed in Pod network:
+all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network
 
 Permitted connectivity analyzed in primary UDN foo:
 0.0.0.0-255.255.255.255[External] => foo[udn]/fedora-apricot-pike-81[VirtualMachine] : All Connections

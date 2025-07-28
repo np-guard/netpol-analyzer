@@ -1,3 +1,5 @@
+Permitted connectivity analyzed in Pod network:
+all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network
 
 Permitted connectivity analyzed in secondary NAD macvlan1-stacked:
 test-stacked/pod-client-a[Pod] => test-stacked/pod-server[Pod] : All Connections

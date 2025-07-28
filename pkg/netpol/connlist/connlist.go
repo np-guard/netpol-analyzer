@@ -523,7 +523,7 @@ func (ca *ConnlistAnalyzer) getFormatter() (connsFormatter, error) {
 	case output.JSONFormat:
 		return &formatJSON{}, nil
 	case output.TextFormat:
-		return &formatText{}, nil
+		return &formatText{multipleNetworksEnabled: ca.multipleNetworks}, nil
 	case output.DOTFormat:
 		return &formatDOT{ca.peersList}, nil
 	case output.CSVFormat:
