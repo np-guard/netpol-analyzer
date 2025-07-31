@@ -27,13 +27,15 @@ Denied connections:
 #########################################################
 # All Connections due to the system default (Allow all) #
 #########################################################
-0.0.0.0-255.255.255.255[External] => ns1/pod1[Pod]
-0.0.0.0-255.255.255.255[External] => ns1/pod2[Pod]
-0.0.0.0-255.255.255.255[External] => ns2/pod3[Pod]
-ns1/pod1[Pod] => 0.0.0.0-255.255.255.255[External]
-ns1/pod1[Pod] => ns1/pod2[Pod]
-ns1/pod1[Pod] => ns2/pod3[Pod]
-ns1/pod2[Pod] => 0.0.0.0-255.255.255.255[External]
-ns1/pod2[Pod] => ns1/pod1[Pod]
-ns2/pod3[Pod] => 0.0.0.0-255.255.255.255[External]
-ns2/pod3[Pod] => ns1/pod1[Pod]
+0.0.0.0-255.255.255.255[External] => ns1/pod1[Pod]    (in network: pod_network)
+0.0.0.0-255.255.255.255[External] => ns1/pod2[Pod]    (in network: pod_network)
+0.0.0.0-255.255.255.255[External] => ns2/pod3[Pod]    (in network: pod_network)
+ns1/pod1[Pod] => 0.0.0.0-255.255.255.255[External]    (in network: pod_network)
+ns1/pod1[Pod] => ns1/pod2[Pod]    (in network: pod_network)
+ns1/pod1[Pod] => ns2/pod3[Pod]    (in network: pod_network)
+ns1/pod2[Pod] => 0.0.0.0-255.255.255.255[External]    (in network: pod_network)
+ns1/pod2[Pod] => ns1/pod1[Pod]    (in network: pod_network)
+ns1/pod2[Pod] => ns2/pod3[Pod]    (in network: pod_network)
+ns2/pod3[Pod] => 0.0.0.0-255.255.255.255[External]    (in network: pod_network)
+ns2/pod3[Pod] => ns1/pod1[Pod]    (in network: pod_network)
+ns2/pod3[Pod] => ns1/pod2[Pod]    (in network: pod_network)

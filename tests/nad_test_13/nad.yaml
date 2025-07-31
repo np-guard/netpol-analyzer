@@ -2,28 +2,6 @@ apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
 metadata:
   name: macvlan-shared-net
-  namespace: ns-udn-a
-spec:
-  config: '{
-    "cniVersion": "0.3.1",
-    "type": "macvlan",
-    "master": "eth0",
-    "mode": "bridge",
-    "ipam": {
-      "type": "static",
-      "addresses": [
-        {
-          "address": "192.168.200.10/24",
-          "gateway": "192.168.200.1"
-        }
-      ]
-    }
-  }'
----
-apiVersion: "k8s.cni.cncf.io/v1"
-kind: NetworkAttachmentDefinition
-metadata:
-  name: macvlan-shared-net
   namespace: ns-udn-b
 spec:
   config: '{

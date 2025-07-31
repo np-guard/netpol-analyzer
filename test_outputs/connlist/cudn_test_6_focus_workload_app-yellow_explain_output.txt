@@ -21,8 +21,8 @@ Denied connections:
 #########################################################
 # All Connections due to the system default (Allow all) #
 #########################################################
-0.0.0.0-255.255.255.255[External] => yellow/app-yellow[StatefulSet]
-yellow/app-yellow[StatefulSet] => 0.0.0.0-255.255.255.255[External]
-yellow/app-yellow[StatefulSet] => red/app-red[StatefulSet]
+0.0.0.0-255.255.255.255[External] => yellow/app-yellow[StatefulSet]    (in network: colored-ry)
+yellow/app-yellow[StatefulSet] => 0.0.0.0-255.255.255.255[External]    (in network: colored-ry)
+yellow/app-yellow[StatefulSet] => red/app-red[StatefulSet]    (in network: colored-ry)
 
 *** Note: Connections between any peers from separate isolated networks are denied by default and therefore not listed in this report.

@@ -7,8 +7,10 @@ ns1/pod1[Pod] => ns1/pod2[Pod] : All Connections
 ns1/pod1[Pod] => ns2/pod3[Pod] : All Connections
 ns1/pod2[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
 ns1/pod2[Pod] => ns1/pod1[Pod] : All Connections
+ns1/pod2[Pod] => ns2/pod3[Pod] : All Connections
 ns2/pod3[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
 ns2/pod3[Pod] => ns1/pod1[Pod] : All Connections
+ns2/pod3[Pod] => ns1/pod2[Pod] : All Connections
 
 Permitted connectivity analyzed in secondary NAD l2-network:
 ns2/pod3[Pod] => ns1/pod2[Pod] : TCP 80

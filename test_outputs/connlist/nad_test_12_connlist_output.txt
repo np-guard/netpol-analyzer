@@ -14,3 +14,17 @@ ns-udn-b[udn]/pod-b[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
 ns-udn-b[udn]/pod-b[Pod] => ns-udn-b[udn]/vm-b[VirtualMachine] : All Connections
 ns-udn-b[udn]/vm-b[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
 ns-udn-b[udn]/vm-b[VirtualMachine] => ns-udn-b[udn]/pod-b[Pod] : All Connections
+
+Permitted connectivity analyzed in secondary NAD macvlan-shared-net:
+ns-udn-a/pod-a[Pod] => ns-udn-a/vm-a[VirtualMachine] : All Connections
+ns-udn-a/pod-a[Pod] => ns-udn-b/pod-b[Pod] : All Connections
+ns-udn-a/pod-a[Pod] => ns-udn-b/vm-b[VirtualMachine] : All Connections
+ns-udn-a/vm-a[VirtualMachine] => ns-udn-a/pod-a[Pod] : All Connections
+ns-udn-a/vm-a[VirtualMachine] => ns-udn-b/pod-b[Pod] : All Connections
+ns-udn-a/vm-a[VirtualMachine] => ns-udn-b/vm-b[VirtualMachine] : All Connections
+ns-udn-b/pod-b[Pod] => ns-udn-a/pod-a[Pod] : All Connections
+ns-udn-b/pod-b[Pod] => ns-udn-a/vm-a[VirtualMachine] : All Connections
+ns-udn-b/pod-b[Pod] => ns-udn-b/vm-b[VirtualMachine] : All Connections
+ns-udn-b/vm-b[VirtualMachine] => ns-udn-a/pod-a[Pod] : All Connections
+ns-udn-b/vm-b[VirtualMachine] => ns-udn-a/vm-a[VirtualMachine] : All Connections
+ns-udn-b/vm-b[VirtualMachine] => ns-udn-b/pod-b[Pod] : All Connections
