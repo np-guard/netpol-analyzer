@@ -12,7 +12,8 @@ import (
 
 // formatJSON: implements the connsFormatter interface for JSON output format
 type formatJSON struct {
-	ipMaps ipMaps
+	multipleNetworksEnabled bool
+	ipMaps                  ipMaps
 }
 
 const indent = "  "

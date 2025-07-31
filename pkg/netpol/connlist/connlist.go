@@ -528,19 +528,19 @@ func (ca *ConnlistAnalyzer) getFormatter() (connsFormatter, error) {
 	}
 	switch ca.outputFormat {
 	case output.JSONFormat:
-		return &formatJSON{}, nil
+		return &formatJSON{multipleNetworksEnabled: ca.multipleNetworks}, nil
 	case output.TextFormat:
 		return &formatText{multipleNetworksEnabled: ca.multipleNetworks}, nil
 	case output.DOTFormat:
 		return &formatDOT{ca.peersList}, nil
 	case output.CSVFormat:
-		return &formatCSV{}, nil
+		return &formatCSV{multipleNetworksEnabled: ca.multipleNetworks}, nil
 	case output.MDFormat:
-		return &formatMD{}, nil
+		return &formatMD{multipleNetworksEnabled: ca.multipleNetworks}, nil
 	case output.SVGFormat:
 		return &formatSVG{ca.peersList}, nil
 	default:
-		return &formatText{}, nil
+		return &formatText{multipleNetworksEnabled: ca.multipleNetworks}, nil
 	}
 }
 

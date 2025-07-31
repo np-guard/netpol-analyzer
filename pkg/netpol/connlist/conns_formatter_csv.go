@@ -13,7 +13,8 @@ import (
 
 // formatCSV: implements the connsFormatter interface for csv output format
 type formatCSV struct {
-	ipMaps ipMaps
+	multipleNetworksEnabled bool
+	ipMaps                  ipMaps
 }
 
 // writeOutput returns a CSV string form of connections from list of Peer2PeerConnection objects
@@ -40,7 +41,7 @@ func (cs *formatCSV) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 }
 
 // writeCsvColumnsHeader writes columns header row
-func writeCsvColumnsHeader(writer *csv.Writer, srcFirst bool, focusConnStr string) error {
+func writeCsvColumnsHeader(writer *csv.Writer, srcFirst, multipleNetworks bool, focusConnStr string) error {
 	headerCSV := []string{src, dst, conn}
 	if focusConnStr != "" {
 		headerCSV = []string{src, dst}
@@ -51,11 +52,14 @@ func writeCsvColumnsHeader(writer *csv.Writer, srcFirst bool, focusConnStr strin
 			headerCSV = []string{dst, src}
 		}
 	}
+	if multipleNetworks {
+		headerCSV = append(headerCSV, network)
+	}
 	return writer.Write(headerCSV)
 }
 
 // writeTableRows writes the given connections list as csv table
-func writeTableRows(conns []*singleConnFields, writer *csv.Writer, srcFirst bool, focusConnStr string) error {
+func writeTableRows(conns []*singleConnFields, writer *csv.Writer, srcFirst, multipleNetworks bool, focusConnStr string) error {
 	for _, conn := range conns {
 		row := []string{conn.Src, conn.Dst, conn.ConnString}
 		if focusConnStr != "" {
@@ -67,6 +71,9 @@ func writeTableRows(conns []*singleConnFields, writer *csv.Writer, srcFirst bool
 				row = []string{conn.Dst, conn.Src}
 			}
 		}
+		if multipleNetworks {
+			row = append(row, conn.networkName)
+		}
 		if err := writer.Write(row); err != nil {
 			return err
 		}
@@ -77,14 +84,14 @@ func writeTableRows(conns []*singleConnFields, writer *csv.Writer, srcFirst bool
 // writeCsvConnlistTable writes csv table for the Peer2PeerConnection list
 func (cs *formatCSV) writeCsvConnlistTable(conns []Peer2PeerConnection, writer *csv.Writer, saveIPConns, explain bool,
 	focusConnStr string) error {
-	err := writeCsvColumnsHeader(writer, true, focusConnStr)
+	err := writeCsvColumnsHeader(writer, true, cs.multipleNetworksEnabled, focusConnStr)
 	if err != nil {
 		return err
 	}
 	cs.ipMaps = createIPMaps(saveIPConns)
 	// get an array of sorted conns items ([]*singleConnFields), if required also save the relevant conns to ipMaps
 	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, cs.ipMaps, saveIPConns, explain)
-	return writeTableRows(sortedConnItems, writer, true, focusConnStr)
+	return writeTableRows(sortedConnItems, writer, true, cs.multipleNetworksEnabled, focusConnStr)
 }
 
 // writeCsvExposureTable writes csv table for ExposedPeer list
@@ -120,9 +127,9 @@ func writeCsvSubSection(expData []*singleConnFields, isIngress bool, writer *csv
 	if err != nil {
 		return err
 	}
-	err = writeCsvColumnsHeader(writer, !isIngress, focusConnStr)
+	err = writeCsvColumnsHeader(writer, !isIngress, false, focusConnStr)
 	if err != nil {
 		return err
 	}
-	return writeTableRows(expData, writer, !isIngress, focusConnStr)
+	return writeTableRows(expData, writer, !isIngress, false, focusConnStr)
 }

@@ -1,10 +1,10 @@
-| src | dst |
-|-----|-----|
-| 0.0.0.0-255.255.255.255[External] | default/vm-client[VirtualMachine] |
-| 0.0.0.0-255.255.255.255[External] | default/vm-server[VirtualMachine] |
-| default/vm-client[VirtualMachine] | 0.0.0.0-255.255.255.255[External] |
-| default/vm-client[VirtualMachine] | default/vm-server[VirtualMachine] |
-| default/vm-client[VirtualMachine] | default/vm-server[VirtualMachine] |
-| default/vm-server[VirtualMachine] | 0.0.0.0-255.255.255.255[External] |
-| default/vm-server[VirtualMachine] | default/vm-client[VirtualMachine] |
-| default/vm-server[VirtualMachine] | default/vm-client[VirtualMachine] |
+| src | dst | network |
+|-----|-----|------|
+| 0.0.0.0-255.255.255.255[External] | default/vm-client[VirtualMachine] | pod_network |
+| 0.0.0.0-255.255.255.255[External] | default/vm-server[VirtualMachine] | pod_network |
+| default/vm-client[VirtualMachine] | 0.0.0.0-255.255.255.255[External] | pod_network |
+| default/vm-client[VirtualMachine] | default/vm-server[VirtualMachine] | flat12 |
+| default/vm-client[VirtualMachine] | default/vm-server[VirtualMachine] | pod_network |
+| default/vm-server[VirtualMachine] | 0.0.0.0-255.255.255.255[External] | pod_network |
+| default/vm-server[VirtualMachine] | default/vm-client[VirtualMachine] | flat12 |
+| default/vm-server[VirtualMachine] | default/vm-client[VirtualMachine] | pod_network |
