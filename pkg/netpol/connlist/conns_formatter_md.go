@@ -45,7 +45,7 @@ func getMDHeader(srcFirst bool, focusConnStr string) string {
 }
 
 // getMDLine formats a connection line for md output
-func getMDLine(c singleConnFields, srcFirst bool, focusConnStr string) string {
+func getMDLine(c *singleConnFields, srcFirst bool, focusConnStr string) string {
 	if srcFirst {
 		if focusConnStr != "" {
 			return fmt.Sprintf(mdRowFormatFocusConn, c.Src, c.Dst)
@@ -74,7 +74,7 @@ func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []Exp
 }
 
 // writeMdLines returns sorted md lines from the sorted singleConnFields list
-func writeMdLines(conns []singleConnFields, srcFirst bool, focusConnStr string) []string {
+func writeMdLines(conns []*singleConnFields, srcFirst bool, focusConnStr string) []string {
 	res := make([]string, len(conns))
 	for i := range conns {
 		res[i] = getMDLine(conns[i], srcFirst, focusConnStr)

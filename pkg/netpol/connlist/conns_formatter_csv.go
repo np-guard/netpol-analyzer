@@ -55,7 +55,7 @@ func writeCsvColumnsHeader(writer *csv.Writer, srcFirst bool, focusConnStr strin
 }
 
 // writeTableRows writes the given connections list as csv table
-func writeTableRows(conns []singleConnFields, writer *csv.Writer, srcFirst bool, focusConnStr string) error {
+func writeTableRows(conns []*singleConnFields, writer *csv.Writer, srcFirst bool, focusConnStr string) error {
 	for _, conn := range conns {
 		row := []string{conn.Src, conn.Dst, conn.ConnString}
 		if focusConnStr != "" {
@@ -82,7 +82,7 @@ func (cs *formatCSV) writeCsvConnlistTable(conns []Peer2PeerConnection, writer *
 		return err
 	}
 	cs.ipMaps = createIPMaps(saveIPConns)
-	// get an array of sorted conns items ([]singleConnFields), if required also save the relevant conns to ipMaps
+	// get an array of sorted conns items ([]*singleConnFields), if required also save the relevant conns to ipMaps
 	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, cs.ipMaps, saveIPConns, explain)
 	return writeTableRows(sortedConnItems, writer, true, focusConnStr)
 }
@@ -108,7 +108,7 @@ func (cs *formatCSV) writeCsvExposureTable(exposureConns []ExposedPeer, writer *
 }
 
 // writeCsvSubSection writes new csv table with its headers for the given xgress section
-func writeCsvSubSection(expData []singleConnFields, isIngress bool, writer *csv.Writer, focusConnStr string) error {
+func writeCsvSubSection(expData []*singleConnFields, isIngress bool, writer *csv.Writer, focusConnStr string) error {
 	if len(expData) == 0 {
 		return nil
 	}
