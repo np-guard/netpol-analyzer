@@ -80,6 +80,9 @@ const (
 // - `explain-only` is effective only with `explain`; otherwise ignored
 // - `exposure` is not relevant if both `explain` and `explain-only` are used; in this case `exposure` is ignored
 // - `explain` is effective only with output format `output` txt
+// - `exposure` and `multiple-networks` are mutually-exclusive
+//
+//gocyclo:ignore
 func (ca *ConnlistAnalyzer) warnIncompatibleFlagsUsage() {
 	if ca.explain && ca.outputFormat != output.DefaultFormat {
 		ca.logWarning(alerts.WarnIncompatibleFormat(ca.outputFormat))
@@ -101,6 +104,10 @@ func (ca *ConnlistAnalyzer) warnIncompatibleFlagsUsage() {
 	if ca.explain && ca.explainOnly != "" && ca.exposureAnalysis {
 		ca.exposureAnalysis = false
 		ca.logWarning(alerts.WarnIgnoredExposure(explainStr, explainOnlyStr))
+	}
+	if ca.exposureAnalysis && ca.multipleNetworks {
+		ca.exposureAnalysis = false
+		ca.logWarning(alerts.WarnIgnoredExposureWithMNP)
 	}
 }
 
