@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-a
+  namespace: bond-testing
+  annotations:
+    k8s.v1.cni.cncf.io/networks: '[
+      {"name": "macvlan-nad", "namespace":"default", "interface": "link1"},
+      {"name": "macvlan-nad", "namespace":"default", "interface": "link2"},
+      {"name": "bond-nad", "namespace":"default", "interface": "net1"}]'
+  labels:
+    app: bond-testing
+    name: pod-a
+spec:
+  containers:
+  - name: macvlan-worker1
+    image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy-iptables:e2e-test
+    command: ["nc", "-klp", "5555"]
+    securityContext:
+      privileged: true
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-b
+  namespace: bond-testing
+  annotations:
+    k8s.v1.cni.cncf.io/networks: '[
+      {"name": "macvlan-nad", "namespace":"default", "interface": "link1"},
+      {"name": "macvlan-nad", "namespace":"default", "interface": "link2"},
+      {"name": "bond-nad", "namespace":"default", "interface": "net1"}]'
+  labels:
+    app: bond-testing
+    name: pod-b
+spec:
+  containers:
+  - name: macvlan-worker1
+    image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy-iptables:e2e-test
+    command: ["nc", "-klp", "5555"]
+    securityContext:
+      privileged: true
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-c
+  namespace: bond-testing
+  annotations:
+    k8s.v1.cni.cncf.io/networks: '[
+      {"name": "macvlan-nad", "namespace":"default", "interface": "link1"},
+      {"name": "macvlan-nad", "namespace":"default", "interface": "link2"},
+      {"name": "bond-nad", "namespace":"default", "interface": "net1"}]'
+  labels:
+    app: bond-testing
+    name: pod-c
+spec:
+  containers:
+  - name: macvlan-worker1
+    image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy-iptables:e2e-test
+    command: ["nc", "-klp", "5555"]
+    securityContext:
+      privileged: true
+---

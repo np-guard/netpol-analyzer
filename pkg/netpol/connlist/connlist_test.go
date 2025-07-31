@@ -2435,6 +2435,14 @@ var goodPathTests = []struct {
 		outputFormats:           []string{output.SVGFormat, output.DOTFormat, output.TextFormat},
 		multipleNetworksEnabled: true,
 	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/bond-cni.yml
+		// added default deny networkpolicy to restrict connections in the pod-network
+		testDirName:             "nad_test_15",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {
