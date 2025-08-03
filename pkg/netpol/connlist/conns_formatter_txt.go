@@ -40,15 +40,15 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 //
 //gocyclo:ignore
 func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string) string {
-	connLines := make([]singleConnFields, 0, len(conns))        // lines in the default pod networks
-	connsByUDN := make(map[string][]singleConnFields)           // map from a primary udn to its conns
-	connsByCUDN := make(map[string][]singleConnFields)          // map from a primary c-udn to its conns
-	connsByNAD := make(map[string][]singleConnFields)           // map from a secondary network name to its conns
-	defaultConnLines := make([]singleConnFields, 0, len(conns)) // used with explain
-	crossNetworksLinesFlag := false                             // indicates that there are denied conns because of isolated networks
+	connLines := make([]*singleConnFields, 0, len(conns))        // lines in the default pod networks
+	connsByUDN := make(map[string][]*singleConnFields)           // map from a primary udn to its conns
+	connsByCUDN := make(map[string][]*singleConnFields)          // map from a primary c-udn to its conns
+	connsByNAD := make(map[string][]*singleConnFields)           // map from a secondary network name to its conns
+	defaultConnLines := make([]*singleConnFields, 0, len(conns)) // used with explain
+	crossNetworksLinesFlag := false                              // indicates that there are denied conns because of isolated networks
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
-		p2pConn, networkName, isClusterUdn, networkInf := formSingleP2PConn(conns[i], explain)
+		p2pConn, isClusterUdn, networkInf := formSingleP2PConn(conns[i], explain)
 		switch {
 		case explain && conns[i].(*connection).onlyDefaultRule():
 			defaultConnLines = append(defaultConnLines, p2pConn)
@@ -56,12 +56,12 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 			crossNetworksLinesFlag = true
 		case networkInf == common.Primary: // append allowed conn to its udn/cudn for output grouping
 			if !isClusterUdn {
-				addToNetworkMap(networkName, connsByUDN, p2pConn)
+				addToNetworkMap(connsByUDN, p2pConn)
 			} else {
-				addToNetworkMap(networkName, connsByCUDN, p2pConn)
+				addToNetworkMap(connsByCUDN, p2pConn)
 			}
 		case networkInf == common.Secondary: // append allowed conn to its nad for output grouping
-			addToNetworkMap(networkName, connsByNAD, p2pConn)
+			addToNetworkMap(connsByNAD, p2pConn)
 		default: // append to the pod-network conns
 			connLines = append(connLines, p2pConn)
 		}
@@ -79,11 +79,11 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 		if len(connsByUDN) != 0 || len(connsByCUDN) != 0 || len(connsByNAD) != 0 {
 			podNetworkHeader += " in pod-network" // add this header if there are also other networks in the cluster
 		}
-		result = writeSingleTypeLinesExplanationOutput(sortedConnLines, podNetworkHeader, false) +
+		result = writeSingleTypeLinesExplanationOutput(sortedConnLines, podNetworkHeader, false, t.multipleNetworksEnabled) +
 			writeNetworksSection(connsByUDN, false, true, primaryUDN) +
 			writeNetworksSection(connsByCUDN, false, true, primaryCUDN) +
 			writeNetworksSection(connsByNAD, false, true, secondaryNAD) +
-			writeSingleTypeLinesExplanationOutput(sortedDefaultConnLines, systemDefaultPairsHeader, true) +
+			writeSingleTypeLinesExplanationOutput(sortedDefaultConnLines, systemDefaultPairsHeader, true, t.multipleNetworksEnabled) +
 			writeSingleLineExplanationNote(crossNetworksLinesFlag)
 	} else { // not explain (regular connlist)
 		if focusConnStr == "" { // write all pod network conns  (src => dst: conn)
@@ -95,22 +95,23 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 	return result
 }
 
-func addToNetworkMap(networkName string, networkMap map[string][]singleConnFields, p2pConn singleConnFields) {
+func addToNetworkMap(networkMap map[string][]*singleConnFields, p2pConn *singleConnFields) {
+	networkName := p2pConn.networkName
 	if _, ok := networkMap[networkName]; !ok {
-		networkMap[networkName] = make([]singleConnFields, 0)
+		networkMap[networkName] = make([]*singleConnFields, 0)
 	}
 	networkMap[networkName] = append(networkMap[networkName], p2pConn)
 }
 
 // writeNetworksSection writes the conns lines grouped per UDN/CUDN/NAD
-func writeNetworksSection(connsByNetworkName map[string][]singleConnFields, nodePairForm, explain bool, networkType string) string {
+func writeNetworksSection(connsByNetworkName map[string][]*singleConnFields, nodePairForm, explain bool, networkType string) string {
 	res := ""
 	networkKeys := sortMapKeys(connsByNetworkName)
 	for _, network := range networkKeys {
 		sortedConns := sortConnFields(connsByNetworkName[network], true)
 		if explain {
 			explainNetworkHeader := specificConnHeader + " in " + networkType + spaceSeparator + network
-			res += writeSingleTypeLinesExplanationOutput(sortedConns, explainNetworkHeader, false)
+			res += writeSingleTypeLinesExplanationOutput(sortedConns, explainNetworkHeader, false, false)
 		} else { // not explain
 			res += newLineChar + sectionHeaderPrefix + networkType + spaceSeparator + network + colon + newLineChar
 			for i := range sortedConns {
@@ -125,7 +126,7 @@ func writeNetworksSection(connsByNetworkName map[string][]singleConnFields, node
 	return res
 }
 
-func sortMapKeys(networkMap map[string][]singleConnFields) []string {
+func sortMapKeys(networkMap map[string][]*singleConnFields) []string {
 	keys := make([]string, 0, len(networkMap))
 	for k := range networkMap {
 		keys = append(keys, k)
@@ -134,14 +135,19 @@ func sortMapKeys(networkMap map[string][]singleConnFields) []string {
 	return keys
 }
 
-func writeSingleTypeLinesExplanationOutput(lines []singleConnFields, header string, pairsOnly bool) string {
+func writeSingleTypeLinesExplanationOutput(lines []*singleConnFields, header string, pairsOnly,
+	multipleNetworksEnabled bool) string {
 	if len(lines) == 0 {
 		return ""
 	}
 	result := writeGroupHeader(header)
 	for _, p2pConn := range lines {
 		if pairsOnly {
-			result += p2pConn.nodePairString() + newLineChar
+			result += p2pConn.nodePairString()
+			if multipleNetworksEnabled {
+				result += inNetStr + p2pConn.networkName + closing
+			}
+			result += newLineChar
 		} else {
 			result += nodePairSeparationLine
 			result += p2pConn.stringWithExplanation()
@@ -168,6 +174,8 @@ const (
 	crossNetworksDenyHeader  = "Denied cross-network connections"
 	specificConnHeader       = "Specific connections and their reasons"
 	onStr                    = " On "
+	inNetStr                 = "    (in network: "
+	closing                  = ")"
 )
 
 // writeExposureOutput writes the section of the exposure-analysis result
@@ -205,7 +213,7 @@ func getMaxPeerStringLength(exposedPeers []ExposedPeer) (maxPeerStrLen int) {
 }
 
 // writeStrings writes the exposure conns as string lines list matching txt output format
-func writeStrings(xgressData []singleConnFields, isIngress bool, maxStrLen int, focusConnStr string) []string {
+func writeStrings(xgressData []*singleConnFields, isIngress bool, maxStrLen int, focusConnStr string) []string {
 	res := make([]string, len(xgressData))
 	for i := range xgressData {
 		res[i] = xgressData[i].exposureString(isIngress, maxStrLen, focusConnStr)
@@ -219,7 +227,7 @@ const (
 )
 
 // exposureString writes the current singleConnFields in the format of exposure result line
-func (c singleConnFields) exposureString(isIngress bool, maxStrLen int, focusConnStr string) string {
+func (c *singleConnFields) exposureString(isIngress bool, maxStrLen int, focusConnStr string) string {
 	formatStr := fmt.Sprintf("%%-%ds \t%%s \t%%s : %%s", maxStrLen)
 	if focusConnStr != "" { // don't print conn if the results are focused on specific connection
 		formatStr = fmt.Sprintf("%%-%ds \t%%s \t%%s", maxStrLen)
@@ -252,7 +260,7 @@ const (
 	emptyPodNetworkConnsExpl = "all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network"
 )
 
-func writeFocusConnTxtOutput(sortedConnLines []singleConnFields, udnConns, cudnConns, nadConns map[string][]singleConnFields,
+func writeFocusConnTxtOutput(sortedConnLines []*singleConnFields, udnConns, cudnConns, nadConns map[string][]*singleConnFields,
 	focusConnStr string) string {
 	result := "Permitted connections on " + focusConnStr + colon + newLineChar
 	if (len(udnConns) != 0 || len(cudnConns) != 0 || len(nadConns) != 0) && len(sortedConnLines) != 0 {
@@ -267,8 +275,8 @@ func writeFocusConnTxtOutput(sortedConnLines []singleConnFields, udnConns, cudnC
 	return result
 }
 
-func (t *formatText) writeFullConnlistTxtOutput(sortedConnLines []singleConnFields, udnConns, cudnConns,
-	nadConns map[string][]singleConnFields) string {
+func (t *formatText) writeFullConnlistTxtOutput(sortedConnLines []*singleConnFields, udnConns, cudnConns,
+	nadConns map[string][]*singleConnFields) string {
 	result := ""
 	if len(udnConns) != 0 || len(cudnConns) != 0 || len(nadConns) != 0 {
 		result += sectionHeaderPrefix + podNetworkStr + colon + newLineChar

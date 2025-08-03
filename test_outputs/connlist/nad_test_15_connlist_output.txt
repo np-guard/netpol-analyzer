@@ -1,0 +1,14 @@
+
+Permitted connectivity analyzed in secondary NAD bond-nad:
+bond-testing/pod-a[Pod] => bond-testing/pod-c[Pod] : All Connections
+bond-testing/pod-b[Pod] => bond-testing/pod-a[Pod] : All Connections
+bond-testing/pod-b[Pod] => bond-testing/pod-c[Pod] : All Connections
+bond-testing/pod-c[Pod] => bond-testing/pod-b[Pod] : All Connections
+
+Permitted connectivity analyzed in secondary NAD macvlan-nad:
+bond-testing/pod-a[Pod] => bond-testing/pod-b[Pod] : All Connections
+bond-testing/pod-a[Pod] => bond-testing/pod-c[Pod] : All Connections
+bond-testing/pod-b[Pod] => bond-testing/pod-a[Pod] : All Connections
+bond-testing/pod-b[Pod] => bond-testing/pod-c[Pod] : All Connections
+bond-testing/pod-c[Pod] => bond-testing/pod-a[Pod] : All Connections
+bond-testing/pod-c[Pod] => bond-testing/pod-b[Pod] : All Connections
