@@ -1,5 +1,5 @@
 Permitted connectivity analyzed in Pod network:
-all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network
+all input workloads are configured with (C)UDN as their primary network interface
 
 Permitted connectivity analyzed in primary UDN ns-udn-a:
 0.0.0.0-255.255.255.255[External] => ns-udn-a[udn]/pod-a[Pod] : All Connections
@@ -30,3 +30,9 @@ ns-udn-b/pod-b[Pod] => ns-udn-b/vm-b[VirtualMachine] : All Connections
 ns-udn-b/vm-b[VirtualMachine] => ns-udn-a/pod-a[Pod] : All Connections
 ns-udn-b/vm-b[VirtualMachine] => ns-udn-a/vm-a[VirtualMachine] : All Connections
 ns-udn-b/vm-b[VirtualMachine] => ns-udn-b/pod-b[Pod] : All Connections
+
+Workload-to-Networks Mapping:
+ns-udn-a/pod-a[Pod]: ns-udn-a[UDN],macvlan-shared-net[NAD]
+ns-udn-a/vm-a[VirtualMachine]: ns-udn-a[UDN],macvlan-shared-net[NAD]
+ns-udn-b/pod-b[Pod]: ns-udn-b[UDN],macvlan-shared-net[NAD]
+ns-udn-b/vm-b[VirtualMachine]: ns-udn-b[UDN],macvlan-shared-net[NAD]

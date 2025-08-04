@@ -14,3 +14,9 @@ test-simple-v4-ingress-list/pod-client-c[Pod] => test-simple-v4-ingress-list/pod
 test-simple-v4-ingress-list/pod-server[Pod] => test-simple-v4-ingress-list/pod-client-a[Pod] : All Connections
 test-simple-v4-ingress-list/pod-server[Pod] => test-simple-v4-ingress-list/pod-client-b[Pod] : All Connections
 test-simple-v4-ingress-list/pod-server[Pod] => test-simple-v4-ingress-list/pod-client-c[Pod] : All Connections
+
+Workload-to-Networks Mapping:
+test-simple-v4-ingress-list/pod-client-a[Pod]: pod_network,default/macvlan1-simple[NAD]
+test-simple-v4-ingress-list/pod-client-b[Pod]: pod_network,default/macvlan1-simple[NAD]
+test-simple-v4-ingress-list/pod-client-c[Pod]: pod_network,default/macvlan1-simple[NAD]
+test-simple-v4-ingress-list/pod-server[Pod]: pod_network,default/macvlan1-simple[NAD]

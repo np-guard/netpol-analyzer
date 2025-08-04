@@ -1,5 +1,5 @@
 Permitted connectivity analyzed in Pod network:
-all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network
+all input workloads are configured with (C)UDN as their primary network interface
 
 Permitted connectivity analyzed in primary UDN blue:
 0.0.0.0-255.255.255.255[External] => blue[udn]/webserver[Pod] : All Connections
@@ -12,3 +12,8 @@ green[udn]/webserver-2[Pod] => 0.0.0.0-255.255.255.255[External] : All Connectio
 green[udn]/webserver-2[Pod] => green[udn]/webserver[Pod] : TCP 9001
 green[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
 green[udn]/webserver[Pod] => green[udn]/webserver-2[Pod] : TCP 9001
+
+Workload-to-Networks Mapping:
+blue/webserver[Pod]: blue[UDN]
+green/webserver-2[Pod]: green[UDN]
+green/webserver[Pod]: green[UDN]

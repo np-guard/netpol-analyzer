@@ -1,5 +1,10 @@
 Permitted connectivity analyzed in Pod network:
-all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network
+All connections are not allowed for the workloads in the pod-network
 
 Permitted connectivity analyzed in secondary NAD l2-network:
 ns2/pod3[Pod] => ns1/pod2[Pod] : TCP 80
+
+Workload-to-Networks Mapping:
+ns1/pod1[Pod]: pod_network
+ns1/pod2[Pod]: pod_network,l2-network[NAD]
+ns2/pod3[Pod]: pod_network,l2-network[NAD]

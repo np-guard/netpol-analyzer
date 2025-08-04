@@ -1,5 +1,5 @@
 Permitted connectivity analyzed in Pod network:
-all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network
+All connections are not allowed for the workloads in the pod-network
 
 Permitted connectivity analyzed in secondary NAD macvlan1-simple:
 test-simple-v4-ingress/pod-client-a[Pod] => test-simple-v4-ingress/pod-client-b[Pod] : All Connections
@@ -7,3 +7,8 @@ test-simple-v4-ingress/pod-client-a[Pod] => test-simple-v4-ingress/pod-server[Po
 test-simple-v4-ingress/pod-client-b[Pod] => test-simple-v4-ingress/pod-client-a[Pod] : All Connections
 test-simple-v4-ingress/pod-server[Pod] => test-simple-v4-ingress/pod-client-a[Pod] : All Connections
 test-simple-v4-ingress/pod-server[Pod] => test-simple-v4-ingress/pod-client-b[Pod] : All Connections
+
+Workload-to-Networks Mapping:
+test-simple-v4-ingress/pod-client-a[Pod]: pod_network,default/macvlan1-simple[NAD]
+test-simple-v4-ingress/pod-client-b[Pod]: pod_network,default/macvlan1-simple[NAD]
+test-simple-v4-ingress/pod-server[Pod]: pod_network,default/macvlan1-simple[NAD]

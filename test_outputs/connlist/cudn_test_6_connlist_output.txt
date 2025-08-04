@@ -14,3 +14,10 @@ Permitted connectivity analyzed in primary CUDN colored-ry:
 red/app-red[StatefulSet] => yellow/app-yellow[StatefulSet] : TCP 8080
 yellow/app-yellow[StatefulSet] => 0.0.0.0-255.255.255.255[External] : All Connections
 yellow/app-yellow[StatefulSet] => red/app-red[StatefulSet] : All Connections
+
+Workload-to-Networks Mapping:
+blue/app-blue[StatefulSet]: colored-bg[CUDN]
+default/app-default[StatefulSet]: pod_network
+green/app-green[StatefulSet]: colored-bg[CUDN]
+red/app-red[StatefulSet]: colored-ry[CUDN]
+yellow/app-yellow[StatefulSet]: colored-ry[CUDN]

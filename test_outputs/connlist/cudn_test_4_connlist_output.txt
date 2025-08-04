@@ -1,5 +1,5 @@
 Permitted connectivity analyzed in Pod network:
-all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network
+all input workloads are configured with (C)UDN as their primary network interface
 
 Permitted connectivity analyzed in primary UDN udn-example:
 0.0.0.0-255.255.255.255[External] => udn-example[udn]/example-vm[VirtualMachine] : All Connections
@@ -12,3 +12,8 @@ udn-preprod/vm-preprod[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : Al
 udn-preprod/vm-preprod[VirtualMachine] => udn-prod/vm-prod[VirtualMachine] : All Connections
 udn-prod/vm-prod[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
 udn-prod/vm-prod[VirtualMachine] => udn-preprod/vm-preprod[VirtualMachine] : All Connections
+
+Workload-to-Networks Mapping:
+udn-example/example-vm[VirtualMachine]: udn-example[UDN]
+udn-preprod/vm-preprod[VirtualMachine]: cluster-udn-prod[CUDN]
+udn-prod/vm-prod[VirtualMachine]: cluster-udn-prod[CUDN]

@@ -17,6 +17,8 @@ import (
 // formatText: implements the connsFormatter interface for txt output format
 type formatText struct {
 	multipleNetworksEnabled bool
+	workloadToNetworksMap   map[string][]string
+	podNetworkWlsNum        int
 	ipMaps                  ipMaps
 }
 
@@ -88,6 +90,9 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 	} else { // not explain (regular connlist)
 		if focusConnStr == "" { // write all pod network conns  (src => dst: conn)
 			result = t.writeFullConnlistTxtOutput(sortedConnLines, connsByUDN, connsByCUDN, connsByNAD)
+			if t.multipleNetworksEnabled && len(t.workloadToNetworksMap) != 0 {
+				result += t.writeWorkloadToNetworksSection()
+			}
 		} else { // conns are already filtered by focus conn - print only (src => dst)
 			result = writeFocusConnTxtOutput(sortedConnLines, connsByUDN, connsByCUDN, connsByNAD, focusConnStr)
 		}
@@ -245,19 +250,20 @@ func (c *singleConnFields) exposureString(isIngress bool, maxStrLen int, focusCo
 }
 
 const (
-	colon                    = ":"
-	sectionHeaderPrefix      = "Permitted connectivity analyzed in "
-	podNetworkStr            = "Pod network"
-	spaceSeparator           = " "
-	secondary                = "secondary"
-	primary                  = "primary"
-	udnStr                   = "UDN"
-	cudnStr                  = "CUDN"
-	nadStr                   = "NAD"
-	secondaryNAD             = secondary + spaceSeparator + nadStr
-	primaryCUDN              = primary + spaceSeparator + cudnStr
-	primaryUDN               = primary + spaceSeparator + udnStr
-	emptyPodNetworkConnsExpl = "all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network"
+	colon                       = ":"
+	sectionHeaderPrefix         = "Permitted connectivity analyzed in "
+	podNetworkStr               = "Pod network"
+	spaceSeparator              = " "
+	secondary                   = "secondary"
+	primary                     = "primary"
+	udnStr                      = "UDN"
+	cudnStr                     = "CUDN"
+	nadStr                      = "NAD"
+	secondaryNAD                = secondary + spaceSeparator + nadStr
+	primaryCUDN                 = primary + spaceSeparator + cudnStr
+	primaryUDN                  = primary + spaceSeparator + udnStr
+	emptyPodNetworkNoPods       = "all input workloads are configured with (C)UDN as their primary network interface"
+	emptyPodNetworkBlockedConns = "All connections are not allowed for the workloads in the pod-network"
 )
 
 func writeFocusConnTxtOutput(sortedConnLines []*singleConnFields, udnConns, cudnConns, nadConns map[string][]*singleConnFields,
@@ -281,7 +287,11 @@ func (t *formatText) writeFullConnlistTxtOutput(sortedConnLines []*singleConnFie
 	if len(udnConns) != 0 || len(cudnConns) != 0 || len(nadConns) != 0 {
 		result += sectionHeaderPrefix + podNetworkStr + colon + newLineChar
 		if len(sortedConnLines) == 0 && t.multipleNetworksEnabled {
-			result += emptyPodNetworkConnsExpl + newLineChar
+			if t.podNetworkWlsNum == 0 {
+				result += emptyPodNetworkNoPods + newLineChar
+			} else {
+				result += emptyPodNetworkBlockedConns + newLineChar
+			}
 		}
 	}
 	for _, p2pConn := range sortedConnLines {
@@ -299,4 +309,22 @@ func writeSingleLineExplanationNote(crossNetworksDeniedFlag bool) string {
 	}
 	return newLineChar + "*** Note: Connections between any peers from separate isolated networks are denied by default " +
 		"and therefore not listed in this report."
+}
+
+func (t *formatText) writeWorkloadToNetworksSection() string {
+	res := newLineChar + "Workload-to-Networks Mapping:" + newLineChar
+	for _, wl := range t.sortWorkloadNetworksMapKeys() {
+		sort.Strings(t.workloadToNetworksMap[wl][1:])
+		res += wl + ": " + strings.Join(t.workloadToNetworksMap[wl], comma) + newLineChar
+	}
+	return res
+}
+
+func (t *formatText) sortWorkloadNetworksMapKeys() []string {
+	keys := make([]string, 0, len(t.workloadToNetworksMap))
+	for k := range t.workloadToNetworksMap {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }

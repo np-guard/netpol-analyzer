@@ -13,3 +13,9 @@ blue-namespace/blue[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All C
 blue-namespace/blue[VirtualMachine] => red-namespace/red[VirtualMachine] : All Connections
 red-namespace/red[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
 red-namespace/red[VirtualMachine] => blue-namespace/blue[VirtualMachine] : All Connections
+
+Workload-to-Networks Mapping:
+blue-namespace/blue[VirtualMachine]: happy-tenant[CUDN]
+green-namespace/green[VirtualMachine]: pod_network
+red-namespace/red[VirtualMachine]: happy-tenant[CUDN]
+yellow-namespace/yellow[VirtualMachine]: pod_network

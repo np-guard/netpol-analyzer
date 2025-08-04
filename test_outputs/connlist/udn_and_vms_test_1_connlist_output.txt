@@ -1,5 +1,5 @@
 Permitted connectivity analyzed in Pod network:
-all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network
+all input workloads are configured with (C)UDN as their primary network interface
 
 Permitted connectivity analyzed in primary UDN blue:
 0.0.0.0-255.255.255.255[External] => blue[udn]/vm-a[VirtualMachine] : All Connections
@@ -18,3 +18,9 @@ green[udn]/vm-b[VirtualMachine] => green[udn]/webserver[Pod] : All Connections
 green[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
 green[udn]/webserver[Pod] => green[udn]/vm-a[VirtualMachine] : All Connections
 green[udn]/webserver[Pod] => green[udn]/vm-b[VirtualMachine] : All Connections
+
+Workload-to-Networks Mapping:
+blue/vm-a[VirtualMachine]: blue[UDN]
+green/vm-a[VirtualMachine]: green[UDN]
+green/vm-b[VirtualMachine]: green[UDN]
+green/webserver[Pod]: green[UDN]

@@ -1,7 +1,10 @@
 Permitted connectivity analyzed in Pod network:
-all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network
+all input workloads are configured with (C)UDN as their primary network interface
 
 Permitted connectivity analyzed in primary UDN green:
 0.0.0.0-255.255.255.255[External] => green[udn]/vm-a[VirtualMachine] : All Connections
 green[udn]/vm-a[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
 {ingress-controller} => green[udn]/vm-a[VirtualMachine] : TCP 8000,8090
+
+Workload-to-Networks Mapping:
+green/vm-a[VirtualMachine]: green[UDN]

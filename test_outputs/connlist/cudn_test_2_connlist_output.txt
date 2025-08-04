@@ -1,5 +1,5 @@
 Permitted connectivity analyzed in Pod network:
-all allowed connections utilize alternative network interfaces ((C)UDN/NAD) rather than the pod-network
+all input workloads are configured with (C)UDN as their primary network interface
 
 Permitted connectivity analyzed in primary CUDN entire-cluster-cudn:
 0.0.0.0-255.255.255.255[External] => blue-namespace/blue[VirtualMachine] : All Connections
@@ -22,3 +22,9 @@ yellow-namespace/yellow[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : A
 yellow-namespace/yellow[VirtualMachine] => blue-namespace/blue[VirtualMachine] : All Connections
 yellow-namespace/yellow[VirtualMachine] => green-namespace/green[VirtualMachine] : All Connections
 yellow-namespace/yellow[VirtualMachine] => red-namespace/red[VirtualMachine] : All Connections
+
+Workload-to-Networks Mapping:
+blue-namespace/blue[VirtualMachine]: entire-cluster-cudn[CUDN]
+green-namespace/green[VirtualMachine]: entire-cluster-cudn[CUDN]
+red-namespace/red[VirtualMachine]: entire-cluster-cudn[CUDN]
+yellow-namespace/yellow[VirtualMachine]: entire-cluster-cudn[CUDN]
