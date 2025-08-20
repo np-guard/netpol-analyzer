@@ -1,0 +1,17 @@
+
+Permitted connectivity analyzed in secondary NAD flatl2net:
+default/vm1[VirtualMachine] => default/vm2[VirtualMachine] : All Connections
+default/vm1[VirtualMachine] => default/vm3[VirtualMachine] : All Connections
+default/vm1[VirtualMachine] => default/vm4[VirtualMachine] : All Connections
+default/vm1[VirtualMachine] => default/vm5[VirtualMachine] : All Connections
+default/vm1[VirtualMachine] => default/vm6[VirtualMachine] : All Connections
+default/vm2[VirtualMachine] => default/vm1[VirtualMachine] : All Connections
+default/vm2[VirtualMachine] => default/vm3[VirtualMachine] : All Connections
+default/vm2[VirtualMachine] => default/vm4[VirtualMachine] : All Connections
+default/vm2[VirtualMachine] => default/vm5[VirtualMachine] : All Connections
+default/vm2[VirtualMachine] => default/vm6[VirtualMachine] : All Connections
+default/vm3[VirtualMachine] => default/vm1[VirtualMachine] : All Connections
+default/vm3[VirtualMachine] => default/vm2[VirtualMachine] : All Connections
+default/vm3[VirtualMachine] => default/vm4[VirtualMachine] : All Connections
+default/vm3[VirtualMachine] => default/vm5[VirtualMachine] : All Connections
+default/vm3[VirtualMachine] => default/vm6[VirtualMachine] : All Connections

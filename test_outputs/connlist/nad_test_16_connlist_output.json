@@ -1,0 +1,77 @@
+[
+  {
+    "src": "default/vm1[VirtualMachine]",
+    "dst": "default/vm2[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm1[VirtualMachine]",
+    "dst": "default/vm3[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm1[VirtualMachine]",
+    "dst": "default/vm4[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm1[VirtualMachine]",
+    "dst": "default/vm5[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm1[VirtualMachine]",
+    "dst": "default/vm6[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm2[VirtualMachine]",
+    "dst": "default/vm1[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm2[VirtualMachine]",
+    "dst": "default/vm3[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm2[VirtualMachine]",
+    "dst": "default/vm4[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm2[VirtualMachine]",
+    "dst": "default/vm5[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm2[VirtualMachine]",
+    "dst": "default/vm6[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm3[VirtualMachine]",
+    "dst": "default/vm1[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm3[VirtualMachine]",
+    "dst": "default/vm2[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm3[VirtualMachine]",
+    "dst": "default/vm4[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm3[VirtualMachine]",
+    "dst": "default/vm5[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm3[VirtualMachine]",
+    "dst": "default/vm6[VirtualMachine]",
+    "conn": "All Connections"
+  }
+]

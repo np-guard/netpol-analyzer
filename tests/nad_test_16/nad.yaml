@@ -1,0 +1,14 @@
+---
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: flatl2net
+spec:
+  config: |2
+    {
+            "cniVersion": "0.4.0",
+            "name": "flatl2net",
+            "type": "ovn-k8s-cni-overlay",
+            "topology":"layer2",
+            "netAttachDefName": "default/flatl2net"
+    }

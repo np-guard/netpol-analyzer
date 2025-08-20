@@ -1,0 +1,13 @@
+
+Permitted connectivity analyzed in secondary NAD macvlan1-ipblock:
+test-ipblock/pod-client-a[Pod] => test-ipblock/pod-client-b[Pod] : All Connections
+test-ipblock/pod-client-a[Pod] => test-ipblock/pod-client-c[Pod] : All Connections
+test-ipblock/pod-client-a[Pod] => test-ipblock/pod-server[Pod] : All Connections
+test-ipblock/pod-client-b[Pod] => test-ipblock/pod-client-a[Pod] : All Connections
+test-ipblock/pod-client-b[Pod] => test-ipblock/pod-client-c[Pod] : All Connections
+test-ipblock/pod-client-b[Pod] => test-ipblock/pod-server[Pod] : All Connections
+test-ipblock/pod-client-c[Pod] => test-ipblock/pod-client-a[Pod] : All Connections
+test-ipblock/pod-client-c[Pod] => test-ipblock/pod-client-b[Pod] : All Connections
+test-ipblock/pod-server[Pod] => test-ipblock/pod-client-a[Pod] : All Connections
+test-ipblock/pod-server[Pod] => test-ipblock/pod-client-b[Pod] : All Connections
+test-ipblock/pod-server[Pod] => test-ipblock/pod-client-c[Pod] : All Connections

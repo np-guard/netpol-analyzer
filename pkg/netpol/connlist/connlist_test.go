@@ -2443,6 +2443,22 @@ var goodPathTests = []struct {
 		outputFormats:           ValidFormats,
 		multipleNetworksEnabled: true,
 	},
+	{
+		// test is taken from :
+		// https://github.com/openshift/multus-networkpolicy/blob/278ec20e795c3a590500e789716be7fcc4d7107b/e2e/tests/ipblock.yml#L4
+		// added default deny networkpolicy to restrict connections in the pod-network
+		testDirName:             "nad_test_17",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
+	},
+	{
+		// test is taken from :
+		// https://kubevirt.io/2023/OVN-kubernetes-secondary-networks-policies.html
+		// added default deny networkpolicy to restrict connections in the pod-network
+		testDirName:             "nad_test_16",
+		outputFormats:           ValidFormats,
+		multipleNetworksEnabled: true,
+	},
 }
 
 func runParsedResourcesConnlistTests(t *testing.T, testList []examples.ParsedResourcesTest) {

@@ -1,0 +1,25 @@
+# MultiNetworkPolicies
+# this policy accepts ingress traffic from pod-client-a to pod-server
+# and ingress traffic from pod-client-b to pod-server
+# as a result, these policies accepts ingress traffic from pod-client-a
+# or from pod-client-b, to pod-server.
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: test-network-policy-ipblock-1
+  namespace: test-ipblock
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for: default/macvlan1-ipblock
+spec:
+  podSelector:
+    matchLabels:
+      name: pod-server
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 2.2.5.11/32
+    - ipBlock:
+        cidr: 2.2.5.12/32
+---
