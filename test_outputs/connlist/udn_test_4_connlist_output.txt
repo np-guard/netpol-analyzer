@@ -15,7 +15,11 @@ green[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
 green[udn]/webserver[Pod] => green[udn]/webserver-2[Pod] : TCP 9001
 
 Workload-to-Networks Mapping:
-bar/mybar[Pod]: pod_network
-default/app-1[Pod]: pod_network
-green/webserver-2[Pod]: green[UDN]
-green/webserver[Pod]: green[UDN]
+bar/mybar[Pod]: 
+	Primary Network: pod_network
+default/app-1[Pod]: 
+	Primary Network: pod_network
+green/webserver-2[Pod]: 
+	Primary Network: green[UDN]
+green/webserver[Pod]: 
+	Primary Network: green[UDN]

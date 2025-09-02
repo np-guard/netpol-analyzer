@@ -19,8 +19,13 @@ green[udn]/vm-b[VirtualMachine] => green[udn]/webserver[Pod] : TCP 9001
 green[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
 
 Workload-to-Networks Mapping:
-bar/mybar[Pod]: pod_network
-default/app-1[Pod]: pod_network
-green/vm-a[VirtualMachine]: green[UDN]
-green/vm-b[VirtualMachine]: green[UDN]
-green/webserver[Pod]: green[UDN]
+bar/mybar[Pod]: 
+	Primary Network: pod_network
+default/app-1[Pod]: 
+	Primary Network: pod_network
+green/vm-a[VirtualMachine]: 
+	Primary Network: green[UDN]
+green/vm-b[VirtualMachine]: 
+	Primary Network: green[UDN]
+green/webserver[Pod]: 
+	Primary Network: green[UDN]

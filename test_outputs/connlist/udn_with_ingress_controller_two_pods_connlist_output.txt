@@ -11,5 +11,7 @@ green[udn]/db[Pod] => green[udn]/app[Pod] : All Connections
 {ingress-controller} => green[udn]/app[Pod] : TCP 8000,8090
 
 Workload-to-Networks Mapping:
-green/app[Pod]: green[UDN]
-green/db[Pod]: green[UDN]
+green/app[Pod]: 
+	Primary Network: green[UDN]
+green/db[Pod]: 
+	Primary Network: green[UDN]

@@ -21,6 +21,12 @@ default/nginx-app[Deployment] => default/router-app[Deployment] : All Connection
 default/router-app[Deployment] => default/nginx-app[Deployment] : All Connections
 
 Workload-to-Networks Mapping:
-default/dns-app[Deployment]: pod_network,first-network[NAD]
-default/nginx-app[Deployment]: pod_network,nginx-network[NAD]
-default/router-app[Deployment]: pod_network,first-network[NAD],nginx-network[NAD]
+default/dns-app[Deployment]: 
+	Primary Network: pod_network
+	Secondary Networks: first-network[NAD]
+default/nginx-app[Deployment]: 
+	Primary Network: pod_network
+	Secondary Networks: nginx-network[NAD]
+default/router-app[Deployment]: 
+	Primary Network: pod_network
+	Secondary Networks: first-network[NAD],nginx-network[NAD]

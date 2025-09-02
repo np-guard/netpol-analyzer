@@ -7,4 +7,5 @@ green[udn]/vm-a[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Conne
 {ingress-controller} => green[udn]/vm-a[VirtualMachine] : TCP 8000,8090
 
 Workload-to-Networks Mapping:
-green/vm-a[VirtualMachine]: green[UDN]
+green/vm-a[VirtualMachine]: 
+	Primary Network: green[UDN]

@@ -7,6 +7,12 @@ test-simple-v4-egress/pod-client-b[Pod] => test-simple-v4-egress/pod-client-a[Po
 test-simple-v4-egress/pod-server[Pod] => test-simple-v4-egress/pod-client-a[Pod] : All Connections
 
 Workload-to-Networks Mapping:
-test-simple-v4-egress/pod-client-a[Pod]: pod_network,default/macvlan1-simple[NAD]
-test-simple-v4-egress/pod-client-b[Pod]: pod_network,default/macvlan1-simple[NAD]
-test-simple-v4-egress/pod-server[Pod]: pod_network,default/macvlan1-simple[NAD]
+test-simple-v4-egress/pod-client-a[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: default/macvlan1-simple[NAD]
+test-simple-v4-egress/pod-client-b[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: default/macvlan1-simple[NAD]
+test-simple-v4-egress/pod-server[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: default/macvlan1-simple[NAD]

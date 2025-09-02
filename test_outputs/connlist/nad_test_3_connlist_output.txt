@@ -16,6 +16,11 @@ Permitted connectivity analyzed in secondary NAD l2-network:
 ns2/pod3[Pod] => ns1/pod2[Pod] : TCP 80
 
 Workload-to-Networks Mapping:
-ns1/pod1[Pod]: pod_network
-ns1/pod2[Pod]: pod_network,l2-network[NAD]
-ns2/pod3[Pod]: pod_network,l2-network[NAD]
+ns1/pod1[Pod]: 
+	Primary Network: pod_network
+ns1/pod2[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: l2-network[NAD]
+ns2/pod3[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: l2-network[NAD]

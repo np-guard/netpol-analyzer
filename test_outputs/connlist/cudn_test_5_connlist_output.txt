@@ -18,8 +18,13 @@ yellow/app-yellow[StatefulSet] => 0.0.0.0-255.255.255.255[External] : All Connec
 yellow/app-yellow[StatefulSet] => red/app-red[StatefulSet] : All Connections
 
 Workload-to-Networks Mapping:
-blue/app-blue[StatefulSet]: blue[UDN]
-default/app-default[StatefulSet]: pod_network
-green/app-green[StatefulSet]: green[UDN]
-red/app-red[StatefulSet]: colored-enterprise[CUDN]
-yellow/app-yellow[StatefulSet]: colored-enterprise[CUDN]
+blue/app-blue[StatefulSet]: 
+	Primary Network: blue[UDN]
+default/app-default[StatefulSet]: 
+	Primary Network: pod_network
+green/app-green[StatefulSet]: 
+	Primary Network: green[UDN]
+red/app-red[StatefulSet]: 
+	Primary Network: colored-enterprise[CUDN]
+yellow/app-yellow[StatefulSet]: 
+	Primary Network: colored-enterprise[CUDN]

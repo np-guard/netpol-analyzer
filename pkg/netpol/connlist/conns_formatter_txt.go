@@ -314,8 +314,13 @@ func writeSingleLineExplanationNote(crossNetworksDeniedFlag bool) string {
 func (t *formatText) writeWorkloadToNetworksSection() string {
 	res := newLineChar + "Workload-to-Networks Mapping:" + newLineChar
 	for _, wl := range t.sortWorkloadNetworksMapKeys() {
-		sort.Strings(t.workloadToNetworksMap[wl][1:])
-		res += wl + ": " + strings.Join(t.workloadToNetworksMap[wl], comma) + newLineChar
+		primaryNetwork := t.workloadToNetworksMap[wl][0]
+		res += wl + ": \n\tPrimary Network: " + primaryNetwork + newLineChar
+		secondaryNets := t.workloadToNetworksMap[wl][1:]
+		if len(secondaryNets) != 0 {
+			sort.Strings(secondaryNets)
+			res += "\tSecondary Networks: " + strings.Join(secondaryNets, comma) + newLineChar
+		}
 	}
 	return res
 }

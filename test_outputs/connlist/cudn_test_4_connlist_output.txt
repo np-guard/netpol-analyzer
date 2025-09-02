@@ -14,6 +14,9 @@ udn-prod/vm-prod[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Conn
 udn-prod/vm-prod[VirtualMachine] => udn-preprod/vm-preprod[VirtualMachine] : All Connections
 
 Workload-to-Networks Mapping:
-udn-example/example-vm[VirtualMachine]: udn-example[UDN]
-udn-preprod/vm-preprod[VirtualMachine]: cluster-udn-prod[CUDN]
-udn-prod/vm-prod[VirtualMachine]: cluster-udn-prod[CUDN]
+udn-example/example-vm[VirtualMachine]: 
+	Primary Network: udn-example[UDN]
+udn-preprod/vm-preprod[VirtualMachine]: 
+	Primary Network: cluster-udn-prod[CUDN]
+udn-prod/vm-prod[VirtualMachine]: 
+	Primary Network: cluster-udn-prod[CUDN]

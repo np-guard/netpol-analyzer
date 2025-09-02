@@ -6,5 +6,7 @@ default/fedora-vm-1[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : TCP 8
 default/fedora-vm-1[VirtualMachine] => default/cirrus-vm-1[VirtualMachine] : TCP 8099,9001-9090
 
 Workload-to-Networks Mapping:
-default/cirrus-vm-1[VirtualMachine]: pod_network
-default/fedora-vm-1[VirtualMachine]: pod_network
+default/cirrus-vm-1[VirtualMachine]: 
+	Primary Network: pod_network
+default/fedora-vm-1[VirtualMachine]: 
+	Primary Network: pod_network

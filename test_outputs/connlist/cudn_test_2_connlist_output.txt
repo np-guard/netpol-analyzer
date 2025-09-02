@@ -24,7 +24,11 @@ yellow-namespace/yellow[VirtualMachine] => green-namespace/green[VirtualMachine]
 yellow-namespace/yellow[VirtualMachine] => red-namespace/red[VirtualMachine] : All Connections
 
 Workload-to-Networks Mapping:
-blue-namespace/blue[VirtualMachine]: entire-cluster-cudn[CUDN]
-green-namespace/green[VirtualMachine]: entire-cluster-cudn[CUDN]
-red-namespace/red[VirtualMachine]: entire-cluster-cudn[CUDN]
-yellow-namespace/yellow[VirtualMachine]: entire-cluster-cudn[CUDN]
+blue-namespace/blue[VirtualMachine]: 
+	Primary Network: entire-cluster-cudn[CUDN]
+green-namespace/green[VirtualMachine]: 
+	Primary Network: entire-cluster-cudn[CUDN]
+red-namespace/red[VirtualMachine]: 
+	Primary Network: entire-cluster-cudn[CUDN]
+yellow-namespace/yellow[VirtualMachine]: 
+	Primary Network: entire-cluster-cudn[CUDN]

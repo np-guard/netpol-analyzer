@@ -9,7 +9,15 @@ test-stacked/pod-server[Pod] => test-stacked/pod-client-b[Pod] : All Connections
 test-stacked/pod-server[Pod] => test-stacked/pod-client-c[Pod] : All Connections
 
 Workload-to-Networks Mapping:
-test-stacked/pod-client-a[Pod]: pod_network,default/macvlan1-stacked[NAD]
-test-stacked/pod-client-b[Pod]: pod_network,default/macvlan1-stacked[NAD]
-test-stacked/pod-client-c[Pod]: pod_network,default/macvlan1-stacked[NAD]
-test-stacked/pod-server[Pod]: pod_network,default/macvlan1-stacked[NAD]
+test-stacked/pod-client-a[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: default/macvlan1-stacked[NAD]
+test-stacked/pod-client-b[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: default/macvlan1-stacked[NAD]
+test-stacked/pod-client-c[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: default/macvlan1-stacked[NAD]
+test-stacked/pod-server[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: default/macvlan1-stacked[NAD]

@@ -11,5 +11,9 @@ default/vm-client[VirtualMachine] => default/vm-server[VirtualMachine] : All Con
 default/vm-server[VirtualMachine] => default/vm-client[VirtualMachine] : All Connections
 
 Workload-to-Networks Mapping:
-default/vm-client[VirtualMachine]: pod_network,flat12[NAD]
-default/vm-server[VirtualMachine]: pod_network,flat12[NAD]
+default/vm-client[VirtualMachine]: 
+	Primary Network: pod_network
+	Secondary Networks: flat12[NAD]
+default/vm-server[VirtualMachine]: 
+	Primary Network: pod_network
+	Secondary Networks: flat12[NAD]

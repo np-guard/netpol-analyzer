@@ -6,5 +6,9 @@ test-protocol-only-ports/pod-a[Pod] => test-protocol-only-ports/pod-b[Pod] : TCP
 test-protocol-only-ports/pod-b[Pod] => test-protocol-only-ports/pod-a[Pod] : UDP 1-65535
 
 Workload-to-Networks Mapping:
-test-protocol-only-ports/pod-a[Pod]: pod_network,default/macvlan1-simple[NAD]
-test-protocol-only-ports/pod-b[Pod]: pod_network,default/macvlan1-simple[NAD]
+test-protocol-only-ports/pod-a[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: default/macvlan1-simple[NAD]
+test-protocol-only-ports/pod-b[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: default/macvlan1-simple[NAD]

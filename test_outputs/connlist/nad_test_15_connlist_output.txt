@@ -16,6 +16,12 @@ bond-testing/pod-c[Pod] => bond-testing/pod-a[Pod] : All Connections
 bond-testing/pod-c[Pod] => bond-testing/pod-b[Pod] : All Connections
 
 Workload-to-Networks Mapping:
-bond-testing/pod-a[Pod]: pod_network,default/bond-nad[NAD],default/macvlan-nad[NAD]
-bond-testing/pod-b[Pod]: pod_network,default/bond-nad[NAD],default/macvlan-nad[NAD]
-bond-testing/pod-c[Pod]: pod_network,default/bond-nad[NAD],default/macvlan-nad[NAD]
+bond-testing/pod-a[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: default/bond-nad[NAD],default/macvlan-nad[NAD]
+bond-testing/pod-b[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: default/bond-nad[NAD],default/macvlan-nad[NAD]
+bond-testing/pod-c[Pod]: 
+	Primary Network: pod_network
+	Secondary Networks: default/bond-nad[NAD],default/macvlan-nad[NAD]
