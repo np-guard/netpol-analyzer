@@ -41,7 +41,7 @@ func ResourceString(r NetworkResource) string {
 }
 
 const (
-	PodNetworkName = "pod_network"
+	PodNetworkName = "pod-network"
 	UDNStr         = "[UDN]"
 	CUDNStr        = "[CUDN]"
 	NADStr         = "[NAD]"

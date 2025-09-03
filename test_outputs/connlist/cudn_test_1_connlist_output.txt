@@ -18,8 +18,8 @@ Workload-to-Networks Mapping:
 blue-namespace/blue[VirtualMachine]: 
 	Primary Network: happy-tenant[CUDN]
 green-namespace/green[VirtualMachine]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 red-namespace/red[VirtualMachine]: 
 	Primary Network: happy-tenant[CUDN]
 yellow-namespace/yellow[VirtualMachine]: 
-	Primary Network: pod_network
+	Primary Network: pod-network

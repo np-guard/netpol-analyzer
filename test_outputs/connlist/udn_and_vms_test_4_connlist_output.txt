@@ -22,9 +22,9 @@ green[udn]/webserver[Pod] => green[udn]/vm-b[VirtualMachine] : TCP 9001
 
 Workload-to-Networks Mapping:
 bar/mybar[Pod]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 default/app-1[Pod]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 green/vm-a[VirtualMachine]: 
 	Primary Network: green[UDN]
 green/vm-b[VirtualMachine]: 

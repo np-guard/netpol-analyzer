@@ -1,12 +1,12 @@
 | src | dst | conn | network | 
 |-----|-----|------|------|
-| 0.0.0.0-255.255.255.255[External] | bar/mybar[Pod] | All Connections | pod_network | 
-| 0.0.0.0-255.255.255.255[External] | default/app-1[Pod] | All Connections | pod_network | 
+| 0.0.0.0-255.255.255.255[External] | bar/mybar[Pod] | All Connections | pod-network | 
+| 0.0.0.0-255.255.255.255[External] | default/app-1[Pod] | All Connections | pod-network | 
 | 0.0.0.0-255.255.255.255[External] | green[udn]/webserver-2[Pod] | TCP 9001 | green | 
 | 0.0.0.0-255.255.255.255[External] | green[udn]/webserver[Pod] | TCP 9001 | green | 
-| bar/mybar[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections | pod_network | 
-| bar/mybar[Pod] | default/app-1[Pod] | TCP 80 | pod_network | 
-| default/app-1[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections | pod_network | 
-| default/app-1[Pod] | bar/mybar[Pod] | All Connections | pod_network | 
+| bar/mybar[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections | pod-network | 
+| bar/mybar[Pod] | default/app-1[Pod] | TCP 80 | pod-network | 
+| default/app-1[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections | pod-network | 
+| default/app-1[Pod] | bar/mybar[Pod] | All Connections | pod-network | 
 | green[udn]/webserver-2[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections | green | 
 | green[udn]/webserver[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections | green | 

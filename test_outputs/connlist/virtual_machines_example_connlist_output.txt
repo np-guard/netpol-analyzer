@@ -7,6 +7,6 @@ default/fedora-vm-1[VirtualMachine] => default/cirrus-vm-1[VirtualMachine] : TCP
 
 Workload-to-Networks Mapping:
 default/cirrus-vm-1[VirtualMachine]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 default/fedora-vm-1[VirtualMachine]: 
-	Primary Network: pod_network
+	Primary Network: pod-network

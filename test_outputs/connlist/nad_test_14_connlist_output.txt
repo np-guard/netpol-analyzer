@@ -66,16 +66,16 @@ ns-udn-b/vm-b[VirtualMachine] => ns-udn-b/pod-b[Pod] : All Connections
 
 Workload-to-Networks Mapping:
 ns-c/pod-c[Pod]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 	Secondary Networks: macvlan-shared-net[NAD]
 ns-c/vm-c[VirtualMachine]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 	Secondary Networks: macvlan-shared-net[NAD]
 ns-d/pod-d[Pod]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 	Secondary Networks: macvlan-shared-net[NAD]
 ns-d/vm-d[VirtualMachine]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 	Secondary Networks: macvlan-shared-net[NAD]
 ns-udn-a/pod-a[Pod]: 
 	Primary Network: ns-udn-a[UDN]

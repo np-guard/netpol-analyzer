@@ -1,12 +1,12 @@
 | src | dst | conn | network | 
 |-----|-----|------|------|
 | 0.0.0.0-255.255.255.255[External] | blue[udn]/app-blue[StatefulSet] | All Connections | blue | 
-| 0.0.0.0-255.255.255.255[External] | default/app-default[StatefulSet] | All Connections | pod_network | 
+| 0.0.0.0-255.255.255.255[External] | default/app-default[StatefulSet] | All Connections | pod-network | 
 | 0.0.0.0-255.255.255.255[External] | green[udn]/app-green[StatefulSet] | All Connections | green | 
 | 0.0.0.0-255.255.255.255[External] | red/app-red[StatefulSet] | All Connections | colored-enterprise | 
 | 0.0.0.0-255.255.255.255[External] | yellow/app-yellow[StatefulSet] | All Connections | colored-enterprise | 
 | blue[udn]/app-blue[StatefulSet] | 0.0.0.0-255.255.255.255[External] | All Connections | blue | 
-| default/app-default[StatefulSet] | 0.0.0.0-255.255.255.255[External] | All Connections | pod_network | 
+| default/app-default[StatefulSet] | 0.0.0.0-255.255.255.255[External] | All Connections | pod-network | 
 | green[udn]/app-green[StatefulSet] | 0.0.0.0-255.255.255.255[External] | All Connections | green | 
 | red/app-red[StatefulSet] | yellow/app-yellow[StatefulSet] | TCP 8080 | colored-enterprise | 
 | yellow/app-yellow[StatefulSet] | 0.0.0.0-255.255.255.255[External] | All Connections | colored-enterprise | 

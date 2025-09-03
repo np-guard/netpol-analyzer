@@ -10,14 +10,14 @@ test-simple-v4-egress-list/pod-server[Pod] => test-simple-v4-egress-list/pod-cli
 
 Workload-to-Networks Mapping:
 test-simple-v4-egress-list/pod-client-a[Pod]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 	Secondary Networks: default/macvlan1-simple[NAD]
 test-simple-v4-egress-list/pod-client-b[Pod]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 	Secondary Networks: default/macvlan1-simple[NAD]
 test-simple-v4-egress-list/pod-client-c[Pod]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 	Secondary Networks: default/macvlan1-simple[NAD]
 test-simple-v4-egress-list/pod-server[Pod]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 	Secondary Networks: default/macvlan1-simple[NAD]

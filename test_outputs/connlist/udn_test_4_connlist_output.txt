@@ -16,9 +16,9 @@ green[udn]/webserver[Pod] => green[udn]/webserver-2[Pod] : TCP 9001
 
 Workload-to-Networks Mapping:
 bar/mybar[Pod]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 default/app-1[Pod]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 green/webserver-2[Pod]: 
 	Primary Network: green[UDN]
 green/webserver[Pod]: 

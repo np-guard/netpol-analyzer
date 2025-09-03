@@ -24,4 +24,4 @@ green-namespace/green[VirtualMachine]:
 red-namespace/red[VirtualMachine]: 
 	Primary Network: entire-cluster-cudn[CUDN]
 yellow-namespace/yellow[VirtualMachine]: 
-	Primary Network: pod_network
+	Primary Network: pod-network

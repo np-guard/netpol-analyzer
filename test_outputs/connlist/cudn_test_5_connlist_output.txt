@@ -21,7 +21,7 @@ Workload-to-Networks Mapping:
 blue/app-blue[StatefulSet]: 
 	Primary Network: blue[UDN]
 default/app-default[StatefulSet]: 
-	Primary Network: pod_network
+	Primary Network: pod-network
 green/app-green[StatefulSet]: 
 	Primary Network: green[UDN]
 red/app-red[StatefulSet]: 
