@@ -33,14 +33,16 @@ const (
 	NoIngressSourcesErrStr = "The ingress-controller workload was not added to the analysis, since Ingress/Route resources were not found."
 	NoAllowedConnsWarning  = "Connectivity analysis found no allowed connectivity between pairs from the configured workloads or" +
 		" external IP-blocks"
-	WarnIgnoredExposureOnLiveCluster = "exposure analysis is not supported on live-cluster; exposure flag will be ignored"
+	WarnIgnoredExposureOnLiveCluster = "exposure analysis is not supported on live-cluster;" + exposureIsIgnored
+	exposureIsIgnored                = " exposure flag will be ignored"
 	warnIgnoredUDN                   = udnPrefix + "%s is ignored."
 	MNPUnsupportedRuleField          = "IPBlock rule peer is not supported yet; rule will be ignored"
+	WarnIgnoredExposureWithMNP       = " exposure analysis is not spported with multiple networks;" + exposureIsIgnored
 )
 
 func WarnIgnoredExposure(flag1, flag2 string) string {
 	return "exposure analysis is not relevant when both " + flag1 + " and " + flag2 +
-		" are used; exposure flag will be ignored"
+		" are used;" + exposureIsIgnored
 }
 
 // BlockedIngressWarning returns warning string of a blocked ingress on peer

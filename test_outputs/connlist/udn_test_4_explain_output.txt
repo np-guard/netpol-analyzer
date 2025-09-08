@@ -100,11 +100,11 @@ Denied connections:
 #########################################################
 # All Connections due to the system default (Allow all) #
 #########################################################
-0.0.0.0-255.255.255.255[External] => bar/mybar[Pod]
-0.0.0.0-255.255.255.255[External] => default/app-1[Pod]
-default/app-1[Pod] => 0.0.0.0-255.255.255.255[External]
-default/app-1[Pod] => bar/mybar[Pod]
-green[udn]/webserver-2[Pod] => 0.0.0.0-255.255.255.255[External]
-green[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External]
+0.0.0.0-255.255.255.255[External] => bar/mybar[Pod]    (in network: pod_network)
+0.0.0.0-255.255.255.255[External] => default/app-1[Pod]    (in network: pod_network)
+default/app-1[Pod] => 0.0.0.0-255.255.255.255[External]    (in network: pod_network)
+default/app-1[Pod] => bar/mybar[Pod]    (in network: pod_network)
+green[udn]/webserver-2[Pod] => 0.0.0.0-255.255.255.255[External]    (in network: green)
+green[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External]    (in network: green)
 
 *** Note: Connections between any peers from separate isolated networks are denied by default and therefore not listed in this report.

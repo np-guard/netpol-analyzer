@@ -24,9 +24,6 @@ spec:
       networks:
         - name: default
           pod: {}
-        - name: macvlan-shared-net
-          multus:
-            networkName: macvlan-shared-net
       volumes:
         - name: containerdisk
           containerDisk:

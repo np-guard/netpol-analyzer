@@ -40,6 +40,11 @@
     "conn": "All Connections"
   },
   {
+    "src": "ns1/pod2[Pod]",
+    "dst": "ns2/pod3[Pod]",
+    "conn": "All Connections"
+  },
+  {
     "src": "ns2/pod3[Pod]",
     "dst": "0.0.0.0-255.255.255.255[External]",
     "conn": "All Connections"
@@ -53,5 +58,10 @@
     "src": "ns2/pod3[Pod]",
     "dst": "ns1/pod2[Pod]",
     "conn": "TCP 80"
+  },
+  {
+    "src": "ns2/pod3[Pod]",
+    "dst": "ns1/pod2[Pod]",
+    "conn": "All Connections"
   }
 ]

@@ -1,5 +1,5 @@
-| src | dst | conn |
-|-----|-----|------|
-| test-simple-v4-egress/pod-client-a[Pod] | test-simple-v4-egress/pod-client-b[Pod] | All Connections |
-| test-simple-v4-egress/pod-client-b[Pod] | test-simple-v4-egress/pod-client-a[Pod] | All Connections |
-| test-simple-v4-egress/pod-server[Pod] | test-simple-v4-egress/pod-client-a[Pod] | All Connections |
+| src | dst | conn | network | 
+|-----|-----|------|------|
+| test-simple-v4-egress/pod-client-a[Pod] | test-simple-v4-egress/pod-client-b[Pod] | All Connections | macvlan1-simple | 
+| test-simple-v4-egress/pod-client-b[Pod] | test-simple-v4-egress/pod-client-a[Pod] | All Connections | macvlan1-simple | 
+| test-simple-v4-egress/pod-server[Pod] | test-simple-v4-egress/pod-client-a[Pod] | All Connections | macvlan1-simple | 

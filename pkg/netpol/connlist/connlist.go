@@ -80,6 +80,9 @@ const (
 // - `explain-only` is effective only with `explain`; otherwise ignored
 // - `exposure` is not relevant if both `explain` and `explain-only` are used; in this case `exposure` is ignored
 // - `explain` is effective only with output format `output` txt
+// - `exposure` and `multiple-networks` are mutually-exclusive
+//
+//gocyclo:ignore
 func (ca *ConnlistAnalyzer) warnIncompatibleFlagsUsage() {
 	if ca.explain && ca.outputFormat != output.DefaultFormat {
 		ca.logWarning(alerts.WarnIncompatibleFormat(ca.outputFormat))
@@ -101,6 +104,10 @@ func (ca *ConnlistAnalyzer) warnIncompatibleFlagsUsage() {
 	if ca.explain && ca.explainOnly != "" && ca.exposureAnalysis {
 		ca.exposureAnalysis = false
 		ca.logWarning(alerts.WarnIgnoredExposure(explainStr, explainOnlyStr))
+	}
+	if ca.exposureAnalysis && ca.multipleNetworks {
+		ca.exposureAnalysis = false
+		ca.logWarning(alerts.WarnIgnoredExposureWithMNP)
 	}
 }
 
@@ -521,19 +528,19 @@ func (ca *ConnlistAnalyzer) getFormatter() (connsFormatter, error) {
 	}
 	switch ca.outputFormat {
 	case output.JSONFormat:
-		return &formatJSON{}, nil
+		return &formatJSON{multipleNetworksEnabled: ca.multipleNetworks}, nil
 	case output.TextFormat:
-		return &formatText{}, nil
+		return &formatText{multipleNetworksEnabled: ca.multipleNetworks}, nil
 	case output.DOTFormat:
 		return &formatDOT{ca.peersList}, nil
 	case output.CSVFormat:
-		return &formatCSV{}, nil
+		return &formatCSV{multipleNetworksEnabled: ca.multipleNetworks}, nil
 	case output.MDFormat:
-		return &formatMD{}, nil
+		return &formatMD{multipleNetworksEnabled: ca.multipleNetworks}, nil
 	case output.SVGFormat:
 		return &formatSVG{ca.peersList}, nil
 	default:
-		return &formatText{}, nil
+		return &formatText{multipleNetworksEnabled: ca.multipleNetworks}, nil
 	}
 }
 
@@ -879,7 +886,7 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, sr
 			if !ca.includePairOfWorkloads(pe, srcPeer, dstPeer) {
 				continue
 			}
-			allowedConnections, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
+			allowedConnectionsByNetwork, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(srcPeer, dstPeer)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -889,42 +896,49 @@ func (ca *ConnlistAnalyzer) getConnectionsBetweenPeers(pe *eval.PolicyEngine, sr
 					return nil, nil, err
 				}
 			}
-			// skip empty connections when running without explainability or with explain-only allow mode
-			// unless one of the peers is representative
-			// if one of the peers is representative, we keep this empty exposure connection to check later if it is
-			// an exception to an entire-cluster exposure.
-			// e.g if the pod is exposed to entire-cluster but not exposed to this representative-peer (because of a deny rule),
-			// we need to include this "No connection" in the exposure-output.
-			// see example : "tests/exposure_test_with_anp_9"
-			if allowedConnections.IsEmpty() && !pe.IsRepresentativePeer(srcPeer) && !pe.IsRepresentativePeer(dstPeer) &&
-				(!ca.explain || ca.explainOnly == pkgcommon.ExplainOnlyAllow) {
-				continue
-			}
-			// skip non-empty connections when running on explain-only deny mode (i.e `--explain` and `--explain-only` deny are used)
-			if !allowedConnections.IsEmpty() && ca.explainOnly == pkgcommon.ExplainOnlyDeny && ca.focusConnSet == nil {
-				continue
-			}
-			// - if focus conns is not empty and not explain mode, skip the connections if focus conn is not contained in the allowed conns
-			// - Note that: in explain mode: we don't skip since allowed-conns contains also explanation data on the denied data (focus-conn);
-			if !ca.explain && ca.focusConnection != "" && !ca.focusConnSet.ContainedIn(allowedConnections) {
-				continue
-			}
-			connlistAllowedConnections := allowedConnections
-			if ca.focusConnSet != nil { // only focus connection data is meaningful in this case
-				connlistAllowedConnections, err = ca.getFocusConnSetWithDataFromAllowedConns(allowedConnections)
+			// A pair of pods can establish multiple distinct communication paths between them by utilizing both:
+			// - their primary network interface (pod-network or a (C)UDN)
+			// - any shared secondary interfaces (NADs)
+			// Note that: if the ca.multipleNetworks is false then len(allowedConnectionsByNetwork) will be 1
+			// and contains the allowed connection between srcPeer and dstPeer in the cluster's pod-network
+			for _, allowedConnections := range allowedConnectionsByNetwork {
+				// skip empty connections when running without explainability or with explain-only allow mode
+				// unless one of the peers is representative
+				// if one of the peers is representative, we keep this empty exposure connection to check later if it is
+				// an exception to an entire-cluster exposure.
+				// e.g if the pod is exposed to entire-cluster but not exposed to this representative-peer (because of a deny rule),
+				// we need to include this "No connection" in the exposure-output.
+				// see example : "tests/exposure_test_with_anp_9"
+				if allowedConnections.IsEmpty() && !pe.IsRepresentativePeer(srcPeer) && !pe.IsRepresentativePeer(dstPeer) &&
+					(!ca.explain || ca.explainOnly == pkgcommon.ExplainOnlyAllow) {
+					continue
+				}
+				// skip non-empty connections when running on explain-only deny mode (i.e `--explain` and `--explain-only` deny are used)
+				if !allowedConnections.IsEmpty() && ca.explainOnly == pkgcommon.ExplainOnlyDeny && ca.focusConnSet == nil {
+					continue
+				}
+				// - if focus conns is not empty and not explain mode, skip the connections if focus conn is not contained in the allowed conns
+				// - Note that: in explain mode: we don't skip since allowed-conns contains also explanation data on the denied data (focus-conn);
+				if !ca.explain && ca.focusConnection != "" && !ca.focusConnSet.ContainedIn(allowedConnections) {
+					continue
+				}
+				connlistAllowedConnections := allowedConnections
+				if ca.focusConnSet != nil { // only focus connection data is meaningful in this case
+					connlistAllowedConnections, err = ca.getFocusConnSetWithDataFromAllowedConns(allowedConnections)
+					if err != nil {
+						return nil, nil, err
+					}
+				}
+				if connlistAllowedConnections == nil { // focus conn data is not relevant for the analysis
+					continue
+				}
+				p2pConnection, err := ca.getP2PConnOrUpdateExposureConn(pe, connlistAllowedConnections, srcPeer, dstPeer, exposureMaps)
 				if err != nil {
 					return nil, nil, err
 				}
-			}
-			if connlistAllowedConnections == nil { // focus conn data is not relevant for the analysis
-				continue
-			}
-			p2pConnection, err := ca.getP2PConnOrUpdateExposureConn(pe, connlistAllowedConnections, srcPeer, dstPeer, exposureMaps)
-			if err != nil {
-				return nil, nil, err
-			}
-			if p2pConnection != nil {
-				connsRes = append(connsRes, p2pConnection)
+				if p2pConnection != nil {
+					connsRes = append(connsRes, p2pConnection)
+				}
 			}
 		}
 	}
@@ -951,31 +965,35 @@ func (ca *ConnlistAnalyzer) getIngressAllowedConnections(ia *ingressanalyzer.Ing
 		}
 		// compute allowed connections based on pe.policies to the peer, then intersect the conns with
 		// ingress connections to the peer -> the intersection will be appended to the result
-		peConn, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(ingressControllerPod, peerAndConn.Peer)
+		peConnInAllNetworks, err := pe.AllAllowedConnectionsBetweenWorkloadPeers(ingressControllerPod, peerAndConn.Peer)
 		if err != nil {
 			return nil, err
 		}
-		peConn.RemoveDefaultRule(true)
-		peerAndConn.ConnSet.Intersection(peConn)
-		peerAndConn.ConnSet.SetExplResult(true)
-		peerAndConn.ConnSet.NetworkData = peConn.NetworkData
-		if peerAndConn.ConnSet.IsEmpty() {
-			ca.warnBlockedIngress(peerStr, peerAndConn.IngressObjects)
-			continue
-		}
-		allowedConn := peerAndConn.ConnSet
-		if ca.focusConnSet != nil {
-			allowedConn, err = ca.getFocusConnSetWithDataFromAllowedConns(peerAndConn.ConnSet) // if focus-conn is used,
-			//  only the focus connection is meaningful
-			if err != nil {
-				return nil, err
-			}
-			if allowedConn == nil || (!ca.explain && !ca.focusConnSet.ContainedIn(peerAndConn.ConnSet)) {
+		// @todo: if NADs are not supported with k8s service, ingress/route objects;
+		// then assert len(peConnInAllNetworks)==1
+		for _, peConn := range peConnInAllNetworks {
+			peConn.RemoveDefaultRule(true)
+			peerAndConn.ConnSet.Intersection(peConn)
+			peerAndConn.ConnSet.SetExplResult(true)
+			peerAndConn.ConnSet.NetworkData = peConn.NetworkData
+			if peerAndConn.ConnSet.IsEmpty() {
+				ca.warnBlockedIngress(peerStr, peerAndConn.IngressObjects)
 				continue
 			}
+			allowedConn := peerAndConn.ConnSet
+			if ca.focusConnSet != nil {
+				allowedConn, err = ca.getFocusConnSetWithDataFromAllowedConns(peerAndConn.ConnSet) // if focus-conn is used,
+				//  only the focus connection is meaningful
+				if err != nil {
+					return nil, err
+				}
+				if allowedConn == nil || (!ca.explain && !ca.focusConnSet.ContainedIn(peerAndConn.ConnSet)) {
+					continue
+				}
+			}
+			p2pConnection := createConnectionObject(allowedConn, ingressControllerPod, peerAndConn.Peer)
+			res = append(res, p2pConnection)
 		}
-		p2pConnection := createConnectionObject(allowedConn, ingressControllerPod, peerAndConn.Peer)
-		res = append(res, p2pConnection)
 	}
 	return res, nil
 }
