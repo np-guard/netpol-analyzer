@@ -1,18 +1,22 @@
 
-#########################################################
-# All Connections due to the system default (Allow all) #
-#########################################################
-0.0.0.0-255.255.255.255[External] => blue-namespace/blue[VirtualMachine]    (in network: happy-tenant)
-0.0.0.0-255.255.255.255[External] => green-namespace/green[VirtualMachine]    (in network: pod_network)
-0.0.0.0-255.255.255.255[External] => red-namespace/red[VirtualMachine]    (in network: happy-tenant)
-0.0.0.0-255.255.255.255[External] => yellow-namespace/yellow[VirtualMachine]    (in network: pod_network)
-blue-namespace/blue[VirtualMachine] => 0.0.0.0-255.255.255.255[External]    (in network: happy-tenant)
-blue-namespace/blue[VirtualMachine] => red-namespace/red[VirtualMachine]    (in network: happy-tenant)
-green-namespace/green[VirtualMachine] => 0.0.0.0-255.255.255.255[External]    (in network: pod_network)
-green-namespace/green[VirtualMachine] => yellow-namespace/yellow[VirtualMachine]    (in network: pod_network)
-red-namespace/red[VirtualMachine] => 0.0.0.0-255.255.255.255[External]    (in network: happy-tenant)
-red-namespace/red[VirtualMachine] => blue-namespace/blue[VirtualMachine]    (in network: happy-tenant)
-yellow-namespace/yellow[VirtualMachine] => 0.0.0.0-255.255.255.255[External]    (in network: pod_network)
-yellow-namespace/yellow[VirtualMachine] => green-namespace/green[VirtualMachine]    (in network: pod_network)
+########################################################################
+# All Connections due to the system default (Allow all) in pod-network #
+########################################################################
+0.0.0.0-255.255.255.255[External] => green-namespace/green[VirtualMachine]
+0.0.0.0-255.255.255.255[External] => yellow-namespace/yellow[VirtualMachine]
+green-namespace/green[VirtualMachine] => 0.0.0.0-255.255.255.255[External]
+green-namespace/green[VirtualMachine] => yellow-namespace/yellow[VirtualMachine]
+yellow-namespace/yellow[VirtualMachine] => 0.0.0.0-255.255.255.255[External]
+yellow-namespace/yellow[VirtualMachine] => green-namespace/green[VirtualMachine]
+
+######################################################################################
+# All Connections due to the system default (Allow all) in primary CUDN happy-tenant #
+######################################################################################
+0.0.0.0-255.255.255.255[External] => blue-namespace/blue[VirtualMachine]
+0.0.0.0-255.255.255.255[External] => red-namespace/red[VirtualMachine]
+blue-namespace/blue[VirtualMachine] => 0.0.0.0-255.255.255.255[External]
+blue-namespace/blue[VirtualMachine] => red-namespace/red[VirtualMachine]
+red-namespace/red[VirtualMachine] => 0.0.0.0-255.255.255.255[External]
+red-namespace/red[VirtualMachine] => blue-namespace/blue[VirtualMachine]
 
 *** Note: Connections between any peers from separate isolated networks are denied by default and therefore not listed in this report.

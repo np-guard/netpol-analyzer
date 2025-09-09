@@ -1,10 +1,10 @@
 
-#########################################################
-# All Connections due to the system default (Allow all) #
-#########################################################
-0.0.0.0-255.255.255.255[External] => foo[udn]/fedora-apricot-pike-81[VirtualMachine]    (in network: foo)
-0.0.0.0-255.255.255.255[External] => foo[udn]/fedora-tomato-zebra-41[VirtualMachine]    (in network: foo)
-foo[udn]/fedora-apricot-pike-81[VirtualMachine] => 0.0.0.0-255.255.255.255[External]    (in network: foo)
-foo[udn]/fedora-apricot-pike-81[VirtualMachine] => foo[udn]/fedora-tomato-zebra-41[VirtualMachine]    (in network: foo)
-foo[udn]/fedora-tomato-zebra-41[VirtualMachine] => 0.0.0.0-255.255.255.255[External]    (in network: foo)
-foo[udn]/fedora-tomato-zebra-41[VirtualMachine] => foo[udn]/fedora-apricot-pike-81[VirtualMachine]    (in network: foo)
+############################################################################
+# All Connections due to the system default (Allow all) in primary UDN foo #
+############################################################################
+0.0.0.0-255.255.255.255[External] => foo[udn]/fedora-apricot-pike-81[VirtualMachine]
+0.0.0.0-255.255.255.255[External] => foo[udn]/fedora-tomato-zebra-41[VirtualMachine]
+foo[udn]/fedora-apricot-pike-81[VirtualMachine] => 0.0.0.0-255.255.255.255[External]
+foo[udn]/fedora-apricot-pike-81[VirtualMachine] => foo[udn]/fedora-tomato-zebra-41[VirtualMachine]
+foo[udn]/fedora-tomato-zebra-41[VirtualMachine] => 0.0.0.0-255.255.255.255[External]
+foo[udn]/fedora-tomato-zebra-41[VirtualMachine] => foo[udn]/fedora-apricot-pike-81[VirtualMachine]

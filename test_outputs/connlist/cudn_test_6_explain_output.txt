@@ -1,4 +1,10 @@
 
+########################################################################
+# All Connections due to the system default (Allow all) in pod-network #
+########################################################################
+0.0.0.0-255.255.255.255[External] => default/app-default[StatefulSet]
+default/app-default[StatefulSet] => 0.0.0.0-255.255.255.255[External]
+
 #####################################################################
 # Specific connections and their reasons in primary CUDN colored-bg #
 #####################################################################
@@ -51,6 +57,12 @@ Denied connections:
 			NetworkPolicy 'blue/allow-to-all-pods' selects blue/app-blue[StatefulSet], and Ingress rule #1 selects green/app-green[StatefulSet], but the protocols and ports do not match
 
 
+####################################################################################
+# All Connections due to the system default (Allow all) in primary CUDN colored-bg #
+####################################################################################
+0.0.0.0-255.255.255.255[External] => green/app-green[StatefulSet]
+green/app-green[StatefulSet] => 0.0.0.0-255.255.255.255[External]
+
 #####################################################################
 # Specific connections and their reasons in primary CUDN colored-ry #
 #####################################################################
@@ -79,16 +91,12 @@ Denied connections:
 		Ingress (Allowed) due to the system default (Allow all)
 
 
-#########################################################
-# All Connections due to the system default (Allow all) #
-#########################################################
-0.0.0.0-255.255.255.255[External] => default/app-default[StatefulSet]    (in network: pod_network)
-0.0.0.0-255.255.255.255[External] => green/app-green[StatefulSet]    (in network: colored-bg)
-0.0.0.0-255.255.255.255[External] => red/app-red[StatefulSet]    (in network: colored-ry)
-0.0.0.0-255.255.255.255[External] => yellow/app-yellow[StatefulSet]    (in network: colored-ry)
-default/app-default[StatefulSet] => 0.0.0.0-255.255.255.255[External]    (in network: pod_network)
-green/app-green[StatefulSet] => 0.0.0.0-255.255.255.255[External]    (in network: colored-bg)
-yellow/app-yellow[StatefulSet] => 0.0.0.0-255.255.255.255[External]    (in network: colored-ry)
-yellow/app-yellow[StatefulSet] => red/app-red[StatefulSet]    (in network: colored-ry)
+####################################################################################
+# All Connections due to the system default (Allow all) in primary CUDN colored-ry #
+####################################################################################
+0.0.0.0-255.255.255.255[External] => red/app-red[StatefulSet]
+0.0.0.0-255.255.255.255[External] => yellow/app-yellow[StatefulSet]
+yellow/app-yellow[StatefulSet] => 0.0.0.0-255.255.255.255[External]
+yellow/app-yellow[StatefulSet] => red/app-red[StatefulSet]
 
 *** Note: Connections between any peers from separate isolated networks are denied by default and therefore not listed in this report.

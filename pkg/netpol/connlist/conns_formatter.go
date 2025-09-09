@@ -74,6 +74,7 @@ type singleConnFields struct {
 	ConnString  string `json:"conn"`
 	explanation string
 	networkName string
+	defaultConn bool
 }
 
 // string representation of the singleConnFields struct
@@ -107,6 +108,7 @@ func formSingleP2PConn(conn Peer2PeerConnection, explain bool) (p2pConn *singleC
 	dstStr := conn.Dst().String()
 	origSrcStr := srcStr
 	origDstStr := dstStr
+	defaultConn := conn.(*connection).onlyDefaultRule()
 	if networkData.Interface == common.Primary { // if the src is in udn add the udn label to its name
 		isClusterUdn = networkData.ResourceKind == common.CUDN
 		if networkData.ResourceKind == common.UDN {
@@ -122,7 +124,8 @@ func formSingleP2PConn(conn Peer2PeerConnection, explain bool) (p2pConn *singleC
 			expl = strings.ReplaceAll(expl, origDstStr, dstStr)
 		}
 	}
-	return &singleConnFields{Src: srcStr, Dst: dstStr, ConnString: connStr, explanation: expl, networkName: networkData.NetworkName},
+	return &singleConnFields{Src: srcStr, Dst: dstStr, ConnString: connStr, explanation: expl,
+			networkName: networkData.NetworkName, defaultConn: defaultConn},
 		isClusterUdn, networkInf
 }
 

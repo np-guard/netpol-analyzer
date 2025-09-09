@@ -6,7 +6,9 @@ SPDX-License-Identifier: Apache-2.0
 
 package common
 
-import "github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
+import (
+	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
+)
 
 type NetworkInterface int
 
@@ -39,7 +41,10 @@ func ResourceString(r NetworkResource) string {
 }
 
 const (
-	podNetworkName = "pod_network"
+	PodNetworkName = "pod-network"
+	UDNStr         = "[UDN]"
+	CUDNStr        = "[CUDN]"
+	NADStr         = "[NAD]"
 )
 
 // NetworkData contains data of :
@@ -55,7 +60,7 @@ type NetworkData struct {
 // creates an object for default pod-network connection
 func DefaultNetworkData() NetworkData {
 	return NetworkData{
-		NetworkName:  podNetworkName,
+		NetworkName:  PodNetworkName,
 		Interface:    PodNetwork,
 		ResourceKind: Default,
 	}

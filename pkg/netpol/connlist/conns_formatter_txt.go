@@ -17,6 +17,8 @@ import (
 // formatText: implements the connsFormatter interface for txt output format
 type formatText struct {
 	multipleNetworksEnabled bool
+	workloadToNetworksMap   map[string][]string
+	podNetworkWlsNum        int
 	ipMaps                  ipMaps
 }
 
@@ -40,18 +42,15 @@ func (t *formatText) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 //
 //gocyclo:ignore
 func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string) string {
-	connLines := make([]*singleConnFields, 0, len(conns))        // lines in the default pod networks
-	connsByUDN := make(map[string][]*singleConnFields)           // map from a primary udn to its conns
-	connsByCUDN := make(map[string][]*singleConnFields)          // map from a primary c-udn to its conns
-	connsByNAD := make(map[string][]*singleConnFields)           // map from a secondary network name to its conns
-	defaultConnLines := make([]*singleConnFields, 0, len(conns)) // used with explain
-	crossNetworksLinesFlag := false                              // indicates that there are denied conns because of isolated networks
+	connLines := make([]*singleConnFields, 0, len(conns)) // lines in the default pod networks
+	connsByUDN := make(map[string][]*singleConnFields)    // map from a primary udn to its conns
+	connsByCUDN := make(map[string][]*singleConnFields)   // map from a primary c-udn to its conns
+	connsByNAD := make(map[string][]*singleConnFields)    // map from a secondary network name to its conns
+	crossNetworksLinesFlag := false                       // indicates that there are denied conns because of isolated networks
 	t.ipMaps = createIPMaps(saveIPConns)
 	for i := range conns {
 		p2pConn, isClusterUdn, networkInf := formSingleP2PConn(conns[i], explain)
 		switch {
-		case explain && conns[i].(*connection).onlyDefaultRule():
-			defaultConnLines = append(defaultConnLines, p2pConn)
 		case explain && conns[i].(*connection).deniedCrossNetworksRule():
 			crossNetworksLinesFlag = true
 		case networkInf == common.Primary: // append allowed conn to its udn/cudn for output grouping
@@ -73,21 +72,18 @@ func (t *formatText) writeConnlistOutput(conns []Peer2PeerConnection, saveIPConn
 	}
 	result := ""
 	sortedConnLines := sortConnFields(connLines, true)
-	sortedDefaultConnLines := sortConnFields(defaultConnLines, true)
 	if explain {
-		podNetworkHeader := specificConnHeader
-		if len(connsByUDN) != 0 || len(connsByCUDN) != 0 || len(connsByNAD) != 0 {
-			podNetworkHeader += " in pod-network" // add this header if there are also other networks in the cluster
-		}
-		result = writeSingleTypeLinesExplanationOutput(sortedConnLines, podNetworkHeader, false, t.multipleNetworksEnabled) +
+		result = writeSingleTypeLinesExplanationOutput(sortedConnLines, common.PodNetworkName, t.multipleNetworksEnabled) +
 			writeNetworksSection(connsByUDN, false, true, primaryUDN) +
 			writeNetworksSection(connsByCUDN, false, true, primaryCUDN) +
 			writeNetworksSection(connsByNAD, false, true, secondaryNAD) +
-			writeSingleTypeLinesExplanationOutput(sortedDefaultConnLines, systemDefaultPairsHeader, true, t.multipleNetworksEnabled) +
 			writeSingleLineExplanationNote(crossNetworksLinesFlag)
 	} else { // not explain (regular connlist)
 		if focusConnStr == "" { // write all pod network conns  (src => dst: conn)
-			result = writeFullConnlistTxtOutput(sortedConnLines, connsByUDN, connsByCUDN, connsByNAD)
+			result = t.writeFullConnlistTxtOutput(sortedConnLines, connsByUDN, connsByCUDN, connsByNAD)
+			if t.multipleNetworksEnabled && len(t.workloadToNetworksMap) != 0 {
+				result += t.writeWorkloadToNetworksSection()
+			}
 		} else { // conns are already filtered by focus conn - print only (src => dst)
 			result = writeFocusConnTxtOutput(sortedConnLines, connsByUDN, connsByCUDN, connsByNAD, focusConnStr)
 		}
@@ -108,12 +104,12 @@ func writeNetworksSection(connsByNetworkName map[string][]*singleConnFields, nod
 	res := ""
 	networkKeys := sortMapKeys(connsByNetworkName)
 	for _, network := range networkKeys {
+		networkFullName := networkType + spaceSeparator + network
 		sortedConns := sortConnFields(connsByNetworkName[network], true)
 		if explain {
-			explainNetworkHeader := specificConnHeader + " in " + networkType + spaceSeparator + network
-			res += writeSingleTypeLinesExplanationOutput(sortedConns, explainNetworkHeader, false, false)
+			res += writeSingleTypeLinesExplanationOutput(sortedConns, networkFullName, true)
 		} else { // not explain
-			res += newLineChar + sectionHeaderPrefix + networkType + spaceSeparator + network + colon + newLineChar
+			res += newLineChar + sectionHeaderPrefix + networkFullName + colon + newLineChar
 			for i := range sortedConns {
 				if nodePairForm { // running with focus-conn
 					res += sortedConns[i].nodePairString() + newLineChar
@@ -135,23 +131,42 @@ func sortMapKeys(networkMap map[string][]*singleConnFields) []string {
 	return keys
 }
 
-func writeSingleTypeLinesExplanationOutput(lines []*singleConnFields, header string, pairsOnly,
-	multipleNetworksEnabled bool) string {
+func writeSingleTypeLinesExplanationOutput(lines []*singleConnFields, network string, multipleNets bool) string {
 	if len(lines) == 0 {
 		return ""
 	}
-	result := writeGroupHeader(header)
+	addNetworkToHeader := " in " + network
+	result := ""
+	explainNetworkHeader := specificConnHeader
+	if multipleNets {
+		explainNetworkHeader += addNetworkToHeader
+	}
+	explainedLines := ""
+	defaultConnLines := []*singleConnFields{}
+	// first write explained lines of the network conns
 	for _, p2pConn := range lines {
-		if pairsOnly {
-			result += p2pConn.nodePairString()
-			if multipleNetworksEnabled {
-				result += inNetStr + p2pConn.networkName + closing
-			}
-			result += newLineChar
+		if p2pConn.defaultConn {
+			defaultConnLines = append(defaultConnLines, p2pConn)
 		} else {
-			result += nodePairSeparationLine
-			result += p2pConn.stringWithExplanation()
+			explainedLines += nodePairSeparationLine
+			explainedLines += p2pConn.stringWithExplanation()
 		}
+	}
+	if explainedLines != "" {
+		result = writeGroupHeader(explainNetworkHeader) + explainedLines
+	}
+	if len(defaultConnLines) == 0 {
+		return result
+	}
+	// second write the system-default conns of the network
+	sortedDefaultConnLines := sortConnFields(defaultConnLines, true)
+	defLinesHeader := systemDefaultPairsHeader
+	if multipleNets {
+		defLinesHeader += addNetworkToHeader
+	}
+	result += writeGroupHeader(defLinesHeader)
+	for _, defConn := range sortedDefaultConnLines {
+		result += defConn.nodePairString() + newLineChar
 	}
 	return result
 }
@@ -245,18 +260,20 @@ func (c *singleConnFields) exposureString(isIngress bool, maxStrLen int, focusCo
 }
 
 const (
-	colon               = ":"
-	sectionHeaderPrefix = "Permitted connectivity analyzed in "
-	podNetworkStr       = "Pod network"
-	spaceSeparator      = " "
-	secondary           = "secondary"
-	primary             = "primary"
-	udnStr              = "UDN"
-	cudnStr             = "CUDN"
-	nadStr              = "NAD"
-	secondaryNAD        = secondary + spaceSeparator + nadStr
-	primaryCUDN         = primary + spaceSeparator + cudnStr
-	primaryUDN          = primary + spaceSeparator + udnStr
+	colon                       = ":"
+	sectionHeaderPrefix         = "Permitted connectivity analyzed in "
+	podNetworkStr               = "Pod network"
+	spaceSeparator              = " "
+	secondary                   = "secondary"
+	primary                     = "primary"
+	udnStr                      = "UDN"
+	cudnStr                     = "CUDN"
+	nadStr                      = "NAD"
+	secondaryNAD                = secondary + spaceSeparator + nadStr
+	primaryCUDN                 = primary + spaceSeparator + cudnStr
+	primaryUDN                  = primary + spaceSeparator + udnStr
+	emptyPodNetworkNoPods       = "all input workloads are configured with (C)UDN as their primary network interface"
+	emptyPodNetworkBlockedConns = "All connections are not allowed for the workloads in the pod-network"
 )
 
 func writeFocusConnTxtOutput(sortedConnLines []*singleConnFields, udnConns, cudnConns, nadConns map[string][]*singleConnFields,
@@ -274,10 +291,18 @@ func writeFocusConnTxtOutput(sortedConnLines []*singleConnFields, udnConns, cudn
 	return result
 }
 
-func writeFullConnlistTxtOutput(sortedConnLines []*singleConnFields, udnConns, cudnConns, nadConns map[string][]*singleConnFields) string {
+func (t *formatText) writeFullConnlistTxtOutput(sortedConnLines []*singleConnFields, udnConns, cudnConns,
+	nadConns map[string][]*singleConnFields) string {
 	result := ""
-	if (len(udnConns) != 0 || len(cudnConns) != 0 || len(nadConns) != 0) && len(sortedConnLines) != 0 {
+	if len(udnConns) != 0 || len(cudnConns) != 0 || len(nadConns) != 0 {
 		result += sectionHeaderPrefix + podNetworkStr + colon + newLineChar
+		if len(sortedConnLines) == 0 && t.multipleNetworksEnabled {
+			if t.podNetworkWlsNum == 0 {
+				result += emptyPodNetworkNoPods + newLineChar
+			} else {
+				result += emptyPodNetworkBlockedConns + newLineChar
+			}
+		}
 	}
 	for _, p2pConn := range sortedConnLines {
 		result += p2pConn.string() + newLineChar
@@ -294,4 +319,27 @@ func writeSingleLineExplanationNote(crossNetworksDeniedFlag bool) string {
 	}
 	return newLineChar + "*** Note: Connections between any peers from separate isolated networks are denied by default " +
 		"and therefore not listed in this report."
+}
+
+func (t *formatText) writeWorkloadToNetworksSection() string {
+	res := newLineChar + "Workload-to-Networks Mapping:" + newLineChar
+	for _, wl := range t.sortWorkloadNetworksMapKeys() {
+		primaryNetwork := t.workloadToNetworksMap[wl][0]
+		res += wl + ": \n\tPrimary Network: " + primaryNetwork + newLineChar
+		secondaryNets := t.workloadToNetworksMap[wl][1:]
+		if len(secondaryNets) != 0 {
+			sort.Strings(secondaryNets)
+			res += "\tSecondary Networks: " + strings.Join(secondaryNets, comma) + newLineChar
+		}
+	}
+	return res
+}
+
+func (t *formatText) sortWorkloadNetworksMapKeys() []string {
+	keys := make([]string, 0, len(t.workloadToNetworksMap))
+	for k := range t.workloadToNetworksMap {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }

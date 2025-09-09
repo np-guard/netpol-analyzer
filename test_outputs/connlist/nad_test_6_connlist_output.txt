@@ -1,3 +1,5 @@
+Permitted connectivity analyzed in Pod network:
+All connections are not allowed for the workloads in the pod-network
 
 Permitted connectivity analyzed in secondary NAD macvlan1-simple:
 test-simple-v4-ingress/pod-client-a[Pod] => test-simple-v4-ingress/pod-client-b[Pod] : All Connections
@@ -5,3 +7,14 @@ test-simple-v4-ingress/pod-client-a[Pod] => test-simple-v4-ingress/pod-server[Po
 test-simple-v4-ingress/pod-client-b[Pod] => test-simple-v4-ingress/pod-client-a[Pod] : All Connections
 test-simple-v4-ingress/pod-server[Pod] => test-simple-v4-ingress/pod-client-a[Pod] : All Connections
 test-simple-v4-ingress/pod-server[Pod] => test-simple-v4-ingress/pod-client-b[Pod] : All Connections
+
+Workload-to-Networks Mapping:
+test-simple-v4-ingress/pod-client-a[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan1-simple[NAD]
+test-simple-v4-ingress/pod-client-b[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan1-simple[NAD]
+test-simple-v4-ingress/pod-server[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan1-simple[NAD]
