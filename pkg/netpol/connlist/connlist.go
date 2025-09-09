@@ -63,7 +63,9 @@ type ConnlistAnalyzer struct {
 	muteErrsAndWarns   bool
 	peersList          []Peer // internally used peersList used in dot/svg formatting;
 	// in case of focusWorkload option contains only relevant peers
-	focusConnSet *common.ConnectionSet // internally used to focus conns list results with this specific connection
+	focusConnSet          *common.ConnectionSet // internally used to focus conns list results with this specific connection
+	podNetworkWls         int                   // number of workloads in the pod network; used for text output
+	workloadToNetworksMap map[string][]string   // map from workload string to its networks; used for text output
 }
 
 const (
@@ -243,6 +245,7 @@ func WithExplainOnly(explainOnly string) ConnlistAnalyzerOption {
 func WithMultipleNetworks() ConnlistAnalyzerOption {
 	return func(ca *ConnlistAnalyzer) {
 		ca.multipleNetworks = true
+		ca.workloadToNetworksMap = map[string][]string{}
 	}
 }
 
@@ -530,7 +533,8 @@ func (ca *ConnlistAnalyzer) getFormatter() (connsFormatter, error) {
 	case output.JSONFormat:
 		return &formatJSON{multipleNetworksEnabled: ca.multipleNetworks}, nil
 	case output.TextFormat:
-		return &formatText{multipleNetworksEnabled: ca.multipleNetworks}, nil
+		return &formatText{multipleNetworksEnabled: ca.multipleNetworks, podNetworkWlsNum: ca.podNetworkWls,
+			workloadToNetworksMap: ca.workloadToNetworksMap}, nil
 	case output.DOTFormat:
 		return &formatDOT{ca.peersList}, nil
 	case output.CSVFormat:
@@ -540,7 +544,8 @@ func (ca *ConnlistAnalyzer) getFormatter() (connsFormatter, error) {
 	case output.SVGFormat:
 		return &formatSVG{ca.peersList}, nil
 	default:
-		return &formatText{multipleNetworksEnabled: ca.multipleNetworks}, nil
+		return &formatText{multipleNetworksEnabled: ca.multipleNetworks, podNetworkWlsNum: ca.podNetworkWls,
+			workloadToNetworksMap: ca.workloadToNetworksMap}, nil
 	}
 }
 
@@ -703,6 +708,13 @@ func (ca *ConnlistAnalyzer) getPeersForConnsComputation(pe *eval.PolicyEngine) (
 	if err != nil {
 		ca.errors = append(ca.errors, newResourceEvaluationError(err))
 		return nil, nil, nil, err
+	}
+	if ca.multipleNetworks {
+		ca.podNetworkWls, err = pe.UpdateWorkloadToNetworksMap(ca.workloadToNetworksMap)
+		if err != nil {
+			ca.errors = append(ca.errors, newResourceEvaluationError(err))
+			return nil, nil, nil, err
+		}
 	}
 	// represent peerList as []connlist.Peer list to be used and returned by connlist pkg
 	workloadPeers := convertEvalPeersToConnlistPeer(peerList)

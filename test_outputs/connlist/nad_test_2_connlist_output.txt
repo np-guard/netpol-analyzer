@@ -9,3 +9,11 @@ default/vm-server[VirtualMachine] => default/vm-client[VirtualMachine] : All Con
 Permitted connectivity analyzed in secondary NAD flat12:
 default/vm-client[VirtualMachine] => default/vm-server[VirtualMachine] : All Connections
 default/vm-server[VirtualMachine] => default/vm-client[VirtualMachine] : All Connections
+
+Workload-to-Networks Mapping:
+default/vm-client[VirtualMachine]: 
+	Primary Network: pod-network
+	Secondary Networks: flat12[NAD]
+default/vm-server[VirtualMachine]: 
+	Primary Network: pod-network
+	Secondary Networks: flat12[NAD]

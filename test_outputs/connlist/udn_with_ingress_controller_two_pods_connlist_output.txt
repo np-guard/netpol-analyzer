@@ -1,3 +1,5 @@
+Permitted connectivity analyzed in Pod network:
+all input workloads are configured with (C)UDN as their primary network interface
 
 Permitted connectivity analyzed in primary UDN green:
 0.0.0.0-255.255.255.255[External] => green[udn]/app[Pod] : All Connections
@@ -7,3 +9,9 @@ green[udn]/app[Pod] => green[udn]/db[Pod] : All Connections
 green[udn]/db[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
 green[udn]/db[Pod] => green[udn]/app[Pod] : All Connections
 {ingress-controller} => green[udn]/app[Pod] : TCP 8000,8090
+
+Workload-to-Networks Mapping:
+green/app[Pod]: 
+	Primary Network: green[UDN]
+green/db[Pod]: 
+	Primary Network: green[UDN]

@@ -1,4 +1,14 @@
+Permitted connectivity analyzed in Pod network:
+All connections are not allowed for the workloads in the pod-network
 
 Permitted connectivity analyzed in secondary NAD macvlan1-simple:
 test-protocol-only-ports/pod-a[Pod] => test-protocol-only-ports/pod-b[Pod] : TCP 1-65535
 test-protocol-only-ports/pod-b[Pod] => test-protocol-only-ports/pod-a[Pod] : UDP 1-65535
+
+Workload-to-Networks Mapping:
+test-protocol-only-ports/pod-a[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: default/macvlan1-simple[NAD]
+test-protocol-only-ports/pod-b[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: default/macvlan1-simple[NAD]
