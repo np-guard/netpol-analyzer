@@ -8,7 +8,7 @@ test-protocol-only-ports/pod-b[Pod] => test-protocol-only-ports/pod-a[Pod] : UDP
 Workload-to-Networks Mapping:
 test-protocol-only-ports/pod-a[Pod]: 
 	Primary Network: pod-network
-	Secondary Networks: default/macvlan1-simple[NAD]
+	Secondary Networks: macvlan1-simple[NAD]
 test-protocol-only-ports/pod-b[Pod]: 
 	Primary Network: pod-network
-	Secondary Networks: default/macvlan1-simple[NAD]
+	Secondary Networks: macvlan1-simple[NAD]

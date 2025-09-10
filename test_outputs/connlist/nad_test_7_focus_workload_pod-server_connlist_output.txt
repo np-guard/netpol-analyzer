@@ -8,10 +8,10 @@ test-ingress-ns-selector-no-pods/pod-server[Pod] => test-ingress-ns-selector-no-
 Workload-to-Networks Mapping:
 test-ingress-ns-selector-no-pods-blue/pod-client-b[Pod]: 
 	Primary Network: pod-network
-	Secondary Networks: default/macvlan1-simple[NAD]
+	Secondary Networks: macvlan1-simple[NAD]
 test-ingress-ns-selector-no-pods/pod-client-a[Pod]: 
 	Primary Network: pod-network
-	Secondary Networks: default/macvlan1-simple[NAD]
+	Secondary Networks: macvlan1-simple[NAD]
 test-ingress-ns-selector-no-pods/pod-server[Pod]: 
 	Primary Network: pod-network
-	Secondary Networks: default/macvlan1-simple[NAD]
+	Secondary Networks: macvlan1-simple[NAD]

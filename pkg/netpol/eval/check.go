@@ -223,14 +223,10 @@ func (pe *PolicyEngine) getPeerSecondaryNetworks(peer k8s.Peer) map[string]commo
 	res := make(map[string]common.NetworkData)
 	// go through the pod's secondaryNetworks, return networks that are inserted to the policy-engine
 	// and that the namespace of the NAD matches the pod's namespace or pod's network namespace
-	for network := range peer.GetPeerPod().SecondaryNetworks {
+	for networkName, networkInfo := range peer.GetPeerPod().SecondaryNetworks {
 		peerNetworkNs := peer.GetPeerNamespace().Name
-		networkName := network
-		// if the network name in format ns/name separate them
-		if strings.Contains(networkName, string(types.Separator)) {
-			nsAndName := strings.Split(networkName, string(types.Separator))
-			peerNetworkNs = nsAndName[0]
-			networkName = nsAndName[1]
+		if networkInfo.Namespace != "" {
+			peerNetworkNs = networkInfo.Namespace
 		}
 		networkData, ok := pe.secondaryNetworks[networkName]
 		if ok && networkData.Namespaces[peerNetworkNs] { // the pod must be in a namespace that has matching NAD
@@ -248,6 +244,7 @@ func (pe *PolicyEngine) findCommonSecondaryNetworkForPeersPair(src, dst k8s.Peer
 	if srcSecondaryNets == nil || dstSecondaryNets == nil {
 		return nil
 	}
+	// note that : network name is unique in the cluster;
 	for netName, netData := range srcSecondaryNets {
 		if _, ok := dstSecondaryNets[netName]; ok {
 			res = append(res, netData)
@@ -922,9 +919,9 @@ func (pe *PolicyEngine) allAllowedXgressConnectionsByMultiNetpolsCRDs(src, dst k
 		var policyAllowedConnectionsPerDirection *common.ConnectionSet
 		var err error
 		if isIngress {
-			policyAllowedConnectionsPerDirection, err = mnp.GetMNPXgressAllowedConns(src, dst, true)
+			policyAllowedConnectionsPerDirection, err = mnp.GetMNPXgressAllowedConns(src, dst, true, networkName)
 		} else {
-			policyAllowedConnectionsPerDirection, err = mnp.GetMNPXgressAllowedConns(src, dst, false)
+			policyAllowedConnectionsPerDirection, err = mnp.GetMNPXgressAllowedConns(src, dst, false, networkName)
 		}
 		if err != nil {
 			return allowedConns, err

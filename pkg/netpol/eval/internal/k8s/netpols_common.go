@@ -15,6 +15,8 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
+	"github.com/np-guard/models/pkg/netset"
+
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -167,6 +169,18 @@ func selectorsMatch(ruleSelector, peerSelector *metav1.LabelSelector, peerLabels
 		return false, fmt.Errorf("%s", alerts.SelectorErrTitle+" : "+err.Error())
 	}
 	return selector.Matches(labels.Set(peerLabels)), nil
+}
+
+func parseNetpolCIDR(cidr, policyName string, except []string) (*netset.IPBlock, error) {
+	ipb, err := netset.IPBlockFromCidr(cidr)
+	if err != nil {
+		return nil, netpolErr(policyName, alerts.CidrErrTitle, err.Error())
+	}
+	ipb, err = ipb.ExceptCidrs(except...)
+	if err != nil {
+		return nil, netpolErr(policyName, alerts.CidrErrTitle, err.Error())
+	}
+	return ipb, nil
 }
 
 const (

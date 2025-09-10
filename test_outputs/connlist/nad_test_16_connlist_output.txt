@@ -1,0 +1,39 @@
+Permitted connectivity analyzed in Pod network:
+All connections are not allowed for the workloads in the pod-network
+
+Permitted connectivity analyzed in secondary NAD flatl2net:
+default/vm1[VirtualMachine] => default/vm2[VirtualMachine] : All Connections
+default/vm1[VirtualMachine] => default/vm3[VirtualMachine] : All Connections
+default/vm1[VirtualMachine] => default/vm4[VirtualMachine] : All Connections
+default/vm1[VirtualMachine] => default/vm5[VirtualMachine] : All Connections
+default/vm1[VirtualMachine] => default/vm6[VirtualMachine] : All Connections
+default/vm2[VirtualMachine] => default/vm1[VirtualMachine] : All Connections
+default/vm2[VirtualMachine] => default/vm3[VirtualMachine] : All Connections
+default/vm2[VirtualMachine] => default/vm4[VirtualMachine] : All Connections
+default/vm2[VirtualMachine] => default/vm5[VirtualMachine] : All Connections
+default/vm2[VirtualMachine] => default/vm6[VirtualMachine] : All Connections
+default/vm3[VirtualMachine] => default/vm1[VirtualMachine] : All Connections
+default/vm3[VirtualMachine] => default/vm2[VirtualMachine] : All Connections
+default/vm3[VirtualMachine] => default/vm4[VirtualMachine] : All Connections
+default/vm3[VirtualMachine] => default/vm5[VirtualMachine] : All Connections
+default/vm3[VirtualMachine] => default/vm6[VirtualMachine] : All Connections
+
+Workload-to-Networks Mapping:
+default/vm1[VirtualMachine]: 
+	Primary Network: pod-network
+	Secondary Networks: flatl2net[NAD]
+default/vm2[VirtualMachine]: 
+	Primary Network: pod-network
+	Secondary Networks: flatl2net[NAD]
+default/vm3[VirtualMachine]: 
+	Primary Network: pod-network
+	Secondary Networks: flatl2net[NAD]
+default/vm4[VirtualMachine]: 
+	Primary Network: pod-network
+	Secondary Networks: flatl2net[NAD]
+default/vm5[VirtualMachine]: 
+	Primary Network: pod-network
+	Secondary Networks: flatl2net[NAD]
+default/vm6[VirtualMachine]: 
+	Primary Network: pod-network
+	Secondary Networks: flatl2net[NAD]

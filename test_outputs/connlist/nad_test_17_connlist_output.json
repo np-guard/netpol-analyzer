@@ -1,0 +1,57 @@
+[
+  {
+    "src": "test-ipblock/pod-client-a[Pod]",
+    "dst": "test-ipblock/pod-client-b[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "test-ipblock/pod-client-a[Pod]",
+    "dst": "test-ipblock/pod-client-c[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "test-ipblock/pod-client-a[Pod]",
+    "dst": "test-ipblock/pod-server[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "test-ipblock/pod-client-b[Pod]",
+    "dst": "test-ipblock/pod-client-a[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "test-ipblock/pod-client-b[Pod]",
+    "dst": "test-ipblock/pod-client-c[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "test-ipblock/pod-client-b[Pod]",
+    "dst": "test-ipblock/pod-server[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "test-ipblock/pod-client-c[Pod]",
+    "dst": "test-ipblock/pod-client-a[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "test-ipblock/pod-client-c[Pod]",
+    "dst": "test-ipblock/pod-client-b[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "test-ipblock/pod-server[Pod]",
+    "dst": "test-ipblock/pod-client-a[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "test-ipblock/pod-server[Pod]",
+    "dst": "test-ipblock/pod-client-b[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "test-ipblock/pod-server[Pod]",
+    "dst": "test-ipblock/pod-client-c[Pod]",
+    "conn": "All Connections"
+  }
+]
