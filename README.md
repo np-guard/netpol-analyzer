@@ -81,6 +81,7 @@ Global Flags:
       --multiple-networks     Enables analysis of multi-network resources such as UserDefinedNetwork, NetworkAttachmentDefinition, and MultiNetworkPolicy. If disabled, these resources will be ignored (default "true").
   -q, --quiet                 runs quietly, reports only severe errors and results
   -v, --verbose               runs with more informative messages printed to log
+      --debug                 runs with debug messages printed to log
 ```
 
 ### Diff command
