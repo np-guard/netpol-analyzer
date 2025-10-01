@@ -1,3 +1,3 @@
-| src | dst |
-|-----|-----|
-| ns2/pod3[Pod] | ns1/pod2[Pod] |
+| src | dst | network |
+|-----|-----|------|
+| ns2/pod3[Pod] | ns1/pod2[Pod] | l2-network |

@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -56,7 +57,8 @@ type Pod struct {
 	Ports             []corev1.ContainerPort
 	HostIP            string
 	Owner             Owner
-	SecondaryNetworks map[string]bool // set of the secondary networks attached to the pod
+	SecondaryNetworks map[string]networkSelection // map of the secondary networks attached to the pod;
+	// map from secondary network name to its relevant data in the annotations
 
 	// The fields below are relevant to real pods when exposure analysis is active:
 
@@ -122,7 +124,7 @@ func PodFromCoreObject(p *corev1.Pod) (*Pod, error) {
 		FakePod:             false,
 		IngressExposureData: initiatePodExposure(),
 		EgressExposureData:  initiatePodExposure(),
-		SecondaryNetworks:   make(map[string]bool, 0),
+		SecondaryNetworks:   make(map[string]networkSelection, 0),
 	}
 
 	copy(pr.IPs, p.Status.PodIPs)
@@ -267,7 +269,7 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, string, 
 		pod.FakePod = false
 		pod.IngressExposureData = initiatePodExposure()
 		pod.EgressExposureData = initiatePodExposure()
-		pod.SecondaryNetworks = make(map[string]bool)
+		pod.SecondaryNetworks = make(map[string]networkSelection)
 		// for all workload-kinds: pod Labels and Annotations are taken from its Spec.Template
 		if kind != parser.VirtualMachine { // podTemplate is used for all workload types other than VirtualMachine
 			for k, v := range podTemplate.Labels {
@@ -290,7 +292,7 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, string, 
 				pod.Labels[k] = v
 			}
 			pod.Owner.Variant = variantFromLabelsMap(vmTemplate.ObjectMeta.Labels)
-			updateVirtualMachineSecondaryNetworks(vmTemplate.Spec.Networks, pod.SecondaryNetworks)
+			updateVirtualMachineSecondaryNetworks(vmTemplate.Spec.Networks, vmTemplate.Spec.Volumes, pod.SecondaryNetworks)
 		}
 		res[index-1] = pod
 	}
@@ -300,16 +302,19 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, string, 
 
 // networkSelection is used to extract the network name and ns when json format is used in the pod's networks annotation
 type networkSelection struct {
-	Name      string `json:"name"` // NAD name
-	Namespace string `json:"namespace"`
+	Name      string   `json:"name"` // NAD name
+	Namespace string   `json:"namespace"`
+	IPs       []string `json:"ips"`
 }
 
 // updatePodSecondaryNetworksFromAnnotation extracts the NAD's names from the pod's relevant annotation
 // Only one of the following annotation formats can be used:
-// 1. k8s.v1.cni.cncf.io/networks: <network>[,<network>,...] (comma separated string list)
-// 2. json format to add a secondary networks
+//  1. k8s.v1.cni.cncf.io/networks: <network>[,<network>,...] (comma separated string list)
+//  2. json format to add a secondary networks; json format may be attached with "ips" field
+//     info which describes the ip-addresses to be assigned to the network interface
+//
 // stores the names of the networks in the input set , if the ns is provided it is stored in a <ns/name> format
-func updatePodSecondaryNetworksFromAnnotation(v string, secondaryNetworksSet map[string]bool) error {
+func updatePodSecondaryNetworksFromAnnotation(v string, secondaryNetworksSet map[string]networkSelection) error {
 	if v == "" {
 		return nil
 	}
@@ -319,34 +324,90 @@ func updatePodSecondaryNetworksFromAnnotation(v string, secondaryNetworksSet map
 			return err
 		}
 		for _, nc := range networks {
-			networkName := nc.Name
-			if nc.Namespace != "" {
-				networkName = types.NamespacedName{Name: nc.Name, Namespace: nc.Namespace}.String()
-			}
-			if networkName != "" {
-				secondaryNetworksSet[networkName] = true
+			network := networkSelection{Name: nc.Name, Namespace: nc.Namespace, IPs: nc.IPs}
+			if nc.Name != "" {
+				secondaryNetworksSet[nc.Name] = network
 			}
 		}
 	} else {
 		// Comma-delimited list of network attachment object names
 		for _, n := range strings.Split(v, ",") {
 			// Remove leading and trailing whitespace.
-			networkName := strings.TrimSpace(n)
+			network := strings.TrimSpace(n)
 			// ignore interface name if exists (i.e. <namespace>/<network name>@<ifname>)
-			networkName = strings.Split(networkName, "@")[0]
-			secondaryNetworksSet[networkName] = true
+			network = strings.Split(network, "@")[0]
+			networkName, networkNs := splitNameAndNsFromNetwork(network)
+			secondaryNetworksSet[networkName] = networkSelection{Name: networkName, Namespace: networkNs, IPs: []string{}}
 		}
 	}
 	return nil
 }
 
 // updateVirtualMachineSecondaryNetworks extracts the NAD's names from the vm's relevant multus networks
-func updateVirtualMachineSecondaryNetworks(networks []kubevirt.Network, secondaryNetworksSet map[string]bool) {
+func updateVirtualMachineSecondaryNetworks(networks []kubevirt.Network, volumes []kubevirt.Volume,
+	secondaryNetworksSet map[string]networkSelection) {
+	// Note: The cloud-init networkData may define multiple interfaces, including both
+	// the primary pod network (e.g., "eth0") and secondary networks (e.g., "net1", "net2").
+	// since we don't have info about relation between secondary network and its physical connected interface,
+	// we will collect all IPs in networkData that do not belong to eth0; and attach them to all the secondary networks;
+	ips := extractSecondaryNetworkIPs(volumes)
 	for _, n := range networks {
 		if n.Multus != nil {
-			secondaryNetworksSet[n.Multus.NetworkName] = true
+			networkName, networkNs := splitNameAndNsFromNetwork(n.Multus.NetworkName)
+			secondaryNetworksSet[n.Multus.NetworkName] = networkSelection{Name: networkName, Namespace: networkNs, IPs: ips}
 		}
 	}
+}
+
+func splitNameAndNsFromNetwork(network string) (networkName, networkNs string) {
+	networkName = network
+	networkNs = "" // empty : means the network belongs to pod's namespace
+	if strings.Contains(networkName, string(types.Separator)) {
+		nsAndName := strings.Split(networkName, string(types.Separator))
+		networkNs = nsAndName[0]
+		networkName = nsAndName[1]
+	}
+	return networkName, networkNs
+}
+
+const (
+	primaryInterface = "eth0"
+	colon            = ":"
+)
+
+// extractSecondaryNetworkIPs parses cloudInitNoCloud.networkData from each volume in volumes
+// and returns IPs assigned to secondary interfaces (excluding eth0 - primary interface).
+func extractSecondaryNetworkIPs(volumes []kubevirt.Volume) []string {
+	secondaryIPs := []string{}
+	// Regex to match IPs in CIDR format
+	ipRe := regexp.MustCompile(`\b(\d{1,3}\.){3}\d{1,3}/\d{1,2}\b`)
+	for i := range volumes {
+		if volumes[i].CloudInitNoCloud == nil {
+			continue
+		}
+		networkData := volumes[i].CloudInitNoCloud.NetworkData
+		if networkData == "" {
+			continue
+		}
+		// parse the networkData lines to get the ips of all secondary interfaces
+		lines := strings.Split(networkData, "\n")
+		currentInterface := ""
+		for _, line := range lines {
+			line = strings.TrimSpace(line)
+
+			// Detect interface name (e.g., "eth1:")
+			if strings.HasSuffix(line, colon) {
+				currentInterface = strings.TrimSuffix(line, colon)
+				continue // continue to next line to extract the interface's ips
+			}
+			// Extract IPs of current interface unless it is primary
+			if currentInterface != "" && currentInterface != primaryInterface {
+				matches := ipRe.FindAllString(line, -1) // collect cidr strings
+				secondaryIPs = append(secondaryIPs, matches...)
+			}
+		}
+	}
+	return secondaryIPs
 }
 
 // canonical Pod name

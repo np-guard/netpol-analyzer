@@ -1,4 +1,18 @@
 
+#########################################################
+# Specific connections and their reasons in pod-network #
+#########################################################
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Connections between ns2/pod3[Pod] => ns1/pod2[Pod]:
+
+Denied connections:
+	Denied TCP:[80] due to the following policies and rules:
+		Egress (Denied)
+			NetworkPolicy 'ns2/default-deny-in-namespace-ns2' selects ns2/pod3[Pod], but ns1/pod2[Pod] is not allowed by any Egress rule (no rules defined)
+		Ingress (Denied)
+			NetworkPolicy 'ns1/default-deny-in-namespace-ns1' selects ns1/pod2[Pod], but ns2/pod3[Pod] is not allowed by any Ingress rule (no rules defined)
+
+
 ######################################################################
 # Specific connections and their reasons in secondary NAD l2-network #
 ######################################################################

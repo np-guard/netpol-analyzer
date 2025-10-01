@@ -12,19 +12,20 @@ import (
 
 // formatJSON: implements the connsFormatter interface for JSON output format
 type formatJSON struct {
-	ipMaps ipMaps
+	multipleNetworksEnabled bool
+	ipMaps                  ipMaps
 }
 
 const indent = "  "
 
 type jsonFields struct {
-	ConnlistResults []singleConnFields `json:"connlist_results"`
-	ExposureResults exposureFields     `json:"exposure_results"`
+	ConnlistResults []*singleConnFields `json:"connlist_results"`
+	ExposureResults exposureFields      `json:"exposure_results"`
 }
 
 type exposureFields struct {
-	EgressExposure  []singleConnFields `json:"egress_exposure"`
-	IngressExposure []singleConnFields `json:"ingress_exposure"`
+	EgressExposure  []*singleConnFields `json:"egress_exposure"`
+	IngressExposure []*singleConnFields `json:"ingress_exposure"`
 }
 
 type jsonFocusConnFields struct {
@@ -46,7 +47,7 @@ func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 	// output variables
 	var jsonConns []byte
 	var err error
-	// get an array of sorted connlist items ([]singleConnFields)
+	// get an array of sorted connlist items ([]*singleConnFields)
 	sortedConnItems := getConnlistAsSortedSingleConnFieldsArray(conns, j.ipMaps, exposureFlag, false)
 	if exposureFlag {
 		// get an array of sorted exposure items
@@ -71,7 +72,7 @@ func (j *formatJSON) writeOutput(conns []Peer2PeerConnection, exposureConns []Ex
 	return string(jsonConns), nil
 }
 
-func writeAllConnsJSONFields(sortedConnItems, ingressExposureItems, egressExposureItems []singleConnFields) jsonFields {
+func writeAllConnsJSONFields(sortedConnItems, ingressExposureItems, egressExposureItems []*singleConnFields) jsonFields {
 	return jsonFields{
 		ConnlistResults: sortedConnItems,
 		ExposureResults: exposureFields{
@@ -81,7 +82,7 @@ func writeAllConnsJSONFields(sortedConnItems, ingressExposureItems, egressExposu
 	}
 }
 
-func writeFocusConnsJSONFields(sortedConnItems, ingressExposureItems, egressExposureItems []singleConnFields) jsonFocusConnFields {
+func writeFocusConnsJSONFields(sortedConnItems, ingressExposureItems, egressExposureItems []*singleConnFields) jsonFocusConnFields {
 	sortedConnItemsWithoutConnData := getListWithoutConnData(sortedConnItems)
 	ingressExposureItemsWithoutConnData := getListWithoutConnData(ingressExposureItems)
 	egressExposureItemsWithoutConnData := getListWithoutConnData(egressExposureItems)
@@ -100,7 +101,7 @@ type singleSrcDstFields struct {
 	Dst string `json:"dst"`
 }
 
-func getListWithoutConnData(items []singleConnFields) []singleSrcDstFields {
+func getListWithoutConnData(items []*singleConnFields) []singleSrcDstFields {
 	res := make([]singleSrcDstFields, len(items))
 	for i := range items {
 		res[i] = singleSrcDstFields{Src: items[i].Src, Dst: items[i].Dst}

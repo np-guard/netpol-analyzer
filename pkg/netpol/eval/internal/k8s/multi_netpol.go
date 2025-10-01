@@ -17,7 +17,10 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/np-guard/models/pkg/netset"
+
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
+	"github.com/np-guard/netpol-analyzer/pkg/manifests/parser"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/alerts"
 	"github.com/np-guard/netpol-analyzer/pkg/netpol/internal/common"
 )
@@ -36,10 +39,7 @@ const policyForAnnotation = "k8s.v1.cni.cncf.io/policy-for"
 
 // GetMNPXgressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer (for Ingress)
 // or from any captured pod to the dst peer (for Egress)
-//
-//nolint:dupl // even though MultiNetworkPolicy analysis is similar to NetworkPolicy's analysis. those objects
-//nolint:dupl // are imported from different packages and thus their fields have different types
-func (mnp *MultiNetworkPolicy) GetMNPXgressAllowedConns(src, dst Peer, isIngress bool) (*common.ConnectionSet, error) {
+func (mnp *MultiNetworkPolicy) GetMNPXgressAllowedConns(src, dst Peer, isIngress bool, networkName string) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
 	numOfRules := len(mnp.Spec.Egress)
 	peerToSelect := dst // the peer to check if selected by policy rules
@@ -59,7 +59,7 @@ func (mnp *MultiNetworkPolicy) GetMNPXgressAllowedConns(src, dst Peer, isIngress
 	peerSelectedByAnyRule := false
 	for idx := 0; idx < numOfRules; idx++ {
 		rulePeers, rulePorts := mnp.rulePeersAndPorts(idx, isIngress)
-		peerSelected, err := mnp.ruleSelectsPeer(rulePeers, peerToSelect)
+		peerSelected, err := mnp.ruleSelectsPeer(rulePeers, peerToSelect, networkName)
 		if err != nil {
 			return res, err
 		}
@@ -93,7 +93,7 @@ func (mnp *MultiNetworkPolicy) rulePeersAndPorts(ruleIdx int, isIngress bool) ([
 }
 
 //gocyclo:ignore
-func (mnp *MultiNetworkPolicy) ruleSelectsPeer(rulePeers []mnpv1.MultiNetworkPolicyPeer, peer Peer) (bool, error) {
+func (mnp *MultiNetworkPolicy) ruleSelectsPeer(rulePeers []mnpv1.MultiNetworkPolicyPeer, peer Peer, networkName string) (bool, error) {
 	if len(rulePeers) == 0 {
 		return true, nil // If this field is empty or missing, this rule matches all destinations
 	}
@@ -105,6 +105,9 @@ func (mnp *MultiNetworkPolicy) ruleSelectsPeer(rulePeers []mnpv1.MultiNetworkPol
 			if rulePeers[i].IPBlock != nil {
 				return false, netpolErr(mnp.FullName(), alerts.MNPRulePeerErrTitle, alerts.CombinedRulePeerErrStr)
 			}
+			if peer.GetPeerPod() != nil && peer.GetPeerPod().Owner.Kind == parser.VirtualMachine {
+				continue // virtual machines can be selected only with ipBlocks
+			}
 			selectorsMatch, err := checkSelectorsMatchForPeer(rulePeers[i].NamespaceSelector, rulePeers[i].PodSelector, peer, mnp.Namespace)
 			if err != nil {
 				return false, err
@@ -113,10 +116,32 @@ func (mnp *MultiNetworkPolicy) ruleSelectsPeer(rulePeers []mnpv1.MultiNetworkPol
 				continue // rule does not match - skip to next rule-peerObj
 			}
 			return true, nil
-		} // else  // ipblock - still not supported, it should check match with the peer's pod IP
-		// @todo :  support selecting internal peers by IPBlock
-		mnp.Warnings.AddWarning(mnp.FullName() + " " + alerts.MNPUnsupportedRuleField)
-		return false, nil
+		}
+		if rulePeers[i].IPBlock != nil { // IpBlock != nil
+			ruleIPBlock, err := parseNetpolCIDR(rulePeers[i].IPBlock.CIDR, mnp.FullName(), rulePeers[i].IPBlock.Except)
+			if err != nil {
+				return false, err
+			}
+			if peer.PeerType() == IPBlockType { // not likely to get here as external peers don't belong to secondary networks
+				return peer.GetPeerIPBlock().IsSubset(ruleIPBlock), nil
+			}
+			// check if the pod's supported by secondary network addresses are contained in the rule's ipBlock
+			for _, address := range peer.GetPeerPod().SecondaryNetworks[networkName].IPs {
+				// Note: Although the pod's network annotation includes a CIDR (e.g., "2.2.5.12/24"),
+				// the actual IP assigned to the pod is "2.2.5.12". The "/24" is the subnet mask used for routing,
+				// not an indication that the pod owns the entire subnet.
+				// Therefore, when checking against MultiNetworkPolicy IPBlock rules,
+				// we must extract and use only the pod's IP address (without the CIDR) for matching.
+				actualAddressIP := strings.Split(address, "/")[0]
+				addressIpBlock, err := netset.IPBlockFromIPAddress(actualAddressIP)
+				if err != nil {
+					return false, err
+				}
+				if addressIpBlock.IsSubset(ruleIPBlock) {
+					return true, nil
+				}
+			}
+		}
 	}
 	return false, nil
 }

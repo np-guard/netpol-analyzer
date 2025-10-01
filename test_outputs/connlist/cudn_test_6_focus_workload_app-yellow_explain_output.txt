@@ -18,9 +18,9 @@ Denied connections:
 		Ingress (Allowed) due to the system default (Allow all)
 
 
-#########################################################
-# All Connections due to the system default (Allow all) #
-#########################################################
+####################################################################################
+# All Connections due to the system default (Allow all) in primary CUDN colored-ry #
+####################################################################################
 0.0.0.0-255.255.255.255[External] => yellow/app-yellow[StatefulSet]
 yellow/app-yellow[StatefulSet] => 0.0.0.0-255.255.255.255[External]
 yellow/app-yellow[StatefulSet] => red/app-red[StatefulSet]

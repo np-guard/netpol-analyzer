@@ -18,6 +18,15 @@ Denied connections:
 		Ingress (Allowed) due to the system default (Allow all)
 
 
+########################################################################
+# All Connections due to the system default (Allow all) in pod-network #
+########################################################################
+0.0.0.0-255.255.255.255[External] => bar/mybar[Pod]
+0.0.0.0-255.255.255.255[External] => default/app-1[Pod]
+bar/mybar[Pod] => 0.0.0.0-255.255.255.255[External]
+default/app-1[Pod] => 0.0.0.0-255.255.255.255[External]
+default/app-1[Pod] => bar/mybar[Pod]
+
 ###############################################################
 # Specific connections and their reasons in primary UDN green #
 ###############################################################
@@ -96,14 +105,9 @@ Denied connections:
 			NetworkPolicy 'green/ingress-port-9001-only' allows connections by Ingress rule #1
 
 
-#########################################################
-# All Connections due to the system default (Allow all) #
-#########################################################
-0.0.0.0-255.255.255.255[External] => bar/mybar[Pod]
-0.0.0.0-255.255.255.255[External] => default/app-1[Pod]
-bar/mybar[Pod] => 0.0.0.0-255.255.255.255[External]
-default/app-1[Pod] => 0.0.0.0-255.255.255.255[External]
-default/app-1[Pod] => bar/mybar[Pod]
+##############################################################################
+# All Connections due to the system default (Allow all) in primary UDN green #
+##############################################################################
 green[udn]/webserver-2[Pod] => 0.0.0.0-255.255.255.255[External]
 green[udn]/webserver[Pod] => 0.0.0.0-255.255.255.255[External]
 

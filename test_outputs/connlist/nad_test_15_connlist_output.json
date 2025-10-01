@@ -1,0 +1,52 @@
+[
+  {
+    "src": "bond-testing/pod-a[Pod]",
+    "dst": "bond-testing/pod-b[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bond-testing/pod-a[Pod]",
+    "dst": "bond-testing/pod-c[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bond-testing/pod-a[Pod]",
+    "dst": "bond-testing/pod-c[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bond-testing/pod-b[Pod]",
+    "dst": "bond-testing/pod-a[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bond-testing/pod-b[Pod]",
+    "dst": "bond-testing/pod-a[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bond-testing/pod-b[Pod]",
+    "dst": "bond-testing/pod-c[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bond-testing/pod-b[Pod]",
+    "dst": "bond-testing/pod-c[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bond-testing/pod-c[Pod]",
+    "dst": "bond-testing/pod-a[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bond-testing/pod-c[Pod]",
+    "dst": "bond-testing/pod-b[Pod]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "bond-testing/pod-c[Pod]",
+    "dst": "bond-testing/pod-b[Pod]",
+    "conn": "All Connections"
+  }
+]

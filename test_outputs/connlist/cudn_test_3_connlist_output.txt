@@ -15,3 +15,13 @@ green-namespace/green[VirtualMachine] => red-namespace/red[VirtualMachine] : All
 red-namespace/red[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
 red-namespace/red[VirtualMachine] => blue-namespace/blue[VirtualMachine] : All Connections
 red-namespace/red[VirtualMachine] => green-namespace/green[VirtualMachine] : All Connections
+
+Workload-to-Networks Mapping:
+blue-namespace/blue[VirtualMachine]: 
+	Primary Network: entire-cluster-cudn[CUDN]
+green-namespace/green[VirtualMachine]: 
+	Primary Network: entire-cluster-cudn[CUDN]
+red-namespace/red[VirtualMachine]: 
+	Primary Network: entire-cluster-cudn[CUDN]
+yellow-namespace/yellow[VirtualMachine]: 
+	Primary Network: pod-network

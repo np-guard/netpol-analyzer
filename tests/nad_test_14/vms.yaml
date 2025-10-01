@@ -16,17 +16,12 @@ spec:
           interfaces:
             - name: default
               bridge: {}
-            - name: macvlan-shared-net
-              bridge: {}
         resources:
           requests:
             memory: 512Mi
       networks:
         - name: default
           pod: {}
-        - name: macvlan-shared-net
-          multus:
-            networkName: macvlan-shared-net
       volumes:
         - name: containerdisk
           containerDisk:

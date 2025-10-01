@@ -1,0 +1,40 @@
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  namespace: default
+  name: macvlan-nad
+spec: 
+  config: '{
+            "cniVersion": "0.3.1",
+            "name": "macvlan1",
+            "type": "macvlan"
+        }'
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  namespace: default
+  name: bond-nad
+spec: 
+  config: '{
+            "cniVersion": "0.3.1",
+            "name": "test-nad",
+            "type": "bond",
+            "mode": "active-backup",
+            "failOverMac": 1,
+            "linksInContainer": true,
+            "miimon": "100",
+            "mtu": 1500,
+            "links": [ 
+                {"name": "link1"},
+                {"name": "link2"}
+            ],
+            "ipam":{
+              "type":"host-local",
+              "subnet":"2.2.6.0/24",
+              "rangeStart":"2.2.6.8",
+              "rangeEnd":"2.2.6.67"
+            }
+        }'
+---
