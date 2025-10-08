@@ -1,0 +1,45 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_default[namespace]" {
+		color="black"
+		fontcolor="black"
+		"default/vm1[VirtualMachine]" [label="vm1[VirtualMachine]" color="blue" fontcolor="blue"]
+		"default/vm2[VirtualMachine]" [label="vm2[VirtualMachine]" color="blue" fontcolor="blue"]
+		"default/vm3[VirtualMachine]" [label="vm3[VirtualMachine]" color="blue" fontcolor="blue"]
+		"default/vm4[VirtualMachine]" [label="vm4[VirtualMachine]" color="blue" fontcolor="blue"]
+		"default/vm5[VirtualMachine]" [label="vm5[VirtualMachine]" color="blue" fontcolor="blue"]
+		"default/vm6[VirtualMachine]" [label="vm6[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="default[namespace]"
+	}
+	}
+	subgraph "cluster_flatl2net" {
+	label="flatl2net[nad]"
+	subgraph "cluster_default[namespace]" {
+		color="black"
+		fontcolor="black"
+		"default/vm1[VirtualMachine]flatl2net" [label="vm1[VirtualMachine]" color="blue" fontcolor="blue"]
+		"default/vm2[VirtualMachine]flatl2net" [label="vm2[VirtualMachine]" color="blue" fontcolor="blue"]
+		"default/vm3[VirtualMachine]flatl2net" [label="vm3[VirtualMachine]" color="blue" fontcolor="blue"]
+		"default/vm4[VirtualMachine]flatl2net" [label="vm4[VirtualMachine]" color="blue" fontcolor="blue"]
+		"default/vm5[VirtualMachine]flatl2net" [label="vm5[VirtualMachine]" color="blue" fontcolor="blue"]
+		"default/vm6[VirtualMachine]flatl2net" [label="vm6[VirtualMachine]" color="blue" fontcolor="blue"]
+		label="default[namespace]"
+	}
+	}
+	"default/vm1[VirtualMachine]flatl2net" -> "default/vm2[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/vm1[VirtualMachine]flatl2net" -> "default/vm3[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/vm1[VirtualMachine]flatl2net" -> "default/vm4[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/vm1[VirtualMachine]flatl2net" -> "default/vm5[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/vm1[VirtualMachine]flatl2net" -> "default/vm6[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/vm2[VirtualMachine]flatl2net" -> "default/vm1[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/vm2[VirtualMachine]flatl2net" -> "default/vm3[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/vm2[VirtualMachine]flatl2net" -> "default/vm4[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/vm2[VirtualMachine]flatl2net" -> "default/vm5[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/vm2[VirtualMachine]flatl2net" -> "default/vm6[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/vm3[VirtualMachine]flatl2net" -> "default/vm1[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/vm3[VirtualMachine]flatl2net" -> "default/vm2[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/vm3[VirtualMachine]flatl2net" -> "default/vm4[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/vm3[VirtualMachine]flatl2net" -> "default/vm5[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"default/vm3[VirtualMachine]flatl2net" -> "default/vm6[VirtualMachine]flatl2net" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+}

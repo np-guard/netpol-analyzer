@@ -1,3 +1,5 @@
+Permitted connectivity analyzed in Pod network:
+all input workloads are configured with (C)UDN as their primary network interface
 
 Permitted connectivity analyzed in primary UDN foo:
 0.0.0.0-255.255.255.255[External] => foo[udn]/fedora-apricot-pike-81[VirtualMachine] : All Connections
@@ -6,3 +8,9 @@ foo[udn]/fedora-apricot-pike-81[VirtualMachine] => 0.0.0.0-255.255.255.255[Exter
 foo[udn]/fedora-apricot-pike-81[VirtualMachine] => foo[udn]/fedora-tomato-zebra-41[VirtualMachine] : All Connections
 foo[udn]/fedora-tomato-zebra-41[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
 foo[udn]/fedora-tomato-zebra-41[VirtualMachine] => foo[udn]/fedora-apricot-pike-81[VirtualMachine] : All Connections
+
+Workload-to-Networks Mapping:
+foo/fedora-apricot-pike-81[VirtualMachine]: 
+	Primary Network: foo[UDN]
+foo/fedora-tomato-zebra-41[VirtualMachine]: 
+	Primary Network: foo[UDN]

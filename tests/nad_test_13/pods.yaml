@@ -3,8 +3,6 @@ kind: Pod
 metadata:
   name: pod-a
   namespace: ns-udn-a
-  annotations:
-    k8s.v1.cni.cncf.io/networks: macvlan-shared-net
 spec:
   containers:
     - name: busy

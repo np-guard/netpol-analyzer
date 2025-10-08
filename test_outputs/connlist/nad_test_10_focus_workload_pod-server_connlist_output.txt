@@ -1,6 +1,12 @@
 Permitted connectivity analyzed in Pod network:
 0.0.0.0-255.255.255.255[External] => test-simple-v4-ingress-list/pod-server[Pod] : All Connections
+test-simple-v4-ingress-list/pod-client-a[Pod] => test-simple-v4-ingress-list/pod-server[Pod] : All Connections
+test-simple-v4-ingress-list/pod-client-b[Pod] => test-simple-v4-ingress-list/pod-server[Pod] : All Connections
+test-simple-v4-ingress-list/pod-client-c[Pod] => test-simple-v4-ingress-list/pod-server[Pod] : All Connections
 test-simple-v4-ingress-list/pod-server[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
+test-simple-v4-ingress-list/pod-server[Pod] => test-simple-v4-ingress-list/pod-client-a[Pod] : All Connections
+test-simple-v4-ingress-list/pod-server[Pod] => test-simple-v4-ingress-list/pod-client-b[Pod] : All Connections
+test-simple-v4-ingress-list/pod-server[Pod] => test-simple-v4-ingress-list/pod-client-c[Pod] : All Connections
 
 Permitted connectivity analyzed in secondary NAD macvlan1-simple:
 test-simple-v4-ingress-list/pod-client-a[Pod] => test-simple-v4-ingress-list/pod-server[Pod] : All Connections
@@ -8,3 +14,17 @@ test-simple-v4-ingress-list/pod-client-c[Pod] => test-simple-v4-ingress-list/pod
 test-simple-v4-ingress-list/pod-server[Pod] => test-simple-v4-ingress-list/pod-client-a[Pod] : All Connections
 test-simple-v4-ingress-list/pod-server[Pod] => test-simple-v4-ingress-list/pod-client-b[Pod] : All Connections
 test-simple-v4-ingress-list/pod-server[Pod] => test-simple-v4-ingress-list/pod-client-c[Pod] : All Connections
+
+Workload-to-Networks Mapping:
+test-simple-v4-ingress-list/pod-client-a[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan1-simple[NAD]
+test-simple-v4-ingress-list/pod-client-b[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan1-simple[NAD]
+test-simple-v4-ingress-list/pod-client-c[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan1-simple[NAD]
+test-simple-v4-ingress-list/pod-server[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan1-simple[NAD]

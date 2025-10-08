@@ -13,47 +13,76 @@ import (
 
 // formatMD: implements the connsFormatter interface for md output format
 type formatMD struct {
-	ipMaps ipMaps
+	multipleNetworksEnabled bool
+	ipMaps                  ipMaps
 }
 
 const (
 	src                  = "src"
 	dst                  = "dst"
 	conn                 = "conn"
+	network              = "network"
 	mdUnderLine          = "|-----|-----|------|"
+	mdUnderLineMNP       = "|-----|-----|------|------|"
 	mdUnderLineFocusConn = "|-----|-----|"
 	headerPrefix         = "## "
 	subHeaderPrefix      = "### "
 	mdRowFormat          = "| %s | %s | %s |"
+	mdRowFormatMNP       = "| %s | %s | %s | %s | "
 	mdRowFormatFocusConn = "| %s | %s |"
 )
 
 // getMDHeader formats the md output table header
-func getMDHeader(srcFirst bool, focusConnStr string) string {
+func getMDHeader(srcFirst, multipleNetworks bool, focusConnStr string) string {
 	tableHeaderForm := mdRowFormat + newLineChar + mdUnderLine
 	tableHeaderFormFocusConn := mdRowFormatFocusConn + newLineChar + mdUnderLineFocusConn
+	tableHeaderFormMNP := mdRowFormatMNP + newLineChar + mdUnderLineMNP
 	if srcFirst {
 		if focusConnStr != "" {
+			if multipleNetworks {
+				return fmt.Sprintf(tableHeaderForm, src, dst, network)
+			}
 			return fmt.Sprintf(tableHeaderFormFocusConn, src, dst)
+		}
+		if multipleNetworks {
+			return fmt.Sprintf(tableHeaderFormMNP, src, dst, conn, network)
 		}
 		return fmt.Sprintf(tableHeaderForm, src, dst, conn)
 	} // else dst first
 	if focusConnStr != "" {
+		if multipleNetworks {
+			return fmt.Sprintf(tableHeaderForm, dst, src, network)
+		}
 		return fmt.Sprintf(tableHeaderFormFocusConn, dst, src)
+	}
+	if multipleNetworks {
+		return fmt.Sprintf(tableHeaderFormMNP, dst, src, conn, network)
 	}
 	return fmt.Sprintf(tableHeaderForm, dst, src, conn)
 }
 
 // getMDLine formats a connection line for md output
-func getMDLine(c singleConnFields, srcFirst bool, focusConnStr string) string {
+func getMDLine(c *singleConnFields, srcFirst, multipleNetworks bool, focusConnStr string) string {
 	if srcFirst {
 		if focusConnStr != "" {
+			if multipleNetworks {
+				return fmt.Sprintf(mdRowFormat, c.Src, c.Dst, c.networkName)
+			}
 			return fmt.Sprintf(mdRowFormatFocusConn, c.Src, c.Dst)
+		}
+		if multipleNetworks {
+			return fmt.Sprintf(mdRowFormatMNP, c.Src, c.Dst, c.ConnString, c.networkName)
 		}
 		return fmt.Sprintf(mdRowFormat, c.Src, c.Dst, c.ConnString)
 	} // else dst first
 	if focusConnStr != "" {
+		if multipleNetworks {
+			return fmt.Sprintf(mdRowFormat, c.Dst, c.Src, c.networkName)
+		}
 		return fmt.Sprintf(mdRowFormatFocusConn, c.Dst, c.Src)
+	}
+	if multipleNetworks {
+		return fmt.Sprintf(mdRowFormatMNP, c.Dst, c.Src, c.ConnString, c.networkName)
 	}
 	return fmt.Sprintf(mdRowFormat, c.Dst, c.Src, c.ConnString)
 }
@@ -74,10 +103,10 @@ func (md *formatMD) writeOutput(conns []Peer2PeerConnection, exposureConns []Exp
 }
 
 // writeMdLines returns sorted md lines from the sorted singleConnFields list
-func writeMdLines(conns []singleConnFields, srcFirst bool, focusConnStr string) []string {
+func writeMdLines(conns []*singleConnFields, srcFirst, multipleNetworks bool, focusConnStr string) []string {
 	res := make([]string, len(conns))
 	for i := range conns {
-		res[i] = getMDLine(conns[i], srcFirst, focusConnStr)
+		res[i] = getMDLine(conns[i], srcFirst, multipleNetworks, focusConnStr)
 	}
 	return res
 }
@@ -86,8 +115,8 @@ func writeMdLines(conns []singleConnFields, srcFirst bool, focusConnStr string) 
 func (md *formatMD) writeMdConnlistLines(conns []Peer2PeerConnection, saveIPConns, explain bool, focusConnStr string) []string {
 	md.ipMaps = createIPMaps(saveIPConns)
 	sortedConns := getConnlistAsSortedSingleConnFieldsArray(conns, md.ipMaps, saveIPConns, explain)
-	connlistLines := []string{getMDHeader(true, focusConnStr)} // connlist results are formatted: src | dst | conn
-	connlistLines = append(connlistLines, writeMdLines(sortedConns, true, focusConnStr)...)
+	connlistLines := []string{getMDHeader(true, md.multipleNetworksEnabled, focusConnStr)} // connlist results are formatted: src | dst | conn
+	connlistLines = append(connlistLines, writeMdLines(sortedConns, true, md.multipleNetworksEnabled, focusConnStr)...)
 	return connlistLines
 }
 
@@ -103,15 +132,15 @@ func (md *formatMD) writeMdExposureLines(exposureConns []ExposedPeer, focusConnS
 	// egress exposure formatted src | dst | conn
 	// ingress exposure formatted: dst | src | conn
 	exposureMdLines = append(exposureMdLines,
-		writeExposureSubSection(writeMdLines(sortedEgExpConns, true, focusConnStr), getMdSubSectionHeader(false, focusConnStr)),
-		writeExposureSubSection(writeMdLines(sortedIngExpConns, false, focusConnStr), getMdSubSectionHeader(true, focusConnStr)))
+		writeExposureSubSection(writeMdLines(sortedEgExpConns, true, false, focusConnStr), getMdSubSectionHeader(false, focusConnStr)),
+		writeExposureSubSection(writeMdLines(sortedIngExpConns, false, false, focusConnStr), getMdSubSectionHeader(true, focusConnStr)))
 	return exposureMdLines
 }
 
 // getMdSubSectionHeader returns the headers of a new section in md result and its table's header
 func getMdSubSectionHeader(isIngress bool, focusConnStr string) string {
 	if isIngress {
-		return subHeaderPrefix + ingressExposureHeader + newLineChar + getMDHeader(false, focusConnStr) + newLineChar
+		return subHeaderPrefix + ingressExposureHeader + newLineChar + getMDHeader(false, false, focusConnStr) + newLineChar
 	}
-	return subHeaderPrefix + egressExposureHeader + newLineChar + getMDHeader(true, focusConnStr) + newLineChar
+	return subHeaderPrefix + egressExposureHeader + newLineChar + getMDHeader(true, false, focusConnStr) + newLineChar
 }

@@ -1,0 +1,21 @@
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: test-multinetwork-policy-bond
+  namespace: bond-testing
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for: default/bond-nad
+spec:
+  podSelector:
+    matchLabels:
+      name: pod-a
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          name: pod-b
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          name: pod-c

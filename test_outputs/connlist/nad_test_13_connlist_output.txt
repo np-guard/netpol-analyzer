@@ -4,9 +4,21 @@ Permitted connectivity analyzed in Pod network:
 0.0.0.0-255.255.255.255[External] => ns-d/pod-d[Pod] : All Connections
 0.0.0.0-255.255.255.255[External] => ns-d/vm-d[VirtualMachine] : All Connections
 ns-c/pod-c[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-c/pod-c[Pod] => ns-c/vm-c[VirtualMachine] : All Connections
+ns-c/pod-c[Pod] => ns-d/pod-d[Pod] : All Connections
+ns-c/pod-c[Pod] => ns-d/vm-d[VirtualMachine] : All Connections
 ns-c/vm-c[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-c/vm-c[VirtualMachine] => ns-c/pod-c[Pod] : All Connections
+ns-c/vm-c[VirtualMachine] => ns-d/pod-d[Pod] : All Connections
+ns-c/vm-c[VirtualMachine] => ns-d/vm-d[VirtualMachine] : All Connections
 ns-d/pod-d[Pod] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-d/pod-d[Pod] => ns-c/pod-c[Pod] : All Connections
+ns-d/pod-d[Pod] => ns-c/vm-c[VirtualMachine] : All Connections
+ns-d/pod-d[Pod] => ns-d/vm-d[VirtualMachine] : All Connections
 ns-d/vm-d[VirtualMachine] => 0.0.0.0-255.255.255.255[External] : All Connections
+ns-d/vm-d[VirtualMachine] => ns-c/pod-c[Pod] : All Connections
+ns-d/vm-d[VirtualMachine] => ns-c/vm-c[VirtualMachine] : All Connections
+ns-d/vm-d[VirtualMachine] => ns-d/pod-d[Pod] : All Connections
 
 Permitted connectivity analyzed in primary UDN ns-udn-a:
 0.0.0.0-255.255.255.255[External] => ns-udn-a[udn]/pod-a[Pod] : All Connections
@@ -28,12 +40,54 @@ Permitted connectivity analyzed in secondary NAD macvlan-shared-net:
 ns-c/pod-c[Pod] => ns-c/vm-c[VirtualMachine] : All Connections
 ns-c/pod-c[Pod] => ns-d/pod-d[Pod] : All Connections
 ns-c/pod-c[Pod] => ns-d/vm-d[VirtualMachine] : All Connections
+ns-c/pod-c[Pod] => ns-udn-b/pod-b[Pod] : All Connections
+ns-c/pod-c[Pod] => ns-udn-b/vm-b[VirtualMachine] : All Connections
 ns-c/vm-c[VirtualMachine] => ns-c/pod-c[Pod] : All Connections
 ns-c/vm-c[VirtualMachine] => ns-d/pod-d[Pod] : All Connections
 ns-c/vm-c[VirtualMachine] => ns-d/vm-d[VirtualMachine] : All Connections
+ns-c/vm-c[VirtualMachine] => ns-udn-b/pod-b[Pod] : All Connections
+ns-c/vm-c[VirtualMachine] => ns-udn-b/vm-b[VirtualMachine] : All Connections
 ns-d/pod-d[Pod] => ns-c/pod-c[Pod] : All Connections
 ns-d/pod-d[Pod] => ns-c/vm-c[VirtualMachine] : All Connections
 ns-d/pod-d[Pod] => ns-d/vm-d[VirtualMachine] : All Connections
+ns-d/pod-d[Pod] => ns-udn-b/pod-b[Pod] : All Connections
+ns-d/pod-d[Pod] => ns-udn-b/vm-b[VirtualMachine] : All Connections
 ns-d/vm-d[VirtualMachine] => ns-c/pod-c[Pod] : All Connections
 ns-d/vm-d[VirtualMachine] => ns-c/vm-c[VirtualMachine] : All Connections
 ns-d/vm-d[VirtualMachine] => ns-d/pod-d[Pod] : All Connections
+ns-d/vm-d[VirtualMachine] => ns-udn-b/pod-b[Pod] : All Connections
+ns-d/vm-d[VirtualMachine] => ns-udn-b/vm-b[VirtualMachine] : All Connections
+ns-udn-b/pod-b[Pod] => ns-c/pod-c[Pod] : All Connections
+ns-udn-b/pod-b[Pod] => ns-c/vm-c[VirtualMachine] : All Connections
+ns-udn-b/pod-b[Pod] => ns-d/pod-d[Pod] : All Connections
+ns-udn-b/pod-b[Pod] => ns-d/vm-d[VirtualMachine] : All Connections
+ns-udn-b/pod-b[Pod] => ns-udn-b/vm-b[VirtualMachine] : All Connections
+ns-udn-b/vm-b[VirtualMachine] => ns-c/pod-c[Pod] : All Connections
+ns-udn-b/vm-b[VirtualMachine] => ns-c/vm-c[VirtualMachine] : All Connections
+ns-udn-b/vm-b[VirtualMachine] => ns-d/pod-d[Pod] : All Connections
+ns-udn-b/vm-b[VirtualMachine] => ns-d/vm-d[VirtualMachine] : All Connections
+ns-udn-b/vm-b[VirtualMachine] => ns-udn-b/pod-b[Pod] : All Connections
+
+Workload-to-Networks Mapping:
+ns-c/pod-c[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan-shared-net[NAD]
+ns-c/vm-c[VirtualMachine]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan-shared-net[NAD]
+ns-d/pod-d[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan-shared-net[NAD]
+ns-d/vm-d[VirtualMachine]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan-shared-net[NAD]
+ns-udn-a/pod-a[Pod]: 
+	Primary Network: ns-udn-a[UDN]
+ns-udn-a/vm-a[VirtualMachine]: 
+	Primary Network: ns-udn-a[UDN]
+ns-udn-b/pod-b[Pod]: 
+	Primary Network: ns-udn-b[UDN]
+	Secondary Networks: macvlan-shared-net[NAD]
+ns-udn-b/vm-b[VirtualMachine]: 
+	Primary Network: ns-udn-b[UDN]
+	Secondary Networks: macvlan-shared-net[NAD]

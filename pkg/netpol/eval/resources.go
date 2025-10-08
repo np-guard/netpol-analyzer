@@ -1339,3 +1339,38 @@ func (pe *PolicyEngine) LogPolicyEngineWarnings() (warns []string) {
 	}
 	return warns
 }
+
+// UpdateWorkloadToNetworksMap updates map from workload to its primary network (either pod-network or a (C)UDN) and
+// its secondary-networks (NADs); and returns number of input workloads in the pod-network
+// called once
+func (pe *PolicyEngine) UpdateWorkloadToNetworksMap(wlsToNetworks map[string][]string) (int, error) {
+	workloads, err := pe.GetWorkloadPeersList()
+	if err != nil {
+		return 0, err
+	}
+	wlsInPodNetwork := 0
+	for _, wl := range workloads {
+		if _, ok := wlsToNetworks[wl.String()]; !ok {
+			// networks num of a pod is:  1 (for the primary network: pod-network/(c)udn) + num of its secondary networks
+			wlsToNetworks[wl.String()] = make([]string, len(wl.(*k8s.WorkloadPeer).Pod.SecondaryNetworks)+1)
+		}
+		if _, ok := pe.primaryNetworks[wl.Namespace()]; !ok {
+			wlsToNetworks[wl.String()][0] = common.PodNetworkName
+			wlsInPodNetwork++
+		} else {
+			netStr := pe.primaryNetworks[wl.Namespace()].NetworkName
+			if pe.primaryNetworks[wl.Namespace()].ResourceKind == common.CUDN {
+				netStr += common.CUDNStr
+			} else {
+				netStr += common.UDNStr
+			}
+			wlsToNetworks[wl.String()][0] = netStr
+		}
+		i := 1
+		for secondaryNet := range wl.(*k8s.WorkloadPeer).Pod.SecondaryNetworks {
+			wlsToNetworks[wl.String()][i] = secondaryNet + common.NADStr
+			i++
+		}
+	}
+	return wlsInPodNetwork, nil
+}

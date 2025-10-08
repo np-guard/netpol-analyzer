@@ -1,4 +1,20 @@
 
+########################################################################
+# All Connections due to the system default (Allow all) in pod-network #
+########################################################################
+0.0.0.0-255.255.255.255[External] => ns1/pod1[Pod]
+0.0.0.0-255.255.255.255[External] => ns1/pod2[Pod]
+0.0.0.0-255.255.255.255[External] => ns2/pod3[Pod]
+ns1/pod1[Pod] => 0.0.0.0-255.255.255.255[External]
+ns1/pod1[Pod] => ns1/pod2[Pod]
+ns1/pod1[Pod] => ns2/pod3[Pod]
+ns1/pod2[Pod] => 0.0.0.0-255.255.255.255[External]
+ns1/pod2[Pod] => ns1/pod1[Pod]
+ns1/pod2[Pod] => ns2/pod3[Pod]
+ns2/pod3[Pod] => 0.0.0.0-255.255.255.255[External]
+ns2/pod3[Pod] => ns1/pod1[Pod]
+ns2/pod3[Pod] => ns1/pod2[Pod]
+
 ######################################################################
 # Specific connections and their reasons in secondary NAD l2-network #
 ######################################################################
@@ -23,17 +39,3 @@ Denied connections:
 		Ingress (Denied)
 			MultiNetworkPolicy 'ns1/allow-from-pod3-to-pod2-port-80' selects ns1/pod2[Pod], and Ingress rule #1 selects ns2/pod3[Pod], but the protocols and ports do not match
 
-
-#########################################################
-# All Connections due to the system default (Allow all) #
-#########################################################
-0.0.0.0-255.255.255.255[External] => ns1/pod1[Pod]
-0.0.0.0-255.255.255.255[External] => ns1/pod2[Pod]
-0.0.0.0-255.255.255.255[External] => ns2/pod3[Pod]
-ns1/pod1[Pod] => 0.0.0.0-255.255.255.255[External]
-ns1/pod1[Pod] => ns1/pod2[Pod]
-ns1/pod1[Pod] => ns2/pod3[Pod]
-ns1/pod2[Pod] => 0.0.0.0-255.255.255.255[External]
-ns1/pod2[Pod] => ns1/pod1[Pod]
-ns2/pod3[Pod] => 0.0.0.0-255.255.255.255[External]
-ns2/pod3[Pod] => ns1/pod1[Pod]

@@ -1,20 +1,20 @@
-| src | dst | conn |
-|-----|-----|------|
-| 0.0.0.0-255.255.255.255[External] | bar/mybar[Pod] | All Connections |
-| 0.0.0.0-255.255.255.255[External] | default/app-1[Pod] | All Connections |
-| 0.0.0.0-255.255.255.255[External] | green[udn]/vm-a[VirtualMachine] | TCP 9001 |
-| 0.0.0.0-255.255.255.255[External] | green[udn]/vm-b[VirtualMachine] | TCP 9001 |
-| 0.0.0.0-255.255.255.255[External] | green[udn]/webserver[Pod] | TCP 9001 |
-| bar/mybar[Pod] | 0.0.0.0-255.255.255.255[External] | TCP 8080 |
-| bar/mybar[Pod] | default/app-1[Pod] | TCP 8080 |
-| default/app-1[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections |
-| default/app-1[Pod] | bar/mybar[Pod] | All Connections |
-| green[udn]/vm-a[VirtualMachine] | 0.0.0.0-255.255.255.255[External] | All Connections |
-| green[udn]/vm-a[VirtualMachine] | green[udn]/vm-b[VirtualMachine] | TCP 9001 |
-| green[udn]/vm-a[VirtualMachine] | green[udn]/webserver[Pod] | TCP 9001 |
-| green[udn]/vm-b[VirtualMachine] | 0.0.0.0-255.255.255.255[External] | All Connections |
-| green[udn]/vm-b[VirtualMachine] | green[udn]/vm-a[VirtualMachine] | TCP 9001 |
-| green[udn]/vm-b[VirtualMachine] | green[udn]/webserver[Pod] | TCP 9001 |
-| green[udn]/webserver[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections |
-| green[udn]/webserver[Pod] | green[udn]/vm-a[VirtualMachine] | TCP 9001 |
-| green[udn]/webserver[Pod] | green[udn]/vm-b[VirtualMachine] | TCP 9001 |
+| src | dst | conn | network | 
+|-----|-----|------|------|
+| 0.0.0.0-255.255.255.255[External] | bar/mybar[Pod] | All Connections | pod-network | 
+| 0.0.0.0-255.255.255.255[External] | default/app-1[Pod] | All Connections | pod-network | 
+| 0.0.0.0-255.255.255.255[External] | green[udn]/vm-a[VirtualMachine] | TCP 9001 | green | 
+| 0.0.0.0-255.255.255.255[External] | green[udn]/vm-b[VirtualMachine] | TCP 9001 | green | 
+| 0.0.0.0-255.255.255.255[External] | green[udn]/webserver[Pod] | TCP 9001 | green | 
+| bar/mybar[Pod] | 0.0.0.0-255.255.255.255[External] | TCP 8080 | pod-network | 
+| bar/mybar[Pod] | default/app-1[Pod] | TCP 8080 | pod-network | 
+| default/app-1[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections | pod-network | 
+| default/app-1[Pod] | bar/mybar[Pod] | All Connections | pod-network | 
+| green[udn]/vm-a[VirtualMachine] | 0.0.0.0-255.255.255.255[External] | All Connections | green | 
+| green[udn]/vm-a[VirtualMachine] | green[udn]/vm-b[VirtualMachine] | TCP 9001 | green | 
+| green[udn]/vm-a[VirtualMachine] | green[udn]/webserver[Pod] | TCP 9001 | green | 
+| green[udn]/vm-b[VirtualMachine] | 0.0.0.0-255.255.255.255[External] | All Connections | green | 
+| green[udn]/vm-b[VirtualMachine] | green[udn]/vm-a[VirtualMachine] | TCP 9001 | green | 
+| green[udn]/vm-b[VirtualMachine] | green[udn]/webserver[Pod] | TCP 9001 | green | 
+| green[udn]/webserver[Pod] | 0.0.0.0-255.255.255.255[External] | All Connections | green | 
+| green[udn]/webserver[Pod] | green[udn]/vm-a[VirtualMachine] | TCP 9001 | green | 
+| green[udn]/webserver[Pod] | green[udn]/vm-b[VirtualMachine] | TCP 9001 | green | 

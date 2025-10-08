@@ -20,8 +20,18 @@
     "conn": "All Connections"
   },
   {
+    "src": "default/vm-client[VirtualMachine]",
+    "dst": "default/vm-server[VirtualMachine]",
+    "conn": "All Connections"
+  },
+  {
     "src": "default/vm-server[VirtualMachine]",
     "dst": "0.0.0.0-255.255.255.255[External]",
+    "conn": "All Connections"
+  },
+  {
+    "src": "default/vm-server[VirtualMachine]",
+    "dst": "default/vm-client[VirtualMachine]",
     "conn": "All Connections"
   },
   {

@@ -23,7 +23,9 @@ digraph {
 	"0.0.0.0-255.255.255.255[External]" -> "default/vm-client[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"0.0.0.0-255.255.255.255[External]" -> "default/vm-server[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"default/vm-client[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/vm-client[VirtualMachine]" -> "default/vm-server[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"default/vm-client[VirtualMachine]flat12" -> "default/vm-server[VirtualMachine]flat12" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
 	"default/vm-server[VirtualMachine]" -> "0.0.0.0-255.255.255.255[External]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"default/vm-server[VirtualMachine]" -> "default/vm-client[VirtualMachine]" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 	"default/vm-server[VirtualMachine]flat12" -> "default/vm-client[VirtualMachine]flat12" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
 }

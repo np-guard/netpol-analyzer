@@ -1,0 +1,21 @@
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  namespace: default
+  name: macvlan1-ipblock
+spec:
+  config: '{
+            "cniVersion": "0.3.1",
+            "name": "macvlan1-ipblock",
+            "plugins": [
+                {
+                    "type": "macvlan",
+                    "mode": "bridge",
+                    "capabilities": {"ips": true },
+                    "ipam":{
+                      "type":"static"
+                    }
+                }]
+        }'
+---

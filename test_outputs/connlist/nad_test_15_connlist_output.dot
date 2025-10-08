@@ -1,0 +1,45 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_bond_testing[namespace]" {
+		color="black"
+		fontcolor="black"
+		"bond-testing/pod-a[Pod]" [label="pod-a[Pod]" color="blue" fontcolor="blue"]
+		"bond-testing/pod-b[Pod]" [label="pod-b[Pod]" color="blue" fontcolor="blue"]
+		"bond-testing/pod-c[Pod]" [label="pod-c[Pod]" color="blue" fontcolor="blue"]
+		label="bond-testing[namespace]"
+	}
+	}
+	subgraph "cluster_bond-nad" {
+	label="bond-nad[nad]"
+	subgraph "cluster_bond_testing[namespace]" {
+		color="black"
+		fontcolor="black"
+		"bond-testing/pod-a[Pod]bond-nad" [label="pod-a[Pod]" color="blue" fontcolor="blue"]
+		"bond-testing/pod-b[Pod]bond-nad" [label="pod-b[Pod]" color="blue" fontcolor="blue"]
+		"bond-testing/pod-c[Pod]bond-nad" [label="pod-c[Pod]" color="blue" fontcolor="blue"]
+		label="bond-testing[namespace]"
+	}
+	}
+	subgraph "cluster_macvlan-nad" {
+	label="macvlan-nad[nad]"
+	subgraph "cluster_bond_testing[namespace]" {
+		color="black"
+		fontcolor="black"
+		"bond-testing/pod-a[Pod]macvlan-nad" [label="pod-a[Pod]" color="blue" fontcolor="blue"]
+		"bond-testing/pod-b[Pod]macvlan-nad" [label="pod-b[Pod]" color="blue" fontcolor="blue"]
+		"bond-testing/pod-c[Pod]macvlan-nad" [label="pod-c[Pod]" color="blue" fontcolor="blue"]
+		label="bond-testing[namespace]"
+	}
+	}
+	"bond-testing/pod-a[Pod]bond-nad" -> "bond-testing/pod-c[Pod]bond-nad" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"bond-testing/pod-a[Pod]macvlan-nad" -> "bond-testing/pod-b[Pod]macvlan-nad" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"bond-testing/pod-a[Pod]macvlan-nad" -> "bond-testing/pod-c[Pod]macvlan-nad" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"bond-testing/pod-b[Pod]bond-nad" -> "bond-testing/pod-a[Pod]bond-nad" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"bond-testing/pod-b[Pod]bond-nad" -> "bond-testing/pod-c[Pod]bond-nad" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"bond-testing/pod-b[Pod]macvlan-nad" -> "bond-testing/pod-a[Pod]macvlan-nad" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"bond-testing/pod-b[Pod]macvlan-nad" -> "bond-testing/pod-c[Pod]macvlan-nad" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"bond-testing/pod-c[Pod]bond-nad" -> "bond-testing/pod-b[Pod]bond-nad" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"bond-testing/pod-c[Pod]macvlan-nad" -> "bond-testing/pod-a[Pod]macvlan-nad" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"bond-testing/pod-c[Pod]macvlan-nad" -> "bond-testing/pod-b[Pod]macvlan-nad" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}
