@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: test-ipblock
+---
+# Pods
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-server
+  namespace: test-ipblock
+  annotations:
+    k8s.v1.cni.cncf.io/networks: '[{
+      "name": "macvlan1-ipblock",
+      "namespace": "default",
+      "ips": ["2.2.5.1/24"]
+      }]'
+  labels:
+    app: test-ipblock
+    name: pod-server
+spec:
+  containers:
+  - name: macvlan-worker1
+    image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy-iptables:e2e-test
+    command: ["nc", "-kl", "0.0.0.0", "5555"]
+    securityContext:
+      privileged: true
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-client-a
+  namespace: test-ipblock
+  annotations:
+    k8s.v1.cni.cncf.io/networks: '[{
+      "name": "macvlan1-ipblock",
+      "namespace": "default",
+      "ips": ["2.2.5.11/24"]
+      }]'
+  labels:
+    app: test-ipblock
+    name: pod-client-a
+spec:
+  containers:
+  - name: macvlan-worker1
+    image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy-iptables:e2e-test
+    command: ["nc", "-kl", "0.0.0.0", "5555"]
+    securityContext:
+      privileged: true
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-client-b
+  namespace: test-ipblock
+  annotations:
+    k8s.v1.cni.cncf.io/networks: '[{
+      "name": "macvlan1-ipblock",
+      "namespace": "default",
+      "ips": ["2.2.5.12/24"]
+      }]'
+  labels:
+    app: test-ipblock
+    name: pod-client-b
+spec:
+  containers:
+  - name: macvlan-worker1
+    image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy-iptables:e2e-test
+    command: ["nc", "-kl", "0.0.0.0", "5555"]
+    securityContext:
+      privileged: true
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-client-c
+  namespace: test-ipblock
+  annotations:
+    k8s.v1.cni.cncf.io/networks: '[{
+      "name": "macvlan1-ipblock",
+      "namespace": "default",
+      "ips": ["2.2.5.13/24"]
+      }]'
+  labels:
+    app: test-ipblock
+    name: pod-client-c
+spec:
+  containers:
+  - name: macvlan-worker1
+    image: ghcr.io/k8snetworkplumbingwg/multi-networkpolicy-iptables:e2e-test
+    command: ["nc", "-kl", "0.0.0.0", "5555"]
+    securityContext:
+      privileged: true
+---

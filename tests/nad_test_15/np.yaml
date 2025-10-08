@@ -1,0 +1,12 @@
+# np default ingress deny in ns-udn-a
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress-egress
+  namespace: bond-testing
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---

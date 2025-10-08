@@ -1,0 +1,325 @@
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/vm: vm1
+  name: vm1
+spec:
+  runStrategy: Always
+  template:
+    metadata:
+      labels:
+        name: access-control
+        kubevirt.io/domain: vm1
+        kubevirt.io/vm: vm1
+    spec:
+      domain:
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: containerdisk
+          - disk:
+              bus: virtio
+            name: cloudinitdisk
+          interfaces:
+          - bridge: {}
+            name: flatl2-overlay
+          rng: {}
+        resources:
+          requests:
+            memory: 1024Mi
+      networks:
+      - multus:
+          networkName: flatl2net
+        name: flatl2-overlay
+      termination/GracePeriodSeconds: 30
+      volumes:
+      - containerDisk:
+          image: quay.io/kubevirt/fedora-with-test-tooling-container-disk:v1.0.0
+        name: containerdisk
+      - cloudInitNoCloud:
+          networkData: |
+            ethernets:
+              eth1:
+                addresses:
+                - 10.200.0.1/24
+            version: 2
+          userData: |-
+            #cloud-config
+            user: fedora
+            password: password
+            chpasswd: { expire: False }
+        name: cloudinitdisk
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/vm: vm2
+  name: vm2
+spec:
+  runStrategy: Always
+  template:
+    metadata:
+      labels:
+        name: access-control
+        kubevirt.io/domain: vm2
+        kubevirt.io/vm: vm2
+    spec:
+      domain:
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: containerdisk
+          - disk:
+              bus: virtio
+            name: cloudinitdisk
+          interfaces:
+          - bridge: {}
+            name: flatl2-overlay
+          rng: {}
+        resources:
+          requests:
+            memory: 1024Mi
+      networks:
+      - multus:
+          networkName: flatl2net
+        name: flatl2-overlay
+      termination/GracePeriodSeconds: 30
+      volumes:
+      - containerDisk:
+          image: quay.io/kubevirt/fedora-with-test-tooling-container-disk:v1.0.0
+        name: containerdisk
+      - cloudInitNoCloud:
+          networkData: |
+            ethernets:
+              eth1:
+                addresses:
+                - 10.200.0.2/24
+            version: 2
+          userData: |-
+            #cloud-config
+            user: fedora
+            password: password
+            chpasswd: { expire: False }
+        name: cloudinitdisk
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/vm: vm3
+  name: vm3
+spec:
+  runStrategy: Always
+  template:
+    metadata:
+      labels:
+        name: access-control
+        kubevirt.io/domain: vm3
+        kubevirt.io/vm: vm3
+    spec:
+      domain:
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: containerdisk
+          - disk:
+              bus: virtio
+            name: cloudinitdisk
+          interfaces:
+          - bridge: {}
+            name: flatl2-overlay
+          rng: {}
+        resources:
+          requests:
+            memory: 1024Mi
+      networks:
+      - multus:
+          networkName: flatl2net
+        name: flatl2-overlay
+      termination/GracePeriodSeconds: 30
+      volumes:
+      - containerDisk:
+          image: quay.io/kubevirt/fedora-with-test-tooling-container-disk:v1.0.0
+        name: containerdisk
+      - cloudInitNoCloud:
+          networkData: |
+            ethernets:
+              eth1:
+                addresses:
+                - 10.200.0.3/24
+            version: 2
+          userData: |-
+            #cloud-config
+            user: fedora
+            password: password
+            chpasswd: { expire: False }
+        name: cloudinitdisk
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/vm: vm4
+  name: vm4
+spec:
+  runStrategy: Always
+  template:
+    metadata:
+      labels:
+        name: access-control
+        kubevirt.io/domain: vm4
+        kubevirt.io/vm: vm4
+    spec:
+      domain:
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: containerdisk
+          - disk:
+              bus: virtio
+            name: cloudinitdisk
+          interfaces:
+          - bridge: {}
+            name: flatl2-overlay
+          rng: {}
+        resources:
+          requests:
+            memory: 1024Mi
+      networks:
+      - multus:
+          networkName: flatl2net
+        name: flatl2-overlay
+      termination/GracePeriodSeconds: 30
+      volumes:
+      - containerDisk:
+          image: quay.io/kubevirt/fedora-with-test-tooling-container-disk:v1.0.0
+        name: containerdisk
+      - cloudInitNoCloud:
+          networkData: |
+            ethernets:
+              eth1:
+                addresses:
+                - 10.200.0.4/24
+            version: 2
+          userData: |-
+            #cloud-config
+            user: fedora
+            password: password
+            chpasswd: { expire: False }
+        name: cloudinitdisk
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/vm: vm5
+  name: vm5
+spec:
+  runStrategy: Always
+  template:
+    metadata:
+      labels:
+        name: access-control
+        kubevirt.io/domain: vm5
+        kubevirt.io/vm: vm5
+    spec:
+      domain:
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: containerdisk
+          - disk:
+              bus: virtio
+            name: cloudinitdisk
+          interfaces:
+          - bridge: {}
+            name: flatl2-overlay
+          rng: {}
+        resources:
+          requests:
+            memory: 1024Mi
+      networks:
+      - multus:
+          networkName: flatl2net
+        name: flatl2-overlay
+      termination/GracePeriodSeconds: 30
+      volumes:
+      - containerDisk:
+          image: quay.io/kubevirt/fedora-with-test-tooling-container-disk:v1.0.0
+        name: containerdisk
+      - cloudInitNoCloud:
+          networkData: |
+            ethernets:
+              eth1:
+                addresses:
+                - 10.200.0.5/24
+            version: 2
+          userData: |-
+            #cloud-config
+            user: fedora
+            password: password
+            chpasswd: { expire: False }
+        name: cloudinitdisk
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/vm: vm6
+  name: vm6
+spec:
+  runStrategy: Always
+  template:
+    metadata:
+      labels:
+        name: access-control
+        kubevirt.io/domain: vm6
+        kubevirt.io/vm: vm6
+    spec:
+      domain:
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: containerdisk
+          - disk:
+              bus: virtio
+            name: cloudinitdisk
+          interfaces:
+          - bridge: {}
+            name: flatl2-overlay
+          rng: {}
+        resources:
+          requests:
+            memory: 1024Mi
+      networks:
+      - multus:
+          networkName: flatl2net
+        name: flatl2-overlay
+      termination/GracePeriodSeconds: 30
+      volumes:
+      - containerDisk:
+          image: quay.io/kubevirt/fedora-with-test-tooling-container-disk:v1.0.0
+        name: containerdisk
+      - cloudInitNoCloud:
+          networkData: |
+            ethernets:
+              eth1:
+                addresses:
+                - 10.200.0.6/24
+            version: 2
+          userData: |-
+            #cloud-config
+            user: fedora
+            password: password
+            chpasswd: { expire: False }
+        name: cloudinitdisk
+---

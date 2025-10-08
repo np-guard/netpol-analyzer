@@ -1,9 +1,9 @@
-src,dst,conn
-0.0.0.0-255.255.255.255[External],udn-example[udn]/example-vm[VirtualMachine],All Connections
-0.0.0.0-255.255.255.255[External],udn-preprod/vm-preprod[VirtualMachine],All Connections
-0.0.0.0-255.255.255.255[External],udn-prod/vm-prod[VirtualMachine],All Connections
-udn-example[udn]/example-vm[VirtualMachine],0.0.0.0-255.255.255.255[External],All Connections
-udn-preprod/vm-preprod[VirtualMachine],0.0.0.0-255.255.255.255[External],All Connections
-udn-preprod/vm-preprod[VirtualMachine],udn-prod/vm-prod[VirtualMachine],All Connections
-udn-prod/vm-prod[VirtualMachine],0.0.0.0-255.255.255.255[External],All Connections
-udn-prod/vm-prod[VirtualMachine],udn-preprod/vm-preprod[VirtualMachine],All Connections
+src,dst,conn,network
+0.0.0.0-255.255.255.255[External],udn-example[udn]/example-vm[VirtualMachine],All Connections,udn-example
+0.0.0.0-255.255.255.255[External],udn-preprod/vm-preprod[VirtualMachine],All Connections,cluster-udn-prod
+0.0.0.0-255.255.255.255[External],udn-prod/vm-prod[VirtualMachine],All Connections,cluster-udn-prod
+udn-example[udn]/example-vm[VirtualMachine],0.0.0.0-255.255.255.255[External],All Connections,udn-example
+udn-preprod/vm-preprod[VirtualMachine],0.0.0.0-255.255.255.255[External],All Connections,cluster-udn-prod
+udn-preprod/vm-preprod[VirtualMachine],udn-prod/vm-prod[VirtualMachine],All Connections,cluster-udn-prod
+udn-prod/vm-prod[VirtualMachine],0.0.0.0-255.255.255.255[External],All Connections,cluster-udn-prod
+udn-prod/vm-prod[VirtualMachine],udn-preprod/vm-preprod[VirtualMachine],All Connections,cluster-udn-prod

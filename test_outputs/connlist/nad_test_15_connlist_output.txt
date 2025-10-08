@@ -1,0 +1,27 @@
+Permitted connectivity analyzed in Pod network:
+All connections are not allowed for the workloads in the pod-network
+
+Permitted connectivity analyzed in secondary NAD bond-nad:
+bond-testing/pod-a[Pod] => bond-testing/pod-c[Pod] : All Connections
+bond-testing/pod-b[Pod] => bond-testing/pod-a[Pod] : All Connections
+bond-testing/pod-b[Pod] => bond-testing/pod-c[Pod] : All Connections
+bond-testing/pod-c[Pod] => bond-testing/pod-b[Pod] : All Connections
+
+Permitted connectivity analyzed in secondary NAD macvlan-nad:
+bond-testing/pod-a[Pod] => bond-testing/pod-b[Pod] : All Connections
+bond-testing/pod-a[Pod] => bond-testing/pod-c[Pod] : All Connections
+bond-testing/pod-b[Pod] => bond-testing/pod-a[Pod] : All Connections
+bond-testing/pod-b[Pod] => bond-testing/pod-c[Pod] : All Connections
+bond-testing/pod-c[Pod] => bond-testing/pod-a[Pod] : All Connections
+bond-testing/pod-c[Pod] => bond-testing/pod-b[Pod] : All Connections
+
+Workload-to-Networks Mapping:
+bond-testing/pod-a[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: bond-nad[NAD],macvlan-nad[NAD]
+bond-testing/pod-b[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: bond-nad[NAD],macvlan-nad[NAD]
+bond-testing/pod-c[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: bond-nad[NAD],macvlan-nad[NAD]

@@ -353,7 +353,7 @@ func TestListCommandOutput(t *testing.T) {
 		testName, expectedOutputFileName := getListCmdTestNameAndExpectedOutputFile(tt.dirName, tt.focusWorkload, tt.focusWorkloadPeer,
 			tt.focusDirection, tt.format, tt.exposureFlag)
 		t.Run(testName, func(t *testing.T) {
-			args := []string{"list", "--dirpath", testutils.GetTestDirPath(tt.dirName)}
+			args := []string{"list", "--dirpath", testutils.GetTestDirPath(tt.dirName), "--multiple-networks=0"}
 			args = append(args, addCmdOptionalArgs(tt.format, tt.outputFile, tt.focusWorkload, tt.focusWorkloadPeer, tt.focusDirection,
 				tt.exposureFlag)...)
 			actualOut, err := buildAndExecuteCommand(args)

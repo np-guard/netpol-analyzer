@@ -209,7 +209,7 @@ func (np *NetworkPolicy) ruleSelectsPeer(rulePeers []netv1.NetworkPolicyPeer, pe
 			// TODO: is this reasonable to assume?
 		}
 		// check that peer.IP matches the IPBlock
-		ruleIPBlock, err := np.parseNetpolCIDR(rulePeers[i].IPBlock.CIDR, rulePeers[i].IPBlock.Except)
+		ruleIPBlock, err := parseNetpolCIDR(rulePeers[i].IPBlock.CIDR, np.FullName(), rulePeers[i].IPBlock.Except)
 		if err != nil {
 			return false, err
 		}
@@ -271,9 +271,6 @@ func (np *NetworkPolicy) EgressAllowedConn(dst Peer, protocol, port string) (boo
 
 // GetXgressAllowedConns returns the set of allowed connections to a captured dst pod from the src peer (for Ingress)
 // or from any captured pod to the dst peer (for Egress)
-//
-//nolint:dupl // even though MultiNetworkPolicy analysis is similar to NetworkPolicy's analysis. those objects
-//nolint:dupl // are imported from different packages and thus their fields have different types
 func (np *NetworkPolicy) GetXgressAllowedConns(src, dst Peer, isIngress bool) (*common.ConnectionSet, error) {
 	res := common.MakeConnectionSet(false)
 	numOfRules := len(np.Spec.Egress)
@@ -323,18 +320,6 @@ func (np *NetworkPolicy) netpolWarning(description string) string {
 	return fmt.Sprintf("%s: %s", np.FullName(), description)
 }
 
-func (np *NetworkPolicy) parseNetpolCIDR(cidr string, except []string) (*netset.IPBlock, error) {
-	ipb, err := netset.IPBlockFromCidr(cidr)
-	if err != nil {
-		return nil, netpolErr(np.FullName(), alerts.CidrErrTitle, err.Error())
-	}
-	ipb, err = ipb.ExceptCidrs(except...)
-	if err != nil {
-		return nil, netpolErr(np.FullName(), alerts.CidrErrTitle, err.Error())
-	}
-	return ipb, nil
-}
-
 func (np *NetworkPolicy) parseNetpolLabelSelector(selector *metav1.LabelSelector) (labels.Selector, error) {
 	selectorRes, err := metav1.LabelSelectorAsSelector(selector)
 	if err != nil {
@@ -347,7 +332,7 @@ func (np *NetworkPolicy) rulePeersReferencedIPBlocks(rulePeers []netv1.NetworkPo
 	res := []*netset.IPBlock{}
 	for _, peerObj := range rulePeers {
 		if peerObj.IPBlock != nil {
-			ipb, err := np.parseNetpolCIDR(peerObj.IPBlock.CIDR, peerObj.IPBlock.Except)
+			ipb, err := parseNetpolCIDR(peerObj.IPBlock.CIDR, np.FullName(), peerObj.IPBlock.Except)
 			if err != nil {
 				return nil, err
 			}

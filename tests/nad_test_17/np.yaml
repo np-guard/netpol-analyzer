@@ -1,0 +1,12 @@
+# np default ingress deny in test-ipblock
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress-egress
+  namespace: test-ipblock
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---

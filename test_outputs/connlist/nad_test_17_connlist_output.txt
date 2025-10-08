@@ -1,0 +1,29 @@
+Permitted connectivity analyzed in Pod network:
+All connections are not allowed for the workloads in the pod-network
+
+Permitted connectivity analyzed in secondary NAD macvlan1-ipblock:
+test-ipblock/pod-client-a[Pod] => test-ipblock/pod-client-b[Pod] : All Connections
+test-ipblock/pod-client-a[Pod] => test-ipblock/pod-client-c[Pod] : All Connections
+test-ipblock/pod-client-a[Pod] => test-ipblock/pod-server[Pod] : All Connections
+test-ipblock/pod-client-b[Pod] => test-ipblock/pod-client-a[Pod] : All Connections
+test-ipblock/pod-client-b[Pod] => test-ipblock/pod-client-c[Pod] : All Connections
+test-ipblock/pod-client-b[Pod] => test-ipblock/pod-server[Pod] : All Connections
+test-ipblock/pod-client-c[Pod] => test-ipblock/pod-client-a[Pod] : All Connections
+test-ipblock/pod-client-c[Pod] => test-ipblock/pod-client-b[Pod] : All Connections
+test-ipblock/pod-server[Pod] => test-ipblock/pod-client-a[Pod] : All Connections
+test-ipblock/pod-server[Pod] => test-ipblock/pod-client-b[Pod] : All Connections
+test-ipblock/pod-server[Pod] => test-ipblock/pod-client-c[Pod] : All Connections
+
+Workload-to-Networks Mapping:
+test-ipblock/pod-client-a[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan1-ipblock[NAD]
+test-ipblock/pod-client-b[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan1-ipblock[NAD]
+test-ipblock/pod-client-c[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan1-ipblock[NAD]
+test-ipblock/pod-server[Pod]: 
+	Primary Network: pod-network
+	Secondary Networks: macvlan1-ipblock[NAD]

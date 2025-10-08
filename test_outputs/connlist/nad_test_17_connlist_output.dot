@@ -1,0 +1,37 @@
+digraph {
+	subgraph "cluster_pod_network" {
+	label="pod network"
+	subgraph "cluster_test_ipblock[namespace]" {
+		color="black"
+		fontcolor="black"
+		"test-ipblock/pod-client-a[Pod]" [label="pod-client-a[Pod]" color="blue" fontcolor="blue"]
+		"test-ipblock/pod-client-b[Pod]" [label="pod-client-b[Pod]" color="blue" fontcolor="blue"]
+		"test-ipblock/pod-client-c[Pod]" [label="pod-client-c[Pod]" color="blue" fontcolor="blue"]
+		"test-ipblock/pod-server[Pod]" [label="pod-server[Pod]" color="blue" fontcolor="blue"]
+		label="test-ipblock[namespace]"
+	}
+	}
+	subgraph "cluster_macvlan1-ipblock" {
+	label="macvlan1-ipblock[nad]"
+	subgraph "cluster_test_ipblock[namespace]" {
+		color="black"
+		fontcolor="black"
+		"test-ipblock/pod-client-a[Pod]macvlan1-ipblock" [label="pod-client-a[Pod]" color="blue" fontcolor="blue"]
+		"test-ipblock/pod-client-b[Pod]macvlan1-ipblock" [label="pod-client-b[Pod]" color="blue" fontcolor="blue"]
+		"test-ipblock/pod-client-c[Pod]macvlan1-ipblock" [label="pod-client-c[Pod]" color="blue" fontcolor="blue"]
+		"test-ipblock/pod-server[Pod]macvlan1-ipblock" [label="pod-server[Pod]" color="blue" fontcolor="blue"]
+		label="test-ipblock[namespace]"
+	}
+	}
+	"test-ipblock/pod-client-a[Pod]macvlan1-ipblock" -> "test-ipblock/pod-client-b[Pod]macvlan1-ipblock" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"test-ipblock/pod-client-a[Pod]macvlan1-ipblock" -> "test-ipblock/pod-client-c[Pod]macvlan1-ipblock" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"test-ipblock/pod-client-a[Pod]macvlan1-ipblock" -> "test-ipblock/pod-server[Pod]macvlan1-ipblock" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"test-ipblock/pod-client-b[Pod]macvlan1-ipblock" -> "test-ipblock/pod-client-a[Pod]macvlan1-ipblock" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"test-ipblock/pod-client-b[Pod]macvlan1-ipblock" -> "test-ipblock/pod-client-c[Pod]macvlan1-ipblock" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"test-ipblock/pod-client-b[Pod]macvlan1-ipblock" -> "test-ipblock/pod-server[Pod]macvlan1-ipblock" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=0.5]
+	"test-ipblock/pod-client-c[Pod]macvlan1-ipblock" -> "test-ipblock/pod-client-a[Pod]macvlan1-ipblock" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"test-ipblock/pod-client-c[Pod]macvlan1-ipblock" -> "test-ipblock/pod-client-b[Pod]macvlan1-ipblock" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"test-ipblock/pod-server[Pod]macvlan1-ipblock" -> "test-ipblock/pod-client-a[Pod]macvlan1-ipblock" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"test-ipblock/pod-server[Pod]macvlan1-ipblock" -> "test-ipblock/pod-client-b[Pod]macvlan1-ipblock" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+	"test-ipblock/pod-server[Pod]macvlan1-ipblock" -> "test-ipblock/pod-client-c[Pod]macvlan1-ipblock" [label="All Connections" color="gold2" fontcolor="darkgreen" weight=1]
+}
