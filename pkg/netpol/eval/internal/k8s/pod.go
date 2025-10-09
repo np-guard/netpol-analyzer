@@ -178,7 +178,7 @@ func getReplicas(r *int32) int32 {
 // PodsFromWorkloadObject creates a slice of one or two Pod objects by extracting relevant fields from the k8s workload
 //
 //gocyclo:ignore
-func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) { //nolint:funlen // should not break this up
+func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, string, error) { //nolint:funlen // should not break this up
 	var replicas int32
 	var workloadName string
 	var workloadNamespace string
@@ -248,7 +248,7 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		vmTemplate = *obj.Spec.Template
 		APIVersion = obj.APIVersion
 	default:
-		return nil, fmt.Errorf("unexpected workload kind: %s", kind)
+		return nil, "", fmt.Errorf("unexpected workload kind: %s", kind)
 	}
 
 	// allow at most 2 peers from each equivalence group
@@ -283,7 +283,7 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 			for k, v := range podTemplate.Annotations {
 				if k == networksAnnotation {
 					if err := updatePodSecondaryNetworksFromAnnotation(v, pod.SecondaryNetworks); err != nil {
-						return nil, err
+						return nil, "", err
 					}
 				}
 			}
@@ -296,7 +296,8 @@ func PodsFromWorkloadObject(workload interface{}, kind string) ([]*Pod, error) {
 		}
 		res[index-1] = pod
 	}
-	return res, nil
+	wlNamespacedName := types.NamespacedName{Namespace: workloadNamespace, Name: workloadName}.String()
+	return res, wlNamespacedName, nil
 }
 
 // networkSelection is used to extract the network name and ns when json format is used in the pod's networks annotation
