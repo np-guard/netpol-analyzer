@@ -10,7 +10,7 @@ require (
 	github.com/openshift/api v0.0.0-20231120222239-b86761094ee3
 	github.com/ovn-org/ovn-kubernetes/go-controller v0.0.0-20250401100458-11f2a0cbdced
 	github.com/spf13/cobra v1.9.1
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.34.1
 	k8s.io/apimachinery v0.34.1
