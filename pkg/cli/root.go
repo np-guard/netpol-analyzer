@@ -32,14 +32,18 @@ var (
 	verbose            bool
 	stopOnFirstError   bool
 	multipleNetworks   bool // support multiple networks in the cluster
+	debug              bool
 )
 
 // returns verbosity level based on the -q and -v switches
 func determineLogVerbosity() logger.Verbosity {
 	verbosity := logger.DefaultVerbosity
-	if quiet {
+	switch {
+	case quiet:
 		verbosity = logger.LowVerbosity
-	} else if verbose {
+	case verbose:
+		verbosity = logger.MediumVerbosity
+	case debug:
 		verbosity = logger.HighVerbosity
 	}
 	return verbosity
@@ -100,6 +104,7 @@ func newCommandRoot() *cobra.Command {
 	c.PersistentFlags().BoolVarP(&stopOnFirstError, "fail", "", false, "fail on the first encountered error")
 	c.PersistentFlags().BoolVarP(&multipleNetworks, "multiple-networks", "", true, "Enable analysis of multi-network resources such as"+
 		" UserDefinedNetwork, NetworkAttachmentDefinition, and MultiNetworkPolicy. If disabled, these resources will be ignored.")
+	c.PersistentFlags().BoolVarP(&debug, "debug", "", false, "enables logging debug messages")
 
 	// add sub-commands
 	c.AddCommand(newCommandEvaluate())

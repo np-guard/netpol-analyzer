@@ -10,11 +10,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 	"time"
 
 	mnpv1 "github.com/k8snetworkplumbingwg/multi-networkpolicy/pkg/apis/k8s.cni.cncf.io/v1beta1"
+	"gopkg.in/yaml.v2"
 
 	nadv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	udnv1 "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/userdefinednetwork/v1"
@@ -58,6 +60,7 @@ type (
 		cache                  *evalCache
 		exposureAnalysisFlag   bool
 		explain                bool
+		dumpProcessedYamlFile  string                       // file name to dump processed yamls into if the flag --dump-processed-yaml is on
 		representativePeersMap map[string]*k8s.WorkloadPeer // map from unique labels string to representative peer object,
 		// used only with exposure analysis (representative peer object is a workloadPeer with kind == "RepresentativePeer")
 		objectsList        []parser.K8sObject // list of k8s objects to be inserted to the policy-engine
@@ -121,6 +124,13 @@ func WithObjectsList(objects []parser.K8sObject) PolicyEngineOption {
 	}
 }
 
+// WithDumpProcessedYaml is a functional option which directs the policyEngine to dump processed yaml resources to specified file
+func WithDumpProcessedYaml(fileName string) PolicyEngineOption {
+	return func(pe *PolicyEngine) {
+		pe.dumpProcessedYamlFile = fileName
+	}
+}
+
 // NewPolicyEngine returns a new PolicyEngine with an empty initial state
 func NewPolicyEngine() *PolicyEngine {
 	return &PolicyEngine{
@@ -164,6 +174,7 @@ func NewPolicyEngineWithOptionsList(opts ...PolicyEngineOption) (pe *PolicyEngin
 	for _, o := range opts {
 		o(pe)
 	}
+	pe.logger.Debugf("DEBUG: creating policy engine...")
 	// if objects list is not empty insert objects by kind and considering exposure-analysis flag
 	if len(pe.objectsList) > 0 {
 		// first get namespaces from input resources and insert them to the policy-engine, this is essential to
@@ -531,7 +542,7 @@ func (pe *PolicyEngine) insertNamespace(ns *corev1.Namespace) error {
 		return errors.New(alerts.NSWithSameNameError(nsObj.Name))
 	}
 	pe.namespacesMap[nsObj.Name] = nsObj
-	return nil
+	return pe.debugInsertedObject(parser.Namespace, nsObj.Name, ns.Spec, ns)
 }
 
 // checkConsistentLabelsForPodsOfSameOwner returns error if:
@@ -670,16 +681,25 @@ func (pe *PolicyEngine) checkIfDifferentLabelsUsedByPolicy(ownerNs string,
 }
 
 func (pe *PolicyEngine) insertWorkload(rs interface{}, kind string) error {
-	pods, err := k8s.PodsFromWorkloadObject(rs, kind)
+	pods, wlName, err := k8s.PodsFromWorkloadObject(rs, kind)
 	if err != nil {
 		return err
 	}
+
 	var podObj *k8s.Pod
 	for _, podObj = range pods {
-		podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
-		pe.podsMap[podStr.String()] = podObj
+		podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}.String()
+		pe.podsMap[podStr] = podObj
+		pe.logger.Debugf("DEBUG: Successfully inserted Pod: %q from the %s Object: %q into policy-engine with following labels:\n%v",
+			podStr, kind, wlName, podObj.Labels)
+		if pe.dumpProcessedYamlFile != "" {
+			err = pe.appendYamlToFile(rs)
+			if err != nil {
+				return err
+			}
+		}
 		// update cache with new pod associated to to its owner
-		pe.cache.addPod(podObj, podStr.String())
+		pe.cache.addPod(podObj, podStr)
 	}
 	// running this on last podObj: as all pods from same workload object are in same namespace and having same pod labels
 	if pe.exposureAnalysisFlag {
@@ -701,10 +721,14 @@ func (pe *PolicyEngine) insertPod(pod *corev1.Pod) error {
 			Name: podObj.Name}.String()))
 		return nil
 	}
-	podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}
-	pe.podsMap[podStr.String()] = podObj
+	podStr := types.NamespacedName{Namespace: podObj.Namespace, Name: podObj.Name}.String()
+	pe.podsMap[podStr] = podObj
+	err = pe.debugInsertedObject(parser.Pod, podStr, pod.Spec, pod)
+	if err != nil {
+		return err
+	}
 	// update cache with new pod associated to to its owner
-	pe.cache.addPod(podObj, podStr.String())
+	pe.cache.addPod(podObj, podStr)
 	if pe.exposureAnalysisFlag {
 		err = pe.removeRedundantRepresentativePeers(podObj)
 	}
@@ -726,12 +750,15 @@ func (pe *PolicyEngine) insertNetworkPolicy(np *netv1.NetworkPolicy) error {
 		IngressPolicyClusterWideExposure: k8s.NewPolicyConnections(),
 		EgressPolicyClusterWideExposure:  k8s.NewPolicyConnections(),
 	}
+	netpolNamespacedName := types.NamespacedName{Namespace: netpolNamespace, Name: np.Name}.String()
 	if _, ok := pe.netpolsMap[netpolNamespace][np.Name]; ok {
-		return errors.New(alerts.NPWithSameNameError(types.NamespacedName{Namespace: netpolNamespace, Name: np.Name}.String()))
+		return errors.New(alerts.NPWithSameNameError(netpolNamespacedName))
 	}
 	pe.netpolsMap[netpolNamespace][np.Name] = newNetpol
-
-	var err error
+	err := pe.debugInsertedObject(np.Kind, netpolNamespacedName, np.Spec, np)
+	if err != nil {
+		return err
+	}
 	// for exposure analysis only: scan policy ingress and egress rules:
 	// 1. to store allowed connections to entire cluster and to external destinations (if such connections are allowed by the policy)
 	// 2. to get selectors and generate representativePeers
@@ -759,7 +786,10 @@ func (pe *PolicyEngine) insertAdminNetworkPolicy(anp *apisv1a.AdminNetworkPolicy
 	}
 	pe.adminNetpolsMap[anp.Name] = true
 	pe.sortedAdminNetpols = append(pe.sortedAdminNetpols, newAnp)
-	var err error
+	err := pe.debugInsertedObject(newAnp.Kind, newAnp.Name, anp.Spec, anp)
+	if err != nil {
+		return err
+	}
 	// for exposure analysis only: scan the anp ingress and egress rules:
 	// 1. to store connections from/to entire cluster
 	// 2. to get selectors and generate representativePeers
@@ -794,7 +824,10 @@ func (pe *PolicyEngine) insertBaselineAdminNetworkPolicy(banp *apisv1a.BaselineA
 		EgressPolicyClusterWideExposure:  k8s.NewPolicyConnections(),
 	}
 	pe.baselineAdminNetpol = newBanp
-	var err error
+	err := pe.debugInsertedObject(newBanp.Kind, newBanp.Name, banp.Spec, banp)
+	if err != nil {
+		return err
+	}
 	// for exposure analysis only: scan the banp ingress and egress rules:
 	// 1. to store connections from/to entire cluster
 	// 2. to get selectors and generate representativePeers
@@ -852,10 +885,10 @@ func (pe *PolicyEngine) insertUserDefinedNetwork(udn *udnv1.UserDefinedNetwork) 
 	// note that since a udn is assigned for single namespace will store the network name as the namespace name
 	pe.primaryNetworks[udn.Namespace] = common.NetworkData{NetworkName: udn.Namespace, Interface: common.Primary, ResourceKind: common.UDN,
 		ResourceName: udnFullName}
+	return pe.debugInsertedObject(udn.Kind, udnFullName, udn.Spec, udn)
 	// note that: we don't store the udn itself, as we don't use it/its fields;
 	// if in future decide to read more fields (as cidr ..),
 	// we can assign the UDN to its namespace (either in the map or the namespace struct itself)
-	return nil
 }
 
 // insertClusterUserDefinedNetwork if all conditions of a primary cluster-user-defined-network matching namespaces are ok;
@@ -885,11 +918,13 @@ func (pe *PolicyEngine) insertClusterUserDefinedNetwork(cudn *udnv1.ClusterUserD
 	// find the namespaces selected by this C-UDN and update the pe.primaryNetworksMap
 	// note that even if the selector is empty and select all namespaces, still we have to check if the
 	// namespaces contain the primary-udn label, otherwise, that namespace will not be appended to the cudn and stay in the pod-network
-	return pe.findNamespacesSelectedByCUDN(cudn.Name, nsSelector)
+	return pe.findNamespacesSelectedByCUDN(cudn.Name, nsSelector, cudn)
 }
 
-func (pe *PolicyEngine) findNamespacesSelectedByCUDN(cudnName string, nsSelector labels.Selector) error {
+func (pe *PolicyEngine) findNamespacesSelectedByCUDN(cudnName string, nsSelector labels.Selector,
+	cudn *udnv1.ClusterUserDefinedNetwork) error {
 	cnt := 0
+	var err error
 	for nsName, ns := range pe.namespacesMap {
 		if !nsSelector.Matches(labels.Set(ns.Labels)) {
 			continue
@@ -911,23 +946,25 @@ func (pe *PolicyEngine) findNamespacesSelectedByCUDN(cudnName string, nsSelector
 		cnt++
 		pe.primaryNetworks[nsName] = common.NetworkData{NetworkName: cudnName, Interface: common.Primary, ResourceKind: common.CUDN,
 			ResourceName: cudnName}
+		err = pe.debugInsertedObject(parser.ClusterUserDefinedNetwork, cudnName, cudn.Spec, cudn)
 	}
 	if cnt == 0 {
 		pe.ignoredObjWarnings.AddWarning(alerts.EmptyCUDN(cudnName))
 	}
-	return nil
+	return err
 }
 
 func (pe *PolicyEngine) insertNetworkAttachmentDefinition(nad *nadv1.NetworkAttachmentDefinition) error {
 	if pe.exposureAnalysisFlag {
 		return errors.New(alerts.ExposureAnalysisNotSupported)
 	}
+	nadFullName := types.NamespacedName{Name: nad.Name, Namespace: nad.Namespace}.String()
 	// @todo if ok, compare configurations of the nets, return error if not the same
 	if _, ok := pe.secondaryNetworks[nad.Name]; !ok {
 		pe.secondaryNetworks[nad.Name] = common.SecondaryNetworkData{
 			NetworkData: common.NetworkData{
 				NetworkName:  nad.Name,
-				ResourceName: types.NamespacedName{Name: nad.Name, Namespace: nad.Namespace}.String(),
+				ResourceName: nadFullName,
 				Interface:    common.Secondary,
 				ResourceKind: common.NAD,
 			},
@@ -936,7 +973,7 @@ func (pe *PolicyEngine) insertNetworkAttachmentDefinition(nad *nadv1.NetworkAtta
 	}
 	// adding the NAD's namespace to the network namespaces set
 	pe.secondaryNetworks[nad.Name].Namespaces[nad.Namespace] = true
-	return nil
+	return pe.debugInsertedObject(parser.NetworkAttachmentDefinition, nadFullName, nad.Spec, nad)
 }
 
 func (pe *PolicyEngine) insertMultiNetworkPolicy(mnp *mnpv1.MultiNetworkPolicy) error {
@@ -953,12 +990,12 @@ func (pe *PolicyEngine) insertMultiNetworkPolicy(mnp *mnpv1.MultiNetworkPolicy) 
 		MultiNetworkPolicy: mnp,
 		Warnings:           make(common.Warnings),
 	}
+	mnpFullName := types.NamespacedName{Namespace: mnpNs, Name: mnp.Name}.String()
 	if _, ok := pe.multiNetpolsMap[mnpNs][mnp.Name]; ok {
-		return errors.New(alerts.MultiNpWithSameNameError(types.NamespacedName{Namespace: mnpNs, Name: mnp.Name}.String()))
+		return errors.New(alerts.MultiNpWithSameNameError(mnpFullName))
 	}
 	pe.multiNetpolsMap[mnpNs][mnp.Name] = newMultiNetpol
-
-	return nil
+	return pe.debugInsertedObject(mnp.Kind, mnpFullName, mnp.Spec, mnp)
 }
 
 func (pe *PolicyEngine) deleteNamespace(ns *corev1.Namespace) error {
@@ -1373,4 +1410,44 @@ func (pe *PolicyEngine) UpdateWorkloadToNetworksMap(wlsToNetworks map[string][]s
 		}
 	}
 	return wlsInPodNetwork, nil
+}
+
+func (pe *PolicyEngine) debugInsertedObject(objKind, objName string, objSpec, obj interface{}) error {
+	specYaml, err := pe.getYamlFromProcessedObj(objSpec)
+	if err != nil {
+		pe.logger.Errorf(err, "error marshaling spec of %s to yaml", objName)
+	}
+	pe.logger.Debugf("DEBUG: successfully inserted %s: %q into policy-engine with following processed spec:\n%s",
+		objKind, objName, specYaml)
+	if pe.dumpProcessedYamlFile != "" {
+		return pe.appendYamlToFile(obj)
+	}
+	return nil
+}
+
+func (pe *PolicyEngine) getYamlFromProcessedObj(obj interface{}) (string, error) {
+	data, err := yaml.Marshal(obj)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
+}
+
+const yamlSeparator = "---\n"
+
+func (pe *PolicyEngine) appendYamlToFile(obj interface{}) error {
+	f, err := os.OpenFile(pe.dumpProcessedYamlFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, writeOnlyFileMode)
+	if err != nil {
+		return err
+	}
+	_, err = f.WriteString(yamlSeparator)
+	if err != nil {
+		return err
+	}
+	processedYaml, err := pe.getYamlFromProcessedObj(obj)
+	if err != nil {
+		return err
+	}
+	_, err = f.WriteString(processedYaml)
+	return err
 }

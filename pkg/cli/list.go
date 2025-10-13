@@ -13,6 +13,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/np-guard/netpol-analyzer/pkg/internal/common"
 	outconsts "github.com/np-guard/netpol-analyzer/pkg/internal/output"
 
 	"github.com/np-guard/netpol-analyzer/pkg/logger"
@@ -29,6 +30,7 @@ var (
 	focusConnection        string
 	output                 string // output format
 	outFile                string // output file
+	dumpProcessedYaml      string
 )
 
 // getRequiredOutputFormatString returns the description of required format(s) of the command
@@ -86,6 +88,7 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 		connlist.WithExplainOnly(explainOnlyAllowOrDeny.String()),
 		connlist.WithOutputFormat(output),
 		connlist.WithFocusConnection(focusConnection),
+		connlist.WithDumpProcessedYaml(dumpProcessedYaml),
 	}
 
 	if stopOnFirstError {
@@ -106,6 +109,7 @@ func getConnlistOptions(l *logger.DefaultLogger) []connlist.ConnlistAnalyzerOpti
 func resetInArgs() {
 	focusDir.Reset()
 	explainOnlyAllowOrDeny.Reset()
+	dumpProcessedYaml = ""
 }
 
 // newCommandList returns a cobra command with the appropriate configuration and flags to run list command
@@ -167,6 +171,11 @@ defined`,
 	c.Flags().StringVarP(&output, "output", "o", outconsts.DefaultFormat, getRequiredOutputFormatString(supportedFormats))
 	// out file
 	c.Flags().StringVarP(&outFile, "file", "f", "", "Write output to specified file")
+	const dumpProcessedYamlFlagName = "dump-processed-yaml"
+	c.Flags().StringVarP(&dumpProcessedYaml, dumpProcessedYamlFlagName, "", "",
+		"dumps processed yaml resources to the specified file; defaults to `./processed-resources.yaml` if no value is provided")
+	// if --dump-processed-yaml is used without value then it will be assigned to default value
+	c.Flags().Lookup(dumpProcessedYamlFlagName).NoOptDefVal = common.ProcessedYamlFile
 
 	return c
 }

@@ -8,6 +8,7 @@ package common
 
 const (
 	CtxTimeoutSeconds = 3
+	ProcessedYamlFile = "./processed-resources.yaml"
 )
 
 // Focus direction values consts

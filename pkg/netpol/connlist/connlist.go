@@ -66,6 +66,7 @@ type ConnlistAnalyzer struct {
 	focusConnSet          *common.ConnectionSet // internally used to focus conns list results with this specific connection
 	podNetworkWls         int                   // number of workloads in the pod network; used for text output
 	workloadToNetworksMap map[string][]string   // map from workload string to its networks; used for text output
+	dumpProcessedYaml     string
 }
 
 const (
@@ -263,18 +264,26 @@ func WithMuteErrsAndWarns() ConnlistAnalyzerOption {
 	}
 }
 
+// WithDumpProcessedYaml is a functional option which directs ConnlistAnalyzer to dump processed yaml resources into file
+func WithDumpProcessedYaml(fileName string) ConnlistAnalyzerOption {
+	return func(c *ConnlistAnalyzer) {
+		c.dumpProcessedYaml = fileName
+	}
+}
+
 // NewConnlistAnalyzer creates a new instance of ConnlistAnalyzer, and applies the provided functional options.
 func NewConnlistAnalyzer(options ...ConnlistAnalyzerOption) *ConnlistAnalyzer {
 	// object with default behavior options
 	ca := &ConnlistAnalyzer{
-		logger:           logger.NewDefaultLogger(),
-		stopOnError:      false,
-		exposureAnalysis: false,
-		exposureResult:   nil,
-		explain:          false,
-		multipleNetworks: false,
-		errors:           []ConnlistError{},
-		outputFormat:     output.DefaultFormat,
+		logger:            logger.NewDefaultLogger(),
+		stopOnError:       false,
+		exposureAnalysis:  false,
+		exposureResult:    nil,
+		explain:           false,
+		multipleNetworks:  false,
+		errors:            []ConnlistError{},
+		outputFormat:      output.DefaultFormat,
+		dumpProcessedYaml: "",
 	}
 	for _, o := range options {
 		o(ca)
@@ -366,11 +375,11 @@ func (ca *ConnlistAnalyzer) hasFatalError() error {
 func (ca *ConnlistAnalyzer) getPolicyEngine(objectsList []parser.K8sObject) (*eval.PolicyEngine, error) {
 	if !ca.exposureAnalysis {
 		return eval.NewPolicyEngineWithOptionsList(eval.WithExplanation(ca.explain),
-			eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
+			eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList), eval.WithDumpProcessedYaml(ca.dumpProcessedYaml))
 	}
 	// else build new policy engine with exposure analysis option
 	return eval.NewPolicyEngineWithOptionsList(eval.WithExposureAnalysis(), eval.WithExplanation(ca.explain),
-		eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList))
+		eval.WithLogger(ca.logger), eval.WithObjectsList(objectsList), eval.WithDumpProcessedYaml(ca.dumpProcessedYaml))
 }
 
 func (ca *ConnlistAnalyzer) connsListFromParsedResources(objectsList []parser.K8sObject) ([]Peer2PeerConnection, []Peer, error) {

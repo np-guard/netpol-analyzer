@@ -49,16 +49,16 @@ func NewDefaultLoggerWithVerbosity(verbosity Verbosity) *DefaultLogger {
 	}
 }
 
-// Debugf writes a debug message to the log (only if DefaultLogger verbosity is set to HighVerbosity)
+// Debugf writes a debug message to the log (only if DefaultLogger verbosity is set to HighVerbosity, i.e. runs with debug mode)
 func (df *DefaultLogger) Debugf(format string, o ...interface{}) {
 	if df.verbosity == HighVerbosity {
 		df.l.Printf(format, o...)
 	}
 }
 
-// Infof writes an informative message to the log (only if DefaultLogger verbosity is set to HighVerbosity)
+// Infof writes an informative message to the log (unless DefaultLogger verbosity is set to LowVerbosity)
 func (df *DefaultLogger) Infof(format string, o ...interface{}) {
-	if df.verbosity == HighVerbosity {
+	if df.verbosity >= MediumVerbosity {
 		df.l.Printf(format, o...)
 	}
 }
