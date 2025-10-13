@@ -62,16 +62,18 @@ Examples:
   netpol-analyzer list -k ./kube/config
 
 Flags:
-      --explain                       Enhance the analysis of permitted connectivity with explainability information 
-      --exposure                      Enhance the analysis of permitted connectivity with exposure analysis
-  -f, --file string                   Write output to specified file
-      --focusworkload       string    Focus connections of specified workload(s) in the output, supports comma-separated names (workload name format: <workload-name> or <workload-namespace/workload-name>)
-      --focusworkload-peer  string    Focus connections of specified workload(s) with this peer(s), applies only when focusworkload is used; supports comma-separated names (focusworkload-peer name format is same as focusworkload)
-      --focus-direction     string    Focus connections of specified workload(s) on one direction, applies only when focusworkload is used; must be one of ingress,egress
-      --explain-only        string    Filter explain output to show only allowed or denied connections, applies only when explain is used; must be one of allow,deny
-      --focus-conn          string    Filter output to show results for a specific connection (connection format <protocolName-portNumber>)
-  -h, --help                          help for list
-  -o, --output string                 Required output format; must be one of txt,json,dot,svg,csv,md (default "txt")
+      --explain                           Enhance the analysis of permitted connectivity with explainability information 
+      --exposure                          Enhance the analysis of permitted connectivity with exposure analysis
+  -f, --file string                       Write output to specified file
+      --focusworkload         string      Focus connections of specified workload(s) in the output, supports comma-separated names (workload name format: <workload-name> or <workload-namespace/workload-name>)
+      --focusworkload-peer    string      Focus connections of specified workload(s) with this peer(s), applies only when focusworkload is used; supports comma-separated names (focusworkload-peer name format is same as focusworkload)
+      --focus-direction       string      Focus connections of specified workload(s) on one direction, applies only when focusworkload is used; must be one of ingress,egress
+      --explain-only          string      Filter explain output to show only allowed or denied connections, applies only when explain is used; must be one of allow,deny
+      --focus-conn            string      Filter output to show results for a specific connection (connection format <protocolName-portNumber>)
+  -h, --help                              help for list
+  -o, --output                string      Required output format; must be one of txt,json,dot,svg,csv,md (default "txt")
+      --dump-processed-yaml               dumps processed yaml resources to `./processed-resources.yaml`
+      --dump-processed-yaml=<file-path>   dumps processed yaml resources to the specified file
 
 Global Flags:
   -c, --context     string    Kubernetes context to use when evaluating connections in a live cluster
