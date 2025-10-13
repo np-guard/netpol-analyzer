@@ -9,7 +9,7 @@ require (
 	github.com/np-guard/models v0.5.7
 	github.com/openshift/api v0.0.0-20231120222239-b86761094ee3
 	github.com/ovn-org/ovn-kubernetes/go-controller v0.0.0-20250401100458-11f2a0cbdced
-	github.com/spf13/cobra v1.9.1
+	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.10.0
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.34.1
@@ -45,7 +45,7 @@ require (
 	github.com/openshift/custom-resource-status v1.1.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/spf13/pflag v1.0.6 // indirect
+	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xlab/treeprint v1.2.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
