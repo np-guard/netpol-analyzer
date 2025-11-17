@@ -12,10 +12,10 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.34.1
-	k8s.io/apimachinery v0.34.1
+	k8s.io/api v0.34.2
+	k8s.io/apimachinery v0.34.2
 	k8s.io/cli-runtime v0.34.1
-	k8s.io/client-go v0.34.1
+	k8s.io/client-go v0.34.2
 	kubevirt.io/api v1.6.0-beta.0
 	sigs.k8s.io/network-policy-api v0.1.5
 	sigs.k8s.io/yaml v1.6.0
