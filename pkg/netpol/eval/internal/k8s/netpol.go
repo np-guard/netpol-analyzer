@@ -519,8 +519,10 @@ func xgressRulePeerContainsGapLabel(rules []netv1.NetworkPolicyPeer, ownerNs *Na
 			continue
 		}
 		// ns selector matches owner namespace, check if podSelector contains gap labels
-		if key, selectorStr := selectorContainsGapLabel(rules[i].PodSelector, diffLabels); key != "" {
-			return key, selectorStr
+		if rules[i].PodSelector != nil {
+			if key, selectorStr := selectorContainsGapLabel(rules[i].PodSelector, diffLabels); key != "" {
+				return key, selectorStr
+			}
 		}
 	}
 	return "", ""
