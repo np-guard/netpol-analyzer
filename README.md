@@ -1,3 +1,6 @@
+> [!WARNING]  
+> This repo is no longer being maintained
+
 # netpol-analyzer
 
 ## About netpol-analyzer
